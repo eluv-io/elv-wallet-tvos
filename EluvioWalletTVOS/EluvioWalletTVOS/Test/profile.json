@@ -1,0 +1,63 @@
+{
+    "id":"1",
+    "display_name": "Satoshii132",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+    "image": "https://picsum.photos/300/300",
+    "address": "0x62b9de1e317b87c075a036ce809847474850b8fe",
+    "followers": "233K",
+    "following": "454",
+    "num_sold": "333",
+    "tokens": "2343223.2323",
+    "marketplaces": [
+        {
+        "id":"1",
+        "creator": "Wayne",
+        "display_name": "The Masked Singer",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "image": "https://on-camera-audiences.com/shows/The_Masked_Singer/img",
+        "items": "534",
+        "subscribers": "233k",
+        "rating": 3.5
+        },
+        {
+            "id":"2",
+            "creator": "Wayne",
+            "display_name": "The Spiderverse",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "image": "https://pyxis.nymag.com/v1/imgs/71d/041/3f271e69b8c3544809e1eece7bf0d0531a-16-spiderverse-2.2x.h473.w710.jpg",
+            "items": "343",
+            "subscribers": "233k",
+            "rating": 4.5
+        }
+    ],
+    "achievements": [
+        {
+            "id": "1",
+            "date": "2021-10-13T03:07:26+0000",
+            "display_name": "Gold Card Collector",
+            "description": "You've collected the whole Masked Singer Gold Card Collection.",
+            "image": "https://camdenhc.com/wp-content/uploads/sites/69/2018/05/achievement.jpg"
+        },
+        {
+            "id": "2",
+            "date": "2021-10-13T03:07:26+0000",
+            "display_name": "Arachnid Amantis",
+            "description": "You've collected all spider cards from the Spiderverse.",
+            "image":"https://camdenhc.com/wp-content/uploads/sites/69/2018/05/achievement.jpg"
+        },
+        {
+            "id": "3",
+            "date": "2021-10-13T03:07:26+0000",
+            "display_name": "Rookie Collector",
+            "description": "You've collected 10 Items!",
+            "image": "https://camdenhc.com/wp-content/uploads/sites/69/2018/05/achievement.jpg",
+        },
+        {
+            "id": "4",
+            "date": "2021-10-13T03:07:26+0000",
+            "display_name": "Veteran Collector",
+            "description": "You've collected 100 Items!",
+            "image": "https://camdenhc.com/wp-content/uploads/sites/69/2018/05/achievement.jpg",
+        }
+    ]
+}

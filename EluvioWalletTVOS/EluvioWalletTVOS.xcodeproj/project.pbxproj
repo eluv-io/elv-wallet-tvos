@@ -1,0 +1,687 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
+		B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3229D4211700676872 /* DeviceFlowView.swift */; };
+		B0670F3529D5421300676872 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3429D5421300676872 /* WalletView.swift */; };
+		B0670F3A29D5427400676872 /* NFTList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3629D5427300676872 /* NFTList.swift */; };
+		B0670F3B29D5427400676872 /* NFTDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3729D5427300676872 /* NFTDetail.swift */; };
+		B0670F3C29D5427400676872 /* NFTView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3829D5427300676872 /* NFTView.swift */; };
+		B0670F3D29D5427400676872 /* HViewGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3929D5427300676872 /* HViewGrid.swift */; };
+		B0670F4029D542A100676872 /* Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3E29D542A100676872 /* Header.swift */; };
+		B0670F4129D542A100676872 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3F29D542A100676872 /* Color.swift */; };
+		B0670F4A29D5438000676872 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F4529D5438000676872 /* TestData.swift */; };
+		B0670F4B29D5438000676872 /* nfts.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4629D5438000676872 /* nfts.json */; };
+		B0670F4C29D5438000676872 /* nfts_marketplace.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4729D5438000676872 /* nfts_marketplace.json */; };
+		B0670F4D29D5438000676872 /* marketplaces.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4829D5438000676872 /* marketplaces.json */; };
+		B0670F4E29D5438000676872 /* profile.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4929D5438000676872 /* profile.json */; };
+		B0670F5029D55D7C00676872 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F4F29D55D7C00676872 /* CollectionView.swift */; };
+		B0670F5329D55FBE00676872 /* QGrid in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5229D55FBE00676872 /* QGrid */; };
+		B0670F5529D6C48F00676872 /* Auth0Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F5429D6C48F00676872 /* Auth0Models.swift */; };
+		B0670F5729D79F9300676872 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F5629D79F9300676872 /* ProfileView.swift */; };
+		B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5929DB79EA00676872 /* KeccakTiny */; };
+		B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5B29DB79EA00676872 /* Sha3Tiny */; };
+		B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5D29DB79EA00676872 /* SwiftKeccak */; };
+		B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F6329DBFC5900676872 /* RLPSwift */; };
+		B0670F6729DC098400676872 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F6629DC098400676872 /* SwiftyJSON */; };
+		B0670F6929DEA0C600676872 /* AdditionalMediaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6829DEA0C600676872 /* AdditionalMediaModel.swift */; };
+		B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6A29E3D68900676872 /* PlayerView.swift */; };
+		B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6D29E3DFD100676872 /* ContentKeyManager.swift */; };
+		B0670F7029E3DFD800676872 /* ContentKeyDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */; };
+		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
+		B0E60F7229CC23510079661E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentView.swift */; };
+		B0E60F7429CC23530079661E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7329CC23530079661E /* Assets.xcassets */; };
+		B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7629CC23530079661E /* Preview Assets.xcassets */; };
+		B0E60F7E29CD63B60079661E /* configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7D29CD63B50079661E /* configuration.json */; };
+		B0E60F8929CD71840079661E /* FabricModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8429CD71840079661E /* FabricModels.swift */; };
+		B0E60F8A29CD71840079661E /* Fabric.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8529CD71840079661E /* Fabric.swift */; };
+		B0E60F8B29CD71840079661E /* FabricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8629CD71840079661E /* FabricConfiguration.swift */; };
+		B0E60F8C29CD71840079661E /* NFTMetaResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8729CD71840079661E /* NFTMetaResponse.swift */; };
+		B0E60F8D29CD71840079661E /* RemoteSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8829CD71840079661E /* RemoteSigner.swift */; };
+		B0E60F9229CD84160079661E /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B0E60F9129CD84160079661E /* Auth0 */; };
+		B0E60F9529CD84420079661E /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B0E60F9429CD84420079661E /* Alamofire */; };
+		B0E60F9829CD84900079661E /* SwiftEventBus in Frameworks */ = {isa = PBXBuildFile; productRef = B0E60F9729CD84900079661E /* SwiftEventBus */; };
+		B0E60F9B29CD84AF0079661E /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B0E60F9A29CD84AF0079661E /* Base58Swift */; };
+		B0E60F9D29CD85130079661E /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F9C29CD85130079661E /* Utils.swift */; };
+		B0E60F9F29D1B1DF0079661E /* Auth0.plist in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F9E29D1B1DE0079661E /* Auth0.plist */; };
+		B0E60FA829D211040079661E /* ProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA529D211040079661E /* ProfileModel.swift */; };
+		B0E60FA929D211040079661E /* MarketplaceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA629D211040079661E /* MarketplaceModel.swift */; };
+		B0E60FAA29D211040079661E /* NFTModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA729D211040079661E /* NFTModel.swift */; };
+		B0E60FAD29D223870079661E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
+		B0E60FB229D2288C0079661E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		B05DD74929E5220E001E12AF /* HTMLText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLText.swift; sourceTree = "<group>"; };
+		B0670F3229D4211700676872 /* DeviceFlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceFlowView.swift; sourceTree = "<group>"; };
+		B0670F3429D5421300676872 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
+		B0670F3629D5427300676872 /* NFTList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTList.swift; sourceTree = "<group>"; };
+		B0670F3729D5427300676872 /* NFTDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTDetail.swift; sourceTree = "<group>"; };
+		B0670F3829D5427300676872 /* NFTView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTView.swift; sourceTree = "<group>"; };
+		B0670F3929D5427300676872 /* HViewGrid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HViewGrid.swift; sourceTree = "<group>"; };
+		B0670F3E29D542A100676872 /* Header.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Header.swift; sourceTree = "<group>"; };
+		B0670F3F29D542A100676872 /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		B0670F4529D5438000676872 /* TestData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
+		B0670F4629D5438000676872 /* nfts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nfts.json; sourceTree = "<group>"; };
+		B0670F4729D5438000676872 /* nfts_marketplace.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nfts_marketplace.json; sourceTree = "<group>"; };
+		B0670F4829D5438000676872 /* marketplaces.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = marketplaces.json; sourceTree = "<group>"; };
+		B0670F4929D5438000676872 /* profile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = profile.json; sourceTree = "<group>"; };
+		B0670F4F29D55D7C00676872 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
+		B0670F5429D6C48F00676872 /* Auth0Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth0Models.swift; sourceTree = "<group>"; };
+		B0670F5629D79F9300676872 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		B0670F6829DEA0C600676872 /* AdditionalMediaModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdditionalMediaModel.swift; sourceTree = "<group>"; };
+		B0670F6A29E3D68900676872 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
+		B0670F6D29E3DFD100676872 /* ContentKeyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentKeyManager.swift; sourceTree = "<group>"; };
+		B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentKeyDelegate.swift; sourceTree = "<group>"; };
+		B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioWalletTVOSApp.swift; sourceTree = "<group>"; };
+		B0E60F7129CC23510079661E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B0E60F7329CC23530079661E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B0E60F7629CC23530079661E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		B0E60F7D29CD63B50079661E /* configuration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = configuration.json; sourceTree = "<group>"; };
+		B0E60F8429CD71840079661E /* FabricModels.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FabricModels.swift; sourceTree = "<group>"; };
+		B0E60F8529CD71840079661E /* Fabric.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fabric.swift; sourceTree = "<group>"; };
+		B0E60F8629CD71840079661E /* FabricConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FabricConfiguration.swift; sourceTree = "<group>"; };
+		B0E60F8729CD71840079661E /* NFTMetaResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTMetaResponse.swift; sourceTree = "<group>"; };
+		B0E60F8829CD71840079661E /* RemoteSigner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteSigner.swift; sourceTree = "<group>"; };
+		B0E60F9C29CD85130079661E /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		B0E60F9E29D1B1DE0079661E /* Auth0.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
+		B0E60FA529D211040079661E /* ProfileModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileModel.swift; sourceTree = "<group>"; };
+		B0E60FA629D211040079661E /* MarketplaceModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MarketplaceModel.swift; sourceTree = "<group>"; };
+		B0E60FA729D211040079661E /* NFTModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTModel.swift; sourceTree = "<group>"; };
+		B0E60FAC29D223870079661E /* SignInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		B0E60FB129D2288C0079661E /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B0E60F6929CC23510079661E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0670F5329D55FBE00676872 /* QGrid in Frameworks */,
+				B0E60F9B29CD84AF0079661E /* Base58Swift in Frameworks */,
+				B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */,
+				B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */,
+				B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */,
+				B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */,
+				B0E60F9229CD84160079661E /* Auth0 in Frameworks */,
+				B0E60F9529CD84420079661E /* Alamofire in Frameworks */,
+				B0670F6729DC098400676872 /* SwiftyJSON in Frameworks */,
+				B0E60F9829CD84900079661E /* SwiftEventBus in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B0670F4429D5438000676872 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				B0670F4529D5438000676872 /* TestData.swift */,
+				B0670F4629D5438000676872 /* nfts.json */,
+				B0670F4729D5438000676872 /* nfts_marketplace.json */,
+				B0670F4829D5438000676872 /* marketplaces.json */,
+				B0670F4929D5438000676872 /* profile.json */,
+			);
+			name = Test;
+			path = "../../../elv-wallet-ios/EluvioWalletIOS/EluvioWalletIOS/Test";
+			sourceTree = "<group>";
+		};
+		B0670F6C29E3DF6F00676872 /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */,
+				B0670F6D29E3DFD100676872 /* ContentKeyManager.swift */,
+			);
+			path = Managers;
+			sourceTree = "<group>";
+		};
+		B0E60F6329CC23510079661E = {
+			isa = PBXGroup;
+			children = (
+				B0E60F6E29CC23510079661E /* EluvioWalletTVOS */,
+				B0E60F6D29CC23510079661E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B0E60F6D29CC23510079661E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B0E60F6E29CC23510079661E /* EluvioWalletTVOS */ = {
+			isa = PBXGroup;
+			children = (
+				B0670F6C29E3DF6F00676872 /* Managers */,
+				B0E60FAB29D223760079661E /* Views */,
+				B0E60FA429D210E50079661E /* Models */,
+				B0E60F8329CD70AF0079661E /* Fabric */,
+				B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */,
+				B0E60F7129CC23510079661E /* ContentView.swift */,
+				B0670F4429D5438000676872 /* Test */,
+				B0E60F7329CC23530079661E /* Assets.xcassets */,
+				B0E60F7529CC23530079661E /* Preview Content */,
+				B0E60F7D29CD63B50079661E /* configuration.json */,
+				B0E60F9C29CD85130079661E /* Utils.swift */,
+				B0E60F9E29D1B1DE0079661E /* Auth0.plist */,
+			);
+			path = EluvioWalletTVOS;
+			sourceTree = "<group>";
+		};
+		B0E60F7529CC23530079661E /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				B0E60F7629CC23530079661E /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		B0E60F8329CD70AF0079661E /* Fabric */ = {
+			isa = PBXGroup;
+			children = (
+				B0E60F8529CD71840079661E /* Fabric.swift */,
+				B0E60F8629CD71840079661E /* FabricConfiguration.swift */,
+				B0E60F8429CD71840079661E /* FabricModels.swift */,
+				B0E60F8729CD71840079661E /* NFTMetaResponse.swift */,
+				B0E60F8829CD71840079661E /* RemoteSigner.swift */,
+			);
+			path = Fabric;
+			sourceTree = "<group>";
+		};
+		B0E60FA429D210E50079661E /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B0E60FA629D211040079661E /* MarketplaceModel.swift */,
+				B0E60FA729D211040079661E /* NFTModel.swift */,
+				B0E60FA529D211040079661E /* ProfileModel.swift */,
+				B0670F5429D6C48F00676872 /* Auth0Models.swift */,
+				B0670F6829DEA0C600676872 /* AdditionalMediaModel.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B0E60FAB29D223760079661E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B0670F3F29D542A100676872 /* Color.swift */,
+				B0670F3E29D542A100676872 /* Header.swift */,
+				B0670F3929D5427300676872 /* HViewGrid.swift */,
+				B0670F3729D5427300676872 /* NFTDetail.swift */,
+				B0670F3629D5427300676872 /* NFTList.swift */,
+				B0670F3829D5427300676872 /* NFTView.swift */,
+				B0E60FB129D2288C0079661E /* MainView.swift */,
+				B0E60FAC29D223870079661E /* SignInView.swift */,
+				B0670F3229D4211700676872 /* DeviceFlowView.swift */,
+				B0670F3429D5421300676872 /* WalletView.swift */,
+				B0670F4F29D55D7C00676872 /* CollectionView.swift */,
+				B0670F5629D79F9300676872 /* ProfileView.swift */,
+				B0670F6A29E3D68900676872 /* PlayerView.swift */,
+				B05DD74929E5220E001E12AF /* HTMLText.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B0E60F6B29CC23510079661E /* EluvioWalletTVOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "EluvioWalletTVOS" */;
+			buildPhases = (
+				B0E60F6829CC23510079661E /* Sources */,
+				B0E60F6929CC23510079661E /* Frameworks */,
+				B0E60F6A29CC23510079661E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = EluvioWalletTVOS;
+			packageProductDependencies = (
+				B0E60F9129CD84160079661E /* Auth0 */,
+				B0E60F9429CD84420079661E /* Alamofire */,
+				B0E60F9729CD84900079661E /* SwiftEventBus */,
+				B0E60F9A29CD84AF0079661E /* Base58Swift */,
+				B0670F5229D55FBE00676872 /* QGrid */,
+				B0670F5929DB79EA00676872 /* KeccakTiny */,
+				B0670F5B29DB79EA00676872 /* Sha3Tiny */,
+				B0670F5D29DB79EA00676872 /* SwiftKeccak */,
+				B0670F6329DBFC5900676872 /* RLPSwift */,
+				B0670F6629DC098400676872 /* SwiftyJSON */,
+			);
+			productName = EluvioWalletTVOS;
+			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B0E60F6429CC23510079661E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1420;
+				LastUpgradeCheck = 1420;
+				TargetAttributes = {
+					B0E60F6B29CC23510079661E = {
+						CreatedOnToolsVersion = 14.2;
+					};
+				};
+			};
+			buildConfigurationList = B0E60F6729CC23510079661E /* Build configuration list for PBXProject "EluvioWalletTVOS" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B0E60F6329CC23510079661E;
+			packageReferences = (
+				B0E60F9029CD84160079661E /* XCRemoteSwiftPackageReference "Auth0" */,
+				B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */,
+				B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */,
+				B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */,
+				B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */,
+				B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */,
+				B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */,
+				B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
+			);
+			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B0E60F6B29CC23510079661E /* EluvioWalletTVOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B0E60F6A29CC23510079661E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0670F4C29D5438000676872 /* nfts_marketplace.json in Resources */,
+				B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */,
+				B0670F4B29D5438000676872 /* nfts.json in Resources */,
+				B0670F4D29D5438000676872 /* marketplaces.json in Resources */,
+				B0E60F7E29CD63B60079661E /* configuration.json in Resources */,
+				B0670F4E29D5438000676872 /* profile.json in Resources */,
+				B0E60F7429CC23530079661E /* Assets.xcassets in Resources */,
+				B0E60F9F29D1B1DF0079661E /* Auth0.plist in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B0E60F6829CC23510079661E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0670F4029D542A100676872 /* Header.swift in Sources */,
+				B0670F4A29D5438000676872 /* TestData.swift in Sources */,
+				B0670F5529D6C48F00676872 /* Auth0Models.swift in Sources */,
+				B0E60FA829D211040079661E /* ProfileModel.swift in Sources */,
+				B0670F4129D542A100676872 /* Color.swift in Sources */,
+				B0670F5029D55D7C00676872 /* CollectionView.swift in Sources */,
+				B0E60FB229D2288C0079661E /* MainView.swift in Sources */,
+				B0670F5729D79F9300676872 /* ProfileView.swift in Sources */,
+				B0E60F8C29CD71840079661E /* NFTMetaResponse.swift in Sources */,
+				B0E60F7229CC23510079661E /* ContentView.swift in Sources */,
+				B0E60F8929CD71840079661E /* FabricModels.swift in Sources */,
+				B0E60F8D29CD71840079661E /* RemoteSigner.swift in Sources */,
+				B0E60FAA29D211040079661E /* NFTModel.swift in Sources */,
+				B0E60FAD29D223870079661E /* SignInView.swift in Sources */,
+				B0E60F8A29CD71840079661E /* Fabric.swift in Sources */,
+				B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */,
+				B0670F3C29D5427400676872 /* NFTView.swift in Sources */,
+				B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */,
+				B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */,
+				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
+				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
+				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,
+				B0E60FA929D211040079661E /* MarketplaceModel.swift in Sources */,
+				B0670F6929DEA0C600676872 /* AdditionalMediaModel.swift in Sources */,
+				B0E60F8B29CD71840079661E /* FabricConfiguration.swift in Sources */,
+				B0670F7029E3DFD800676872 /* ContentKeyDelegate.swift in Sources */,
+				B0670F3D29D5427400676872 /* HViewGrid.swift in Sources */,
+				B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */,
+				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,
+				B0670F3B29D5427400676872 /* NFTDetail.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		B0E60F7829CC23530079661E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = appletvos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TVOS_DEPLOYMENT_TARGET = 16.1;
+			};
+			name = Debug;
+		};
+		B0E60F7929CC23530079661E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = appletvos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				TVOS_DEPLOYMENT_TARGET = 16.1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B0E60F7B29CC23530079661E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
+				DEVELOPMENT_TEAM = 2KH8KC3MMX;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Eluvio Media Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+			};
+			name = Debug;
+		};
+		B0E60F7C29CC23530079661E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
+				DEVELOPMENT_TEAM = 2KH8KC3MMX;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Eluvio Media Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B0E60F6729CC23510079661E /* Build configuration list for PBXProject "EluvioWalletTVOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0E60F7829CC23530079661E /* Debug */,
+				B0E60F7929CC23530079661E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "EluvioWalletTVOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0E60F7B29CC23530079661E /* Debug */,
+				B0E60F7C29CC23530079661E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Q-Mobile/QGrid";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.4;
+			};
+		};
+		B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bitflying/SwiftKeccak";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.2;
+			};
+		};
+		B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bitfwdcommunity/RLPSwift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+		B0E60F9029CD84160079661E /* XCRemoteSwiftPackageReference "Auth0" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/Auth0.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+		B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+		B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/cesarferreira/SwiftEventBus.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
+		B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/keefertaylor/Base58Swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B0670F5229D55FBE00676872 /* QGrid */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */;
+			productName = QGrid;
+		};
+		B0670F5929DB79EA00676872 /* KeccakTiny */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
+			productName = KeccakTiny;
+		};
+		B0670F5B29DB79EA00676872 /* Sha3Tiny */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
+			productName = Sha3Tiny;
+		};
+		B0670F5D29DB79EA00676872 /* SwiftKeccak */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
+			productName = SwiftKeccak;
+		};
+		B0670F6329DBFC5900676872 /* RLPSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */;
+			productName = RLPSwift;
+		};
+		B0670F6629DC098400676872 /* SwiftyJSON */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
+			productName = SwiftyJSON;
+		};
+		B0E60F9129CD84160079661E /* Auth0 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0E60F9029CD84160079661E /* XCRemoteSwiftPackageReference "Auth0" */;
+			productName = Auth0;
+		};
+		B0E60F9429CD84420079661E /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		B0E60F9729CD84900079661E /* SwiftEventBus */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */;
+			productName = SwiftEventBus;
+		};
+		B0E60F9A29CD84AF0079661E /* Base58Swift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */;
+			productName = Base58Swift;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = B0E60F6429CC23510079661E /* Project object */;
+}

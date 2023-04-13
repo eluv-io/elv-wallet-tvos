@@ -1,0 +1,303 @@
+//
+//  RemoteSigner.swift
+//  EluvioWalletIOS
+//
+//  Created by Wayne Tran on 2021-11-14.
+//
+
+import Foundation
+import Alamofire
+import SwiftKeccak
+import RLPSwift
+import SwiftyJSON
+import Base58Swift
+
+struct JRPCParams: Codable {
+    var jsonrpc = "2.0"
+    var id = 1
+    var method: String
+    var params: [String]
+}
+
+class RemoteSigner {
+    var ethApi : [String]
+    var authorityApi: [String]
+    var currentEthIndex = 0
+    var currentAuthIndex = 0
+
+    init(ethApi: [String], authorityApi: [String]){
+        self.ethApi = ethApi
+        self.authorityApi = authorityApi
+    }
+    
+    //TODO: implement fail over
+    func getEthEndpoint() throws -> String{
+        let endpoint = self.ethApi[self.currentEthIndex]
+        if(endpoint.isEmpty){
+            throw FabricError.configError("getEthEndpoint: could not get endpoint")
+        }
+        return endpoint
+    }
+    
+    func getAuthEndpoint() throws -> String{
+        let endpoint = self.authorityApi[self.currentAuthIndex]
+        if(endpoint.isEmpty){
+            throw FabricError.configError("getEthEndpoint: could not get endpoint")
+        }
+        return endpoint
+    }
+    
+    func getWalletData(accountAddress: String, accessCode: String) async throws -> [String: AnyObject] {
+            return try await withCheckedThrowingContinuation({ continuation in
+                
+                do {
+                    let endpoint: String = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress);
+                    print("Request: \(endpoint)")
+                    let headers: HTTPHeaders = [
+                        "Authorization": "Bearer \(accessCode)",
+                             "Accept": "application/json",
+                             "Content-Type": "application/json" ]
+                    
+                    AF.request(endpoint, parameters: nil, encoding: JSONEncoding.default, headers: headers ).responseJSON { response in
+                        //debugPrint("GetWalletData Response: \(response)")
+                        
+                        switch (response.result) {
+                            case .success( _):
+                                if let value = response.value as? [String: AnyObject] {
+                                    //print("contents: \(value["contents"])")
+                                    if let result = value as? [String: AnyObject] {
+                                        continuation.resume(returning: result)
+                                    }else{
+                                        continuation.resume(throwing: FabricError.unexpectedResponse("Could not get value from response \(response)"))
+                                    }
+                                }
+                             case .failure(let error):
+                                print("Request error: \(error.localizedDescription)")
+                                continuation.resume(throwing: error)
+                             
+                         }
+                    }
+                }catch{
+                    continuation.resume(throwing: error)
+                }
+            })
+    }
+    
+    struct Message: Decodable, Identifiable {
+        let id: Int
+        let from: String
+        let message: String
+    }
+    
+    func fetchMessages(completion: @escaping ([Message]) -> Void) {
+        let url = URL(string: "https://hws.dev/user-messages.json")!
+
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                if let messages = try? JSONDecoder().decode([Message].self, from: data) {
+                    completion(messages)
+                    return
+                }
+            }
+
+            completion([])
+        }.resume()
+    }
+    
+    // An example error we can throw
+    enum FetchError: Error {
+        case noMessages
+    }
+
+    func fetchMessages() async -> [Message] {
+        do {
+            return try await withCheckedThrowingContinuation { continuation in
+                fetchMessages { messages in
+                    if messages.isEmpty {
+                        continuation.resume(throwing: FetchError.noMessages)
+                    } else {
+                        continuation.resume(returning: messages)
+                    }
+                }
+            }
+        } catch {
+            return [
+                Message(id: 1, from: "Tom", message: "Welcome to MySpace! I'm your new friend.")
+            ]
+        }
+    }
+    
+    func joinSignature(signature: [String: Any]) throws -> Data? {
+        guard let r = signature["r"] as? String else {
+            print("joinSig couldn't get r")
+            return nil
+        }
+
+        guard var rData = r.data(using: .hexadecimal) else {
+            print("joinSig couldn't get rData")
+            return nil
+        }
+        
+        guard let s = signature["s"] as? String else {
+            print("joinSig couldn't get s")
+            return nil
+        }
+        
+        guard var sData = s.data(using: .hexadecimal) else {
+            print("joinSig couldn't get sData")
+            return nil
+        }
+        
+        
+        guard let recoveryParam = signature["recoveryParam"] as? Int else{
+            print("joinSig couldn't get recoveryParam")
+            return nil
+        }
+        
+        var v = "0x1c"
+        if recoveryParam == 0 {
+            v = "0x1b"
+        }
+        
+        //let vData = try RLP.encode(v)
+        guard let vData = v.data(using: .hexadecimal) else {
+            print("joinSig couldn't get vData")
+            return nil
+        }
+        
+        let joined = rData + sData + vData
+        print("joinSignature joined \(HexToBytes(joined.hexEncodedString()))")
+        return joined
+    }
+    
+    func hashPersonalMessage(_ personalMessage: Data) -> Data? {
+        var prefix = "\u{19}Ethereum Signed Message:\n"
+        prefix += String(personalMessage.count)
+        guard let prefixData = prefix.data(using: .ascii) else {return nil}
+        var data = Data()
+        if personalMessage.count >= prefixData.count && prefixData == personalMessage[0 ..< prefixData.count] {
+            data.append(personalMessage)
+        } else {
+            data.append(prefixData)
+            data.append(personalMessage)
+        }
+        let hash = keccak256(data)
+        return hash
+    }
+    
+    func createFabricToken(duration: Int64 = 24 * 60 * 60 * 1000, address: String, contentSpaceId: String, authToken: String) async throws -> String {
+
+        let adr = address.data(using: .hexadecimal)?.base64EncodedString()
+        let token: JSON = [
+          "sub": try addressToId(prefix: "iusr", address: address),
+          "adr": adr,
+          "spc": contentSpaceId,
+          "iat": Date().now,
+          "exp": Date().now + duration
+        ]
+    
+        
+        guard var tokenString = token.rawString(String.Encoding.utf8, options: JSONSerialization.WritingOptions.init(rawValue: 0)) else{
+            throw FabricError.badInput("personalSign: could not get string for token structure \(token)")
+        }
+        
+        print ("tokenString \n",tokenString)
+        /*tokenString = "{\"sub\":\"iusr2xvLGywBuSQBBbcoJN3ShsMHsWJU\",\"adr\":\"jPujzYbFMKh5vZ/llESSDPPng9k=\",\"spc\":\"ispc3ANoVSzNA3P6t7abLR69ho5YPPZU\",\"iat\":1680643350169,\"exp\":1680729750169}" */
+
+        let message = "Eluvio Content Fabric Access Token 1.0\n\(tokenString)";
+        
+        print("message ", message)
+
+        guard var signature = try await self.personalSign(message:message, accountId: try addressToId(prefix: "ikms", address: address), authToken: authToken) else {
+            throw FabricError.unexpectedResponse("personalSign: could not get signature")
+        }
+        
+        print("personal signature ", signature)
+        
+        let compressedToken = Data(referencing: try (Data(tokenString.utf8) as NSData).compressed(using: .zlib))
+        
+        print("compressedToken ", compressedToken)
+        
+        signature.append(compressedToken)
+        
+        guard let bytes = HexToBytes(signature.hexEncodedString()) else {
+            throw FabricError.unexpectedResponse("createFabricToken: could not get bytes from signature \(signature)")
+        }
+    
+        let fabricToken =  "acspjc\(Base58.base58Encode(bytes))"
+        return fabricToken
+    }
+    
+    func personalSign(message: String, accountId: String, authToken: String) async throws -> Data? {
+        
+        let message2 = "\u{19}Ethereum Signed Message:\n\(message.count)\(message)"
+        print("personalSign message ", message2)
+        let hash: Data = keccak256(Data(message2.utf8))
+        /*guard let hash = hashPersonalMessage(Data(message.utf8)) else {
+            throw FabricError.badInput
+        }*/
+        
+        //return try self.joinSignature(signature:try await self.signDigest(digest:hash, accountId:accountId, authToken:authToken))
+        
+        print("personalSign hash ", hash.hexEncodedString())
+        var signature = try await self.signDigest(digest:hash, accountId:accountId, authToken:authToken)
+        
+        /*var signature: [String : Any] = ["sig":"0x98f93dae6dc74393e3b917de790304a9954fa46ef0c28596d13eecb7c61b850e0077903fc4d21de6e07d484271f8c5468dc66aca23fae08dc052a48928f1a87701",
+              "v": 28,
+              "r": "0x98f93dae6dc74393e3b917de790304a9954fa46ef0c28596d13eecb7c61b850e",
+              "s": "0x0077903fc4d21de6e07d484271f8c5468dc66aca23fae08dc052a48928f1a877",
+              "recoveryParam": 1]*/
+        
+        return try self.joinSignature(signature: signature)
+    }
+    
+    // Uses the custodial wallet endpoint to sign
+    // digest: hex string of the digest to sign
+    // accountId: in ikms___ format
+    // authToken: token given back from the /wlt/login/jwt endpoint
+    func signDigest(digest: Data, accountId: String, authToken: String) async throws -> [String: AnyObject] {
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/sign/eth/").appending(accountId);
+                print("Request: \(endpoint)")
+                
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(authToken)",
+                     "Accept": "application/json",
+                     "Content-Type": "application/json" ]
+                //let parameters : [String: Any] = ["hash":"0x27d27bad7e7172ea9adb6b6083d657f33045fe2b1f87cc96c85638a1f96b9439"]
+                print("digest: \(digest.hexEncodedString())")
+                let parameters : [String: Any] = ["hash":digest.hexEncodedString()]
+                
+                AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers ).responseJSON { response in
+                    debugPrint("signDigest Response: \(response)")
+                    
+                    switch (response.result) {
+                        case .success( _):
+                            if var result = response.value as? [String: AnyObject] {
+                                if let v = result["v"] as? String {
+                                    if let value = UInt8(v.dropFirst(2), radix: 16) {
+                                        result["recoveryParam"] =  (value - 27) as AnyObject
+                                        continuation.resume(returning: result)
+                                    }else{
+                                        continuation.resume(throwing: FabricError.unexpectedResponse("signDigest: Could not get UInt8 from v param of response \(response)"))
+                                    }
+                                }else{
+                                    continuation.resume(throwing: FabricError.unexpectedResponse("signDigest: Could not get v param from response \(response)"))
+                                }
+                            }else{
+                                continuation.resume(throwing: FabricError.unexpectedResponse("signDigest: Could not get value from response \(response)"))
+                            }
+                         case .failure(let error):
+                            print("Request error: \(error.localizedDescription)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+
+    }
+}
+

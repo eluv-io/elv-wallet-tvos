@@ -1,0 +1,22 @@
+[
+    {
+        "id":"1",
+        "creator": "FOX",
+        "display_name": "The Masked Singer",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "image": "https://on-camera-audiences.com/shows/The_Masked_Singer/img",
+        "items": "534",
+        "subscribers": "233k",
+        "rating": 3.5
+    },
+    {
+        "id":"2",
+        "creator": "Sony Entertainment",
+        "display_name": "The Spiderverse",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+        "image": "https://pyxis.nymag.com/v1/imgs/71d/041/3f271e69b8c3544809e1eece7bf0d0531a-16-spiderverse-2.2x.h473.w710.jpg",
+        "items": "343",
+        "subscribers": "233k",
+        "rating": 4.5
+    }
+]
