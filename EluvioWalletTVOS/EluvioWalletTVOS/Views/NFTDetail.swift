@@ -17,6 +17,8 @@ struct MediaView: View {
     @FocusState var isFocused
     @State var showGallery = false
     @State var gallery: [GalleryItem] = []
+    @State var showQRView = false
+    @State var qrUrl = "https://eluv.io"
     
     var body: some View {
         HStack(alignment: .top, spacing: 40) {
@@ -25,7 +27,11 @@ struct MediaView: View {
                         Task {
                             do {
                                 let optionsUrl = try fabric.getUrlFromLink(link: media?.media_link?["sources"]["default"], params: media?.parameters ?? [] )
+                                
+                                print("MEDIA: ", media)
                                 print("options url \(optionsUrl)")
+                                
+                                
                                 guard let hash = FindContentHash(uri: optionsUrl) else {
                                     throw RuntimeError("Could not find hash from \(optionsUrl)")
                                 }
@@ -33,24 +39,39 @@ struct MediaView: View {
                                 let optionsJson = try await fabric.getJsonRequest(url: optionsUrl)
                                 print("options json \(optionsJson)")
                                 
-                                let licenseServer = optionsJson["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+                                var hlsPlaylistUrl: String = ""
                                 
-                                if(licenseServer.isEmpty)
-                                {
-                                    throw RuntimeError("Error getting licenseServer")
+                                if optionsJson["hls-clear"].exists() {
+                                    hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash, drm:"hls-clear")
+                                    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+                                    
+                                    self.playerItem = AVPlayerItem(asset: urlAsset)
+                                }else if optionsJson["hls-fairplay"].exists() {
+                                    let licenseServer = optionsJson["hls-fairplay"]["license_servers"][0].stringValue
+                                    
+                                    if(licenseServer.isEmpty)
+                                    {
+                                        throw RuntimeError("Error getting licenseServer")
+                                    }
+                                    print("license_server \(licenseServer)")
+                                    
+                                    hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash, drm:"hls-fairplay")
+                                    
+                                    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+                                    
+                                    ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+                                    ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+                                    self.playerItem = AVPlayerItem(asset: urlAsset)
+                                    
+                                }else{
+                                    throw RuntimeError("No available playback options \(optionsJson)")
                                 }
-                                print("license_server \(licenseServer)")
                                 
-                                let hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash)
-                                
-                                print("Playlist URL \(hlsPlaylistUrl)")
-                                
-                                let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-                                ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-                                ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
-                                
-                                self.playerItem = AVPlayerItem(asset: urlAsset)
-                                self.showPlayer = true
+ 
+                                if (!hlsPlaylistUrl.isEmpty) {
+                                    print("Playlist URL \(hlsPlaylistUrl)")
+                                    self.showPlayer = true
+                                }
                                 
                             } catch {
                                 print("Error getting Options url from link \(error)")
@@ -59,8 +80,11 @@ struct MediaView: View {
                     }
                 else if media?.media_type == "HTML" {
                     do {
-                        let htmlUrl = try fabric.getUrlFromLink(link: media?.media_file, params: media?.parameters ?? [])
+                        //let htmlUrl = try fabric.getUrlFromLink(link: media?.media_file, params: media?.parameters ?? [])
+                        let htmlUrl = try fabric.getMediaHTML(link: media?.media_file, params: media?.parameters ?? [])
                         print("url \(htmlUrl)")
+                        self.qrUrl = htmlUrl
+                        self.showQRView = true
                         
                     } catch {
                         print("Error getting Options url from link \(error)")
@@ -103,8 +127,16 @@ struct MediaView: View {
         .fullScreenCover(isPresented: $showGallery) {
             GalleryView(gallery: $gallery)
                 .environmentObject(self.fabric)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .edgesIgnoringSafeArea(.all)
+                .background(.thinMaterial)
+        }
+        .fullScreenCover(isPresented: $showQRView) {
+            QRView(url: $qrUrl)
+                .environmentObject(self.fabric)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .edgesIgnoringSafeArea(.all)
+                .background(.thinMaterial)
         }
     }
 }

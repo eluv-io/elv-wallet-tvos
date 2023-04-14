@@ -21,8 +21,6 @@ struct DeviceFlowView: View {
     @State var urlComplete = ""
     @State var code = ""
     @State var deviceCode = ""
-    let context = CIContext()
-    let filter = CIFilter.qrCodeGenerator()
     @State var timer = Timer.publish(every: 1, on: .main, in: .common)
     @State var timerCancellable: Cancellable? = nil
     @Binding var showDeviceFlow: Bool
@@ -31,18 +29,6 @@ struct DeviceFlowView: View {
     var ClientId = ""
     var Domain = ""
     var GrantType = ""
-    
-    func generateQRCode(from string: String) -> UIImage {
-        filter.message = Data(string.utf8)
-
-        if let outputImage = filter.outputImage {
-            if let cgimg = context.createCGImage(outputImage, from: outputImage.extent) {
-                return UIImage(cgImage: cgimg)
-            }
-        }
-
-        return UIImage(systemName: "xmark.circle") ?? UIImage()
-    }
     
     init(showDeviceFlow: Binding<Bool>){
         print("SignInView init()")
@@ -85,8 +71,7 @@ struct DeviceFlowView: View {
                     Text("or scan the QR code below")
                         .font(.custom("Helvetica Neue", size: 40))
                         .fontWeight(.thin)
-                    Image(uiImage: generateQRCode(from: urlComplete))
-                        .interpolation(.none)
+                    Image(uiImage: GenerateQRCode(from: urlComplete))
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()

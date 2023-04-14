@@ -10,6 +10,7 @@
 		B00945A029E91DE000B00FC3 /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B009459F29E91DE000B00FC3 /* GalleryView.swift */; };
 		B00945A229E937C500B00FC3 /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A129E937C500B00FC3 /* Styles.swift */; };
 		B00945A429E9514B00B00FC3 /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */; };
+		B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A529E9C45F00B00FC3 /* QRView.swift */; };
 		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
 		B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3229D4211700676872 /* DeviceFlowView.swift */; };
 		B0670F3529D5421300676872 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3429D5421300676872 /* WalletView.swift */; };
@@ -64,6 +65,7 @@
 		B009459F29E91DE000B00FC3 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
 		B00945A129E937C500B00FC3 /* Styles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styles.swift; sourceTree = "<group>"; };
 		B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
+		B00945A529E9C45F00B00FC3 /* QRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRView.swift; sourceTree = "<group>"; };
 		B05DD74929E5220E001E12AF /* HTMLText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLText.swift; sourceTree = "<group>"; };
 		B0670F3229D4211700676872 /* DeviceFlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceFlowView.swift; sourceTree = "<group>"; };
 		B0670F3429D5421300676872 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 				B009459F29E91DE000B00FC3 /* GalleryView.swift */,
 				B00945A129E937C500B00FC3 /* Styles.swift */,
 				B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */,
+				B00945A529E9C45F00B00FC3 /* QRView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -358,6 +361,7 @@
 				B0670F3C29D5427400676872 /* NFTView.swift in Sources */,
 				B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */,
 				B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */,
+				B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
 				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,
@@ -497,7 +501,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -528,7 +532,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

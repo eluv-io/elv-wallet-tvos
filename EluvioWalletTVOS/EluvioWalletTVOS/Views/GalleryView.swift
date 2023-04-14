@@ -61,8 +61,6 @@ struct GalleryView: View {
     @State var currentImageUrl : String = ""
     
     var body: some View {
-        ZStack {
-            Color.mainBackground.edgesIgnoringSafeArea(.all)
             VStack{
                 Spacer()
                 ScrollView(.horizontal) {
@@ -77,14 +75,13 @@ struct GalleryView: View {
             .background(){
                 AsyncImage(url: URL(string: currentImageUrl)) { image in
                     image.resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .aspectRatio(contentMode: .fit)
                         .edgesIgnoringSafeArea(.all)
                 } placeholder: {
                     ProgressView()
                 }
             }
         }
-    }
 }
 
 

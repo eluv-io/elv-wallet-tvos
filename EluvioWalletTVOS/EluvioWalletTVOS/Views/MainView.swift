@@ -48,6 +48,11 @@ struct MainView: View {
                 }
             }
         }
+        .onChange(of: selection){ newValue in
+            if (newValue == Tab.Watch){
+                fabric.refresh()
+            }
+        }
     }
 }
 

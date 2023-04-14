@@ -174,10 +174,10 @@ class Fabric: ObservableObject {
     }
     
     @MainActor
-    func setLogin(login:  LoginResponse){
-        self.login = login
-        self.isLoggedOut = false
-        self.signingIn = false
+    func refresh(){
+        if self.login == nil {
+            return
+        }
         Task {
             do{
                 self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
@@ -185,7 +185,7 @@ class Fabric: ObservableObject {
                 
                 print("Account address: \(try getAccountAddress())")
                 let profileData = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
-                                                                       accessCode: login.token)
+                                                                       accessCode: self.login!.token)
                 print("Profile DATA: \(profileData)")
                 var playable : [NFTModel] = []
                 var nonPlayable: [NFTModel] = []
@@ -260,6 +260,15 @@ class Fabric: ObservableObject {
                 print ("Error: \(error)")
             }
         }
+    }
+    
+    
+    @MainActor
+    func setLogin(login:  LoginResponse){
+        self.login = login
+        self.isLoggedOut = false
+        self.signingIn = false
+        self.refresh()
     }
     
     func signOut(){
@@ -571,8 +580,14 @@ class Fabric: ObservableObject {
         return newUrl.standardized.absoluteString
     }
     
+    func getMediaHTML(link: JSON?, params: [JSON] = []) throws -> String {
+        //FIXME: Use configuration
+        let baseUrl = self.network == "demo" ? "https://demov3.net955210.contentfabric.io/s/demov3" :
+            "https://main.net955305.contentfabric.io/s/main"
+        return try getUrlFromLink(link:link, baseUrl: baseUrl, params: params, includeAuth: false)
+    }
     
-    func getUrlFromLink(link: JSON?, params: [JSON] = []) throws -> String {
+    func getUrlFromLink(link: JSON?, baseUrl: String? = nil, params: [JSON] = [], includeAuth: Bool? = true, resolveHeaders: Bool? = false) throws -> String {
         guard let link = link else{
             throw FabricError.badInput("getUrlFromLink: Link is nil")
         }
@@ -588,20 +603,38 @@ class Fabric: ObservableObject {
                 
         path = NSString.path(withComponents: ["/","q",hash,path])
         
-        guard let url = URL(string:try self.getEndpoint()) else {
-            throw FabricError.badInput("getUrlFromLink: Could not get parse endpoint. Link: \(link)")
+        var urlString = baseUrl ?? ""
+        
+        if urlString.isEmpty {
+            urlString = try self.getEndpoint()
         }
+        
+        guard let url = URL(string: urlString) else {
+            throw FabricError.invalidURL("\(urlString)")
+        }
+        
+        var pathComponents = url.pathComponents
+        pathComponents.append(path)
+        path = NSString.path(withComponents: pathComponents)
+        
         var components = URLComponents()
         components.scheme = url.scheme
         components.host = url.host
         components.path = path
-        components.queryItems = [
-            URLQueryItem(name: "link_depth", value: "5"),
-            URLQueryItem(name: "resolve", value: "true"),
-            URLQueryItem(name: "resolve_include_source", value: "true"),
-            URLQueryItem(name: "resolve_ignore_errors", value: "true"),
-            URLQueryItem(name: "authorization", value: self.fabricToken)
-        ]
+        
+        var queryItems : [URLQueryItem] = []
+        if includeAuth! {
+            queryItems.append(URLQueryItem(name: "authorization", value: self.fabricToken))
+        }
+        
+        if resolveHeaders! {
+            queryItems.append(URLQueryItem(name: "link_depth", value: "5"))
+            queryItems.append(URLQueryItem(name: "resolve_include_source", value: "true"))
+            queryItems.append(URLQueryItem(name: "resolve", value: "true"))
+            queryItems.append(URLQueryItem(name: "resolve_ignore_errors", value: "true"))
+        }
+        
+        components.queryItems = queryItems
         
         for param in params {
             if let name = param["name"].string {
@@ -649,7 +682,7 @@ class Fabric: ObservableObject {
         })
     }
     
-    func getHlsPlaylistFromOptions(optionsJson: JSON?, hash: String) throws -> String {
+    func getHlsPlaylistFromOptions(optionsJson: JSON?, hash: String, drm: String = "hls-clear", offering: String = "default") throws -> String {
         guard let link = optionsJson else{
             throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
         }
@@ -660,13 +693,13 @@ class Fabric: ObservableObject {
         }
         
 
-        var uri = link["hls-fairplay"]["uri"].stringValue
+        var uri = link[drm]["uri"].stringValue
         
         guard let url = URL(string:try self.getEndpoint()) else {
             throw FabricError.badInput("getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
         }
         
-        var newUrl = "\(url.absoluteString)/q/\(hash)/rep/playout/default/\(uri)"
+        var newUrl = "\(url.absoluteString)/q/\(hash)/rep/playout/\(offering)/\(uri)"
         if(newUrl.contains("?")){
             newUrl = newUrl + "&authorization=\(self.fabricToken)"
         }else{
