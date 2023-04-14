@@ -186,25 +186,31 @@ class Fabric: ObservableObject {
                 print("Account address: \(try getAccountAddress())")
                 let profileData = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
                                                                        accessCode: login.token)
-                //print("Profile DATA: \(profileData)")
+                print("Profile DATA: \(profileData)")
                 var playable : [NFTModel] = []
                 var nonPlayable: [NFTModel] = []
                 if let nfts = profileData["contents"] as? [AnyObject] {
                     for nft in nfts {
-                        //print(nft)
-                        let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
-                        //print(data)
-                        var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
-                        if (nftmodel.id == nil){
-                            nftmodel.id = UUID().uuidString
-                        }
-                        
-                        let nftData = try await self.getNFTData(tokenUri: nftmodel.token_uri)
-                        //print("NFT DATA \(data)")
-                        //print(data.rawString()!)
-                        nftmodel.meta_full = nftData
-                        var hasPlayableMedia = false
                         do {
+                            //print(nft)
+                            let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
+                            //print(data)
+                            var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                            if (nftmodel.id == nil){
+                                nftmodel.id = UUID().uuidString
+                            }
+                            
+                            let nftData = try await self.getNFTData(tokenUri: nftmodel.token_uri)
+                            nftmodel.meta_full = nftData
+                            
+                            do {
+                                nftmodel.additional_media_sections = try JSONDecoder().decode(AdditionalMediaModel.self, from: nftData["additional_media_sections"].rawData())
+                            }catch{
+                                print("Error decoding additional_media_sections for \(nftmodel.contract_name) \(error)")
+                            }
+                            
+                            var hasPlayableMedia = false
+
                             if nftData["additional_media_sections"].exists() {
                                 let mediaSections = nftData["additional_media_sections"]
                                 
@@ -231,22 +237,23 @@ class Fabric: ObservableObject {
                                     }
                                 }
                             }
+                            
+                            nftmodel.has_playable_feature = hasPlayableMedia
+                            if (hasPlayableMedia) {
+                                playable.append(nftmodel)
+                            }else{
+                                nonPlayable.append(nftmodel)
+                            }
                         } catch {
                             print(error.localizedDescription)
-                        }
-                        
-                        if (hasPlayableMedia) {
-                            nftmodel.has_playable_feature = true
-                            playable.append(nftmodel)
-                        }else{
-                            nonPlayable.append(nftmodel)
+                            continue
                         }
                     }
                     self.playable = playable
                     self.nonPlayable = nonPlayable
                     
-                    print("Non Playable ", self.nonPlayable)
-                    print("Playable ", self.playable)
+                    //print("Non Playable ", self.nonPlayable)
+                    //print("Playable ", self.playable)
                     
                 }
             }catch{
@@ -277,9 +284,14 @@ class Fabric: ObservableObject {
         self.login = nil
         self.isLoggedOut = true
         self.signInResponse = nil
+        self.signer = nil
         self.fabricToken = ""
+        self.playable = []
+        self.nonPlayable = []
         UserDefaults.standard.removeObject(forKey: "access_token")
+        UserDefaults.standard.removeObject(forKey: "id_token")
         UserDefaults.standard.removeObject(forKey: "token_type")
+        UserDefaults.standard.removeObject(forKey: "fabric_network")
     }
     
     @MainActor
@@ -423,7 +435,7 @@ class Fabric: ObservableObject {
                         URLQueryItem(name: "link_depth", value: "5"),
                         URLQueryItem(name: "resolve", value: "true"),
                         URLQueryItem(name: "resolve_include_source", value: "true"),
-                        URLQueryItem(name: "resolve_ignore_errors", value: "false")
+                        URLQueryItem(name: "resolve_ignore_errors", value: "true")
                     ]
 
                     guard let newUrl = components.url else {
@@ -549,7 +561,7 @@ class Fabric: ObservableObject {
             URLQueryItem(name: "link_depth", value: "5"),
             URLQueryItem(name: "resolve", value: "true"),
             URLQueryItem(name: "resolve_include_source", value: "true"),
-            URLQueryItem(name: "resolve_ignore_errors", value: "false")
+            URLQueryItem(name: "resolve_ignore_errors", value: "true")
         ]
         
         guard let newUrl = components.url else {
@@ -560,7 +572,7 @@ class Fabric: ObservableObject {
     }
     
     
-    func getUrlFromLink(link: JSON?, params: [JSON]) throws -> String {
+    func getUrlFromLink(link: JSON?, params: [JSON] = []) throws -> String {
         guard let link = link else{
             throw FabricError.badInput("getUrlFromLink: Link is nil")
         }
@@ -587,7 +599,7 @@ class Fabric: ObservableObject {
             URLQueryItem(name: "link_depth", value: "5"),
             URLQueryItem(name: "resolve", value: "true"),
             URLQueryItem(name: "resolve_include_source", value: "true"),
-            URLQueryItem(name: "resolve_ignore_errors", value: "false"),
+            URLQueryItem(name: "resolve_ignore_errors", value: "true"),
             URLQueryItem(name: "authorization", value: self.fabricToken)
         ]
         

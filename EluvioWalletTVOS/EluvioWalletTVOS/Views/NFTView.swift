@@ -7,19 +7,6 @@
 
 import SwiftUI
 
-struct PrimaryButtonStyle: ButtonStyle {
-    let focused: Bool
-    func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .foregroundColor(.white)
-            .background(self.focused ? Color.highlight : Color.tinted)
-            .cornerRadius(20)
-            .scaleEffect(self.focused ? 1.05: 1, anchor: .center)
-            .shadow(color: .black, radius: self.focused ? 20 : 5, x: 5, y: 5)
-            .animation(.easeIn(duration: 0.2), value: self.focused)
-    }
-}
-
 struct NFTView: View {
     @State var nft = NFTModel()
     var isForsale = false

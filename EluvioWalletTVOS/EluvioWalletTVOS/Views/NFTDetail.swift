@@ -9,25 +9,14 @@ import SwiftUI
 import SwiftyJSON
 import AVKit
 
-struct DetailButtonStyle: ButtonStyle {
-    let focused: Bool
-    func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .foregroundColor(.white)
-            .background(self.focused ? Color.highlight : Color.tinted)
-            .cornerRadius(20)
-            .scaleEffect(self.focused ? 1.1: 1, anchor: .center)
-            .shadow(color: self.focused ? .gray : .black, radius: self.focused ? 15 : 5, x: 5, y: 5)
-            .animation(self.focused ? .linear(duration: 0.5).repeatForever() : .easeIn(duration: 0.2), value: self.focused)
-    }
-}
-
 struct MediaView: View {
     @EnvironmentObject var fabric: Fabric
-    @State var media: FeaturedMediaModel? = nil
+    @State var media: MediaItem? = nil
     @Binding var showPlayer : Bool
     @Binding var playerItem : AVPlayerItem?
     @FocusState var isFocused
+    @State var showGallery = false
+    @State var gallery: [GalleryItem] = []
     
     var body: some View {
         HStack(alignment: .top, spacing: 40) {
@@ -69,24 +58,23 @@ struct MediaView: View {
                         }
                     }
                 else if media?.media_type == "HTML" {
-                        do {
-                            let htmlUrl = try fabric.getUrlFromLink(link: media?.media_file, params: media?.parameters ?? [])
-                            print("url \(htmlUrl)")
-                            
-                        } catch {
-                            print("Error getting Options url from link \(error)")
-                        }
-                }
-/*                else {
-                        do {
-                            
-                        } catch {
-                            print("Error getting Options url from link \(error)")
-                        }
+                    do {
+                        let htmlUrl = try fabric.getUrlFromLink(link: media?.media_file, params: media?.parameters ?? [])
+                        print("url \(htmlUrl)")
+                        
+                    } catch {
+                        print("Error getting Options url from link \(error)")
                     }
- */
+                }
+                else if media?.media_type == "Gallery" {
+                    if media?.gallery != nil {
+                        self.gallery = media?.gallery ?? []
+                        self.showGallery = true
+                    }
+                }
+ 
             }) {
-                AsyncImage(url: URL(string: media?.image ?? "")) { image in
+                CacheAsyncImage(url: URL(string: media?.image ?? "")) { image in
                     image.resizable()
                         .aspectRatio(contentMode: .fill)
                         .frame( width: 200, height: 200)
@@ -97,12 +85,26 @@ struct MediaView: View {
             }
             .buttonStyle(DetailButtonStyle(focused: isFocused))
             .focused($isFocused)
+            .overlay(content: {
+                if (media?.media_type == "Video"){
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(.white)
+                        .opacity(0.7)
+                }
+            })
             
             Text(media?.name ?? "")
                 .foregroundColor(Color.white)
                 .lineLimit(3)
                 .frame(width:300, alignment: .leading)
             
+        }
+        .fullScreenCover(isPresented: $showGallery) {
+            GalleryView(gallery: $gallery)
+                .environmentObject(self.fabric)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .edgesIgnoringSafeArea(.all)
         }
     }
 }
@@ -136,7 +138,7 @@ struct NFTDetailView: View {
     @State var playerItem : AVPlayerItem? = nil
     var title = ""
     @Binding var nft: NFTModel
-    @Binding var featuredMedia: [FeaturedMediaModel]
+    @Binding var featuredMedia: [MediaItem]
     @Binding var collections: [MediaCollection]
     @Binding var richText : AttributedString
     @FocusState var isFocused
@@ -189,82 +191,6 @@ struct NFTDetailView: View {
                     Spacer()
                 }
                 
-                /*HStack(alignment: .top, spacing: 40)  {
-                    ForEach(self.featuredMedia) {media in
-                        HStack(alignment: .top) {
-                            AsyncImage(url: URL(string: media.image ?? "")) { image in
-                                image.resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame( width: 200, height: 200)
-                                    .cornerRadius(15)
-                            } placeholder: {
-                                ProgressView()
-                            }
-                            
-                            VStack(alignment: .leading)  {
-                                Text(media.name)
-                                    .font(.headline)
-                                    .foregroundColor(Color.white)
-                                    .lineLimit(2)
-                                
-                                if media.media_type == "Video" {
-                                    Button ("Play") {
-                                        Task {
-                                            do {
-                                                let optionsUrl = try fabric.getUrlFromLink(link: media.media_link?["sources"]["default"], params: media.parameters )
-                                                print("options url \(optionsUrl)")
-                                                guard let hash = FindContentHash(uri: optionsUrl) else {
-                                                    throw RuntimeError("Could not find hash from \(optionsUrl)")
-                                                }
-                                                
-                                                let optionsJson = try await fabric.getJsonRequest(url: optionsUrl)
-                                                print("options json \(optionsJson)")
-                                                
-                                                let licenseServer = optionsJson["hls-fairplay"]["properties"]["license_servers"][0].stringValue
-                                                
-                                                if(licenseServer.isEmpty)
-                                                {
-                                                    throw RuntimeError("Error getting licenseServer")
-                                                }
-                                                print("license_server \(licenseServer)")
-                                                
-                                                let hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash)
-                                                
-                                                print("Playlist URL \(hlsPlaylistUrl)")
-                                                
-                                                let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-                                                ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-                                                ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
-                                                
-                                                self.playerItem = AVPlayerItem(asset: urlAsset)
-                                                self.showPlayer = true
-                                                
-                                            } catch {
-                                                print("Error getting Options url from link \(error)")
-                                            }
-                                        }
-                                    }
-                                    .padding()
-                                    .prefersDefaultFocus(in: nftDetails)
-                                }
-                                
-                                if media.media_type == "HTML" {
-                                    Button ("View") {
-                                        do {
-                                            let htmlUrl = try fabric.getUrlFromLink(link: media.media_file, params: media.parameters)
-                                            print("url \(htmlUrl)")
-                                            
-                                        } catch {
-                                            print("Error getting Options url from link \(error)")
-                                        }
-                                    }
-                                    .padding()
-                                }
-                            }
-                        }
-                    }
-                }
-                .padding(.top, 20) */
                 if self.featuredMedia.count > 0 {
                     VStack(alignment: .leading, spacing: 20)  {
                         Text("FEATURED MEDIA")
@@ -279,7 +205,7 @@ struct NFTDetailView: View {
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 20)  {
+                LazyVStack(alignment: .leading, spacing: 20)  {
                     ForEach(collections) { collection in
                         Text(collection.name)
                         MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem)
@@ -301,8 +227,8 @@ struct NFTDetailView: View {
 
 struct NFTDetail: View {
     @EnvironmentObject var fabric: Fabric
-    @State var nft = NFTModel()
-    @State var featuredMedia: [FeaturedMediaModel] = []
+    @State var nft : NFTModel
+    @State var featuredMedia: [MediaItem] = []
     @State var collections: [MediaCollection] = []
     @State var richText: AttributedString = ""
     
@@ -313,17 +239,21 @@ struct NFTDetail: View {
         }
         .task(){
             do{
+                /*
                 var mediaSections = nft.meta_full?["additional_media_sections"]
 
                 let decoder = JSONDecoder()
                 if let featured_media = mediaSections?["featured_media"] {
                     do {
-                        self.featuredMedia = try decoder.decode([FeaturedMediaModel].self, from: featured_media.rawData())
+                        self.featuredMedia = try decoder.decode([MediaItem].self, from: featured_media.rawData())
                     } catch {
                         print(error.localizedDescription)
                     }
-                }
+                } */
                 
+                
+                
+            /*
                 if let sections = mediaSections?["sections"] {
                     for section in sections.arrayValue {
                         let mediaCollections = section["collections"]
@@ -335,7 +265,23 @@ struct NFTDetail: View {
                         }
                     }
                 }
+             */
                 
+                
+                 
+                if let additions = nft.additional_media_sections {
+                    self.featuredMedia = additions.featured_media
+                    
+                    var collections: [MediaCollection] = []
+                    for section in additions.sections {
+                        for collection in section.collections {
+                            collections.append(collection)
+                        }
+                    }
+                    
+                    self.collections = collections
+                    print(self.collections)
+                }
                 
                 let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
                 if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {

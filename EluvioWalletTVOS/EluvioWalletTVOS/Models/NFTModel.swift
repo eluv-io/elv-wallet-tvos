@@ -25,6 +25,7 @@ struct NFTModel: Identifiable, Codable {
     var meta : NFTMetaResponse = NFTMetaResponse()
     var meta_full: JSON?
     var has_playable_feature : Bool?
+    var additional_media_sections : AdditionalMediaModel?
     init(){
         block = 0
         created = 0
