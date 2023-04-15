@@ -31,6 +31,7 @@ struct MediaItem: Identifiable, Codable {
     var media_file: JSON? = nil
     var parameters: [JSON] = []
     var gallery: [GalleryItem]
+    var offerings: [String] = []
 }
 
 struct MediaCollection: Identifiable, Codable {

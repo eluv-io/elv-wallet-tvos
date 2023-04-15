@@ -26,9 +26,25 @@ struct MediaView: View {
                 if media?.media_type == "Video" {
                         Task {
                             do {
-                                let optionsUrl = try fabric.getUrlFromLink(link: media?.media_link?["sources"]["default"], params: media?.parameters ?? [] )
+                                
+                                var offering = "default"
+ 
+                                if (media?.offerings.count ?? 0 > 0){
+                                    offering = media?.offerings[0] ?? "default"
+                                }
+
+                                var optionsUrl = try fabric.getUrlFromLink(link: media?.media_link?["sources"]["default"], params: media?.parameters ?? [] )
+                                
+                                //There's no offering other than sources.default
+                                //let optionsUrl = try fabric.getOptionsFromLink(resolvedLink: media?.media_link, offering: offering)
                                 
                                 print("MEDIA: ", media)
+                                
+                                if(offering != "default" && optionsUrl.contains("default/options.json")){
+                                    optionsUrl = optionsUrl.replaceFirst(of: "default/options.json", with: "\(offering)/options.json")
+                                }
+                                
+                                print ("Offering \(offering)")
                                 print("options url \(optionsUrl)")
                                 
                                 
@@ -43,11 +59,12 @@ struct MediaView: View {
                                 
                                 if optionsJson["hls-clear"].exists() {
                                     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash, drm:"hls-clear")
+                                    print("Playlist URL \(hlsPlaylistUrl)")
                                     let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
                                     
                                     self.playerItem = AVPlayerItem(asset: urlAsset)
                                 }else if optionsJson["hls-fairplay"].exists() {
-                                    let licenseServer = optionsJson["hls-fairplay"]["license_servers"][0].stringValue
+                                    let licenseServer = optionsJson["hls-fairplay"]["properties"]["license_servers"][0].stringValue
                                     
                                     if(licenseServer.isEmpty)
                                     {
@@ -55,7 +72,8 @@ struct MediaView: View {
                                     }
                                     print("license_server \(licenseServer)")
                                     
-                                    hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash, drm:"hls-fairplay")
+                                    hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash, drm:"hls-fairplay", offering: offering)
+                                    print("Playlist URL \(hlsPlaylistUrl)")
                                     
                                     let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
                                     
@@ -66,13 +84,7 @@ struct MediaView: View {
                                 }else{
                                     throw RuntimeError("No available playback options \(optionsJson)")
                                 }
-                                
- 
-                                if (!hlsPlaylistUrl.isEmpty) {
-                                    print("Playlist URL \(hlsPlaylistUrl)")
-                                    self.showPlayer = true
-                                }
-                                
+                                self.showPlayer = true
                             } catch {
                                 print("Error getting Options url from link \(error)")
                             }

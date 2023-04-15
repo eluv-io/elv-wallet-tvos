@@ -546,16 +546,14 @@ class Fabric: ObservableObject {
         }
     }
     
-    //Given a token uri with suffix /meta/public/nft, we retrieve the full one
-    // with /meta/public/asset_metadata/nft
-    func getOptionsFromLink(resolvedLink: JSON?) throws -> String {
+    func getOptionsFromLink(resolvedLink: JSON?, offering:String="default") throws -> String {
         guard let link = resolvedLink else{
             throw FabricError.badInput("getOptionsFromLink: resolvedLink is nil")
         }
         
 
-        var path = link["sources"]["default"]["/"].stringValue
-        var hash = link["sources"]["default"]["."]["container"].stringValue
+        var path = link["sources"][offering]["/"].stringValue
+        var hash = link["sources"][offering]["."]["container"].stringValue
                 
         path = NSString.path(withComponents: ["/","q",hash,path])
         
