@@ -32,6 +32,25 @@ struct MediaItem: Identifiable, Codable {
     var parameters: [JSON]? = []
     var gallery: [GalleryItem]? = []
     var offerings: [String]? = []
+    
+    init (){
+        id = UUID().uuidString
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
+        image = try container.decodeIfPresent(String.self, forKey: .image)
+        name = try container.decode(String.self, forKey: .name)
+        media_type = try container.decode(String.self, forKey: .media_type)
+        requires_permissions = try container.decode(Bool.self, forKey: .requires_permissions)
+        image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio)
+        media_link = try container.decodeIfPresent(JSON.self, forKey: .media_link)
+        media_file = try container.decodeIfPresent(JSON.self, forKey: .media_file)
+        parameters = try container.decodeIfPresent([JSON].self, forKey: .parameters) ?? []
+        gallery = try container.decodeIfPresent([GalleryItem].self, forKey: .gallery) ?? []
+        offerings = try container.decodeIfPresent([String].self, forKey: .offerings) ?? []
+    }
 }
 
 struct MediaCollection: Identifiable, Codable {

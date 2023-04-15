@@ -21,7 +21,7 @@ struct MediaView: View {
     @State var qrUrl = "https://eluv.io"
     
     var body: some View {
-        HStack(alignment: .top, spacing: 40) {
+        VStack(alignment: .leading, spacing: 20) {
             Button(action: {
                 if media?.media_type == "Video" || media?.media_type == "Audio"{
                     self.showPlayer = true
@@ -113,7 +113,7 @@ struct MediaView: View {
                 CacheAsyncImage(url: URL(string: media?.image ?? "")) { image in
                     image.resizable()
                         .aspectRatio(contentMode: .fill)
-                        .frame( width: 200, height: 200)
+                        .frame( width: 225, height: 225)
                         .cornerRadius(15)
                 } placeholder: {
                     ProgressView()
@@ -133,7 +133,8 @@ struct MediaView: View {
             Text(media?.name ?? "")
                 .foregroundColor(Color.white)
                 .lineLimit(3)
-                .frame(width:300, alignment: .leading)
+                .font(.caption)
+                .frame(width: 300, height: 80, alignment: .topLeading)
             
         }
         .fullScreenCover(isPresented: $showGallery) {
@@ -161,7 +162,7 @@ struct MediaCollectionView: View {
     
     var body: some View {
         ScrollView(.horizontal) {
-            LazyHStack(alignment: .top, spacing: 20) {
+            HStack(alignment: .top, spacing: 20) {
                 ForEach(self.mediaCollection.media) {media in
                     MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem)
                 }
@@ -189,14 +190,14 @@ struct NFTDetailView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .top, spacing: 40) {
                     Button(action: {
                     }) {
                         AsyncImage(url: URL(string: nft.meta.image)) { image in
                             image.resizable()
                                 .aspectRatio(contentMode: .fill)
-                                .frame( width: 400, height: 400, alignment: .topLeading)
+                                .frame( width: 500, height: 500, alignment: .topLeading)
                                 .cornerRadius(15)
                         } placeholder: {
                             ProgressView()
@@ -236,10 +237,10 @@ struct NFTDetailView: View {
                 }
                 
                 if self.featuredMedia.count > 0 {
-                    VStack(alignment: .leading, spacing: 20)  {
+                    VStack(alignment: .leading, spacing: 10)  {
                         Text("FEATURED MEDIA")
                         ScrollView(.horizontal) {
-                            LazyHStack(alignment: .top, spacing: 20) {
+                            LazyHStack(alignment: .top, spacing: 50) {
                                 ForEach(self.featuredMedia) {media in
                                     MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem)
                                 }
@@ -249,13 +250,12 @@ struct NFTDetailView: View {
                     }
                 }
                 
-                LazyVStack(alignment: .leading, spacing: 20)  {
+                LazyVStack(alignment: .leading, spacing: 10)  {
                     ForEach(collections) { collection in
                         Text(collection.name)
                         MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem)
                     }
                 }
-                .padding(.top, 20)
             }
             .fullScreenCover(isPresented: $showPlayer) {
                 PlayerView(playerItem:self.$playerItem)
@@ -283,35 +283,6 @@ struct NFTDetail: View {
         }
         .task(){
             do{
-                /*
-                var mediaSections = nft.meta_full?["additional_media_sections"]
-
-                let decoder = JSONDecoder()
-                if let featured_media = mediaSections?["featured_media"] {
-                    do {
-                        self.featuredMedia = try decoder.decode([MediaItem].self, from: featured_media.rawData())
-                    } catch {
-                        print(error.localizedDescription)
-                    }
-                } */
-                
-                
-                
-            /*
-                if let sections = mediaSections?["sections"] {
-                    for section in sections.arrayValue {
-                        let mediaCollections = section["collections"]
-                        do {
-                            self.collections = try decoder.decode([MediaCollection].self, from: mediaCollections.rawData())
-                            print ("Media Collections \(self.collections.count)")
-                        } catch {
-                            print(error.localizedDescription)
-                        }
-                    }
-                }
-             */
-                
-                
                  
                 if let additions = nft.additional_media_sections {
                     self.featuredMedia = additions.featured_media

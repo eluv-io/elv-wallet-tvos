@@ -27,8 +27,8 @@ struct DetailButtonStyle: ButtonStyle {
             .foregroundColor(.white)
             .background(self.focused ? Color.highlight : Color.tinted)
             .cornerRadius(20)
-            .scaleEffect(self.focused ? 1.1: 1, anchor: .center)
-            .shadow(color: self.focused ? .gray : .black, radius: self.focused ? 15 : 5, x: 5, y: 5)
+            .scaleEffect(self.focused ? 1.04: 1, anchor: .center)
+            .shadow(color: self.focused ? .gray.opacity(0.5) : .black, radius: self.focused ? 8 : 0, x: 2, y: 2)
             .animation(self.focused ? .linear(duration: 0.5).repeatForever() : .easeIn(duration: 0.2), value: self.focused)
     }
 }
