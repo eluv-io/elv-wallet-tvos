@@ -19,11 +19,20 @@ struct MediaView: View {
     @State var gallery: [GalleryItem] = []
     @State var showQRView = false
     @State var qrUrl = "https://eluv.io"
+    @Binding var playerImageOverlayUrl : String
+    @Binding var playerTextOverlay : String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Button(action: {
                 if media?.media_type == "Video" || media?.media_type == "Audio"{
+                    if media?.media_type == "Video" {
+                        self.playerImageOverlayUrl = ""
+                        self.playerTextOverlay = ""
+                    } else {
+                        self.playerImageOverlayUrl = media?.image ?? ""
+                        self.playerTextOverlay = media?.name ?? ""
+                    }
                     self.showPlayer = true
                         Task {
                             do {
@@ -159,12 +168,17 @@ struct MediaCollectionView: View {
     @State var mediaCollection: MediaCollection
     @Binding var showPlayer : Bool
     @Binding var playerItem : AVPlayerItem?
+    @Binding var playerImageOverlayUrl : String
+    @Binding var playerTextOverlay : String
     
     var body: some View {
         ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: 20) {
                 ForEach(self.mediaCollection.media) {media in
-                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem)
+                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
+                              playerImageOverlayUrl:$playerImageOverlayUrl,
+                              playerTextOverlay:$playerTextOverlay
+                    )
                 }
             }
             .padding(20)
@@ -187,6 +201,8 @@ struct NFTDetailView: View {
     @Binding var collections: [MediaCollection]
     @Binding var richText : AttributedString
     @FocusState var isFocused
+    @State var playerImageOverlayUrl : String = ""
+    @State var playerTextOverlay : String = ""
     
     var body: some View {
         ScrollView {
@@ -242,7 +258,10 @@ struct NFTDetailView: View {
                         ScrollView(.horizontal) {
                             LazyHStack(alignment: .top, spacing: 50) {
                                 ForEach(self.featuredMedia) {media in
-                                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem)
+                                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
+                                              playerImageOverlayUrl:$playerImageOverlayUrl,
+                                              playerTextOverlay:$playerTextOverlay
+                                    )
                                 }
                             }
                             .padding(20)
@@ -253,13 +272,18 @@ struct NFTDetailView: View {
                 LazyVStack(alignment: .leading, spacing: 10)  {
                     ForEach(collections) { collection in
                         Text(collection.name)
-                        MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem)
+                        MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem,
+                                            playerImageOverlayUrl:$playerImageOverlayUrl,
+                                            playerTextOverlay:$playerTextOverlay
+                        )
                     }
                 }
             }
             .fullScreenCover(isPresented: $showPlayer) {
-                PlayerView(playerItem:self.$playerItem)
-                    .environmentObject(self.fabric)
+                PlayerView(playerItem:self.$playerItem,
+                           playerImageOverlayUrl:$playerImageOverlayUrl,
+                           playerTextOverlay:$playerTextOverlay
+                )
                     .preferredColorScheme(colorScheme)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
@@ -279,6 +303,7 @@ struct NFTDetail: View {
     var body: some View {
         VStack{
             NFTDetailView(nft:$nft, featuredMedia: $featuredMedia, collections:$collections, richText: $richText)
+                .environmentObject(fabric)
                 .padding()
         }
         .task(){

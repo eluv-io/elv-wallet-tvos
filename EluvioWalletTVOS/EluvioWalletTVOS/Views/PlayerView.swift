@@ -23,6 +23,9 @@ struct PlayerView: View {
     @ObservedObject var playerItemObserver = PlayerItemObserver()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
+    @Binding var playerImageOverlayUrl : String
+    @Binding var playerTextOverlay : String
+    
     var body: some View {
             VideoPlayer(player: player)
             .ignoresSafeArea()
@@ -40,6 +43,28 @@ struct PlayerView: View {
                     self.player.play()
                     newItem = false
                     print("Play!!")
+                }
+            }
+            .overlay {
+                VStack {
+                    if !playerImageOverlayUrl.isEmpty {
+                        CacheAsyncImage(url: URL(string: playerImageOverlayUrl)) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame( width: 600, height: 600)
+                                .cornerRadius(15)
+                        } placeholder: {
+                            
+                        }
+                    }
+                    
+                    if !playerTextOverlay.isEmpty {
+                        Text(playerTextOverlay)
+                            .foregroundColor(Color.white)
+                            .font(.title)
+                            .lineLimit(3)
+                            .frame(width: .infinity, alignment: .center)
+                    }
                 }
             }
     }
