@@ -206,11 +206,23 @@ class Fabric: ObservableObject {
                             do {
                                 nftmodel.additional_media_sections = try JSONDecoder().decode(AdditionalMediaModel.self, from: nftData["additional_media_sections"].rawData())
                             }catch{
-                                print("Error decoding additional_media_sections for \(nftmodel.contract_name) \(error)")
+                                print("Error decoding additional_media_sections for \(nftmodel.contract_name ?? ""): \(error)")
+                                print("\(try nftData.rawData().prettyPrintedJSONString ?? "")")
+                                
+                                do {
+                                    //Try to find the old style
+                                    if nftData["additional_media"].exists() {
+                                        nftmodel.additional_media_sections = AdditionalMediaModel()
+                                        nftmodel.additional_media_sections?.featured_media = try JSONDecoder().decode([MediaItem].self, from: nftData["additional_media"].rawData())
+                                    }
+                                }catch{
+                                    print("Error decoding additional_media for \(nftmodel.contract_name ?? ""): \(error)")
+                                }
                             }
                             
                             var hasPlayableMedia = false
 
+                            /*
                             if nftData["additional_media_sections"].exists() {
                                 let mediaSections = nftData["additional_media_sections"]
                                 
@@ -237,7 +249,38 @@ class Fabric: ObservableObject {
                                     }
                                 }
                             }
+                            */
+                            if nftmodel.additional_media_sections != nil {
+                                if let mediaSections = nftmodel.additional_media_sections {
+                                    //Parsing featured_media to find videos
+                                    for media in mediaSections.featured_media{
+                                        if let mediaType = media.media_type {
+                                            if mediaType == "Video" || mediaType == "Audio"{
+                                                hasPlayableMedia = true
+                                                break
+                                            }
+                                        }
+                                    }
+                                    
+                                    //Parsing sections to find videos
+                                    if (!hasPlayableMedia) {
+                                        for section in mediaSections.sections {
+                                            for collection in section.collections{
+                                                for media in collection.media{
+                                                    if let mediaType = media.media_type {
+                                                        if mediaType == "Video" || mediaType == "Audio"{
+                                                            hasPlayableMedia = true
+                                                            break
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             
+
                             nftmodel.has_playable_feature = hasPlayableMedia
                             if (hasPlayableMedia) {
                                 playable.append(nftmodel)

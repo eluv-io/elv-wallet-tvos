@@ -21,26 +21,25 @@ struct PlayerView: View {
     @State var isPlaying: Bool = false
     @Binding var playerItem : AVPlayerItem?
     @ObservedObject var playerItemObserver = PlayerItemObserver()
-    
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var newItem : Bool = false
     var body: some View {
             VideoPlayer(player: player)
             .ignoresSafeArea()
-            .onAppear(perform:{
-                print("PlayerView: onAppear \(self.playerItem)")
+            .onChange(of: playerItem) { value in
                 if (self.playerItem != nil) {
-                    self.playerItem!.addObserver(playerItemObserver,
-                                           forKeyPath: #keyPath(AVPlayerItem.status),
-                                           options: [.old, .new],
-                                                context: &playerItemObserver.$playerItemContext)
-                    
                     self.player.replaceCurrentItem(with: self.playerItem)
                     print("PlayerView: replaced current Item \(self.playerItem?.asset)")
+                    newItem = true
+
                 }
-            })
-            .onChange(of: playerItemObserver.playerItemContext) { value in
-                if playerItem?.status == .readyToPlay {
-                    print("current item status is ready")
+            }
+            .onReceive(timer) { time in
+                print("Item Status \(self.playerItem?.status.rawValue)")
+                if (newItem && self.playerItem?.status == .readyToPlay){
                     self.player.play()
+                    newItem = false
+                    print("Play!!")
                 }
             }
     }

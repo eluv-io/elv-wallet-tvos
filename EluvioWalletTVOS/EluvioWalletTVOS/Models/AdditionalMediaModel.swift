@@ -29,9 +29,9 @@ struct MediaItem: Identifiable, Codable {
     var requires_permissions: Bool = false
     var media_link: JSON? = nil
     var media_file: JSON? = nil
-    var parameters: [JSON] = []
-    var gallery: [GalleryItem]
-    var offerings: [String] = []
+    var parameters: [JSON]? = []
+    var gallery: [GalleryItem]? = []
+    var offerings: [String]? = []
 }
 
 struct MediaCollection: Identifiable, Codable {

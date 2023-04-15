@@ -23,14 +23,15 @@ struct MediaView: View {
     var body: some View {
         HStack(alignment: .top, spacing: 40) {
             Button(action: {
-                if media?.media_type == "Video" {
+                if media?.media_type == "Video" || media?.media_type == "Audio"{
+                    self.showPlayer = true
                         Task {
                             do {
                                 
                                 var offering = "default"
  
-                                if (media?.offerings.count ?? 0 > 0){
-                                    offering = media?.offerings[0] ?? "default"
+                                if (media?.offerings?.count ?? 0 > 0){
+                                    offering = media?.offerings?[0] ?? "default"
                                 }
 
                                 var optionsUrl = try fabric.getUrlFromLink(link: media?.media_link?["sources"]["default"], params: media?.parameters ?? [] )
@@ -84,7 +85,6 @@ struct MediaView: View {
                                 }else{
                                     throw RuntimeError("No available playback options \(optionsJson)")
                                 }
-                                self.showPlayer = true
                             } catch {
                                 print("Error getting Options url from link \(error)")
                             }
