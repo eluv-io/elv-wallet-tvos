@@ -11,6 +11,11 @@
 		B00945A229E937C500B00FC3 /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A129E937C500B00FC3 /* Styles.swift */; };
 		B00945A429E9514B00B00FC3 /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */; };
 		B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A529E9C45F00B00FC3 /* QRView.swift */; };
+		B00945AD29EA478D00B00FC3 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A829EA478D00B00FC3 /* TestData.swift */; };
+		B00945AE29EA478D00B00FC3 /* nfts.json in Resources */ = {isa = PBXBuildFile; fileRef = B00945A929EA478D00B00FC3 /* nfts.json */; };
+		B00945AF29EA478D00B00FC3 /* nfts_marketplace.json in Resources */ = {isa = PBXBuildFile; fileRef = B00945AA29EA478D00B00FC3 /* nfts_marketplace.json */; };
+		B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */ = {isa = PBXBuildFile; fileRef = B00945AB29EA478D00B00FC3 /* marketplaces.json */; };
+		B00945B129EA478D00B00FC3 /* profile.json in Resources */ = {isa = PBXBuildFile; fileRef = B00945AC29EA478D00B00FC3 /* profile.json */; };
 		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
 		B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3229D4211700676872 /* DeviceFlowView.swift */; };
 		B0670F3529D5421300676872 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3429D5421300676872 /* WalletView.swift */; };
@@ -20,11 +25,6 @@
 		B0670F3D29D5427400676872 /* HViewGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3929D5427300676872 /* HViewGrid.swift */; };
 		B0670F4029D542A100676872 /* Header.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3E29D542A100676872 /* Header.swift */; };
 		B0670F4129D542A100676872 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3F29D542A100676872 /* Color.swift */; };
-		B0670F4A29D5438000676872 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F4529D5438000676872 /* TestData.swift */; };
-		B0670F4B29D5438000676872 /* nfts.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4629D5438000676872 /* nfts.json */; };
-		B0670F4C29D5438000676872 /* nfts_marketplace.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4729D5438000676872 /* nfts_marketplace.json */; };
-		B0670F4D29D5438000676872 /* marketplaces.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4829D5438000676872 /* marketplaces.json */; };
-		B0670F4E29D5438000676872 /* profile.json in Resources */ = {isa = PBXBuildFile; fileRef = B0670F4929D5438000676872 /* profile.json */; };
 		B0670F5029D55D7C00676872 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F4F29D55D7C00676872 /* CollectionView.swift */; };
 		B0670F5329D55FBE00676872 /* QGrid in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5229D55FBE00676872 /* QGrid */; };
 		B0670F5529D6C48F00676872 /* Auth0Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F5429D6C48F00676872 /* Auth0Models.swift */; };
@@ -66,6 +66,11 @@
 		B00945A129E937C500B00FC3 /* Styles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styles.swift; sourceTree = "<group>"; };
 		B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedAsyncImage.swift; sourceTree = "<group>"; };
 		B00945A529E9C45F00B00FC3 /* QRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRView.swift; sourceTree = "<group>"; };
+		B00945A829EA478D00B00FC3 /* TestData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
+		B00945A929EA478D00B00FC3 /* nfts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nfts.json; sourceTree = "<group>"; };
+		B00945AA29EA478D00B00FC3 /* nfts_marketplace.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nfts_marketplace.json; sourceTree = "<group>"; };
+		B00945AB29EA478D00B00FC3 /* marketplaces.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = marketplaces.json; sourceTree = "<group>"; };
+		B00945AC29EA478D00B00FC3 /* profile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = profile.json; sourceTree = "<group>"; };
 		B05DD74929E5220E001E12AF /* HTMLText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLText.swift; sourceTree = "<group>"; };
 		B0670F3229D4211700676872 /* DeviceFlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceFlowView.swift; sourceTree = "<group>"; };
 		B0670F3429D5421300676872 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
@@ -75,11 +80,6 @@
 		B0670F3929D5427300676872 /* HViewGrid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HViewGrid.swift; sourceTree = "<group>"; };
 		B0670F3E29D542A100676872 /* Header.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Header.swift; sourceTree = "<group>"; };
 		B0670F3F29D542A100676872 /* Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
-		B0670F4529D5438000676872 /* TestData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
-		B0670F4629D5438000676872 /* nfts.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nfts.json; sourceTree = "<group>"; };
-		B0670F4729D5438000676872 /* nfts_marketplace.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = nfts_marketplace.json; sourceTree = "<group>"; };
-		B0670F4829D5438000676872 /* marketplaces.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = marketplaces.json; sourceTree = "<group>"; };
-		B0670F4929D5438000676872 /* profile.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = profile.json; sourceTree = "<group>"; };
 		B0670F4F29D55D7C00676872 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
 		B0670F5429D6C48F00676872 /* Auth0Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth0Models.swift; sourceTree = "<group>"; };
 		B0670F5629D79F9300676872 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
@@ -128,17 +128,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B0670F4429D5438000676872 /* Test */ = {
+		B00945A729EA478D00B00FC3 /* Test */ = {
 			isa = PBXGroup;
 			children = (
-				B0670F4529D5438000676872 /* TestData.swift */,
-				B0670F4629D5438000676872 /* nfts.json */,
-				B0670F4729D5438000676872 /* nfts_marketplace.json */,
-				B0670F4829D5438000676872 /* marketplaces.json */,
-				B0670F4929D5438000676872 /* profile.json */,
+				B00945A829EA478D00B00FC3 /* TestData.swift */,
+				B00945A929EA478D00B00FC3 /* nfts.json */,
+				B00945AA29EA478D00B00FC3 /* nfts_marketplace.json */,
+				B00945AB29EA478D00B00FC3 /* marketplaces.json */,
+				B00945AC29EA478D00B00FC3 /* profile.json */,
 			);
-			name = Test;
-			path = "../../../elv-wallet-ios/EluvioWalletIOS/EluvioWalletIOS/Test";
+			path = Test;
 			sourceTree = "<group>";
 		};
 		B0670F6C29E3DF6F00676872 /* Managers */ = {
@@ -175,7 +174,7 @@
 				B0E60F8329CD70AF0079661E /* Fabric */,
 				B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */,
 				B0E60F7129CC23510079661E /* ContentView.swift */,
-				B0670F4429D5438000676872 /* Test */,
+				B00945A729EA478D00B00FC3 /* Test */,
 				B0E60F7329CC23530079661E /* Assets.xcassets */,
 				B0E60F7529CC23530079661E /* Preview Content */,
 				B0E60F7D29CD63B50079661E /* configuration.json */,
@@ -322,12 +321,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B0670F4C29D5438000676872 /* nfts_marketplace.json in Resources */,
+				B00945AF29EA478D00B00FC3 /* nfts_marketplace.json in Resources */,
 				B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */,
-				B0670F4B29D5438000676872 /* nfts.json in Resources */,
-				B0670F4D29D5438000676872 /* marketplaces.json in Resources */,
+				B00945AE29EA478D00B00FC3 /* nfts.json in Resources */,
+				B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */,
 				B0E60F7E29CD63B60079661E /* configuration.json in Resources */,
-				B0670F4E29D5438000676872 /* profile.json in Resources */,
+				B00945B129EA478D00B00FC3 /* profile.json in Resources */,
 				B0E60F7429CC23530079661E /* Assets.xcassets in Resources */,
 				B0E60F9F29D1B1DF0079661E /* Auth0.plist in Resources */,
 			);
@@ -341,7 +340,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0670F4029D542A100676872 /* Header.swift in Sources */,
-				B0670F4A29D5438000676872 /* TestData.swift in Sources */,
 				B0670F5529D6C48F00676872 /* Auth0Models.swift in Sources */,
 				B0E60FA829D211040079661E /* ProfileModel.swift in Sources */,
 				B00945A029E91DE000B00FC3 /* GalleryView.swift in Sources */,
@@ -350,6 +348,7 @@
 				B0E60FB229D2288C0079661E /* MainView.swift in Sources */,
 				B0670F5729D79F9300676872 /* ProfileView.swift in Sources */,
 				B0E60F8C29CD71840079661E /* NFTMetaResponse.swift in Sources */,
+				B00945AD29EA478D00B00FC3 /* TestData.swift in Sources */,
 				B0E60F7229CC23510079661E /* ContentView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
 				B0E60F8929CD71840079661E /* FabricModels.swift in Sources */,
