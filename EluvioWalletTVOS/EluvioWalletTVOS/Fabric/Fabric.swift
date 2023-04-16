@@ -381,6 +381,7 @@ class Fabric: ObservableObject {
         var signInResponse = SignInResponse()
         signInResponse.idToken = idToken
         signInResponse.refreshToken = refreshToken
+        signInResponse.accessToken = accessToken
         
         self.signInResponse = signInResponse
         

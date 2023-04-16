@@ -78,6 +78,11 @@ struct CacheAsyncImage<Content, Content2>: View where Content: View, Content2: V
         if case .success (let image) = phase {
             ImageCache[url] = image
         }
+        
+        if case .failure(let error) = phase {
+            let _ = print(error)
+        }
+        
         return contentPhase?(phase)
     }
 }

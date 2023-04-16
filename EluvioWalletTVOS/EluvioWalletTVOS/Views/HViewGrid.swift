@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import SDWebImageSwiftUI
 
 struct HViewGrid: View {
     var title: String
@@ -57,13 +57,18 @@ struct HViewGrid: View {
     var titleView: some View {
         Group {
             if(!titleImageUri.isEmpty){
+                WebImage(url: URL(string: titleImageUri))
+                    .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 30)
+                /*
                 AsyncImage(url: URL(string: titleImageUri)) { image in
                     image.resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 30)
                 } placeholder: {
                     ProgressView()
-                }
+                }*/
             }
             
             VStack(spacing:20){

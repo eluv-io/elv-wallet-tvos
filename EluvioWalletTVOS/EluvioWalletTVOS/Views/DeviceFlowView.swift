@@ -127,12 +127,14 @@ struct DeviceFlowView: View {
             }
             
             //print(json)
-            self.url = json?["verification_uri"] as! String
+            //self.url = json?["verification_uri"] as! String
+            self.url = "https://elv.lv/activate"
+            
             self.urlComplete = json?["verification_uri_complete"] as! String
             self.code = json?["user_code"] as! String
             self.deviceCode = json?["device_code"] as! String
             
-            var interval = json?["interval"] as! Double
+            var interval = json?["interval"] as! Double + 1.0
             let validFor = json?["expires_in"] as! Int
             self.timer = Timer.publish(every: interval, on: .main, in: .common)
             self.timerCancellable = self.timer.connect()

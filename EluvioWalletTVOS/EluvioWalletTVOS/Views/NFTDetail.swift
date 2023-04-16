@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftyJSON
 import AVKit
+import SDWebImageSwiftUI
 
 struct MediaView: View {
     @EnvironmentObject var fabric: Fabric
@@ -119,6 +120,15 @@ struct MediaView: View {
                 }
  
             }) {
+                
+                WebImage(url: URL(string: media?.image ?? ""))
+                    .resizable()
+                    .indicator(.activity) // Activity Indicator
+                    .transition(.fade(duration: 0.5))
+                    .aspectRatio(contentMode: .fill)
+                    .frame( width: 225, height: 225)
+                    .cornerRadius(15)
+                /*
                 CacheAsyncImage(url: URL(string: media?.image ?? "")) { image in
                     image.resizable()
                         .aspectRatio(contentMode: .fill)
@@ -127,6 +137,32 @@ struct MediaView: View {
                 } placeholder: {
                     ProgressView()
                 }
+                
+                AsyncImage(url: URL(string: media?.image ?? "")) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image.resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame( width: 225, height: 225)
+                            .cornerRadius(15)
+                    case .failure(let error):
+                        let _ = print(error)
+                        //Text("error: \(error.localizedDescription)")
+                        AsyncImage(url: URL(string: media?.image ?? "")) { image in
+                             image.resizable()
+                                 .aspectRatio(contentMode: .fill)
+                                 .frame( width: 225, height: 225)
+                                 .cornerRadius(15)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                    case .empty:
+                        ProgressView()
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+                 */
             }
             .buttonStyle(DetailButtonStyle(focused: isFocused))
             .focused($isFocused)
@@ -161,6 +197,7 @@ struct MediaView: View {
                 .background(.thinMaterial)
         }
     }
+
 }
 
 struct MediaCollectionView: View {
@@ -210,6 +247,7 @@ struct NFTDetailView: View {
                 HStack(alignment: .top, spacing: 40) {
                     Button(action: {
                     }) {
+                        /*
                         AsyncImage(url: URL(string: nft.meta.image)) { image in
                             image.resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -217,7 +255,12 @@ struct NFTDetailView: View {
                                 .cornerRadius(15)
                         } placeholder: {
                             ProgressView()
-                        }
+                        }*/
+                        WebImage(url: URL(string: nft.meta.image))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame( width: 500, height: 500, alignment: .topLeading)
+                            .cornerRadius(15)
                     }
                     .buttonStyle(PrimaryButtonStyle(focused: isFocused))
                     .focused($isFocused)
@@ -307,33 +350,27 @@ struct NFTDetail: View {
                 .padding()
         }
         .task(){
-            do{
-                 
-                if let additions = nft.additional_media_sections {
-                    self.featuredMedia = additions.featured_media
-                    
-                    var collections: [MediaCollection] = []
-                    for section in additions.sections {
-                        for collection in section.collections {
-                            collections.append(collection)
-                        }
+            if let additions = nft.additional_media_sections {
+                self.featuredMedia = additions.featured_media
+                
+                var collections: [MediaCollection] = []
+                for section in additions.sections {
+                    for collection in section.collections {
+                        collections.append(collection)
                     }
-                    
-                    self.collections = collections
-                    print(self.collections)
                 }
                 
-                let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
-                if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
-                    self.richText = AttributedString(attributedString)
-                    self.richText.foregroundColor = .white
-                    self.richText.font = .body
-                }
-                
-            }catch {
-                print("Fetching nft data failed with error \(error)")
+                self.collections = collections
+                print(self.collections)
             }
             
+            let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
+            if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
+                self.richText = AttributedString(attributedString)
+                self.richText.foregroundColor = .white
+                self.richText.font = .body
+            }
+
         }
     }
     

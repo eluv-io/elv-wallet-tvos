@@ -185,7 +185,7 @@ class RemoteSigner {
         return hash
     }
     
-    func createFabricToken(duration: Int64 = 24 * 60 * 60 * 1000, address: String, contentSpaceId: String, authToken: String) async throws -> String {
+    func createFabricToken(duration: Int64 = 7 * 24 * 60 * 60 * 1000, address: String, contentSpaceId: String, authToken: String) async throws -> String {
 
         let adr = address.data(using: .hexadecimal)?.base64EncodedString()
         let token: JSON = [

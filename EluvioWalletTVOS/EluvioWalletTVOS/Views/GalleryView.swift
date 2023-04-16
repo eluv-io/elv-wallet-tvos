@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftyJSON
 import AVKit
+import SDWebImageSwiftUI
 
 struct GalleryItemView: View {
     @EnvironmentObject var fabric: Fabric
@@ -20,6 +21,7 @@ struct GalleryItemView: View {
             Button(action: {
 
             }) {
+                /*
                 CacheAsyncImage(url: URL(string: imageUrl)) { image in
                     image.resizable()
                         .aspectRatio(contentMode: .fill)
@@ -28,6 +30,13 @@ struct GalleryItemView: View {
                 } placeholder: {
                     ProgressView()
                 }
+                 */
+                WebImage(url: URL(string: imageUrl))
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame( width: 200, height: 200)
+                    .cornerRadius(15)
+                
             }
             .buttonStyle(GalleryButtonStyle(focused: isFocused))
             .focused($isFocused)
@@ -73,6 +82,7 @@ struct GalleryView: View {
                 }
             }
             .background(){
+                /*
                 AsyncImage(url: URL(string: currentImageUrl)) { image in
                     image.resizable()
                         .aspectRatio(contentMode: .fit)
@@ -80,6 +90,12 @@ struct GalleryView: View {
                 } placeholder: {
                     ProgressView()
                 }
+                 */
+                WebImage(url: URL(string: currentImageUrl))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .edgesIgnoringSafeArea(.all)
+                
             }
         }
 }

@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import AVKit
+import SDWebImageSwiftUI
 
 class PlayerItemObserver: NSObject, ObservableObject {
     @Published var playerItemContext = 0
@@ -48,6 +49,15 @@ struct PlayerView: View {
             .overlay {
                 VStack {
                     if !playerImageOverlayUrl.isEmpty {
+                        WebImage(url: URL(string: playerImageOverlayUrl))
+                            .resizable()
+                            .indicator(.activity) // Activity Indicator
+                            .transition(.fade(duration: 0.5))
+                            .aspectRatio(contentMode: .fill)
+                            .frame( width: 600, height: 600)
+                            .cornerRadius(15)
+                        
+                        /*
                         CacheAsyncImage(url: URL(string: playerImageOverlayUrl)) { image in
                             image.resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -56,6 +66,33 @@ struct PlayerView: View {
                         } placeholder: {
                             
                         }
+                         */
+                        /*
+                        AsyncImage(url: URL(string: playerImageOverlayUrl)) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image.resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame( width: 600, height: 600)
+                                    .cornerRadius(15)
+                            case .failure(let error):
+                                let _ = print(error)
+                                //Text("error: \(error.localizedDescription)")
+                                AsyncImage(url: URL(string: playerImageOverlayUrl)) { image in
+                                    image.resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame( width: 600, height: 600)
+                                        .cornerRadius(15)
+                                } placeholder: {
+                                    EmptyView()
+                                }
+                            case .empty:
+                                EmptyView()
+                            @unknown default:
+                                EmptyView()
+                            }
+                        }
+                         */
                     }
                     
                     if !playerTextOverlay.isEmpty {
@@ -63,7 +100,7 @@ struct PlayerView: View {
                             .foregroundColor(Color.white)
                             .font(.title)
                             .lineLimit(3)
-                            .frame(width: .infinity, alignment: .center)
+                            .frame(width: 1000, alignment: .center)
                     }
                 }
             }
