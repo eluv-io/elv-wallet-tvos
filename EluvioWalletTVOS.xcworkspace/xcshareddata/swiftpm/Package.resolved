@@ -109,6 +109,15 @@
       }
     },
     {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/SwiftUI-Introspect.git",
+      "state" : {
+        "revision" : "5b3f3996c7a2a84d5f4ba0e03cd7d584154778f2",
+        "version" : "0.3.1"
+      }
+    },
+    {
       "identity" : "swiftyjson",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftyJSON/SwiftyJSON.git",

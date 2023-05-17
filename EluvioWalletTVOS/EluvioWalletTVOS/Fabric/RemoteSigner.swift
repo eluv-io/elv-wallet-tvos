@@ -47,40 +47,36 @@ class RemoteSigner {
         return endpoint
     }
     
-    func getWalletData(accountAddress: String, accessCode: String) async throws -> [String: AnyObject] {
-            return try await withCheckedThrowingContinuation({ continuation in
+    //TODO: Convert this to responseDecodable
+    func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> [String: AnyObject] {
+        return try await withCheckedThrowingContinuation({ continuation in
+            
+            do {
+                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress);
+                print("Request: \(endpoint)")
+                print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                print("Headers: \(headers)")
                 
-                do {
-                    let endpoint: String = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress);
-                    print("Request: \(endpoint)")
-                    let headers: HTTPHeaders = [
-                        "Authorization": "Bearer \(accessCode)",
-                             "Accept": "application/json",
-                             "Content-Type": "application/json" ]
-                    
-                    AF.request(endpoint, parameters: nil, encoding: JSONEncoding.default, headers: headers ).responseJSON { response in
-                        //debugPrint("GetWalletData Response: \(response)")
-                        
-                        switch (response.result) {
-                            case .success( _):
-                                if let value = response.value as? [String: AnyObject] {
-                                    //print("contents: \(value["contents"])")
-                                    if let result = value as? [String: AnyObject] {
-                                        continuation.resume(returning: result)
-                                    }else{
-                                        continuation.resume(throwing: FabricError.unexpectedResponse("Could not get value from response \(response)"))
-                                    }
-                                }
-                             case .failure(let error):
-                                print("Request error: \(error.localizedDescription)")
-                                continuation.resume(throwing: error)
-                             
-                         }
-                    }
-                }catch{
-                    continuation.resume(throwing: error)
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+
+                    switch (response.result) {
+                        case .success( _):
+                            if let value = response.value as? [String: AnyObject] {
+                                continuation.resume(returning: value)
+                            }
+                         case .failure(let error):
+                            print("Get Wallet Data Request error: \(error.localizedDescription)")
+                            continuation.resume(throwing: error)
+                         
+                     }
                 }
-            })
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
     }
     
     struct Message: Decodable, Identifiable {

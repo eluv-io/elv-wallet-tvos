@@ -38,6 +38,12 @@
 		B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6A29E3D68900676872 /* PlayerView.swift */; };
 		B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6D29E3DFD100676872 /* ContentKeyManager.swift */; };
 		B0670F7029E3DFD800676872 /* ContentKeyDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */; };
+		B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D520E2A12875D00BD68D1 /* MyItemsView.swift */; };
+		B06D52112A12F83500BD68D1 /* property.json in Resources */ = {isa = PBXBuildFile; fileRef = B06D52102A12F83500BD68D1 /* property.json */; };
+		B06D52132A13040300BD68D1 /* MainView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52122A13040300BD68D1 /* MainView2.swift */; };
+		B06D52142A130A9300BD68D1 /* tenant.json in Resources */ = {isa = PBXBuildFile; fileRef = B06D520D2A0C0BBF00BD68D1 /* tenant.json */; };
+		B06D52172A14657E00BD68D1 /* Introspect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = B06D52162A14657E00BD68D1 /* Introspect-Static */; };
+		B06D52192A14882200BD68D1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52182A14882200BD68D1 /* SearchView.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
 		B0E60F7229CC23510079661E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentView.swift */; };
@@ -88,6 +94,11 @@
 		B0670F6A29E3D68900676872 /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		B0670F6D29E3DFD100676872 /* ContentKeyManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentKeyManager.swift; sourceTree = "<group>"; };
 		B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentKeyDelegate.swift; sourceTree = "<group>"; };
+		B06D520D2A0C0BBF00BD68D1 /* tenant.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tenant.json; sourceTree = "<group>"; };
+		B06D520E2A12875D00BD68D1 /* MyItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyItemsView.swift; sourceTree = "<group>"; };
+		B06D52102A12F83500BD68D1 /* property.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = property.json; sourceTree = "<group>"; };
+		B06D52122A13040300BD68D1 /* MainView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView2.swift; sourceTree = "<group>"; };
+		B06D52182A14882200BD68D1 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
 		B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioWalletTVOSApp.swift; sourceTree = "<group>"; };
 		B0E60F7129CC23510079661E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -118,6 +129,7 @@
 				B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */,
 				B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */,
 				B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */,
+				B06D52172A14657E00BD68D1 /* Introspect-Static in Frameworks */,
 				B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */,
 				B0E60F9229CD84160079661E /* Auth0 in Frameworks */,
 				B0E60F9529CD84420079661E /* Alamofire in Frameworks */,
@@ -138,6 +150,8 @@
 				B00945AA29EA478D00B00FC3 /* nfts_marketplace.json */,
 				B00945AB29EA478D00B00FC3 /* marketplaces.json */,
 				B00945AC29EA478D00B00FC3 /* profile.json */,
+				B06D520D2A0C0BBF00BD68D1 /* tenant.json */,
+				B06D52102A12F83500BD68D1 /* property.json */,
 			);
 			path = Test;
 			sourceTree = "<group>";
@@ -239,6 +253,9 @@
 				B00945A129E937C500B00FC3 /* Styles.swift */,
 				B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */,
 				B00945A529E9C45F00B00FC3 /* QRView.swift */,
+				B06D520E2A12875D00BD68D1 /* MyItemsView.swift */,
+				B06D52122A13040300BD68D1 /* MainView2.swift */,
+				B06D52182A14882200BD68D1 /* SearchView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -271,6 +288,7 @@
 				B0670F6329DBFC5900676872 /* RLPSwift */,
 				B0670F6629DC098400676872 /* SwiftyJSON */,
 				B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */,
+				B06D52162A14657E00BD68D1 /* Introspect-Static */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -310,6 +328,7 @@
 				B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */,
 				B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 				B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 			);
 			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
 			projectDirPath = "";
@@ -326,7 +345,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				B00945AF29EA478D00B00FC3 /* nfts_marketplace.json in Resources */,
+				B06D52112A12F83500BD68D1 /* property.json in Resources */,
 				B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */,
+				B06D52142A130A9300BD68D1 /* tenant.json in Resources */,
 				B00945AE29EA478D00B00FC3 /* nfts.json in Resources */,
 				B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */,
 				B0E60F7E29CD63B60079661E /* configuration.json in Resources */,
@@ -351,10 +372,12 @@
 				B0670F5029D55D7C00676872 /* CollectionView.swift in Sources */,
 				B0E60FB229D2288C0079661E /* MainView.swift in Sources */,
 				B0670F5729D79F9300676872 /* ProfileView.swift in Sources */,
+				B06D52132A13040300BD68D1 /* MainView2.swift in Sources */,
 				B0E60F8C29CD71840079661E /* NFTMetaResponse.swift in Sources */,
 				B00945AD29EA478D00B00FC3 /* TestData.swift in Sources */,
 				B0E60F7229CC23510079661E /* ContentView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
+				B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */,
 				B0E60F8929CD71840079661E /* FabricModels.swift in Sources */,
 				B0E60F8D29CD71840079661E /* RemoteSigner.swift in Sources */,
 				B0E60FAA29D211040079661E /* NFTModel.swift in Sources */,
@@ -364,6 +387,7 @@
 				B0670F3C29D5427400676872 /* NFTView.swift in Sources */,
 				B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */,
 				B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */,
+				B06D52192A14882200BD68D1 /* SearchView.swift in Sources */,
 				B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
@@ -615,6 +639,14 @@
 				minimumVersion = 5.0.0;
 			};
 		};
+		B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.3.1;
+			};
+		};
 		B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
@@ -687,6 +719,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
 			productName = SwiftyJSON;
+		};
+		B06D52162A14657E00BD68D1 /* Introspect-Static */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = "Introspect-Static";
 		};
 		B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;

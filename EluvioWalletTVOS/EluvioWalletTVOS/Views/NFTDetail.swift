@@ -338,6 +338,7 @@ struct NFTDetailView: View {
 
 struct NFTDetail: View {
     @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
     @State var nft : NFTModel
     @State var featuredMedia: [MediaItem] = []
     @State var collections: [MediaCollection] = []

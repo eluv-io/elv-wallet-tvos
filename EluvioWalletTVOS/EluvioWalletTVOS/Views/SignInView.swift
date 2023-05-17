@@ -28,7 +28,7 @@ struct SignInView: View {
     @State var showDeviceFlow = false
 
     enum Networks: String, CaseIterable, Identifiable {
-        case main="https://main.net955305.contentfabric.io/config", demo="https://demov3.net955210.contentfabric.io/config"
+        case main="main", demo="demo"
         var name: String {
             get { return String(describing: self) }
         }

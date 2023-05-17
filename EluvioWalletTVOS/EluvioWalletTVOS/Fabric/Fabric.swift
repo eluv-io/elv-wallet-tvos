@@ -34,6 +34,8 @@ struct RuntimeError: LocalizedError {
 }
 
 class Fabric: ObservableObject {
+    static var CommonFabricParams = "link_depth=10&resolve=true&resolve_include_source=true&resolve_ignore_errors=true"
+    
     var configUrl = ""
     var network = ""
     @Published
@@ -48,10 +50,50 @@ class Fabric: ObservableObject {
     var signInResponse: SignInResponse? = nil
     var profileData: [String: Any] = [:]
     
+    
+    //Move these models to the app level
+    @Published
+    var tenantItems:[JSON] = []  //Array of {"tenant":tenant, "nfts": nfts} objects of the user's items per tenant
+    @Published
+    var featured:[MediaItem] = []
+    @Published
+    var videos: [MediaItem] = []
+    @Published
+    var galleries: [MediaItem] = []
+    @Published
+    var images: [MediaItem] = []
+    @Published
+    var albums: [MediaItem] = []
+    @Published
+    var html: [MediaItem] = []
+    @Published
+    var books: [MediaItem] = []
+    
+    
+    //Deprecated
     @Published
     var playable : [NFTModel] = []
+    //Deprecated
+    @Published
     var nonPlayable : [NFTModel] = []
     
+    @Published
+    var tenants : [JSON] = []
+    @Published
+    var currentTenantIndex = 0
+    @Published
+    var currentPropertyIndex = 0
+    
+    var currentProperty: JSON {
+        
+        if (self.tenants[currentTenantIndex]["properties"].arrayValue.count == 0){
+            return JSON()
+        }
+        
+        return self.tenants[currentTenantIndex]["properties"].arrayValue[currentPropertyIndex]
+    }
+    
+
     @Published
     var fabricToken: String = ""
     
@@ -60,6 +102,14 @@ class Fabric: ObservableObject {
     
     init(){
         print("Fabric init config_url \(self.configUrl)");
+        
+        //XXX: For demo
+        var tenant : JSON = loadJsonFile("tenant.json")
+        if !tenant["properties"].exists() {
+            let properties : JSON = [[:]]
+            tenant["properties"] = properties
+        }
+        self.tenants.append(tenant)
     }
     
     func getEndpoint() throws -> String{
@@ -74,6 +124,23 @@ class Fabric: ObservableObject {
         return endpoint
     }
     
+    func getNetworkConfig(network: String? = nil) throws -> NetworkConfig {
+        var _network = network
+        if(network==nil){
+            guard let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
+                    as? String else {
+                throw FabricError.configError("GetNetworkConfig Error, saved network configuration not found.")
+            }
+            
+            _network = savedNetwork
+        }
+        
+        guard let config = APP_CONFIG.network[_network ?? "main"] else {
+            throw FabricError.configError("Error, configuration network not found \(_network)")
+        }
+        
+        return config
+    }
     
     @MainActor
     func connect(network: String) async throws {
@@ -90,7 +157,7 @@ class Fabric: ObservableObject {
             _network = savedNetwork
         }
         
-        guard let configUrl = APP_CONFIG.networks[_network] else {
+        guard let configUrl = APP_CONFIG.network[_network]?.config_url else {
             throw FabricError.configError("Error, configuration network not found \(network)")
         }
         
@@ -173,105 +240,76 @@ class Fabric: ObservableObject {
         print("QSPACE_ID: \(self.configuration?.qspace.id)")
     }
     
+    //Demo only getting specific nfts
     @MainActor
-    func refresh(){
+    func refresh() async {
         if self.login == nil {
             return
         }
-        Task {
-            do{
-                self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
-                print("Fabric Token: \(self.fabricToken)");
-                
-                print("Account address: \(try getAccountAddress())")
-                let profileData = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
-                                                                       accessCode: self.login!.token)
-                print("Profile DATA: \(profileData)")
-                var playable : [NFTModel] = []
-                var nonPlayable: [NFTModel] = []
-                if let nfts = profileData["contents"] as? [AnyObject] {
-                    for nft in nfts {
+        do{
+            self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
+            print("Fabric Token: \(self.fabricToken)");
+            
+            print("Account address: \(try getAccountAddress())")
+            let profileData = try await self.signer!.getWalletData(accountAddress: try self.getAccountAddress(),
+                                                                   accessCode: self.login!.token)
+            //print("Profile DATA: \(profileData)")
+            var playable : [NFTModel] = []
+            var nonPlayable: [NFTModel] = []
+            if let nfts = profileData["contents"] as? [AnyObject] {
+                for nft in nfts {
+                    do {
+                        //print(nft)
+                        let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
+                        //print(data)
+                        var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                        if (nftmodel.id == nil){
+                            nftmodel.id = UUID().uuidString
+                        }
+                        
+                        let nftData = try await self.getNFTData(tokenUri: nftmodel.token_uri)
+                        nftmodel.meta_full = nftData
+                        
                         do {
-                            //print(nft)
-                            let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
-                            //print(data)
-                            var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
-                            if (nftmodel.id == nil){
-                                nftmodel.id = UUID().uuidString
-                            }
-                            
-                            let nftData = try await self.getNFTData(tokenUri: nftmodel.token_uri)
-                            nftmodel.meta_full = nftData
+                            nftmodel.additional_media_sections = try JSONDecoder().decode(AdditionalMediaModel.self, from: nftData["additional_media_sections"].rawData())
+                        }catch{
+                            print("Error decoding additional_media_sections for \(nftmodel.contract_name ?? ""): \(error)")
+                            //print("\(try nftData.rawData().prettyPrintedJSONString ?? "")")
                             
                             do {
-                                nftmodel.additional_media_sections = try JSONDecoder().decode(AdditionalMediaModel.self, from: nftData["additional_media_sections"].rawData())
-                            }catch{
-                                print("Error decoding additional_media_sections for \(nftmodel.contract_name ?? ""): \(error)")
-                                print("\(try nftData.rawData().prettyPrintedJSONString ?? "")")
-                                
-                                do {
-                                    //Try to find the old style
-                                    if nftData["additional_media"].exists() {
-                                        nftmodel.additional_media_sections = AdditionalMediaModel()
-                                        nftmodel.additional_media_sections?.featured_media = try JSONDecoder().decode([MediaItem].self, from: nftData["additional_media"].rawData())
-                                    }
-                                }catch{
-                                    print("Error decoding additional_media for \(nftmodel.contract_name ?? ""): \(error)")
+                                //Try to find the old style
+                                if nftData["additional_media"].exists() {
+                                    nftmodel.additional_media_sections = AdditionalMediaModel()
+                                    nftmodel.additional_media_sections?.featured_media = try JSONDecoder().decode([MediaItem].self, from: nftData["additional_media"].rawData())
                                 }
+                            }catch{
+                                print("Error decoding additional_media for \(nftmodel.contract_name ?? ""): \(error)")
                             }
-                            
-                            var hasPlayableMedia = false
+                        }
+                        
+                        var hasPlayableMedia = false
 
-                            /*
-                            if nftData["additional_media_sections"].exists() {
-                                let mediaSections = nftData["additional_media_sections"]
-                                
+                        if nftmodel.additional_media_sections != nil {
+                            if let mediaSections = nftmodel.additional_media_sections {
                                 //Parsing featured_media to find videos
-                                for media in mediaSections["featured_media"].arrayValue{
-                                    if media["media_type"].stringValue == "Video" {
-                                        hasPlayableMedia = true
-                                        break
+                                for media in mediaSections.featured_media{
+                                    if let mediaType = media.media_type {
+                                        if mediaType == "Video" || mediaType == "Audio"{
+                                            hasPlayableMedia = true
+                                            break
+                                        }
                                     }
                                 }
                                 
                                 //Parsing sections to find videos
                                 if (!hasPlayableMedia) {
-                                    let sections = mediaSections["sections"]
-                                    for section in sections.arrayValue {
-                                        for collection in section["collections"].arrayValue {
-                                            for media in collection["media"].arrayValue {
-                                                if media["media_type"].stringValue == "Video" {
-                                                    hasPlayableMedia = true
-                                                    break
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            */
-                            if nftmodel.additional_media_sections != nil {
-                                if let mediaSections = nftmodel.additional_media_sections {
-                                    //Parsing featured_media to find videos
-                                    for media in mediaSections.featured_media{
-                                        if let mediaType = media.media_type {
-                                            if mediaType == "Video" || mediaType == "Audio"{
-                                                hasPlayableMedia = true
-                                                break
-                                            }
-                                        }
-                                    }
-                                    
-                                    //Parsing sections to find videos
-                                    if (!hasPlayableMedia) {
-                                        for section in mediaSections.sections {
-                                            for collection in section.collections{
-                                                for media in collection.media{
-                                                    if let mediaType = media.media_type {
-                                                        if mediaType == "Video" || mediaType == "Audio"{
-                                                            hasPlayableMedia = true
-                                                            break
-                                                        }
+                                    for section in mediaSections.sections {
+                                        for collection in section.collections{
+                                            for media in collection.media{
+                                                if let mediaType = media.media_type {
+                                                    if mediaType == "Video" || mediaType == "Audio"{
+                                                        hasPlayableMedia = true
+                                                        break
                                                     }
                                                 }
                                             }
@@ -279,39 +317,232 @@ class Fabric: ObservableObject {
                                     }
                                 }
                             }
-                            
-
-                            nftmodel.has_playable_feature = hasPlayableMedia
-                            if (hasPlayableMedia) {
-                                playable.append(nftmodel)
-                            }else{
-                                nonPlayable.append(nftmodel)
-                            }
-                        } catch {
-                            print(error.localizedDescription)
-                            continue
                         }
+                        
+
+                        nftmodel.has_playable_feature = hasPlayableMedia
+                        if (hasPlayableMedia) {
+                            playable.append(nftmodel)
+                        }else{
+                            nonPlayable.append(nftmodel)
+                        }
+                    } catch {
+                        print(error.localizedDescription)
+                        continue
                     }
-                    self.playable = playable
-                    self.nonPlayable = nonPlayable
-                    
-                    //print("Non Playable ", self.nonPlayable)
-                    //print("Playable ", self.playable)
-                    
                 }
-            }catch{
-                print ("Error: \(error)")
+                
+                //XXX: Only for demo
+                var playable2: [NFTModel] = []
+                for item in playable {
+                    if item.meta.displayName.contains("Lord of") {
+                        playable2.append(item)
+                    }
+                }
+            
+                
+                var property = CreateTestProperty(num: 0)
+                
+                property["contents"][0]["contents"] = JSON(try JSONEncoder().encode(playable2))
+                
+                var tenants = self.tenants
+                tenants[0]["properties"] = [property]
+                
+                self.tenants = tenants
+                //print("Current property \(currentProperty["contents"][0]["contents"][0].object)")
+                
+                //print("Non Playable ", self.nonPlayable)
+                self.playable = playable2 //XXX
+                self.nonPlayable = nonPlayable
+                
+                print("refreshed!")
             }
+        }catch{
+            print ("Error: \(error)")
         }
     }
     
+    func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:[MediaItem], videos: [MediaItem], images:[MediaItem], galleries: [MediaItem], albums: [MediaItem], html: [MediaItem], books: [MediaItem]) {
+        
+        //print("Parse NFT \(nft)")
+        
+        var featured:[MediaItem] = []
+        var videos: [MediaItem] = []
+        var galleries: [MediaItem] = []
+        var images: [MediaItem] = []
+        var albums: [MediaItem] = []
+        var html: [MediaItem] = []
+        var books: [MediaItem] = []
+        
+        //print(nft)
+        //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
+        let data = try nft.rawData()
+        
+        //print(data)
+        var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+        if (nftmodel.id == nil){
+            nftmodel.id = UUID().uuidString
+        }
+        
+        let nftData = try await self.getNFTData(tokenUri: nftmodel.token_uri)
+        nftmodel.meta_full = nftData
+        
+        do {
+            nftmodel.additional_media_sections = try JSONDecoder().decode(AdditionalMediaModel.self, from: nftData["additional_media_sections"].rawData())
+        }catch{
+            print("Error decoding additional_media_sections for \(nftmodel.contract_name ?? ""): \(error)")
+            print("\(try nftData.rawData().prettyPrintedJSONString ?? "")")
+            
+            do {
+                //Try to find the old style
+                if nftData["additional_media"].exists() {
+                    nftmodel.additional_media_sections = AdditionalMediaModel()
+                    nftmodel.additional_media_sections?.featured_media = try JSONDecoder().decode([MediaItem].self, from: nftData["additional_media"].rawData())
+                }
+            }catch{
+                print("Error decoding additional_media for \(nftmodel.contract_name ?? ""): \(error)")
+            }
+        }
+        
+        var hasPlayableMedia = false
+
+        if nftmodel.additional_media_sections != nil {
+            if let mediaSections = nftmodel.additional_media_sections {
+                //Parsing featured_media to find videos
+                for media in mediaSections.featured_media{
+                    if let mediaType = media.media_type {
+                        if mediaType == "Video" || mediaType == "Audio"{
+                            hasPlayableMedia = true
+                        }
+                        featured.append(media)
+                    }
+                }
+                
+                //Parsing sections to find videos
+                if (!hasPlayableMedia) {
+                    for section in mediaSections.sections {
+                        for collection in section.collections{
+                            for media in collection.media{
+                                if let mediaType = media.media_type {
+                                    if mediaType == "Video" {
+                                        hasPlayableMedia = true
+                                        videos.append(media)
+                                    }else if mediaType == "Audio"{
+                                        hasPlayableMedia = true
+                                        albums.append(media)
+                                    }else if mediaType == "Image"{
+                                        galleries.append(media)
+                                    }else if mediaType == "HTML"{
+                                        html.append(media)
+                                    }else if mediaType == "Ebook"{
+                                        books.append(media)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        nftmodel.has_playable_feature = hasPlayableMedia
+        
+        return (nftmodel, featured, videos, images, galleries, albums, html, books)
+    }
+    
+    
+    //Move this to the app level
+    @MainActor
+    func refresh2() async {
+        if self.login == nil {
+            return
+        }
+        do{
+            var featured:[MediaItem] = []
+            var videos: [MediaItem] = []
+            var galleries: [MediaItem] = []
+            var images: [MediaItem] = []
+            var albums: [MediaItem] = []
+            var html: [MediaItem] = []
+            var books: [MediaItem] = []
+            
+            self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
+            print("Fabric Token: \(self.fabricToken)");
+            
+            let tenantItems = try await self.getWalletTenantItems()
+            //print("Tenants: \(tenantItems)");
+            
+            //print("Account address: \(try getAccountAddress())")
+
+            for tenantItem in tenantItems {
+                //print ("TenantItem \(tenantItem)")
+                let tenantTitle = tenantItem["tenant"]["title"].stringValue
+                let marketTitle = tenantItem["marketplace"]["title"].stringValue
+                let count = tenantItem["nfts"].arrayValue.count
+                print("Tenant: \(tenantTitle) Marketplace: \(marketTitle) nfts \(count)");
+                
+                for nft in tenantItem["nfts"].arrayValue {
+                    do {
+                        let parsedModels = try await self.parseNft(nft)
+                        //print("Parsed nft: \(parsedModels.nftModel)")
+                        //print("Parsed Featured: \(parsedModels.featured)")
+                        //print("Parsed Galleries: \(parsedModels.galleries)")
+                        //print("Parsed Galleries: \(parsedModels.images)")
+                        //print("Parsed Albums: \(parsedModels.albums)")
+                        //print("Parsed Videos: \(parsedModels.videos)")
+                        //print("Parsed HTML: \(parsedModels.html)")
+                        //print("Parsed Books: \(parsedModels.books)")
+                        
+                        if(!parsedModels.featured.isEmpty){
+                            featured.append(contentsOf: parsedModels.featured)
+                        }
+                        if(!parsedModels.galleries.isEmpty){
+                            galleries.append(contentsOf: parsedModels.galleries)
+                        }
+                        if(!parsedModels.images.isEmpty){
+                            books.append(contentsOf: parsedModels.images)
+                        }
+                        if(!parsedModels.albums.isEmpty){
+                            albums.append(contentsOf: parsedModels.albums)
+                        }
+                        if(!parsedModels.videos.isEmpty){
+                            videos.append(contentsOf: parsedModels.videos)
+                        }
+                        if(!parsedModels.html.isEmpty){
+                            html.append(contentsOf: parsedModels.html)
+                        }
+                        if(!parsedModels.books.isEmpty){
+                            books.append(contentsOf: parsedModels.books)
+                        }
+                        
+                    } catch {
+                        print(error.localizedDescription)
+                        continue
+                    }
+                }
+            }
+            
+            self.tenantItems = tenantItems;
+            self.featured = featured;
+            self.galleries = galleries;
+            self.images = images;
+            self.albums = albums;
+            self.videos = videos;
+            self.html = html;
+            self.books = books;
+            
+        }catch{
+            print ("Refresh Error: \(error)")
+        }
+    }
     
     @MainActor
     func setLogin(login:  LoginResponse){
         self.login = login
         self.isLoggedOut = false
         self.signingIn = false
-        self.refresh()
+        Task {
+            await self.refresh()
+        }
     }
     
     func signOut(){
@@ -329,7 +560,7 @@ class Fabric: ObservableObject {
                     case .success( _):
                         print("Logout Success!")
                     case .failure(let error):
-                        print("Request error: \(error.localizedDescription)")
+                        print("Sign Out Request error: \(error.localizedDescription)")
                     }
                 }
         }
@@ -338,8 +569,17 @@ class Fabric: ObservableObject {
         self.signInResponse = nil
         self.signer = nil
         self.fabricToken = ""
-        self.playable = []
-        self.nonPlayable = []
+        self.tenantItems = []  //Array of {"tenant":tenant, "nfts": nfts} objects of the user's items per tenant
+        self.featured = []
+        self.videos = []
+        self.galleries = []
+        self.images  = []
+        self.albums = []
+        self.html = []
+        self.books = []
+        
+        //self.playable = []
+        //self.nonPlayable = []
         UserDefaults.standard.removeObject(forKey: "access_token")
         UserDefaults.standard.removeObject(forKey: "id_token")
         UserDefaults.standard.removeObject(forKey: "token_type")
@@ -514,7 +754,7 @@ class Fabric: ObservableObject {
                             let value = JSON(response.value!)
                             continuation.resume(returning: value)
                          case .failure(let error):
-                            print("Request error: \(error.localizedDescription)")
+                            print("GetNFTData Request error: \(error.localizedDescription)")
                             continuation.resume(throwing: error)
                      }
                 }
@@ -559,7 +799,7 @@ class Fabric: ObservableObject {
                             completion(value, nil)
                         }
                      case .failure(let error):
-                        print("Request error: \(error.localizedDescription)")
+                        print("Start Device Code Flow Request error: \(error.localizedDescription)")
                         completion(nil, response.error?.localizedDescription)
                  }
 
@@ -582,7 +822,7 @@ class Fabric: ObservableObject {
                             completion(value, nil)
                         }
                      case .failure(let error):
-                        print("Request error: \(error.localizedDescription)")
+                        print("Get User Info Request error: \(error.localizedDescription)")
                         completion(nil, response.error?.localizedDescription)
                  }
 
@@ -694,14 +934,13 @@ class Fabric: ObservableObject {
         return newUrl.standardized.absoluteString
     }
     
-    func getJsonRequest(url: String, accessToken: String? = nil ) async throws -> JSON {
+    func getJsonRequest(url: String, accessToken: String? = nil, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             
             var token = accessToken ?? self.fabricToken
             
             var headers: HTTPHeaders = [
-                     "Accept": "application/json",
-                     "Content-Type": "application/json" ]
+                     "Accept": "application/json"]
             
             if !token.isEmpty {
                 headers["Authorization"] =  "Bearer \(token)"
@@ -710,14 +949,14 @@ class Fabric: ObservableObject {
             print("GET ",url)
             print("HEADERS ", headers)
             
-            AF.request(url, headers:headers)
+            AF.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers:headers)
                 .responseJSON { response in
                 switch (response.result) {
                     case .success( _):
                         let value = JSON(response.value!)
                         continuation.resume(returning: value)
                      case .failure(let error):
-                        print("Request error: \(error.localizedDescription)")
+                        print("Get JSON Request error: \(error.localizedDescription)")
                         continuation.resume(throwing: error)
                  }
             }
@@ -771,10 +1010,93 @@ class Fabric: ObservableObject {
                         }
                         completion(true)
                      case .failure(let error):
-                        print("Request error: \(error.localizedDescription)")
+                        print("Check Token Request error: \(error.localizedDescription)")
                         completion(false)
                  }
         }
+    }
+    
+    
+    //Move this to ElvLive class
+    func getTenants() async throws -> JSON {
+        print ("getTenants")
+        let objectId = try self.getNetworkConfig().main_obj_id
+        let libraryId = try self.getNetworkConfig().main_obj_lib_id
+        let metadataSubtree = "public/asset_metadata/tenants"
+        return try await self.contentObjectMetadata(libraryId:libraryId, objectId:objectId, metadataSubtree:metadataSubtree)
+    }
+    
+    
+    //Retrieve all wallet items sorted by tenant id
+    //TODO: Cache items
+    func getWalletTenantItems() async throws -> [JSON]{
+        print ("getWalletTenantItems")
+        let tenants = try await self.getTenants()
+        var tenantItems : [JSON] = []
+        
+        for (_, tenant) in tenants {
+            let tenantId = tenant["info"]["tenant_id"].stringValue
+            let tenantTitle = tenant["title"].stringValue
+            print("Tenant: \(tenantTitle) : \(tenantId)")
+            
+            let parameters : [String: String] = ["filter":"tenant:eq:\(tenantId)"]
+            
+            var items : [String: AnyObject] = [:]
+            do {
+                items = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
+                                                                 accessCode: self.login!.token, parameters:parameters)
+            }catch{
+                continue
+            }
+            //print("Items: \(items)")
+            if let nfts = items["contents"] as? [AnyObject] {
+                if !nfts.isEmpty {
+                    for (_, marketplace) in tenant["marketplaces"] {
+                        //print(marketplace)
+                        var matchedItems : [AnyObject] = []
+                        
+                        for (_, mItem) in marketplace["info"]["items"] {
+                            let mAddress = mItem["nft_template"]["nft"]["address"]
+                            for item in nfts {
+                                print("market item address", mAddress.stringValue)
+                                
+                                print("item address", item["contract_addr"])
+                                if let address = item["contract_addr"] as? String {
+                                    if (mAddress.stringValue.lowercased() == address.lowercased()){
+                                        matchedItems.append(item)
+                                        print("Found item ", address)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        if (!matchedItems.isEmpty){
+                            print("Found nfts")
+                            let tenantItem : JSON = ["tenant":tenant, "marketplace": marketplace, "nfts": matchedItems]
+                            tenantItems.append(tenantItem)
+                        }
+                    }
+                }
+            }
+            
+        }
+        
+        return tenantItems
+    }
+    
+    //ELV-CLIENT API
+    
+    //TODO: only need objectId
+    //TODO: provide the other params from elv-client-js
+    func contentObjectMetadata(libraryId: String, objectId: String, metadataSubtree: String? = "") async throws -> JSON {
+        let url: String = try self.getEndpoint().appending("/qlibs/").appending("\(libraryId)").appending("/q/").appending("\(objectId)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
+        
+        return try await self.getJsonRequest(url: url)
+    }
+    
+    //TODO: Use contract call to get lib ID from objectID
+    func contentObjectLibraryId(_objectId: String?) async throws -> String {
+        return ""
     }
 }
 

@@ -17,31 +17,11 @@ struct NFTView: View {
     var body: some View {
         NavigationLink(destination: NFTDetail(nft: nft)) {
             VStack() {
-                /*
-                AsyncImage(url: URL(string: nft.meta.image)) { image in
-                    image.resizable()
-                        .scaledToFill()
-                        .frame(width:500, height: 500)
-                        .clipped()
-                } placeholder: {
-                    ProgressView()
-                }
-                 */
-                
                 WebImage(url: URL(string: nft.meta.image))
                     .resizable()
                         .scaledToFill()
-                        .frame(width:500, height: 500)
+                        //.frame(width:500, height: 500)
                         .clipped()
-                
-
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(nft.meta.displayName)
-                        .foregroundColor(Color.white)
-                        .fontWeight(.bold)
-                    Spacer()
-                }
-                .padding()
             }
         }
         .buttonStyle(PrimaryButtonStyle(focused: isFocused))

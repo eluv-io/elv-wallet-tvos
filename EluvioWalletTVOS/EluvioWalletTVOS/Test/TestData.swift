@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 var test_NFTs: [NFTModel] = loadJsonFile("nfts.json")
 var test_sale_NFTs: [NFTModel] = loadJsonFile("nfts_marketplace.json")
@@ -14,7 +15,7 @@ var test_profile: ProfileModel = loadJsonFile("profile.json")
 
 func CreateTestNFTs(num: Int) -> [NFTModel] {
     var nfts: [NFTModel] = [];
-    for i in 1...num {
+    for i in 0...num {
         var item = test_NFTs[0]
         item.contract_name = "Test NFT " + String(i)
         item.meta.displayName = "Test NFT Long Name Test NFT Long Name Test NFT Long Name Test NFT Long Name Test NFT Long Name Test NFT Long Name "
@@ -32,4 +33,24 @@ func CreateTestNFTs(num: Int) -> [NFTModel] {
         nfts.append(item)
     }
     return nfts
+}
+
+func CreateTestProperty(num: Int) -> JSON {
+    var property : JSON = [
+        "id" : "prop_1",
+        "title" : "Movieverse",
+        "image" : "WarnerBrothersLogo",
+        "parent_id" : "iten",
+        "contents" : [
+            [
+                "id" : "proj_1",
+                "title" : "The Lord of the Rings",
+                "image" : "WarnerBrothers",
+                "parent_id": "prop_1",
+                "contents" : CreateTestNFTs(num: num)
+            ]
+        ]
+    ]
+    
+    return property
 }

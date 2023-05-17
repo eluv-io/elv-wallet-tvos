@@ -33,6 +33,19 @@ struct DetailButtonStyle: ButtonStyle {
     }
 }
 
+struct IconButtonStyle: ButtonStyle {
+    let focused: Bool
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.white)
+            .background(self.focused ? Color.tinted : Color.translucent)
+            .cornerRadius(20)
+            .scaleEffect(self.focused ? 1.5: 1, anchor: .center)
+            .shadow(color: self.focused ? .gray.opacity(0.5) : .black, radius: self.focused ? 8 : 0, x: 2, y: 2)
+            .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+    }
+}
+
 struct GalleryButtonStyle: ButtonStyle {
     let focused: Bool
     func makeBody(configuration: Self.Configuration) -> some View {

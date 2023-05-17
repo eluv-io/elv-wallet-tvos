@@ -8,9 +8,14 @@
 import Foundation
 
 struct AppConfiguration: Codable {
-    var config_url=""
-    var networks: [String: String]
+    var network: [String: NetworkConfig]
     var auth0 : Auth0Config
+}
+
+struct NetworkConfig: Codable {
+    var config_url: String
+    var main_obj_id: String
+    var main_obj_lib_id: String //TEMP: Should use obj id only to retrieve lib id
 }
 
 struct Auth0Config: Codable {
