@@ -54,3 +54,24 @@ func CreateTestProperty(num: Int) -> JSON {
     
     return property
 }
+
+func CreateTestPropertyModel(title: String, image: String, parentId: String, nfts: [NFTModel]) -> PropertyModel {
+    
+    
+    var projects : [ProjectModel] = []
+    projects.append(ProjectModel(
+        title : "The Lord of the Rings",
+        image : "WarnerBrothers",
+        parent_id: "prop_1",
+        contents : nfts
+    ))
+    
+    var property = PropertyModel(
+        title : title,
+        image : image,
+        parent_id : parentId,
+        contents : projects
+        )
+    
+    return property
+}

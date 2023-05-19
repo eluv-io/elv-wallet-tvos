@@ -12,12 +12,11 @@ import Introspect
 struct MyItemsView: View {
     //
     @State var searchText = ""
-    var property : JSON
     var nfts : [NFTModel] = []
     
     var body: some View {
         ScrollView{
-            NFTList(title: property["contents"][0]["title"].stringValue, nfts:nfts)
+            NFTList(title: "", nfts:nfts)
         }
         .introspectScrollView { view in
             view.clipsToBounds = false
@@ -28,6 +27,6 @@ struct MyItemsView: View {
 
 struct MyItemsView_Previews: PreviewProvider {
     static var previews: some View {
-        MyItemsView(property: CreateTestProperty(num: 2))
+        MyItemsView()
     }
 }

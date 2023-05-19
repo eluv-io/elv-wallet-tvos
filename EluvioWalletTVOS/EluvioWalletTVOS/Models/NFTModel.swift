@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-struct NFTModel: Identifiable, Codable {
+struct NFTModel: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var block: Int?
     var created: Int?
@@ -25,7 +25,8 @@ struct NFTModel: Identifiable, Codable {
     var meta : NFTMetaResponse = NFTMetaResponse()
     var meta_full: JSON?
     var has_playable_feature : Bool?
-    var additional_media_sections : AdditionalMediaModel?
+    var has_album: Bool? = false
+    var additional_media_sections : AdditionalMediaModel? = nil
     init(){
         block = 0
         created = 0
@@ -39,5 +40,15 @@ struct NFTModel: Identifiable, Codable {
         token_owner = ""
         token_uri = ""
         has_playable_feature = false
+        additional_media_sections = nil
+    }
+    
+    //TODO: Find a good id for this
+    static func == (lhs: NFTModel, rhs: NFTModel) -> Bool {
+        return lhs.contract_addr == rhs.contract_addr
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(contract_addr)
     }
 }

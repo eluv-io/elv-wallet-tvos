@@ -40,11 +40,14 @@
 		B0670F7029E3DFD800676872 /* ContentKeyDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */; };
 		B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D520E2A12875D00BD68D1 /* MyItemsView.swift */; };
 		B06D52112A12F83500BD68D1 /* property.json in Resources */ = {isa = PBXBuildFile; fileRef = B06D52102A12F83500BD68D1 /* property.json */; };
-		B06D52132A13040300BD68D1 /* MainView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52122A13040300BD68D1 /* MainView2.swift */; };
 		B06D52142A130A9300BD68D1 /* tenant.json in Resources */ = {isa = PBXBuildFile; fileRef = B06D520D2A0C0BBF00BD68D1 /* tenant.json */; };
 		B06D52172A14657E00BD68D1 /* Introspect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = B06D52162A14657E00BD68D1 /* Introspect-Static */; };
 		B06D52192A14882200BD68D1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52182A14882200BD68D1 /* SearchView.swift */; };
+		B06D521B2A149EDC00BD68D1 /* PropertiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */; };
+		B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521C2A14A21100BD68D1 /* PropertyModel.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
+		B0DFFF922A15E72200F1E358 /* MyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* MyMediaView.swift */; };
+		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
 		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
 		B0E60F7229CC23510079661E /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentView.swift */; };
 		B0E60F7429CC23530079661E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7329CC23530079661E /* Assets.xcassets */; };
@@ -97,8 +100,11 @@
 		B06D520D2A0C0BBF00BD68D1 /* tenant.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tenant.json; sourceTree = "<group>"; };
 		B06D520E2A12875D00BD68D1 /* MyItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyItemsView.swift; sourceTree = "<group>"; };
 		B06D52102A12F83500BD68D1 /* property.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = property.json; sourceTree = "<group>"; };
-		B06D52122A13040300BD68D1 /* MainView2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView2.swift; sourceTree = "<group>"; };
 		B06D52182A14882200BD68D1 /* SearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchView.swift; sourceTree = "<group>"; };
+		B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertiesView.swift; sourceTree = "<group>"; };
+		B06D521C2A14A21100BD68D1 /* PropertyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyModel.swift; sourceTree = "<group>"; };
+		B0DFFF912A15E72200F1E358 /* MyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMediaView.swift; sourceTree = "<group>"; };
+		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioWalletTVOSApp.swift; sourceTree = "<group>"; };
 		B0E60F7129CC23510079661E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -228,6 +234,7 @@
 				B0E60FA529D211040079661E /* ProfileModel.swift */,
 				B0670F5429D6C48F00676872 /* Auth0Models.swift */,
 				B0670F6829DEA0C600676872 /* AdditionalMediaModel.swift */,
+				B06D521C2A14A21100BD68D1 /* PropertyModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -254,8 +261,10 @@
 				B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */,
 				B00945A529E9C45F00B00FC3 /* QRView.swift */,
 				B06D520E2A12875D00BD68D1 /* MyItemsView.swift */,
-				B06D52122A13040300BD68D1 /* MainView2.swift */,
 				B06D52182A14882200BD68D1 /* SearchView.swift */,
+				B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */,
+				B0DFFF912A15E72200F1E358 /* MyMediaView.swift */,
+				B0DFFF932A17129200F1E358 /* MediaView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -365,6 +374,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0670F4029D542A100676872 /* Header.swift in Sources */,
+				B06D521B2A149EDC00BD68D1 /* PropertiesView.swift in Sources */,
 				B0670F5529D6C48F00676872 /* Auth0Models.swift in Sources */,
 				B0E60FA829D211040079661E /* ProfileModel.swift in Sources */,
 				B00945A029E91DE000B00FC3 /* GalleryView.swift in Sources */,
@@ -372,10 +382,11 @@
 				B0670F5029D55D7C00676872 /* CollectionView.swift in Sources */,
 				B0E60FB229D2288C0079661E /* MainView.swift in Sources */,
 				B0670F5729D79F9300676872 /* ProfileView.swift in Sources */,
-				B06D52132A13040300BD68D1 /* MainView2.swift in Sources */,
+				B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */,
 				B0E60F8C29CD71840079661E /* NFTMetaResponse.swift in Sources */,
 				B00945AD29EA478D00B00FC3 /* TestData.swift in Sources */,
 				B0E60F7229CC23510079661E /* ContentView.swift in Sources */,
+				B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
 				B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */,
 				B0E60F8929CD71840079661E /* FabricModels.swift in Sources */,
@@ -383,6 +394,7 @@
 				B0E60FAA29D211040079661E /* NFTModel.swift in Sources */,
 				B0E60FAD29D223870079661E /* SignInView.swift in Sources */,
 				B0E60F8A29CD71840079661E /* Fabric.swift in Sources */,
+				B0DFFF922A15E72200F1E358 /* MyMediaView.swift in Sources */,
 				B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */,
 				B0670F3C29D5427400676872 /* NFTView.swift in Sources */,
 				B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */,
@@ -548,7 +560,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 15.0;
+				TVOS_DEPLOYMENT_TARGET = 16.0;
 			};
 			name = Debug;
 		};
@@ -579,7 +591,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 15.0;
+				TVOS_DEPLOYMENT_TARGET = 16.0;
 			};
 			name = Release;
 		};

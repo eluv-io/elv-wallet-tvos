@@ -8,7 +8,7 @@
 import SwiftUI
 import QGrid
 
-
+/*
 struct NFTList: View {
 
     var title: String
@@ -45,10 +45,12 @@ struct NFTList: View {
                 view.clipsToBounds = false
             }
         }
+        .focusSection()
     }
 }
+*/
 
-struct NFTListBak: View {
+struct NFTList: View {
 
     var title: String
     var nfts : [NFTModel]

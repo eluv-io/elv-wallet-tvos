@@ -8,6 +8,14 @@
 import Foundation
 import SwiftyJSON
 
+protocol ViewModel: Identifiable, Codable, Equatable, Hashable {
+    var id: String? { get set }
+    
+    static func == (lhs:any ViewModel, rhs:any ViewModel)
+    
+    func hash(into hasher: inout Hasher)
+}
+
 struct AdditionalMediaModel: Identifiable, Codable {
     var id: String? = UUID().uuidString
     var featured_media : [MediaItem] = []
@@ -20,7 +28,7 @@ struct MediaSection: Identifiable, Codable {
     var collections : [MediaCollection] = []
 }
 
-struct MediaItem: Identifiable, Codable {
+struct MediaItem: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var image: String?
     var name: String = ""
@@ -40,27 +48,46 @@ struct MediaItem: Identifiable, Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        image = try container.decodeIfPresent(String.self, forKey: .image)
+        image = try container.decodeIfPresent(String.self, forKey: .image) ?? ""
         name = try container.decode(String.self, forKey: .name)
-        media_type = try container.decode(String.self, forKey: .media_type)
+        media_type = try container.decodeIfPresent(String.self, forKey: .media_type) ?? ""
         requires_permissions = try container.decode(Bool.self, forKey: .requires_permissions)
-        image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio)
+        image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio) ?? ""
         media_link = try container.decodeIfPresent(JSON.self, forKey: .media_link)
         media_file = try container.decodeIfPresent(JSON.self, forKey: .media_file)
         parameters = try container.decodeIfPresent([JSON].self, forKey: .parameters) ?? []
         gallery = try container.decodeIfPresent([GalleryItem].self, forKey: .gallery) ?? []
         offerings = try container.decodeIfPresent([String].self, forKey: .offerings) ?? []
     }
+    
+    //TODO: Find a good id for this
+    static func == (lhs: MediaItem, rhs: MediaItem) -> Bool {
+        return lhs.name == rhs.name
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
 }
 
-struct MediaCollection: Identifiable, Codable {
+struct MediaCollection: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var display: String?
     var name: String = ""
     var media: [MediaItem] = []
+    var collections: [MediaCollection]? = []
+    
+    //TODO: Find a good id for this
+    static func == (lhs: MediaCollection, rhs: MediaCollection) -> Bool {
+        return lhs.name == rhs.name
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
 }
 
-struct GalleryItem: Identifiable, Codable {
+struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var image: JSON?
     var video: String?
@@ -80,10 +107,18 @@ struct GalleryItem: Identifiable, Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        video = try container.decode(String.self, forKey: .video)
-        name = try container.decode(String.self, forKey: .name)
-        image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio)
-        description = try container.decode(String.self, forKey: .description)
-        image = try container.decode(JSON.self, forKey: .image)
+        video = try container.decodeIfPresent(String.self, forKey: .video) ?? ""
+        name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
+        image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio) ?? ""
+        description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
+        image = try container.decodeIfPresent(JSON.self, forKey: .image) ?? nil
+    }
+    
+    static func == (lhs: GalleryItem, rhs: GalleryItem) -> Bool {
+        return lhs.name == rhs.name && lhs.description == rhs.description
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name + (description ?? ""))
     }
 }

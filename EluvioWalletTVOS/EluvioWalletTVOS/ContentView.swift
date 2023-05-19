@@ -15,7 +15,7 @@ struct ContentView: View {
     var body: some View {
         //MainView2(property: fabric.currentProperty, nfts: fabric.playable)
         NavigationView {
-            MainView(property: fabric.currentProperty)
+            MainView(nfts:fabric.items)
                 .preferredColorScheme(colorScheme)
                 .fullScreenCover(isPresented: $fabric.isLoggedOut) {
                     SignInView()

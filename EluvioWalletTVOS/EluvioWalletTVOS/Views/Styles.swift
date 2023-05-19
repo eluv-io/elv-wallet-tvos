@@ -46,6 +46,17 @@ struct IconButtonStyle: ButtonStyle {
     }
 }
 
+struct TitleButtonStyle: ButtonStyle {
+    let focused: Bool
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.white)
+            .background(.clear)
+            .scaleEffect(self.focused ? 1.04: 1, anchor: .center)
+            .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+    }
+}
+
 struct GalleryButtonStyle: ButtonStyle {
     let focused: Bool
     func makeBody(configuration: Self.Configuration) -> some View {

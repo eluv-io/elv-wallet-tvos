@@ -14,11 +14,15 @@ struct SearchView: View {
     
     var body: some View {
         VStack(alignment:.leading) {
-            TextField("Search...", text: $searchString)
-                .frame(width:600, alignment: .leading)
+            HStack{
+                Image(systemName: "magnifyingglass").resizable().frame(width:40,height:40)
+                TextField("Search...", text: $searchString)
+                    .frame(alignment: .leading)
+            }
+            Divider().overlay(Color.gray).padding()
             Spacer()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight:.infinity, alignment: .leading)
     }
 }
 

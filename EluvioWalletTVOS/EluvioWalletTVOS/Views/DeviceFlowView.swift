@@ -183,8 +183,7 @@ struct DeviceFlowView: View {
                         print("Request error: \(error.localizedDescription)")
 
                  }
-                return
-                
+            return
         }
     }
 }

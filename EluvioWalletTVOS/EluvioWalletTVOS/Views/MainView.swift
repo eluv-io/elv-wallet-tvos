@@ -12,42 +12,122 @@ import SwiftyJSON
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
+    var nfts : [NFTModel] = []
+    enum Tab { case Watch, Nfts, Profile, Search }
+    @State var selection: Tab = Tab.Watch
+    @State private var cancellable: AnyCancellable? = nil
+    
+    init(nfts:[NFTModel] = []) {
+        UITabBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.2)
+        self.nfts = nfts
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                VStack {
+                    HStack(spacing:10) {
+                        Image("e_logo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width:60)
+                        Text("Eluvio Wallet")
+                            .foregroundColor(Color.white)
+                            .font(.headline)
+                        Spacer()
+                    }
+                    .frame(maxWidth:.infinity, alignment: .leading)
+                    .padding(.top, 50)
+                    .padding(.leading, 80)
+                    Spacer()
+                }
+                .edgesIgnoringSafeArea(.all)
+
+                
+                TabView(selection: $selection) {
+                    MyItemsView(nfts: nfts).preferredColorScheme(colorScheme)
+                        .tabItem{
+                            Text("My Items")
+                        }
+                        .tag(Tab.Watch)
+                    
+                    MyMediaView(featured: Array(fabric.featured),
+                                library: fabric.library,
+                                albums: fabric.albums).preferredColorScheme(colorScheme)
+                        .tabItem{
+                            Text("My Media")
+                        }
+                        .tag(Tab.Nfts)
+                    
+                    ProfileView().preferredColorScheme(colorScheme)
+                        .tabItem{
+                            Text("Profile")
+                        }
+                        .tag(Tab.Profile)
+                    SearchView().preferredColorScheme(colorScheme)
+                        .tabItem{
+                            Image(systemName: "magnifyingglass")
+                        }
+                        .tag(Tab.Search)
+                }
+            }
+        }
+        .navigationViewStyle(.stack)
+        .onAppear(){
+            self.cancellable = fabric.objectWillChange.sink { val in
+                if fabric.isLoggedOut == true {
+                    self.selection = Tab.Watch
+                }
+            }
+        }
+        .onChange(of: selection){ newValue in
+            if (newValue == Tab.Watch){
+                Task {
+                    await fabric.refresh()
+                }
+            }
+        }
+    }
+}
+
+/*
+struct MainView: View {
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
     
     var property : JSON
     @State var nfts : [NFTModel] = []
     
-    enum Tab: Hashable { case items, media, profile, search }
+    enum Tab: Hashable { case items, media, profile, search, properties}
     @State var selection: Tab = Tab.items
     @State private var cancellable: AnyCancellable? = nil
     @FocusState var searchFocused : Bool
     @FocusState var tabFocused : Bool
-
+    @FocusState var propertiesFocused : Bool
+    @State var searchString : String = ""
+    
     var body: some View {
         VStack {
             ZStack{
-                HStack(spacing:10) {
-                    Spacer()
-                    Image(property["image"].stringValue)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width:80)
-                    Text(property["title"].stringValue)
-                        .foregroundColor(Color.white)
-                        .font(.title3)
-                    Spacer()
-                }
-
-                HStack {
+                HStack(spacing:0) {
                     Button {
-                        
                     } label: {
-                        Image(systemName: "magnifyingglass")
+                        HStack(spacing:10) {
+                            Image(property["image"].stringValue)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width:80)
+                            Text(property["title"].stringValue)
+                                .foregroundColor(Color.white)
+                                .font(.title3)
+                        }
                     }
-                    .buttonStyle(IconButtonStyle(focused:searchFocused))
-                    .focused($searchFocused)
+                    .frame(idealWidth:500,alignment: .leading)
+                    .buttonStyle(TitleButtonStyle(focused: propertiesFocused))
+                    .focused($propertiesFocused)
                     
-                    Spacer()
+                    Spacer().frame(width:250)
                     Picker("", selection: $selection) {
                         Text("My Items").tag(Tab.items)
                         Text("My Media").tag(Tab.media)
@@ -59,9 +139,23 @@ struct MainView: View {
                     .padding(.trailing, -100)
                     .focused($tabFocused)
                     
+                    Spacer()
+                    
+                    HStack(spacing:20){
+                        Image(systemName: "magnifyingglass")
+                        TextField("Search...", text: $searchString)
+                            .frame(width:400, height:50, alignment: .leading)
+                            .textFieldStyle(PlainTextFieldStyle())
+                            .font(.body)
+                            .focused($searchFocused)
+                    }
+                    .padding(20)
+                    
+                    Spacer()
                 }
             }
             .padding(.bottom, 40)
+            .focusSection()
             ZStack{
                 if (selection == Tab.items) {
                     MyItemsView(property: property, nfts: nfts).preferredColorScheme(colorScheme)
@@ -74,9 +168,14 @@ struct MainView: View {
                         .tag(Tab.profile)
                 }else if (selection == Tab.search){
                     SearchView().preferredColorScheme(colorScheme)
+                }else if (selection == Tab.properties){
+                    PropertiesView().preferredColorScheme(colorScheme)
                 }
+                
             }
+            .padding(20)
         }
+
         .frame(maxWidth:.infinity, maxHeight: .infinity)
         .onAppear(){
             self.cancellable = fabric.objectWillChange.sink { val in
@@ -89,6 +188,7 @@ struct MainView: View {
             DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
                 self.tabFocused = true
                 self.searchFocused = false
+                self.propertiesFocused = false
             }
         }
         .onChange(of: selection){ newValue in
@@ -103,18 +203,143 @@ struct MainView: View {
                 selection = Tab.search
             }
         }
+        .onChange(of: propertiesFocused){ newValue in
+            if (newValue == true){
+                selection = Tab.properties
+            }
+        }
         .onChange(of: property){ newValue in
             print("property changed")
             do {
                 self.nfts = try JSONDecoder().decode([NFTModel].self, from:newValue["contents"][0]["contents"].rawData())
-                //self.nfts = newValue["contents"][0]["contents"].rawValue as! [NFTModel]
-                //print ("Decoded NFTS: \(nfts)")
             }catch{
                 print("Error decoding NFTs \(error) \(newValue.object)")
             }
         }
     }
 }
+*/
+/*
+struct MainView: View {
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
+    
+    var property : JSON
+    @State var nfts : [NFTModel] = []
+    
+    enum Tab: Hashable { case items, media, profile, search, properties}
+    @State var selection: Tab = Tab.items
+    @State private var cancellable: AnyCancellable? = nil
+    @FocusState var searchFocused : Bool
+    @FocusState var tabFocused : Bool
+    @FocusState var propertiesFocused : Bool
+
+    var body: some View {
+        VStack {
+            ZStack{
+                HStack {
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .buttonStyle(IconButtonStyle(focused:searchFocused))
+                    .focused($searchFocused)
+                    
+                    Spacer()
+                    Button {
+                    } label: {
+                        HStack(spacing:10) {
+                            Image(property["image"].stringValue)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width:80)
+                            Text(property["title"].stringValue)
+                                .foregroundColor(Color.white)
+                                .font(.title3)
+                        }
+                    }
+                    .frame(idealWidth:500,alignment: .trailing)
+                    .buttonStyle(TitleButtonStyle(focused: propertiesFocused))
+                    .focused($propertiesFocused)
+                    
+                    Spacer().frame(width:250)
+                    Picker("", selection: $selection) {
+                        Text("My Items").tag(Tab.items)
+                        Text("My Media").tag(Tab.media)
+                        Text("Profile").tag(Tab.profile)
+                    }
+                    .pickerStyle(.segmented)
+                    .fixedSize()
+                    .scaleEffect(0.7)
+                    .padding(.trailing, -100)
+                    .focused($tabFocused)
+                }
+            }
+            .padding(.bottom, 40)
+            .focusSection()
+            ZStack{
+                if (selection == Tab.items) {
+                    MyItemsView(property: property, nfts: nfts).preferredColorScheme(colorScheme)
+                        .tag(Tab.items)
+                }else if (selection == Tab.media) {
+                    WalletView(nfts: nfts).preferredColorScheme(colorScheme)
+                        .tag(Tab.media)
+                }else if (selection == Tab.profile){
+                    ProfileView().preferredColorScheme(colorScheme)
+                        .tag(Tab.profile)
+                }else if (selection == Tab.search){
+                    SearchView().preferredColorScheme(colorScheme)
+                }else if (selection == Tab.properties){
+                    PropertiesView().preferredColorScheme(colorScheme)
+                }
+                
+            }
+        }
+        .frame(maxWidth:.infinity, maxHeight: .infinity)
+        .onAppear(){
+            self.cancellable = fabric.objectWillChange.sink { val in
+                if fabric.isLoggedOut == true {
+                    self.selection = Tab.items
+                }
+            }
+            
+            //Need to set delay to set FocusState
+            DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
+                self.tabFocused = true
+                self.searchFocused = false
+                self.propertiesFocused = false
+            }
+        }
+        .onChange(of: selection){ newValue in
+            if (newValue == Tab.items){
+                Task {
+                    await fabric.refresh()
+                }
+            }
+        }
+        .onChange(of: searchFocused){ newValue in
+            if (newValue == true){
+                selection = Tab.search
+            }
+        }
+        .onChange(of: propertiesFocused){ newValue in
+            if (newValue == true){
+                selection = Tab.properties
+            }
+        }
+        .onChange(of: property){ newValue in
+            print("property changed")
+            do {
+                self.nfts = try JSONDecoder().decode([NFTModel].self, from:newValue["contents"][0]["contents"].rawData())
+            }catch{
+                print("Error decoding NFTs \(error) \(newValue.object)")
+            }
+        }
+    }
+}
+*/
 
 /*
 struct MainView: View {
@@ -170,7 +395,7 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        MainView(property: CreateTestProperty(num: 10))
+        MainView()
             .preferredColorScheme(.dark)
             .environmentObject(Fabric())
     }
