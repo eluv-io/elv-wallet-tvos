@@ -59,8 +59,8 @@ struct NFTView: View {
                     .padding(40)
                     .background(Color.black.opacity(0.8))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 2)
-                            .stroke(.white, lineWidth: 4)
+                        RoundedRectangle(cornerRadius: 3)
+                            .stroke(Color.highlight, lineWidth: 4)
                     )
                 }
             }

@@ -10,7 +10,8 @@ import AVKit
 import SDWebImageSwiftUI
 
 struct MyMediaView: View {
-    //
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.colorScheme) var colorScheme
     @State var searchText = ""
     var featured : [AnyHashable] = []
     var library : [MediaCollection] = []
@@ -86,6 +87,14 @@ struct MyMediaView: View {
                 }
             }
             .focusSection()
+            .fullScreenCover(isPresented: $showPlayer) {
+                PlayerView(playerItem:self.$playerItem,
+                           playerImageOverlayUrl:$playerImageOverlayUrl,
+                           playerTextOverlay:$playerTextOverlay
+                )
+                    .preferredColorScheme(colorScheme)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
         }
         .introspectScrollView { view in
             view.clipsToBounds = false

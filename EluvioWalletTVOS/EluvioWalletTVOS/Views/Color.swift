@@ -9,14 +9,20 @@ import Foundation
 import SwiftUI
 
 extension Color {
-    static let mainBackground = Color.black
-    static let mainBackground2 = Color("MainBackground2")
+    static let mainBackground = LinearGradient(gradient: Gradient(colors:
+                                                                    [Color(red: 0.12, green: 0.12, blue: 0.12),
+                                                                     Color(red: 0.05, green: 0.05, blue: 0.05)]),
+                                                startPoint: .top, endPoint: .bottom)
+    static let secondaryBackground = LinearGradient(gradient: Gradient(colors:
+                                                                    [Color(red: 0.14, green: 0.14, blue: 0.14),
+                                                                     Color(red: 0.05, green: 0.05, blue: 0.05)]),
+                                                startPoint: .top, endPoint: .bottom)
     static let headerForeground = Color("headerForeground")
     static let profileHeader1 = Color("ProfileHeader1")
     static let profileHeader2 = Color("ProfileHeader2")
     static let tinted = Color.indigo.opacity(0.1)
     static let translucent = Color.indigo.opacity(0.1)
-    static let highlight = Color.gray
+    static let highlight = Color.white.opacity(0.7)
     static let backgroundGradient = LinearGradient(gradient: Gradient(colors: [Color(red: 0.2, green: 0.2, blue: 0.35), Color.black]), startPoint: .top, endPoint: .bottom)
 }
 

@@ -11,7 +11,7 @@ import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
 
-enum MediaDisplay {case apps; case video; case feature; case books; case album}
+enum MediaDisplay {case apps; case video; case feature; case books; case album; case property}
 
 struct MediaCollectionView: View {
     @EnvironmentObject var fabric: Fabric
@@ -380,11 +380,11 @@ struct MediaCard: View {
                     .frame( width: width, height: height)
                     .cornerRadius(3)
             }else{
-               /* Image(image)
+               Image(image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame( width: width, height: height)
-                    .cornerRadius(3)*/
+                    .cornerRadius(3)
             }
 
             if (isFocused){
@@ -401,7 +401,7 @@ struct MediaCard: View {
                 .background(Color.black.opacity(0.8))
                 .overlay(
                     RoundedRectangle(cornerRadius: 3)
-                        .stroke(.white, lineWidth: 4)
+                        .stroke(Color.highlight, lineWidth: 4)
                 )
             }
         }
@@ -416,7 +416,9 @@ struct MediaCard: View {
             }else if display == MediaDisplay.books {
                 width =  235
                 height = 300
-
+            }else if display == MediaDisplay.property {
+                width =  405
+                height = 247
             }else {
                 width =  300
                 height = 300

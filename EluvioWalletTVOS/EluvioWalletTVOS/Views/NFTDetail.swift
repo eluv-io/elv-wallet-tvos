@@ -37,18 +37,18 @@ struct NFTDetailView: View {
                 .indicator(.activity) // Activity Indicator
                 .transition(.fade(duration: 0.5))
                 .aspectRatio(contentMode: .fill)
-                //.frame(maxWidth:.infinity, maxHeight:.infinity, alignment: .topLeading)
-                .frame(width:.infinity, height: 500,  alignment: .topLeading)
+                .frame(maxWidth:.infinity)
+                .frame(height: 500,  alignment: .topLeading)
                 .clipped()
                 .edgesIgnoringSafeArea(.all)
-                .padding(-50)
+                //.padding(-50)
             
                 VStack(alignment: .leading, spacing: 10) {
                     VStack(alignment: .leading, spacing: 20)  {
                         Text(nft.meta.displayName).font(.title3)
                             .foregroundColor(Color.white)
                             .fontWeight(.bold)
-                            .frame(maxWidth:900, alignment:.leading)
+                            .frame(maxWidth:1500, alignment:.leading)
                         /*HStack {
                          Text(nft.meta.editionName)
                          .font(.headline)
@@ -62,17 +62,17 @@ struct NFTDetailView: View {
                                 Text(nft.meta_full?["description"].stringValue ?? "")
                                     .foregroundColor(Color.white)
                                     .padding(.top)
-                                    .frame(maxWidth:800, alignment:.leading)
+                                    .frame(maxWidth:1200, alignment:.leading)
                             }else {
                                 Text(self.richText)
                                     .foregroundColor(Color.white)
                                     .padding(.top)
-                                    .frame(maxWidth:800, alignment:.leading)
+                                    .frame(maxWidth:1200, alignment:.leading)
                             }
                         }else{
                             Text(nft.meta.description)
                                 .foregroundColor(Color.white)
-                                .frame(maxWidth:800, alignment:.leading)
+                                .frame(maxWidth:1200, alignment:.leading)
                         }
                     }
                     .frame(height:400)
@@ -81,11 +81,11 @@ struct NFTDetailView: View {
                     ScrollView {
                     if self.featuredMedia.count > 0 {
                         VStack(alignment: .leading, spacing: 10)  {
-                            if(!(self.nft.has_album ?? true)){
+                            /*if(!(self.nft.has_album ?? true)){
                                 Text("FEATURED MEDIA")
                             }else{
                                 Text("TRACKS")
-                            }
+                            }*/
                             ScrollView(.horizontal) {
                                 LazyHStack(alignment: .top, spacing: 50) {
                                     ForEach(self.featuredMedia) {media in
@@ -101,6 +101,7 @@ struct NFTDetailView: View {
                                 view.clipsToBounds = false
                             }
                         }
+                        .padding(.top)
                     }
 
                     
@@ -115,7 +116,6 @@ struct NFTDetailView: View {
                     }
                 }
             }
-            .edgesIgnoringSafeArea(.all)
             .fullScreenCover(isPresented: $showPlayer) {
                 PlayerView(playerItem:self.$playerItem,
                            playerImageOverlayUrl:$playerImageOverlayUrl,
@@ -163,8 +163,8 @@ struct NFTDetail: View {
         VStack{
             NFTDetailView(nft:$nft, featuredMedia: $featuredMedia, collections:$collections, richText: $richText)
                 .environmentObject(fabric)
-                .padding()
         }
+        .background(Color.secondaryBackground)
         .task(){
             if let additions = nft.additional_media_sections {
                 self.featuredMedia = additions.featured_media

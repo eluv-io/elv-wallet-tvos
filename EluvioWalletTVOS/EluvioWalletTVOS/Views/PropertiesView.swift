@@ -14,7 +14,7 @@ struct PropertyView : View {
         VStack(spacing:40) {
             Button {
             } label: {
-                MediaCard(image:property.image ?? "", isFocused:focused, title:property.title ?? "")
+                MediaCard(display: MediaDisplay.property, image:property.image ?? "", isFocused:focused, title:property.title ?? "")
             }
             .buttonStyle(TitleButtonStyle(focused: focused))
             .focused($focused)
@@ -27,12 +27,15 @@ struct PropertiesView: View {
     @EnvironmentObject var fabric: Fabric
     @State private var properties: [PropertyModel] = []
     
-    private var threeColumnGrid = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
+    let columns = [
+        GridItem(.flexible()),GridItem(.flexible()),
+        GridItem(.flexible()), GridItem(.flexible())
+    ]
     
     var body: some View {
         VStack(alignment:.leading) {
             ScrollView() {
-                LazyVGrid(columns: threeColumnGrid) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing:0) {
                     ForEach(properties) { property in
                         PropertyView(property: property)
                     }
@@ -47,10 +50,10 @@ struct PropertiesView: View {
         .onAppear(){
             //XXX: Demo only
             properties = [
-                CreateTestPropertyModel(title:"Movieverse", image:"wbmovieverse", parentId:"iten_warner", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Dollyverse", image:"dollyverse", parentId:"iten_dolly", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Moonsault", image:"moonsault", parentId:"iten_moon", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Fox Sports", image:"fox", parentId:"iten_fox", nfts:fabric.playable)
+                CreateTestPropertyModel(title:"Movieverse", image:"WarnerBrothers_TopImage", parentId:"iten_warner", nfts:fabric.playable),
+                CreateTestPropertyModel(title:"Dollyverse", image:"DollyVerse_TopImage", parentId:"iten_dolly", nfts:fabric.playable),
+                CreateTestPropertyModel(title:"Moonsault", image:"WWEMoonSault_TopImage", parentId:"iten_moon", nfts:fabric.playable),
+                CreateTestPropertyModel(title:"Fox Sports", image:"FoxSports_TopImage", parentId:"iten_fox", nfts:fabric.playable)
             ]
         }
     }
