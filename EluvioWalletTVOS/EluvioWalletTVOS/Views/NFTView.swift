@@ -18,17 +18,10 @@ struct NFTAlbumView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             NavigationLink(destination: NFTDetail(nft: nft)) {
-                MediaCard(display:display, image:  nft.meta.image)
+                MediaCard(display:display, imageUrl:nft.meta.image, isFocused:isFocused, title:nft.meta.name)
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
-        /*
-            Text(nft.meta.displayName)
-                .foregroundColor(Color.white)
-                .lineLimit(3)
-                .font(.caption)
-                .frame(width: 300, height: 80, alignment: .topLeading)
-         */
         }
 
     }
@@ -43,19 +36,33 @@ struct NFTView: View {
     
     var body: some View {
         NavigationLink(destination: NFTDetail(nft: nft)) {
-            VStack() {
+            ZStack() {
                 WebImage(url: URL(string: nft.meta.image))
                     .resizable()
-                        .scaledToFill()
-                        //.frame(width:500, height: 500)
-                        .clipped()
-                VStack(alignment: .leading, spacing: 7) {
-                    Text(nft.meta.displayName)
-                        .foregroundColor(Color.white)
-                        .fontWeight(.bold)
-                    Spacer()
+                    .indicator(.activity) // Activity Indicator
+                    .transition(.fade(duration: 0.5))
+                    .scaledToFill()
+                    .clipped()
+                    .cornerRadius(3)
+                
+                if (isFocused){
+                    VStack(alignment: .leading, spacing: 7) {
+                        Spacer()
+                        Text(nft.meta.displayName.capitalized)
+                            .foregroundColor(Color.white)
+                            .font(.subheadline)
+                        Text(nft.meta.editionName.capitalized)
+                            .foregroundColor(Color.white)
+                        Spacer()
+                    }
+                    .frame(maxWidth:.infinity, maxHeight:.infinity)
+                    .padding(40)
+                    .background(Color.black.opacity(0.8))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 2)
+                            .stroke(.white, lineWidth: 4)
+                    )
                 }
-                .padding()
             }
         }
         .buttonStyle(TitleButtonStyle(focused: isFocused))

@@ -27,79 +27,95 @@ struct NFTDetailView: View {
     @FocusState var isFocused
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
+    @State var backgroundImageUrl : String = ""
+    
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top, spacing: 40) {
-                    Button(action: {
-                    }) {
-                        WebImage(url: URL(string: nft.meta.image))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame( width: 500, height: 500, alignment: .topLeading)
-                            .cornerRadius(15)
-                    }
-                    .buttonStyle(PrimaryButtonStyle(focused: isFocused))
-                    .focused($isFocused)
-                    
+        ZStack(alignment:.topLeading) {
+            WebImage(url: URL(string: self.backgroundImageUrl))
+                .resizable()
+                .indicator(.activity) // Activity Indicator
+                .transition(.fade(duration: 0.5))
+                .aspectRatio(contentMode: .fill)
+                //.frame(maxWidth:.infinity, maxHeight:.infinity, alignment: .topLeading)
+                .frame(width:.infinity, height: 500,  alignment: .topLeading)
+                .clipped()
+                .edgesIgnoringSafeArea(.all)
+                .padding(-50)
+            
+                VStack(alignment: .leading, spacing: 10) {
                     VStack(alignment: .leading, spacing: 20)  {
-                        Text(nft.meta.displayName).font(.title2)
+                        Text(nft.meta.displayName).font(.title3)
                             .foregroundColor(Color.white)
                             .fontWeight(.bold)
-                        HStack {
-                            Text(nft.meta.editionName)
-                                .font(.headline)
-                                .foregroundColor(Color.white)
-                            Text("# \(nft.token_id_str)")
-                                .font(.headline)
-                                .foregroundColor(Color.yellow)
-                        }
+                            .frame(maxWidth:900, alignment:.leading)
+                        /*HStack {
+                         Text(nft.meta.editionName)
+                         .font(.headline)
+                         .foregroundColor(Color.white)
+                         Text("# \(nft.token_id_str)")
+                         .font(.headline)
+                         .foregroundColor(Color.yellow)
+                         }*/
                         if nft.meta_full != nil {
                             if(self.richText.description.isEmpty) {
                                 Text(nft.meta_full?["description"].stringValue ?? "")
                                     .foregroundColor(Color.white)
                                     .padding(.top)
+                                    .frame(maxWidth:800, alignment:.leading)
                             }else {
                                 Text(self.richText)
                                     .foregroundColor(Color.white)
                                     .padding(.top)
+                                    .frame(maxWidth:800, alignment:.leading)
                             }
                         }else{
                             Text(nft.meta.description)
                                 .foregroundColor(Color.white)
+                                .frame(maxWidth:800, alignment:.leading)
                         }
                     }
+                    .frame(height:400)
                     Spacer()
-                }
-                
-                if self.featuredMedia.count > 0 {
-                    VStack(alignment: .leading, spacing: 10)  {
-                        Text("FEATURED MEDIA")
-                        ScrollView(.horizontal) {
-                            LazyHStack(alignment: .top, spacing: 50) {
-                                ForEach(self.featuredMedia) {media in
-                                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
-                                              playerImageOverlayUrl:$playerImageOverlayUrl,
-                                              playerTextOverlay:$playerTextOverlay
-                                    )
-                                }
+                    
+                    ScrollView {
+                    if self.featuredMedia.count > 0 {
+                        VStack(alignment: .leading, spacing: 10)  {
+                            if(!(self.nft.has_album ?? true)){
+                                Text("FEATURED MEDIA")
+                            }else{
+                                Text("TRACKS")
                             }
-                            .padding(20)
+                            ScrollView(.horizontal) {
+                                LazyHStack(alignment: .top, spacing: 50) {
+                                    ForEach(self.featuredMedia) {media in
+                                        MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
+                                                  playerImageOverlayUrl:$playerImageOverlayUrl,
+                                                  playerTextOverlay:$playerTextOverlay
+                                        )
+                                    }
+                                }
+                                .padding(20)
+                            }
+                            .introspectScrollView { view in
+                                view.clipsToBounds = false
+                            }
                         }
                     }
-                }
-                
-                LazyVStack(alignment: .leading, spacing: 10)  {
-                    ForEach(collections) { collection in
-                        Text(collection.name)
-                        MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem,
-                                            playerImageOverlayUrl:$playerImageOverlayUrl,
-                                            playerTextOverlay:$playerTextOverlay
-                        )
+
+                    
+                    LazyVStack(alignment: .leading, spacing: 10)  {
+                        ForEach(collections) { collection in
+                            Text(collection.name)
+                            MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem,
+                                                playerImageOverlayUrl:$playerImageOverlayUrl,
+                                                playerTextOverlay:$playerTextOverlay
+                            )
+                        }
                     }
                 }
             }
+            .edgesIgnoringSafeArea(.all)
             .fullScreenCover(isPresented: $showPlayer) {
                 PlayerView(playerItem:self.$playerItem,
                            playerImageOverlayUrl:$playerImageOverlayUrl,
@@ -107,6 +123,27 @@ struct NFTDetailView: View {
                 )
                     .preferredColorScheme(colorScheme)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            }
+            .onAppear(){
+                //print("Gallery Item: ", self.media)
+                
+                if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
+                    self.backgroundImageUrl = "https://picsum.photos/600/800"
+                }else{
+                    var imageLink: JSON? = nil
+                    do {
+                        //Use the NFT's background image
+                        if let featured = nft.additional_media_sections?.featured_media {
+                            if !featured.isEmpty {
+                                imageLink = featured[0].background_image_tv
+                                self.backgroundImageUrl = try fabric.getUrlFromLink(link: imageLink)
+                            }
+                        }
+                        
+                    }catch{
+                        print("Error getting image URL from link ", imageLink)
+                    }
+                }
             }
         }
     }

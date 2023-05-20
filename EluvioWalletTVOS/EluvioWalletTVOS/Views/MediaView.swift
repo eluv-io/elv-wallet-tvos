@@ -266,6 +266,7 @@ struct MediaView: View {
     @Binding var playerTextOverlay : String
 
     var display: MediaDisplay = MediaDisplay.apps
+    @State var imageUrl: String = ""
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -307,7 +308,7 @@ struct MediaView: View {
                 }
  
             }) {
-                MediaCard(display:display, image:  media?.image ?? "")
+                MediaCard(display:display, imageUrl:self.imageUrl, isFocused:isFocused, title: media?.name ?? "")
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
@@ -319,6 +320,27 @@ struct MediaView: View {
                         .opacity(0.7)
                 }
             })
+        }
+        .onAppear(){
+            if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
+                self.imageUrl = "https://picsum.photos/600/800"
+            }else{
+                do {
+                    var image: String = media?.image ?? ""
+                    
+                    if(self.display == MediaDisplay.feature || image == ""){
+                        if let posterImage = media?.poster_image {
+                            image = try fabric.getUrlFromLink(link: posterImage)
+                            print("Poster image found: ", image)
+                        }
+                    }
+                    
+                    self.imageUrl = image
+                    print("Media Image URL: ", self.imageUrl)
+                }catch{
+                    print("Error getting image URL from link ", media?.image as Any)
+                }
+            }
         }
         .fullScreenCover(isPresented: $showGallery) {
             GalleryView(gallery: $gallery)
@@ -340,44 +362,65 @@ struct MediaView: View {
 struct MediaCard: View {
     var display: MediaDisplay = MediaDisplay.apps
     var image: String = ""
+    var imageUrl: String = ""
+    var isFocused: Bool = false
+    var title: String = ""
+    var subtitle: String = ""
+    @State var width: CGFloat = 300
+    @State var height: CGFloat = 300
     
     var body: some View {
-        VStack{
-            if display == MediaDisplay.feature {
-                WebImage(url: URL(string: image))
+        ZStack{
+            if (imageUrl != ""){
+                WebImage(url: URL(string: imageUrl))
                     .resizable()
                     .indicator(.activity) // Activity Indicator
                     .transition(.fade(duration: 0.5))
                     .aspectRatio(contentMode: .fill)
-                    .frame( width: 400, height: 600)
+                    .frame( width: width, height: height)
                     .cornerRadius(3)
-            }else if display == MediaDisplay.video {
-                WebImage(url: URL(string: image))
+            }else{
+               /* Image(image)
                     .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
                     .aspectRatio(contentMode: .fill)
-                    .frame( width: 500, height: 281)
-                    .cornerRadius(3)
-            }else if display == MediaDisplay.books {
-                WebImage(url: URL(string: image))
-                    .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame( width: 235, height: 300)
-                    .cornerRadius(3)
-            }else {
-                //Square
-                WebImage(url: URL(string: image))
-                    .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame( width: 300, height: 300)
-                    .cornerRadius(3)
+                    .frame( width: width, height: height)
+                    .cornerRadius(3)*/
+            }
+
+            if (isFocused){
+                VStack(alignment: .leading, spacing: 7) {
+                    Spacer()
+                    Text(title.capitalized)
+                        .foregroundColor(Color.white)
+                        .font(.subheadline)
+                    Text(subtitle.capitalized)
+                        .foregroundColor(Color.white)
+                }
+                .frame(maxWidth:.infinity, maxHeight:.infinity)
+                .padding(20)
+                .background(Color.black.opacity(0.8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 3)
+                        .stroke(.white, lineWidth: 4)
+                )
             }
         }
-        
+        .frame( width: width, height: height)
+        .onAppear(){
+            if display == MediaDisplay.feature {
+                width = 400
+                height = 560
+            }else if display == MediaDisplay.video {
+                width =  500
+                height = 281
+            }else if display == MediaDisplay.books {
+                width =  235
+                height = 300
+
+            }else {
+                width =  300
+                height = 300
+            }
+        }
     }
 }

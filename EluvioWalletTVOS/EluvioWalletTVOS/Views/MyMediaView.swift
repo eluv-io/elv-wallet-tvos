@@ -20,13 +20,16 @@ struct MyMediaView: View {
     @State var playerTextOverlay : String = ""
     @State var showPlayer = false
     @State var playerItem : AVPlayerItem? = nil
+    var logo = "e_logo"
+    var logoUrl = ""
+    var name = "Eluvio Wallet"
     
     var body: some View {
         ScrollView{
-            LazyVStack(alignment: .leading, spacing: 10){
-
+            LazyVStack(alignment: .leading, spacing: 40){
+                HeaderView(logo:logo, logoUrl: logoUrl, name:name)
                 ScrollView (.horizontal, showsIndicators: false) {
-                    HStack(alignment: .top, spacing: 20) {
+                    LazyHStack(alignment: .top, spacing: 20) {
                         ForEach(featured.indices, id: \.self) { index in
                             if let media = featured[index] as? MediaItem {
                                 MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
@@ -40,23 +43,27 @@ struct MyMediaView: View {
                                     NFTAlbumView(nft:nft, display: MediaDisplay.feature)
                                 }else {
                                     NFTView(nft:nft, display: MediaDisplay.feature)
+   
                                 }
                             }
                         }
                     }
-                    .padding(20)
                 }
-
+                .introspectScrollView { view in
+                    view.clipsToBounds = false
+                }
 
                 ForEach(library) { collection in
                     if(!collection.media.isEmpty){
-                        Text(collection.name)
-                        MediaCollectionView(mediaCollection: collection,
-                                            showPlayer: $showPlayer,
-                                            playerItem: $playerItem,
-                                            playerImageOverlayUrl:$playerImageOverlayUrl,
-                                            playerTextOverlay:$playerTextOverlay
-                        )
+                        VStack(alignment: .leading, spacing: 20){
+                            Text(collection.name)
+                            MediaCollectionView(mediaCollection: collection,
+                                                showPlayer: $showPlayer,
+                                                playerItem: $playerItem,
+                                                playerImageOverlayUrl:$playerImageOverlayUrl,
+                                                playerTextOverlay:$playerTextOverlay
+                            )
+                        }
                     }
                 }
                 
@@ -70,9 +77,9 @@ struct MyMediaView: View {
                                         //.frame( width: 225, height: 225)
                                 }
                             }
-                            .introspectScrollView { view in
-                                view.clipsToBounds = false
-                            }
+                        }
+                        .introspectScrollView { view in
+                            view.clipsToBounds = false
                         }
                         .padding()
                     }

@@ -50,9 +50,35 @@ struct NFTList: View {
 }
 */
 
+struct NFTGrid: View {
+
+    var title: String = ""
+    var nfts : [NFTModel]
+    @State private var editMode = EditMode.inactive
+    let columns = [
+        GridItem(.fixed(600),spacing: 0),GridItem(.fixed(600),spacing: 0),
+        GridItem(.fixed(600),spacing: 0)
+    ]
+    
+    let column = [GridItem(.flexible())]
+
+    @State var search = false
+    @State var searchText = ""
+    @State var gridOption = false
+    var body: some View {
+        LazyVGrid(columns: columns, alignment: .leading, spacing:0) {
+            ForEach(nfts) { nft in
+                    NFTView(nft: nft)
+                    .padding(20)
+            }
+        }
+    }
+}
+
+
 struct NFTList: View {
 
-    var title: String
+    var title: String = ""
     var nfts : [NFTModel]
     @State private var editMode = EditMode.inactive
     let columns = [
@@ -77,8 +103,8 @@ struct NFTList: View {
             LazyHStack {
                 ForEach(nfts) { nft in
                         NFTView(nft: nft)
-                        //.frame(width: 500)
-                        .frame(width:500, height: 700)
+                        .frame(width:500, height: 500)
+                        .padding()
                 }
             }
             .padding(50)

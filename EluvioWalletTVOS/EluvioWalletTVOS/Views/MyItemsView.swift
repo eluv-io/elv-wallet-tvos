@@ -13,10 +13,16 @@ struct MyItemsView: View {
     //
     @State var searchText = ""
     var nfts : [NFTModel] = []
+    var logo = "e_logo"
+    var logoUrl = ""
+    var name = "Eluvio Wallet"
     
     var body: some View {
         ScrollView{
-            NFTList(title: "", nfts:nfts)
+            VStack{
+                HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                NFTGrid(nfts:nfts)
+            }
         }
         .introspectScrollView { view in
             view.clipsToBounds = false

@@ -23,8 +23,10 @@ struct ContentView: View {
                         .preferredColorScheme(colorScheme)
                 }
                 .background(Color.mainBackground)
+                .navigationBarHidden(true)
         }
         .navigationViewStyle(.stack)
+        .edgesIgnoringSafeArea(.all)
     }
 }
 

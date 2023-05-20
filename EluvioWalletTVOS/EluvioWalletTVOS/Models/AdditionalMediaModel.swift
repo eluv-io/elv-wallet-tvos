@@ -31,6 +31,11 @@ struct MediaSection: Identifiable, Codable {
 struct MediaItem: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var image: String?
+    var background_image_tv: JSON?
+    var background_image_tv_url: String? = ""
+    var poster_image: JSON?
+    var poster_image_url: String? = ""
+    
     var name: String = ""
     var image_aspect_ratio: String?
     var media_type: String?
@@ -41,14 +46,14 @@ struct MediaItem: Identifiable, Codable, Equatable, Hashable {
     var gallery: [GalleryItem]? = []
     var offerings: [String]? = []
     
-    init (){
-        id = UUID().uuidString
-    }
-    
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
         image = try container.decodeIfPresent(String.self, forKey: .image) ?? ""
+        background_image_tv = try container.decodeIfPresent(JSON.self, forKey: .background_image_tv)
+        background_image_tv_url = try container.decodeIfPresent(String.self, forKey: .background_image_tv_url) ?? ""
+        poster_image = try container.decodeIfPresent(JSON.self, forKey: .poster_image)
+        poster_image_url = try container.decodeIfPresent(String.self, forKey: .poster_image_url) ?? ""
         name = try container.decode(String.self, forKey: .name)
         media_type = try container.decodeIfPresent(String.self, forKey: .media_type) ?? ""
         requires_permissions = try container.decode(Bool.self, forKey: .requires_permissions)

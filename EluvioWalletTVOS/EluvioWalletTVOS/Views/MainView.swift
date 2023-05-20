@@ -9,13 +9,40 @@ import SwiftUI
 import Combine
 import SwiftyJSON
 
+struct HeaderView: View {
+    var logo = "e_logo"
+    var logoUrl = ""
+    var name = "Eluvio Wallet"
+    
+    var body: some View {
+        VStack {
+            HStack(spacing:10) {
+                Image(logo)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width:60)
+                Text(name)
+                    .foregroundColor(Color.white)
+                    .font(.headline)
+            }
+            .frame(maxWidth:.infinity, alignment: .leading)
+        }
+        //.background(.red)
+        .offset(x:0,y:-110)
+        .edgesIgnoringSafeArea(.all)
+    }
+}
+
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     var nfts : [NFTModel] = []
-    enum Tab { case Watch, Nfts, Profile, Search }
-    @State var selection: Tab = Tab.Watch
+    enum Tab { case Items, Media, Profile, Search }
+    @State var selection: Tab = Tab.Items
     @State private var cancellable: AnyCancellable? = nil
+    var logo = "e_logo"
+    var logoUrl = ""
+    var name = "Eluvio Wallet"
     
     init(nfts:[NFTModel] = []) {
         UITabBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.2)
@@ -23,67 +50,48 @@ struct MainView: View {
     }
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                VStack {
-                    HStack(spacing:10) {
-                        Image("e_logo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width:60)
-                        Text("Eluvio Wallet")
-                            .foregroundColor(Color.white)
-                            .font(.headline)
-                        Spacer()
-                    }
-                    .frame(maxWidth:.infinity, alignment: .leading)
-                    .padding(.top, 50)
-                    .padding(.leading, 80)
-                    Spacer()
+        TabView(selection: $selection) {
+            MyItemsView(nfts: nfts).preferredColorScheme(colorScheme)
+                .tabItem{
+                    Text("My Items")
                 }
-                .edgesIgnoringSafeArea(.all)
-
-                
-                TabView(selection: $selection) {
-                    MyItemsView(nfts: nfts).preferredColorScheme(colorScheme)
-                        .tabItem{
-                            Text("My Items")
-                        }
-                        .tag(Tab.Watch)
-                    
-                    MyMediaView(featured: Array(fabric.featured),
-                                library: fabric.library,
-                                albums: fabric.albums).preferredColorScheme(colorScheme)
-                        .tabItem{
-                            Text("My Media")
-                        }
-                        .tag(Tab.Nfts)
-                    
-                    ProfileView().preferredColorScheme(colorScheme)
-                        .tabItem{
-                            Text("Profile")
-                        }
-                        .tag(Tab.Profile)
-                    SearchView().preferredColorScheme(colorScheme)
-                        .tabItem{
-                            Image(systemName: "magnifyingglass")
-                        }
-                        .tag(Tab.Search)
+                .tag(Tab.Items)
+            
+            
+            MyMediaView(featured: Array(fabric.featured),
+                        library: fabric.library,
+                        albums: fabric.albums).preferredColorScheme(colorScheme)
+                .tabItem{
+                    Text("My Media")
                 }
-            }
+                .tag(Tab.Media)
+            
+            ProfileView().preferredColorScheme(colorScheme)
+                .tabItem{
+                    Text("Profile")
+                }
+                .tag(Tab.Profile)
+            
+            SearchView().preferredColorScheme(colorScheme)
+                .tabItem{
+                    Image(systemName: "magnifyingglass")
+                }
+                .tag(Tab.Search)
+            
         }
-        .navigationViewStyle(.stack)
+        .edgesIgnoringSafeArea(.all)
         .onAppear(){
             self.cancellable = fabric.objectWillChange.sink { val in
                 if fabric.isLoggedOut == true {
-                    self.selection = Tab.Watch
+                    self.selection = Tab.Items
                 }
             }
         }
         .onChange(of: selection){ newValue in
-            if (newValue == Tab.Watch){
+            if (newValue == Tab.Items){
                 Task {
-                    await fabric.refresh()
+                    //TOO SLOW!!
+                    //await fabric.refresh()
                 }
             }
         }

@@ -14,9 +14,14 @@ struct ProfileView: View {
     @State var userId : String = ""
     @State var network : String = ""
     @State var node : String = ""
+    var logo = "e_logo"
+    var logoUrl = ""
+    var name = "Eluvio Wallet"
     
     var body: some View {
         VStack {
+            HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+            
             Form {
                 Section(header: Text("Profile").foregroundColor(.white.opacity(0.6))) {
                     Text("Address:  \(address)")

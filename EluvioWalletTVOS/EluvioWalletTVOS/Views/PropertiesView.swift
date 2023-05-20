@@ -14,18 +14,10 @@ struct PropertyView : View {
         VStack(spacing:40) {
             Button {
             } label: {
-                Image(property.image ?? "")
-                    .resizable()
-                    .frame(width:300,height:300)
-                    .cornerRadius(10)
+                MediaCard(image:property.image ?? "", isFocused:focused, title:property.title ?? "")
             }
             .buttonStyle(TitleButtonStyle(focused: focused))
             .focused($focused)
-            
-            Text(property.title ?? "")
-                .foregroundColor(Color.white)
-                .font(.subheadline)
-            
         }
     }
 }
@@ -55,11 +47,10 @@ struct PropertiesView: View {
         .onAppear(){
             //XXX: Demo only
             properties = [
-                CreateTestPropertyModel(title:"All Media", image:"e_logo", parentId:"iten_eluvio", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Movieverse", image:"WarnerBrothersLogo", parentId:"iten_warner", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Dollyverse", image:"DollyverseLogo", parentId:"iten_dolly", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Moonsault", image:"MoonSaultLogo", parentId:"iten_moon", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Fox Sports", image:"FoxSportsLogo", parentId:"iten_fox", nfts:fabric.playable)
+                CreateTestPropertyModel(title:"Movieverse", image:"wbmovieverse", parentId:"iten_warner", nfts:fabric.playable),
+                CreateTestPropertyModel(title:"Dollyverse", image:"dollyverse", parentId:"iten_dolly", nfts:fabric.playable),
+                CreateTestPropertyModel(title:"Moonsault", image:"moonsault", parentId:"iten_moon", nfts:fabric.playable),
+                CreateTestPropertyModel(title:"Fox Sports", image:"fox", parentId:"iten_fox", nfts:fabric.playable)
             ]
         }
     }
