@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-struct NFTModel: Identifiable, Codable, Equatable, Hashable {
+struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var block: Int?
     var created: Int?
@@ -27,6 +27,8 @@ struct NFTModel: Identifiable, Codable, Equatable, Hashable {
     var has_playable_feature : Bool?
     var has_album: Bool? = false
     var additional_media_sections : AdditionalMediaModel? = nil
+    var property : PropertyModel? = nil
+    var project : ProjectModel? = nil
     init(){
         block = 0
         created = 0

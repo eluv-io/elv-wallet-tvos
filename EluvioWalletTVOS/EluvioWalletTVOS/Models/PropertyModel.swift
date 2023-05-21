@@ -6,20 +6,22 @@
 //
 
 import Foundation
+import SwiftyJSON
 
-struct PropertyModel: Identifiable {
+struct PropertyModel: Identifiable, Codable  {
     var id: String? = UUID().uuidString
     var title: String? = ""
+    var logo: String? = ""
     var image: String? = ""
     var heroImage: String? = ""
     var parent_id: String? = ""
-    var featured: [AnyHashable] = []
+    var featured: Features = Features()
     var media: [MediaCollection] = []
     var albums: [NFTModel] = [] //Temporary until we have proper albums
     var contents: [ProjectModel] = []
 }
 
-struct ProjectModel: Identifiable {
+struct ProjectModel: Identifiable, Codable {
     var id: String? = UUID().uuidString
     var title: String? = ""
     var image: String? = ""

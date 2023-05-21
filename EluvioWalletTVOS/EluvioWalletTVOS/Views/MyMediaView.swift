@@ -8,12 +8,13 @@
 import SwiftUI
 import AVKit
 import SDWebImageSwiftUI
+import SwiftyJSON
 
 struct MyMediaView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @State var searchText = ""
-    var featured : [AnyHashable] = []
+    var featured: Features = Features()
     var library : [MediaCollection] = []
     //?? Extrat only the media? Resusing the NFTViews for now
     var albums: [NFTModel] = []
@@ -55,15 +56,16 @@ struct MyMediaView: View {
                 
                 ScrollView (.horizontal, showsIndicators: false) {
                     LazyHStack(alignment: .top, spacing: 20) {
+/*
                         ForEach(featured.indices, id: \.self) { index in
-                            if let media = featured[index] as? MediaItem {
+                            if let media = featured[index].object as? MediaItem {
                                 MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
                                           playerImageOverlayUrl:$playerImageOverlayUrl,
                                           playerTextOverlay:$playerTextOverlay,
                                           display: MediaDisplay.feature)
                             }
                             
-                            if let nft = featured[index] as? NFTModel {
+                            if let nft = featured[index].object as? NFTModel {
                                 if nft.has_album ?? false {
                                     NFTAlbumView(nft:nft, display: MediaDisplay.feature)
                                 }else {
@@ -72,6 +74,27 @@ struct MyMediaView: View {
                                 }
                             }
                         }
+                   */
+                        ForEach(featured.media) { media in
+                            MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
+                                      playerImageOverlayUrl:$playerImageOverlayUrl,
+                                      playerTextOverlay:$playerTextOverlay,
+                                      display: MediaDisplay.feature)
+                        }
+                        /*
+                        ForEach(featured.collections) { collection in
+                            //TODO?
+                        }*/
+
+                        ForEach(featured.items) { nft in
+                            if nft.has_album ?? false {
+                                NFTAlbumView(nft:nft, display: MediaDisplay.feature)
+                            }else {
+                                NFTView(nft:nft, display: MediaDisplay.feature)
+
+                            }
+                        }
+
                     }
                 }
                 .focusSection()

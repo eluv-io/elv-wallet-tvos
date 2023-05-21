@@ -9,10 +9,15 @@ import Foundation
 import SwiftUI
 
 extension Color {
-    static let mainBackground = LinearGradient(gradient: Gradient(colors:
-                                                                    [Color(red: 0.12, green: 0.12, blue: 0.12),
-                                                                     Color(red: 0.05, green: 0.05, blue: 0.05)]),
-                                                startPoint: .top, endPoint: .bottom)
+    /*static let mainBackground = LinearGradient(gradient: Gradient(colors:
+                                                                    [Color(red: 0.22, green: 0.21, blue: 0.31),
+                                                                     Color(red: 0.12, green: 0.12, blue: 0.16)]),
+                                                startPoint: .top, endPoint: .bottom)*/
+    static let mainBackground = RadialGradient(gradient: Gradient(colors:
+                                                                    [Color(red: 0.22, green: 0.21, blue: 0.31),
+                                                                     Color(red: 0.0, green: 0.0, blue: 0.0)]),
+                                               center: .top, startRadius: 0, endRadius:1600)
+    
     static let secondaryBackground = LinearGradient(gradient: Gradient(colors:
                                                                     [Color(red: 0.14, green: 0.14, blue: 0.14),
                                                                      Color(red: 0.05, green: 0.05, blue: 0.05)]),

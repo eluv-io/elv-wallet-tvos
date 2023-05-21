@@ -33,38 +33,112 @@ struct NFTView: View {
     @State private var buttonFocus: Bool = false
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.feature
+    var shadowRadius: CGFloat {
+        if isFocused {
+            return 10
+        }else{
+            return 3
+        }
+    }
+    
+    var titleColor: Color {
+        if isFocused {
+            return Color.black
+        }else{
+            return Color.white
+        }
+    }
+    
+    var subTitleColor: Color {
+        if isFocused {
+            return Color.black.opacity(0.5)
+        }else{
+            return Color.gray
+        }
+    }
+    
+    var propertyLogo: String {
+        return nft.property?.logo ?? ""
+    }
+    var propertyName: String {
+        return nft.property?.title ?? ""
+    }
+    
+    var logoBrightness: CGFloat {
+        if isFocused {
+            return -0.5
+        }else{
+            return 0
+        }
+    }
     
     var body: some View {
         NavigationLink(destination: NFTDetail(nft: nft)) {
-            ZStack() {
-                WebImage(url: URL(string: nft.meta.image))
-                    .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
-                    .scaledToFill()
-                    .clipped()
-                    .cornerRadius(3)
-                
-                if (isFocused){
-                    VStack(alignment: .leading, spacing: 7) {
+            ZStack{
+                Image("item-dark").resizable()
+                    .overlay{
+                        if isFocused{
+                            Image("item-highlight").resizable()
+                        }
+                    }
+
+                VStack() {
+                    HStack(alignment:.center, spacing:10){
+                        if(propertyLogo.hasPrefix("http")){
+                            WebImage(url: URL(string: propertyLogo))
+                                .resizable()
+                                .indicator(.activity) // Activity Indicator
+                                .transition(.fade(duration: 0.5))
+                                .scaledToFill()
+                                .cornerRadius(3)
+                                .frame(width:40, height: 40, alignment: .center)
+                                .clipped()
+                                .brightness(logoBrightness)
+                        }else {
+                            Image(propertyLogo)
+                                .resizable()
+                                .scaledToFill()
+                                .cornerRadius(3)
+                                .frame(width:40, height: 40, alignment: .center)
+                                .clipped()
+                                .brightness(logoBrightness)
+                        }
+                        
+                        Text(propertyName).foregroundColor(subTitleColor).font(.itemSubtitle)
                         Spacer()
-                        Text(nft.meta.displayName.capitalized)
-                            .foregroundColor(Color.white)
-                            .font(.subheadline)
-                        Text(nft.meta.editionName.capitalized)
-                            .foregroundColor(Color.white)
+                        Text("#\(nft.token_id_str)").foregroundColor(subTitleColor).font(.itemSubtitle)
+                    }
+                    .padding(.bottom)
+                    WebImage(url: URL(string: nft.meta.image))
+                        .resizable()
+                        .indicator(.activity) // Activity Indicator
+                        .transition(.fade(duration: 0.5))
+                        .scaledToFill()
+                        .cornerRadius(3)
+                        .frame(width: 420, height: 420, alignment: .center)
+                        .clipped()
+                    
+                    VStack(alignment: .center, spacing: 7) {
+                        Spacer()
+                        Text(nft.meta.displayName)
+                            .foregroundColor(titleColor)
+                            .font(.itemTitle)
+                        Text(nft.meta.editionName)
+                            .foregroundColor(subTitleColor)
+                            .font(.itemSubtitle)
+                            .textCase(.uppercase)
+                        
                         Spacer()
                     }
-                    .frame(maxWidth:.infinity, maxHeight:.infinity)
-                    .padding(40)
-                    .background(Color.black.opacity(0.8))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 3)
-                            .stroke(Color.highlight, lineWidth: 4)
-                    )
+                    
+                    if (isFocused){}
+                    
                 }
+                .padding(30)
             }
+            .shadow(radius: shadowRadius)
         }
+        .frame(width: 480, height: 700)
         .buttonStyle(TitleButtonStyle(focused: isFocused))
         .focused($isFocused)
     }

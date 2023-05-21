@@ -35,27 +35,8 @@ func CreateTestNFTs(num: Int) -> [NFTModel] {
     return nfts
 }
 
-func CreateTestProperty(num: Int) -> JSON {
-    var property : JSON = [
-        "id" : "prop_1",
-        "title" : "Movieverse",
-        "image" : "WarnerBrothersLogo",
-        "parent_id" : "iten",
-        "contents" : [
-            [
-                "id" : "proj_1",
-                "title" : "The Lord of the Rings",
-                "image" : "WarnerBrothers",
-                "parent_id": "prop_1",
-                "contents" : CreateTestNFTs(num: num)
-            ]
-        ]
-    ]
-    
-    return property
-}
 
-func CreateTestPropertyModel(title: String, image: String, heroImage: String, featured: [AnyHashable] = [], media: [MediaCollection] = [], albums: [NFTModel] = [], items: [NFTModel]) -> PropertyModel {
+func CreateTestPropertyModel(title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], items: [NFTModel]) -> PropertyModel {
     
     var projects : [ProjectModel] = []
     projects.append(ProjectModel(
@@ -64,6 +45,7 @@ func CreateTestPropertyModel(title: String, image: String, heroImage: String, fe
     
     let property = PropertyModel(
         title : title,
+        logo: logo,
         image : image,
         heroImage: heroImage,
         featured: featured,

@@ -77,3 +77,18 @@ struct GalleryButtonStyle: ButtonStyle {
             .animation(.easeIn(duration: 0.2), value: self.focused)
     }
 }
+
+
+
+extension Font {
+    
+    /// Create a font with the large title text style.
+    public static var itemTitle: Font {
+        return Font.custom("OpenSans-Regular", size: 36)
+    }
+    
+    /// Create a font with the title text style.
+    public static var itemSubtitle: Font {
+        return Font.custom("OpenSans-Regular", size: 20)
+    }
+}

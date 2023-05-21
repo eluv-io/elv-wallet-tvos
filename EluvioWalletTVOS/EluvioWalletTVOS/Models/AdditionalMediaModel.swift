@@ -8,6 +8,48 @@
 import Foundation
 import SwiftyJSON
 
+protocol FeatureProtocol: Identifiable, Codable {
+    var id: String? {get}
+}
+
+struct Features: Codable{
+    var items: [NFTModel] = []
+    var collections: [MediaCollection] = []
+    var media: [MediaItem] = []
+    var count: Int {
+        get {
+            return items.count + collections.count + media.count
+        }
+    }
+    
+    var isEmpty: Bool {
+        get {
+            return self.count == 0
+        }
+    }
+    
+    func unique() -> Features {
+        return Features(items:items.unique(), collections:collections.unique(), media:media.unique())
+    }
+    
+    mutating func append(_ obj: any FeatureProtocol){
+        if let me = obj as? MediaItem {
+            media.append(me)
+        }else if let nft  = obj as? NFTModel{
+            items.append(nft)
+        }else if let col = obj as? MediaCollection {
+            collections.append(col)
+        }
+        
+    }
+    
+    mutating func append(contentsOf other: Features){
+        items.append(contentsOf: other.items)
+        collections.append(contentsOf: other.collections)
+        media.append(contentsOf: other.media)
+    }
+}
+
 protocol ViewModel: Identifiable, Codable, Equatable, Hashable {
     var id: String? { get set }
     
@@ -28,7 +70,7 @@ struct MediaSection: Identifiable, Codable {
     var collections : [MediaCollection] = []
 }
 
-struct MediaItem: Identifiable, Codable, Equatable, Hashable {
+struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var image: String?
     var background_image_tv: JSON?
@@ -48,7 +90,6 @@ struct MediaItem: Identifiable, Codable, Equatable, Hashable {
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
         image = try container.decodeIfPresent(String.self, forKey: .image) ?? ""
         background_image_tv = try container.decodeIfPresent(JSON.self, forKey: .background_image_tv)
         background_image_tv_url = try container.decodeIfPresent(String.self, forKey: .background_image_tv_url) ?? ""
@@ -63,6 +104,7 @@ struct MediaItem: Identifiable, Codable, Equatable, Hashable {
         parameters = try container.decodeIfPresent([JSON].self, forKey: .parameters) ?? []
         gallery = try container.decodeIfPresent([GalleryItem].self, forKey: .gallery) ?? []
         offerings = try container.decodeIfPresent([String].self, forKey: .offerings) ?? []
+        id = /* try container.decodeIfPresent(String.self, forKey: .id) ??*/ name + (media_type ?? "")
     }
     
     //TODO: Find a good id for this
@@ -75,7 +117,7 @@ struct MediaItem: Identifiable, Codable, Equatable, Hashable {
     }
 }
 
-struct MediaCollection: Identifiable, Codable, Equatable, Hashable {
+struct MediaCollection: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var display: String?
     var name: String = ""

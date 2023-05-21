@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "LargeIconTV 1.png",
+      "filename" : "Background_ App.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "LargeIconTV.png",
+      "filename" : "Background_App.png",
       "idiom" : "tv",
       "scale" : "2x"
     }

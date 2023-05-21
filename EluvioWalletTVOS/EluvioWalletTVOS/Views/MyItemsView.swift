@@ -33,6 +33,6 @@ struct MyItemsView: View {
 
 struct MyItemsView_Previews: PreviewProvider {
     static var previews: some View {
-        MyItemsView()
+        MyItemsView(nfts: CreateTestNFTs(num: 2))
     }
 }
