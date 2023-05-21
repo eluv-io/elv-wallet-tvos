@@ -37,6 +37,7 @@ struct EluvioWalletTVOSApp: App {
                         }
                     }
                 }
+                .edgesIgnoringSafeArea(.all)
         }
     }
 }

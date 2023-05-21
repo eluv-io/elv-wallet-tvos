@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct PropertyView : View {
+    @Environment(\.colorScheme) var colorScheme
     @State var property: PropertyModel
     @FocusState private var focused : Bool
     var body: some View {
         VStack(spacing:40) {
-            Button {
-            } label: {
+            NavigationLink(destination:MyMediaView(featured: property.featured,
+                                                   library: property.media,
+                                                   albums: property.albums,
+                                                   heroImage: property.heroImage
+                                                  )
+                .preferredColorScheme(colorScheme)) {
                 MediaCard(display: MediaDisplay.property, image:property.image ?? "", isFocused:focused, title:property.title ?? "")
             }
             .buttonStyle(TitleButtonStyle(focused: focused))
@@ -25,7 +30,7 @@ struct PropertyView : View {
 struct PropertiesView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
-    @State private var properties: [PropertyModel] = []
+    @State var properties: [PropertyModel] = []
     
     let columns = [
         GridItem(.flexible()),GridItem(.flexible()),
@@ -47,15 +52,6 @@ struct PropertiesView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 60)
-        .onAppear(){
-            //XXX: Demo only
-            properties = [
-                CreateTestPropertyModel(title:"Movieverse", image:"WarnerBrothers_TopImage", parentId:"iten_warner", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Dollyverse", image:"DollyVerse_TopImage", parentId:"iten_dolly", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Moonsault", image:"WWEMoonSault_TopImage", parentId:"iten_moon", nfts:fabric.playable),
-                CreateTestPropertyModel(title:"Fox Sports", image:"FoxSports_TopImage", parentId:"iten_fox", nfts:fabric.playable)
-            ]
-        }
     }
 }
 

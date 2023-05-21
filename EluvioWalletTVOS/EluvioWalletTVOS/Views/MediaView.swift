@@ -368,6 +368,7 @@ struct MediaCard: View {
     var subtitle: String = ""
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
+    @State var cornerRadius: CGFloat = 3
     
     var body: some View {
         ZStack{
@@ -378,13 +379,13 @@ struct MediaCard: View {
                     .transition(.fade(duration: 0.5))
                     .aspectRatio(contentMode: .fill)
                     .frame( width: width, height: height)
-                    .cornerRadius(3)
+                    .cornerRadius(cornerRadius)
             }else{
                Image(image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame( width: width, height: height)
-                    .cornerRadius(3)
+                    .cornerRadius(cornerRadius)
             }
 
             if (isFocused){
@@ -400,7 +401,7 @@ struct MediaCard: View {
                 .padding(20)
                 .background(Color.black.opacity(0.8))
                 .overlay(
-                    RoundedRectangle(cornerRadius: 3)
+                    RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(Color.highlight, lineWidth: 4)
                 )
             }
@@ -410,18 +411,23 @@ struct MediaCard: View {
             if display == MediaDisplay.feature {
                 width = 400
                 height = 560
+                cornerRadius = 3
             }else if display == MediaDisplay.video {
                 width =  500
                 height = 281
+                cornerRadius = 16
             }else if display == MediaDisplay.books {
                 width =  235
                 height = 300
+                cornerRadius = 16
             }else if display == MediaDisplay.property {
                 width =  405
                 height = 247
+                cornerRadius = 16
             }else {
                 width =  300
                 height = 300
+                cornerRadius = 16
             }
         }
     }

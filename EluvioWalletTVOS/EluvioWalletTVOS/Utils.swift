@@ -181,3 +181,40 @@ func GenerateQRCode(from string: String) -> UIImage {
 
     return UIImage(systemName: "xmark.circle") ?? UIImage()
 }
+
+extension RangeReplaceableCollection where Element: Equatable {
+    @discardableResult
+    mutating func appendIfNotContains(_ element: Element) -> (appended: Bool, memberAfterAppend: Element) {
+        if let index = firstIndex(of: element) {
+            return (false, self[index])
+        } else {
+            append(element)
+            return (true, element)
+        }
+    }
+    
+    func unique() -> [Element] where Element: Equatable {
+        var newArray: [Element] = []
+        self.forEach { i in
+            if !newArray.contains(i) {
+                newArray.append(i)
+                
+            }
+        }
+        return newArray
+    }
+    
+    func group<Discrimininator>(by discriminator: (Element)->(Discrimininator)) -> [Discrimininator: [Element]] where Discrimininator: Hashable {
+        
+        var result = [Discrimininator: [Element]]()
+        for element in self {
+            
+            let key = discriminator(element)
+            var array = result[key] ?? [Element]()
+            array.append(element)
+            result[key] = array
+        }
+        
+        return result
+    }
+}

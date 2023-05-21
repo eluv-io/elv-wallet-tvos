@@ -58,7 +58,7 @@ struct MainView: View {
                 .tag(Tab.Items)
             
             
-            MyMediaView(featured: Array(fabric.featured),
+            MyMediaView(featured: fabric.featured,
                         library: fabric.library,
                         albums: fabric.albums).preferredColorScheme(colorScheme)
                 .tabItem{
@@ -79,7 +79,7 @@ struct MainView: View {
                 .tag(Tab.Search)
             
         }
-        .edgesIgnoringSafeArea(.all)
+        //.edgesIgnoringSafeArea(.all)
         .onAppear(){
             self.cancellable = fabric.objectWillChange.sink { val in
                 if fabric.isLoggedOut == true {
@@ -89,10 +89,10 @@ struct MainView: View {
         }
         .onChange(of: selection){ newValue in
             if (newValue == Tab.Items){
-                Task {
+                //Task {
                     //TOO SLOW!!
                     //await fabric.refresh()
-                }
+                //}
             }
         }
     }

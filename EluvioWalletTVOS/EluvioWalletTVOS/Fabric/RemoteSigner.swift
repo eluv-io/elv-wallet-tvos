@@ -48,7 +48,7 @@ class RemoteSigner {
     }
     
     //TODO: Convert this to responseDecodable
-    func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> [String: AnyObject] {
+    func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             
             do {
@@ -63,14 +63,11 @@ class RemoteSigner {
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
 
                     switch (response.result) {
-                        case .success( _):
-                            if let value = response.value as? [String: AnyObject] {
-                                continuation.resume(returning: value)
-                            }
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
                          case .failure(let error):
                             print("Get Wallet Data Request error: \(error.localizedDescription)")
                             continuation.resume(throwing: error)
-                         
                      }
                 }
             }catch{

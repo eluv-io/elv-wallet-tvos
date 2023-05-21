@@ -11,7 +11,11 @@ struct PropertyModel: Identifiable {
     var id: String? = UUID().uuidString
     var title: String? = ""
     var image: String? = ""
+    var heroImage: String? = ""
     var parent_id: String? = ""
+    var featured: [AnyHashable] = []
+    var media: [MediaCollection] = []
+    var albums: [NFTModel] = [] //Temporary until we have proper albums
     var contents: [ProjectModel] = []
 }
 

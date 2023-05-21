@@ -24,11 +24,35 @@ struct MyMediaView: View {
     var logo = "e_logo"
     var logoUrl = ""
     var name = "Eluvio Wallet"
+    @State var heroImage : String?
+    private var hasHero: Bool {
+        return heroImage != nil && heroImage != ""
+    }
     
     var body: some View {
         ScrollView{
             LazyVStack(alignment: .leading, spacing: 40){
-                HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                if (hasHero) {
+                    Button{} label: {
+                        Image(heroImage ?? "")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth:.infinity)
+                            .frame(height: 600,  alignment: .topLeading)
+                            .clipped()
+                    }
+                    .padding([.top, .leading, .trailing], -80)
+                    //.padding(.bottom, 20)
+                    .buttonStyle(NonSelectionButtonStyle())
+                }else{
+                    HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                }
+                
+                if(featured.count > 0){
+                    Text("Pick Up Where You Left Off").frame(maxWidth:.infinity, alignment:.center)
+                        .padding()
+                }
+                
                 ScrollView (.horizontal, showsIndicators: false) {
                     LazyHStack(alignment: .top, spacing: 20) {
                         ForEach(featured.indices, id: \.self) { index in
@@ -50,6 +74,7 @@ struct MyMediaView: View {
                         }
                     }
                 }
+                .focusSection()
                 .introspectScrollView { view in
                     view.clipsToBounds = false
                 }
@@ -65,6 +90,7 @@ struct MyMediaView: View {
                                                 playerTextOverlay:$playerTextOverlay
                             )
                         }
+                        .focusSection()
                     }
                 }
                 
@@ -82,7 +108,6 @@ struct MyMediaView: View {
                         .introspectScrollView { view in
                             view.clipsToBounds = false
                         }
-                        .padding()
                     }
                 }
             }

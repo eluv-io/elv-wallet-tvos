@@ -57,8 +57,9 @@ class Fabric: ObservableObject {
     @Published
     var albums: [NFTModel] = []
     @Published
-    var featured: Set<AnyHashable> = [] //These can be NFTModel, MediaCollection, MediaItem
-    
+    var featured: [AnyHashable] = [] //These can be NFTModel, MediaCollection, MediaItem
+    @Published
+    var properties: [PropertyModel] = []
     
     @Published
     var tenantItems: [JSON] = []  //Array of {"tenant":tenant, "nfts": nfts} objects of the user's items per tenant
@@ -85,7 +86,6 @@ class Fabric: ObservableObject {
     //Deprecated
     @Published
     var nonPlayable : [NFTModel] = []
-    
     @Published
     var tenants : [JSON] = []
     @Published
@@ -365,16 +365,77 @@ class Fabric: ObservableObject {
     }
     */
     
-    func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:Set<AnyHashable>, videos: Set<MediaItem> , images:Set<MediaItem> , galleries: Set<MediaItem> , html: Set<MediaItem> , books: Set<MediaItem> ) {
+    func parseNfts(_ nfts: [JSON]) async throws -> (items: [NFTModel], featured:[AnyHashable], albums:[NFTModel], videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem] ) {
+        
+        var featured: [AnyHashable] = []
+        var videos: [MediaItem] = []
+        var galleries: [MediaItem] = []
+        var images: [MediaItem] = []
+        var albums: [NFTModel] = []
+        var html: [MediaItem] = []
+        var books: [MediaItem] = []
+        
+        var items : [NFTModel] = []
+        for nft in nfts {
+            do {
+                let parsedModels = try await self.parseNft(nft)
+                guard let model = parsedModels.nftModel else {
+                    print("Error parsing nft: \(nft)")
+                    continue
+                }
+                
+                items.append(model)
+                if(model.has_album ?? false){
+                    albums.append(model)
+                }
+                
+                //print("Parsed nft: \(parsedModels.nftModel)")
+                //print("Parsed Featured: \(parsedModels.featured)")
+                //print("Parsed Galleries: \(parsedModels.galleries)")
+                //print("Parsed Galleries: \(parsedModels.images)")
+                //print("Parsed Albums: \(parsedModels.albums)")
+                print("NFT: \(model.contract_name)")
+                //print("Parsed HTML: \(parsedModels.html)")
+                //print("Parsed Books: \(parsedModels.books)")
+                
+                if(!parsedModels.featured.isEmpty){
+                    featured.append(contentsOf: parsedModels.featured)
+                }
+                if(!parsedModels.galleries.isEmpty){
+                    galleries.append(contentsOf: parsedModels.galleries)
+                }
+                if(!parsedModels.images.isEmpty){
+                    books.append(contentsOf: parsedModels.images)
+                }
+                if(!parsedModels.videos.isEmpty){
+                    videos.append(contentsOf: parsedModels.videos)
+                }
+                if(!parsedModels.html.isEmpty){
+                    html.append(contentsOf: parsedModels.html)
+                }
+                if(!parsedModels.books.isEmpty){
+                    books.append(contentsOf: parsedModels.books)
+                }
+                
+            } catch {
+                print(error.localizedDescription)
+                continue
+            }
+        }
+        
+        return (items, featured.unique(), albums.unique(), videos.unique(), images.unique(), galleries.unique(), html.unique(), books.unique())
+    }
+    
+    func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:[AnyHashable], videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem] ) {
         
         //print("Parse NFT \(nft)")
         
-        var featured: Set<AnyHashable> = []
-        var videos: Set<MediaItem> = []
-        var galleries: Set<MediaItem> = []
-        var images: Set<MediaItem> = []
-        var html: Set<MediaItem> = []
-        var books: Set<MediaItem> = []
+        var featured: [AnyHashable] = []
+        var videos: [MediaItem] = []
+        var galleries: [MediaItem] = []
+        var images: [MediaItem] = []
+        var html: [MediaItem] = []
+        var books: [MediaItem] = []
         
         //print(nft)
         //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
@@ -424,7 +485,7 @@ class Fabric: ObservableObject {
 
         if(nftmodel.meta_full?["additional_media_display"].stringValue == "Album"){
             nftmodel.has_album = true
-            featured.insert(nftmodel)
+            featured.append(nftmodel)
         }else{
             nftmodel.has_album = false
         }
@@ -452,10 +513,11 @@ class Fabric: ObservableObject {
                         print("has_album ", hasAlbum)
                         if !hasAlbum {
                             print("inserted media")
-                            featured.insert(media)
+                            featured.append(media)
                         }
                     }
                 }
+
 
                 //Parsing sections to find videos
                 for section in mediaSections.sections {
@@ -464,17 +526,17 @@ class Fabric: ObservableObject {
                             if let mediaType = media.media_type {
                                 if mediaType == "Video" {
                                     hasPlayableMedia = true
-                                    videos.insert(media)
+                                    videos.append(media)
                                 }else if mediaType == "Audio"{
                                     hasPlayableMedia = true
                                 }else if mediaType == "Image"{
-                                    images.insert(media)
+                                    images.append(media)
                                 }else if mediaType == "Gallery"{
-                                    galleries.insert(media)
+                                    galleries.append(media)
                                 }else if mediaType == "HTML"{
-                                    html.insert(media)
+                                    html.append(media)
                                 }else if mediaType == "Ebook"{
-                                    books.insert(media)
+                                    books.append(media)
                                 }
                             }
                         }
@@ -494,96 +556,90 @@ class Fabric: ObservableObject {
             return
         }
         do{
-            var featured: Set<AnyHashable> = []
+            /*var featured: [AnyHashable] = []
             var videos: [MediaItem] = []
             var galleries: [MediaItem] = []
             var images: [MediaItem] = []
             var albums: [NFTModel] = []
             var html: [MediaItem] = []
-            var books: [MediaItem] = []
+            var books: [MediaItem] = []*/
+            var properties: [PropertyModel] = []
             
             self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
             print("Fabric Token: \(self.fabricToken)");
             
             let profileData = try await self.signer!.getWalletData(accountAddress: try self.getAccountAddress(),
                                                                    accessCode: self.login!.token)
-
-            var items : [NFTModel] = []
-            if let nfts = profileData["contents"] as? [AnyObject] {
-                for nft in nfts {
-                    do {
-                        let parsedModels = try await self.parseNft(JSON(nft))
-                        if let model = parsedModels.nftModel {
-                            items.append(model)
-                            if(model.has_album ?? false){
-                                albums.append(model)
-                            }
-                            
-                        }
-                        //print("Parsed nft: \(parsedModels.nftModel)")
-                        //print("Parsed Featured: \(parsedModels.featured)")
-                        //print("Parsed Galleries: \(parsedModels.galleries)")
-                        //print("Parsed Galleries: \(parsedModels.images)")
-                        //print("Parsed Albums: \(parsedModels.albums)")
-                        //print("Parsed Videos: \(parsedModels.videos)")
-                        //print("Parsed HTML: \(parsedModels.html)")
-                        //print("Parsed Books: \(parsedModels.books)")
-                        
-                        if(!parsedModels.featured.isEmpty){
-                            featured = featured.union(parsedModels.featured)
-                        }
-                        if(!parsedModels.galleries.isEmpty){
-                            galleries.append(contentsOf: Array(parsedModels.galleries))
-                        }
-                        if(!parsedModels.images.isEmpty){
-                            books.append(contentsOf: Array(parsedModels.images))
-                        }
-                        if(!parsedModels.videos.isEmpty){
-                            videos.append(contentsOf: Array(parsedModels.videos))
-                        }
-                        if(!parsedModels.html.isEmpty){
-                            html.append(contentsOf: Array(parsedModels.html))
-                        }
-                        if(!parsedModels.books.isEmpty){
-                            books.append(contentsOf: Array(parsedModels.books))
-                        }
-                        
-                    } catch {
-                        print(error.localizedDescription)
-                        continue
-                    }
-                }
-            }
             
-            self.items = items;
-            self.featured = featured;
-            self.galleries = galleries;
-            self.images = images;
-            self.albums = albums;
-            self.videos = videos;
-            self.html = html;
-            self.books = books;
+            //print(profileData)
+
+            let nfts = profileData["contents"].arrayValue
+            
+            var parsedLibrary = try await parseNfts(nfts)
+            
+            
+            //XXX: Demo only
+            
+            var items = parsedLibrary.items
+            let item = items.remove(at: 0)
+            items.append(item)
+            parsedLibrary.items = items;
+            
+            var featured = parsedLibrary.featured
+            let feature = featured.remove(at: 0)
+            featured.append(feature)
+            parsedLibrary.featured = featured;
+            
+            ///
+            
+ 
+            self.items = parsedLibrary.items;
+            
+            self.featured = parsedLibrary.featured;
+            self.galleries = parsedLibrary.galleries;
+            self.images = parsedLibrary.images;
+            self.albums = parsedLibrary.albums;
+            self.videos = parsedLibrary.videos;
+            self.html = parsedLibrary.html;
+            self.books = parsedLibrary.books;
             
             var library : [MediaCollection] = []
-            library.append(MediaCollection(name:"Video", media:videos))
+            library.append(MediaCollection(name:"Video", media:parsedLibrary.videos))
             library.append(MediaCollection(name:"Live Video", media:[])) //TODO: Find what's a live video
-            library.append(MediaCollection(name:"Image Gallery", media:galleries))
-            library.append(MediaCollection(name:"Apps", media:html))
-            library.append(MediaCollection(name:"E-books", media:books))
+            library.append(MediaCollection(name:"Image Gallery", media:parsedLibrary.galleries))
+            library.append(MediaCollection(name:"Apps", media:parsedLibrary.html))
+            library.append(MediaCollection(name:"E-books", media:parsedLibrary.books))
+            self.library = library
             
-            //print("Featured \(featured)")
-            for item in Array(self.featured){
-                if let media = item as? MediaItem {
-                    print("Media Feature ", media.name)
-                }
-                
-                if let nft = item as? NFTModel {
-                    print("NFT Feature ", nft.contract_addr)
+            
+            //XXX: Demo only
+            var demoNfts: [JSON] = []
+            
+            for nft in nfts{
+                if nft["contract_name"].stringValue.contains("Lord") {
+                    demoNfts.append(nft)
+                    print("Found: ", nft)
                 }
             }
             
-            self.library = library
+            let demoLib = try await parseNfts(demoNfts)
+            var demoMedia : [MediaCollection] = []
+            demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+            demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
+            demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+            demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
             
+            properties = [
+                CreateTestPropertyModel(title:"Movieverse",image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
+                                        featured: demoLib.featured, media: demoMedia, items:demoLib.items),
+                CreateTestPropertyModel(title:"Dollyverse", image:"Dollyverse", heroImage:"DollyVerse_TopImage", albums: parsedLibrary.albums, items:self.items),
+                CreateTestPropertyModel(title:"Moonsault", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:self.items),
+                CreateTestPropertyModel(title:"Fox Sports", image:"FoxSport", heroImage:"FoxSports_TopImage",  featured: self.featured, media: library, items:self.items)
+            ]
+
+            
+            self.properties = properties;
+                
         }catch{
             print ("Refresh Error: \(error)")
         }
@@ -1182,7 +1238,7 @@ class Fabric: ObservableObject {
             
             let parameters : [String: String] = ["filter":"tenant:eq:\(tenantId)"]
             
-            var items : [String: AnyObject] = [:]
+            var items : JSON
             do {
                 items = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
                                                                  accessCode: self.login!.token, parameters:parameters)
@@ -1190,36 +1246,34 @@ class Fabric: ObservableObject {
                 continue
             }
             //print("Items: \(items)")
-            if let nfts = items["contents"] as? [AnyObject] {
-                if !nfts.isEmpty {
-                    for (_, marketplace) in tenant["marketplaces"] {
-                        //print(marketplace)
-                        var matchedItems : [AnyObject] = []
-                        
-                        for (_, mItem) in marketplace["info"]["items"] {
-                            let mAddress = mItem["nft_template"]["nft"]["address"]
-                            for item in nfts {
-                                print("market item address", mAddress.stringValue)
-                                
-                                print("item address", item["contract_addr"])
-                                if let address = item["contract_addr"] as? String {
-                                    if (mAddress.stringValue.lowercased() == address.lowercased()){
-                                        matchedItems.append(item)
-                                        print("Found item ", address)
-                                    }
-                                }
+            let nfts = items["contents"].arrayValue
+            if !nfts.isEmpty {
+                for (_, marketplace) in tenant["marketplaces"] {
+                    //print(marketplace)
+                    var matchedItems : [JSON] = []
+                    
+                    for (_, mItem) in marketplace["info"]["items"] {
+                        let mAddress = mItem["nft_template"]["nft"]["address"]
+                        for item in nfts {
+                            print("market item address", mAddress.stringValue)
+                            
+                            print("item address", item["contract_addr"])
+                            let address = item["contract_addr"].stringValue
+                            if (mAddress.stringValue.lowercased() == address.lowercased()){
+                                matchedItems.append(item)
+                                print("Found item ", address)
                             }
+                            
                         }
-                        
-                        if (!matchedItems.isEmpty){
-                            print("Found nfts")
-                            let tenantItem : JSON = ["tenant":tenant, "marketplace": marketplace, "nfts": matchedItems]
-                            tenantItems.append(tenantItem)
-                        }
+                    }
+                    
+                    if (!matchedItems.isEmpty){
+                        print("Found nfts")
+                        let tenantItem : JSON = ["tenant":tenant, "marketplace": marketplace, "nfts": matchedItems]
+                        tenantItems.append(tenantItem)
                     }
                 }
             }
-            
         }
         
         return tenantItems

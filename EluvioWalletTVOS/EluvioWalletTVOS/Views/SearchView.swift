@@ -25,9 +25,12 @@ struct SearchView: View {
                         .frame(alignment: .leading)
                 }
                 Divider().overlay(Color.gray).padding()
-                PropertiesView()
+                PropertiesView(properties:fabric.properties)
                 Spacer()
             }
+        }
+        .introspectScrollView { view in
+            view.clipsToBounds = false
         }
     }
 }

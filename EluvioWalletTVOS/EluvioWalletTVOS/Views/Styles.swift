@@ -46,6 +46,14 @@ struct IconButtonStyle: ButtonStyle {
     }
 }
 
+struct NonSelectionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.clear)
+            .background(.clear)
+    }
+}
+
 struct TitleButtonStyle: ButtonStyle {
     let focused: Bool
     func makeBody(configuration: Self.Configuration) -> some View {
