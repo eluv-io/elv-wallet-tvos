@@ -32,7 +32,7 @@ struct MyMediaView: View {
     
     var body: some View {
         ScrollView{
-            LazyVStack(alignment: .leading, spacing: 40){
+            VStack(alignment: .leading, spacing: 0){
                 if (hasHero) {
                     Button{} label: {
                         Image(heroImage ?? "")
@@ -47,92 +47,74 @@ struct MyMediaView: View {
                     .buttonStyle(NonSelectionButtonStyle())
                 }else{
                     HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                        .padding(.top,50)
+                        .padding(.leading,80)
+                        .padding(.bottom,80)
                 }
                 
-                if(featured.count > 0){
-                    Text("Pick Up Where You Left Off").frame(maxWidth:.infinity, alignment:.center)
-                        .padding()
-                }
-                
-                ScrollView (.horizontal, showsIndicators: false) {
-                    LazyHStack(alignment: .top, spacing: 20) {
-/*
-                        ForEach(featured.indices, id: \.self) { index in
-                            if let media = featured[index].object as? MediaItem {
+                LazyVStack(alignment: .center, spacing: 40) {
+                    ScrollView (.horizontal, showsIndicators: false) {
+                        LazyHStack(alignment: .top, spacing: 20) {
+                            ForEach(featured.media) { media in
                                 MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
                                           playerImageOverlayUrl:$playerImageOverlayUrl,
                                           playerTextOverlay:$playerTextOverlay,
                                           display: MediaDisplay.feature)
                             }
+                            /*
+                             ForEach(featured.collections) { collection in
+                             //TODO?
+                             }*/
                             
-                            if let nft = featured[index].object as? NFTModel {
+                            ForEach(featured.items) { nft in
                                 if nft.has_album ?? false {
                                     NFTAlbumView(nft:nft, display: MediaDisplay.feature)
                                 }else {
                                     NFTView(nft:nft, display: MediaDisplay.feature)
-   
+                                    
                                 }
                             }
+                            
                         }
-                   */
-                        ForEach(featured.media) { media in
-                            MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
-                                      playerImageOverlayUrl:$playerImageOverlayUrl,
-                                      playerTextOverlay:$playerTextOverlay,
-                                      display: MediaDisplay.feature)
-                        }
-                        /*
-                        ForEach(featured.collections) { collection in
-                            //TODO?
-                        }*/
-
-                        ForEach(featured.items) { nft in
-                            if nft.has_album ?? false {
-                                NFTAlbumView(nft:nft, display: MediaDisplay.feature)
-                            }else {
-                                NFTView(nft:nft, display: MediaDisplay.feature)
-
-                            }
-                        }
-
                     }
-                }
-                .focusSection()
-                .introspectScrollView { view in
-                    view.clipsToBounds = false
-                }
-
-                ForEach(library) { collection in
-                    if(!collection.media.isEmpty){
+                    .focusSection()
+                    .introspectScrollView { view in
+                        view.clipsToBounds = false
+                    }
+                    
+                    ForEach(library) { collection in
+                        if(!collection.media.isEmpty){
+                            VStack(alignment: .leading, spacing: 20){
+                                Text(collection.name)
+                                MediaCollectionView(mediaCollection: collection,
+                                                    showPlayer: $showPlayer,
+                                                    playerItem: $playerItem,
+                                                    playerImageOverlayUrl:$playerImageOverlayUrl,
+                                                    playerTextOverlay:$playerTextOverlay
+                                )
+                            }
+                            .focusSection()
+                        }
+                    }
+                    
+                    if(!albums.isEmpty){
                         VStack(alignment: .leading, spacing: 20){
-                            Text(collection.name)
-                            MediaCollectionView(mediaCollection: collection,
-                                                showPlayer: $showPlayer,
-                                                playerItem: $playerItem,
-                                                playerImageOverlayUrl:$playerImageOverlayUrl,
-                                                playerTextOverlay:$playerTextOverlay
-                            )
-                        }
-                        .focusSection()
-                    }
-                }
-                
-                if(!albums.isEmpty){
-                    VStack(alignment: .leading, spacing: 20){
-                        Text("Audio")
-                        ScrollView (.horizontal, showsIndicators: false) {
-                            LazyHStack{
-                                ForEach(albums) { album in
-                                    NFTAlbumView(nft:album)
+                            Text("Audio")
+                            ScrollView (.horizontal, showsIndicators: false) {
+                                LazyHStack{
+                                    ForEach(albums) { album in
+                                        NFTAlbumView(nft:album)
                                         //.frame( width: 225, height: 225)
+                                    }
                                 }
                             }
-                        }
-                        .introspectScrollView { view in
-                            view.clipsToBounds = false
+                            .introspectScrollView { view in
+                                view.clipsToBounds = false
+                            }
                         }
                     }
                 }
+                .padding([.leading,.trailing,.bottom], 80)
             }
             .focusSection()
             .fullScreenCover(isPresented: $showPlayer) {
@@ -144,6 +126,7 @@ struct MyMediaView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
         }
+        .ignoresSafeArea()
         .introspectScrollView { view in
             view.clipsToBounds = false
         }

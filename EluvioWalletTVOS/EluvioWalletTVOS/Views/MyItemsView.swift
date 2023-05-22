@@ -21,9 +21,13 @@ struct MyItemsView: View {
         ScrollView{
             VStack{
                 HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                    .padding(.top,50)
+                    .padding(.leading,80)
+                    .padding(.bottom,80)
                 NFTGrid(nfts:nfts)
             }
         }
+        .ignoresSafeArea()
         .introspectScrollView { view in
             view.clipsToBounds = false
         }

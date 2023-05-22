@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PropertyView : View {
     @Environment(\.colorScheme) var colorScheme
-    @State var property: PropertyModel
+    var property: PropertyModel
     @FocusState private var focused : Bool
     var body: some View {
         VStack(spacing:40) {
@@ -30,7 +30,7 @@ struct PropertyView : View {
 struct PropertiesView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
-    @State var properties: [PropertyModel] = []
+    var properties: [PropertyModel] = []
     
     let columns = [
         GridItem(.flexible()),GridItem(.flexible()),

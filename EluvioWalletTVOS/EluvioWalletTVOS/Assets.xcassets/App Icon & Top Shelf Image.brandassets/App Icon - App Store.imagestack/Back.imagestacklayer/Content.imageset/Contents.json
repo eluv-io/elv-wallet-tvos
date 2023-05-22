@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "Background_ App.png",
+      "filename" : "Background_App.jpg",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "Background_App.png",
+      "filename" : "Background_App 1.jpg",
       "idiom" : "tv",
       "scale" : "2x"
     }

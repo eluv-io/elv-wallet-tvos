@@ -26,6 +26,7 @@ struct SearchView: View {
                 }
                 Divider().overlay(Color.gray).padding()
                 PropertiesView(properties:fabric.properties)
+                    .focusSection()
                 Spacer()
             }
         }

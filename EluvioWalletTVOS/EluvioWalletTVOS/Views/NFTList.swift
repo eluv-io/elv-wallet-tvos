@@ -56,8 +56,8 @@ struct NFTGrid: View {
     var nfts : [NFTModel]
     @State private var editMode = EditMode.inactive
     let columns = [
-        GridItem(.fixed(600),spacing: 0),GridItem(.fixed(600),spacing: 0),
-        GridItem(.fixed(600),spacing: 0)
+        GridItem(.fixed(520),spacing: 0),GridItem(.fixed(520),spacing: 0),
+        GridItem(.fixed(520),spacing: 0)
     ]
     
     let column = [GridItem(.flexible())]
@@ -66,10 +66,10 @@ struct NFTGrid: View {
     @State var searchText = ""
     @State var gridOption = false
     var body: some View {
-        LazyVGrid(columns: columns, alignment: .leading, spacing:0) {
+        LazyVGrid(columns: columns, alignment: .center, spacing:0) {
             ForEach(nfts) { nft in
                     NFTView(nft: nft)
-                    .padding(20)
+                    .padding(.bottom,70)
             }
         }
     }

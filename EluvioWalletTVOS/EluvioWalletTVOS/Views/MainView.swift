@@ -28,8 +28,7 @@ struct HeaderView: View {
             .frame(maxWidth:.infinity, alignment: .leading)
         }
         //.background(.red)
-        .offset(x:0,y:-110)
-        .edgesIgnoringSafeArea(.all)
+        //.offset(x:0,y:-80)
     }
 }
 

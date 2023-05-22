@@ -75,7 +75,7 @@ struct NFTView: View {
     var body: some View {
         NavigationLink(destination: NFTDetail(nft: nft)) {
             ZStack{
-                Image("item-dark").resizable()
+                Image("dark-item-top-radial").resizable()
                     .overlay{
                         if isFocused{
                             Image("item-highlight").resizable()
@@ -138,7 +138,7 @@ struct NFTView: View {
             }
             .shadow(radius: shadowRadius)
         }
-        .frame(width: 480, height: 700)
+        .frame(width: 480, height: 660)
         .buttonStyle(TitleButtonStyle(focused: isFocused))
         .focused($isFocused)
     }
