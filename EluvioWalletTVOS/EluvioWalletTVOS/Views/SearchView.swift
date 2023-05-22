@@ -19,17 +19,25 @@ struct SearchView: View {
         ScrollView{
             VStack(alignment:.leading) {
                 HeaderView(logo:logo, logoUrl: logoUrl, name:name)
-                HStack{
-                    Image(systemName: "magnifyingglass").resizable().frame(width:40,height:40)
-                    TextField("Search...", text: $searchString)
-                        .frame(alignment: .leading)
+                    .padding(.top,50)
+                    .padding(.leading,80)
+                    .padding(.bottom,40)
+                
+                VStack{
+                    HStack{
+                        Image(systemName: "magnifyingglass").resizable().frame(width:40,height:40)
+                        TextField("Search...", text: $searchString)
+                            .frame(alignment: .leading)
+                    }
+                    Divider().overlay(Color.gray).padding()
+                    PropertiesView(properties:fabric.properties)
+                        .focusSection()
+                    Spacer()
                 }
-                Divider().overlay(Color.gray).padding()
-                PropertiesView(properties:fabric.properties)
-                    .focusSection()
-                Spacer()
+                .padding([.leading,.trailing,.bottom],80)
             }
         }
+        .ignoresSafeArea()
         .introspectScrollView { view in
             view.clipsToBounds = false
         }

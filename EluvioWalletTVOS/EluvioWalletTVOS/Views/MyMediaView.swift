@@ -42,8 +42,7 @@ struct MyMediaView: View {
                             .frame(height: 600,  alignment: .topLeading)
                             .clipped()
                     }
-                    .padding([.top, .leading, .trailing], -80)
-                    //.padding(.bottom, 20)
+                    .padding(.bottom, 40)
                     .buttonStyle(NonSelectionButtonStyle())
                 }else{
                     HeaderView(logo:logo, logoUrl: logoUrl, name:name)

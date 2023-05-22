@@ -21,28 +21,34 @@ struct ProfileView: View {
     var body: some View {
         VStack {
             HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                .padding(.top,50)
+                .padding(.leading,80)
+                .padding(.bottom,80)
             
-            Form {
-                Section(header: Text("Profile").foregroundColor(.white.opacity(0.6))) {
-                    Text("Address:  \(address)")
-                    Text("User Id:  \(userId)")
+            VStack(alignment: .center){
+                Form {
+                    Section(header: Text("Profile").foregroundColor(.white.opacity(0.6))) {
+                        Text("Address:  \(address)")
+                        Text("User Id:  \(userId)")
+                    }
+                    .padding()
+                    Section(header: Text("Fabric").foregroundColor(.white.opacity(0.6))) {
+                        Text("Network:  \(network.localizedUppercase)")
+                        Text("Fabric Node:  \(node)")
+                    }
+                    .padding()
+                    
                 }
-                .padding()
-                Section(header: Text("Fabric").foregroundColor(.white.opacity(0.6))) {
-                    Text("Network:  \(network.localizedUppercase)")
-                    Text("Fabric Node:  \(node)")
-                }
-                .padding()
+                .frame(width:1200)
                 
+                Button("Sign Out") {
+                    fabric.signOut()
+                }
             }
-            .frame(width:1200)
-            
-            Button("Sign Out") {
-                fabric.signOut()
-            }
-        
+            .padding([.leading,.trailing,.bottom],80)
         }
-        .padding()
+        .ignoresSafeArea()
+
         .onAppear(){
             do {
                 self.address = try fabric.getAccountAddress()

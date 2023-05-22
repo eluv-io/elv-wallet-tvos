@@ -627,7 +627,6 @@ class Fabric: ObservableObject {
                     demoNfts.append(nft)
                 }
                 
-                demoNfts.append(nft)
             }
 
             
@@ -638,16 +637,16 @@ class Fabric: ObservableObject {
             demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
             demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
             
-            var eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
+            let eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
             
-            var wbProp=CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
+            let wbProp=CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
                                     featured: demoLib.featured, media: demoMedia, items:demoLib.items)
             
-            var dollyProp = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Dollyverse", heroImage:"DollyVerse_TopImage", albums: parsedLibrary.albums, items:self.items)
+            let dollyProp = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Dollyverse", heroImage:"DollyVerse_TopImage", albums: parsedLibrary.albums, items:self.items)
             
-            var moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:self.items)
+            let moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:self.items)
             
-            var foxProp = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"FoxSports_TopImage",  featured: self.featured, media: library, items:self.items)
+            let foxProp = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"FoxSports_TopImage",  featured: self.featured, media: library, items:self.items)
             
             properties = [
                 wbProp,

@@ -33,7 +33,10 @@ struct MediaCollectionView: View {
                     )
                 }
             }
-            .padding(20)
+            .padding([.top,.bottom],20)
+        }
+        .introspectScrollView { view in
+            view.clipsToBounds = false
         }
     }
 }
