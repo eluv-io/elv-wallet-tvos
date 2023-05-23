@@ -81,7 +81,7 @@ struct NFTDetailView: View {
                             Spacer()
                         }
                     }
-                    .frame(height:400)
+                    //.frame(height:400)
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($headerFocused)
                     
@@ -121,6 +121,7 @@ struct NFTDetailView: View {
                     }
                 }
                 .padding(80)
+                .focusSection()
             }
             .introspectScrollView { view in
                 view.clipsToBounds = false
