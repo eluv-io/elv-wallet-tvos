@@ -11,7 +11,7 @@ import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
 
-enum MediaDisplay {case apps; case video; case feature; case books; case album; case property}
+enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile}
 
 struct MediaCollectionView: View {
     @EnvironmentObject var fabric: Fabric
@@ -311,12 +311,12 @@ struct MediaView: View {
                 }
  
             }) {
-                MediaCard(display:display, imageUrl:self.imageUrl, isFocused:isFocused, title: media?.name ?? "")
+                MediaCard(display:display, image:self.imageUrl, isFocused:isFocused, title: media?.name ?? "")
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
             .overlay(content: {
-                if (media?.media_type == "Video"){
+                if (media?.media_type == "Video" && !isFocused){
                     Image(systemName: "play.fill")
                         .font(.system(size: 80))
                         .foregroundColor(.white)
@@ -370,7 +370,6 @@ struct MediaView: View {
 struct MediaCard: View {
     var display: MediaDisplay = MediaDisplay.apps
     var image: String = ""
-    var imageUrl: String = ""
     var isFocused: Bool = false
     var title: String = ""
     var subtitle: String = ""
@@ -380,8 +379,8 @@ struct MediaCard: View {
     
     var body: some View {
         ZStack{
-            if (imageUrl != ""){
-                WebImage(url: URL(string: imageUrl))
+            if (image.hasPrefix("http")){
+                WebImage(url: URL(string: image))
                     .resizable()
                     .indicator(.activity) // Activity Indicator
                     .transition(.fade(duration: 0.5))
@@ -432,6 +431,10 @@ struct MediaCard: View {
                 width =  405
                 height = 247
                 cornerRadius = 16
+            }else if display == MediaDisplay.tile {
+                width =  887
+                height = 551
+                cornerRadius = 0
             }else {
                 width =  300
                 height = 300

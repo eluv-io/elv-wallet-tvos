@@ -11,11 +11,22 @@ struct PropertyView : View {
     @Environment(\.colorScheme) var colorScheme
     var property: PropertyModel
     @FocusState private var focused : Bool
+    
+    var items : [NFTModel] {
+
+        if property.contents.isEmpty {
+            return []
+        }
+        //print("Property contents \(property)")
+        return property.contents[0].contents
+    }
+    
     var body: some View {
         VStack(spacing:40) {
             NavigationLink(destination:MyMediaView(featured: property.featured,
                                                    library: property.media,
                                                    albums: property.albums,
+                                                   items: items,
                                                    heroImage: property.heroImage
                                                   )
                 .preferredColorScheme(colorScheme)) {

@@ -12,11 +12,11 @@ import SwiftyJSON
 struct HeaderView: View {
     var logo = "e_logo"
     var logoUrl = ""
-    var name = "Eluvio Wallet"
-    
+    var name = APP_CONFIG.app.name
+
     var body: some View {
         VStack {
-            HStack(spacing:10) {
+            HStack(spacing:20) {
                 Image(logo)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -24,11 +24,10 @@ struct HeaderView: View {
                 Text(name)
                     .foregroundColor(Color.white)
                     .font(.headline)
+                
             }
             .frame(maxWidth:.infinity, alignment: .leading)
         }
-        //.background(.red)
-        //.offset(x:0,y:-80)
     }
 }
 

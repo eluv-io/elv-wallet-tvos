@@ -14,8 +14,8 @@ extension Color {
                                                                      Color(red: 0.12, green: 0.12, blue: 0.16)]),
                                                 startPoint: .top, endPoint: .bottom)*/
     static let mainBackground = RadialGradient(gradient: Gradient(colors:
-                                                                    [Color(red: 0.22, green: 0.22, blue: 0.25),
-                                                                     Color(red: 0.06, green: 0.06, blue: 0.06)]),
+                                                                    [Color(red: 0.1, green: 0.1, blue: 0.1),
+                                                                     Color(red: 0.0, green: 0.00, blue: 0.0)]),
                                                center: .top, startRadius: 0, endRadius:1600)
     
     static let secondaryBackground = LinearGradient(gradient: Gradient(colors:

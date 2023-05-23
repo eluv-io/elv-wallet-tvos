@@ -16,15 +16,17 @@ struct MyMediaView: View {
     @State var searchText = ""
     var featured: Features = Features()
     var library : [MediaCollection] = []
-    //?? Extrat only the media? Resusing the NFTViews for now
+    //?? Extract only the media? Resusing the NFTViews for now
     var albums: [NFTModel] = []
+    var items: [NFTModel] = []
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
     @State var showPlayer = false
     @State var playerItem : AVPlayerItem? = nil
     var logo = "e_logo"
     var logoUrl = ""
-    var name = "Eluvio Wallet"
+    var name = ""
+    
     @State var heroImage : String?
     private var hasHero: Bool {
         return heroImage != nil && heroImage != ""
@@ -45,7 +47,7 @@ struct MyMediaView: View {
                     .padding(.bottom, 40)
                     .buttonStyle(NonSelectionButtonStyle())
                 }else{
-                    HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                    HeaderView(logo:logo, logoUrl: logoUrl)
                         .padding(.top,50)
                         .padding(.leading,80)
                         .padding(.bottom,80)
@@ -81,6 +83,7 @@ struct MyMediaView: View {
                         view.clipsToBounds = false
                     }
                     
+                    
                     ForEach(library) { collection in
                         if(!collection.media.isEmpty){
                             VStack(alignment: .leading, spacing: 20){
@@ -112,6 +115,23 @@ struct MyMediaView: View {
                             }
                         }
                     }
+                    
+                    if (!items.isEmpty){
+                        VStack(alignment: .leading, spacing: 20){
+                            Text("Items")
+                            ScrollView (.horizontal, showsIndicators: false) {
+                                LazyHStack(alignment: .top, spacing: 40) {
+                                    ForEach(items) { nft in
+                                        NFTTileView(nft:nft, display: MediaDisplay.tile)
+                                    }
+                                }
+                            }
+                            .introspectScrollView { view in
+                                view.clipsToBounds = false
+                            }
+                        }
+                    }
+                    
                 }
                 .padding([.leading,.trailing,.bottom], 80)
             }
@@ -125,6 +145,7 @@ struct MyMediaView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
         }
+        .background(Color.mainBackground)
         .ignoresSafeArea()
         .introspectScrollView { view in
             view.clipsToBounds = false

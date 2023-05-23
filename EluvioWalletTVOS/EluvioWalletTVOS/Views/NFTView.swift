@@ -18,7 +18,7 @@ struct NFTAlbumView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             NavigationLink(destination: NFTDetail(nft: nft)) {
-                MediaCard(display:display, imageUrl:nft.meta.image, isFocused:isFocused, title:nft.meta.name)
+                MediaCard(display:display, image:nft.meta.image, isFocused:isFocused, title:nft.meta.name)
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
@@ -26,6 +26,33 @@ struct NFTAlbumView: View {
 
     }
 }
+
+struct NFTTileView: View {
+    @State var nft = NFTModel()
+    var isForsale = false
+    @State private var buttonFocus: Bool = false
+    @FocusState var isFocused
+    var display: MediaDisplay = MediaDisplay.tile
+    var image : String {
+        if (display == MediaDisplay.tile){
+            print("TILE: ", nft.title_image)
+            return nft.title_image ?? nft.meta.image
+        }
+        return nft.meta.image
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            NavigationLink(destination: NFTDetail(nft: nft)) {
+                MediaCard(display:display, image:image, isFocused:isFocused, title:nft.meta.name)
+            }
+            .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.02))
+            .focused($isFocused)
+        }
+
+    }
+}
+
 
 struct NFTView: View {
     @State var nft = NFTModel()

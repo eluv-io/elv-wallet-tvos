@@ -13,12 +13,12 @@ struct SearchView: View {
     @State var searchString : String = ""
     var logo = "e_logo"
     var logoUrl = ""
-    var name = "Eluvio Wallet"
+    var name = ""
     
     var body: some View {
         ScrollView{
             VStack(alignment:.leading) {
-                HeaderView(logo:logo, logoUrl: logoUrl, name:name)
+                HeaderView(logo:logo, logoUrl: logoUrl)
                     .padding(.top,50)
                     .padding(.leading,80)
                     .padding(.bottom,40)

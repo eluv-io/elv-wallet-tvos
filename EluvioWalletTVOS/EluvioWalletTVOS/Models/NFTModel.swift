@@ -29,6 +29,8 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var additional_media_sections : AdditionalMediaModel? = nil
     var property : PropertyModel? = nil
     var project : ProjectModel? = nil
+    var background_image_tv: String? = "" //XXX: Demo only
+    var title_image: String? = "" //XXX: Demo only
     init(){
         block = 0
         created = 0

@@ -379,15 +379,15 @@ class Fabric: ObservableObject {
         for nft in nfts {
             do {
                 let parsedModels = try await self.parseNft(nft)
-                guard let model = parsedModels.nftModel else {
+                guard var model = parsedModels.nftModel else {
                     print("Error parsing nft: \(nft)")
                     continue
                 }
                 
-                items.append(model)
                 if(model.has_album ?? false){
                     albums.append(model)
                 }
+                items.append(model)
                 
                 //print("Parsed nft: \(parsedModels.nftModel)")
                 //print("Parsed Featured: \(parsedModels.featured)")
@@ -447,6 +447,10 @@ class Fabric: ObservableObject {
             nftmodel.id = nftmodel.contract_addr
         }
         
+        if (nftmodel.contract_name ?? "").contains("Run") {
+            nftmodel.background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
+        }
+        
         let nftData = try await self.getNFTData(tokenUri: nftmodel.token_uri)
         nftmodel.meta_full = nftData
         
@@ -492,6 +496,12 @@ class Fabric: ObservableObject {
         print("additional_media_display ", nftmodel.meta_full?["additional_media_display"].stringValue)
         
         
+        if let nftname = nftmodel.contract_name{
+            //XXX: Demo only
+            if (nftname.contains("Run")){
+                nftmodel.background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
+            }
+        }
         
         if nftmodel.additional_media_sections != nil {
             //print("additional_media_sections is not nil ", nftmodel.additional_media_sections)
@@ -581,26 +591,13 @@ class Fabric: ObservableObject {
             let feature = featured.media.remove(at: 0)
             featured.append(feature)
             parsedLibrary.featured = featured;
-             
-
-            //print("Features: ", featured)
             
-
             
             self.featured = parsedLibrary.featured;
-            print("Features: ", featured)
             
-            for media in self.featured.media {
-                print("Feature: ", media.name)
-                print("id: ", media.id)
-                if media.name.contains("Epic") {
-                    print(media)
-                }
-                if media.name.contains("Shire") {
-                    print(media)
-                }
+            for index in 0..<featured.count {
+                let nft = self.featured
             }
-        
             
             print("featured count ", self.featured.count)
             self.galleries = parsedLibrary.galleries;
@@ -626,28 +623,63 @@ class Fabric: ObservableObject {
                 if name.contains("Rings") {
                     demoNfts.append(nft)
                 }
-                
             }
-
             
-            let demoLib = try await parseNfts(demoNfts)
+            var demoLib = try await parseNfts(demoNfts)
             var demoMedia : [MediaCollection] = []
             demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
             demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
             demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
             demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
+        
             
-            let eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
+            var eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
             
-            let wbProp=CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
+            var wbProp=CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
                                     featured: demoLib.featured, media: demoMedia, items:demoLib.items)
             
-            let dollyProp = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Dollyverse", heroImage:"DollyVerse_TopImage", albums: parsedLibrary.albums, items:self.items)
+            var dollyProp = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Dollyverse", heroImage:"DollyVerse_TopImage", albums: parsedLibrary.albums, items:[])
             
-            let moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:self.items)
+            var moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:[])
             
-            let foxProp = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"FoxSports_TopImage",  featured: self.featured, media: library, items:self.items)
+            var foxProp = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"FoxSports_TopImage",  featured: self.featured, media: library, items:[])
             
+            func addDemoAssets(items:[NFTModel]) -> [NFTModel]{
+                var newItems : [NFTModel] = []
+                
+                for var item in items{
+                    if let name = item.contract_name {
+                        if name.contains("Epic") {
+                            item.property = wbProp
+                            item.title_image = "LOTR_Tile Group_Epic"
+                        }else  if name.contains("Shire") {
+                            item.property = wbProp
+                            item.title_image = "LOTR_Tile Group_Shire"
+                        }else if name.contains("Run") {
+                            item.property = dollyProp
+                            item.background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
+                        }else if name.contains("Eluvio") {
+                            item.property = eluvioProp
+                        }
+                    }
+                    newItems.append(item)
+                }
+                
+                return newItems
+            }
+            
+            var items = addDemoAssets(items: parsedLibrary.items)
+
+            let item = items.remove(at: 0)
+            items.append(item)
+            
+            self.items = items;
+            
+            demoLib.items = addDemoAssets(items: demoLib.items)
+            
+            eluvioProp.contents[0].contents = items
+            wbProp.contents[0].contents = demoLib.items
+
             properties = [
                 wbProp,
                 dollyProp,
@@ -655,26 +687,7 @@ class Fabric: ObservableObject {
                 foxProp
             ]
             
-            var items : [NFTModel] = []
-            
-            for var item in parsedLibrary.items{
-                if let name = item.contract_name {
-                    if name.contains("Rings") {
-                        item.property = wbProp
-                    }else if name.contains("Run") {
-                        item.property = dollyProp
-                    }else if name.contains("Eluvio") {
-                        item.property = eluvioProp
-                    }
-                }
-                items.append(item)
-            }
-            
-            
-            let item = items.remove(at: 0)
-            items.append(item)
-            
-            self.items = items;
+            self.albums = addDemoAssets(items: self.albums)
             self.properties = properties;
                 
         }catch{

@@ -8,8 +8,13 @@
 import Foundation
 
 struct AppConfiguration: Codable {
+    var app: AppConfig
     var network: [String: NetworkConfig]
     var auth0 : Auth0Config
+}
+
+struct AppConfig: Codable {
+    var name: String
 }
 
 struct NetworkConfig: Codable {

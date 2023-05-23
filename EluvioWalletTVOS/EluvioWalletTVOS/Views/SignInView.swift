@@ -26,6 +26,7 @@ struct SignInView: View {
     @State var url :String = ""
     @State var code :String = ""
     @State var showDeviceFlow = false
+    @FocusState private var signInFocus: Bool
 
     enum Networks: String, CaseIterable, Identifiable {
         case main="main", demo="demo"
@@ -55,6 +56,7 @@ struct SignInView: View {
     init(){
         print("SignInView init()")
         self.subscriber = Subscriber(view:self)
+        UISegmentedControl.appearance().setTitleTextAttributes([.font : UIFont.preferredFont(forTextStyle: .body)], for: .normal)
     }
 
 
@@ -63,29 +65,27 @@ struct SignInView: View {
             ZStack {
                 Color.mainBackground.edgesIgnoringSafeArea(.all)
                 VStack(alignment: .center, spacing: 30){
-                    VStack(alignment: .center, spacing:20){
+                    VStack(alignment: .center, spacing:10){
                         Image("e_logo")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width:200)
-                        HStack(spacing:5){
-                            Text("ELUV.IO")
-                                .font(.custom("Helvetica Neue", size: 80))
-                                .fontWeight(.thin)
-                            Text("Wallet")
-                                .font(.custom("Helvetica Neue", size: 80))
-                                .fontWeight(.bold)
-                        }
+                        Text("Welcome to")
+                            .font(.custom("Helvetica Neue", size: 61))
+                            .fontWeight(.thin)
+                            .foregroundColor(Color.white.opacity(0.8))
+                        Text("Media Wallet")
+                            .font(.custom("Helvetica Neue", size: 90))
+                            .padding(.bottom,40)
+
                         Picker("Networks", selection: $networkSelection) {
                             ForEach(Networks.allCases) { network in
-                                Text("\(network.name.uppercased())")
+                                Text("\(network.name.capitalizingFirstLetter())")
+                                    .font(.custom("Helvetica Neue", size: 10))
                             }
                         }
-                        .frame(width:400)
+                        .frame(width:300)
                     }
-                    
-                    Spacer()
-                        .frame(height: 10.0)
                     
                     if fabric.signingIn {
                         ProgressView()
@@ -100,26 +100,20 @@ struct SignInView: View {
                                 }
                             }
                         }) {
-                            Text("SIGN IN")
+                            Text("Sign In")
                         }
+                        .focused($signInFocus)
                     }
+                }
+            }.onAppear(){
+                DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
+                    signInFocus = true
                 }
             }
         } else {
             DeviceFlowView(showDeviceFlow:$showDeviceFlow)
                 .preferredColorScheme(colorScheme)
         }
-            /*
-        .fullScreenCover(isPresented: $showDeviceFlow) {
-            DeviceFlowView()
-                .preferredColorScheme(colorScheme)
-        }
-        .onAppear {
-            print("SignInView onAppear \(self.fabric.isLoggedOut)")
-            if(!self.fabric.isLoggedOut){
-                self.presentationMode.wrappedValue.dismiss()
-            }
-        }*/
     }
 }
 

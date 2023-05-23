@@ -1,4 +1,7 @@
 {
+    "app":{
+        "name": "Media Wallet"
+    },
     "network": {
       "demo": {
           "config_url":"https://demov3.net955210.contentfabric.io/config",
@@ -15,5 +18,6 @@
         "domain" : "prod-elv.us.auth0.com",
         "client_id" : "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar",
         "grant_type" : "urn:ietf:params:oauth:grant-type:device_code"
-    }
+    },
+
 }

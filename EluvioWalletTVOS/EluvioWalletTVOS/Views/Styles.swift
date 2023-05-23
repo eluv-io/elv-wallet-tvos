@@ -56,11 +56,12 @@ struct NonSelectionButtonStyle: ButtonStyle {
 
 struct TitleButtonStyle: ButtonStyle {
     let focused: Bool
+    var scale = 1.04
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
             .background(.clear)
-            .scaleEffect(self.focused ? 1.04: 1, anchor: .center)
+            .scaleEffect(self.focused ? scale: 1, anchor: .center)
             .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
     }
 }
