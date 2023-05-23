@@ -19,6 +19,7 @@ struct ContentView: View {
                 .environmentObject(self.fabric)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
+                
         }else{
             NavigationView {
                 MainView(nfts:fabric.items)

@@ -42,8 +42,17 @@ struct DeviceFlowView: View {
     var body: some View {
         ZStack {
             Color.mainBackground.edgesIgnoringSafeArea(.all)
+            VStack{
+                HeaderView()
+                    .padding(.top,50)
+                    .padding(.leading,80)
+                    .padding(.bottom,80)
+                Spacer()
+            }
+            .edgesIgnoringSafeArea(.all)
             VStack(alignment: .center, spacing: 30){
                 VStack(alignment: .center, spacing:20){
+                    /*
                     VStack(alignment: .center, spacing:10){
                         Image("e_logo")
                             .resizable()
@@ -52,23 +61,28 @@ struct DeviceFlowView: View {
                         Text("Media Wallet")
                             .font(.custom("Helvetica Neue", size: 90))
                             .padding(.bottom,40)
-                    }
+                    }*/
                     
 
                     Text("Scan QR Code")
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)
-                    Text("Scan the QR Code with your camera app or a QR code reader on your device.")
+                    Text("Scan the QR Code with your camera app or a QR code reader on your device to verify the code.")
                         .font(.custom("Helvetica Neue", size: 30))
                         .fontWeight(.thin)
                         .frame(width: 600)
                         .multilineTextAlignment(.center)
+                        .padding()
+                    
+                    Text(code)
+                        .font(.custom("Helvetica Neue", size: 50))
+                        .fontWeight(.semibold)
                     
                     Image(uiImage: GenerateQRCode(from: urlComplete))
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 300, height: 300)
+                        .frame(width: 400, height: 400)
                 }
                 .frame(width: 700)
                 
@@ -86,9 +100,10 @@ struct DeviceFlowView: View {
                         //self.presentationMode.wrappedValue.dismiss()
                         showDeviceFlow = false
                     }) {
-                        Text("Cancel")
+                        Text("Back")
                     }
                 }
+                .focusSection()
             }
         }
         .onAppear(perform: {
