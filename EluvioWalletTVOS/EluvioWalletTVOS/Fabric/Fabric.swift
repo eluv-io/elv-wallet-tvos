@@ -441,6 +441,9 @@ class Fabric: ObservableObject {
         //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
         let data = try nft.rawData()
         
+        
+        
+
         //print(data)
         var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
         if (nftmodel.id == nil){
@@ -998,8 +1001,13 @@ class Fabric: ObservableObject {
                     switch (response.result) {
 
                         case .success( _):
-                            let value = JSON(response.value!)
-                            continuation.resume(returning: value)
+                    
+                            if let value = response.value {
+                                continuation.resume(returning: JSON(value))
+                            }else{
+                                continuation.resume(throwing: FabricError.unexpectedResponse("getNFTData: could not get value from response \(response)"))
+                            }
+                        
                          case .failure(let error):
                             print("GetNFTData Request error: \(error.localizedDescription)")
                             continuation.resume(throwing: error)

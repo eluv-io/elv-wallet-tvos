@@ -295,7 +295,6 @@ struct MediaView: View {
                     do {
                         //let htmlUrl = try fabric.getUrlFromLink(link: media?.media_file, params: media?.parameters ?? [])
                         let htmlUrl = try fabric.getMediaHTML(link: media?.media_file, params: media?.parameters ?? [])
-                        print("MEDIA APP FOUND:  \(htmlUrl)")
                         self.qrUrl = htmlUrl
                         self.showQRView = true
                         
@@ -329,22 +328,15 @@ struct MediaView: View {
                 self.imageUrl = "https://picsum.photos/600/800"
             }else{
                 do {
-                    print("MEDIA APP FOUND \(media?.name)")
-                    
                     var image: String = media?.image ?? ""
                     
                     if(self.display == MediaDisplay.feature || image == ""){
                         if let posterImage = media?.poster_image {
                             image = try fabric.getUrlFromLink(link: posterImage)
-                            //print("Poster image found: ", image)
-                            if media?.media_type == "HTML"{
-                                //print("MEDIA APP FOUND \(media?.name):  \(image)")
-                            }
                         }
                     }
                     
                     self.imageUrl = image
-                    //print("Media Image URL: ", self.imageUrl)
                 }catch{
                     print("Error getting image URL from link ", media?.image as Any)
                 }

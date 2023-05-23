@@ -136,7 +136,7 @@ struct NFTDetailView: View {
             }
             .onAppear(){
                 //print("Gallery Item: ", self.media)
-                
+                print("Description: \(self.richText)")
                 
                 if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                     self.backgroundImageUrl = "https://picsum.photos/600/800"
@@ -207,7 +207,7 @@ struct NFTDetail: View {
             }
             
             let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
-            if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
+            if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
                 self.richText = AttributedString(attributedString)
                 self.richText.foregroundColor = .white
                 self.richText.font = .body
