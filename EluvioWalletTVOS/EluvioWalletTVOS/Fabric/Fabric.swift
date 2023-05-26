@@ -1121,7 +1121,7 @@ class Fabric: ObservableObject {
         //FIXME: Use configuration
         let baseUrl = self.network == "demo" ? "https://demov3.net955210.contentfabric.io/s/demov3" :
             "https://main.net955305.contentfabric.io/s/main"
-        return try getUrlFromLink(link:link, baseUrl: baseUrl, params: params, includeAuth: false)
+        return try getUrlFromLink(link:link, baseUrl: baseUrl, params: params, includeAuth: true)
     }
     
     func getUrlFromLink(link: JSON?, baseUrl: String? = nil, params: [JSON] = [], includeAuth: Bool? = true, resolveHeaders: Bool? = false) throws -> String {

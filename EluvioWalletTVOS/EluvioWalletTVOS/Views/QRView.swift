@@ -24,6 +24,9 @@ struct QRView: View {
                     .scaledToFit()
                     .frame(width: 400, height: 400)
             }
+            .onAppear(){
+                print("Experience URL \(url)")
+            }
     }
 }
 
