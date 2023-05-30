@@ -650,7 +650,7 @@ class Fabric: ObservableObject {
             
             var moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:[])
             
-            var foxProp = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"FoxSports_TopImage",  featured: self.featured, media: library, items:[])
+            var foxProp = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"fox_sports_header",  featured: self.featured, media: library, items:[])
             
             func addDemoAssets(items:[NFTModel]) -> [NFTModel]{
                 var newItems : [NFTModel] = []
@@ -691,10 +691,10 @@ class Fabric: ObservableObject {
             wbProp.contents[0].contents = demoLib.items
 
             properties = [
+                foxProp,
                 wbProp,
                 dollyProp,
-                moonProp,
-                foxProp
+                moonProp
             ]
             
             self.albums = addDemoAssets(items: self.albums)
