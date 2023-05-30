@@ -591,16 +591,21 @@ class Fabric: ObservableObject {
             
             
             var featured = parsedLibrary.featured
-            let feature = featured.media.remove(at: 0)
-            featured.append(feature)
+            
+            if (!featured.isEmpty){
+                let feature = featured.media.remove(at: 0)
+                featured.append(feature)
+            }
             parsedLibrary.featured = featured;
             
             
             self.featured = parsedLibrary.featured;
             
-            for index in 0..<featured.count {
+            /*
+            for _ in 0..<featured.count {
                 let nft = self.featured
             }
+             */
             
             print("featured count ", self.featured.count)
             self.galleries = parsedLibrary.galleries;
@@ -673,8 +678,10 @@ class Fabric: ObservableObject {
             
             var items = addDemoAssets(items: parsedLibrary.items)
 
-            let item = items.remove(at: 0)
-            items.append(item)
+            if (!items.isEmpty) {
+                let item = items.remove(at: 0)
+                items.append(item)
+            }
             
             self.items = items;
             
