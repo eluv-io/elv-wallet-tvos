@@ -15,13 +15,13 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var created: Int?
     var cap: Int?
     var contract_name: String?
-    var contract_addr: String
+    var contract_addr: String?
     var hold: Int?
-    var ordinal: Int
-    var token_id: Int
-    var token_id_str: String
+    var ordinal: Int?
+    var token_id: Int?
+    var token_id_str: String?
     var token_owner: String?
-    var token_uri: String
+    var token_uri: String?
     var meta : NFTMetaResponse = NFTMetaResponse()
     var meta_full: JSON?
     var has_playable_feature : Bool?
@@ -31,6 +31,30 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var project : ProjectModel? = nil
     var background_image_tv: String? = "" //XXX: Demo only
     var title_image: String? = "" //XXX: Demo only
+    
+    var has_tile: Bool {
+        
+        guard let image = title_image else {
+            return false
+        }
+        
+        return !image.isEmpty
+    }
+    
+    var has_multiple_media: Bool {
+        
+        guard let mediaSections = additional_media_sections else {
+            return false
+        }
+        
+        var count = 0
+        
+        count = mediaSections.featured_media.count
+        count += mediaSections.sections.count
+        
+        return count > 1
+    }
+    
     init(){
         block = 0
         created = 0

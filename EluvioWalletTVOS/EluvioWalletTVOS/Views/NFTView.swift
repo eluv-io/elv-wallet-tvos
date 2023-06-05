@@ -18,7 +18,7 @@ struct NFTAlbumView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             NavigationLink(destination: NFTDetail(nft: nft)) {
-                MediaCard(display:display, image:nft.meta.image, isFocused:isFocused, title:nft.meta.name)
+                MediaCard(display:display, image:nft.meta.image ?? "", isFocused:isFocused, title:nft.meta.name ?? "")
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
@@ -35,16 +35,16 @@ struct NFTTileView: View {
     var display: MediaDisplay = MediaDisplay.tile
     var image : String {
         if (display == MediaDisplay.tile){
-            print("TILE: ", nft.title_image)
-            return nft.title_image ?? nft.meta.image
+            print("TILE: ", nft.title_image ?? "")
+            return nft.title_image ?? nft.meta.image ?? ""
         }
-        return nft.meta.image
+        return nft.meta.image ?? ""
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             NavigationLink(destination: NFTDetail(nft: nft)) {
-                MediaCard(display:display, image:image, isFocused:isFocused, title:nft.meta.name)
+                MediaCard(display:display, image:image, isFocused:isFocused, title:nft.meta.name ?? "")
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.02))
             .focused($isFocused)
@@ -133,10 +133,10 @@ struct NFTView: View {
                         
                         Text(propertyName).foregroundColor(subTitleColor).font(.itemSubtitle)
                         Spacer()
-                        Text("#\(nft.token_id_str)").foregroundColor(subTitleColor).font(.itemSubtitle)
+                        Text("#\(nft.token_id_str ?? "")").foregroundColor(subTitleColor).font(.itemSubtitle)
                     }
                     .padding(.bottom)
-                    WebImage(url: URL(string: nft.meta.image))
+                    WebImage(url: URL(string: nft.meta.image ?? ""))
                         .resizable()
                         .indicator(.activity) // Activity Indicator
                         .transition(.fade(duration: 0.5))
@@ -147,10 +147,10 @@ struct NFTView: View {
                     
                     VStack(alignment: .center, spacing: 7) {
                         Spacer()
-                        Text(nft.meta.displayName)
+                        Text(nft.meta.displayName ?? "")
                             .foregroundColor(titleColor)
                             .font(.itemTitle)
-                        Text(nft.meta.editionName)
+                        Text(nft.meta.editionName ?? "")
                             .foregroundColor(subTitleColor)
                             .font(.itemSubtitle)
                             .textCase(.uppercase)

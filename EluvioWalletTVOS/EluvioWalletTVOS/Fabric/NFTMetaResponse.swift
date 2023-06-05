@@ -14,25 +14,26 @@ import Foundation
 
 // MARK: - NFTMetaResponse
 struct NFTMetaResponse: Codable {
-    var address: String = ""
-    var attributes: [JSONAny] = []
+    var address: String? = ""
+    var attributes: [JSONAny]? = []
     //var backgroundColor: BackgroundColor = BackgroundColor()
-    var copyright: String = ""
-    var createdAt: String = ""
-    var creator: String = ""
-    var description: String = ""
-    var displayName: String = ""
-    var editionName: String = ""
-    var embedURL: String = ""
-    var enableWatermark: String? = ""
-    var externalURL: String = ""
-    var image: String = ""
+    var copyright: String? = ""
+    var createdAt: String? = ""
+    var creator: String? = ""
+    var description: String? = ""
+    var displayName: String? = ""
+    var editionName: String? = ""
+    var embedURL: String? = ""
+    var enableWatermark: Bool? = false
+    var externalURL: String? = ""
+    var image: String? = ""
     //var marketplaceAttributes: MarketplaceAttributes = MarketplaceAttributes()
-    var name: String = ""
+    var name: String? = ""
     //var packOptions: PackOptions = PackOptions()
-    var playable: Bool = false
-    var templateID: String = ""
-    var totalSupply: Int = 0
+    var additional_media_sections: AdditionalMediaModel? = nil
+    var playable: Bool? = false
+    var templateID: String? = ""
+    var totalSupply: Int? = 0
 
     enum CodingKeys: String, CodingKey {
         case address, attributes

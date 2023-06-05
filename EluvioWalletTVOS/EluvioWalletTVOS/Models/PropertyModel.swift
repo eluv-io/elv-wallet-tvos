@@ -18,6 +18,7 @@ struct PropertyModel: Identifiable, Codable  {
     var featured: Features = Features()
     var media: [MediaCollection] = []
     var albums: [NFTModel] = [] //Temporary until we have proper albums
+    var live_streams: [MediaItem] //Temp. Need to do a new LiveMediaItem model?
     var contents: [ProjectModel] = []
 }
 

@@ -1,8 +1,8 @@
 //
-//  MediaView.swift
+//  MyMediaView2.swift
 //  EluvioWalletTVOS
 //
-//  Created by Wayne Tran on 2023-05-18.
+//  Created by Wayne Tran on 2023-05-31.
 //
 
 import SwiftUI
@@ -10,7 +10,7 @@ import AVKit
 import SDWebImageSwiftUI
 import SwiftyJSON
 
-struct MyMediaView: View {
+struct MyMediaView2: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @State var searchText = ""
@@ -19,7 +19,6 @@ struct MyMediaView: View {
     //?? Extract only the media? Resusing the NFTViews for now
     var albums: [NFTModel] = []
     var items: [NFTModel] = []
-    var liveStreams : [MediaItem] = []
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
     @State var showPlayer = false
@@ -115,49 +114,15 @@ struct MyMediaView: View {
                                 view.clipsToBounds = false
                             }
                         }
-                        .focusSection()
-                    }
-                    
-                    if (!liveStreams.isEmpty){
-                        VStack(alignment: .leading, spacing: 40){
-                            ForEach(liveStreams) { media in
-                                Text(media.name)
-                                ScrollView (.horizontal, showsIndicators: false) {
-                                    LazyHStack(alignment: .top, spacing: 20) {
-                                        MediaView(media: media,
-                                                  showPlayer: $showPlayer, playerItem: $playerItem,
-                                                  playerImageOverlayUrl:$playerImageOverlayUrl,
-                                                  playerTextOverlay:$playerTextOverlay,
-                                                  display: MediaDisplay.video)
-                                        
-                                        ForEach(media.schedule ?? []) { upcoming in
-                                            MediaCard(display: MediaDisplay.video, image: upcoming.image ?? "",
-                                                      isUpcoming: true, title: "UPCOMING", subtitle: upcoming.startDateTimeString
-                                            )
-                                        }
-                                        
-                                    }
-                                }
-                                .introspectScrollView { view in
-                                    view.clipsToBounds = false
-                                }
-                            }
-                        }
-                        .focusSection()
                     }
                     
                     if (!items.isEmpty){
-                        VStack(alignment: .leading, spacing: 40){
+                        VStack(alignment: .leading, spacing: 20){
                             Text("Items")
                             ScrollView (.horizontal, showsIndicators: false) {
                                 LazyHStack(alignment: .top, spacing: 40) {
                                     ForEach(items) { nft in
-                                        if nft.has_tile{
-                                            NFTTileView(nft:nft)
-                                        }else{
-                                            NFTView(nft:nft)
-                                                .scaleEffect(0.8, anchor:.topLeading)
-                                        }
+                                        NFTTileView(nft:nft, display: MediaDisplay.tile)
                                     }
                                 }
                             }
@@ -165,7 +130,6 @@ struct MyMediaView: View {
                                 view.clipsToBounds = false
                             }
                         }
-                        .focusSection()
                     }
                     
                 }
@@ -190,8 +154,8 @@ struct MyMediaView: View {
 }
 
 
-struct MyMediaView_Previews: PreviewProvider {
+struct MyMediaView2_Previews: PreviewProvider {
     static var previews: some View {
-        MyMediaView()
+        MyMediaView2()
     }
 }

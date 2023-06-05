@@ -365,7 +365,7 @@ class Fabric: ObservableObject {
     }
     */
     
-    func parseNfts(_ nfts: [JSON]) async throws -> (items: [NFTModel], featured:Features, albums:[NFTModel], videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem] ) {
+    func parseNfts(_ nfts: [JSON]) async throws -> (items: [NFTModel], featured:Features, albums:[NFTModel], videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
         
         var featured = Features()
         var videos: [MediaItem] = []
@@ -374,6 +374,7 @@ class Fabric: ObservableObject {
         var albums: [NFTModel] = []
         var html: [MediaItem] = []
         var books: [MediaItem] = []
+        var liveStreams: [MediaItem] = []
         
         var items : [NFTModel] = []
         for nft in nfts {
@@ -416,19 +417,22 @@ class Fabric: ObservableObject {
                 if(!parsedModels.books.isEmpty){
                     books.append(contentsOf: parsedModels.books)
                 }
+                if(!parsedModels.liveStreams.isEmpty){
+                    liveStreams.append(contentsOf: parsedModels.liveStreams)
+                }
                 
             } catch {
-                print(error.localizedDescription)
+                print(error)
                 continue
             }
         }
         
-        return (items, featured.unique(), albums.unique(), videos.unique(), images.unique(), galleries.unique(), html.unique(), books.unique())
+        return (items, featured.unique(), albums.unique(), videos.unique(), images.unique(), galleries.unique(), html.unique(), books.unique(), liveStreams.unique())
     }
     
-    func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:Features, videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem] ) {
+    func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:Features, videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
         
-        //print("Parse NFT \(nft)")
+        print("Parse NFT")
         
         var featured = Features()
         var videos: [MediaItem] = []
@@ -436,16 +440,16 @@ class Fabric: ObservableObject {
         var images: [MediaItem] = []
         var html: [MediaItem] = []
         var books: [MediaItem] = []
+        var liveStreams: [MediaItem] = []
         
         //print(nft)
         //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
         let data = try nft.rawData()
         
-        
-        
-
-        //print(data)
+        print("DATA ",nft)
+        print("before decoding ")
         var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+        print("after decoding ", nftmodel)
         if (nftmodel.id == nil){
             nftmodel.id = nftmodel.contract_addr
         }
@@ -454,8 +458,14 @@ class Fabric: ObservableObject {
             nftmodel.background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
         }
         
-        let nftData = try await self.getNFTData(tokenUri: nftmodel.token_uri)
+        print("Getting NFT DATA")
+        guard let tokenUri = nftmodel.token_uri else {
+            throw FabricError.invalidURL("token_uri does not exist for \(nftmodel.contract_addr)")
+        }
+        
+        let nftData = try await self.getNFTData(tokenUri: tokenUri)
         nftmodel.meta_full = nftData
+        print("NFT DATA ", nftData)
         
         if nftData["additional_media_sections"].exists() {
             print("additional_media_sections exists for \(nftData["display_name"].stringValue)")
@@ -485,7 +495,7 @@ class Fabric: ObservableObject {
                 }
             }
         }
-        
+
         
         var hasPlayableMedia = false
         
@@ -511,13 +521,23 @@ class Fabric: ObservableObject {
             
             if let mediaSections = nftmodel.additional_media_sections {
                 //Parsing featured_media to find videos
-                for media in mediaSections.featured_media{
+                for index in 0..<mediaSections.featured_media.count{
+                    var media = mediaSections.featured_media[index]
+                    print("Media ", media)
                     if let mediaType = media.media_type {
                         if mediaType == "Video"{
                             hasPlayableMedia = true
                         }
                         if mediaType == "Audio"{
                             hasPlayableMedia = true
+                        }
+                        
+                        //XXX: Demo only until we have a proper Live mediaType
+                        if media.name.contains("Live"){
+                        //if mediaType == "Live" {
+                            media.isLive = true
+                            liveStreams.append(media)
+                            nftmodel.additional_media_sections?.featured_media[index] = media
                         }
                     }
                     
@@ -535,9 +555,15 @@ class Fabric: ObservableObject {
                 //Parsing sections to find videos
                 for section in mediaSections.sections {
                     for collection in section.collections{
-                        for media in collection.media{
+                        for var media in collection.media{
                             if let mediaType = media.media_type {
-                                if mediaType == "Video" {
+                                //XXX: Demo only until we have a proper Live mediaType
+                                if media.name.contains("Live"){
+                                    media.isLive = true
+                                    hasPlayableMedia = true
+                                //if mediaType == "Live" {
+                                    liveStreams.append(media)
+                                }else if mediaType == "Video" {
                                     hasPlayableMedia = true
                                     videos.append(media)
                                 }else if mediaType == "Audio"{
@@ -559,7 +585,7 @@ class Fabric: ObservableObject {
         }
         nftmodel.has_playable_feature = hasPlayableMedia
         
-        return (nftmodel, featured, videos, images, galleries, html, books)
+        return (nftmodel, featured, videos, images, galleries, html, books, liveStreams)
     }
     
     //Move this to the app level
@@ -583,10 +609,9 @@ class Fabric: ObservableObject {
             
             let profileData = try await self.signer!.getWalletData(accountAddress: try self.getAccountAddress(),
                                                                    accessCode: self.login!.token)
-            
-            //print(profileData)
 
             let nfts = profileData["contents"].arrayValue
+
             var parsedLibrary = try await parseNfts(nfts)
             
             
@@ -601,11 +626,6 @@ class Fabric: ObservableObject {
             
             self.featured = parsedLibrary.featured;
             
-            /*
-            for _ in 0..<featured.count {
-                let nft = self.featured
-            }
-             */
             
             print("featured count ", self.featured.count)
             self.galleries = parsedLibrary.galleries;
@@ -617,92 +637,208 @@ class Fabric: ObservableObject {
             
             var library : [MediaCollection] = []
             library.append(MediaCollection(name:"Video", media:parsedLibrary.videos))
-            library.append(MediaCollection(name:"Live Video", media:[])) //TODO: Find what's a live video
+            library.append(MediaCollection(name:"Live Stream", media:parsedLibrary.liveStreams)) //TODO: Find what's a live video
             library.append(MediaCollection(name:"Image Gallery", media:parsedLibrary.galleries))
             library.append(MediaCollection(name:"Apps", media:parsedLibrary.html))
             library.append(MediaCollection(name:"E-books", media:parsedLibrary.books))
             self.library = library
             
+            let eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
             
-            //XXX: Demo only
-            var demoNfts: [JSON] = []
-            for nft in nfts{
-                let name = nft["contract_name"].stringValue
-                if name.contains("Rings") {
-                    demoNfts.append(nft)
-                }
-            }
+            let wbProp = try await createWbDemoProp(nfts: nfts)
             
-            var demoLib = try await parseNfts(demoNfts)
-            var demoMedia : [MediaCollection] = []
-            demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
-            demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
-            demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
-            demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
-        
+            let dollyProp = try await createDollyDemoProp(nfts: nfts)
             
-            var eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
+            let moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:[])
             
-            var wbProp=CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
-                                    featured: demoLib.featured, media: demoMedia, items:demoLib.items)
+            let foxSportsProp = try await createFoxSportsDemoProp(nfts:nfts)
             
-            var dollyProp = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Dollyverse", heroImage:"DollyVerse_TopImage", albums: parsedLibrary.albums, items:[])
-            
-            var moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:[])
-            
-            var foxProp = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"fox_sports_header",  featured: self.featured, media: library, items:[])
-            
-            func addDemoAssets(items:[NFTModel]) -> [NFTModel]{
-                var newItems : [NFTModel] = []
-                
-                for var item in items{
-                    if let name = item.contract_name {
-                        if name.contains("Epic") {
-                            item.property = wbProp
-                            item.title_image = "LOTR_Tile Group_Epic"
-                        }else  if name.contains("Shire") {
-                            item.property = wbProp
-                            item.title_image = "LOTR_Tile Group_Shire"
-                        }else if name.contains("Run") {
-                            item.property = dollyProp
-                            item.background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
-                        }else if name.contains("Eluvio") {
-                            item.property = eluvioProp
-                        }
-                    }
-                    newItems.append(item)
-                }
-                
-                return newItems
-            }
-            
-            var items = addDemoAssets(items: parsedLibrary.items)
+            var items = parsedLibrary.items
 
             if (!items.isEmpty) {
                 let item = items.remove(at: 0)
                 items.append(item)
             }
             
-            self.items = items;
+            self.items = items
             
-            demoLib.items = addDemoAssets(items: demoLib.items)
-            
-            eluvioProp.contents[0].contents = items
-            wbProp.contents[0].contents = demoLib.items
-
             properties = [
-                foxProp,
+                foxSportsProp,
                 wbProp,
                 dollyProp,
                 moonProp
             ]
             
-            self.albums = addDemoAssets(items: self.albums)
-            self.properties = properties;
+            self.properties = properties
                 
         }catch{
             print ("Refresh Error: \(error)")
         }
+    }
+    
+    func createWbDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let name = nft["contract_name"].stringValue
+            if name.contains("Rings") {
+                demoNfts.append(nft)
+            }
+        }
+        
+        var demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+        demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
+        demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+        demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
+        
+        var newItems : [NFTModel] = []
+        
+        for var item in demoLib.items{
+            if let name = item.contract_name {
+                if name.contains("Epic") {
+                    item.title_image = "LOTR_Tile Group_Epic"
+                }else  if name.contains("Shire") {
+                    item.title_image = "LOTR_Tile Group_Shire"
+                }
+            }
+            newItems.append(item)
+        }
+        
+        var prop = CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
+                                    featured: demoLib.featured, media: demoMedia, liveStreams: demoLib.liveStreams, items:newItems)
+        
+        return prop
+    }
+    
+    func createFoxSportsDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let name = nft["contract_name"].stringValue
+            if name.contains("Live") || name.contains("Sports") || name.contains("Demo") {
+                demoNfts.append(nft)
+            }
+        }
+        
+        var demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+        demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
+        demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+        demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
+        
+        print("videos count: ", demoLib.videos.count)
+        print("live stream count: ", demoLib.liveStreams.count)
+        
+        var newItems : [NFTModel] = []
+        
+        for var item in demoLib.items{
+            if let name = item.contract_name {
+                if name.contains("Epic") {
+                    item.title_image = "LOTR_Tile Group_Epic"
+                }else  if name.contains("Shire") {
+                    item.title_image = "LOTR_Tile Group_Shire"
+                }
+            }
+            newItems.append(item)
+        }
+        
+        
+        var streams : [MediaItem] = []
+        for var item in demoLib.liveStreams{
+            print("STREAM : ", item.name)
+            if item.name.contains("KSAZ") {
+                var schedule: [MediaItem] = []
+                var media = MediaItem()
+                var isoDate = "2023-06-14T19:00:00+0000"
+                let dateFormatter = ISO8601DateFormatter()
+                media.startDateTime = dateFormatter.date(from: isoDate)
+                media.image = "ksaz01"
+                schedule.append(media)
+                
+                isoDate = "2023-06-14T20:00:00+0000"
+                var media2 = MediaItem()
+                media2.startDateTime = dateFormatter.date(from: isoDate)
+                media2.image = "ksaz02"
+                schedule.append(media2)
+                item.schedule = schedule
+                
+            }else if item.name.contains("KTTV") {
+                var schedule: [MediaItem] = []
+                var media = MediaItem()
+                var isoDate = "2023-06-14T19:00:00+0000"
+                let dateFormatter = ISO8601DateFormatter()
+                media.startDateTime = dateFormatter.date(from: isoDate)
+                media.image = "kttv01"
+                schedule.append(media)
+                
+                isoDate = "2023-06-14T20:00:00+0000"
+                var media2 = MediaItem()
+                media2.startDateTime = dateFormatter.date(from: isoDate)
+                media2.image = "kttv02"
+                schedule.append(media2)
+
+                
+                isoDate = "2023-06-14T22:00:00+0000"
+                var media3 = MediaItem()
+                media3.startDateTime = dateFormatter.date(from: isoDate)
+                media3.image = "kttv03"
+                schedule.append(media3)
+                
+                isoDate = "2023-06-14T23:00:00+0000"
+                var media4 = MediaItem()
+                media4.startDateTime = dateFormatter.date(from: isoDate)
+                media4.image = "kttv04"
+                schedule.append(media4)
+                
+                item.schedule = schedule
+            } else{
+                var schedule: [MediaItem] = []
+                for index in 0...4 {
+                    var media = MediaItem()
+                    var isoDate = "2023-06-14T1\(index):00:00+0000"
+                    let dateFormatter = ISO8601DateFormatter()
+                    media.startDateTime = dateFormatter.date(from: isoDate)
+                    media.image = item.image
+                    schedule.append(media)
+                }
+                item.schedule = schedule
+            }
+            
+            
+            
+            streams.append(item)
+        }
+        
+        var prop = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"fox_sports_header",  featured: demoLib.featured, media: demoMedia, liveStreams: streams, items:newItems)
+        
+        return prop
+    }
+    
+    func createDollyDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let name = nft["contract_name"].stringValue
+            if name.contains("Rose"){
+                demoNfts.append(nft)
+            }
+        }
+        
+        var demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+        demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
+        demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+        demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
+        
+
+        for index in 0..<demoLib.items.count{
+            demoLib.items[index].background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
+        }
+        
+        var prop = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Dollyverse", heroImage:"DollyVerse_TopImage", featured: demoLib.featured, media: demoMedia, albums: demoLib.albums, items:demoLib.items)
+        
+        return prop
     }
     
     //Move this to the app level
@@ -961,10 +1097,12 @@ class Fabric: ObservableObject {
     func getNFTData(tokenUri: String ) async throws -> JSON {
             return try await withCheckedThrowingContinuation({ continuation in
                 do {
+                    /*
                     if !tokenUri.contains("/meta/public/nft") {
                         continuation.resume(throwing: FabricError.invalidURL("getNFTData: tokenUri does not contain /meta/public/nft. tokenUri: \(tokenUri)"))
                         return
                     }
+                     */
                     
                     var path = "/meta/public/asset_metadata/nft"
                     guard let hash = FindContentHash(uri: tokenUri) else {

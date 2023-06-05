@@ -36,14 +36,15 @@ func CreateTestNFTs(num: Int) -> [NFTModel] {
 }
 
 
-func CreateTestPropertyModel(title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], items: [NFTModel]) -> PropertyModel {
+func CreateTestPropertyModel(title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], liveStreams: [MediaItem] = [], items: [NFTModel]) -> PropertyModel {
+
     
     var projects : [ProjectModel] = []
     projects.append(ProjectModel(
         contents : items
     ))
     
-    let property = PropertyModel(
+    var property = PropertyModel(
         title : title,
         logo: logo,
         image : image,
@@ -51,8 +52,14 @@ func CreateTestPropertyModel(title: String, logo: String, image: String, heroIma
         featured: featured,
         media: media,
         albums: albums,
+        live_streams: liveStreams,
         contents : projects
         )
+    
+    
+    for index in 0..<property.contents[0].contents.count{
+        property.contents[0].contents[index].property = property
+    }
     
     return property
 }

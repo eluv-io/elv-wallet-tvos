@@ -72,21 +72,45 @@ struct MediaSection: Identifiable, Codable {
 
 struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
-    var image: String?
-    var background_image_tv: JSON?
+    var image: String? = ""
+    var background_image_tv: JSON? = nil
     var background_image_tv_url: String? = ""
-    var poster_image: JSON?
+    var poster_image: JSON? = nil
     var poster_image_url: String? = ""
     
     var name: String = ""
-    var image_aspect_ratio: String?
-    var media_type: String?
+    var image_aspect_ratio: String? = ""
+    var media_type: String? = ""
     var requires_permissions: Bool = false
     var media_link: JSON? = nil
     var media_file: JSON? = nil
     var parameters: [JSON]? = []
     var gallery: [GalleryItem]? = []
     var offerings: [String]? = []
+    
+    //For Demo
+    var isLive: Bool = false
+    var schedule: [MediaItem]? = []
+    var startDateTime: Date? = nil
+    var startDateTimeString: String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM d, hh:mm a"
+        df.amSymbol = "AM"
+        df.pmSymbol = "PM"
+
+        return df.string(from: startDateTime ?? Date())
+    }
+    var endDateTime: Date? = nil
+    var endDateTimeString: String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM d, hh:mm a"
+        df.amSymbol = "AM"
+        df.pmSymbol = "PM"
+        return df.string(from: endDateTime ?? Date())
+    }
+    
+    init (){
+    }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -105,6 +129,12 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         gallery = try container.decodeIfPresent([GalleryItem].self, forKey: .gallery) ?? []
         offerings = try container.decodeIfPresent([String].self, forKey: .offerings) ?? []
         id = /* try container.decodeIfPresent(String.self, forKey: .id) ??*/ name + (media_type ?? "")
+        
+        //TODO: compute from media_type when ready
+        isLive = false
+        schedule = []
+        startDateTime = nil
+        endDateTime = nil
     }
     
     //TODO: Find a good id for this

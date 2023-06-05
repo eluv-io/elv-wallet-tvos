@@ -57,7 +57,7 @@ struct NFTDetailView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     Button{} label: {
                         VStack(alignment: .leading, spacing: 20)  {
-                            Text(nft.meta.displayName).font(.title3)
+                            Text(nft.meta.displayName ?? "").font(.title3)
                                 .foregroundColor(Color.white)
                                 .fontWeight(.bold)
                                 .frame(maxWidth:1500, alignment:.leading)
@@ -74,7 +74,7 @@ struct NFTDetailView: View {
                                         .frame(maxWidth:1200, alignment:.leading)
                                 }
                             }else{
-                                Text(nft.meta.description)
+                                Text(nft.meta.description ?? "")
                                     .foregroundColor(Color.white)
                                     .frame(maxWidth:1200, alignment:.leading)
                             }
@@ -93,10 +93,20 @@ struct NFTDetailView: View {
                                 ScrollView(.horizontal) {
                                     LazyHStack(alignment: .top, spacing: 50) {
                                         ForEach(self.featuredMedia) {media in
-                                            MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
-                                                      playerImageOverlayUrl:$playerImageOverlayUrl,
-                                                      playerTextOverlay:$playerTextOverlay
-                                            )
+                                            if (media.media_type ?? "" == "Video"){
+                                                
+                                                MediaView(media: media,
+                                                          showPlayer: $showPlayer, playerItem: $playerItem,
+                                                          playerImageOverlayUrl:$playerImageOverlayUrl,
+                                                          playerTextOverlay:$playerTextOverlay,
+                                                          display: MediaDisplay.video)
+                                                          
+                                            }else{
+                                                MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
+                                                          playerImageOverlayUrl:$playerImageOverlayUrl,
+                                                          playerTextOverlay:$playerTextOverlay
+                                                )
+                                            }
                                         }
                                     }
                                     .padding(20)

@@ -27,6 +27,7 @@ struct PropertyView : View {
                                                    library: property.media,
                                                    albums: property.albums,
                                                    items: items,
+                                                   liveStreams: property.live_streams,
                                                    heroImage: property.heroImage
                                                   )
                 .preferredColorScheme(colorScheme)) {
@@ -51,7 +52,7 @@ struct PropertiesView: View {
     var body: some View {
         VStack(alignment:.leading) {
             ScrollView() {
-                LazyVGrid(columns: columns, alignment: .leading, spacing:0) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing:40) {
                     ForEach(properties) { property in
                         PropertyView(property: property)
                     }

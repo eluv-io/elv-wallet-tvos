@@ -310,7 +310,11 @@ struct MediaView: View {
                 }
  
             }) {
-                MediaCard(display:display, image:self.imageUrl, isFocused:isFocused, title: media?.name ?? "")
+                MediaCard(display:display, image:self.imageUrl,
+                          isFocused:isFocused,
+                          title: media?.name ?? "",
+                          isLive: media?.isLive ?? false
+                )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
@@ -363,8 +367,10 @@ struct MediaCard: View {
     var display: MediaDisplay = MediaDisplay.apps
     var image: String = ""
     var isFocused: Bool = false
+    var isUpcoming: Bool = false
     var title: String = ""
     var subtitle: String = ""
+    var isLive: Bool = false
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
     @State var cornerRadius: CGFloat = 3
@@ -403,6 +409,33 @@ struct MediaCard: View {
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(Color.highlight, lineWidth: 4)
                 )
+            }else if (isUpcoming){
+                VStack(alignment: .trailing, spacing: 7) {
+                    Spacer()
+                    Text(title.capitalized)
+                        .foregroundColor(Color.white)
+                        .font(.subheadline)
+                    Text(subtitle.capitalized)
+                        .foregroundColor(Color.white)
+                }
+                .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
+                .padding(20)
+                .background(Color.black.opacity(0.6))
+            }
+            
+            if (isLive){
+                VStack() {
+                    Spacer()
+                    HStack{
+                        Spacer()
+                        Image("live_flag")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame( width: 70, alignment: .bottomTrailing)
+                            .padding(20)
+                    }
+                }
+                .frame( maxWidth: .infinity, maxHeight:.infinity)
             }
         }
         .frame( width: width, height: height)
@@ -412,8 +445,8 @@ struct MediaCard: View {
                 height = 560
                 cornerRadius = 3
             }else if display == MediaDisplay.video {
-                width =  500
-                height = 281
+                width =  534
+                height = 300
                 cornerRadius = 16
             }else if display == MediaDisplay.books {
                 width =  235
