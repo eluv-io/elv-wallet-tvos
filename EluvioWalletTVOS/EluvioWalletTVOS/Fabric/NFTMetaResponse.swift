@@ -11,11 +11,32 @@
 //   let nFTModel = try? newJSONDecoder().decode(NFTMetaResponse.self, from: jsonData)
 
 import Foundation
+import SwiftyJSON
+
+struct NFTTrait: Codable {
+    var trait_type : String?
+    var value : String?
+    var rarity : String?
+}
 
 // MARK: - NFTMetaResponse
 struct NFTMetaResponse: Codable {
     var address: String? = ""
-    var attributes: [JSONAny]? = []
+    var attributes: [NFTTrait]? = []
+    var attributesDict: [String: NFTTrait] {
+        if let attributes = self.attributes {
+            var dict: [String: NFTTrait] = [:]
+            for attribute in attributes {
+                if let trait = attribute.trait_type {
+                    dict[trait] = attribute
+                }
+            }
+            return dict
+        }
+        
+        return [:]
+    }
+    
     //var backgroundColor: BackgroundColor = BackgroundColor()
     var copyright: String? = ""
     var createdAt: String? = ""

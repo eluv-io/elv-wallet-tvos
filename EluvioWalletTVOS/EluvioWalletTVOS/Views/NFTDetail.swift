@@ -141,12 +141,12 @@ struct NFTDetailView: View {
                            playerImageOverlayUrl:$playerImageOverlayUrl,
                            playerTextOverlay:$playerTextOverlay
                 )
-                    .preferredColorScheme(colorScheme)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .preferredColorScheme(colorScheme)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
             .onAppear(){
-                //print("Gallery Item: ", self.media)
-                print("Description: \(self.richText)")
+                print("NFT Attributes: \(self.nft.meta.attributesDict)")
+                
                 
                 if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                     self.backgroundImageUrl = "https://picsum.photos/600/800"

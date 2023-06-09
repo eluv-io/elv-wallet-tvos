@@ -13,6 +13,7 @@ struct MyItemsView: View {
     //
     @State var searchText = ""
     var nfts : [NFTModel] = []
+    var drops : [ProjectModel] = []
     var logo = "e_logo"
     var logoUrl = ""
     var name = ""
@@ -24,8 +25,11 @@ struct MyItemsView: View {
                     .padding(.top,50)
                     .padding(.leading,80)
                     .padding(.bottom,80)
-                NFTGrid(nfts:nfts)
+                NFTGrid(nfts:nfts, drops:drops)
             }
+        }
+        .onAppear(){
+            print("DROPS: ", drops)
         }
         .ignoresSafeArea()
         .introspectScrollView { view in

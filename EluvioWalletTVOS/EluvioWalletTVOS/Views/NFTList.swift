@@ -54,6 +54,8 @@ struct NFTGrid: View {
 
     var title: String = ""
     var nfts : [NFTModel]
+    var drops : [ProjectModel] = []
+    
     @State private var editMode = EditMode.inactive
     let columns = [
         GridItem(.fixed(520),spacing: 0),GridItem(.fixed(520),spacing: 0),
@@ -68,7 +70,25 @@ struct NFTGrid: View {
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center, spacing:0) {
             ForEach(nfts) { nft in
-                    NFTView(nft: nft)
+                    NFTView<NFTDetail>(
+                        image: nft.meta.image ?? "",
+                        title: nft.meta.displayName ?? "",
+                        subtitle: nft.meta.editionName ?? "",
+                        propertyLogo: nft.property?.logo ?? "",
+                        propertyName: nft.property?.title ?? "",
+                        tokenId: "#" + (nft.token_id_str ?? ""),
+                        destination: NFTDetail(nft: nft)
+                    )
+                    .padding(.bottom,70)
+            }
+            ForEach(drops) { drop in
+                    NFTView<DropDetail>(
+                        image: drop.image ?? "",
+                        title: drop.title ?? "",
+                        propertyLogo: drop.property?.logo ?? "",
+                        propertyName: drop.property?.title ?? "",
+                        destination: DropDetail(drop:drop)
+                    )
                     .padding(.bottom,70)
             }
         }
@@ -102,13 +122,21 @@ struct NFTList: View {
         ScrollView (.horizontal, showsIndicators: false) {
             LazyHStack {
                 ForEach(nfts) { nft in
-                        NFTView(nft: nft)
+                        NFTView<NFTDetail>(
+                            image: nft.meta.image ?? "",
+                            title: nft.meta.displayName ?? "",
+                            subtitle: nft.meta.editionName ?? "",
+                            propertyLogo: nft.property?.logo ?? "",
+                            propertyName: nft.property?.title ?? "",
+                            tokenId: "#" + (nft.token_id_str ?? ""),
+                            destination: NFTDetail(nft: nft)
+                        )
                         .frame(width:500, height: 500)
                         .padding()
+                    }
                 }
             }
             .padding(50)
-        }
     }
 }
 

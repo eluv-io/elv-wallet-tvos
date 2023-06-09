@@ -94,7 +94,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var startDateTime: Date? = nil
     var startDateTimeString: String {
         let df = DateFormatter()
-        df.dateFormat = "MMM d, hh:mm a"
+        df.dateFormat = "MMM d 'at' hh:mm a"
         df.amSymbol = "AM"
         df.pmSymbol = "PM"
 
@@ -103,7 +103,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var endDateTime: Date? = nil
     var endDateTimeString: String {
         let df = DateFormatter()
-        df.dateFormat = "MMM d, hh:mm a"
+        df.dateFormat = "MMM d 'at' hh:mm a"
         df.amSymbol = "AM"
         df.pmSymbol = "PM"
         return df.string(from: endDateTime ?? Date())

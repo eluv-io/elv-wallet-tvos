@@ -49,7 +49,9 @@ struct MainView: View {
     
     var body: some View {
         TabView(selection: $selection) {
-            MyItemsView(nfts: nfts).preferredColorScheme(colorScheme)
+            MyItemsView(nfts: nfts,
+                        drops: fabric.drops
+                        ).preferredColorScheme(colorScheme)
                 .tabItem{
                     Text("My Items")
                 }

@@ -19,6 +19,7 @@ struct MyMediaView: View {
     //?? Extract only the media? Resusing the NFTViews for now
     var albums: [NFTModel] = []
     var items: [NFTModel] = []
+    var drops: [ProjectModel] = []
     var liveStreams : [MediaItem] = []
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
@@ -42,11 +43,12 @@ struct MyMediaView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth:.infinity)
-                            .frame(height: 600,  alignment: .topLeading)
+                            .frame(width:1920,height: 739, alignment: .topLeading)
                             .clipped()
                     }
                     .padding(.bottom, 40)
                     .buttonStyle(NonSelectionButtonStyle())
+                    .focusSection()
                 }else{
                     HeaderView(logo:logo, logoUrl: logoUrl)
                         .padding(.top,50)
@@ -54,25 +56,50 @@ struct MyMediaView: View {
                         .padding(.bottom,80)
                 }
                 
-                LazyVStack(alignment: .center, spacing: 40) {
+                VStack(alignment: .center, spacing: 40) {
+                    
+                    if (!drops.isEmpty){
+                        ScrollView (.horizontal, showsIndicators: false) {
+                            LazyHStack(alignment: .top, spacing: 52) {
+                                ForEach(drops) { drop in
+                                    DropView<DropDetail>(
+                                        image: drop.image_wide ?? "",
+                                        title: drop.title ?? "",
+                                        destination: DropDetail(drop:drop)
+                                    )
+                                }
+                            }
+                        }
+                        .focusSection()
+                        .introspectScrollView { view in
+                            view.clipsToBounds = false
+                        }
+                    }
+                    
+                    
                     ScrollView (.horizontal, showsIndicators: false) {
-                        LazyHStack(alignment: .top, spacing: 20) {
+                        LazyHStack(alignment: .top, spacing: 52) {
                             ForEach(featured.media) { media in
                                 MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
                                           playerImageOverlayUrl:$playerImageOverlayUrl,
                                           playerTextOverlay:$playerTextOverlay,
                                           display: MediaDisplay.feature)
                             }
-                            /*
-                             ForEach(featured.collections) { collection in
-                             //TODO?
-                             }*/
                             
                             ForEach(featured.items) { nft in
                                 if nft.has_album ?? false {
                                     NFTAlbumView(nft:nft, display: MediaDisplay.feature)
                                 }else {
-                                    NFTView(nft:nft, display: MediaDisplay.feature)
+                                    NFTView<NFTDetail>(
+                                        display: MediaDisplay.feature,
+                                        image: nft.meta.image ?? "",
+                                        title: nft.meta.displayName ?? "",
+                                        subtitle: nft.meta.editionName ?? "",
+                                        propertyLogo: nft.property?.image ?? "",
+                                        propertyName: nft.property?.title ?? "",
+                                        tokenId: nft.token_id_str ?? "",
+                                        destination: NFTDetail(nft: nft)
+                                    )
                                     
                                 }
                             }
@@ -123,7 +150,7 @@ struct MyMediaView: View {
                             ForEach(liveStreams) { media in
                                 Text(media.name)
                                 ScrollView (.horizontal, showsIndicators: false) {
-                                    LazyHStack(alignment: .top, spacing: 20) {
+                                    LazyHStack(alignment: .top, spacing: 52) {
                                         MediaView(media: media,
                                                   showPlayer: $showPlayer, playerItem: $playerItem,
                                                   playerImageOverlayUrl:$playerImageOverlayUrl,
@@ -150,13 +177,22 @@ struct MyMediaView: View {
                         VStack(alignment: .leading, spacing: 40){
                             Text("Items")
                             ScrollView (.horizontal, showsIndicators: false) {
-                                LazyHStack(alignment: .top, spacing: 40) {
+                                LazyHStack(alignment: .top, spacing: 52) {
                                     ForEach(items) { nft in
+                                        
                                         if nft.has_tile{
                                             NFTTileView(nft:nft)
                                         }else{
-                                            NFTView(nft:nft)
-                                                .scaleEffect(0.8, anchor:.topLeading)
+                                             NFTView<NFTDetail>(
+                                                 image: nft.meta.image ?? "",
+                                                 title: nft.meta.displayName ?? "",
+                                                 subtitle: nft.meta.editionName ?? "",
+                                                 propertyLogo: nft.property?.logo ?? "",
+                                                 propertyName: nft.property?.title ?? "",
+                                                 tokenId: "#" + (nft.token_id_str ?? ""),
+                                                 destination: NFTDetail(nft: nft),
+                                                 scale: 0.72
+                                             )
                                         }
                                     }
                                 }
@@ -167,22 +203,47 @@ struct MyMediaView: View {
                         }
                         .focusSection()
                     }
-                    
+
+                    if (!drops.isEmpty){
+                        ForEach(drops) { drop in
+                            VStack(alignment: .leading, spacing: 40){
+                                Text(drop.title ?? "")
+                                ScrollView (.horizontal, showsIndicators: false) {
+                                    LazyHStack(alignment: .top, spacing: 52) {
+                                        ForEach(drop.contents) { nft in
+                                             NFTView<NFTPlayerView>(
+                                                 image: nft.meta.image ?? "",
+                                                 title: nft.meta.displayName ?? "",
+                                                 subtitle: nft.meta.editionName ?? "",
+                                                 propertyLogo: nft.property?.logo ?? "",
+                                                 propertyName: nft.property?.title ?? "",
+                                                 tokenId: nft.token_id_str ?? "",
+                                                 destination: NFTPlayerView(nft:nft),
+                                                 scale: 0.72
+                                             )
+                                        }
+                                    }
+                                }
+                                .introspectScrollView { view in
+                                    view.clipsToBounds = false
+                                }
+                            }
+                        }
+                    }
                 }
                 .padding([.leading,.trailing,.bottom], 80)
             }
-            .focusSection()
             .fullScreenCover(isPresented: $showPlayer) {
                 PlayerView(playerItem:self.$playerItem,
                            playerImageOverlayUrl:$playerImageOverlayUrl,
                            playerTextOverlay:$playerTextOverlay
                 )
-                    .preferredColorScheme(colorScheme)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .preferredColorScheme(colorScheme)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
         }
-        .background(Color.mainBackground)
         .ignoresSafeArea()
+        .background(Color.mainBackground)
         .introspectScrollView { view in
             view.clipsToBounds = false
         }

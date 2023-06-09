@@ -65,6 +65,8 @@ class Fabric: ObservableObject {
     var tenantItems: [JSON] = []  //Array of {"tenant":tenant, "nfts": nfts} objects of the user's items per tenant
     @Published
     var items: [NFTModel] = []
+    @Published
+    var drops : [ProjectModel] = []
 
     @Published
     var videos: [MediaItem] = []
@@ -458,14 +460,14 @@ class Fabric: ObservableObject {
             nftmodel.background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
         }
         
-        print("Getting NFT DATA")
+        //print("Getting NFT DATA")
         guard let tokenUri = nftmodel.token_uri else {
             throw FabricError.invalidURL("token_uri does not exist for \(nftmodel.contract_addr)")
         }
         
         let nftData = try await self.getNFTData(tokenUri: tokenUri)
         nftmodel.meta_full = nftData
-        print("NFT DATA ", nftData)
+        //print("NFT DATA ", nftData)
         
         if nftData["additional_media_sections"].exists() {
             print("additional_media_sections exists for \(nftData["display_name"].stringValue)")
@@ -649,18 +651,111 @@ class Fabric: ObservableObject {
             
             let dollyProp = try await createDollyDemoProp(nfts: nfts)
             
-            let moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:[])
+            /*let moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:[])*/
+            
+            var moonProp = try await createMoonProp(nfts:nfts)
             
             let foxSportsProp = try await createFoxSportsDemoProp(nfts:nfts)
             
-            var items = parsedLibrary.items
+            var items : [NFTModel] = []
+            var dropsDict : [String:ProjectModel] = [:]
+            //var drops : [ProjectModel] = []
 
-            if (!items.isEmpty) {
-                let item = items.remove(at: 0)
-                items.append(item)
+            for var item in parsedLibrary.items {
+                if let attribute = item.meta.attributesDict["Drop"] {
+                    if let attributeValue = attribute.value {
+                        if var proj = dropsDict[attributeValue] {
+                            proj.contents.append(item)
+                            dropsDict[attributeValue] = proj
+                        }else{
+                            var image = ""
+                            var imageWide = ""
+                            var bgImage = ""
+                            var description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                            if attributeValue.contains("Hell"){
+                                image = "Hell in a Cell 1_1"
+                                imageWide = "Hell in a Cell Tile"
+                                bgImage = "Hell in a Cell BG"
+                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Hell in a Cell Case features the biggest moments from Hell in a Cell matches of our current era and from our rich history. Open a Hell in a Cell Case today!"
+                            }else if attributeValue.contains("Money"){
+                                image = "Money in the Bank 1_1"
+                                imageWide = "Money in the Bank Tile"
+                                bgImage = "Money in the Bank BG"
+                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Money in the Bank Case features the biggest moments from Money in the Bank matches of our current era and from our rich history. Open a Money in the Bank Case today!"
+                            }else if attributeValue.contains("Halloween"){
+                                image = "Halloween 1_1"
+                                imageWide = "Halloween Tile"
+                                bgImage = "Halloween BG"
+                                description = "The time for fear is here. Brace yourself for Halloween Drop NFTs featuring the scariest highlights in #WWE history. Things are getting sinister with this limited-edition drop featuring the biggest WWE Superstars and their most terrifying moments. Chills will run up and down your spine as Superstars like Kane, The Boogeyman and Undertaker unleash their carnage before your very eyes."
+                            }else if attributeValue.contains("Castle"){
+                                image = "Clash at the Castle 1_1"
+                                imageWide = "Clash at the Castle Tile"
+                                bgImage = "Clash at the Castle BG"
+                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. Unlock and enjoy this exclusive Clash at the Castle NFT Case, celebrating the first WWE premium live event in the UK in 30 years!"
+                            }else if attributeValue.contains("Summer"){
+                                image = "Summer Slam 1_1"
+                                imageWide = "Summer Slam Tile"
+                                bgImage = "Summer Slam BG"
+                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The SummerSlam Case features the biggest moments from SummerSlam matches of our current era and from our rich history. Open a SummerSlam Case today!"
+                            }else if attributeValue.contains("Survivor"){
+                                image = "Survivor 1_1"
+                                imageWide = "Survivor Tile"
+                                bgImage = "Survivor BG"
+                                description = """
+                                For the first time in WWE history, WWE Superstars will step into a monstrous steel cage encapsulating two rings where anything goes and they’ll battle for glory. As more Superstars enter the rings, the more action packed the perilous combat becomes.
+                                
+                                But, this war is anything but a game. This Survivor Series Drop will feature the WWE Universe’s favorite Superstars, and it’ll mean giving your all on the battlefield to snag the victor.
+
+                                Fight for your fandom. Claim yours now on November 18th.
+                                """
+                            }
+
+                            var newProj = ProjectModel(title:attributeValue,
+                                                       description: description,
+                                                       image:image,
+                                                       image_wide:imageWide,
+                                                       background_image_tv: bgImage)
+                            item.property = moonProp
+                            newProj.contents.append(item)
+                            newProj.property = moonProp
+                            dropsDict[attributeValue] = newProj
+
+                        }
+                    }
+                }else {
+                    
+                    if let name = item.meta.displayName {
+                        if name.contains("Ring"){
+                            item.property = wbProp
+                        }else if name.contains("Run"){
+                            item.property = dollyProp
+                        }else if name.contains("Fox"){
+                            item.property = foxSportsProp
+                        }else if name.contains("Eluvio"){
+                            item.property = eluvioProp
+                        }
+                    }
+                    
+                    items.append(item)
+                }
             }
             
+            
+            
             self.items = items
+            moonProp.contents = Array(dropsDict.values)
+            
+            if (!moonProp.contents.isEmpty){
+                print( moonProp.contents[0])
+                
+                do {
+                    let jsonData = try JSONEncoder().encode(moonProp.contents[0])
+                    let jsonString = String(data: jsonData, encoding: .utf8)!
+                    print(jsonString) // [{"sentence":"Hello world","lang":"en"},{"sentence":"Hallo Welt","lang":"de"}]
+                    
+                } catch { print(error) }
+                
+            }
             
             properties = [
                 foxSportsProp,
@@ -670,10 +765,35 @@ class Fabric: ObservableObject {
             ]
             
             self.properties = properties
+            self.drops = moonProp.contents
                 
         }catch{
             print ("Refresh Error: \(error)")
         }
+    }
+    
+    func createMoonProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let richText = nft["meta"]["rich_text"].stringValue
+            if richText.contains("moonsault") {
+                demoNfts.append(nft)
+            }
+        }
+        
+        print("MOON NFTS: ", nfts)
+        
+        let demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+        demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
+        demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+        demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
+
+        
+        let prop = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault-search", heroImage:"MoonSault_TopImage", items:[])
+        
+        return prop
     }
     
     func createWbDemoProp(nfts:[JSON]) async throws -> PropertyModel {
@@ -705,7 +825,7 @@ class Fabric: ObservableObject {
             newItems.append(item)
         }
         
-        var prop = CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
+        let prop = CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
                                     featured: demoLib.featured, media: demoMedia, liveStreams: demoLib.liveStreams, items:newItems)
         
         return prop
@@ -1092,6 +1212,31 @@ class Fabric: ObservableObject {
         return address
     }
     
+    func getOptionsJsonFromHash(versionHash: String) async throws -> JSON {
+        var path = "/q/" + versionHash + "/meta/public/asset_metadata/sources/default"
+        guard let url = URL(string:try self.getEndpoint()) else {
+            throw FabricError.configError("getNFTData: could not get fabric endpoint")
+        }
+        var components = URLComponents()
+        components.scheme = url.scheme
+        components.host = url.host
+        components.path = path
+        components.queryItems = [
+            URLQueryItem(name: "link_depth", value: "1"),
+            URLQueryItem(name: "resolve", value: "true"),
+            URLQueryItem(name: "resolve_include_source", value: "true"),
+            URLQueryItem(name: "resolve_ignore_errors", value: "true")
+        ]
+
+        guard let newUrl = components.url else {
+            throw FabricError.invalidURL("getNFTData: could not create url from components. \(components)")
+        }
+                                    
+        print("GET ",newUrl)
+
+        return try await self.getJsonRequest(url: newUrl.absoluteString)
+    }
+    
     //Given a token uri with suffix /meta/public/nft, we retrieve the full one
     // with /meta/public/asset_metadata/nft
     func getNFTData(tokenUri: String ) async throws -> JSON {
@@ -1269,7 +1414,7 @@ class Fabric: ObservableObject {
         return try getUrlFromLink(link:link, baseUrl: baseUrl, params: params, includeAuth: true)
     }
     
-    func getUrlFromLink(link: JSON?, baseUrl: String? = nil, params: [JSON] = [], includeAuth: Bool? = true, resolveHeaders: Bool? = false) throws -> String {
+    func getUrlFromLink(link: JSON?, baseUrl: String? = nil, params: [JSON]? = [], includeAuth: Bool? = true, resolveHeaders: Bool? = false) throws -> String {
         guard let link = link else{
             throw FabricError.badInput("getUrlFromLink: Link is nil")
         }
@@ -1318,7 +1463,7 @@ class Fabric: ObservableObject {
         
         components.queryItems = queryItems
         
-        for param in params {
+        for param in params! {
             if let name = param["name"].string {
                 if let value = param["value"].string {
                     components.queryItems?.append(URLQueryItem(name: name , value: value))

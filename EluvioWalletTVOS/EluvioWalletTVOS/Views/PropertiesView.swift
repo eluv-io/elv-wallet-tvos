@@ -14,11 +14,21 @@ struct PropertyView : View {
     
     var items : [NFTModel] {
 
-        if property.contents.isEmpty {
+        if property.contents.isEmpty || property.contents.count > 1{
             return []
         }
         //print("Property contents \(property)")
         return property.contents[0].contents
+    }
+    
+    var drops : [ProjectModel] {
+        
+        //XXX: Demo only. If we have multiple projects, we want to display it. Otherwise default project has nothing
+        if property.contents.count > 1 {
+            return property.contents
+        }
+        
+        return []
     }
     
     var body: some View {
@@ -27,6 +37,7 @@ struct PropertyView : View {
                                                    library: property.media,
                                                    albums: property.albums,
                                                    items: items,
+                                                   drops: drops,
                                                    liveStreams: property.live_streams,
                                                    heroImage: property.heroImage
                                                   )

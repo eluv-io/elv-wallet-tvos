@@ -25,7 +25,11 @@ struct PropertyModel: Identifiable, Codable  {
 struct ProjectModel: Identifiable, Codable {
     var id: String? = UUID().uuidString
     var title: String? = ""
+    var description: String? = ""
     var image: String? = ""
+    var image_wide: String? = ""
+    var background_image_tv: String? = ""
     var parent_id: String? = ""
+    var property: PropertyModel? = nil
     var contents: [NFTModel] = []
 }

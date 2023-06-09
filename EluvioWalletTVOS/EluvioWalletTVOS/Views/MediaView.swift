@@ -24,7 +24,7 @@ struct MediaCollectionView: View {
     
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(alignment: .top, spacing: 20) {
+            HStack(alignment: .top, spacing: 52) {
                 ForEach(self.mediaCollection.media) {media in
                     MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
                               playerImageOverlayUrl:$playerImageOverlayUrl,
@@ -76,6 +76,7 @@ struct NFTMediaView: View {
                                 }
 
                                 var optionsUrl = try fabric.getUrlFromLink(link: media?.media_link?["sources"]["default"], params: media?.parameters ?? [] )
+                                
                                 
                                 //There's no offering other than sources.default
                                 //let optionsUrl = try fabric.getOptionsFromLink(resolvedLink: media?.media_link, offering: offering)
@@ -197,18 +198,21 @@ struct NFTMediaView: View {
 
 func MakePlayerItem(fabric: Fabric, media: MediaItem?) async throws -> AVPlayerItem {
 
-        var offering = "default"
+    var offering = "default"
 
-        if (media?.offerings?.count ?? 0 > 0){
-            offering = media?.offerings?[0] ?? "default"
-        }
+    if (media?.offerings?.count ?? 0 > 0){
+        offering = media?.offerings?[0] ?? "default"
+    }
 
-        var optionsUrl = try fabric.getUrlFromLink(link: media?.media_link?["sources"]["default"], params: media?.parameters ?? [] )
+    return try await MakePlayerItemFromLink(fabric:fabric, link: media?.media_link?["sources"]["default"], params: media?.parameters)
+}
+
+func MakePlayerItemFromLink(fabric: Fabric, link: JSON?, params: [JSON]? = [], offering: String = "default") async throws -> AVPlayerItem {
+
+        var optionsUrl = try fabric.getUrlFromLink(link: link, params: params)
         
         //There's no offering other than sources.default
-        //let optionsUrl = try fabric.getOptionsFromLink(resolvedLink: media?.media_link, offering: offering)
 
-        
         if(offering != "default" && optionsUrl.contains("default/options.json")){
             optionsUrl = optionsUrl.replaceFirst(of: "default/options.json", with: "\(offering)/options.json")
         }
@@ -253,6 +257,42 @@ func MakePlayerItem(fabric: Fabric, media: MediaItem?) async throws -> AVPlayerI
         }else{
             throw RuntimeError("No available playback options \(optionsJson)")
         }
+}
+
+func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHash: String, offering: String = "Default") throws -> AVPlayerItem {
+    var hlsPlaylistUrl: String = ""
+    
+    guard let options = optionsJson else {
+        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
+    }
+    
+    if options["hls-clear"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-clear")
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
+    }else if options["hls-fairplay"].exists() {
+        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+        
+        if(licenseServer.isEmpty)
+        {
+            throw RuntimeError("Error getting licenseServer")
+        }
+        print("license_server \(licenseServer)")
+        
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-fairplay", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+        return AVPlayerItem(asset: urlAsset)
+        
+    }else{
+        throw RuntimeError("No available playback options \(options)")
+    }
 }
 
 struct MediaView: View {
@@ -412,15 +452,15 @@ struct MediaCard: View {
             }else if (isUpcoming){
                 VStack(alignment: .trailing, spacing: 7) {
                     Spacer()
-                    Text(title.capitalized)
+                    Text(title)
                         .foregroundColor(Color.white)
                         .font(.subheadline)
-                    Text(subtitle.capitalized)
+                    Text(subtitle)
                         .foregroundColor(Color.white)
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
                 .padding(20)
-                .background(Color.black.opacity(0.6))
+                .background(Color.black.opacity(0.8))
             }
             
             if (isLive){

@@ -169,6 +169,19 @@ func FindContentHash(uri: String) -> String? {
         }
     }
     
+    //try searching params (for embed
+    do {
+        let regexp = try Regex("hq__[^&/]+")
+        if let result = uri.firstMatch(of: regexp) {
+            print(result.output)
+            if let sub  = result.output[0].substring {
+                return String(sub)
+            }
+        }
+    }catch{
+        print("Error in FindContentHash ", uri)
+    }
+    
     return nil
 }
 
