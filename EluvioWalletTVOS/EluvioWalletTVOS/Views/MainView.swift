@@ -88,11 +88,10 @@ struct MainView: View {
             }
         }
         .onChange(of: selection){ newValue in
-            if (newValue == Tab.Items){
-                //Task {
-                    //TOO SLOW!!
-                    //await fabric.refresh()
-                //}
+            if (newValue == Tab.Profile){
+                Task {
+                    await fabric.refresh()
+                }
             }
         }
     }

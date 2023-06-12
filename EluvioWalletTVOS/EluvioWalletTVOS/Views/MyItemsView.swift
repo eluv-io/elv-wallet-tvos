@@ -28,9 +28,6 @@ struct MyItemsView: View {
                 NFTGrid(nfts:nfts, drops:drops)
             }
         }
-        .onAppear(){
-            print("DROPS: ", drops)
-        }
         .ignoresSafeArea()
         .introspectScrollView { view in
             view.clipsToBounds = false

@@ -77,7 +77,7 @@ struct DropDetail: View {
                                              image: nft.meta.image ?? "",
                                              title: nft.meta.displayName ?? "",
                                              subtitle: nft.meta.editionName ?? "",
-                                             propertyLogo: nft.property?.image ?? "",
+                                             propertyLogo: nft.property?.logo ?? "",
                                              propertyName: nft.property?.title ?? "",
                                              tokenId: nft.token_id_str ?? "",
                                              destination: NFTPlayerView(nft:nft),

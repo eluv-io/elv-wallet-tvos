@@ -145,7 +145,7 @@ struct NFTDetailView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
             .onAppear(){
-                print("NFT Attributes: \(self.nft.meta.attributesDict)")
+                //print("NFT: \(self.nft)")
                 
                 
                 if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
@@ -202,6 +202,8 @@ struct NFTDetail: View {
         }
         .background(Color.secondaryBackground)
         .task(){
+            print("NFT additional_media_sections: \(self.nft)")
+            
             if let additions = nft.additional_media_sections {
                 self.featuredMedia = additions.featured_media
                 

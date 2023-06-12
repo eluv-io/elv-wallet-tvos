@@ -167,7 +167,7 @@ struct MediaCollection: FeatureProtocol, Equatable, Hashable {
 struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var image: JSON?
-    var video: String?
+    var video: JSON?
     var name: String = ""
     var image_aspect_ratio: String?
     var description: String?
@@ -175,7 +175,7 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     init (){
         id = UUID().uuidString
         image = nil
-        video = ""
+        video = nil
         name = ""
         image_aspect_ratio = ""
         description = ""
@@ -184,7 +184,7 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
-        video = try container.decodeIfPresent(String.self, forKey: .video) ?? ""
+        video = try container.decodeIfPresent(JSON.self, forKey: .video) ?? nil
         name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
         image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio) ?? ""
         description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""

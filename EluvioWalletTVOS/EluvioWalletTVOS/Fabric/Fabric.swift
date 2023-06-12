@@ -95,6 +95,9 @@ class Fabric: ObservableObject {
     @Published
     var currentPropertyIndex = 0
     
+    @Published
+    var isRefreshing = false
+    
     
     var currentProperty: JSON {
         if (self.tenants[currentTenantIndex]["properties"].arrayValue.count == 0){
@@ -596,6 +599,15 @@ class Fabric: ObservableObject {
         if self.login == nil {
             return
         }
+        
+        if self.isRefreshing {
+            return
+        }
+        self.isRefreshing = true
+        defer{
+            isRefreshing = false
+        }
+        
         do{
             /*var featured: [AnyHashable] = []
             var videos: [MediaItem] = []
@@ -651,20 +663,19 @@ class Fabric: ObservableObject {
             
             let dollyProp = try await createDollyDemoProp(nfts: nfts)
             
-            /*let moonProp = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault", heroImage:"WWEMoonSault_TopImage", featured: self.featured, media: library, items:[])*/
-            
             var moonProp = try await createMoonProp(nfts:nfts)
             
             let foxSportsProp = try await createFoxSportsDemoProp(nfts:nfts)
             
             var items : [NFTModel] = []
             var dropsDict : [String:ProjectModel] = [:]
-            //var drops : [ProjectModel] = []
+            var drops : [ProjectModel] = []
 
             for var item in parsedLibrary.items {
                 if let attribute = item.meta.attributesDict["Drop"] {
                     if let attributeValue = attribute.value {
                         if var proj = dropsDict[attributeValue] {
+                            item.property = moonProp
                             proj.contents.append(item)
                             dropsDict[attributeValue] = proj
                         }else{
@@ -683,9 +694,9 @@ class Fabric: ObservableObject {
                                 bgImage = "Money in the Bank BG"
                                 description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Money in the Bank Case features the biggest moments from Money in the Bank matches of our current era and from our rich history. Open a Money in the Bank Case today!"
                             }else if attributeValue.contains("Halloween"){
-                                image = "Halloween 1_1"
-                                imageWide = "Halloween Tile"
-                                bgImage = "Halloween BG"
+                                image = "Halloween 1_1-v2"
+                                imageWide = "Halloween Tile-v2"
+                                bgImage = "Halloween BG-v2"
                                 description = "The time for fear is here. Brace yourself for Halloween Drop NFTs featuring the scariest highlights in #WWE history. Things are getting sinister with this limited-edition drop featuring the biggest WWE Superstars and their most terrifying moments. Chills will run up and down your spine as Superstars like Kane, The Boogeyman and Undertaker unleash their carnage before your very eyes."
                             }else if attributeValue.contains("Castle"){
                                 image = "Clash at the Castle 1_1"
@@ -719,7 +730,7 @@ class Fabric: ObservableObject {
                             newProj.contents.append(item)
                             newProj.property = moonProp
                             dropsDict[attributeValue] = newProj
-
+                            drops.append(newProj)
                         }
                     }
                 }else {
@@ -743,8 +754,10 @@ class Fabric: ObservableObject {
             
             
             self.items = items
-            moonProp.contents = Array(dropsDict.values)
             
+            let sorted = dropsDict.sorted { $0.key < $1.key }
+            moonProp.contents = Array(sorted.map({ $0.value }))
+            /*
             if (!moonProp.contents.isEmpty){
                 print( moonProp.contents[0])
                 
@@ -755,7 +768,7 @@ class Fabric: ObservableObject {
                     
                 } catch { print(error) }
                 
-            }
+            }*/
             
             properties = [
                 foxSportsProp,
@@ -781,7 +794,7 @@ class Fabric: ObservableObject {
             }
         }
         
-        print("MOON NFTS: ", nfts)
+        //print("MOON NFTS: ", nfts)
         
         let demoLib = try await parseNfts(demoNfts)
         var demoMedia : [MediaCollection] = []
@@ -791,7 +804,7 @@ class Fabric: ObservableObject {
         demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
 
         
-        let prop = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault-search", heroImage:"MoonSault_TopImage", items:[])
+        let prop = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault-search-v2", heroImage:"MoonSault TopImage-v2", items:[])
         
         return prop
     }
@@ -801,6 +814,8 @@ class Fabric: ObservableObject {
         for nft in nfts{
             let name = nft["contract_name"].stringValue
             if name.contains("Rings") {
+                demoNfts.append(nft)
+            }else if name.contains("Superman") {
                 demoNfts.append(nft)
             }
         }
@@ -866,7 +881,7 @@ class Fabric: ObservableObject {
         
         var streams : [MediaItem] = []
         for var item in demoLib.liveStreams{
-            print("STREAM : ", item.name)
+            //print("STREAM : ", item.name)
             if item.name.contains("KSAZ") {
                 var schedule: [MediaItem] = []
                 var media = MediaItem()
