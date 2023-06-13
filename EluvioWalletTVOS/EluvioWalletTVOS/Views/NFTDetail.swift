@@ -155,7 +155,7 @@ struct NFTDetailView: View {
                 }else{
                     var imageLink: JSON? = nil
                     do {
-                        print("TV BG Image ", nft.background_image_tv)
+                        //print("TV BG Image ", nft.background_image_tv)
                         if let bg = nft.background_image_tv {
                             if bg != "" {
                                 self.backgroundImageUrl = bg
@@ -204,7 +204,7 @@ struct NFTDetail: View {
         }
         .background(Color.secondaryBackground)
         .task(){
-            print("NFT additional_media_sections: \(self.nft)")
+            //print("NFT additional_media_sections: \(self.nft)")
             
             if let additions = nft.additional_media_sections {
                 self.featuredMedia = additions.featured_media
@@ -217,7 +217,7 @@ struct NFTDetail: View {
                 }
                 
                 self.collections = collections
-                print("FEATURED: ",featuredMedia)
+                //print("FEATURED: ",featuredMedia)
             }
             
             let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)

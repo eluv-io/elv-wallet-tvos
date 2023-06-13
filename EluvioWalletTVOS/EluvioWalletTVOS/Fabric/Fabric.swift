@@ -400,7 +400,7 @@ class Fabric: ObservableObject {
                 //print("Parsed Galleries: \(parsedModels.galleries)")
                 //print("Parsed Galleries: \(parsedModels.images)")
                 //print("Parsed Albums: \(parsedModels.albums)")
-                print("NFT: \(model.contract_name)")
+                //print("NFT: \(model.contract_name)")
                 //print("Parsed HTML: \(parsedModels.html)")
                 //print("Parsed Books: \(parsedModels.books)")
                 
@@ -437,7 +437,7 @@ class Fabric: ObservableObject {
     
     func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:Features, videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
         
-        print("Parse NFT")
+        //print("Parse NFT")
         
         var featured = Features()
         var videos: [MediaItem] = []
@@ -451,10 +451,10 @@ class Fabric: ObservableObject {
         //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
         let data = try nft.rawData()
         
-        print("DATA ",nft)
-        print("before decoding ")
+        //print("DATA ",nft)
+        //print("before decoding ")
         var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
-        print("after decoding ", nftmodel)
+        //print("after decoding ", nftmodel)
         if (nftmodel.id == nil){
             nftmodel.id = nftmodel.contract_addr
         }
