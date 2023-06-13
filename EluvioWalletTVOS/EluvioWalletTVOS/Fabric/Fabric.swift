@@ -446,6 +446,7 @@ class Fabric: ObservableObject {
         var html: [MediaItem] = []
         var books: [MediaItem] = []
         var liveStreams: [MediaItem] = []
+        var redeemables: [Redeemable]
         
         //print(nft)
         //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
@@ -471,6 +472,19 @@ class Fabric: ObservableObject {
         let nftData = try await self.getNFTData(tokenUri: tokenUri)
         nftmodel.meta_full = nftData
         //print("NFT DATA ", nftData)
+        
+        if nftData["redeemable_offers"].exists() {
+            print("redeemable_offers exists for \(nftData["display_name"].stringValue)")
+            do {
+                nftmodel.redeemable_offers = try JSONDecoder().decode([Redeemable].self, from: nftData["redeemable_offers"].rawData())
+                
+                //print("DECODED: \(nftmodel.additional_media_sections)")
+                //print("FOR JSON: \(try nftData["additional_media_sections"].rawData().prettyPrintedJSONString ?? "")")
+            }catch{
+                print("Error decoding redeemable_offers for \(nftmodel.contract_name ?? ""): \(error)")
+            }
+        }
+        
         
         if nftData["additional_media_sections"].exists() {
             print("additional_media_sections exists for \(nftData["display_name"].stringValue)")
@@ -528,7 +542,7 @@ class Fabric: ObservableObject {
                 //Parsing featured_media to find videos
                 for index in 0..<mediaSections.featured_media.count{
                     var media = mediaSections.featured_media[index]
-                    print("Media ", media)
+                    //print("Media ", media)
                     if let mediaType = media.media_type {
                         if mediaType == "Video"{
                             hasPlayableMedia = true
@@ -672,71 +686,76 @@ class Fabric: ObservableObject {
             var drops : [ProjectModel] = []
 
             for var item in parsedLibrary.items {
-                if let attribute = item.meta.attributesDict["Drop"] {
-                    if let attributeValue = attribute.value {
-                        if var proj = dropsDict[attributeValue] {
-                            item.property = moonProp
-                            proj.contents.append(item)
-                            dropsDict[attributeValue] = proj
-                        }else{
-                            var image = ""
-                            var imageWide = ""
-                            var bgImage = ""
-                            var description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                            if attributeValue.contains("Hell"){
-                                image = "Hell in a Cell 1_1"
-                                imageWide = "Hell in a Cell Tile"
-                                bgImage = "Hell in a Cell BG"
-                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Hell in a Cell Case features the biggest moments from Hell in a Cell matches of our current era and from our rich history. Open a Hell in a Cell Case today!"
-                            }else if attributeValue.contains("Money"){
-                                image = "Money in the Bank 1_1"
-                                imageWide = "Money in the Bank Tile"
-                                bgImage = "Money in the Bank BG"
-                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Money in the Bank Case features the biggest moments from Money in the Bank matches of our current era and from our rich history. Open a Money in the Bank Case today!"
-                            }else if attributeValue.contains("Halloween"){
-                                image = "Halloween 1_1-v2"
-                                imageWide = "Halloween Tile-v2"
-                                bgImage = "Halloween BG-v2"
-                                description = "The time for fear is here. Brace yourself for Halloween Drop NFTs featuring the scariest highlights in #WWE history. Things are getting sinister with this limited-edition drop featuring the biggest WWE Superstars and their most terrifying moments. Chills will run up and down your spine as Superstars like Kane, The Boogeyman and Undertaker unleash their carnage before your very eyes."
-                            }else if attributeValue.contains("Castle"){
-                                image = "Clash at the Castle 1_1"
-                                imageWide = "Clash at the Castle Tile"
-                                bgImage = "Clash at the Castle BG"
-                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. Unlock and enjoy this exclusive Clash at the Castle NFT Case, celebrating the first WWE premium live event in the UK in 30 years!"
-                            }else if attributeValue.contains("Summer"){
-                                image = "Summer Slam 1_1"
-                                imageWide = "Summer Slam Tile"
-                                bgImage = "Summer Slam BG"
-                                description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The SummerSlam Case features the biggest moments from SummerSlam matches of our current era and from our rich history. Open a SummerSlam Case today!"
-                            }else if attributeValue.contains("Survivor"){
-                                image = "Survivor 1_1"
-                                imageWide = "Survivor Tile"
-                                bgImage = "Survivor BG"
-                                description = """
+                guard let name = item.contract_name else{
+                    continue
+                }
+                //if !name.contains("Superman"){
+                if let attribute = item.meta.attributesDict["Drop"], !name.contains("Superman"){
+                        if let attributeValue = attribute.value {
+                            if var proj = dropsDict[attributeValue] {
+                                item.property = moonProp
+                                proj.contents.append(item)
+                                dropsDict[attributeValue] = proj
+                            }else{
+                                var image = ""
+                                var imageWide = ""
+                                var bgImage = ""
+                                var description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                                if attributeValue.contains("Hell"){
+                                    image = "Hell in a Cell 1_1"
+                                    imageWide = "Hell in a Cell Tile"
+                                    bgImage = "Hell in a Cell BG"
+                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Hell in a Cell Case features the biggest moments from Hell in a Cell matches of our current era and from our rich history. Open a Hell in a Cell Case today!"
+                                }else if attributeValue.contains("Money"){
+                                    image = "Money in the Bank 1_1"
+                                    imageWide = "Money in the Bank Tile"
+                                    bgImage = "Money in the Bank BG"
+                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Money in the Bank Case features the biggest moments from Money in the Bank matches of our current era and from our rich history. Open a Money in the Bank Case today!"
+                                }else if attributeValue.contains("Halloween"){
+                                    image = "Halloween 1_1-v2"
+                                    imageWide = "Halloween Tile-v2"
+                                    bgImage = "Halloween BG-v2"
+                                    description = "The time for fear is here. Brace yourself for Halloween Drop NFTs featuring the scariest highlights in #WWE history. Things are getting sinister with this limited-edition drop featuring the biggest WWE Superstars and their most terrifying moments. Chills will run up and down your spine as Superstars like Kane, The Boogeyman and Undertaker unleash their carnage before your very eyes."
+                                }else if attributeValue.contains("Castle"){
+                                    image = "Clash at the Castle 1_1"
+                                    imageWide = "Clash at the Castle Tile"
+                                    bgImage = "Clash at the Castle BG"
+                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. Unlock and enjoy this exclusive Clash at the Castle NFT Case, celebrating the first WWE premium live event in the UK in 30 years!"
+                                }else if attributeValue.contains("Summer"){
+                                    image = "Summer Slam 1_1"
+                                    imageWide = "Summer Slam Tile"
+                                    bgImage = "Summer Slam BG"
+                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The SummerSlam Case features the biggest moments from SummerSlam matches of our current era and from our rich history. Open a SummerSlam Case today!"
+                                }else if attributeValue.contains("Survivor"){
+                                    image = "Survivor 1_1"
+                                    imageWide = "Survivor Tile"
+                                    bgImage = "Survivor BG"
+                                    description = """
                                 For the first time in WWE history, WWE Superstars will step into a monstrous steel cage encapsulating two rings where anything goes and they’ll battle for glory. As more Superstars enter the rings, the more action packed the perilous combat becomes.
                                 
                                 But, this war is anything but a game. This Survivor Series Drop will feature the WWE Universe’s favorite Superstars, and it’ll mean giving your all on the battlefield to snag the victor.
-
+                                
                                 Fight for your fandom. Claim yours now on November 18th.
                                 """
+                                }
+                                
+                                var newProj = ProjectModel(title:attributeValue,
+                                                           description: description,
+                                                           image:image,
+                                                           image_wide:imageWide,
+                                                           background_image_tv: bgImage)
+                                item.property = moonProp
+                                newProj.contents.append(item)
+                                newProj.property = moonProp
+                                dropsDict[attributeValue] = newProj
+                                drops.append(newProj)
                             }
-
-                            var newProj = ProjectModel(title:attributeValue,
-                                                       description: description,
-                                                       image:image,
-                                                       image_wide:imageWide,
-                                                       background_image_tv: bgImage)
-                            item.property = moonProp
-                            newProj.contents.append(item)
-                            newProj.property = moonProp
-                            dropsDict[attributeValue] = newProj
-                            drops.append(newProj)
                         }
-                    }
+                    //}
                 }else {
                     
                     if let name = item.meta.displayName {
-                        if name.contains("Ring"){
+                        if name.contains("Ring") || name.contains("Superman"){
                             item.property = wbProp
                         }else if name.contains("Run"){
                             item.property = dollyProp
@@ -1249,7 +1268,7 @@ class Fabric: ObservableObject {
             throw FabricError.invalidURL("getNFTData: could not create url from components. \(components)")
         }
                                     
-        print("GET ",newUrl)
+        //print("GET ",newUrl)
 
         return try await self.getJsonRequest(url: newUrl.absoluteString)
     }
@@ -1299,8 +1318,8 @@ class Fabric: ObservableObject {
                              "Accept": "application/json",
                              "Content-Type": "application/json" ]
                     
-                    print("GET ",newUrl)
-                    print("HEADERS ", headers)
+                    //print("GET ",newUrl)
+                    //print("HEADERS ", headers)
                     
                     AF.request(newUrl, headers:headers)
                         .responseJSON { response in
@@ -1508,8 +1527,8 @@ class Fabric: ObservableObject {
                 headers["Authorization"] =  "Bearer \(token)"
             }
             
-            print("GET ",url)
-            print("HEADERS ", headers)
+            //print("GET ",url)
+            //print("HEADERS ", headers)
             
             AF.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers:headers)
                 .responseJSON { response in

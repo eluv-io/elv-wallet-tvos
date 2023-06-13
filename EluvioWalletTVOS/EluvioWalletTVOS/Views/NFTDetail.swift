@@ -29,6 +29,8 @@ struct NFTDetailView: View {
     @State var playerTextOverlay : String = ""
     @State var backgroundImageUrl : String = ""
     @FocusState private var headerFocused: Bool
+    @State private var redeemableFeatures: [RedeemableViewModel] = []
+    
     var body: some View {
         ZStack(alignment:.topLeading) {
             if (self.backgroundImageUrl.hasPrefix("http")){
@@ -108,6 +110,20 @@ struct NFTDetailView: View {
                                                 )
                                             }
                                         }
+                                        
+                                        ForEach(self.redeemableFeatures) {redeemable in
+                                            /*
+                                            WebImage(url: URL(string: redeemable.imageUrl))
+                                                .resizable()
+                                                .indicator(.activity) // Activity Indicator
+                                                .transition(.fade(duration: 0.5))
+                                                .aspectRatio(contentMode: .fill)
+                                                .frame(width:300, height:300)
+                                                .clipped()
+                                             */
+                                            RedeemableCardView(redeemable:redeemable)
+                                        }
+                                        
                                     }
                                     .padding(20)
                                 }
@@ -147,8 +163,7 @@ struct NFTDetailView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
             .onAppear(){
-                //print("NFT: \(self.nft)")
-                
+                //print("NFT META: \(self.nft.meta_full)")
                 
                 if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                     self.backgroundImageUrl = "https://picsum.photos/600/800"
@@ -178,6 +193,39 @@ struct NFTDetailView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
                     headerFocused = true
                 }*/
+                
+               Task {
+                   do{
+                        if let redeemableOffers = nft.redeemable_offers {
+                            //print("RedeemableOffers ", redeemableOffers)
+                            if !redeemableOffers.isEmpty {
+                                var redeemableFeatures: [RedeemableViewModel] = []
+                                for redeemable in redeemableOffers {
+                                    var animationItem : AVPlayerItem? = nil
+                                    if let animationLink = redeemable.animation?["sources"]["default"] {
+                                        animationItem = try await MakePlayerItemFromLink(fabric: fabric, link: animationLink)
+                                    }
+                                    let imageUrl = try fabric.getUrlFromLink(link: redeemable.image)
+                                    let isRedeemed = true //TODO: get the status
+                                    
+                                    let redeem = RedeemableViewModel(id:redeemable.id,
+                                                                     expiresAt: redeemable.expires_at ?? "",
+                                                                     name: redeemable.name ?? "",
+                                                                     animationPlayerItem: animationItem,
+                                                                     availableAt: redeemable.available_at ?? "",
+                                                                     isRedeemed: isRedeemed,
+                                                                     imageUrl: imageUrl)
+                                    //print("redeemViewModel ", redeem)
+                                    
+                                    redeemableFeatures.append(redeem)
+                                }
+                                self.redeemableFeatures = redeemableFeatures
+                            }
+                        }
+                   }catch{
+                       print("Error getting redemption animation ", error)
+                   }
+                }
             }
         }
         .background(Color.mainBackground)

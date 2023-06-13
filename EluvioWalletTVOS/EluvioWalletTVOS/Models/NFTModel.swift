@@ -8,6 +8,29 @@
 import Foundation
 import SwiftUI
 import SwiftyJSON
+import AVKit
+
+struct RedeemableViewModel: Identifiable {
+    var id: String? = UUID().uuidString
+    var expiresAt: String = ""
+    var name: String = ""
+    var animationPlayerItem: AVPlayerItem?
+    var availableAt: String = ""
+    var isRedeemed: Bool = false
+    var imageUrl: String = ""
+}
+
+struct Redeemable: FeatureProtocol {
+    var id: String? = UUID().uuidString
+    var expires_at: String?
+    var name: String?
+    var sources: JSON?
+    var animation: JSON?
+    var available_at: String?
+    var offer_id: String?
+    var image: JSON?
+    var visibilty: JSON?
+}
 
 struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
@@ -23,6 +46,8 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var token_owner: String?
     var token_uri: String?
     var meta : NFTMetaResponse = NFTMetaResponse()
+    
+    //TODO: Move to a ViewModel
     var meta_full: JSON?
     var has_playable_feature : Bool?
     var has_album: Bool? = false
@@ -31,6 +56,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var project : ProjectModel? = nil
     var background_image_tv: String? = "" //XXX: Demo only
     var title_image: String? = "" //XXX: Demo only
+    var redeemable_offers: [Redeemable]?
     
     var has_tile: Bool {
         

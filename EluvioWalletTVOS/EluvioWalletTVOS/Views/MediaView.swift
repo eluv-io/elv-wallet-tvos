@@ -403,34 +403,81 @@ struct MediaView: View {
     }
 }
 
+struct RedeemableCardView: View {
+    @EnvironmentObject var fabric: Fabric
+    @State var redeemable: RedeemableViewModel
+    @FocusState var isFocused
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Button(action: {
+                
+            }) {
+                MediaCard(image:redeemable.imageUrl,
+                          //playerItem: redeemable.animationPlayerItem,  //TODO:
+                          isFocused:isFocused,
+                          title: redeemable.name
+                )
+            }
+            .buttonStyle(TitleButtonStyle(focused: isFocused))
+            .focused($isFocused)
+            .overlay(content: {
+                
+            })
+        }
+    }
+}
+
 struct MediaCard: View {
     var display: MediaDisplay = MediaDisplay.apps
     var image: String = ""
+    var playerItem: AVPlayerItem? = nil
     var isFocused: Bool = false
     var isUpcoming: Bool = false
     var title: String = ""
     var subtitle: String = ""
     var isLive: Bool = false
+    @State var player = AVPlayer()
+
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
     @State var cornerRadius: CGFloat = 3
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var newItem : Bool = true
     
     var body: some View {
         ZStack{
-            if (image.hasPrefix("http")){
-                WebImage(url: URL(string: image))
-                    .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame( width: width, height: height)
-                    .cornerRadius(cornerRadius)
-            }else if (image != ""){
-               Image(image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame( width: width, height: height)
-                    .cornerRadius(cornerRadius)
+            if (playerItem != nil){
+                VideoPlayer(player: player)
+                    .frame(width:width, height:height, alignment: .center)
+                    .onChange(of: playerItem) { value in
+                        if (self.playerItem != nil) {
+                            self.player.replaceCurrentItem(with: self.playerItem)
+                        }
+                    }
+                    .onReceive(timer) { time in
+                        if (newItem && self.playerItem?.status == .readyToPlay){
+                            self.player.play()
+                            print("Play!!")
+                            newItem = false
+                        }
+                    }
+            }else{
+                if (image.hasPrefix("http")){
+                    WebImage(url: URL(string: image))
+                        .resizable()
+                        .indicator(.activity) // Activity Indicator
+                        .transition(.fade(duration: 0.5))
+                        .aspectRatio(contentMode: .fill)
+                        .frame( width: width, height: height)
+                        .cornerRadius(cornerRadius)
+                }else if (image != ""){
+                    Image(image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame( width: width, height: height)
+                        .cornerRadius(cornerRadius)
+                }
             }
 
             if (isFocused){
@@ -480,6 +527,8 @@ struct MediaCard: View {
         }
         .frame( width: width, height: height)
         .onAppear(){
+            self.player.replaceCurrentItem(with: self.playerItem)
+            print("PlayerView: replaced current Item \(self.playerItem?.asset)")
             if display == MediaDisplay.feature {
                 width = 400
                 height = 560
