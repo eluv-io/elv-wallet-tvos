@@ -804,7 +804,7 @@ class Fabric: ObservableObject {
         demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
 
         
-        let prop = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault-search-v2", heroImage:"MoonSault TopImage-v2", items:[])
+        let prop = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault-search-v4", heroImage:"MoonSault TopImage-v4", items:[])
         
         return prop
     }
@@ -835,6 +835,8 @@ class Fabric: ObservableObject {
                     item.title_image = "LOTR_Tile Group_Epic"
                 }else  if name.contains("Shire") {
                     item.title_image = "LOTR_Tile Group_Shire"
+                }else if name.contains("Superman"){
+                    item.title_image = "WB_Superman_Hope_Tile Group"
                 }
             }
             newItems.append(item)

@@ -67,11 +67,13 @@ struct NFTDetailView: View {
                                         .foregroundColor(Color.white)
                                         .padding(.top)
                                         .frame(maxWidth:1200, alignment:.leading)
+                                        .lineLimit(5)
                                 }else {
                                     Text(self.richText)
                                         .foregroundColor(Color.white)
                                         .padding(.top)
                                         .frame(maxWidth:1200, alignment:.leading)
+                                        .lineLimit(5)
                                 }
                             }else{
                                 Text(nft.meta.description ?? "")
@@ -84,10 +86,8 @@ struct NFTDetailView: View {
                     //.frame(height:400)
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($headerFocused)
-                    
-                    Spacer()
 
-                    VStack{
+                    VStack(spacing: 20){
                         if self.featuredMedia.count > 0 {
                             VStack(alignment: .leading, spacing: 10)  {
                                 ScrollView(.horizontal) {
@@ -118,13 +118,15 @@ struct NFTDetailView: View {
                             .padding(.top)
                         }
                         
-                        LazyVStack(alignment: .leading, spacing: 10)  {
+                        LazyVStack(alignment: .leading, spacing: 40)  {
                             ForEach(collections) { collection in
-                                Text(collection.name)
-                                MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem,
-                                                    playerImageOverlayUrl:$playerImageOverlayUrl,
-                                                    playerTextOverlay:$playerTextOverlay
-                                )
+                                VStack(alignment: .leading, spacing: 10){
+                                    Text(collection.name)
+                                    MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem,
+                                                        playerImageOverlayUrl:$playerImageOverlayUrl,
+                                                        playerTextOverlay:$playerTextOverlay
+                                    )
+                                }
                             }
                         }
                         .padding(20)

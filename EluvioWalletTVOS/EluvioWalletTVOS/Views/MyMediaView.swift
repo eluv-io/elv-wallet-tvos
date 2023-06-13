@@ -193,6 +193,7 @@ struct MyMediaView: View {
                                                  destination: NFTDetail(nft: nft),
                                                  scale: 0.72
                                              )
+                                             .padding(.top,10)
                                         }
                                     }
                                 }
