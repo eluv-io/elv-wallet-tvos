@@ -31,7 +31,7 @@ struct DeviceFlowView: View {
     var GrantType = ""
     
     init(showDeviceFlow: Binding<Bool>){
-        print("SignInView init()")
+        //print("SignInView init()")
         self.ClientId = "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar"
         self.Domain = "prod-elv.us.auth0.com"
         self.GrantType = "urn:ietf:params:oauth:grant-type:device_code"

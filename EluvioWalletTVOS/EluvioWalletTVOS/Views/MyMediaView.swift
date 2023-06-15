@@ -56,7 +56,7 @@ struct MyMediaView: View {
                         .padding(.bottom,80)
                 }
                 
-                VStack(alignment: .center, spacing: 40) {
+                LazyVStack(alignment: .center, spacing: 40) {
                     
                     if (!drops.isEmpty){
                         ScrollView (.horizontal, showsIndicators: false) {
@@ -69,8 +69,8 @@ struct MyMediaView: View {
                                     )
                                 }
                             }
+                            .focusSection()
                         }
-                        .focusSection()
                         .introspectScrollView { view in
                             view.clipsToBounds = false
                         }
@@ -80,10 +80,11 @@ struct MyMediaView: View {
                     ScrollView (.horizontal, showsIndicators: false) {
                         LazyHStack(alignment: .top, spacing: 52) {
                             ForEach(featured.media) { media in
-                                MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
+                                /*MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
                                           playerImageOverlayUrl:$playerImageOverlayUrl,
                                           playerTextOverlay:$playerTextOverlay,
-                                          display: MediaDisplay.feature)
+                                          display: MediaDisplay.feature)*/
+                                MediaView2(mediaItem: media, display: MediaDisplay.feature)
                             }
                             
                             ForEach(featured.items) { nft in
@@ -105,8 +106,8 @@ struct MyMediaView: View {
                             }
                             
                         }
+                        .focusSection()
                     }
-                    .focusSection()
                     .introspectScrollView { view in
                         view.clipsToBounds = false
                     }

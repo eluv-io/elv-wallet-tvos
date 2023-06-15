@@ -474,7 +474,7 @@ class Fabric: ObservableObject {
         //print("NFT DATA ", nftData)
         
         if nftData["redeemable_offers"].exists() {
-            print("redeemable_offers exists for \(nftData["display_name"].stringValue)")
+            //print("redeemable_offers exists for \(nftData["display_name"].stringValue)")
             do {
                 nftmodel.redeemable_offers = try JSONDecoder().decode([Redeemable].self, from: nftData["redeemable_offers"].rawData())
                 
@@ -487,7 +487,7 @@ class Fabric: ObservableObject {
         
         
         if nftData["additional_media_sections"].exists() {
-            print("additional_media_sections exists for \(nftData["display_name"].stringValue)")
+            //print("additional_media_sections exists for \(nftData["display_name"].stringValue)")
             do {
                 nftmodel.additional_media_sections = try JSONDecoder().decode(AdditionalMediaModel.self, from: nftData["additional_media_sections"].rawData())
                 
@@ -498,7 +498,7 @@ class Fabric: ObservableObject {
                 //print("\(try nftData["additional_media_sections"].rawData().prettyPrintedJSONString ?? "")")
             }
         }else{
-            print("additional_media_sections does not exists for \(nftData["display_name"].stringValue)")
+            //print("additional_media_sections does not exists for \(nftData["display_name"].stringValue)")
             
             if nftData["additional_media"].exists() {
                 do {
@@ -525,7 +525,7 @@ class Fabric: ObservableObject {
         }else{
             nftmodel.has_album = false
         }
-        print("additional_media_display ", nftmodel.meta_full?["additional_media_display"].stringValue)
+        //print("additional_media_display ", nftmodel.meta_full?["additional_media_display"].stringValue)
         
         
         if let nftname = nftmodel.contract_name{
@@ -633,7 +633,7 @@ class Fabric: ObservableObject {
             var properties: [PropertyModel] = []
             
             self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
-            print("Fabric Token: \(self.fabricToken)");
+            //print("Fabric Token: \(self.fabricToken)");
             
             let profileData = try await self.signer!.getWalletData(accountAddress: try self.getAccountAddress(),
                                                                    accessCode: self.login!.token)
@@ -655,7 +655,7 @@ class Fabric: ObservableObject {
             self.featured = parsedLibrary.featured;
             
             
-            print("featured count ", self.featured.count)
+            //print("featured count ", self.featured.count)
             self.galleries = parsedLibrary.galleries;
             self.images = parsedLibrary.images;
             self.albums = parsedLibrary.albums;
@@ -883,8 +883,8 @@ class Fabric: ObservableObject {
         demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
         demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
         
-        print("videos count: ", demoLib.videos.count)
-        print("live stream count: ", demoLib.liveStreams.count)
+        //print("videos count: ", demoLib.videos.count)
+        //print("live stream count: ", demoLib.liveStreams.count)
         
         var newItems : [NFTModel] = []
         
@@ -1095,7 +1095,7 @@ class Fabric: ObservableObject {
     }
     
     func signOut(){
-        print("Fabric: signOut()")
+        //print("Fabric: signOut()")
         let domain = APP_CONFIG.auth0.domain
         let clientId = APP_CONFIG.auth0.client_id
         let oAuthEndpoint: String = "https://".appending(domain).appending("/oidc/logout");
@@ -1137,7 +1137,7 @@ class Fabric: ObservableObject {
     
     @MainActor
     func signIn(credentials: [String: AnyObject] ){
-        print("Fabric: signIn()")
+        //print("Fabric: signIn()")
         guard let config = self.configuration else
         {
             self.signingIn = false
@@ -1145,12 +1145,12 @@ class Fabric: ObservableObject {
             return
         }
         
-        print("Credentials: \(credentials)")
+        //print("Credentials: \(credentials)")
 
         
-        print("Web Auth0 Success: idToken: \(credentials["id_token"])")
-        print("Web Auth0 Success: accessToken: \(credentials["access_token"])")
-        print("Web Auth0 Success: refreshToken: \(credentials["refresh_token"])")
+        //print("Web Auth0 Success: idToken: \(credentials["id_token"])")
+        //print("Web Auth0 Success: accessToken: \(credentials["access_token"])")
+        //print("Web Auth0 Success: refreshToken: \(credentials["refresh_token"])")
         
         guard let accessToken: String = credentials["access_token"] as? String else {
             self.signingIn = false
@@ -1192,8 +1192,8 @@ class Fabric: ObservableObject {
         let json: [String: Any] = ["ext": ["share_email":true]]
         request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
         
-        print("http request: ", request)
-        print("http request headers: ", request.allHTTPHeaderFields)
+        //print("http request: ", request)
+        //print("http request headers: ", request.allHTTPHeaderFields)
         
         let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
             
@@ -1202,12 +1202,12 @@ class Fabric: ObservableObject {
                         self.signingIn = false
                         throw FabricError.unexpectedResponse("Error response data: \(response)")
                     }
-                    print("Fabric login response: \(response)")
-                    print("Fabric login error: \(error)")
+                    //print("Fabric login response: \(response)")
+                    //print("Fabric login error: \(error)")
                     
                     let str = String(decoding: data, as: UTF8.self)
                     
-                    print("Fabric login data: \(str)")
+                    //print("Fabric login data: \(str)")
 
                     // Parse the JSON data
                     let login = try JSONDecoder().decode(LoginResponse.self, from: data)

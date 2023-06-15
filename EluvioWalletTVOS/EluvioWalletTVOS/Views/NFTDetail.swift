@@ -29,7 +29,8 @@ struct NFTDetailView: View {
     @State var playerTextOverlay : String = ""
     @State var backgroundImageUrl : String = ""
     @FocusState private var headerFocused: Bool
-    @State private var redeemableFeatures: [RedeemableViewModel] = []
+    @State var redeemableFeatures: [RedeemableViewModel] = []
+    //@State var featureViewModels: [MediaItemViewModel] = []
     
     var body: some View {
         ZStack(alignment:.topLeading) {
@@ -94,6 +95,7 @@ struct NFTDetailView: View {
                             VStack(alignment: .leading, spacing: 10)  {
                                 ScrollView(.horizontal) {
                                     LazyHStack(alignment: .top, spacing: 50) {
+                                        /*
                                         ForEach(self.featuredMedia) {media in
                                             if (media.media_type ?? "" == "Video"){
                                                 
@@ -110,17 +112,18 @@ struct NFTDetailView: View {
                                                 )
                                             }
                                         }
+                                         */
+                                        
+                                        ForEach(self.featuredMedia) {media in
+                                            /*if (media.isLive){
+                                             MediaView2(media: media,
+                                                          display: MediaDisplay.video)
+                                            }else{*/
+                                                MediaView2(mediaItem: media)
+                                            //}
+                                        }
                                         
                                         ForEach(self.redeemableFeatures) {redeemable in
-                                            /*
-                                            WebImage(url: URL(string: redeemable.imageUrl))
-                                                .resizable()
-                                                .indicator(.activity) // Activity Indicator
-                                                .transition(.fade(duration: 0.5))
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width:300, height:300)
-                                                .clipped()
-                                             */
                                             RedeemableCardView(redeemable:redeemable)
                                         }
                                         
@@ -163,7 +166,7 @@ struct NFTDetailView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             }
             .onAppear(){
-                //print("NFT META: \(self.nft.meta_full)")
+                //print("NFT FEATURES: \(self.nft.additional_media_sections?.featured_media)")
                 
                 if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                     self.backgroundImageUrl = "https://picsum.photos/600/800"
@@ -189,10 +192,6 @@ struct NFTDetailView: View {
                         print("Error getting image URL from link ", imageLink)
                     }
                 }
-                /*
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
-                    headerFocused = true
-                }*/
                 
                Task {
                    do{
@@ -215,8 +214,7 @@ struct NFTDetailView: View {
                                                                      availableAt: redeemable.available_at ?? "",
                                                                      isRedeemed: isRedeemed,
                                                                      imageUrl: imageUrl)
-                                    //print("redeemViewModel ", redeem)
-                                    
+
                                     redeemableFeatures.append(redeem)
                                 }
                                 self.redeemableFeatures = redeemableFeatures
@@ -225,6 +223,19 @@ struct NFTDetailView: View {
                    }catch{
                        print("Error getting redemption animation ", error)
                    }
+                   
+                   /*
+                   var featureViewModels: [MediaItemViewModel] = []
+                   for feature in self.featuredMedia {
+                       do {
+                           try await featureViewModels.append(MediaItemViewModel.create(fabric:fabric, mediaItem:feature))
+                       }catch{
+                           print("Error creating MediaItemViewModel",error)
+                       }
+                   }
+                   self.featureViewModels = featureViewModels
+                   print("featureViewModels ", featureViewModels)
+                    */
                 }
             }
         }

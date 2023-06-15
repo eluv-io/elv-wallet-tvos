@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyJSON
+import AVKit
 
 protocol FeatureProtocol: Identifiable, Codable {
     var id: String? {get}
@@ -70,6 +71,73 @@ struct MediaSection: Identifiable, Codable {
     var collections : [MediaCollection] = []
 }
 
+struct MediaItemViewModel:Identifiable {
+    
+    static func create(fabric:Fabric, mediaItem: MediaItem?) async throws -> MediaItemViewModel {
+        guard let media = mediaItem else{
+            return MediaItemViewModel()
+        }
+        
+        var animationItem : AVPlayerItem? = nil
+        if let animationLink = media.animation?["sources"]["default"] {
+            animationItem = try await MakePlayerItemFromLink(fabric: fabric, link: animationLink)
+        }
+        
+        var posterImage = ""
+        do{
+            posterImage = try fabric.getUrlFromLink(link: media.poster_image)
+        }catch{
+            print("Error creating MediaItemViewModel posterImage",error)
+        }
+            
+        var backgroundImage=""
+        do{
+            backgroundImage = try fabric.getUrlFromLink(link: media.background_image_tv)
+        }catch{
+            print("Error creating MediaItemViewModel backgroundImage",error)
+        }
+        
+        let optionsLink = media.media_link?["sources"]["default"]
+        
+        var htmlUrl: String = ""
+        if media.media_type == "HTML" {
+            do{
+                htmlUrl = try fabric.getMediaHTML(link: media.media_file, params: media.parameters ?? [])
+            }catch{
+                print("Error creating MediaItemViewModel",error)
+            }
+        }
+        
+        return MediaItemViewModel(
+         id: media.id,
+         backgroundImage: backgroundImage,
+         image: media.image ?? "",
+         posterImage: posterImage,
+         animation:animationItem,
+         name:media.name,
+         mediaType:media.media_type ?? "",
+         defaultOptionsLink:optionsLink,
+         parameters: media.parameters,
+         htmlUrl:htmlUrl,
+         isLive: media.isLive,
+         gallery: media.gallery ?? [])
+
+    }
+    
+    var id: String? = UUID().uuidString
+    var backgroundImage: String = ""
+    var image: String = ""
+    var posterImage: String = ""
+    var animation: AVPlayerItem? = nil
+    var name: String = ""
+    var mediaType: String = ""
+    var defaultOptionsLink: JSON? = nil
+    var parameters: [JSON]? = []
+    var htmlUrl: String = ""
+    var isLive: Bool = false
+    var gallery: [GalleryItem] = []
+}
+
 struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var image: String? = ""
@@ -77,6 +145,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var background_image_tv_url: String? = ""
     var poster_image: JSON? = nil
     var poster_image_url: String? = ""
+    var animation: JSON? = nil
     
     var name: String = ""
     var image_aspect_ratio: String? = ""
@@ -118,6 +187,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         background_image_tv = try container.decodeIfPresent(JSON.self, forKey: .background_image_tv)
         background_image_tv_url = try container.decodeIfPresent(String.self, forKey: .background_image_tv_url) ?? ""
         poster_image = try container.decodeIfPresent(JSON.self, forKey: .poster_image)
+        animation = try container.decodeIfPresent(JSON.self, forKey: .animation)
         poster_image_url = try container.decodeIfPresent(String.self, forKey: .poster_image_url) ?? ""
         name = try container.decode(String.self, forKey: .name)
         media_type = try container.decodeIfPresent(String.self, forKey: .media_type) ?? ""

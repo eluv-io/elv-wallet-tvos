@@ -11,7 +11,7 @@ import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
 
-enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile}
+enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile; case square}
 
 struct MediaCollectionView: View {
     @EnvironmentObject var fabric: Fabric
@@ -20,15 +20,13 @@ struct MediaCollectionView: View {
     @Binding var playerItem : AVPlayerItem?
     @Binding var playerImageOverlayUrl : String
     @Binding var playerTextOverlay : String
-    var display: MediaDisplay = MediaDisplay.apps
+    var display: MediaDisplay = MediaDisplay.square
     
     var body: some View {
         ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: 52) {
                 ForEach(self.mediaCollection.media) {media in
-                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
-                              playerImageOverlayUrl:$playerImageOverlayUrl,
-                              playerTextOverlay:$playerTextOverlay,
+                    MediaView2(mediaItem: media,
                               display: display
                     )
                 }
@@ -403,6 +401,122 @@ struct MediaView: View {
     }
 }
 
+struct MediaView2: View {
+    @EnvironmentObject var fabric: Fabric
+    @State var mediaItem: MediaItem?
+    @State private var media = MediaItemViewModel()
+    @FocusState var isFocused
+    @State var showGallery = false
+    @State var gallery: [GalleryItem] = []
+    @State var showQRView = false
+    @State var qrUrl = "https://eluv.io"
+
+    @State var showPlayer : Bool = false
+    @State private var playerItem : AVPlayerItem?
+    @State var playerImageOverlayUrl : String = ""
+    @State var playerTextOverlay : String = ""
+    var display: MediaDisplay = MediaDisplay.apps
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Button(action: {
+                if media.mediaType == "Video" || media.mediaType == "Audio"{
+                    if(media.defaultOptionsLink != nil) {
+                        if media.mediaType == "Video" {
+                            self.playerImageOverlayUrl = ""
+                            self.playerTextOverlay = ""
+                        } else {
+                            self.playerImageOverlayUrl = media.image
+                            self.playerTextOverlay = media.name
+                        }
+
+                            Task{
+                                do {
+                                    self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters)
+                                    self.showPlayer = true
+                                    //print("****** showPlayer = true")
+                                    //print("****** playerItem set ", self.playerItem)
+                                }catch{
+                                    print("Error creating MediaItemViewModel playerItem",error)
+                                }
+                            }
+                    }
+                } else if media.mediaType == "HTML" {
+                    self.qrUrl = media.htmlUrl
+                    self.showQRView = true
+                } else if media.mediaType == "Gallery" {
+                    if(!media.gallery.isEmpty){
+                        self.gallery = media.gallery
+                        self.showGallery = true
+                    }
+                }
+ 
+            }) {
+                MediaCard(display:display,
+                          image: display == MediaDisplay.feature ? media.posterImage : media.image,
+                          playerItem: display == MediaDisplay.square ? media.animation: nil,
+                          isFocused:isFocused,
+                          title: media.name,
+                          isLive: media.isLive
+                )
+            }
+            .buttonStyle(TitleButtonStyle(focused: isFocused))
+            .focused($isFocused)
+            .overlay(content: {
+                if (media.mediaType == "Video" && !isFocused){
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 80))
+                        .foregroundColor(.white)
+                        .opacity(0.7)
+                }
+            })
+        }
+        .onChange(of: mediaItem) {newValue in
+            Task {
+                do{
+                    //print("*** MediaView onChange")
+                    self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
+                }catch{
+                    print("MediaView could not create MediaItemViewModel ", error)
+                }
+            }
+        }
+        .onAppear(){
+            Task {
+                do{
+                    //print("*** MediaView onChange")
+                    self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
+                }catch{
+                    print("MediaView could not create MediaItemViewModel ", error)
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showGallery) {
+            GalleryView(gallery: $gallery)
+                .environmentObject(self.fabric)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .edgesIgnoringSafeArea(.all)
+                .background(.thinMaterial)
+        }
+        .fullScreenCover(isPresented: $showQRView) {
+            QRView(url: $qrUrl)
+                .environmentObject(self.fabric)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .edgesIgnoringSafeArea(.all)
+                .background(.thinMaterial)
+        }
+        
+        .fullScreenCover(isPresented: $showPlayer) {
+            PlayerView(playerItem:self.$playerItem,
+                       playerImageOverlayUrl:$playerImageOverlayUrl,
+                       playerTextOverlay:$playerTextOverlay
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+    }
+
+}
+
 struct RedeemableCardView: View {
     @EnvironmentObject var fabric: Fabric
     @State var redeemable: RedeemableViewModel
@@ -414,7 +528,7 @@ struct RedeemableCardView: View {
                 
             }) {
                 MediaCard(image:redeemable.imageUrl,
-                          //playerItem: redeemable.animationPlayerItem,  //TODO:
+                          playerItem: redeemable.animationPlayerItem,
                           isFocused:isFocused,
                           title: redeemable.name
                 )
@@ -429,15 +543,14 @@ struct RedeemableCardView: View {
 }
 
 struct MediaCard: View {
-    var display: MediaDisplay = MediaDisplay.apps
+    var display: MediaDisplay = MediaDisplay.square
     var image: String = ""
-    var playerItem: AVPlayerItem? = nil
+    var playerItem : AVPlayerItem? = nil
     var isFocused: Bool = false
     var isUpcoming: Bool = false
     var title: String = ""
     var subtitle: String = ""
     var isLive: Bool = false
-    @State var player = AVPlayer()
 
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
@@ -448,20 +561,8 @@ struct MediaCard: View {
     var body: some View {
         ZStack{
             if (playerItem != nil){
-                VideoPlayer(player: player)
+                LoopingVideoPlayer([playerItem!], endAction: .loop)
                     .frame(width:width, height:height, alignment: .center)
-                    .onChange(of: playerItem) { value in
-                        if (self.playerItem != nil) {
-                            self.player.replaceCurrentItem(with: self.playerItem)
-                        }
-                    }
-                    .onReceive(timer) { time in
-                        if (newItem && self.playerItem?.status == .readyToPlay){
-                            self.player.play()
-                            print("Play!!")
-                            newItem = false
-                        }
-                    }
             }else{
                 if (image.hasPrefix("http")){
                     WebImage(url: URL(string: image))
@@ -527,8 +628,6 @@ struct MediaCard: View {
         }
         .frame( width: width, height: height)
         .onAppear(){
-            self.player.replaceCurrentItem(with: self.playerItem)
-            print("PlayerView: replaced current Item \(self.playerItem?.asset)")
             if display == MediaDisplay.feature {
                 width = 400
                 height = 560

@@ -33,14 +33,11 @@ func loadJsonFile<T: Decodable>(_ filename: String) -> T {
 
 func HexToBytes(_ string: String) -> [UInt8]? {
     var str = string
-    print("HexToBytes 1 \(str)")
-    
+
     if(string.hasPrefix("0x")){
         str = String(string.dropFirst(2))
     }
     
-    print("HexToBytes 2 \(str)")
-
     if str.isEmpty{
         print("Error: Length == 0")
         return nil

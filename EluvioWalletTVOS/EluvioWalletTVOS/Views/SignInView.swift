@@ -54,7 +54,7 @@ struct SignInView: View {
     }
     
     init(){
-        print("SignInView init()")
+        //print("SignInView init()")
         self.subscriber = Subscriber(view:self)
         UISegmentedControl.appearance().setTitleTextAttributes([.font : UIFont.preferredFont(forTextStyle: .body)], for: .normal)
     }

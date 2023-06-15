@@ -37,11 +37,11 @@ struct NFTPlayerView: View {
             }
         }
         .onReceive(timer) { time in
-            print("Item Status \(self.playerItem?.status.rawValue)")
+            //print("Item Status \(self.playerItem?.status.rawValue)")
             if (newItem && self.playerItem?.status == .readyToPlay){
                 self.player.play()
                 newItem = false
-                print("Play!!")
+                //print("Play!!")
             }
         }
         .onAppear(){
@@ -84,24 +84,26 @@ struct PlayerView: View {
     @State private var newItem : Bool = false
     @Binding var playerImageOverlayUrl : String
     @Binding var playerTextOverlay : String
+
     
     var body: some View {
             VideoPlayer(player: player)
             .ignoresSafeArea()
+        /*
             .onChange(of: playerItem) { value in
-                if (self.playerItem != nil) {
+                if (self.playerItem != self.player.currentItem) {
                     self.player.replaceCurrentItem(with: self.playerItem)
                     print("PlayerView: replaced current Item \(self.playerItem?.asset)")
                     newItem = true
-
                 }
             }
+         */
             .onReceive(timer) { time in
-                print("Item Status \(self.playerItem?.status.rawValue)")
+                //print("Item Status \(self.playerItem?.status.rawValue)")
                 if (newItem && self.playerItem?.status == .readyToPlay){
                     self.player.play()
                     newItem = false
-                    print("Play!!")
+                    //print("Play!!")
                 }
             }
             .overlay {
@@ -124,6 +126,17 @@ struct PlayerView: View {
                             .frame(width: 1000, alignment: .center)
                     }
                 }
+            }
+            .onAppear(){
+                //print("*** PlayerView onAppear() ", self.player)
+                //print("PlayerItem",self.playerItem)
+                if (self.playerItem != self.player.currentItem){
+                    self.player.replaceCurrentItem(with: self.playerItem)
+                    print("player.replaceCurrentItem()")
+                }
+                
+                self.player.play()
+                newItem = true
             }
     }
 }
