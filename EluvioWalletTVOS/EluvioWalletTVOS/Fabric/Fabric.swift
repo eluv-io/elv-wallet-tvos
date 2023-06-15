@@ -1411,36 +1411,25 @@ class Fabric: ObservableObject {
         }
     }
     
-    func getOptionsFromLink(resolvedLink: JSON?, offering:String="default") throws -> String {
-        guard let link = resolvedLink else{
-            throw FabricError.badInput("getOptionsFromLink: resolvedLink is nil")
-        }
-        
+    func getOptionsFromLink(link: JSON?, params: [JSON]? = [], offering:String="default") async throws -> (optionsJson: JSON, versionHash:String) {
+        var optionsUrl = try getUrlFromLink(link: link, params: params)
 
-        var path = link["sources"][offering]["/"].stringValue
-        var hash = link["sources"][offering]["."]["container"].stringValue
-                
-        path = NSString.path(withComponents: ["/","q",hash,path])
-        
-        guard let url = URL(string:try self.getEndpoint()) else {
-            throw FabricError.badInput("getOptionsFromLink: Could not get parse endpoint. Link: \(resolvedLink)")
-        }
-        var components = URLComponents()
-        components.scheme = url.scheme
-        components.host = url.host
-        components.path = path
-        components.queryItems = [
-            URLQueryItem(name: "link_depth", value: "5"),
-            URLQueryItem(name: "resolve", value: "true"),
-            URLQueryItem(name: "resolve_include_source", value: "true"),
-            URLQueryItem(name: "resolve_ignore_errors", value: "true")
-        ]
-        
-        guard let newUrl = components.url else {
-            throw FabricError.badInput("getOptionsFromLink: Could not create url. Link: \(resolvedLink)")
+        if(offering != "default" && optionsUrl.contains("default/options.json")){
+            optionsUrl = optionsUrl.replaceFirst(of: "default/options.json", with: "\(offering)/options.json")
         }
         
-        return newUrl.standardized.absoluteString
+        print ("Offering \(offering)")
+        print("options url \(optionsUrl)")
+        
+        
+        guard let versionsHash = FindContentHash(uri: optionsUrl) else {
+            throw RuntimeError("Could not find hash from \(optionsUrl)")
+        }
+        
+        let optionsJson = try await getJsonRequest(url: optionsUrl)
+        print("options json \(optionsJson)")
+        
+        return (optionsJson, versionsHash)
     }
     
     func getMediaHTML(link: JSON?, params: [JSON] = []) throws -> String {
