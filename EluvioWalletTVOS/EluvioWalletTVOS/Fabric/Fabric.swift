@@ -623,13 +623,6 @@ class Fabric: ObservableObject {
         }
         
         do{
-            /*var featured: [AnyHashable] = []
-            var videos: [MediaItem] = []
-            var galleries: [MediaItem] = []
-            var images: [MediaItem] = []
-            var albums: [NFTModel] = []
-            var html: [MediaItem] = []
-            var books: [MediaItem] = []*/
             var properties: [PropertyModel] = []
             
             self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
@@ -689,8 +682,8 @@ class Fabric: ObservableObject {
                 guard let name = item.contract_name else{
                     continue
                 }
-                //if !name.contains("Superman"){
-                if let attribute = item.meta.attributesDict["Drop"], !name.contains("Superman"){
+
+                if let attribute = item.meta.attributesDict["Drop"], !name.contains("Superman") && !name.contains("Rings"){
                         if let attributeValue = attribute.value {
                             if var proj = dropsDict[attributeValue] {
                                 item.property = moonProp
