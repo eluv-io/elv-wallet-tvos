@@ -35,7 +35,7 @@ struct NFTTileView: View {
     var display: MediaDisplay = MediaDisplay.tile
     var image : String {
         if (display == MediaDisplay.tile){
-            print("TILE: ", nft.title_image ?? "")
+            //print("TILE: ", nft.title_image ?? "")
             return nft.title_image ?? nft.meta.image ?? ""
         }
         return nft.meta.image ?? ""

@@ -10,18 +10,63 @@ import SwiftUI
 import SwiftyJSON
 import AVKit
 
+struct RedeemStatus {
+    var isRedeemed = false
+    var isActive = true
+}
+
 struct RedeemableViewModel: Identifiable {
     var id: String? = UUID().uuidString
     var expiresAt: String = ""
     var name: String = ""
     var animationPlayerItem: AVPlayerItem?
     var availableAt: String = ""
-    var isRedeemed: Bool = false
+    var status = RedeemStatus()
     var imageUrl: String = ""
+    var posterUrl: String = ""
+    var tags: [TagMeta] = []
+    
+    var location: String {
+        for tag in tags {
+            if tag.key == "location" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    static func create(fabric:Fabric, redeemable: Redeemable) async throws -> RedeemableViewModel {
+        
+        var animationItem : AVPlayerItem? = nil
+        if let animationLink = redeemable.animation?["sources"]["default"] {
+            animationItem = try await MakePlayerItemFromLink(fabric: fabric, link: animationLink)
+        }
+        let imageUrl = try fabric.getUrlFromLink(link: redeemable.image)
+        let posterUrl = try fabric.getUrlFromLink(link: redeemable.poster_image)
+        
+        //TODO: Find status
+        let redeemStatus = RedeemStatus(isRedeemed: false, isActive: true)
+        
+        return RedeemableViewModel(id:redeemable.id,
+                                   expiresAt: redeemable.expires_at ?? "",
+                                   name: redeemable.name ?? "",
+                                   animationPlayerItem: animationItem,
+                                   availableAt: redeemable.available_at ?? "",
+                                   status: redeemStatus,
+                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [])
+    }
+    
 }
 
 struct Redeemable: FeatureProtocol {
-    var id: String? = UUID().uuidString
+    var id: String? {
+        if let offerid = offer_id {
+            if !offerid.isEmpty {
+                return offerid
+            }
+        }
+        return UUID().uuidString
+    }
     var expires_at: String?
     var name: String?
     var sources: JSON?
@@ -29,7 +74,18 @@ struct Redeemable: FeatureProtocol {
     var available_at: String?
     var offer_id: String?
     var image: JSON?
+    var poster_image: JSON?
     var visibilty: JSON?
+    var tags: [TagMeta]? = []
+    
+    var location: String {
+        for tag in tags ?? [] {
+            if tag.key == "location" {
+                return tag.value
+            }
+        }
+        return ""
+    }
 }
 
 struct NFTModel: FeatureProtocol, Equatable, Hashable {

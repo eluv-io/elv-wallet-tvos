@@ -16,19 +16,20 @@ enum MediaDisplay {case apps; case video; case feature; case books; case album; 
 struct MediaCollectionView: View {
     @EnvironmentObject var fabric: Fabric
     @State var mediaCollection: MediaCollection
-    @Binding var showPlayer : Bool
-    @Binding var playerItem : AVPlayerItem?
-    @Binding var playerImageOverlayUrl : String
-    @Binding var playerTextOverlay : String
     var display: MediaDisplay = MediaDisplay.square
     
     var body: some View {
         ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: 52) {
                 ForEach(self.mediaCollection.media) {media in
-                    MediaView2(mediaItem: media,
-                              display: display
-                    )
+                    if (media.isLive){
+                     MediaView2(mediaItem: media,
+                                  display: MediaDisplay.video)
+                    }else{
+                        MediaView2(mediaItem: media,
+                                  display: display
+                        )
+                    }
                 }
             }
             .padding([.top,.bottom],20)
@@ -59,7 +60,7 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
     
     if options["hls-clear"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-clear")
-        print("Playlist URL \(hlsPlaylistUrl)")
+        //print("Playlist URL \(hlsPlaylistUrl)")
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         return AVPlayerItem(asset: urlAsset)
@@ -73,7 +74,7 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
         print("license_server \(licenseServer)")
         
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-fairplay", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+        //print("Playlist URL \(hlsPlaylistUrl)")
         
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
@@ -208,7 +209,7 @@ struct MediaView2: View {
     @State private var playerItem : AVPlayerItem?
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
-    var display: MediaDisplay = MediaDisplay.apps
+    var display: MediaDisplay = MediaDisplay.square
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -223,16 +224,17 @@ struct MediaView2: View {
                             self.playerTextOverlay = media.name
                         }
 
-                            Task{
-                                do {
-                                    self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters)
-                                    self.showPlayer = true
-                                    //print("****** showPlayer = true")
-                                    //print("****** playerItem set ", self.playerItem)
-                                }catch{
-                                    print("Error creating MediaItemViewModel playerItem",error)
-                                }
+                        Task{
+                            do {
+                                print("MediaView2 Button Action")
+                                self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters)
+                                self.showPlayer = true
+                                //print("****** showPlayer = true")
+                                //print("****** playerItem set ", self.playerItem)
+                            }catch{
+                                print("Error creating MediaItemViewModel playerItem",error)
                             }
+                        }
                     }
                 } else if media.mediaType == "HTML" {
                     self.qrUrl = media.htmlUrl
@@ -264,7 +266,7 @@ struct MediaView2: View {
                 }
             })
         }
-        .onChange(of: mediaItem) {newValue in
+        /*.onChange(of: mediaItem) {newValue in
             Task {
                 do{
                     //print("*** MediaView onChange")
@@ -273,7 +275,7 @@ struct MediaView2: View {
                     print("MediaView could not create MediaItemViewModel ", error)
                 }
             }
-        }
+        }*/
         .onAppear(){
             Task {
                 do{
@@ -310,27 +312,93 @@ struct MediaView2: View {
 
 }
 
+enum MediaFlagPosition{case bottomRight; case bottomCenter}
+
+
+struct RedeemFlag: View {
+    @State var redeemable: RedeemableViewModel
+    @State var position: MediaFlagPosition = .bottomCenter
+    
+    private var padding: CGFloat {
+        return 20
+    }
+    
+    private var text: String {
+        if redeemable.status.isRedeemed {
+            return "REWARD"
+        } else {
+            return "REDEEM"
+        }
+    }
+    
+    private var textColor: Color {
+        if redeemable.status.isRedeemed {
+            return Color.white
+        } else {
+            return Color.black
+        }
+    }
+    
+    private var bgColor: Color {
+        return Color(red: 255/255, green: 213/255, blue: 65/255)
+    }
+    
+    var body: some View {
+        VStack{
+            Spacer()
+            if (position == .bottomCenter){
+                Text(text)
+                    .font(.custom("HelveticaNeue", size: 23))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(textColor)
+                    .padding(5)
+                    .padding(.trailing,7)
+                    .padding(.leading, 7)
+                    .background(RoundedRectangle(cornerRadius: 5).fill(bgColor))
+            }else{
+                HStack {
+                    Spacer()
+                    Text(text)
+                        .font(.custom("Helvetica Neue", size: 20))
+                        .multilineTextAlignment(.center)
+                        .foregroundColor(textColor)
+                        .padding(5)
+                        .padding(.trailing,7)
+                        .padding(.leading, 7)
+                        .background(RoundedRectangle(cornerRadius: 5).fill(bgColor))
+                }
+            }
+        }
+        .frame(maxWidth:.infinity, maxHeight: .infinity)
+        .padding(padding)
+    }
+}
+
 struct RedeemableCardView: View {
     @EnvironmentObject var fabric: Fabric
     @State var redeemable: RedeemableViewModel
     @FocusState var isFocused
+    var display: MediaDisplay = MediaDisplay.square
+    @State var imageUrl: String = ""
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Button(action: {
-                
-            }) {
-                MediaCard(image:redeemable.imageUrl,
-                          playerItem: redeemable.animationPlayerItem,
-                          isFocused:isFocused,
-                          title: redeemable.name
-                )
-            }
-            .buttonStyle(TitleButtonStyle(focused: isFocused))
-            .focused($isFocused)
-            .overlay(content: {
-                
-            })
+
+            VStack(alignment: .leading, spacing: 20) {
+                Button(action: {
+                    
+                }) {
+                    ZStack{
+                        MediaCard(display: display, image: display == MediaDisplay.feature ? redeemable.posterUrl : redeemable.imageUrl,
+                                  playerItem: redeemable.animationPlayerItem,
+                                  isFocused:isFocused,
+                                  title: redeemable.name,
+                                  centerFocusedText: true
+                        )
+                        RedeemFlag(redeemable: redeemable)
+                    }
+                }
+                .buttonStyle(TitleButtonStyle(focused: isFocused))
+                .focused($isFocused)
         }
     }
 }
@@ -344,6 +412,7 @@ struct MediaCard: View {
     var title: String = ""
     var subtitle: String = ""
     var isLive: Bool = false
+    var centerFocusedText: Bool = false
 
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
@@ -375,8 +444,10 @@ struct MediaCard: View {
             }
 
             if (isFocused){
-                VStack(alignment: .leading, spacing: 7) {
-                    Spacer()
+                VStack(alignment: .center, spacing: 7) {
+                    if ( !centerFocusedText ){
+                        Spacer()
+                    }
                     Text(title.capitalized)
                         .foregroundColor(Color.white)
                         .font(.subheadline)
@@ -385,6 +456,7 @@ struct MediaCard: View {
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .padding(20)
+                .cornerRadius(cornerRadius)
                 .background(Color.black.opacity(0.8))
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius)
@@ -425,7 +497,7 @@ struct MediaCard: View {
                 width = 400
                 height = 560
                 cornerRadius = 3
-            }else if display == MediaDisplay.video {
+            }else if display == MediaDisplay.video || isLive{
                 width =  534
                 height = 300
                 cornerRadius = 16

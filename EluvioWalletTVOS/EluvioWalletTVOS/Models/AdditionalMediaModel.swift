@@ -84,27 +84,33 @@ struct MediaItemViewModel:Identifiable {
         }
         
         var posterImage = ""
-        do{
-            posterImage = try fabric.getUrlFromLink(link: media.poster_image)
-        }catch{
-            print("Error creating MediaItemViewModel posterImage",error)
+        if media.poster_image != nil {
+            do{
+                posterImage = try fabric.getUrlFromLink(link: media.poster_image)
+            }catch{
+                print("Error creating MediaItemViewModel posterImage",error)
+            }
         }
             
         var backgroundImage=""
-        do{
-            backgroundImage = try fabric.getUrlFromLink(link: media.background_image_tv)
-        }catch{
-            print("Error creating MediaItemViewModel backgroundImage",error)
+        if media.background_image_tv != nil {
+            do{
+                backgroundImage = try fabric.getUrlFromLink(link: media.background_image_tv)
+            }catch{
+                print("Error creating MediaItemViewModel backgroundImage",error)
+            }
         }
         
         let optionsLink = media.media_link?["sources"]["default"]
         
         var htmlUrl: String = ""
-        if media.media_type == "HTML" {
-            do{
-                htmlUrl = try fabric.getMediaHTML(link: media.media_file, params: media.parameters ?? [])
-            }catch{
-                print("Error creating MediaItemViewModel",error)
+        if media.media_file != nil {
+            if media.media_type == "HTML" {
+                do{
+                    htmlUrl = try fabric.getMediaHTML(link: media.media_file, params: media.parameters ?? [])
+                }catch{
+                    print("Error creating MediaItemViewModel",error)
+                }
             }
         }
         
@@ -120,6 +126,7 @@ struct MediaItemViewModel:Identifiable {
          parameters: media.parameters,
          htmlUrl:htmlUrl,
          isLive: media.isLive,
+         tags: media.tags ?? [],
          gallery: media.gallery ?? [])
 
     }
@@ -135,7 +142,22 @@ struct MediaItemViewModel:Identifiable {
     var parameters: [JSON]? = []
     var htmlUrl: String = ""
     var isLive: Bool = false
+    var tags: [TagMeta] = []
     var gallery: [GalleryItem] = []
+    
+    var location: String {
+        for tag in tags {
+            if tag.key == "location" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+}
+
+struct TagMeta: Codable {
+    var key: String
+    var value: String
 }
 
 struct MediaItem: FeatureProtocol, Equatable, Hashable {
@@ -156,6 +178,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var parameters: [JSON]? = []
     var gallery: [GalleryItem]? = []
     var offerings: [String]? = []
+    var tags: [TagMeta]?
     
     //For Demo
     var isLive: Bool = false
@@ -178,6 +201,15 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         return df.string(from: endDateTime ?? Date())
     }
     
+    var location: String {
+        for tag in tags ?? []{
+            if tag.key == "location" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
     init (){
     }
     
@@ -198,6 +230,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         parameters = try container.decodeIfPresent([JSON].self, forKey: .parameters) ?? []
         gallery = try container.decodeIfPresent([GalleryItem].self, forKey: .gallery) ?? []
         offerings = try container.decodeIfPresent([String].self, forKey: .offerings) ?? []
+        tags = try container.decodeIfPresent([TagMeta].self, forKey: .tags) ?? []
         id = /* try container.decodeIfPresent(String.self, forKey: .id) ??*/ name + (media_type ?? "")
         
         //TODO: compute from media_type when ready

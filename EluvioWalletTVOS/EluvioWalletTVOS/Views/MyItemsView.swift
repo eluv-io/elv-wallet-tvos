@@ -10,7 +10,6 @@ import SwiftyJSON
 import Introspect
 
 struct MyItemsView: View {
-    //
     @State var searchText = ""
     var nfts : [NFTModel] = []
     var drops : [ProjectModel] = []

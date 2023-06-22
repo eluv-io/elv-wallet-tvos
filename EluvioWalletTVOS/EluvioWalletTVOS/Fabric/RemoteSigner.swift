@@ -292,5 +292,64 @@ class RemoteSigner {
         })
 
     }
+    
+    func getNftInfo(nftAddress: String, tokenId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            
+            do {
+                let endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)/\(tokenId)");
+                //print("Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get NFT Info Request error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
+    func getWalletStatus(tenantId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            
+            do {
+                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/status/act/\(tenantId)");
+                //print("Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+                    print("Response : \(response)")
+                    
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get Wallet Status Request error: \(error)")
+
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
 }
 

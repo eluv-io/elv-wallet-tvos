@@ -13,6 +13,7 @@ import SwiftyJSON
 struct MyMediaView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var fabric: Fabric
     @State var searchText = ""
     var featured: Features = Features()
     var library : [MediaCollection] = []
@@ -28,6 +29,11 @@ struct MyMediaView: View {
     var logo = "e_logo"
     var logoUrl = ""
     var name = ""
+    @State var redeemableFeatures: [RedeemableViewModel] = []
+    @State var localizedFeatures: [MediaItem] = []
+    private var preferredLocation:String {
+        fabric.profile.profileData.preferredLocation ?? ""
+    }
     
     @State var heroImage : String?
     private var hasHero: Bool {
@@ -57,7 +63,6 @@ struct MyMediaView: View {
                 }
                 
                 LazyVStack(alignment: .center, spacing: 40) {
-                    
                     if (!drops.isEmpty){
                         ScrollView (.horizontal, showsIndicators: false) {
                             LazyHStack(alignment: .top, spacing: 52) {
@@ -75,16 +80,21 @@ struct MyMediaView: View {
                             view.clipsToBounds = false
                         }
                     }
-                    
-                    
+
                     ScrollView (.horizontal, showsIndicators: false) {
                         LazyHStack(alignment: .top, spacing: 52) {
-                            ForEach(featured.media) { media in
-                                /*MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
-                                          playerImageOverlayUrl:$playerImageOverlayUrl,
-                                          playerTextOverlay:$playerTextOverlay,
-                                          display: MediaDisplay.feature)*/
-                                MediaView2(mediaItem: media, display: MediaDisplay.feature)
+                            ForEach(redeemableFeatures) { redeemable in
+                                RedeemableCardView(redeemable: redeemable, display: MediaDisplay.feature)
+                            }
+                            
+                            if !localizedFeatures.isEmpty {
+                                ForEach(localizedFeatures) { media in
+                                    MediaView2(mediaItem: media, display: MediaDisplay.feature)
+                                }
+                            }else{
+                                ForEach(featured.media) { media in
+                                    MediaView2(mediaItem: media, display: MediaDisplay.feature)
+                                }
                             }
                             
                             ForEach(featured.items) { nft in
@@ -117,12 +127,7 @@ struct MyMediaView: View {
                         if(!collection.media.isEmpty){
                             VStack(alignment: .leading, spacing: 20){
                                 Text(collection.name)
-                                MediaCollectionView(mediaCollection: collection,
-                                                    showPlayer: $showPlayer,
-                                                    playerItem: $playerItem,
-                                                    playerImageOverlayUrl:$playerImageOverlayUrl,
-                                                    playerTextOverlay:$playerTextOverlay
-                                )
+                                MediaCollectionView(mediaCollection: collection)
                             }
                             .focusSection()
                         }
@@ -135,7 +140,6 @@ struct MyMediaView: View {
                                 LazyHStack{
                                     ForEach(albums) { album in
                                         NFTAlbumView(nft:album)
-                                        //.frame( width: 225, height: 225)
                                     }
                                 }
                             }
@@ -235,19 +239,58 @@ struct MyMediaView: View {
                 }
                 .padding([.leading,.trailing,.bottom], 80)
             }
-            .fullScreenCover(isPresented: $showPlayer) {
-                PlayerView(playerItem:self.$playerItem,
-                           playerImageOverlayUrl:$playerImageOverlayUrl,
-                           playerTextOverlay:$playerTextOverlay
-                )
-                .preferredColorScheme(colorScheme)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            }
         }
         .ignoresSafeArea()
         .background(Color.mainBackground)
         .introspectScrollView { view in
             view.clipsToBounds = false
+        }
+        .onAppear(){
+            Task {
+                for nft in self.items {
+                    if let redeemableOffers = nft.redeemable_offers {
+                        print("RedeemableOffers ", redeemableOffers)
+                        if !redeemableOffers.isEmpty {
+                            var redeemableFeatures: [RedeemableViewModel] = []
+                            for redeemable in redeemableOffers {
+                                do{
+                                    if (!preferredLocation.isEmpty) {
+                                        if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable)
+                                            redeemableFeatures.append(redeem)
+                                        }
+                                    }else{
+                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable)
+                                        redeemableFeatures.append(redeem)
+                                    }
+                                }catch{
+                                    print("Error processing redemption ", redeemable)
+                                }
+                            }
+                            self.redeemableFeatures = redeemableFeatures
+                        }
+                    }
+                    
+                    
+                    if let additions = nft.additional_media_sections {
+                        if (!preferredLocation.isEmpty) {
+                            var locals:[MediaItem] = []
+                            
+                            for feature in additions.featured_media {
+                                if (feature.location == ""){
+                                    locals.append(feature)
+                                }
+                                
+                                if (feature.location == preferredLocation){
+                                    locals.append(feature)
+                                }
+                            }
+                            self.localizedFeatures = locals
+                        }
+                    }
+                    
+                }
+            }
         }
     }
 }
