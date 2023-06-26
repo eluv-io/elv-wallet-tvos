@@ -9,9 +9,24 @@ import Foundation
 import SwiftUI
 import AVKit
 import SDWebImageSwiftUI
+import Combine
 
-class PlayerItemObserver: NSObject, ObservableObject {
-    @Published var playerItemContext = 0
+class PlayerFinishedObserver: ObservableObject {
+
+    @Published
+    var publisher = PassthroughSubject<Void, Never>()
+
+    init(player: AVPlayer? = nil) {
+        if let player = player {
+            let item = player.currentItem
+            
+            var cancellable: AnyCancellable?
+            cancellable = NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: item).sink { [weak self] change in
+                self?.publisher.send()
+                cancellable?.cancel()
+            }
+        }
+    }
 }
 
 //This player plays the main video of an NFTModel
@@ -79,16 +94,18 @@ struct PlayerView: View {
     @State var player = AVPlayer()
     @State var isPlaying: Bool = false
     @Binding var playerItem : AVPlayerItem?
-    @ObservedObject var playerItemObserver = PlayerItemObserver()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
-    @Binding var playerImageOverlayUrl : String
-    @Binding var playerTextOverlay : String
-
+    @State var playerImageOverlayUrl = ""
+    @State var playerTextOverlay = ""
+    @State var finishedObserver = PlayerFinishedObserver()
+    @Binding var finished: Bool
     
+
     var body: some View {
             VideoPlayer(player: player)
             .ignoresSafeArea()
+        //CAREFUL: Crashes to have the following:
         /*
             .onChange(of: playerItem) { value in
                 if (self.playerItem != self.player.currentItem) {
@@ -105,6 +122,11 @@ struct PlayerView: View {
                     newItem = false
                     //print("Play!!")
                 }
+                
+            }
+            .onReceive(finishedObserver.publisher) {
+                print("Finished!")
+                self.finished = true
             }
             .overlay {
                 VStack {
@@ -137,7 +159,12 @@ struct PlayerView: View {
                 
                 self.player.play()
                 newItem = true
+                self.finishedObserver = PlayerFinishedObserver(player: player)
             }
+    }
+    
+    func playerDidFinishPlaying(note: NSNotification) {
+        print("Video Finished")
     }
 }
 

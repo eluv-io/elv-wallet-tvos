@@ -19,12 +19,31 @@ struct RedeemableViewModel: Identifiable {
     var id: String? = UUID().uuidString
     var expiresAt: String = ""
     var name: String = ""
-    var animationPlayerItem: AVPlayerItem?
+    var description: String = ""
+    var animationLink: JSON?
+    var redeemAnimationLink: JSON?
     var availableAt: String = ""
     var status = RedeemStatus()
     var imageUrl: String = ""
     var posterUrl: String = ""
     var tags: [TagMeta] = []
+    var nft = NFTModel()
+    
+    var availableAtFormatted: String {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: availableAt) else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter.string(from: date)
+    }
+    
+    var expiresAtFormatted: String {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: expiresAt) else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter.string(from: date)
+    }
     
     var location: String {
         for tag in tags {
@@ -35,25 +54,57 @@ struct RedeemableViewModel: Identifiable {
         return ""
     }
     
-    static func create(fabric:Fabric, redeemable: Redeemable) async throws -> RedeemableViewModel {
+    static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel) async throws -> RedeemableViewModel {
+
+        let animationLink = redeemable.animation?["sources"]["default"]
+
+        let redeemAnimationLink = redeemable.redeem_animation?["sources"]["default"]
         
-        var animationItem : AVPlayerItem? = nil
-        if let animationLink = redeemable.animation?["sources"]["default"] {
-            animationItem = try await MakePlayerItemFromLink(fabric: fabric, link: animationLink)
+        var imageUrl = ""
+        if let image = redeemable.image {
+            do{
+                imageUrl = try fabric.getUrlFromLink(link: image)
+            }catch{}
         }
-        let imageUrl = try fabric.getUrlFromLink(link: redeemable.image)
-        let posterUrl = try fabric.getUrlFromLink(link: redeemable.poster_image)
+        
+        var posterUrl = ""
+        
+        if let image = redeemable.poster_image {
+            do{
+                posterUrl = try fabric.getUrlFromLink(link: image)
+            }catch{}
+        }
+        
         
         //TODO: Find status
-        let redeemStatus = RedeemStatus(isRedeemed: false, isActive: true)
+        var isRedeemed = false
+        var isOfferActive = false
+        if let offerId = redeemable.offer_id {
+            do{
+                isRedeemed = try await fabric.isRedeemed(offerId: offerId, nft: nft)
+            }catch{
+                print ("Error finding redeem status ", error)
+            }
+            
+            do{
+                isOfferActive = try await fabric.isOfferActive(offerId: offerId, nft: nft)
+            }catch{
+                print ("Error finding redeem status ", error)
+            }
+        }
+
+
+        let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive)
         
         return RedeemableViewModel(id:redeemable.id,
                                    expiresAt: redeemable.expires_at ?? "",
                                    name: redeemable.name ?? "",
-                                   animationPlayerItem: animationItem,
+                                   description: redeemable.description ?? "",
+                                   animationLink: animationLink,
+                                   redeemAnimationLink: redeemAnimationLink,
                                    availableAt: redeemable.available_at ?? "",
                                    status: redeemStatus,
-                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [])
+                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [], nft:nft)
     }
     
 }
@@ -69,8 +120,10 @@ struct Redeemable: FeatureProtocol {
     }
     var expires_at: String?
     var name: String?
+    var description: String?
     var sources: JSON?
     var animation: JSON?
+    var redeem_animation: JSON?
     var available_at: String?
     var offer_id: String?
     var image: JSON?

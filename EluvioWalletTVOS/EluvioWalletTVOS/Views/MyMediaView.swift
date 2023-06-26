@@ -40,6 +40,11 @@ struct MyMediaView: View {
         return heroImage != nil && heroImage != ""
     }
     
+    private var featuredListCount: Int {
+        let num = localizedFeatures.isEmpty ? featured.media.count : localizedFeatures.count
+        return redeemableFeatures.count + num  + featured.items.count
+    }
+    
     var body: some View {
         ScrollView{
             VStack(alignment: .leading, spacing: 0){
@@ -80,11 +85,14 @@ struct MyMediaView: View {
                             view.clipsToBounds = false
                         }
                     }
-
-                    ScrollView (.horizontal, showsIndicators: false) {
-                        LazyHStack(alignment: .top, spacing: 52) {
-                            ForEach(redeemableFeatures) { redeemable in
-                                RedeemableCardView(redeemable: redeemable, display: MediaDisplay.feature)
+                    
+                    if (featuredListCount <= 3){
+                        HStack() {
+                            if !redeemableFeatures.isEmpty {
+                                ForEach(redeemableFeatures) { redeemable in
+                                    RedeemableCardView(redeemable: redeemable, display: MediaDisplay.feature)
+                                }
+                                
                             }
                             
                             if !localizedFeatures.isEmpty {
@@ -114,12 +122,49 @@ struct MyMediaView: View {
                                     
                                 }
                             }
-                            
                         }
                         .focusSection()
-                    }
-                    .introspectScrollView { view in
-                        view.clipsToBounds = false
+                    }else{
+                        ScrollView (.horizontal, showsIndicators: false) {
+                            HStack(alignment: .top, spacing: 52) {
+                                ForEach(redeemableFeatures) { redeemable in
+                                    RedeemableCardView(redeemable: redeemable, display: MediaDisplay.feature)
+                                }
+                                
+                                if !localizedFeatures.isEmpty {
+                                    ForEach(localizedFeatures) { media in
+                                        MediaView2(mediaItem: media, display: MediaDisplay.feature)
+                                    }
+                                }else{
+                                    ForEach(featured.media) { media in
+                                        MediaView2(mediaItem: media, display: MediaDisplay.feature)
+                                    }
+                                }
+                                
+                                ForEach(featured.items) { nft in
+                                    if nft.has_album ?? false {
+                                        NFTAlbumView(nft:nft, display: MediaDisplay.feature)
+                                    }else {
+                                        NFTView<NFTDetail>(
+                                            display: MediaDisplay.feature,
+                                            image: nft.meta.image ?? "",
+                                            title: nft.meta.displayName ?? "",
+                                            subtitle: nft.meta.editionName ?? "",
+                                            propertyLogo: nft.property?.image ?? "",
+                                            propertyName: nft.property?.title ?? "",
+                                            tokenId: nft.token_id_str ?? "",
+                                            destination: NFTDetail(nft: nft)
+                                        )
+                                        
+                                    }
+                                }
+                                
+                            }
+                            .focusSection()
+                        }
+                        .introspectScrollView { view in
+                            view.clipsToBounds = false
+                        }
                     }
                     
                     
@@ -156,10 +201,7 @@ struct MyMediaView: View {
                                 Text(media.name)
                                 ScrollView (.horizontal, showsIndicators: false) {
                                     LazyHStack(alignment: .top, spacing: 52) {
-                                        MediaView(media: media,
-                                                  showPlayer: $showPlayer, playerItem: $playerItem,
-                                                  playerImageOverlayUrl:$playerImageOverlayUrl,
-                                                  playerTextOverlay:$playerTextOverlay,
+                                        MediaView2(mediaItem: media,
                                                   display: MediaDisplay.video)
                                         
                                         ForEach(media.schedule ?? []) { upcoming in
@@ -256,11 +298,11 @@ struct MyMediaView: View {
                                 do{
                                     if (!preferredLocation.isEmpty) {
                                         if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
-                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable)
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
                                             redeemableFeatures.append(redeem)
                                         }
                                     }else{
-                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable)
+                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
                                         redeemableFeatures.append(redeem)
                                     }
                                 }catch{

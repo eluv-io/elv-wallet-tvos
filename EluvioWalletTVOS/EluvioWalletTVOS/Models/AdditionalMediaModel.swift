@@ -114,6 +114,8 @@ struct MediaItemViewModel:Identifiable {
             }
         }
         
+        print("Media name, ", media.name)
+        
         return MediaItemViewModel(
          id: media.id,
          backgroundImage: backgroundImage,

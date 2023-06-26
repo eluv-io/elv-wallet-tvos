@@ -39,8 +39,8 @@ struct IconButtonStyle: ButtonStyle {
         configuration.label
             .foregroundColor(.white)
             .background(self.focused ? Color.tinted : Color.translucent)
-            .cornerRadius(20)
-            .scaleEffect(self.focused ? 1.5: 1, anchor: .center)
+            .cornerRadius(5)
+            .scaleEffect(self.focused ? 1.1: 1, anchor: .center)
             .shadow(color: self.focused ? .gray.opacity(0.5) : .black, radius: self.focused ? 8 : 0, x: 2, y: 2)
             .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
     }
@@ -91,5 +91,13 @@ extension Font {
     /// Create a font with the title text style.
     public static var itemSubtitle: Font {
         return Font.custom("OpenSans-Regular", size: 20)
+    }
+    
+    public static var description: Font {
+        return Font.custom("OpenSans-Regular", size: 40)
+    }
+    
+    public static var fine: Font {
+        return Font.custom("OpenSans-Regular", size: 20).weight(.light)
     }
 }

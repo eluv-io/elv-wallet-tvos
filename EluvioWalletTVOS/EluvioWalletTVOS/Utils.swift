@@ -113,6 +113,20 @@ extension String {
     mutating func capitalizeFirstLetter() {
         self = self.capitalizingFirstLetter()
     }
+    
+    func html2Attributed(color: Color = .white, font: Font = .body) -> AttributedString {
+        guard let data = data(using: String.Encoding.utf8) else {
+            return ""
+        }
+        if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
+            var text = AttributedString(attributedString)
+            text.foregroundColor = color
+            text.font = font
+            return text
+        }
+        
+        return ""
+}
 }
 
 extension Data {

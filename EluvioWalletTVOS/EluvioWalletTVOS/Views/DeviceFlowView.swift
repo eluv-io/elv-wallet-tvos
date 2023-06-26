@@ -24,6 +24,8 @@ struct DeviceFlowView: View {
     @State var timer = Timer.publish(every: 1, on: .main, in: .common)
     @State var timerCancellable: Cancellable? = nil
     @Binding var showDeviceFlow: Bool
+    @State var showError = false
+    
     var countDown:Timer!
     var expired = false
     var ClientId = ""
@@ -116,6 +118,15 @@ struct DeviceFlowView: View {
         .onReceive(timer) { _ in
             checkDeviceVerification()
         }
+        .fullScreenCover(isPresented: $showError) {
+            VStack{
+                Spacer()
+                Text("Error connecting to the Network. Please try again later.")
+                Spacer()
+            }
+            .background(Color.black.opacity(0.8))
+            .background(.thickMaterial)
+        }
     }
     
     func regenerateCode() {
@@ -180,7 +191,7 @@ struct DeviceFlowView: View {
                             fabric.signIn(credentials: json)
                             
                             for (key, value) in json {
-                                print("key \(key) value2 \(value)")
+                                //print("key \(key) value2 \(value)")
                                 UserDefaults.standard.set(value as? String, forKey: key)
                             }
                             

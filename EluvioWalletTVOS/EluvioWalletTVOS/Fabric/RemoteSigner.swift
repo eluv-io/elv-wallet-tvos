@@ -323,15 +323,15 @@ class RemoteSigner {
     
     func getWalletStatus(tenantId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            
             do {
+                print("****** getWalletStatus ******")
                 let endpoint: String = try self.getAuthEndpoint().appending("/wlt/status/act/\(tenantId)");
-                //print("Request: \(endpoint)")
-                //print("Params: \(parameters)")
+                print("Request: \(endpoint)")
+                print("Params: \(parameters)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                //print("Headers: \(headers)")
+                print("Headers: \(headers)")
                 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
                     print("Response : \(response)")

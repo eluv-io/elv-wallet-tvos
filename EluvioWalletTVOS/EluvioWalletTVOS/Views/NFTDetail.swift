@@ -27,6 +27,7 @@ struct NFTDetailView: View {
     @FocusState private var headerFocused: Bool
     @State var redeemableFeatures: [RedeemableViewModel] = []
     @State var localizedFeatures: [MediaItem] = []
+    @State var localizedRedeemables: [RedeemableViewModel] = []
     
     private var preferredLocation:String {
         fabric.profile.profileData.preferredLocation ?? ""
@@ -92,7 +93,7 @@ struct NFTDetailView: View {
                     
                     //Text(preferredLocation)
                     
-                    if self.redeemableFeatures.count > 0 {
+                    if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
                         VStack(alignment: .leading, spacing: 10)  {
                             ScrollView(.horizontal) {
                                 LazyHStack(alignment: .top, spacing: 50) {
@@ -106,7 +107,7 @@ struct NFTDetailView: View {
                                         }
                                     }
                                     
-                                    ForEach(self.redeemableFeatures) {redeemable in
+                                    ForEach(self.localizedRedeemables) {redeemable in
                                         RedeemableCardView(redeemable:redeemable)
                                     }
                                     
@@ -146,7 +147,9 @@ struct NFTDetailView: View {
                                             }
                                         }
                                         
-                                        
+                                        ForEach(self.redeemableFeatures) {redeemable in
+                                            RedeemableCardView(redeemable:redeemable)
+                                        }
                                     }
                                     .padding(20)
                                 }
@@ -177,62 +180,77 @@ struct NFTDetailView: View {
             .onAppear(){
                 //print("NFT FEATURES: \(self.nft.additional_media_sections?.featured_media)")
 
-               Task {
-
-                   if let redeemableOffers = nft.redeemable_offers {
-                       print("RedeemableOffers ", redeemableOffers)
-                       if !redeemableOffers.isEmpty {
-                           var redeemableFeatures: [RedeemableViewModel] = []
-                           for redeemable in redeemableOffers {
-                               do{
-                                   if (!preferredLocation.isEmpty) {
-                                       if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
-                                           let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable)
-                                           redeemableFeatures.append(redeem)
-                                       }
-                                   }else{
-                                       let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable)
-                                       redeemableFeatures.append(redeem)
-                                   }
-                               }catch{
-                                   print("Error processing redemption ", redeemable)
-                               }
-                           }
-                           self.redeemableFeatures = redeemableFeatures
-                       }
-                   }
-                   
-                   if let additions = nft.additional_media_sections {
-                       if (!preferredLocation.isEmpty) {
-                           var features:[MediaItem] = []
-                           var locals:[MediaItem] = []
-                           
-                           for feature in additions.featured_media {
-                               if (feature.location == ""){
-                                   features.append(feature)
-                               }
-                               
-                               if (feature.location == preferredLocation){
-                                   locals.append(feature)
-                               }
-                           }
-                           self.featuredMedia = features
-                           self.localizedFeatures = locals
-                       }else{
-                           self.featuredMedia = additions.featured_media
-                       }
-                       
-                       var collections: [MediaCollection] = []
-                       for section in additions.sections {
-                           for collection in section.collections {
-                               collections.append(collection)
-                           }
-                       }
-                       
-                       self.collections = collections
-                       print("Collections: ",collections)
-                   }
-                   
+                Task {
+                    
+                    if let redeemableOffers = nft.redeemable_offers {
+                        print("RedeemableOffers ", redeemableOffers)
+                        if !redeemableOffers.isEmpty {
+                            var redeemableFeatures: [RedeemableViewModel] = []
+                            var localizedRedeemables : [RedeemableViewModel] = []
+                            for redeemable in redeemableOffers {
+                                do{
+                                    if (!preferredLocation.isEmpty) {
+                                        
+                                        if redeemable.location.lowercased() == preferredLocation.lowercased(){
+                                            //Expensive operation
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                            localizedRedeemables.append(redeem)
+                                        }
+                                        
+                                        if redeemable.location == "" {
+                                            //Expensive operation
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                            redeemableFeatures.append(redeem)
+                                        }
+                                    }else{
+                                        //Expensive operation
+                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                        redeemableFeatures.append(redeem)
+                                    }
+                                }catch{
+                                    print("Error processing redemption ", error)
+                                }
+                            }
+                            self.redeemableFeatures = redeemableFeatures
+                            self.localizedRedeemables = localizedRedeemables
+                        }
+                    }
+                }
+                
+                Task{
+                    if let additions = nft.additional_media_sections {
+                        if (!preferredLocation.isEmpty) {
+                            var features:[MediaItem] = []
+                            var locals:[MediaItem] = []
+                            
+                            for feature in additions.featured_media {
+                                if (feature.location == ""){
+                                    features.append(feature)
+                                }
+                                
+                                if (feature.location == preferredLocation){
+                                    locals.append(feature)
+                                }
+                            }
+                            self.featuredMedia = features
+                            self.localizedFeatures = locals
+                        }else{
+                            self.featuredMedia = additions.featured_media
+                        }
+                        
+                        var collections: [MediaCollection] = []
+                        for section in additions.sections {
+                            for collection in section.collections {
+                                collections.append(collection)
+                            }
+                        }
+                        
+                        self.collections = collections
+                        //print("Collections: ",collections)
+                    }
+                }
+                
+                Task {
                    let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
                    if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
                        self.richText = AttributedString(attributedString)
@@ -271,40 +289,6 @@ struct NFTDetailView: View {
                            print("Error getting background image:", error)
                        }
                    }
-                   /*
-                   var offerStatus : [String: RedeemStatus] = [:]
-                   var tenantId = ""
-                   do {
-                       let nftInfo = try await fabric.signer?.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabric.fabricToken)
-
-                       if let offers = nftInfo?["offers"].array{
-                           for offer in offers {
-                               let offerId = offer["id"].stringValue
-                               let offerActive = offer["active"]
-                               if var status = offerStatus[offerId] {
-                                   status.isActive = offerActive.boolValue
-                                   offerStatus[offerId] = status
-                               }else{
-                                   offerStatus[offerId] = RedeemStatus()
-                               }
-                           }
-                       }
-                       
-                       if let tenant = nftInfo?["tenant"].stringValue {
-                           tenantId = tenant
-                       }
-                       print("NFTINFO: ", nftInfo)
-                       
-                       let status = try await fabric.signer?.getWalletStatus(tenantId: tenantId, accessCode: fabric.fabricToken)
-                       print("Wallet Status: ", status)
-                       //TODO: Get redeem status nft-offer-redeem
-                       
-                   }catch{
-                       print("Error getting nft info ", error)
-                   }
-
-                    */
-                   
                 }
             }
         }

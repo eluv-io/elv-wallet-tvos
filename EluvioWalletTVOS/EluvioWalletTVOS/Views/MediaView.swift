@@ -87,114 +87,6 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
     }
 }
 
-struct MediaView: View {
-    @EnvironmentObject var fabric: Fabric
-    @State var media: MediaItem? = nil
-    @Binding var showPlayer : Bool
-    @Binding var playerItem : AVPlayerItem?
-    @FocusState var isFocused
-    @State var showGallery = false
-    @State var gallery: [GalleryItem] = []
-    @State var showQRView = false
-    @State var qrUrl = "https://eluv.io"
-    @Binding var playerImageOverlayUrl : String
-    @Binding var playerTextOverlay : String
-
-    var display: MediaDisplay = MediaDisplay.apps
-    @State var imageUrl: String = ""
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Button(action: {
-                if media?.media_type == "Video" || media?.media_type == "Audio"{
-                    if media?.media_type == "Video" {
-                        self.playerImageOverlayUrl = ""
-                        self.playerTextOverlay = ""
-                    } else {
-                        self.playerImageOverlayUrl = media?.image ?? ""
-                        self.playerTextOverlay = media?.name ?? ""
-                    }
-                    self.showPlayer = true
-                        Task {
-                            do {
-                                self.playerItem = try await MakePlayerItem(fabric:fabric, media:media)
-                            } catch {
-                                print("Error getting Options url from link \(error)")
-                            }
-                        }
-                    }
-                else if media?.media_type == "HTML" {
-                    do {
-                        //let htmlUrl = try fabric.getUrlFromLink(link: media?.media_file, params: media?.parameters ?? [])
-                        let htmlUrl = try fabric.getMediaHTML(link: media?.media_file, params: media?.parameters ?? [])
-                        self.qrUrl = htmlUrl
-                        self.showQRView = true
-                        
-                    } catch {
-                        print("Error getting Options url from link \(error)")
-                    }
-                }
-                else if media?.media_type == "Gallery" {
-                    if media?.gallery != nil {
-                        self.gallery = media?.gallery ?? []
-                        self.showGallery = true
-                    }
-                }
- 
-            }) {
-                MediaCard(display:display, image:self.imageUrl,
-                          isFocused:isFocused,
-                          title: media?.name ?? "",
-                          isLive: media?.isLive ?? false
-                )
-            }
-            .buttonStyle(TitleButtonStyle(focused: isFocused))
-            .focused($isFocused)
-            .overlay(content: {
-                if (media?.media_type == "Video" && !isFocused){
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.white)
-                        .opacity(0.7)
-                }
-            })
-        }
-        .onAppear(){
-            if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
-                self.imageUrl = "https://picsum.photos/600/800"
-            }else{
-                do {
-                    var image: String = media?.image ?? ""
-                    
-                    if(self.display == MediaDisplay.feature || image == ""){
-                        if let posterImage = media?.poster_image {
-                            image = try fabric.getUrlFromLink(link: posterImage)
-                        }
-                    }
-                    
-                    self.imageUrl = image
-                }catch{
-                    print("Error getting image URL from link ", media?.image as Any)
-                }
-            }
-        }
-        .fullScreenCover(isPresented: $showGallery) {
-            GalleryView(gallery: $gallery)
-                .environmentObject(self.fabric)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .edgesIgnoringSafeArea(.all)
-                .background(.thinMaterial)
-        }
-        .fullScreenCover(isPresented: $showQRView) {
-            QRView(url: $qrUrl)
-                .environmentObject(self.fabric)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .edgesIgnoringSafeArea(.all)
-                .background(.thinMaterial)
-        }
-    }
-}
-
 struct MediaView2: View {
     @EnvironmentObject var fabric: Fabric
     @State var mediaItem: MediaItem?
@@ -209,6 +101,7 @@ struct MediaView2: View {
     @State private var playerItem : AVPlayerItem?
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
+    @State var playerFinished = false
     var display: MediaDisplay = MediaDisplay.square
     
     var body: some View {
@@ -266,21 +159,12 @@ struct MediaView2: View {
                 }
             })
         }
-        /*.onChange(of: mediaItem) {newValue in
-            Task {
-                do{
-                    //print("*** MediaView onChange")
-                    self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
-                }catch{
-                    print("MediaView could not create MediaItemViewModel ", error)
-                }
-            }
-        }*/
         .onAppear(){
             Task {
                 do{
                     //print("*** MediaView onChange")
                     self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
+                    print ("MediaView name ", media.name)
                 }catch{
                     print("MediaView could not create MediaItemViewModel ", error)
                 }
@@ -296,15 +180,12 @@ struct MediaView2: View {
         .fullScreenCover(isPresented: $showQRView) {
             QRView(url: $qrUrl)
                 .environmentObject(self.fabric)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .edgesIgnoringSafeArea(.all)
-                .background(.thinMaterial)
         }
-        
         .fullScreenCover(isPresented: $showPlayer) {
             PlayerView(playerItem:self.$playerItem,
-                       playerImageOverlayUrl:$playerImageOverlayUrl,
-                       playerTextOverlay:$playerTextOverlay
+                       playerImageOverlayUrl:playerImageOverlayUrl,
+                       playerTextOverlay:playerTextOverlay,
+                       finished:$playerFinished
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
@@ -315,6 +196,7 @@ struct MediaView2: View {
 enum MediaFlagPosition{case bottomRight; case bottomCenter}
 
 
+//TODO: Make this generic
 struct RedeemFlag: View {
     @State var redeemable: RedeemableViewModel
     @State var position: MediaFlagPosition = .bottomCenter
@@ -348,28 +230,28 @@ struct RedeemFlag: View {
             Spacer()
             if (position == .bottomCenter){
                 Text(text)
-                    .font(.custom("HelveticaNeue", size: 23))
+                    .font(.custom("HelveticaNeue", size: 21))
                     .multilineTextAlignment(.center)
                     .foregroundColor(textColor)
-                    .padding(5)
+                    .padding(3)
+                    .padding(.leading,7)
                     .padding(.trailing,7)
-                    .padding(.leading, 7)
                     .background(RoundedRectangle(cornerRadius: 5).fill(bgColor))
             }else{
                 HStack {
                     Spacer()
                     Text(text)
-                        .font(.custom("Helvetica Neue", size: 20))
+                        .font(.custom("Helvetica Neue", size: 21))
                         .multilineTextAlignment(.center)
                         .foregroundColor(textColor)
-                        .padding(5)
+                        .padding(3)
+                        .padding(.leading,7)
                         .padding(.trailing,7)
-                        .padding(.leading, 7)
                         .background(RoundedRectangle(cornerRadius: 5).fill(bgColor))
                 }
             }
         }
-        .frame(maxWidth:.infinity, maxHeight: .infinity)
+        //.frame(maxWidth:.infinity, maxHeight: .infinity)
         .padding(padding)
     }
 }
@@ -379,17 +261,16 @@ struct RedeemableCardView: View {
     @State var redeemable: RedeemableViewModel
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.square
-    @State var imageUrl: String = ""
-    
+    @State var showOfferView: Bool = false
+    @State var playerItem: AVPlayerItem?
     var body: some View {
-
             VStack(alignment: .leading, spacing: 20) {
                 Button(action: {
-                    
+                    self.showOfferView = true
                 }) {
                     ZStack{
                         MediaCard(display: display, image: display == MediaDisplay.feature ? redeemable.posterUrl : redeemable.imageUrl,
-                                  playerItem: redeemable.animationPlayerItem,
+                                  playerItem: playerItem,
                                   isFocused:isFocused,
                                   title: redeemable.name,
                                   centerFocusedText: true
@@ -399,6 +280,18 @@ struct RedeemableCardView: View {
                 }
                 .buttonStyle(TitleButtonStyle(focused: isFocused))
                 .focused($isFocused)
+        }
+        .onAppear(){
+            Task{
+                do{
+                    playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.animationLink)
+                }catch{
+                    print("Error creating player item", error)
+                }
+            }
+        }
+        .fullScreenCover(isPresented: $showOfferView) {
+            OfferView(redeemable:redeemable)
         }
     }
 }
@@ -448,10 +341,10 @@ struct MediaCard: View {
                     if ( !centerFocusedText ){
                         Spacer()
                     }
-                    Text(title.capitalized)
+                    Text(title)
                         .foregroundColor(Color.white)
                         .font(.subheadline)
-                    Text(subtitle.capitalized)
+                    Text(subtitle)
                         .foregroundColor(Color.white)
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
@@ -476,23 +369,29 @@ struct MediaCard: View {
                 .background(Color.black.opacity(0.8))
             }
             
-            if (isLive){
+            if (isLive && display != .feature){
                 VStack() {
                     Spacer()
                     HStack{
                         Spacer()
-                        Image("live_flag")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame( width: 70, alignment: .bottomTrailing)
-                            .padding(20)
+                        Text("LIVE")
+                            .font(.custom("Helvetica Neue", size: 21))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(.white)
+                            .padding(3)
+                            .padding(.leading,7)
+                            .padding(.trailing,7)
+                            .background(RoundedRectangle(cornerRadius: 5).fill(.red))
                     }
                 }
                 .frame( maxWidth: .infinity, maxHeight:.infinity)
+                .padding(20)
             }
         }
         .frame( width: width, height: height)
         .onAppear(){
+            print("MediaItem title: ", title)
+            print("MediaItem subtitle: ", subtitle)
             if display == MediaDisplay.feature {
                 width = 400
                 height = 560

@@ -24,6 +24,7 @@ struct DropDetail: View {
     @State var playerTextOverlay : String = ""
     @State var showPlayer = false
     @State var playerItem : AVPlayerItem? = nil
+    @State var playerFinished = false
     
     var body: some View {
         ZStack(alignment:.topLeading) {
@@ -102,8 +103,9 @@ struct DropDetail: View {
             }
             .fullScreenCover(isPresented: $showPlayer) {
                 PlayerView(playerItem:self.$playerItem,
-                           playerImageOverlayUrl:$playerImageOverlayUrl,
-                           playerTextOverlay:$playerTextOverlay
+                           playerImageOverlayUrl:playerImageOverlayUrl,
+                           playerTextOverlay:playerTextOverlay,
+                           finished: $playerFinished
                 )
                 .preferredColorScheme(colorScheme)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

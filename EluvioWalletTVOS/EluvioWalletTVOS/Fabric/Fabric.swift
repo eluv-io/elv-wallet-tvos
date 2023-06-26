@@ -153,13 +153,15 @@ class Fabric: ObservableObject {
     
     @MainActor
     func connect(network: String) async throws {
+        defer {
+            self.signingIn = false
+        }
         self.signingIn = true
         
         var _network = network
         if(network.isEmpty) {
             guard let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
                     as? String else {
-                self.signingIn = false
                 self.isLoggedOut = true
                 return
             }
@@ -171,7 +173,6 @@ class Fabric: ObservableObject {
         }
         
         guard let url = URL(string: configUrl) else {
-            self.signingIn = false
             throw FabricError.invalidURL("\(self.configUrl)")
         }
 
@@ -186,12 +187,10 @@ class Fabric: ObservableObject {
         let config = try JSONDecoder().decode(FabricConfiguration.self, from: data)
         self.setConfiguration(configuration:config)
         guard let ethereumApi = self.configuration?.getEthereumAPI() else {
-            self.signingIn = false
             throw FabricError.configError("Error getting ethereum apis from config: \(self.configuration)")
         }
         
         guard let asApi = self.configuration?.getAuthServices() else{
-            self.signingIn = false
             throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
         }
         self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi)
@@ -494,31 +493,92 @@ class Fabric: ObservableObject {
         return (nftmodel, featured, videos, images, galleries, html, books, liveStreams)
     }
     
+    func isOfferActive(offerId: String, nft: NFTModel) async throws -> Bool {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        var tenantId = ""
+
+        let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
+
+        if let offers = nftInfo["offers"].array{
+            for offer in offers {
+                let offer_id = offer["id"].stringValue
+                let offerActive = offer["active"]
+                
+                if (offerId == offer_id){
+                    return offerActive.boolValue
+                }
+            }
+        }
+            
+        return false
+    }
+    
+    func isRedeemed(offerId: String, nft: NFTModel)  async throws -> Bool{
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        
+        let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
+        
+        var tenantId = nftInfo["tenant"].stringValue
+        
+        if tenantId == "" {
+            throw FabricError.unexpectedResponse("Could not get tenant ID from nft \(nft.contract_addr)")
+        }
+        
+        let status = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
+        print("Wallet Status: ", status)
+        //TODO: Get redeem status nft-offer-redeem
+        return false
+    }
+    
+    func redeemOffer(offerId: String, nft: NFTModel) async throws -> JSON{
+        
+        return JSON()
+    }
+    
     //Move this to the app level
     @MainActor
     func refresh() async {
-        if self.login == nil {
+        if self.signingIn {
+            return
+        }
+        if self.isLoggedOut {
             return
         }
         
         if self.isRefreshing {
             return
         }
+        
+        guard let signer = self.signer else {
+            return
+        }
+        
+        guard let login = self.login else {
+            return
+        }
+        
+        
         self.isRefreshing = true
         defer{
             isRefreshing = false
         }
         
+
         do{
             try await profile.refresh()
             
             var properties: [PropertyModel] = []
             
-            self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
+            self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token)
             //print("Fabric Token: \(self.fabricToken)");
             
-            let profileData = try await self.signer!.getWalletData(accountAddress: try self.getAccountAddress(),
-                                                                   accessCode: self.login!.token)
+            let profileData = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
+                                                                   accessCode: login.token)
 
             let nfts = profileData["contents"].arrayValue
 
@@ -881,7 +941,7 @@ class Fabric: ObservableObject {
             newItems.append(item)
         }
         
-        var prop = CreateTestPropertyModel(title:"Fox News and Weather", logo: "FoxLogo", image:"FoxNewsAndWeather_SearchResultBubble_v2", heroImage:"FoxNews_Weather_Header_v2",  featured: demoLib.featured, media: demoMedia, items:newItems)
+        let prop = CreateTestPropertyModel(title:"Fox News and Weather", logo: "FoxLogo", image:"FoxNewsAndWeather_SearchResultBubble_v2", heroImage:"FoxNews_Weather_Header_v2",  featured: demoLib.featured, media: demoMedia, items:newItems)
         
         return prop
     }
@@ -1041,9 +1101,12 @@ class Fabric: ObservableObject {
         self.albums = []
         self.html = []
         self.books = []
-        
-        //self.playable = []
-        //self.nonPlayable = []
+        self.library = []
+        self.properties = []
+        self.drops = []
+        self.tenants = []
+        self.items = []
+
         UserDefaults.standard.removeObject(forKey: "access_token")
         UserDefaults.standard.removeObject(forKey: "id_token")
         UserDefaults.standard.removeObject(forKey: "token_type")
@@ -1052,10 +1115,14 @@ class Fabric: ObservableObject {
     
     @MainActor
     func signIn(credentials: [String: AnyObject] ){
+        
+        defer{
+            self.signingIn = false
+        }
+        
         //print("Fabric: signIn()")
         guard let config = self.configuration else
         {
-            self.signingIn = false
             print("Not configured.")
             return
         }
@@ -1068,13 +1135,11 @@ class Fabric: ObservableObject {
         //print("Web Auth0 Success: refreshToken: \(credentials["refresh_token"])")
         
         guard let accessToken: String = credentials["access_token"] as? String else {
-            self.signingIn = false
             print("Could not retrieve accessToken")
             return
             
         }
         guard let idToken: String = credentials["id_token"] as? String else {
-            self.signingIn = false
             print("Could not retrieve id_token")
             return
         }
@@ -1117,20 +1182,15 @@ class Fabric: ObservableObject {
                         self.signingIn = false
                         throw FabricError.unexpectedResponse("Error response data: \(response)")
                     }
-                    //print("Fabric login response: \(response)")
-                    //print("Fabric login error: \(error)")
-                    
-                    let str = String(decoding: data, as: UTF8.self)
-                    
-                    //print("Fabric login data: \(str)")
 
+                    //let str = String(decoding: data, as: UTF8.self)
+                    
                     // Parse the JSON data
                     let login = try JSONDecoder().decode(LoginResponse.self, from: data)
                     Task {
                         await self.setLogin(login: login)
                     }
                 }catch{
-                    self.signingIn = false
                     print(error)
                 }
         
@@ -1334,7 +1394,7 @@ class Fabric: ObservableObject {
         }
         
         //print ("Offering \(offering)")
-        //print("options url \(optionsUrl)")
+        print("options url \(optionsUrl)")
         
         
         guard let versionsHash = FindContentHash(uri: optionsUrl) else {
@@ -1431,8 +1491,8 @@ class Fabric: ObservableObject {
                 headers["Authorization"] =  "Bearer \(token)"
             }
             
-            //print("GET ",url)
-            //print("HEADERS ", headers)
+            print("GET ",url)
+            print("HEADERS ", headers)
             
             AF.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers:headers)
                 .responseJSON { response in
@@ -1471,6 +1531,9 @@ class Fabric: ObservableObject {
         }else{
             newUrl = newUrl + "?authorization=\(self.fabricToken)"
         }
+        
+        print("HLS URL: ", newUrl)
+        
         return newUrl
     }
     
