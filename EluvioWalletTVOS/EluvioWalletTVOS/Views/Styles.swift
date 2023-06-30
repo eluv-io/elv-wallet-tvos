@@ -85,19 +85,39 @@ extension Font {
     
     /// Create a font with the large title text style.
     public static var itemTitle: Font {
-        return Font.custom("OpenSans-Regular", size: 36)
+        return Font.system(size: 36)
     }
     
     /// Create a font with the title text style.
     public static var itemSubtitle: Font {
-        return Font.custom("OpenSans-Regular", size: 20)
+        return Font.system(size: 20)
     }
     
     public static var description: Font {
-        return Font.custom("OpenSans-Regular", size: 40)
+        return Font.system(size: 40)
     }
     
     public static var fine: Font {
-        return Font.custom("OpenSans-Regular", size: 20).weight(.light)
+        return Font.system(size: 20)
+    }
+    
+    public static var fineBold: Font {
+        return Font.system(size: 20)
+    }
+    
+    public static var small: Font {
+        return Font.system( size: 28)
+    }
+    
+    public static var smallBold: Font {
+        return Font.system(size: 28).bold()
+    }
+
+    public static var rowTitle: Font {
+        return Font.system(size: 36)
+    }
+    
+    public static var rowSubtitle: Font {
+        return Font.system(size: 30)
     }
 }

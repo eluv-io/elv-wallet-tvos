@@ -421,6 +421,7 @@ class Fabric: ObservableObject {
                 //Parsing featured_media to find videos
                 for index in 0..<mediaSections.featured_media.count{
                     var media = mediaSections.featured_media[index]
+                    media.nft = nftmodel
                     //print("Media ", media)
                     if let mediaType = media.media_type {
                         if mediaType == "Video"{
@@ -435,8 +436,8 @@ class Fabric: ObservableObject {
                         //if mediaType == "Live" {
                             media.isLive = true
                             liveStreams.append(media)
-                            nftmodel.additional_media_sections?.featured_media[index] = media
                         }
+                        nftmodel.additional_media_sections?.featured_media[index] = media
                     }
                     
                     
@@ -481,6 +482,7 @@ class Fabric: ObservableObject {
                                     books.append(media)
                                 }
                                 
+                                media.nft = nftmodel
                                 nftmodel.additional_media_sections?.sections[sectionIndex].collections[collectionIndex].media[mediaIndex] = media
                             }
                         }
@@ -621,6 +623,8 @@ class Fabric: ObservableObject {
             
             var moonProp = try await createMoonProp(nfts:nfts)
             
+            let foxEntertianmentProp = try await createFoxEntertainmentProp(nfts:nfts)
+            
             let foxSportsProp = try await createFoxSportsDemoProp(nfts:nfts)
             
             let foxNewsProp = try await createFoxNewsProp(nfts:nfts)
@@ -734,6 +738,7 @@ class Fabric: ObservableObject {
             }*/
             
             properties = [
+                foxEntertianmentProp,
                 foxNewsProp,
                 foxSportsProp,
                 wbProp,
@@ -784,7 +789,7 @@ class Fabric: ObservableObject {
             }
         }
         
-        var demoLib = try await parseNfts(demoNfts)
+        let demoLib = try await parseNfts(demoNfts)
         var demoMedia : [MediaCollection] = []
         demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
         demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
@@ -812,16 +817,56 @@ class Fabric: ObservableObject {
         return prop
     }
     
-    func createFoxSportsDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+    func createFoxEntertainmentProp(nfts:[JSON]) async throws -> PropertyModel {
         var demoNfts: [JSON] = []
         for nft in nfts{
             let name = nft["contract_name"].stringValue
-            if name.contains("Live") || name.contains("Sports") || name.contains("Demo") {
+            if name.lowercased().contains("fox") && name.lowercased().contains("entertainment"){
                 demoNfts.append(nft)
             }
         }
         
-        var demoLib = try await parseNfts(demoNfts)
+        //print("MOON NFTS: ", nfts)
+        
+        let demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        /*
+        demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+        demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
+        demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+        demoMedia.append(MediaCollection(name:"E-books", media:demoLib.books))
+         */
+        
+        var sections : [MediaSection] = []
+        
+        for item in demoLib.items {
+            if let mediaSection = item.additional_media_sections {
+                for section in mediaSection.sections {
+                    sections.append(section)
+                }
+            }
+        }
+
+        
+        //print("fox attributes: ",demoLib.items[0].meta_full)
+        //print(demoLib.items[0].isSeries)
+
+        
+        let prop = CreateTestPropertyModel(title:"Fox Entertainment", logo: "FoxEntertainment_Logo", image:"FoxEntertainment_SearchResultBubble", heroImage:"Fox Entertainment Header",  featured: demoLib.featured, media: demoMedia, sections: sections, items:demoLib.items)
+        
+        return prop
+    }
+    
+    func createFoxSportsDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let name = nft["contract_name"].stringValue
+            if name.contains("Sports"){
+                demoNfts.append(nft)
+            }
+        }
+        
+        let demoLib = try await parseNfts(demoNfts)
         var demoMedia : [MediaCollection] = []
         demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
         demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
@@ -831,18 +876,7 @@ class Fabric: ObservableObject {
         //print("videos count: ", demoLib.videos.count)
         //print("live stream count: ", demoLib.liveStreams.count)
         
-        var newItems : [NFTModel] = []
-        
-        for var item in demoLib.items{
-            if let name = item.contract_name {
-                if name.contains("Epic") {
-                    item.title_image = "LOTR_Tile Group_Epic"
-                }else  if name.contains("Shire") {
-                    item.title_image = "LOTR_Tile Group_Shire"
-                }
-            }
-            newItems.append(item)
-        }
+        var newItems = demoLib.items
         
         
         var streams : [MediaItem] = []
@@ -971,94 +1005,7 @@ class Fabric: ObservableObject {
         
         return prop
     }
-    
-    //Move this to the app level
-    /*
-    @MainActor
-    func refresh() async {
-        if self.login == nil {
-            return
-        }
-        do{
-            var featured:[MediaItem] = []
-            var videos: [MediaItem] = []
-            var galleries: [MediaItem] = []
-            var images: [MediaItem] = []
-            var albums: [MediaItem] = []
-            var html: [MediaItem] = []
-            var books: [MediaItem] = []
-            
-            self.fabricToken = try await self.signer!.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: self.login!.token)
-            print("Fabric Token: \(self.fabricToken)");
-            
-            let tenantItems = try await self.getWalletTenantItems()
-            //print("Tenants: \(tenantItems)");
-            
-            //print("Account address: \(try getAccountAddress())")
 
-            for tenantItem in tenantItems {
-                //print ("TenantItem \(tenantItem)")
-                let tenantTitle = tenantItem["tenant"]["title"].stringValue
-                let marketTitle = tenantItem["marketplace"]["title"].stringValue
-                let count = tenantItem["nfts"].arrayValue.count
-                print("Tenant: \(tenantTitle) Marketplace: \(marketTitle) nfts \(count)");
-                
-                for nft in tenantItem["nfts"].arrayValue {
-                    do {
-                        let parsedModels = try await self.parseNft(nft)
-                        //print("Parsed nft: \(parsedModels.nftModel)")
-                        //print("Parsed Featured: \(parsedModels.featured)")
-                        //print("Parsed Galleries: \(parsedModels.galleries)")
-                        //print("Parsed Galleries: \(parsedModels.images)")
-                        //print("Parsed Albums: \(parsedModels.albums)")
-                        //print("Parsed Videos: \(parsedModels.videos)")
-                        //print("Parsed HTML: \(parsedModels.html)")
-                        //print("Parsed Books: \(parsedModels.books)")
-                        
-                        if(!parsedModels.featured.isEmpty){
-                            featured.append(contentsOf: parsedModels.featured)
-                        }
-                        if(!parsedModels.galleries.isEmpty){
-                            galleries.append(contentsOf: parsedModels.galleries)
-                        }
-                        if(!parsedModels.images.isEmpty){
-                            books.append(contentsOf: parsedModels.images)
-                        }
-                        if(!parsedModels.albums.isEmpty){
-                            albums.append(contentsOf: parsedModels.albums)
-                        }
-                        if(!parsedModels.videos.isEmpty){
-                            videos.append(contentsOf: parsedModels.videos)
-                        }
-                        if(!parsedModels.html.isEmpty){
-                            html.append(contentsOf: parsedModels.html)
-                        }
-                        if(!parsedModels.books.isEmpty){
-                            books.append(contentsOf: parsedModels.books)
-                        }
-                        
-                    } catch {
-                        print(error.localizedDescription)
-                        continue
-                    }
-                }
-            }
-            
-            self.tenantItems = tenantItems;
-            self.featured = featured;
-            self.galleries = galleries;
-            self.images = images;
-            self.albums = albums;
-            self.videos = videos;
-            self.html = html;
-            self.books = books;
-            
-        }catch{
-            print ("Refresh Error: \(error)")
-        }
-    }
-    */
-    
     @MainActor
     func setLogin(login:  LoginResponse){
         self.login = login
@@ -1384,6 +1331,50 @@ class Fabric: ObservableObject {
 
                 return
         }
+    }
+    
+    func getOptions(versionHash:String , params: [JSON]? = [], offering:String="default") async throws -> JSON {
+        var path = NSString.path(withComponents: ["/","q",versionHash,"rep","playout",offering,"options.json"])
+        
+        var urlString = try self.getEndpoint()
+        
+        guard let url = URL(string: urlString) else {
+            throw FabricError.invalidURL("\(urlString)")
+        }
+        
+        var pathComponents = url.pathComponents
+        pathComponents.append(path)
+        path = NSString.path(withComponents: pathComponents)
+        
+        var components = URLComponents()
+        components.scheme = url.scheme
+        components.host = url.host
+        components.path = path
+        
+        var queryItems : [URLQueryItem] = []
+        
+        components.queryItems = queryItems
+        
+        for param in params! {
+            if let name = param["name"].string {
+                if let value = param["value"].string {
+                    components.queryItems?.append(URLQueryItem(name: name , value: value))
+                }
+            }
+        }
+        
+        guard let newUrl = components.url else {
+            throw FabricError.badInput("getUrlFromLink: Could not get url from components. Hash: \(versionHash), Offering: \(offering)")
+        }
+
+        var optionsUrl = newUrl.standardized.absoluteString
+        
+        print("options url \(optionsUrl)")
+        
+        let optionsJson = try await getJsonRequest(url: optionsUrl)
+        //print("options json \(optionsJson)")
+        
+        return optionsJson
     }
     
     func getOptionsFromLink(link: JSON?, params: [JSON]? = [], offering:String="default") async throws -> (optionsJson: JSON, versionHash:String) {

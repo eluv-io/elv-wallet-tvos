@@ -13,6 +13,11 @@
 import Foundation
 import SwiftyJSON
 
+struct MetaTag: Codable {
+    var key: String
+    var value: String
+}
+
 struct NFTTrait: Codable {
     var trait_type : String?
     var value : String?
@@ -37,6 +42,8 @@ struct NFTMetaResponse: Codable {
         return [:]
     }
     
+    var tags: [MetaTag]? = []
+    
     //var backgroundColor: BackgroundColor = BackgroundColor()
     var copyright: String? = ""
     var createdAt: String? = ""
@@ -57,7 +64,7 @@ struct NFTMetaResponse: Codable {
     var totalSupply: Int? = 0
 
     enum CodingKeys: String, CodingKey {
-        case address, attributes
+        case address, attributes, tags
         //case backgroundColor = "background_color"
         case copyright
         case createdAt = "created_at"

@@ -22,6 +22,7 @@ struct MyMediaView: View {
     var items: [NFTModel] = []
     var drops: [ProjectModel] = []
     var liveStreams : [MediaItem] = []
+    var sections: [MediaSection] = []
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
     @State var showPlayer = false
@@ -167,11 +168,12 @@ struct MyMediaView: View {
                         }
                     }
                     
+                    Spacer(minLength: 20)
                     
                     ForEach(library) { collection in
                         if(!collection.media.isEmpty){
                             VStack(alignment: .leading, spacing: 20){
-                                Text(collection.name)
+                                Text(collection.name).font(.rowTitle)
                                 MediaCollectionView(mediaCollection: collection)
                             }
                             .focusSection()
@@ -180,7 +182,7 @@ struct MyMediaView: View {
                     
                     if(!albums.isEmpty){
                         VStack(alignment: .leading, spacing: 20){
-                            Text("Audio")
+                            Text("Audio").font(.rowTitle)
                             ScrollView (.horizontal, showsIndicators: false) {
                                 LazyHStack{
                                     ForEach(albums) { album in
@@ -198,7 +200,7 @@ struct MyMediaView: View {
                     if (!liveStreams.isEmpty){
                         VStack(alignment: .leading, spacing: 40){
                             ForEach(liveStreams) { media in
-                                Text(media.name)
+                                Text(media.name).font(.rowTitle)
                                 ScrollView (.horizontal, showsIndicators: false) {
                                     LazyHStack(alignment: .top, spacing: 52) {
                                         MediaView2(mediaItem: media,
@@ -220,9 +222,26 @@ struct MyMediaView: View {
                         .focusSection()
                     }
                     
+                    if(!sections.isEmpty){
+                        ForEach(sections) { section in
+                            VStack(alignment: .leading, spacing: 20){
+                                Text(section.name).font(.rowTitle)
+                                ForEach(section.collections) { collection in
+                                    if(!collection.media.isEmpty){
+                                        VStack(alignment: .leading, spacing: 10){
+                                            Text(collection.name).font(.rowSubtitle)
+                                            MediaCollectionView(mediaCollection: collection)
+                                        }
+                                        .focusSection()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
                     if (!items.isEmpty){
                         VStack(alignment: .leading, spacing: 40){
-                            Text("Items")
+                            Text("Items").font(.rowTitle)
                             ScrollView (.horizontal, showsIndicators: false) {
                                 LazyHStack(alignment: .top, spacing: 52) {
                                     ForEach(items) { nft in
@@ -255,7 +274,7 @@ struct MyMediaView: View {
                     if (!drops.isEmpty){
                         ForEach(drops) { drop in
                             VStack(alignment: .leading, spacing: 40){
-                                Text(drop.title ?? "")
+                                Text(drop.title ?? "").font(.rowTitle)
                                 ScrollView (.horizontal, showsIndicators: false) {
                                     LazyHStack(alignment: .top, spacing: 52) {
                                         ForEach(drop.contents) { nft in
@@ -291,7 +310,7 @@ struct MyMediaView: View {
             Task {
                 for nft in self.items {
                     if let redeemableOffers = nft.redeemable_offers {
-                        print("RedeemableOffers ", redeemableOffers)
+                        //print("RedeemableOffers ", redeemableOffers)
                         if !redeemableOffers.isEmpty {
                             var redeemableFeatures: [RedeemableViewModel] = []
                             for redeemable in redeemableOffers {

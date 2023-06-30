@@ -17,18 +17,26 @@ struct MediaCollectionView: View {
     @EnvironmentObject var fabric: Fabric
     @State var mediaCollection: MediaCollection
     var display: MediaDisplay = MediaDisplay.square
+    @State var nameBelow = false
     
     var body: some View {
         ScrollView(.horizontal) {
             HStack(alignment: .top, spacing: 52) {
                 ForEach(self.mediaCollection.media) {media in
-                    if (media.isLive){
-                     MediaView2(mediaItem: media,
-                                  display: MediaDisplay.video)
-                    }else{
-                        MediaView2(mediaItem: media,
-                                  display: display
-                        )
+                    VStack(alignment:.leading, spacing:10){
+                        if (media.isLive || media.media_type == "Video"){
+                            MediaView2(mediaItem: media,
+                                       showFocusName: !nameBelow, display: MediaDisplay.video
+                            )
+                        }else{
+                            MediaView2(mediaItem: media,
+                                       showFocusName: !nameBelow, display: display
+                            )
+                        }
+                        
+                        if nameBelow == true {
+                            Text(media.name).font(.rowSubtitle).foregroundColor(Color.white)
+                        }
                     }
                 }
             }
@@ -40,15 +48,20 @@ struct MediaCollectionView: View {
     }
 }
 
+func MakePlayerItemFromVersionHash(fabric: Fabric, versionHash: String, params: [JSON]? = [], offering: String = "default") async throws -> AVPlayerItem {
+    let options = try await fabric.getOptions(versionHash: versionHash, offering: offering)
+    return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
+}
+
+
 func MakePlayerItem(fabric: Fabric, media: MediaItem?, offering: String = "default") async throws -> AVPlayerItem {
     
     return try await MakePlayerItemFromLink(fabric:fabric, link: media?.media_link?["sources"][offering], params: media?.parameters, offering: offering)
 }
 
 func MakePlayerItemFromLink(fabric: Fabric, link: JSON?, params: [JSON]? = [], offering: String = "default") async throws -> AVPlayerItem {
-
-    let options = try await fabric.getOptionsFromLink(link: link, offering: offering)
-    return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash)
+    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering)
+    return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
 }
 
 func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHash: String, offering: String = "default") throws -> AVPlayerItem {
@@ -59,8 +72,14 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
     }
     
     if options["hls-clear"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-clear")
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-clear", offering: offering)
         //print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
+    }else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-sample-aes", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         return AVPlayerItem(asset: urlAsset)
@@ -102,11 +121,22 @@ struct MediaView2: View {
     @State var playerImageOverlayUrl : String = ""
     @State var playerTextOverlay : String = ""
     @State var playerFinished = false
+    @State var showFocusName = true
+    
     var display: MediaDisplay = MediaDisplay.square
+    
+    @State private var showSeriesView = false
+    
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Button(action: {
+                if media.isReference == true{
+                    showSeriesView = true
+                    print ("Media: ", media.isReference)
+                    return
+                }
+                
                 if media.mediaType == "Video" || media.mediaType == "Audio"{
                     if(media.defaultOptionsLink != nil) {
                         if media.mediaType == "Video" {
@@ -119,8 +149,14 @@ struct MediaView2: View {
 
                         Task{
                             do {
-                                print("MediaView2 Button Action")
-                                self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters)
+
+                                if (media.offering != "default"){
+                                    print("MediaView2 Offering: ", media.offering)
+                                    self.playerItem = try await MakePlayerItemFromVersionHash(fabric:fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
+                                }else{
+                                    self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
+                                }
+                            
                                 self.showPlayer = true
                                 //print("****** showPlayer = true")
                                 //print("****** playerItem set ", self.playerItem)
@@ -145,7 +181,8 @@ struct MediaView2: View {
                           playerItem: display == MediaDisplay.square ? media.animation: nil,
                           isFocused:isFocused,
                           title: media.name,
-                          isLive: media.isLive
+                          isLive: media.isLive,
+                          showFocusedTitle: showFocusName
                 )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
@@ -159,12 +196,16 @@ struct MediaView2: View {
                 }
             })
         }
+        .fullScreenCover(isPresented: $showSeriesView) {
+            SeriesDetailView(seriesMediaItem: media)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
         .onAppear(){
             Task {
                 do{
                     //print("*** MediaView onChange")
                     self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
-                    print ("MediaView name ", media.name)
+                    //print ("MediaView name ", media.name)
                 }catch{
                     print("MediaView could not create MediaItemViewModel ", error)
                 }
@@ -306,6 +347,7 @@ struct MediaCard: View {
     var subtitle: String = ""
     var isLive: Bool = false
     var centerFocusedText: Bool = false
+    var showFocusedTitle = true
 
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
@@ -341,16 +383,20 @@ struct MediaCard: View {
                     if ( !centerFocusedText ){
                         Spacer()
                     }
-                    Text(title)
-                        .foregroundColor(Color.white)
-                        .font(.subheadline)
+                    if showFocusedTitle {
+                        Text(title)
+                            .foregroundColor(Color.white)
+                            .font(.subheadline)
+                    }
                     Text(subtitle)
+                        .font(.small)
                         .foregroundColor(Color.white)
+                        .lineLimit(3)
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .padding(20)
                 .cornerRadius(cornerRadius)
-                .background(Color.black.opacity(0.8))
+                .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .stroke(Color.highlight, lineWidth: 4)
@@ -366,7 +412,7 @@ struct MediaCard: View {
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
                 .padding(20)
-                .background(Color.black.opacity(0.8))
+                .background(Color.black.opacity( 0.8))
             }
             
             if (isLive && display != .feature){
@@ -390,8 +436,8 @@ struct MediaCard: View {
         }
         .frame( width: width, height: height)
         .onAppear(){
-            print("MediaItem title: ", title)
-            print("MediaItem subtitle: ", subtitle)
+            //print("MediaItem title: ", title)
+            //print("MediaItem subtitle: ", subtitle)
             if display == MediaDisplay.feature {
                 width = 400
                 height = 560

@@ -36,7 +36,7 @@ func CreateTestNFTs(num: Int) -> [NFTModel] {
 }
 
 
-func CreateTestPropertyModel(title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], liveStreams: [MediaItem] = [], items: [NFTModel]) -> PropertyModel {
+func CreateTestPropertyModel(title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], liveStreams: [MediaItem] = [], sections: [MediaSection] = [], items: [NFTModel]) -> PropertyModel {
 
     
     var projects : [ProjectModel] = []
@@ -53,6 +53,7 @@ func CreateTestPropertyModel(title: String, logo: String, image: String, heroIma
         media: media,
         albums: albums,
         live_streams: liveStreams,
+        sections: sections,
         contents : projects
         )
     

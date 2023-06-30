@@ -54,6 +54,24 @@ struct RedeemableViewModel: Identifiable {
         return ""
     }
     
+    var contentTag: String {
+        for tag in tags {
+            if tag.key == "content" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    func getTag(key:String)->String {
+        for tag in tags {
+            if(tag.key == key){
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
     static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel) async throws -> RedeemableViewModel {
 
         let animationLink = redeemable.animation?["sources"]["default"]
@@ -139,6 +157,27 @@ struct Redeemable: FeatureProtocol {
         }
         return ""
     }
+    
+    var contentTag: String {
+        for tag in tags ?? [] {
+            if tag.key == "content" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    func getTag(key:String)->String {
+        if let tags = tags {
+            for tag in tags {
+                if(tag.key == key){
+                    return tag.value
+                }
+            }
+        }
+        
+        return ""
+    }
 }
 
 struct NFTModel: FeatureProtocol, Equatable, Hashable {
@@ -166,7 +205,35 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var background_image_tv: String? = "" //XXX: Demo only
     var title_image: String? = "" //XXX: Demo only
     var redeemable_offers: [Redeemable]?
+
+    func getTag(key:String)->String {
+        if let tags = self.meta.tags {
+            for tag in tags {
+                if(tag.key == key){
+                    return tag.value
+                }
+            }
+        }
+        
+        return ""
+    }
     
+    var isSeries:Bool {
+        return false
+        /*
+        if let attributes = meta_full?["attributes"].array {
+            for attribute in attributes {
+                let name = attribute["name"].stringValue
+                let value = attribute["value"].stringValue
+                    if name == "series" && value == "true"{
+                        return value == "true"
+                    }
+            }
+        }
+        return false
+         */
+    }
+
     var has_tile: Bool {
         
         guard let image = title_image else {

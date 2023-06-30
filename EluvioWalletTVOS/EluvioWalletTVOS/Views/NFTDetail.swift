@@ -29,6 +29,14 @@ struct NFTDetailView: View {
     @State var localizedFeatures: [MediaItem] = []
     @State var localizedRedeemables: [RedeemableViewModel] = []
     
+    private var sections: [MediaSection] {
+        if let additionalMedia = nft.additional_media_sections {
+            return additionalMedia.sections
+        }
+        
+        return []
+    }
+    
     private var preferredLocation:String {
         fabric.profile.profileData.preferredLocation ?? ""
     }
@@ -121,7 +129,7 @@ struct NFTDetailView: View {
                         .padding(.top)
                     }
 
-                    VStack(spacing: 20){
+                    VStack(spacing: 40){
                         if self.featuredMedia.count > 0 {
                             VStack(alignment: .leading, spacing: 10)  {
                                 ScrollView(.horizontal) {
@@ -160,15 +168,23 @@ struct NFTDetailView: View {
                             .padding(.top)
                         }
                         
-                        LazyVStack(alignment: .leading, spacing: 40)  {
-                            ForEach(collections) { collection in
-                                VStack(alignment: .leading, spacing: 10){
-                                    Text(collection.name)
-                                    MediaCollectionView(mediaCollection: collection)
+
+                        if(!sections.isEmpty){
+                            ForEach(sections) { section in
+                                VStack(alignment: .leading, spacing: 20){
+                                    Text(section.name).font(.rowTitle).foregroundColor(Color.white)
+                                    ForEach(section.collections) { collection in
+                                        if(!collection.media.isEmpty){
+                                            VStack(alignment: .leading, spacing: 10){
+                                                Text(collection.name).font(.rowSubtitle).foregroundColor(Color.white)
+                                                MediaCollectionView(mediaCollection: collection)
+                                            }
+                                            .focusSection()
+                                        }
+                                    }
                                 }
                             }
                         }
-                        .padding(20)
                     }
                 }
                 .padding(80)
@@ -183,7 +199,7 @@ struct NFTDetailView: View {
                 Task {
                     
                     if let redeemableOffers = nft.redeemable_offers {
-                        print("RedeemableOffers ", redeemableOffers)
+                        //print("RedeemableOffers ", redeemableOffers)
                         if !redeemableOffers.isEmpty {
                             var redeemableFeatures: [RedeemableViewModel] = []
                             var localizedRedeemables : [RedeemableViewModel] = []

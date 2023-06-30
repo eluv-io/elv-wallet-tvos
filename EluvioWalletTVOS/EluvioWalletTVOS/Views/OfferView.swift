@@ -68,11 +68,16 @@ struct OfferView: View {
                                 .lineLimit(3)
                                 .padding(.bottom,20)
                             Button(action: {
+                                if (self.isRedeeming ){
+                                    return
+                                }
                                 if !self.isRedeemed {
                                     self.isRedeeming = true
+                                    /*
                                     Task{
                                         if redeemable.redeemAnimationLink != nil {
                                             do{
+                                                print("Found animation")
                                                 let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
                                                 await MainActor.run {
                                                     self.playerItem = playerItem
@@ -82,14 +87,16 @@ struct OfferView: View {
                                                 print("Error creating playerItem for redeem animation: ", error)
                                             }
                                         }
-                                    }
-                                    
-                                    Task{
-                                        var isRedeemed = false
+                                        
+                                        //var isRedeemed = false
+                                        print("Redeeming...", redeemable.id)
+                                        var redeemed = false
                                         do {
                                             if let offerId = redeemable.id {
+                                                print("Redeeming... offer Id ", offerId)
                                                 let result = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
                                                 
+                                                print("Redeem result", result)
                                                 for _ in 0...1 {
                                                     try await Task.sleep(nanoseconds: UInt64(5 * Double(NSEC_PER_SEC)))
                                                     /*if(try await fabric.isRedeemed(offerId: offerId, nft: redeemable.nft)){
@@ -99,26 +106,27 @@ struct OfferView: View {
                                                 }
                                                 
                                                 //DEMO ONLY
-                                                isRedeemed = true
-                                                
+                                                redeemed = true
                                             }
                                         }catch {
                                             print("Failed to redeemOffer", error)
                                         }
                                         await MainActor.run {
                                             self.isRedeeming = false
-                                            self.redeemable.status.isRedeemed = isRedeemed
+                                            self.redeemable.status.isRedeemed = redeemed
+                                            self.showResult = true
                                         }
-                                    }
+                                    }*/
+                                    
                                 }
                                 else{
                                     self.showResult = true
                                 }
                                 
                             }) {
-                                Text(isRedeeming ? "Redeeming..." : (isRedeemed ? "View" : "Redeem Now"))
+                                Text(self.isRedeeming ? "Redeeming..." : (isRedeemed ? "View" : "Redeem Now"))
                             }
-                            .disabled(isRedeeming)
+                            .disabled(self.isRedeeming)
                         }
                     }
                     Spacer()
@@ -130,6 +138,58 @@ struct OfferView: View {
             .background(Color.black.opacity(0.8))
         }
         .background(.thinMaterial)
+        .onChange(of:isRedeeming) { value in
+            if isRedeeming == true {
+                if !self.isRedeemed {
+                   
+                    Task{
+                        if redeemable.redeemAnimationLink != nil {
+                            do{
+                                print("Found animation")
+                                let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
+                                await MainActor.run {
+                                    self.playerItem = playerItem
+                                    showPlayer = true
+                                }
+                            }catch{
+                                print("Error creating playerItem for redeem animation: ", error)
+                            }
+                        }else{
+                            self.showResult = true
+                        }
+                        
+                        //var isRedeemed = false
+                        print("Redeeming...", redeemable.id)
+                        var redeemed = false
+                        do {
+                            if let offerId = redeemable.id {
+                                print("Redeeming... offer Id ", offerId)
+                                let result = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
+                                
+                                print("Redeem result", result)
+                                for _ in 0...1 {
+                                    try await Task.sleep(nanoseconds: UInt64(2 * Double(NSEC_PER_SEC)))
+                                    /*if(try await fabric.isRedeemed(offerId: offerId, nft: redeemable.nft)){
+                                     isRedeemed = true
+                                     break;
+                                     }*/
+                                }
+                                
+                                //DEMO ONLY
+                                redeemed = true
+                            }
+                        }catch {
+                            print("Failed to redeemOffer", error)
+                        }
+                        await MainActor.run {
+                            self.isRedeeming = false
+                            self.redeemable.status.isRedeemed = redeemed
+                            self.showResult = true
+                        }
+                    }
+                }
+            }
+        }
         .onChange(of:showPlayer) { value in
             if showPlayer == false {
                 self.showResult = true
@@ -165,7 +225,7 @@ struct OfferResultView: View {
         if isRedeeming {
             VStack(alignment: .center, spacing:50){
                 Spacer()
-                Text("Redeeming In Progresss...").font(.title3)
+                Text("Redeeming In Progress...").font(.title3)
                     .multilineTextAlignment(.center)
                     .padding()
                 ProgressView()

@@ -39,6 +39,7 @@ struct PropertyView : View {
                                                    items: items,
                                                    drops: drops,
                                                    liveStreams: property.live_streams,
+                                                   sections: property.sections,
                                                    heroImage: property.heroImage
                                                   )
                 .preferredColorScheme(colorScheme)) {
