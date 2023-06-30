@@ -33,14 +33,11 @@ func loadJsonFile<T: Decodable>(_ filename: String) -> T {
 
 func HexToBytes(_ string: String) -> [UInt8]? {
     var str = string
-    print("HexToBytes 1 \(str)")
-    
+
     if(string.hasPrefix("0x")){
         str = String(string.dropFirst(2))
     }
     
-    print("HexToBytes 2 \(str)")
-
     if str.isEmpty{
         print("Error: Length == 0")
         return nil
@@ -108,6 +105,28 @@ extension String {
         return self
       }
     }
+    
+    func capitalizingFirstLetter() -> String {
+        return prefix(1).capitalized + dropFirst()
+    }
+
+    mutating func capitalizeFirstLetter() {
+        self = self.capitalizingFirstLetter()
+    }
+    
+    func html2Attributed(color: Color = .white, font: Font = .body) -> AttributedString {
+        guard let data = data(using: String.Encoding.utf8) else {
+            return ""
+        }
+        if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
+            var text = AttributedString(attributedString)
+            text.foregroundColor = color
+            text.font = font
+            return text
+        }
+        
+        return ""
+}
 }
 
 extension Data {
@@ -161,6 +180,19 @@ func FindContentHash(uri: String) -> String? {
         }
     }
     
+    //try searching params (for embed
+    do {
+        let regexp = try Regex("hq__[^&/]+")
+        if let result = uri.firstMatch(of: regexp) {
+            print(result.output)
+            if let sub  = result.output[0].substring {
+                return String(sub)
+            }
+        }
+    }catch{
+        print("Error in FindContentHash ", uri)
+    }
+    
     return nil
 }
 
@@ -180,4 +212,41 @@ func GenerateQRCode(from string: String) -> UIImage {
     }
 
     return UIImage(systemName: "xmark.circle") ?? UIImage()
+}
+
+extension RangeReplaceableCollection where Element: Equatable {
+    @discardableResult
+    mutating func appendIfNotContains(_ element: Element) -> (appended: Bool, memberAfterAppend: Element) {
+        if let index = firstIndex(of: element) {
+            return (false, self[index])
+        } else {
+            append(element)
+            return (true, element)
+        }
+    }
+    
+    func unique() -> [Element] where Element: Equatable {
+        var newArray: [Element] = []
+        self.forEach { i in
+            if !newArray.contains(i) {
+                newArray.append(i)
+                
+            }
+        }
+        return newArray
+    }
+    
+    func group<Discrimininator>(by discriminator: (Element)->(Discrimininator)) -> [Discrimininator: [Element]] where Discrimininator: Hashable {
+        
+        var result = [Discrimininator: [Element]]()
+        for element in self {
+            
+            let key = discriminator(element)
+            var array = result[key] ?? [Element]()
+            array.append(element)
+            result[key] = array
+        }
+        
+        return result
+    }
 }

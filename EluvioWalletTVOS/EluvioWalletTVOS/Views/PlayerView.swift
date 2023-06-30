@@ -9,9 +9,82 @@ import Foundation
 import SwiftUI
 import AVKit
 import SDWebImageSwiftUI
+import Combine
 
-class PlayerItemObserver: NSObject, ObservableObject {
-    @Published var playerItemContext = 0
+class PlayerFinishedObserver: ObservableObject {
+
+    @Published
+    var publisher = PassthroughSubject<Void, Never>()
+
+    init(player: AVPlayer? = nil) {
+        if let player = player {
+            let item = player.currentItem
+            
+            var cancellable: AnyCancellable?
+            cancellable = NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: item).sink { [weak self] change in
+                self?.publisher.send()
+                cancellable?.cancel()
+            }
+        }
+    }
+}
+
+//This player plays the main video of an NFTModel
+struct NFTPlayerView: View {
+    @EnvironmentObject var fabric: Fabric
+    @State var player = AVPlayer()
+    @State var isPlaying: Bool = false
+    @State var playerItem : AVPlayerItem?
+    @State var nft: NFTModel
+    
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State private var newItem : Bool = false
+    
+    var body: some View {
+        VideoPlayer(player: player)
+        .ignoresSafeArea()
+        .onChange(of: playerItem) { value in
+            if (self.playerItem != nil) {
+                self.player.replaceCurrentItem(with: self.playerItem)
+                print("PlayerView: replaced current Item \(self.playerItem?.asset)")
+                newItem = true
+
+            }
+        }
+        .onReceive(timer) { time in
+            //print("Item Status \(self.playerItem?.status.rawValue)")
+            if (newItem && self.playerItem?.status == .readyToPlay){
+                self.player.play()
+                newItem = false
+                //print("Play!!")
+            }
+        }
+        .onAppear(){
+            Task{
+                if let mediaType = nft.meta_full?["media_type"].stringValue {
+                    if mediaType == "Video" {
+                        if let embedUrl = nft.meta_full?["embed_url"].stringValue {
+                            print("EMBED URL: ", embedUrl)
+                            if let versionHash = FindContentHash(uri: embedUrl) {
+                                print("Content Hash: ", versionHash)
+                                do {
+                                    let optionsJson = try await fabric.getOptionsJsonFromHash(versionHash: versionHash)
+                                    print("Options: ",optionsJson)
+                                    let playListUrl = try await fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash)
+                                    print("PlaylistUrl: ",playListUrl)
+                                    self.playerItem = try MakePlayerItemFromOptionsJson(fabric: fabric,
+                                                                                    optionsJson: optionsJson,
+                                                                                    versionHash: versionHash)
+                                }catch{
+                                    print("NFTPlayerView: ", error)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 struct PlayerView: View {
@@ -21,30 +94,39 @@ struct PlayerView: View {
     @State var player = AVPlayer()
     @State var isPlaying: Bool = false
     @Binding var playerItem : AVPlayerItem?
-    @ObservedObject var playerItemObserver = PlayerItemObserver()
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
-    @Binding var playerImageOverlayUrl : String
-    @Binding var playerTextOverlay : String
+    @State var playerImageOverlayUrl = ""
+    @State var playerTextOverlay = ""
+    @State var finishedObserver = PlayerFinishedObserver()
+    @Binding var finished: Bool
     
+
     var body: some View {
             VideoPlayer(player: player)
             .ignoresSafeArea()
+        //CAREFUL: Crashes to have the following:
+        /*
             .onChange(of: playerItem) { value in
-                if (self.playerItem != nil) {
+                if (self.playerItem != self.player.currentItem) {
                     self.player.replaceCurrentItem(with: self.playerItem)
                     print("PlayerView: replaced current Item \(self.playerItem?.asset)")
                     newItem = true
-
                 }
             }
+         */
             .onReceive(timer) { time in
-                print("Item Status \(self.playerItem?.status.rawValue)")
+                //print("Item Status \(self.playerItem?.status.rawValue)")
                 if (newItem && self.playerItem?.status == .readyToPlay){
                     self.player.play()
                     newItem = false
-                    print("Play!!")
+                    //print("Play!!")
                 }
+                
+            }
+            .onReceive(finishedObserver.publisher) {
+                print("Finished!")
+                self.finished = true
             }
             .overlay {
                 VStack {
@@ -56,43 +138,6 @@ struct PlayerView: View {
                             .aspectRatio(contentMode: .fill)
                             .frame( width: 600, height: 600)
                             .cornerRadius(15)
-                        
-                        /*
-                        CacheAsyncImage(url: URL(string: playerImageOverlayUrl)) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame( width: 600, height: 600)
-                                .cornerRadius(15)
-                        } placeholder: {
-                            
-                        }
-                         */
-                        /*
-                        AsyncImage(url: URL(string: playerImageOverlayUrl)) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image.resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame( width: 600, height: 600)
-                                    .cornerRadius(15)
-                            case .failure(let error):
-                                let _ = print(error)
-                                //Text("error: \(error.localizedDescription)")
-                                AsyncImage(url: URL(string: playerImageOverlayUrl)) { image in
-                                    image.resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame( width: 600, height: 600)
-                                        .cornerRadius(15)
-                                } placeholder: {
-                                    EmptyView()
-                                }
-                            case .empty:
-                                EmptyView()
-                            @unknown default:
-                                EmptyView()
-                            }
-                        }
-                         */
                     }
                     
                     if !playerTextOverlay.isEmpty {
@@ -104,6 +149,22 @@ struct PlayerView: View {
                     }
                 }
             }
+            .onAppear(){
+                //print("*** PlayerView onAppear() ", self.player)
+                //print("PlayerItem",self.playerItem)
+                if (self.playerItem != self.player.currentItem){
+                    self.player.replaceCurrentItem(with: self.playerItem)
+                    print("player.replaceCurrentItem()")
+                }
+                
+                self.player.play()
+                newItem = true
+                self.finishedObserver = PlayerFinishedObserver(player: player)
+            }
+    }
+    
+    func playerDidFinishPlaying(note: NSNotification) {
+        print("Video Finished")
     }
 }
 

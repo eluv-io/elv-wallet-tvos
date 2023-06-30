@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 var test_NFTs: [NFTModel] = loadJsonFile("nfts.json")
 var test_sale_NFTs: [NFTModel] = loadJsonFile("nfts_marketplace.json")
@@ -14,7 +15,7 @@ var test_profile: ProfileModel = loadJsonFile("profile.json")
 
 func CreateTestNFTs(num: Int) -> [NFTModel] {
     var nfts: [NFTModel] = [];
-    for i in 1...num {
+    for i in 0...num {
         var item = test_NFTs[0]
         item.contract_name = "Test NFT " + String(i)
         item.meta.displayName = "Test NFT Long Name Test NFT Long Name Test NFT Long Name Test NFT Long Name Test NFT Long Name Test NFT Long Name "
@@ -32,4 +33,34 @@ func CreateTestNFTs(num: Int) -> [NFTModel] {
         nfts.append(item)
     }
     return nfts
+}
+
+
+func CreateTestPropertyModel(title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], liveStreams: [MediaItem] = [], sections: [MediaSection] = [], items: [NFTModel]) -> PropertyModel {
+
+    
+    var projects : [ProjectModel] = []
+    projects.append(ProjectModel(
+        contents : items
+    ))
+    
+    var property = PropertyModel(
+        title : title,
+        logo: logo,
+        image : image,
+        heroImage: heroImage,
+        featured: featured,
+        media: media,
+        albums: albums,
+        live_streams: liveStreams,
+        sections: sections,
+        contents : projects
+        )
+    
+    
+    for index in 0..<property.contents[0].contents.count{
+        property.contents[0].contents[index].property = property
+    }
+    
+    return property
 }

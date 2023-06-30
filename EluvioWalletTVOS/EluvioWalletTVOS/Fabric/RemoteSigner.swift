@@ -47,40 +47,33 @@ class RemoteSigner {
         return endpoint
     }
     
-    func getWalletData(accountAddress: String, accessCode: String) async throws -> [String: AnyObject] {
-            return try await withCheckedThrowingContinuation({ continuation in
+    //TODO: Convert this to responseDecodable
+    func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            
+            do {
+                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress);
+                //print("Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
                 
-                do {
-                    let endpoint: String = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress);
-                    print("Request: \(endpoint)")
-                    let headers: HTTPHeaders = [
-                        "Authorization": "Bearer \(accessCode)",
-                             "Accept": "application/json",
-                             "Content-Type": "application/json" ]
-                    
-                    AF.request(endpoint, parameters: nil, encoding: JSONEncoding.default, headers: headers ).responseJSON { response in
-                        //debugPrint("GetWalletData Response: \(response)")
-                        
-                        switch (response.result) {
-                            case .success( _):
-                                if let value = response.value as? [String: AnyObject] {
-                                    //print("contents: \(value["contents"])")
-                                    if let result = value as? [String: AnyObject] {
-                                        continuation.resume(returning: result)
-                                    }else{
-                                        continuation.resume(throwing: FabricError.unexpectedResponse("Could not get value from response \(response)"))
-                                    }
-                                }
-                             case .failure(let error):
-                                print("Request error: \(error.localizedDescription)")
-                                continuation.resume(throwing: error)
-                             
-                         }
-                    }
-                }catch{
-                    continuation.resume(throwing: error)
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get Wallet Data Request error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
                 }
-            })
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
     }
     
     struct Message: Decodable, Identifiable {
@@ -166,7 +159,7 @@ class RemoteSigner {
         }
         
         let joined = rData + sData + vData
-        print("joinSignature joined \(HexToBytes(joined.hexEncodedString()))")
+        //print("joinSignature joined \(HexToBytes(joined.hexEncodedString()))")
         return joined
     }
     
@@ -201,22 +194,22 @@ class RemoteSigner {
             throw FabricError.badInput("personalSign: could not get string for token structure \(token)")
         }
         
-        print ("tokenString \n",tokenString)
+        //print ("tokenString \n",tokenString)
         /*tokenString = "{\"sub\":\"iusr2xvLGywBuSQBBbcoJN3ShsMHsWJU\",\"adr\":\"jPujzYbFMKh5vZ/llESSDPPng9k=\",\"spc\":\"ispc3ANoVSzNA3P6t7abLR69ho5YPPZU\",\"iat\":1680643350169,\"exp\":1680729750169}" */
 
         let message = "Eluvio Content Fabric Access Token 1.0\n\(tokenString)";
         
-        print("message ", message)
+        //print("message ", message)
 
         guard var signature = try await self.personalSign(message:message, accountId: try addressToId(prefix: "ikms", address: address), authToken: authToken) else {
             throw FabricError.unexpectedResponse("personalSign: could not get signature")
         }
         
-        print("personal signature ", signature)
+        //print("personal signature ", signature)
         
         let compressedToken = Data(referencing: try (Data(tokenString.utf8) as NSData).compressed(using: .zlib))
         
-        print("compressedToken ", compressedToken)
+        //print("compressedToken ", compressedToken)
         
         signature.append(compressedToken)
         
@@ -231,7 +224,7 @@ class RemoteSigner {
     func personalSign(message: String, accountId: String, authToken: String) async throws -> Data? {
         
         let message2 = "\u{19}Ethereum Signed Message:\n\(message.count)\(message)"
-        print("personalSign message ", message2)
+        //print("personalSign message ", message2)
         let hash: Data = keccak256(Data(message2.utf8))
         /*guard let hash = hashPersonalMessage(Data(message.utf8)) else {
             throw FabricError.badInput
@@ -239,7 +232,7 @@ class RemoteSigner {
         
         //return try self.joinSignature(signature:try await self.signDigest(digest:hash, accountId:accountId, authToken:authToken))
         
-        print("personalSign hash ", hash.hexEncodedString())
+        //print("personalSign hash ", hash.hexEncodedString())
         var signature = try await self.signDigest(digest:hash, accountId:accountId, authToken:authToken)
         
         /*var signature: [String : Any] = ["sig":"0x98f93dae6dc74393e3b917de790304a9954fa46ef0c28596d13eecb7c61b850e0077903fc4d21de6e07d484271f8c5468dc66aca23fae08dc052a48928f1a87701",
@@ -259,18 +252,18 @@ class RemoteSigner {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
                 let endpoint: String = try self.getAuthEndpoint().appending("/wlt/sign/eth/").appending(accountId);
-                print("Request: \(endpoint)")
+                //print("Request: \(endpoint)")
                 
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(authToken)",
                      "Accept": "application/json",
                      "Content-Type": "application/json" ]
                 //let parameters : [String: Any] = ["hash":"0x27d27bad7e7172ea9adb6b6083d657f33045fe2b1f87cc96c85638a1f96b9439"]
-                print("digest: \(digest.hexEncodedString())")
+                //print("digest: \(digest.hexEncodedString())")
                 let parameters : [String: Any] = ["hash":digest.hexEncodedString()]
                 
                 AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers ).responseJSON { response in
-                    debugPrint("signDigest Response: \(response)")
+                    //debugPrint("signDigest Response: \(response)")
                     
                     switch (response.result) {
                         case .success( _):
@@ -299,5 +292,64 @@ class RemoteSigner {
         })
 
     }
+    
+    func getNftInfo(nftAddress: String, tokenId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            
+            do {
+                let endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)/\(tokenId)");
+                //print("Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get NFT Info Request error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
+    func getWalletStatus(tenantId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                print("****** getWalletStatus ******")
+                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/status/act/\(tenantId)");
+                print("Request: \(endpoint)")
+                print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                print("Headers: \(headers)")
+                
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+                    print("Response : \(response)")
+                    
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get Wallet Status Request error: \(error)")
+
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
 }
 

@@ -8,24 +8,255 @@
 import Foundation
 import SwiftUI
 import SwiftyJSON
+import AVKit
 
-struct NFTModel: Identifiable, Codable {
+struct RedeemStatus {
+    var isRedeemed = false
+    var isActive = true
+}
+
+struct RedeemableViewModel: Identifiable {
+    var id: String? = UUID().uuidString
+    var expiresAt: String = ""
+    var name: String = ""
+    var description: String = ""
+    var animationLink: JSON?
+    var redeemAnimationLink: JSON?
+    var availableAt: String = ""
+    var status = RedeemStatus()
+    var imageUrl: String = ""
+    var posterUrl: String = ""
+    var tags: [TagMeta] = []
+    var nft = NFTModel()
+    
+    var availableAtFormatted: String {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: availableAt) else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter.string(from: date)
+    }
+    
+    var expiresAtFormatted: String {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: expiresAt) else { return "" }
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        return formatter.string(from: date)
+    }
+    
+    var location: String {
+        for tag in tags {
+            if tag.key == "location" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    var contentTag: String {
+        for tag in tags {
+            if tag.key == "content" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    func getTag(key:String)->String {
+        for tag in tags {
+            if(tag.key == key){
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel) async throws -> RedeemableViewModel {
+
+        let animationLink = redeemable.animation?["sources"]["default"]
+
+        let redeemAnimationLink = redeemable.redeem_animation?["sources"]["default"]
+        
+        var imageUrl = ""
+        if let image = redeemable.image {
+            do{
+                imageUrl = try fabric.getUrlFromLink(link: image)
+            }catch{}
+        }
+        
+        var posterUrl = ""
+        
+        if let image = redeemable.poster_image {
+            do{
+                posterUrl = try fabric.getUrlFromLink(link: image)
+            }catch{}
+        }
+        
+        
+        //TODO: Find status
+        var isRedeemed = false
+        var isOfferActive = false
+        if let offerId = redeemable.offer_id {
+            do{
+                isRedeemed = try await fabric.isRedeemed(offerId: offerId, nft: nft)
+            }catch{
+                print ("Error finding redeem status ", error)
+            }
+            
+            do{
+                isOfferActive = try await fabric.isOfferActive(offerId: offerId, nft: nft)
+            }catch{
+                print ("Error finding redeem status ", error)
+            }
+        }
+
+
+        let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive)
+        
+        return RedeemableViewModel(id:redeemable.id,
+                                   expiresAt: redeemable.expires_at ?? "",
+                                   name: redeemable.name ?? "",
+                                   description: redeemable.description ?? "",
+                                   animationLink: animationLink,
+                                   redeemAnimationLink: redeemAnimationLink,
+                                   availableAt: redeemable.available_at ?? "",
+                                   status: redeemStatus,
+                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [], nft:nft)
+    }
+    
+}
+
+struct Redeemable: FeatureProtocol {
+    var id: String? {
+        if let offerid = offer_id {
+            if !offerid.isEmpty {
+                return offerid
+            }
+        }
+        return UUID().uuidString
+    }
+    var expires_at: String?
+    var name: String?
+    var description: String?
+    var sources: JSON?
+    var animation: JSON?
+    var redeem_animation: JSON?
+    var available_at: String?
+    var offer_id: String?
+    var image: JSON?
+    var poster_image: JSON?
+    var visibilty: JSON?
+    var tags: [TagMeta]? = []
+    
+    var location: String {
+        for tag in tags ?? [] {
+            if tag.key == "location" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    var contentTag: String {
+        for tag in tags ?? [] {
+            if tag.key == "content" {
+                return tag.value
+            }
+        }
+        return ""
+    }
+    
+    func getTag(key:String)->String {
+        if let tags = tags {
+            for tag in tags {
+                if(tag.key == key){
+                    return tag.value
+                }
+            }
+        }
+        
+        return ""
+    }
+}
+
+struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var block: Int?
     var created: Int?
     var cap: Int?
     var contract_name: String?
-    var contract_addr: String
+    var contract_addr: String?
     var hold: Int?
-    var ordinal: Int
-    var token_id: Int
-    var token_id_str: String
+    var ordinal: Int?
+    var token_id: Int?
+    var token_id_str: String?
     var token_owner: String?
-    var token_uri: String
+    var token_uri: String?
     var meta : NFTMetaResponse = NFTMetaResponse()
+    
+    //TODO: Move to a ViewModel
     var meta_full: JSON?
     var has_playable_feature : Bool?
-    var additional_media_sections : AdditionalMediaModel?
+    var has_album: Bool? = false
+    var additional_media_sections : AdditionalMediaModel? = nil
+    var property : PropertyModel? = nil
+    var project : ProjectModel? = nil
+    var background_image_tv: String? = "" //XXX: Demo only
+    var title_image: String? = "" //XXX: Demo only
+    var redeemable_offers: [Redeemable]?
+
+    func getTag(key:String)->String {
+        if let tags = self.meta.tags {
+            for tag in tags {
+                if(tag.key == key){
+                    return tag.value
+                }
+            }
+        }
+        
+        return ""
+    }
+    
+    var isSeries:Bool {
+        return false
+        /*
+        if let attributes = meta_full?["attributes"].array {
+            for attribute in attributes {
+                let name = attribute["name"].stringValue
+                let value = attribute["value"].stringValue
+                    if name == "series" && value == "true"{
+                        return value == "true"
+                    }
+            }
+        }
+        return false
+         */
+    }
+
+    var has_tile: Bool {
+        
+        guard let image = title_image else {
+            return false
+        }
+        
+        return !image.isEmpty
+    }
+    
+    var has_multiple_media: Bool {
+        
+        guard let mediaSections = additional_media_sections else {
+            return false
+        }
+        
+        var count = 0
+        
+        count = mediaSections.featured_media.count
+        count += mediaSections.sections.count
+        
+        return count > 1
+    }
+    
     init(){
         block = 0
         created = 0
@@ -39,5 +270,15 @@ struct NFTModel: Identifiable, Codable {
         token_owner = ""
         token_uri = ""
         has_playable_feature = false
+        additional_media_sections = nil
+    }
+    
+    //TODO: Find a good id for this
+    static func == (lhs: NFTModel, rhs: NFTModel) -> Bool {
+        return lhs.contract_addr == rhs.contract_addr
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(contract_addr)
     }
 }

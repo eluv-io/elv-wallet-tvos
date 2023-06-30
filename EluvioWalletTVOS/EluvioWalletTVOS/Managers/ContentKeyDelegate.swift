@@ -82,12 +82,12 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
             request.setValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
             request.httpBody = postData
             
-            print("Request \(request)")
+            //print("Request \(request)")
             
             URLSession.shared.dataTask(with: request) { (data, _, error) in
                 if let data = data, var responseString = String(data: data, encoding: .utf8) {
                     responseString = responseString.replacingOccurrences(of: "<ckc>", with: "").replacingOccurrences(of: "</ckc>", with: "")
-                    print("Response \(responseString)")
+                    //print("Response \(responseString)")
                     ckcData = Data(base64Encoded: responseString)
                 } else {
                     print("Error encountered while fetching FairPlay license for URL: \(self.drmUrl), \(error?.localizedDescription ?? "Unknown error")")
@@ -226,15 +226,15 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
                 print("Failed to retrieve the assetID from the keyRequest!")
                 return
         }
-        print("ContentKeyDelegate.handleStreamingContentKeyRequest " + assetIDString)
+        //print("ContentKeyDelegate.handleStreamingContentKeyRequest " + assetIDString)
 
         let provideOnlinekey: () -> Void = { () -> Void in
-            print("ContentKeyDelegate.handleStreamingContentKeyRequest provideOnlinekey")
+            //print("ContentKeyDelegate.handleStreamingContentKeyRequest provideOnlinekey")
             do {
                 let applicationCertificate = try self.requestApplicationCertificate()
 
                 let completionHandler = { [weak self] (spcData: Data?, error: Error?) in
-                    print("ContentKeyDelegate.handleStreamingContentKeyRequest completionHandler")
+                    //print("ContentKeyDelegate.handleStreamingContentKeyRequest completionHandler")
                     guard let strongSelf = self else { return }
                     if let error = error {
                         keyRequest.processContentKeyResponseError(error)
@@ -242,7 +242,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
                     }
 
                     guard let spcData = spcData else {
-                        print("no spcData")
+                        //print("no spcData")
                         return
                     }
 
@@ -256,7 +256,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
                          decrypting content.
                          */
                         let keyResponse = AVContentKeyResponse(fairPlayStreamingKeyResponseData: ckcData)
-                        print("keyResponse ", keyResponse)
+                        //print("keyResponse ", keyResponse)
 
                         /*
                          Provide the content key response to make protected content available for processing.

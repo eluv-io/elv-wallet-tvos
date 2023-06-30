@@ -33,6 +33,39 @@ struct DetailButtonStyle: ButtonStyle {
     }
 }
 
+struct IconButtonStyle: ButtonStyle {
+    let focused: Bool
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.white)
+            .background(self.focused ? Color.tinted : Color.translucent)
+            .cornerRadius(5)
+            .scaleEffect(self.focused ? 1.1: 1, anchor: .center)
+            .shadow(color: self.focused ? .gray.opacity(0.5) : .black, radius: self.focused ? 8 : 0, x: 2, y: 2)
+            .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+    }
+}
+
+struct NonSelectionButtonStyle: ButtonStyle {
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.clear)
+            .background(.clear)
+    }
+}
+
+struct TitleButtonStyle: ButtonStyle {
+    let focused: Bool
+    var scale = 1.04
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.white)
+            .background(.clear)
+            .scaleEffect(self.focused ? scale: 1, anchor: .center)
+            .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+    }
+}
+
 struct GalleryButtonStyle: ButtonStyle {
     let focused: Bool
     func makeBody(configuration: Self.Configuration) -> some View {
@@ -43,5 +76,48 @@ struct GalleryButtonStyle: ButtonStyle {
             .cornerRadius(20)
             .scaleEffect(self.focused ? 1.14: 1, anchor: .center)
             .animation(.easeIn(duration: 0.2), value: self.focused)
+    }
+}
+
+
+
+extension Font {
+    
+    /// Create a font with the large title text style.
+    public static var itemTitle: Font {
+        return Font.system(size: 36)
+    }
+    
+    /// Create a font with the title text style.
+    public static var itemSubtitle: Font {
+        return Font.system(size: 20)
+    }
+    
+    public static var description: Font {
+        return Font.system(size: 40)
+    }
+    
+    public static var fine: Font {
+        return Font.system(size: 20)
+    }
+    
+    public static var fineBold: Font {
+        return Font.system(size: 20)
+    }
+    
+    public static var small: Font {
+        return Font.system( size: 28)
+    }
+    
+    public static var smallBold: Font {
+        return Font.system(size: 28).bold()
+    }
+
+    public static var rowTitle: Font {
+        return Font.system(size: 36)
+    }
+    
+    public static var rowSubtitle: Font {
+        return Font.system(size: 30)
     }
 }

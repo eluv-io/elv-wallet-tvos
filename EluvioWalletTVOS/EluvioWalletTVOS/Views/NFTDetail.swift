@@ -10,219 +10,6 @@ import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
 
-struct MediaView: View {
-    @EnvironmentObject var fabric: Fabric
-    @State var media: MediaItem? = nil
-    @Binding var showPlayer : Bool
-    @Binding var playerItem : AVPlayerItem?
-    @FocusState var isFocused
-    @State var showGallery = false
-    @State var gallery: [GalleryItem] = []
-    @State var showQRView = false
-    @State var qrUrl = "https://eluv.io"
-    @Binding var playerImageOverlayUrl : String
-    @Binding var playerTextOverlay : String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            Button(action: {
-                if media?.media_type == "Video" || media?.media_type == "Audio"{
-                    if media?.media_type == "Video" {
-                        self.playerImageOverlayUrl = ""
-                        self.playerTextOverlay = ""
-                    } else {
-                        self.playerImageOverlayUrl = media?.image ?? ""
-                        self.playerTextOverlay = media?.name ?? ""
-                    }
-                    self.showPlayer = true
-                        Task {
-                            do {
-                                
-                                var offering = "default"
- 
-                                if (media?.offerings?.count ?? 0 > 0){
-                                    offering = media?.offerings?[0] ?? "default"
-                                }
-
-                                var optionsUrl = try fabric.getUrlFromLink(link: media?.media_link?["sources"]["default"], params: media?.parameters ?? [] )
-                                
-                                //There's no offering other than sources.default
-                                //let optionsUrl = try fabric.getOptionsFromLink(resolvedLink: media?.media_link, offering: offering)
-                                
-                                print("MEDIA: ", media)
-                                
-                                if(offering != "default" && optionsUrl.contains("default/options.json")){
-                                    optionsUrl = optionsUrl.replaceFirst(of: "default/options.json", with: "\(offering)/options.json")
-                                }
-                                
-                                print ("Offering \(offering)")
-                                print("options url \(optionsUrl)")
-                                
-                                
-                                guard let hash = FindContentHash(uri: optionsUrl) else {
-                                    throw RuntimeError("Could not find hash from \(optionsUrl)")
-                                }
-                                
-                                let optionsJson = try await fabric.getJsonRequest(url: optionsUrl)
-                                print("options json \(optionsJson)")
-                                
-                                var hlsPlaylistUrl: String = ""
-                                
-                                if optionsJson["hls-clear"].exists() {
-                                    hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash, drm:"hls-clear")
-                                    print("Playlist URL \(hlsPlaylistUrl)")
-                                    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-                                    
-                                    self.playerItem = AVPlayerItem(asset: urlAsset)
-                                }else if optionsJson["hls-fairplay"].exists() {
-                                    let licenseServer = optionsJson["hls-fairplay"]["properties"]["license_servers"][0].stringValue
-                                    
-                                    if(licenseServer.isEmpty)
-                                    {
-                                        throw RuntimeError("Error getting licenseServer")
-                                    }
-                                    print("license_server \(licenseServer)")
-                                    
-                                    hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: hash, drm:"hls-fairplay", offering: offering)
-                                    print("Playlist URL \(hlsPlaylistUrl)")
-                                    
-                                    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-                                    
-                                    ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-                                    ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
-                                    self.playerItem = AVPlayerItem(asset: urlAsset)
-                                    
-                                }else{
-                                    throw RuntimeError("No available playback options \(optionsJson)")
-                                }
-                            } catch {
-                                print("Error getting Options url from link \(error)")
-                            }
-                        }
-                    }
-                else if media?.media_type == "HTML" {
-                    do {
-                        //let htmlUrl = try fabric.getUrlFromLink(link: media?.media_file, params: media?.parameters ?? [])
-                        let htmlUrl = try fabric.getMediaHTML(link: media?.media_file, params: media?.parameters ?? [])
-                        print("url \(htmlUrl)")
-                        self.qrUrl = htmlUrl
-                        self.showQRView = true
-                        
-                    } catch {
-                        print("Error getting Options url from link \(error)")
-                    }
-                }
-                else if media?.media_type == "Gallery" {
-                    if media?.gallery != nil {
-                        self.gallery = media?.gallery ?? []
-                        self.showGallery = true
-                    }
-                }
- 
-            }) {
-                
-                WebImage(url: URL(string: media?.image ?? ""))
-                    .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame( width: 225, height: 225)
-                    .cornerRadius(15)
-                /*
-                CacheAsyncImage(url: URL(string: media?.image ?? "")) { image in
-                    image.resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame( width: 225, height: 225)
-                        .cornerRadius(15)
-                } placeholder: {
-                    ProgressView()
-                }
-                
-                AsyncImage(url: URL(string: media?.image ?? "")) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image.resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame( width: 225, height: 225)
-                            .cornerRadius(15)
-                    case .failure(let error):
-                        let _ = print(error)
-                        //Text("error: \(error.localizedDescription)")
-                        AsyncImage(url: URL(string: media?.image ?? "")) { image in
-                             image.resizable()
-                                 .aspectRatio(contentMode: .fill)
-                                 .frame( width: 225, height: 225)
-                                 .cornerRadius(15)
-                        } placeholder: {
-                            ProgressView()
-                        }
-                    case .empty:
-                        ProgressView()
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
-                 */
-            }
-            .buttonStyle(DetailButtonStyle(focused: isFocused))
-            .focused($isFocused)
-            .overlay(content: {
-                if (media?.media_type == "Video"){
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.white)
-                        .opacity(0.7)
-                }
-            })
-            
-            Text(media?.name ?? "")
-                .foregroundColor(Color.white)
-                .lineLimit(3)
-                .font(.caption)
-                .frame(width: 300, height: 80, alignment: .topLeading)
-            
-        }
-        .fullScreenCover(isPresented: $showGallery) {
-            GalleryView(gallery: $gallery)
-                .environmentObject(self.fabric)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .edgesIgnoringSafeArea(.all)
-                .background(.thinMaterial)
-        }
-        .fullScreenCover(isPresented: $showQRView) {
-            QRView(url: $qrUrl)
-                .environmentObject(self.fabric)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .edgesIgnoringSafeArea(.all)
-                .background(.thinMaterial)
-        }
-    }
-
-}
-
-struct MediaCollectionView: View {
-    @EnvironmentObject var fabric: Fabric
-    @State var mediaCollection: MediaCollection
-    @Binding var showPlayer : Bool
-    @Binding var playerItem : AVPlayerItem?
-    @Binding var playerImageOverlayUrl : String
-    @Binding var playerTextOverlay : String
-    
-    var body: some View {
-        ScrollView(.horizontal) {
-            HStack(alignment: .top, spacing: 20) {
-                ForEach(self.mediaCollection.media) {media in
-                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
-                              playerImageOverlayUrl:$playerImageOverlayUrl,
-                              playerTextOverlay:$playerTextOverlay
-                    )
-                }
-            }
-            .padding(20)
-        }
-    }
-}
-
 struct NFTDetailView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
@@ -230,107 +17,301 @@ struct NFTDetailView: View {
     @EnvironmentObject var fabric: Fabric
     @State var search = false
     @State var searchText = ""
-    @State var showPlayer = false
-    @State var playerItem : AVPlayerItem? = nil
     var title = ""
     @Binding var nft: NFTModel
-    @Binding var featuredMedia: [MediaItem]
-    @Binding var collections: [MediaCollection]
-    @Binding var richText : AttributedString
+    @State var featuredMedia: [MediaItem] = []
+    @State var collections: [MediaCollection] = []
+    @State var richText : AttributedString = ""
     @FocusState var isFocused
-    @State var playerImageOverlayUrl : String = ""
-    @State var playerTextOverlay : String = ""
+    @State var backgroundImageUrl : String = ""
+    @FocusState private var headerFocused: Bool
+    @State var redeemableFeatures: [RedeemableViewModel] = []
+    @State var localizedFeatures: [MediaItem] = []
+    @State var localizedRedeemables: [RedeemableViewModel] = []
+    
+    private var sections: [MediaSection] {
+        if let additionalMedia = nft.additional_media_sections {
+            return additionalMedia.sections
+        }
+        
+        return []
+    }
+    
+    private var preferredLocation:String {
+        fabric.profile.profileData.preferredLocation ?? ""
+    }
     
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
-                HStack(alignment: .top, spacing: 40) {
-                    Button(action: {
-                    }) {
-                        /*
-                        AsyncImage(url: URL(string: nft.meta.image)) { image in
-                            image.resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame( width: 500, height: 500, alignment: .topLeading)
-                                .cornerRadius(15)
-                        } placeholder: {
-                            ProgressView()
-                        }*/
-                        WebImage(url: URL(string: nft.meta.image))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame( width: 500, height: 500, alignment: .topLeading)
-                            .cornerRadius(15)
-                    }
-                    .buttonStyle(PrimaryButtonStyle(focused: isFocused))
-                    .focused($isFocused)
-                    
-                    VStack(alignment: .leading, spacing: 20)  {
-                        Text(nft.meta.displayName).font(.title2)
-                            .foregroundColor(Color.white)
-                            .fontWeight(.bold)
-                        HStack {
-                            Text(nft.meta.editionName)
-                                .font(.headline)
+        ZStack(alignment:.topLeading) {
+            if (self.backgroundImageUrl.hasPrefix("http")){
+                WebImage(url: URL(string: self.backgroundImageUrl))
+                    .resizable()
+                    .indicator(.activity) // Activity Indicator
+                    .transition(.fade(duration: 0.5))
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth:.infinity, maxHeight:.infinity)
+                    .frame(alignment: .topLeading)
+                    .clipped()
+            }else if(self.backgroundImageUrl != "") {
+                Image(self.backgroundImageUrl)
+                    .resizable()
+                    .transition(.fade(duration: 0.5))
+                    .aspectRatio(contentMode: .fill)
+                    .frame(maxWidth:.infinity, maxHeight:.infinity)
+                    .frame(alignment: .topLeading)
+                    .clipped()
+            }else{
+                Rectangle().foregroundColor(Color.clear)
+                .frame(maxWidth:.infinity, maxHeight:.infinity)
+            }
+            
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    Button{} label: {
+                        VStack(alignment: .leading, spacing: 20)  {
+                            Text(nft.meta.displayName ?? "").font(.title3)
                                 .foregroundColor(Color.white)
-                            Text("# \(nft.token_id_str)")
-                                .font(.headline)
-                                .foregroundColor(Color.yellow)
-                        }
-                        if nft.meta_full != nil {
-                            if(self.richText.description.isEmpty) {
-                                Text(nft.meta_full?["description"].stringValue ?? "")
+                                .fontWeight(.bold)
+                                .frame(maxWidth:1500, alignment:.leading)
+                            if nft.meta_full != nil {
+                                if(self.richText.description.isEmpty) {
+                                    Text(nft.meta_full?["description"].stringValue ?? "")
+                                        .foregroundColor(Color.white)
+                                        .padding(.top)
+                                        .frame(maxWidth:1200, alignment:.leading)
+                                        .lineLimit(5)
+                                }else {
+                                    Text(self.richText)
+                                        .foregroundColor(Color.white)
+                                        .padding(.top)
+                                        .frame(maxWidth:1200, alignment:.leading)
+                                        .lineLimit(5)
+                                }
+                            }else{
+                                Text(nft.meta.description ?? "")
                                     .foregroundColor(Color.white)
-                                    .padding(.top)
-                            }else {
-                                Text(self.richText)
-                                    .foregroundColor(Color.white)
-                                    .padding(.top)
+                                    .frame(maxWidth:1200, alignment:.leading)
                             }
-                        }else{
-                            Text(nft.meta.description)
-                                .foregroundColor(Color.white)
+                            Spacer()
                         }
                     }
-                    Spacer()
-                }
-                
-                if self.featuredMedia.count > 0 {
-                    VStack(alignment: .leading, spacing: 10)  {
-                        Text("FEATURED MEDIA")
-                        ScrollView(.horizontal) {
-                            LazyHStack(alignment: .top, spacing: 50) {
-                                ForEach(self.featuredMedia) {media in
-                                    MediaView(media: media, showPlayer: $showPlayer, playerItem: $playerItem,
-                                              playerImageOverlayUrl:$playerImageOverlayUrl,
-                                              playerTextOverlay:$playerTextOverlay
-                                    )
+                    //.frame(height:400)
+                    .buttonStyle(NonSelectionButtonStyle())
+                    .focused($headerFocused)
+                    
+                    //Text(preferredLocation)
+                    
+                    if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
+                        VStack(alignment: .leading, spacing: 10)  {
+                            ScrollView(.horizontal) {
+                                LazyHStack(alignment: .top, spacing: 50) {
+                                    
+                                    ForEach(self.localizedFeatures) {media in
+                                        if (media.isLive){
+                                            MediaView2(mediaItem: media,
+                                                       display: MediaDisplay.video)
+                                        }else{
+                                            MediaView2(mediaItem: media)
+                                        }
+                                    }
+                                    
+                                    ForEach(self.localizedRedeemables) {redeemable in
+                                        RedeemableCardView(redeemable:redeemable)
+                                    }
+                                    
+                                }
+                                .padding(20)
+                            }
+                            .introspectScrollView { view in
+                                view.clipsToBounds = false
+                            }
+                        }
+                        .padding(.top)
+                    }
+
+                    VStack(spacing: 40){
+                        if self.featuredMedia.count > 0 {
+                            VStack(alignment: .leading, spacing: 10)  {
+                                ScrollView(.horizontal) {
+                                    LazyHStack(alignment: .top, spacing: 50) {
+                                        
+                                        ForEach(self.featuredMedia) {media in
+                                            if (!preferredLocation.isEmpty) {
+                                                if media.location.lowercased() != preferredLocation.lowercased() {
+                                                    if (media.isLive){
+                                                        MediaView2(mediaItem: media,
+                                                                   display: MediaDisplay.video)
+                                                    }else{
+                                                        MediaView2(mediaItem: media)
+                                                    }
+                                                }
+                                            }else{
+                                                if (media.isLive){
+                                                    MediaView2(mediaItem: media,
+                                                               display: MediaDisplay.video)
+                                                }else{
+                                                    MediaView2(mediaItem: media)
+                                                }
+                                            }
+                                        }
+                                        
+                                        ForEach(self.redeemableFeatures) {redeemable in
+                                            RedeemableCardView(redeemable:redeemable)
+                                        }
+                                    }
+                                    .padding(20)
+                                }
+                                .introspectScrollView { view in
+                                    view.clipsToBounds = false
                                 }
                             }
-                            .padding(20)
+                            .padding(.top)
+                        }
+                        
+
+                        if(!sections.isEmpty){
+                            ForEach(sections) { section in
+                                VStack(alignment: .leading, spacing: 20){
+                                    Text(section.name).font(.rowTitle).foregroundColor(Color.white)
+                                    ForEach(section.collections) { collection in
+                                        if(!collection.media.isEmpty){
+                                            VStack(alignment: .leading, spacing: 10){
+                                                Text(collection.name).font(.rowSubtitle).foregroundColor(Color.white)
+                                                MediaCollectionView(mediaCollection: collection)
+                                            }
+                                            .focusSection()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .padding(80)
+                .focusSection()
+            }
+            .introspectScrollView { view in
+                view.clipsToBounds = false
+            }
+            .onAppear(){
+                //print("NFT FEATURES: \(self.nft.additional_media_sections?.featured_media)")
+
+                Task {
+                    
+                    if let redeemableOffers = nft.redeemable_offers {
+                        //print("RedeemableOffers ", redeemableOffers)
+                        if !redeemableOffers.isEmpty {
+                            var redeemableFeatures: [RedeemableViewModel] = []
+                            var localizedRedeemables : [RedeemableViewModel] = []
+                            for redeemable in redeemableOffers {
+                                do{
+                                    if (!preferredLocation.isEmpty) {
+                                        
+                                        if redeemable.location.lowercased() == preferredLocation.lowercased(){
+                                            //Expensive operation
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                            localizedRedeemables.append(redeem)
+                                        }
+                                        
+                                        if redeemable.location == "" {
+                                            //Expensive operation
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                            redeemableFeatures.append(redeem)
+                                        }
+                                    }else{
+                                        //Expensive operation
+                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                        redeemableFeatures.append(redeem)
+                                    }
+                                }catch{
+                                    print("Error processing redemption ", error)
+                                }
+                            }
+                            self.redeemableFeatures = redeemableFeatures
+                            self.localizedRedeemables = localizedRedeemables
                         }
                     }
                 }
                 
-                LazyVStack(alignment: .leading, spacing: 10)  {
-                    ForEach(collections) { collection in
-                        Text(collection.name)
-                        MediaCollectionView(mediaCollection: collection, showPlayer: $showPlayer, playerItem: $playerItem,
-                                            playerImageOverlayUrl:$playerImageOverlayUrl,
-                                            playerTextOverlay:$playerTextOverlay
-                        )
+                Task{
+                    if let additions = nft.additional_media_sections {
+                        if (!preferredLocation.isEmpty) {
+                            var features:[MediaItem] = []
+                            var locals:[MediaItem] = []
+                            
+                            for feature in additions.featured_media {
+                                if (feature.location == ""){
+                                    features.append(feature)
+                                }
+                                
+                                if (feature.location == preferredLocation){
+                                    locals.append(feature)
+                                }
+                            }
+                            self.featuredMedia = features
+                            self.localizedFeatures = locals
+                        }else{
+                            self.featuredMedia = additions.featured_media
+                        }
+                        
+                        var collections: [MediaCollection] = []
+                        for section in additions.sections {
+                            for collection in section.collections {
+                                collections.append(collection)
+                            }
+                        }
+                        
+                        self.collections = collections
+                        //print("Collections: ",collections)
                     }
                 }
-            }
-            .fullScreenCover(isPresented: $showPlayer) {
-                PlayerView(playerItem:self.$playerItem,
-                           playerImageOverlayUrl:$playerImageOverlayUrl,
-                           playerTextOverlay:$playerTextOverlay
-                )
-                    .preferredColorScheme(colorScheme)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                
+                Task {
+                   let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
+                   if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
+                       self.richText = AttributedString(attributedString)
+                       self.richText.foregroundColor = .white
+                       self.richText.font = .body
+                   }
+                   
+                   if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
+                       self.backgroundImageUrl = "https://picsum.photos/600/800"
+                   }else{
+                       var imageLink: JSON? = nil
+                       do {
+                           if (!localizedFeatures.isEmpty) {
+                               imageLink = localizedFeatures[0].background_image_tv
+                               self.backgroundImageUrl = try fabric.getUrlFromLink(link: imageLink)
+                           }
+                           
+                           if self.backgroundImageUrl == "" {
+                               if let bg = nft.background_image_tv {
+                                   if bg != "" {
+                                       self.backgroundImageUrl = bg
+                                   }
+                               }else{
+                                   
+                                   //Use the NFT's background image
+                                   if let featured = nft.additional_media_sections?.featured_media {
+                                       if !featured.isEmpty {
+                                           imageLink = featured[0].background_image_tv
+                                           self.backgroundImageUrl = try fabric.getUrlFromLink(link: imageLink)
+                                       }
+                                   }
+                               }
+                           }
+
+                       }catch{
+                           print("Error getting background image:", error)
+                       }
+                   }
+                }
             }
         }
+        .background(Color.mainBackground)
+        .frame(maxWidth:.infinity, maxHeight:.infinity)
+        .ignoresSafeArea()
+        .focusSection()
     }
 }
 
@@ -338,40 +319,15 @@ struct NFTDetailView: View {
 
 struct NFTDetail: View {
     @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
     @State var nft : NFTModel
-    @State var featuredMedia: [MediaItem] = []
-    @State var collections: [MediaCollection] = []
-    @State var richText: AttributedString = ""
     
     var body: some View {
         VStack{
-            NFTDetailView(nft:$nft, featuredMedia: $featuredMedia, collections:$collections, richText: $richText)
+            NFTDetailView(nft:$nft)
                 .environmentObject(fabric)
-                .padding()
         }
-        .task(){
-            if let additions = nft.additional_media_sections {
-                self.featuredMedia = additions.featured_media
-                
-                var collections: [MediaCollection] = []
-                for section in additions.sections {
-                    for collection in section.collections {
-                        collections.append(collection)
-                    }
-                }
-                
-                self.collections = collections
-                print(self.collections)
-            }
-            
-            let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
-            if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html], documentAttributes: nil) {
-                self.richText = AttributedString(attributedString)
-                self.richText.foregroundColor = .white
-                self.richText.font = .body
-            }
-
-        }
+        .background(Color.secondaryBackground)
     }
     
 }

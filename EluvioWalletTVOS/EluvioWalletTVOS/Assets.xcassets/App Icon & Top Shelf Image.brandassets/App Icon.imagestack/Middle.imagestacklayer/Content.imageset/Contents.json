@@ -1,10 +1,12 @@
 {
   "images" : [
     {
+      "filename" : "Eluvio Wallet Text_App 1.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
+      "filename" : "Eluvio Wallet Text_App.png",
       "idiom" : "tv",
       "scale" : "2x"
     },

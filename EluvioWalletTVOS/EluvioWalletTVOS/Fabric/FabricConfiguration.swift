@@ -121,8 +121,8 @@ struct SeedNodes: Codable {
 
 // MARK: - Services
 struct Services: Codable {
-    let authorityService, ethereumAPI, fabricAPI, search: [String]
-
+    let authorityService, ethereumAPI, fabricAPI : [String]
+    let search: [String]?
     enum CodingKeys: String, CodingKey {
         case authorityService = "authority_service"
         case ethereumAPI = "ethereum_api"

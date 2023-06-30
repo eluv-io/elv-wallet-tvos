@@ -8,9 +8,119 @@
 import SwiftUI
 import QGrid
 
+/*
 struct NFTList: View {
 
     var title: String
+    var nfts : [NFTModel]
+    @State private var editMode = EditMode.inactive
+    let columns = [
+        GridItem(.flexible()),GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    
+    let column = [GridItem(.flexible())]
+
+    @State var search = false
+    @State var searchText = ""
+    @State var gridOption = false
+    var body: some View {
+        VStack {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text(title).font(.subheadline)
+                }
+                Spacer()
+            }
+            .padding(.bottom, 20)
+            ScrollView (.horizontal, showsIndicators: false) {
+                LazyHStack {
+                    ForEach(nfts) { nft in
+                        NFTView(nft: nft)
+                            .frame(width:400, height: 400)
+                    }
+                }
+            }
+            .introspectScrollView { view in
+                view.clipsToBounds = false
+            }
+        }
+        .focusSection()
+    }
+}
+*/
+
+struct NFTGrid: View {
+
+    var title: String = ""
+    var nfts : [NFTModel]
+    var drops : [ProjectModel] = []
+    
+    @State private var editMode = EditMode.inactive
+    let columns = [
+        GridItem(.fixed(520),spacing: 0),GridItem(.fixed(520),spacing: 0),
+        GridItem(.fixed(520),spacing: 0)
+    ]
+    
+    let column = [GridItem(.flexible())]
+
+    @State var search = false
+    @State var searchText = ""
+    @State var gridOption = false
+    var body: some View {
+        LazyVGrid(columns: columns, alignment: .center, spacing:0) {
+            ForEach(nfts) { nft in
+                //TODO: Go directly to Property Page if a series
+                /*if nft.isSeries == true {
+                   NFTView<MyMediaView>(
+                        image: nft.meta.image ?? "",
+                        title: nft.meta.displayName ?? "",
+                        subtitle: nft.meta.editionName ?? "",
+                        propertyLogo: nft.property?.logo ?? "",
+                        propertyName: nft.property?.title ?? "",
+                        tokenId: "#" + (nft.token_id_str ?? ""),
+                        destination: MyMediaView(featured: nft.property?.featured ?? Features(),
+                                                 library: nft.property?.media ?? [],
+                                                 albums: nft.property?.albums ?? [],
+                                                 items: [nft],
+                                                 drops: [],
+                                                 liveStreams: nft.property?.live_streams ?? [],
+                                                 heroImage: nft.property?.heroImage
+                                                )
+                    )
+                    .padding(.bottom,70)
+                }else{*/
+                    NFTView<NFTDetail>(
+                        image: nft.meta.image ?? "",
+                        title: nft.meta.displayName ?? "",
+                        subtitle: nft.meta.editionName ?? "",
+                        propertyLogo: nft.property?.logo ?? "",
+                        propertyName: nft.property?.title ?? "",
+                        tokenId: "#" + (nft.token_id_str ?? ""),
+                        destination: NFTDetail(nft: nft)
+                    )
+                    .padding(.bottom,70)
+                //}
+            }
+            
+            ForEach(drops) { drop in
+                NFTView<DropDetail>(
+                    image: drop.image ?? "",
+                    title: drop.title ?? "",
+                    propertyLogo: drop.property?.logo ?? "",
+                    propertyName: drop.property?.title ?? "",
+                    destination: DropDetail(drop:drop)
+                )
+                .padding(.bottom,70)
+            }
+        }
+    }
+}
+
+
+struct NFTList: View {
+
+    var title: String = ""
     var nfts : [NFTModel]
     @State private var editMode = EditMode.inactive
     let columns = [
@@ -34,13 +144,21 @@ struct NFTList: View {
         ScrollView (.horizontal, showsIndicators: false) {
             LazyHStack {
                 ForEach(nfts) { nft in
-                        NFTView(nft: nft)
-                        //.frame(width: 500)
-                        .frame(width:500, height: 700)
+                        NFTView<NFTDetail>(
+                            image: nft.meta.image ?? "",
+                            title: nft.meta.displayName ?? "",
+                            subtitle: nft.meta.editionName ?? "",
+                            propertyLogo: nft.property?.logo ?? "",
+                            propertyName: nft.property?.title ?? "",
+                            tokenId: "#" + (nft.token_id_str ?? ""),
+                            destination: NFTDetail(nft: nft)
+                        )
+                        .frame(width:500, height: 500)
+                        .padding()
+                    }
                 }
             }
             .padding(50)
-        }
     }
 }
 
@@ -49,4 +167,3 @@ struct NFTList_Previews: PreviewProvider {
         NFTList(title:"Wallet", nfts: CreateTestNFTs(num: 10))
     }
 }
-

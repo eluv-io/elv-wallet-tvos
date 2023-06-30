@@ -7,10 +7,16 @@
 
 import SwiftUI
 
+class ViewState: ObservableObject {
+    @Published var headerVisible = true
+}
+
 @main
 struct EluvioWalletTVOSApp: App {
     @StateObject
     var fabric = Fabric()
+    @StateObject
+    var viewState = ViewState()
     
     init(){
         print("App Init")
@@ -20,6 +26,7 @@ struct EluvioWalletTVOSApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(fabric)
+                .environmentObject(viewState)
                 .preferredColorScheme(.dark)
                 .onAppear(){
                     Task {
@@ -30,6 +37,7 @@ struct EluvioWalletTVOSApp: App {
                         }
                     }
                 }
+                .edgesIgnoringSafeArea(.all)
         }
     }
 }

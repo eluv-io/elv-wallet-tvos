@@ -11,31 +11,60 @@
 //   let nFTModel = try? newJSONDecoder().decode(NFTMetaResponse.self, from: jsonData)
 
 import Foundation
+import SwiftyJSON
+
+struct MetaTag: Codable {
+    var key: String
+    var value: String
+}
+
+struct NFTTrait: Codable {
+    var trait_type : String?
+    var value : String?
+    var rarity : String?
+}
 
 // MARK: - NFTMetaResponse
 struct NFTMetaResponse: Codable {
-    var address: String = ""
-    var attributes: [JSONAny] = []
+    var address: String? = ""
+    var attributes: [NFTTrait]? = []
+    var attributesDict: [String: NFTTrait] {
+        if let attributes = self.attributes {
+            var dict: [String: NFTTrait] = [:]
+            for attribute in attributes {
+                if let trait = attribute.trait_type {
+                    dict[trait] = attribute
+                }
+            }
+            return dict
+        }
+        
+        return [:]
+    }
+    
+    var tags: [MetaTag]? = []
+    
     //var backgroundColor: BackgroundColor = BackgroundColor()
-    var copyright: String = ""
-    var createdAt: String = ""
-    var creator: String = ""
-    var description: String = ""
-    var displayName: String = ""
-    var editionName: String = ""
-    var embedURL: String = ""
-    var enableWatermark: String? = ""
-    var externalURL: String = ""
-    var image: String = ""
+    var copyright: String? = ""
+    var createdAt: String? = ""
+    var creator: String? = ""
+    var description: String? = ""
+    var displayName: String? = ""
+    var editionName: String? = ""
+    var embedURL: String? = ""
+    var enableWatermark: Bool? = false
+    var externalURL: String? = ""
+    var image: String? = ""
     //var marketplaceAttributes: MarketplaceAttributes = MarketplaceAttributes()
-    var name: String = ""
+    var name: String? = ""
     //var packOptions: PackOptions = PackOptions()
-    var playable: Bool = false
-    var templateID: String = ""
-    var totalSupply: Int = 0
+    var additional_media_sections: AdditionalMediaModel? = nil
+    var playable: Bool? = false
+    var templateID: String? = ""
+    var totalSupply: Int? = 0
 
     enum CodingKeys: String, CodingKey {
-        case address, attributes
+        case address, attributes, tags
         //case backgroundColor = "background_color"
         case copyright
         case createdAt = "created_at"

@@ -13,15 +13,28 @@ struct ContentView: View {
 
     
     var body: some View {
-        
-        MainView(nfts: fabric.nonPlayable, playable: fabric.playable)
-            .preferredColorScheme(colorScheme)
-            .fullScreenCover(isPresented: $fabric.isLoggedOut) {
-                SignInView()
-                    .environmentObject(self.fabric)
+        //MainView2(property: fabric.currentProperty, nfts: fabric.playable)
+        if fabric.isLoggedOut {
+            SignInView()
+                .environmentObject(self.fabric)
+                .preferredColorScheme(colorScheme)
+                .background(Color.mainBackground)
+                
+        }else{
+            NavigationView {
+                MainView(nfts:fabric.items)
                     .preferredColorScheme(colorScheme)
+                    /*.fullScreenCover(isPresented: $fabric.isLoggedOut) {
+                        SignInView()
+                            .environmentObject(self.fabric)
+                            .preferredColorScheme(colorScheme)
+                    }*/
+                    .background(Color.mainBackground)
+                    .navigationBarHidden(true)
             }
-            .background(Color.mainBackground)
+            .navigationViewStyle(.stack)
+            .edgesIgnoringSafeArea(.all)
+        }
     }
 }
 

@@ -24,6 +24,8 @@ struct DeviceFlowView: View {
     @State var timer = Timer.publish(every: 1, on: .main, in: .common)
     @State var timerCancellable: Cancellable? = nil
     @Binding var showDeviceFlow: Bool
+    @State var showError = false
+    
     var countDown:Timer!
     var expired = false
     var ClientId = ""
@@ -31,7 +33,7 @@ struct DeviceFlowView: View {
     var GrantType = ""
     
     init(showDeviceFlow: Binding<Bool>){
-        print("SignInView init()")
+        //print("SignInView init()")
         self.ClientId = "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar"
         self.Domain = "prod-elv.us.auth0.com"
         self.GrantType = "urn:ietf:params:oauth:grant-type:device_code"
@@ -42,41 +44,49 @@ struct DeviceFlowView: View {
     var body: some View {
         ZStack {
             Color.mainBackground.edgesIgnoringSafeArea(.all)
+            VStack{
+                HeaderView()
+                    .padding(.top,50)
+                    .padding(.leading,80)
+                    .padding(.bottom,80)
+                Spacer()
+            }
+            .edgesIgnoringSafeArea(.all)
             VStack(alignment: .center, spacing: 30){
                 VStack(alignment: .center, spacing:20){
-                    Image("e_logo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width:200)
-                    HStack(spacing:5){
-                        Text("ELUV.IO")
-                            .font(.custom("Helvetica Neue", size: 80))
-                            .fontWeight(.thin)
-                        Text("Wallet")
-                            .font(.custom("Helvetica Neue", size: 80))
-                            .fontWeight(.bold)
-                    }
-                    Text("To access your Eluvio Media Wallet, go to")
-                        .font(.custom("Helvetica Neue", size: 40))
+                    /*
+                    VStack(alignment: .center, spacing:10){
+                        Image("e_logo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width:200)
+                        Text("Media Wallet")
+                            .font(.custom("Helvetica Neue", size: 90))
+                            .padding(.bottom,40)
+                    }*/
+                    
+
+                    Text("Scan QR Code")
+                        .font(.custom("Helvetica Neue", size: 50))
+                        .fontWeight(.semibold)
+                    Text("Scan the QR Code with your camera app or a QR code reader on your device to verify the code.")
+                        .font(.custom("Helvetica Neue", size: 30))
                         .fontWeight(.thin)
-                    Text(url)
-                        .font(.custom("Helvetica Neue", size: 40))
-                        .fontWeight(.bold)
-                    Text("and enter")
-                        .font(.custom("Helvetica Neue", size: 40))
-                        .fontWeight(.thin)
+                        .frame(width: 600)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                    
                     Text(code)
-                        .font(.custom("Helvetica Neue", size: 40))
-                        .fontWeight(.bold)
-                    Text("or scan the QR code below")
-                        .font(.custom("Helvetica Neue", size: 40))
-                        .fontWeight(.thin)
+                        .font(.custom("Helvetica Neue", size: 50))
+                        .fontWeight(.semibold)
+                    
                     Image(uiImage: GenerateQRCode(from: urlComplete))
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 200, height: 200)
+                        .frame(width: 400, height: 400)
                 }
+                .frame(width: 700)
                 
                 Spacer()
                     .frame(height: 10.0)
@@ -92,9 +102,10 @@ struct DeviceFlowView: View {
                         //self.presentationMode.wrappedValue.dismiss()
                         showDeviceFlow = false
                     }) {
-                        Text("Cancel")
+                        Text("Back")
                     }
                 }
+                .focusSection()
             }
         }
         .onAppear(perform: {
@@ -106,6 +117,15 @@ struct DeviceFlowView: View {
         })
         .onReceive(timer) { _ in
             checkDeviceVerification()
+        }
+        .fullScreenCover(isPresented: $showError) {
+            VStack{
+                Spacer()
+                Text("Error connecting to the Network. Please try again later.")
+                Spacer()
+            }
+            .background(Color.black.opacity(0.8))
+            .background(.thickMaterial)
         }
     }
     
@@ -171,7 +191,7 @@ struct DeviceFlowView: View {
                             fabric.signIn(credentials: json)
                             
                             for (key, value) in json {
-                                print("key \(key) value2 \(value)")
+                                //print("key \(key) value2 \(value)")
                                 UserDefaults.standard.set(value as? String, forKey: key)
                             }
                             
@@ -183,8 +203,7 @@ struct DeviceFlowView: View {
                         print("Request error: \(error.localizedDescription)")
 
                  }
-                return
-                
+            return
         }
     }
 }
