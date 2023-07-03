@@ -17,6 +17,7 @@ struct RedeemStatus {
 
 struct RedeemableViewModel: Identifiable {
     var id: String? = UUID().uuidString
+    var offerId: String = ""
     var expiresAt: String = ""
     var name: String = ""
     var description: String = ""
@@ -72,6 +73,20 @@ struct RedeemableViewModel: Identifiable {
         return ""
     }
     
+    func checkOfferStatus(fabric:Fabric) async throws -> RedeemStatus {
+        var isOfferActive = false
+        var isRedeemed = false
+        
+        let result = try await fabric.isOfferActive(offerId: offerId, nft: self.nft)
+        isOfferActive = result.isActive
+        isRedeemed = result.isRedeemed
+
+        let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive)
+        
+        return redeemStatus
+
+    }
+    
     static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel) async throws -> RedeemableViewModel {
 
         let animationLink = redeemable.animation?["sources"]["default"]
@@ -97,15 +112,13 @@ struct RedeemableViewModel: Identifiable {
         //TODO: Find status
         var isRedeemed = false
         var isOfferActive = false
+        var offer = JSON()
         if let offerId = redeemable.offer_id {
             do{
-                isRedeemed = try await fabric.isRedeemed(offerId: offerId, nft: nft)
-            }catch{
-                print ("Error finding redeem status ", error)
-            }
-            
-            do{
-                isOfferActive = try await fabric.isOfferActive(offerId: offerId, nft: nft)
+                let result = try await fabric.isOfferActive(offerId: offerId, nft: nft)
+                isOfferActive = result.isActive
+                isRedeemed = result.isRedeemed
+                offer = result.offerStats
             }catch{
                 print ("Error finding redeem status ", error)
             }
@@ -115,6 +128,7 @@ struct RedeemableViewModel: Identifiable {
         let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive)
         
         return RedeemableViewModel(id:redeemable.id,
+                                   offerId: redeemable.offer_id ?? "",
                                    expiresAt: redeemable.expires_at ?? "",
                                    name: redeemable.name ?? "",
                                    description: redeemable.description ?? "",
@@ -130,9 +144,7 @@ struct RedeemableViewModel: Identifiable {
 struct Redeemable: FeatureProtocol {
     var id: String? {
         if let offerid = offer_id {
-            if !offerid.isEmpty {
-                return offerid
-            }
+            return offerid
         }
         return UUID().uuidString
     }

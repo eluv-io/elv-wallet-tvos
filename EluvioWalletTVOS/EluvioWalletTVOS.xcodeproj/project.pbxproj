@@ -41,6 +41,7 @@
 		B069A4852A428672006C9E7B /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4842A428672006C9E7B /* Profile.swift */; };
 		B069A4872A448C8A006C9E7B /* OfferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4862A448C8A006C9E7B /* OfferView.swift */; };
 		B069A4892A4A0784006C9E7B /* SeriesDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4882A4A0784006C9E7B /* SeriesDetailView.swift */; };
+		B069A48C2A5225A4006C9E7B /* UUIDShortener in Frameworks */ = {isa = PBXBuildFile; productRef = B069A48B2A5225A4006C9E7B /* UUIDShortener */; };
 		B06C92BF2A3060370001CF4E /* DropDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C92BE2A3060370001CF4E /* DropDetail.swift */; };
 		B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D520E2A12875D00BD68D1 /* MyItemsView.swift */; };
 		B06D52112A12F83500BD68D1 /* property.json in Resources */ = {isa = PBXBuildFile; fileRef = B06D52102A12F83500BD68D1 /* property.json */; };
@@ -151,6 +152,7 @@
 				B0E60F9529CD84420079661E /* Alamofire in Frameworks */,
 				B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */,
 				B0670F6729DC098400676872 /* SwiftyJSON in Frameworks */,
+				B069A48C2A5225A4006C9E7B /* UUIDShortener in Frameworks */,
 				B0E60F9829CD84900079661E /* SwiftEventBus in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -313,6 +315,7 @@
 				B0670F6629DC098400676872 /* SwiftyJSON */,
 				B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */,
 				B06D52162A14657E00BD68D1 /* Introspect-Static */,
+				B069A48B2A5225A4006C9E7B /* UUIDShortener */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -353,6 +356,7 @@
 				B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 				B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+				B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */,
 			);
 			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
 			projectDirPath = "";
@@ -560,7 +564,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -591,7 +595,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 62;
+				CURRENT_PROJECT_VERSION = 65;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -669,6 +673,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.0.0;
+			};
+		};
+		B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Dean151/uuid-shortener";
+			requirement = {
+				branch = main;
+				kind = branch;
 			};
 		};
 		B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
@@ -751,6 +763,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
 			productName = SwiftyJSON;
+		};
+		B069A48B2A5225A4006C9E7B /* UUIDShortener */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */;
+			productName = UUIDShortener;
 		};
 		B06D52162A14657E00BD68D1 /* Introspect-Static */ = {
 			isa = XCSwiftPackageProductDependency;

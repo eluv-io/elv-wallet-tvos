@@ -35,6 +35,7 @@ struct ProfileView: View {
                         Section(header: Text("Profile").foregroundColor(.white.opacity(0.6))) {
                             Text("Address:  \(address)")
                             Text("User Id:  \(userId)")
+                            /*
                             Picker("Preferred location:", selection: $selectedLocation) {
                                 ForEach(locations, id: \.self) {
                                     Text($0.uppercased())
@@ -50,6 +51,7 @@ struct ProfileView: View {
                                     }
                                 }
                             }
+                             */
                         }
                         .padding()
                         Section(header: Text("Fabric").foregroundColor(.white.opacity(0.6))) {

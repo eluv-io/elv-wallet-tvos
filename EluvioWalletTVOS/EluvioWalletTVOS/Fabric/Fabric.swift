@@ -11,6 +11,7 @@ import SwiftEventBus
 import Base58Swift
 import Alamofire
 import SwiftyJSON
+import UUIDShortener
 
 var APP_CONFIG : AppConfiguration = loadJsonFile("configuration.json")
 enum FabricError: Error {
@@ -495,50 +496,135 @@ class Fabric: ObservableObject {
         return (nftmodel, featured, videos, images, galleries, html, books, liveStreams)
     }
     
-    func isOfferActive(offerId: String, nft: NFTModel) async throws -> Bool {
+    func isOfferActive(offerId: String, nft: NFTModel) async throws -> (isActive:Bool, isRedeemed:Bool, offerStats:JSON) {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
         var tenantId = ""
 
         let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
+        
+        print ("NFTINFO", nftInfo)
 
         if let offers = nftInfo["offers"].array{
             for offer in offers {
                 let offer_id = offer["id"].stringValue
-                let offerActive = offer["active"]
-                
                 if (offerId == offer_id){
-                    return offerActive.boolValue
+                    let offerActive = offer["active"].boolValue
+                    let redeemer = offer["redeemer"].stringValue
+                    let redeemed = offer["redeemed"].stringValue
+                    let transaction = offer["transaction"].stringValue
+                    
+                    var offerRedeemed = false
+                    if (!redeemer.isEmpty && !redeemed.isEmpty && !transaction.isEmpty){
+                        offerRedeemed = true
+                    }
+                    
+                    return (offerActive, offerRedeemed, offer)
                 }
             }
         }
             
-        return false
+        return (false, false, JSON())
     }
     
-    func isRedeemed(offerId: String, nft: NFTModel)  async throws -> Bool{
+    func redeemComplete(confirmationId: String, tenantId: String, pollSeconds:Int = 100)  async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String){
+        
+        print("REDEEM_COMPLETE")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
         
+        for _ in 0...pollSeconds {
+            try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+            
+            let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
+            print("Wallet Status Result: ", result)
+            //TODO: Get redeem status nft-offer-redeem
+            
+            for status in result.arrayValue {
+                let op = status["op"].stringValue
+                
+                let opSplit = op.split(separator: ":")
+                if opSplit.count == 5 {
+                    if opSplit[0] == "nft-offer-redeem" && opSplit[4] == confirmationId {
+                        if (status["status"] == "complete"){
+                            return (true,
+                                    status["extra"]["trans_id"].stringValue,
+                                    status["extra"]["tx_hash"].stringValue
+                                    )
+                        }
+                    }
+                }
+            }
+        }
+        
+        return (false, "","")
+    }
+    
+    //Waits for transaction for pollSeconds
+    func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = 100) async throws -> JSON {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        guard let tokenId = nft.token_id_str else {
+            throw FabricError.badInput("Could not get token_id_str from nft \(nft)")
+        }
+        
+        guard let contractAddr = nft.contract_addr else {
+            throw FabricError.badInput("Could not get contract_addr from nft \(nft)")
+        }
         
         let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
         
-        var tenantId = nftInfo["tenant"].stringValue
+        let tenantId = nftInfo["tenant"].stringValue
         
         if tenantId == "" {
-            throw FabricError.unexpectedResponse("Could not get tenant ID from nft \(nft.contract_addr)")
+            throw FabricError.unexpectedResponse("Could not get tenant ID from nft \(contractAddr)")
         }
         
-        let status = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
-        print("Wallet Status: ", status)
-        //TODO: Get redeem status nft-offer-redeem
-        return false
+        let query = ["dry_run":"true"]
+        let uuid = UUID()
+        let confirmationId = try uuid.shortened(using: .base58)
+        let body: [String: Any] = [
+            "op": "nft-offer-redeem",
+            "client_reference_id": confirmationId,
+            "tok_addr": contractAddr,
+            "tok_id": tokenId,
+            "offer_id": Int(offerId) ?? -1
+        ]
+        
+        try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
+        
+        let status = try await redeemComplete(confirmationId: confirmationId, tenantId: tenantId)
+        
+        if (status.isRedeemed){
+            return try await redeemFulfillment(transactionHash:status.transactionHash)
+        }
+        
+        throw FabricError.unexpectedResponse("Could not retrieve fullfillment data \(status)")
     }
     
-    func redeemOffer(offerId: String, nft: NFTModel) async throws -> JSON{
+    func getStateStoreUrl()->String? {
+        if let urls = APP_CONFIG.network[self.network]?.state_store_urls {
+            if urls.count > 0 {
+                return urls[0]
+            }
+        }
+        return nil
+    }
+    
+    func redeemFulfillment(transactionHash: String) async throws -> JSON {
+        if (transactionHash.isEmpty){
+            throw FabricError.configError("Redeem Fulfillment called without transaction ID")
+        }
         
+        if let stateUrl = getStateStoreUrl() {
+            //TODO: make new state store client
+            let url = stateUrl.appending("/code-fulfillment/").appending(self.network == "main" ? "main" : "demov3").appending("/fulfill/").appending(transactionHash)
+            return try await getJsonRequest(url: url)
+        }
         return JSON()
     }
     
@@ -586,20 +672,8 @@ class Fabric: ObservableObject {
 
             var parsedLibrary = try await parseNfts(nfts)
             
-            
-            var featured = parsedLibrary.featured
-            
-            if (!featured.isEmpty){
-                let feature = featured.media.remove(at: 0)
-                featured.append(feature)
-            }
-            parsedLibrary.featured = featured;
-            
-            
-            self.featured = parsedLibrary.featured;
-            
-            
-            //print("featured count ", self.featured.count)
+            self.featured = parsedLibrary.featured
+
             self.galleries = parsedLibrary.galleries;
             self.images = parsedLibrary.images;
             self.albums = parsedLibrary.albums;
@@ -614,7 +688,8 @@ class Fabric: ObservableObject {
             library.append(MediaCollection(name:"Apps", media:parsedLibrary.html))
             library.append(MediaCollection(name:"E-books", media:parsedLibrary.books))
             self.library = library
-            
+            var items = parsedLibrary.items
+            /*
             let eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
             
             let wbProp = try await createWbDemoProp(nfts: nfts)
@@ -719,11 +794,14 @@ class Fabric: ObservableObject {
                     items.append(item)
                 }
             }
+             */
 
             self.items = items
             
+            /*
             let sorted = dropsDict.sorted { $0.key < $1.key }
             moonProp.contents = Array(sorted.map({ $0.value }))
+             */
             /*
             if (!moonProp.contents.isEmpty){
                 print( moonProp.contents[0])
@@ -737,6 +815,7 @@ class Fabric: ObservableObject {
                 
             }*/
             
+            /*
             properties = [
                 foxEntertianmentProp,
                 foxNewsProp,
@@ -745,9 +824,10 @@ class Fabric: ObservableObject {
                 dollyProp,
                 moonProp
             ]
+             */
             
             self.properties = properties
-            self.drops = moonProp.contents
+            //self.drops = moonProp.contents
                 
         }catch{
             print ("Refresh Error: \(error)")

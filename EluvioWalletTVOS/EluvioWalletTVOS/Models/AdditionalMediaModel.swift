@@ -369,7 +369,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         tags = try container.decodeIfPresent([TagMeta].self, forKey: .tags) ?? []
         media_reference = try container.decodeIfPresent(MediaReference.self, forKey: .media_reference) ?? nil
         
-        id = try container.decodeIfPresent(String.self, forKey: .id) ??  (name ?? "") + (media_type ?? "")
+        id = try container.decodeIfPresent(String.self, forKey: .id) ??  (name ) + (media_type ?? "")
         
         //TODO: compute from media_type when ready
         isLive = false
@@ -380,11 +380,12 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     
     //TODO: Find a good id for this
     static func == (lhs: MediaItem, rhs: MediaItem) -> Bool {
-        return lhs.name == rhs.name
+        return lhs.id == rhs.id
     }
+
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
+        hasher.combine(id)
     }
 }
 

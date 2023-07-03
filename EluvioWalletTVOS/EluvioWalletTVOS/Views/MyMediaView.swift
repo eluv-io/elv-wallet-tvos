@@ -42,8 +42,13 @@ struct MyMediaView: View {
     }
     
     private var featuredListCount: Int {
+        /*
         let num = localizedFeatures.isEmpty ? featured.media.count : localizedFeatures.count
         return redeemableFeatures.count + num  + featured.items.count
+         */
+        
+        return featured.media.count + featured.items.count
+        
     }
     
     var body: some View {
@@ -89,6 +94,7 @@ struct MyMediaView: View {
                     
                     if (featuredListCount <= 3){
                         HStack() {
+                            /*
                             if !redeemableFeatures.isEmpty {
                                 ForEach(redeemableFeatures) { redeemable in
                                     RedeemableCardView(redeemable: redeemable, display: MediaDisplay.feature)
@@ -104,6 +110,11 @@ struct MyMediaView: View {
                                 ForEach(featured.media) { media in
                                     MediaView2(mediaItem: media, display: MediaDisplay.feature)
                                 }
+                            }
+                            */
+                            
+                            ForEach(featured.media) { media in
+                                MediaView2(mediaItem: media, display: MediaDisplay.feature)
                             }
                             
                             ForEach(featured.items) { nft in

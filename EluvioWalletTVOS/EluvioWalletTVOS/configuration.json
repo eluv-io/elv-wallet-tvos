@@ -6,12 +6,14 @@
       "demo": {
           "config_url":"https://demov3.net955210.contentfabric.io/config",
           "main_obj_id": "iq__2gkNh8CCZqFFnoRpEUmz7P3PaBQG",
-          "main_obj_lib_id": "ilib36Wi5fJDLXix8ckL7ZfaAJwJXWGD"
+          "main_obj_lib_id": "ilib36Wi5fJDLXix8ckL7ZfaAJwJXWGD",
+          "state_store_urls": ["https://appsvc.svc.eluv.io/dv3"]
       },
       "main": {
           "config_url":"https://main.net955305.contentfabric.io/config",
           "main_obj_id": "iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R",
-          "main_obj_lib_id": "ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9"
+          "main_obj_lib_id": "ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9",
+          "state_store_urls": ["https://appsvc.svc.eluv.io/main"]
       }
     },
     "auth0" : {
@@ -19,5 +21,4 @@
         "client_id" : "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar",
         "grant_type" : "urn:ietf:params:oauth:grant-type:device_code"
     },
-
 }

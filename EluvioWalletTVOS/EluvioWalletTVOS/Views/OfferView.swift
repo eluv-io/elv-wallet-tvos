@@ -159,34 +159,34 @@ struct OfferView: View {
                         }
                         
                         //var isRedeemed = false
-                        print("Redeeming...", redeemable.id)
+                        print("Redeeming...", redeemable.offerId)
                         var redeemed = false
+                        var transactionId: String? = nil
                         do {
-                            if let offerId = redeemable.id {
-                                print("Redeeming... offer Id ", offerId)
-                                let result = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
-                                
-                                print("Redeem result", result)
-                                for _ in 0...1 {
-                                    try await Task.sleep(nanoseconds: UInt64(2 * Double(NSEC_PER_SEC)))
-                                    /*if(try await fabric.isRedeemed(offerId: offerId, nft: redeemable.nft)){
-                                     isRedeemed = true
-                                     break;
-                                     }*/
-                                }
-                                
-                                //DEMO ONLY
+                            let offerId = redeemable.offerId
+                            print("Redeeming... offer Id ", offerId)
+                            let redeemResult = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
+                            if (!redeemResult.isEmpty) {
                                 redeemed = true
+                                print ("REDEEMED!", redeemResult)
                             }
                         }catch {
                             print("Failed to redeemOffer", error)
                         }
-                        await MainActor.run {
+
+                        //await MainActor.run {
                             self.isRedeeming = false
-                            self.redeemable.status.isRedeemed = redeemed
-                            self.showResult = true
+                            if (redeemed) {
+                                do {
+                                    self.redeemable.status = try await self.redeemable.checkOfferStatus(fabric: fabric)
+                                    self.showResult = true
+                                }catch{
+                                    print("Error checking status")
+                                    self.showResult = false
+                                }
+                            }
                         }
-                    }
+                    //}
                 }
             }
         }

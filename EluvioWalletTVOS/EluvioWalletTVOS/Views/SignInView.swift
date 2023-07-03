@@ -78,6 +78,7 @@ struct SignInView: View {
                             .font(.custom("Helvetica Neue", size: 90))
                             .padding(.bottom,40)
 
+                        /*
                         Picker("Networks", selection: $networkSelection) {
                             ForEach(Networks.allCases) { network in
                                 Text("\(network.name.capitalizingFirstLetter())")
@@ -85,6 +86,7 @@ struct SignInView: View {
                             }
                         }
                         .frame(width:300)
+                         */
                     }
                     
                     if fabric.signingIn {
@@ -94,7 +96,11 @@ struct SignInView: View {
                             self.showDeviceFlow = true
                             Task {
                                 do {
+                                    //ONLY MAIN FOR PROD
+                                    /*
                                     try await fabric.connect(network:networkSelection.name)
+                                     */
+                                    try await fabric.connect(network:"main")
                                 } catch {
                                     print("Request failed with error: \(error)")
                                 }

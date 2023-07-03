@@ -99,8 +99,7 @@ struct NFTDetailView: View {
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($headerFocused)
                     
-                    //Text(preferredLocation)
-                    
+/*
                     if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
                         VStack(alignment: .leading, spacing: 10)  {
                             ScrollView(.horizontal) {
@@ -128,7 +127,8 @@ struct NFTDetailView: View {
                         }
                         .padding(.top)
                     }
-
+*/
+                    /*
                     VStack(spacing: 40){
                         if self.featuredMedia.count > 0 {
                             VStack(alignment: .leading, spacing: 10)  {
@@ -167,7 +167,32 @@ struct NFTDetailView: View {
                             }
                             .padding(.top)
                         }
-                        
+                        */
+                    
+                    //Just features for initial release
+                    VStack(spacing: 40){
+                        if self.featuredMedia.count > 0 {
+                            VStack(alignment: .leading, spacing: 10)  {
+                                ScrollView(.horizontal) {
+                                    LazyHStack(alignment: .top, spacing: 50) {
+                                        ForEach(self.featuredMedia) {media in
+                                            if (media.isLive){
+                                                MediaView2(mediaItem: media,
+                                                           display: MediaDisplay.video)
+                                            }else{
+                                                MediaView2(mediaItem: media)
+                                            }
+                                        
+                                        }
+                                    }
+                                    .padding(20)
+                                }
+                                .introspectScrollView { view in
+                                    view.clipsToBounds = false
+                                }
+                            }
+                            .padding(.top)
+                        }
 
                         if(!sections.isEmpty){
                             ForEach(sections) { section in

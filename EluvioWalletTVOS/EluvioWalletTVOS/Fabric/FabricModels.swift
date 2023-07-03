@@ -21,6 +21,7 @@ struct NetworkConfig: Codable {
     var config_url: String
     var main_obj_id: String
     var main_obj_lib_id: String //TEMP: Should use obj id only to retrieve lib id
+    var state_store_urls: [String]
 }
 
 struct Auth0Config: Codable {

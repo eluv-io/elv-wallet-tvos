@@ -125,6 +125,15 @@
         "revision" : "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
         "version" : "5.0.1"
       }
+    },
+    {
+      "identity" : "uuid-shortener",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Dean151/uuid-shortener",
+      "state" : {
+        "branch" : "main",
+        "revision" : "4aa608ca0692b28b94f2110e3b46ebed03c65acd"
+      }
     }
   ],
   "version" : 2

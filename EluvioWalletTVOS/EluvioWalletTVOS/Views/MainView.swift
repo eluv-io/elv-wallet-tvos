@@ -72,11 +72,13 @@ struct MainView: View {
                 }
                 .tag(Tab.Profile)
             
+            /*
             SearchView().preferredColorScheme(colorScheme)
                 .tabItem{
                     Image(systemName: "magnifyingglass")
                 }
                 .tag(Tab.Search)
+             */
             
         }
         //.edgesIgnoringSafeArea(.all)

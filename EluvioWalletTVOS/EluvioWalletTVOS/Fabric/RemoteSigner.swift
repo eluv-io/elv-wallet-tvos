@@ -351,5 +351,55 @@ class RemoteSigner {
         })
     }
     
+    func postWalletStatus(tenantId: String, accessCode: String, query:[String:String], body : [String: Any] = [:]) async throws {
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                print("****** postWalletStatus ******")
+                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/act/\(tenantId)");
+                print("Request: \(endpoint)")
+                print("Body: \(body)")
+                print("Query: \(query)")
+                
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                print("Headers: \(headers)")
+                
+                guard let url = URL(string: endpoint) else{
+                    continuation.resume(throwing: FabricError.badInput("Could not form url from \(endpoint)"))
+                    return
+                }
+                
+                var urlRequest = URLRequest(url: url)
+                var encodedURLRequest = try URLEncoding.queryString.encode(urlRequest, with: query)
+                
+                encodedURLRequest.httpMethod = "POST"
+                
+                encodedURLRequest.headers = headers
+                
+                let jsonData = try JSONSerialization.data(withJSONObject: body)
+                
+                encodedURLRequest.httpBody = jsonData
+                
+                print("Request: ", encodedURLRequest)
+                
+                AF.request(encodedURLRequest).response{ response in
+                    print("Response : \(response)")
+                    
+                    switch (response.result) {
+                        case .success:
+                            continuation.resume()
+                        case .failure:
+                            let errorMsg = String(data: response.data!, encoding: String.Encoding.utf8)!
+                        let error = FabricError.unexpectedResponse(errorMsg)
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
 }
 
