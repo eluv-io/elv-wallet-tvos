@@ -35,14 +35,16 @@ struct DetailButtonStyle: ButtonStyle {
 
 struct IconButtonStyle: ButtonStyle {
     let focused: Bool
+    var initialOpacity: CGFloat = 1.0
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
-            .background(self.focused ? Color.tinted : Color.translucent)
+            .background(Color.clear)
             .cornerRadius(5)
             .scaleEffect(self.focused ? 1.1: 1, anchor: .center)
             .shadow(color: self.focused ? .gray.opacity(0.5) : .black, radius: self.focused ? 8 : 0, x: 2, y: 2)
             .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            .opacity(self.focused ? 1.0 : initialOpacity)
     }
 }
 

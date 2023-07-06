@@ -49,6 +49,7 @@ struct NFTMetaResponse: Codable {
     var createdAt: String? = ""
     var creator: String? = ""
     var description: String? = ""
+    var short_description: String? = ""
     var displayName: String? = ""
     var editionName: String? = ""
     var embedURL: String? = ""
@@ -70,6 +71,7 @@ struct NFTMetaResponse: Codable {
         case createdAt = "created_at"
         case creator
         case description
+        case short_description
         case displayName = "display_name"
         case editionName = "edition_name"
         case embedURL = "embed_url"

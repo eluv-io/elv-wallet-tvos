@@ -15,16 +15,19 @@ struct NFTDetailView: View {
     @Environment(\.colorScheme) var colorScheme
     @Namespace var nftDetails
     @EnvironmentObject var fabric: Fabric
-    @State var search = false
+    @State var showDetails = false
     @State var searchText = ""
     var title = ""
     @Binding var nft: NFTModel
     @State var featuredMedia: [MediaItem] = []
     @State var collections: [MediaCollection] = []
     @State var richText : AttributedString = ""
+    @State var description = ""
     @FocusState var isFocused
     @State var backgroundImageUrl : String = ""
     @FocusState private var headerFocused: Bool
+    @FocusState private var detailsButtonFocused: Bool
+    
     @State var redeemableFeatures: [RedeemableViewModel] = []
     @State var localizedFeatures: [MediaItem] = []
     @State var localizedRedeemables: [RedeemableViewModel] = []
@@ -73,31 +76,48 @@ struct NFTDetailView: View {
                                 .foregroundColor(Color.white)
                                 .fontWeight(.bold)
                                 .frame(maxWidth:1500, alignment:.leading)
-                            if nft.meta_full != nil {
-                                if(self.richText.description.isEmpty) {
-                                    Text(nft.meta_full?["description"].stringValue ?? "")
-                                        .foregroundColor(Color.white)
-                                        .padding(.top)
-                                        .frame(maxWidth:1200, alignment:.leading)
-                                        .lineLimit(5)
-                                }else {
-                                    Text(self.richText)
-                                        .foregroundColor(Color.white)
-                                        .padding(.top)
-                                        .frame(maxWidth:1200, alignment:.leading)
-                                        .lineLimit(5)
-                                }
-                            }else{
-                                Text(nft.meta.description ?? "")
+                            
+                            if (description != "") {
+                                Text(description)
                                     .foregroundColor(Color.white)
+                                    .padding(.top)
                                     .frame(maxWidth:1200, alignment:.leading)
+                                    .lineLimit(3)
+                            }else{
+                               Text(self.richText)
+                                    .foregroundColor(Color.white)
+                                    .padding(.top)
+                                    .frame(maxWidth:1200, alignment:.leading)
+                                    .lineLimit(3)
                             }
+                            
+
                             Spacer()
                         }
                     }
                     //.frame(height:400)
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($headerFocused)
+                    
+                    Button(action: {
+                        self.showDetails = true
+                    }){
+                        HStack(spacing:10){
+                            Image(systemName: "eye")
+                            Text("View More").font(.small)
+                        }
+                        .foregroundColor(.white)
+                        .padding()
+                        .overlay(
+                            detailsButtonFocused ?
+                            RoundedRectangle(cornerRadius: 10)
+                                .stroke(Color.highlight, lineWidth: 4)
+                            : nil
+                        )
+                        
+                    }
+                    .buttonStyle(NonSelectionButtonStyle())
+                    .focused($detailsButtonFocused)
                     
 /*
                     if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
@@ -298,6 +318,8 @@ struct NFTDetailView: View {
                        self.richText.foregroundColor = .white
                        self.richText.font = .body
                    }
+                    
+                   self.description = nft.meta_full?["short_description"].stringValue ?? ""
                    
                    if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                        self.backgroundImageUrl = "https://picsum.photos/600/800"
@@ -337,9 +359,67 @@ struct NFTDetailView: View {
         .frame(maxWidth:.infinity, maxHeight:.infinity)
         .ignoresSafeArea()
         .focusSection()
+        .fullScreenCover(isPresented: $showDetails) {
+            NFTXRayView(nft: nft, richText:self.richText)
+        }
     }
 }
 
+
+struct NFTXRayView: View {
+    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
+    @State var nft : NFTModel
+    @State var richText: AttributedString = ""
+    
+    var body: some View {
+        ZStack{
+            VStack{
+                ScrollView{
+                    HStack(alignment:.top, spacing:100){
+                        Spacer()
+                        WebImage(url:URL(string:nft.meta.image ?? ""))
+                            .resizable()
+                            .indicator(.activity)
+                            .transition(.fade(duration: 0.5))
+                            .scaledToFit()
+                            .frame(width:400)
+                        
+                        VStack(alignment: .leading, spacing: 30) {
+                            VStack(alignment:.leading, spacing:10){
+                                Text(nft.meta.displayName ?? "").font(.title3)
+                                    .foregroundColor(.white)
+                                
+                                HStack(spacing:10){
+                                    Text(nft.meta.editionName ?? "")
+                                    if (nft.token_id_str != nil){
+                                        Text("#" + nft.token_id_str!)
+                                    }
+                                }
+                                .font(.rowSubtitle)
+                                .italic(true)
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 20){
+                                Text(richText)
+                                    .padding(.bottom,20)
+                            }
+                        }
+                        Spacer()
+                    }
+                    .padding(50)
+                    .padding(.top, 100)
+
+                }
+            }
+            .ignoresSafeArea()
+            .frame( maxWidth: .infinity, maxHeight:.infinity)
+            .background(Color.black.opacity(0.5))
+        }
+        .background(.thinMaterial)
+    }
+    
+}
 
 
 struct NFTDetail: View {

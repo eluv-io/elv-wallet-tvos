@@ -673,6 +673,8 @@ class Fabric: ObservableObject {
             var parsedLibrary = try await parseNfts(nfts)
             
             self.featured = parsedLibrary.featured
+            
+            print("Featured: ", featured)
 
             self.galleries = parsedLibrary.galleries;
             self.images = parsedLibrary.images;
