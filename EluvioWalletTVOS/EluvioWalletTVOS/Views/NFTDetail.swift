@@ -99,6 +99,7 @@ struct NFTDetailView: View {
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($headerFocused)
                     
+                    /*
                     Button(action: {
                         self.showDetails = true
                     }){
@@ -118,6 +119,7 @@ struct NFTDetailView: View {
                     }
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($detailsButtonFocused)
+                     */
                     
 /*
                     if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{

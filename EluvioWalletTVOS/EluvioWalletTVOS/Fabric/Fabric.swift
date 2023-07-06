@@ -334,8 +334,16 @@ class Fabric: ObservableObject {
         //print("before decoding ")
         var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
         //print("after decoding ", nftmodel)
+        guard let contractAddr = nftmodel.contract_addr else{
+            throw FabricError.invalidURL("contract_addr does not exist for \(nftmodel.contract_name)")
+        }
+        
+        guard let tokenIdStr = nftmodel.token_id_str else{
+            throw FabricError.invalidURL("token_id_str does not exist for \(nftmodel.contract_addr)")
+        }
+        
         if (nftmodel.id == nil){
-            nftmodel.id = nftmodel.contract_addr
+            nftmodel.id = contractAddr + tokenIdStr
         }
         
         if (nftmodel.contract_name ?? "").contains("Run") {
@@ -504,7 +512,7 @@ class Fabric: ObservableObject {
 
         let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
         
-        print ("NFTINFO", nftInfo)
+        //print ("NFTINFO", nftInfo)
 
         if let offers = nftInfo["offers"].array{
             for offer in offers {
@@ -674,7 +682,7 @@ class Fabric: ObservableObject {
             
             self.featured = parsedLibrary.featured
             
-            print("Featured: ", featured)
+            //print("Featured: ", featured)
 
             self.galleries = parsedLibrary.galleries;
             self.images = parsedLibrary.images;
