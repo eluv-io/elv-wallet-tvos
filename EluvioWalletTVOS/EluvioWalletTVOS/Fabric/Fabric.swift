@@ -54,60 +54,13 @@ class Fabric: ObservableObject {
     
     //Move these models to the app level
     @Published
-    var library: [MediaCollection] = []
-    @Published
-    var albums: [NFTModel] = []
-    @Published
-    var featured = Features()//These can be NFTModel, MediaCollection, MediaItem
+    var library: MediaLibrary = MediaLibrary()
+
     @Published
     var properties: [PropertyModel] = []
     
     @Published
-    var tenantItems: [JSON] = []  //Array of {"tenant":tenant, "nfts": nfts} objects of the user's items per tenant
-    @Published
-    var items: [NFTModel] = []
-    @Published
-    var drops : [ProjectModel] = []
-
-    @Published
-    var videos: [MediaItem] = []
-    @Published
-    var galleries: [MediaItem] = []
-    @Published
-    var images: [MediaItem] = []
-
-    @Published
-    var html: [MediaItem] = []
-    @Published
-    var books: [MediaItem] = []
-    
-    
-    
-    //Deprecated
-    @Published
-    var playable : [NFTModel] = []
-    //Deprecated
-    @Published
-    var nonPlayable : [NFTModel] = []
-    @Published
-    var tenants : [JSON] = []
-    @Published
-    var currentTenantIndex = 0
-    @Published
-    var currentPropertyIndex = 0
-    
-    @Published
     var isRefreshing = false
-    
-    
-    var currentProperty: JSON {
-        if (self.tenants[currentTenantIndex]["properties"].arrayValue.count == 0){
-            return JSON()
-        }
-        
-        return self.tenants[currentTenantIndex]["properties"].arrayValue[currentPropertyIndex]
-    }
-    
 
     @Published
     var fabricToken: String = ""
@@ -249,12 +202,60 @@ class Fabric: ObservableObject {
         print("QSPACE_ID: \(self.configuration?.qspace.id)")
     }
     
+    func parseNftsToLibrary(_ nfts: [JSON]) async throws -> MediaLibrary {
+        
+        var featured = Features()
+        
+        var items : [NFTModel] = []
+        var mediaRows: [MediaRowViewModel] = []
+        for nft in nfts {
+            var mediaRow = MediaRowViewModel()
+            
+            do {
+                let parsedModels = try await self.parseNft(nft)
+                guard let model = parsedModels.nftModel else {
+                    print("Error parsing nft: \(nft)")
+                    continue
+                }
+                
+                if(model.has_album ?? false){
+                    mediaRow.albums.append(model)
+                }
+                items.append(model)
+                
+                if(!parsedModels.featured.isEmpty){
+                    featured.append(contentsOf: parsedModels.featured)
+                }
+                
+                mediaRow.features = parsedModels.featured
+                mediaRow.images = parsedModels.images
+                mediaRow.videos = parsedModels.videos
+                mediaRow.books  = parsedModels.books
+                mediaRow.liveStreams = parsedModels.liveStreams
+                mediaRow.galleries = parsedModels.galleries
+                mediaRow.apps = parsedModels.html
+                mediaRow.item = model
+                mediaRow.name = model.meta.displayName ?? model.meta.name ?? model.contract_name ?? ""
+                
+                mediaRows.append(mediaRow)
+                
+            } catch {
+                print(error)
+                continue
+            }
+        }
+        
+        print("Features: ", featured.unique().media.count)
+        
+        return MediaLibrary(features: featured.unique(), items: items, mediaRows: mediaRows)
+    }
+    
     func parseNfts(_ nfts: [JSON]) async throws -> (items: [NFTModel], featured:Features, albums:[NFTModel], videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
         
         var featured = Features()
         var videos: [MediaItem] = []
         var galleries: [MediaItem] = []
-        var images: [MediaItem] = []
+        let images: [MediaItem] = []
         var albums: [NFTModel] = []
         var html: [MediaItem] = []
         var books: [MediaItem] = []
@@ -264,7 +265,7 @@ class Fabric: ObservableObject {
         for nft in nfts {
             do {
                 let parsedModels = try await self.parseNft(nft)
-                guard var model = parsedModels.nftModel else {
+                guard let model = parsedModels.nftModel else {
                     print("Error parsing nft: \(nft)")
                     continue
                 }
@@ -273,15 +274,6 @@ class Fabric: ObservableObject {
                     albums.append(model)
                 }
                 items.append(model)
-                
-                //print("Parsed nft: \(parsedModels.nftModel)")
-                //print("Parsed Featured: \(parsedModels.featured)")
-                //print("Parsed Galleries: \(parsedModels.galleries)")
-                //print("Parsed Galleries: \(parsedModels.images)")
-                //print("Parsed Albums: \(parsedModels.albums)")
-                //print("NFT: \(model.contract_name)")
-                //print("Parsed HTML: \(parsedModels.html)")
-                //print("Parsed Books: \(parsedModels.books)")
                 
                 if(!parsedModels.featured.isEmpty){
                     featured.append(contentsOf: parsedModels.featured)
@@ -678,166 +670,16 @@ class Fabric: ObservableObject {
 
             let nfts = profileData["contents"].arrayValue
 
-            var parsedLibrary = try await parseNfts(nfts)
+            var parsedLibrary = try await parseNftsToLibrary(nfts)
             
-            self.featured = parsedLibrary.featured
-            
-            //print("Featured: ", featured)
+            self.library = parsedLibrary
 
-            self.galleries = parsedLibrary.galleries;
-            self.images = parsedLibrary.images;
-            self.albums = parsedLibrary.albums;
-            self.videos = parsedLibrary.videos;
-            self.html = parsedLibrary.html;
-            self.books = parsedLibrary.books;
-            
-            var library : [MediaCollection] = []
-            library.append(MediaCollection(name:"Video", media:parsedLibrary.videos))
-            library.append(MediaCollection(name:"Live Stream", media:parsedLibrary.liveStreams)) //TODO: Find what's a live video
-            library.append(MediaCollection(name:"Image Gallery", media:parsedLibrary.galleries))
-            library.append(MediaCollection(name:"Apps", media:parsedLibrary.html))
-            library.append(MediaCollection(name:"E-books", media:parsedLibrary.books))
-            self.library = library
-            var items = parsedLibrary.items
-            /*
-            let eluvioProp = CreateTestPropertyModel(title:"Eluvio Media Wallet", logo: "e_logo", image:"e_logo", heroImage:"", featured: self.featured, media: library, albums: self.albums,   items:self.items)
-            
             let wbProp = try await createWbDemoProp(nfts: nfts)
-            
-            let dollyProp = try await createDollyDemoProp(nfts: nfts)
-            
-            var moonProp = try await createMoonProp(nfts:nfts)
-            
-            let foxEntertianmentProp = try await createFoxEntertainmentProp(nfts:nfts)
-            
-            let foxSportsProp = try await createFoxSportsDemoProp(nfts:nfts)
-            
-            let foxNewsProp = try await createFoxNewsProp(nfts:nfts)
-            
-            var items : [NFTModel] = []
-            var dropsDict : [String:ProjectModel] = [:]
-            var drops : [ProjectModel] = []
-
-            for var item in parsedLibrary.items {
-                guard let name = item.contract_name else{
-                    continue
-                }
-
-                if let attribute = item.meta.attributesDict["Drop"], !name.contains("Superman") && !name.contains("Rings"){
-                        if let attributeValue = attribute.value {
-                            if var proj = dropsDict[attributeValue] {
-                                item.property = moonProp
-                                proj.contents.append(item)
-                                dropsDict[attributeValue] = proj
-                            }else{
-                                var image = ""
-                                var imageWide = ""
-                                var bgImage = ""
-                                var description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-                                if attributeValue.contains("Hell"){
-                                    image = "Hell in a Cell 1_1"
-                                    imageWide = "Hell in a Cell Tile"
-                                    bgImage = "Hell in a Cell BG"
-                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Hell in a Cell Case features the biggest moments from Hell in a Cell matches of our current era and from our rich history. Open a Hell in a Cell Case today!"
-                                }else if attributeValue.contains("Money"){
-                                    image = "Money in the Bank 1_1"
-                                    imageWide = "Money in the Bank Tile"
-                                    bgImage = "Money in the Bank BG"
-                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The Money in the Bank Case features the biggest moments from Money in the Bank matches of our current era and from our rich history. Open a Money in the Bank Case today!"
-                                }else if attributeValue.contains("Halloween"){
-                                    image = "Halloween 1_1-v2"
-                                    imageWide = "Halloween Tile-v2"
-                                    bgImage = "Halloween BG-v2"
-                                    description = "The time for fear is here. Brace yourself for Halloween Drop NFTs featuring the scariest highlights in #WWE history. Things are getting sinister with this limited-edition drop featuring the biggest WWE Superstars and their most terrifying moments. Chills will run up and down your spine as Superstars like Kane, The Boogeyman and Undertaker unleash their carnage before your very eyes."
-                                }else if attributeValue.contains("Castle"){
-                                    image = "Clash at the Castle 1_1"
-                                    imageWide = "Clash at the Castle Tile"
-                                    bgImage = "Clash at the Castle BG"
-                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. Unlock and enjoy this exclusive Clash at the Castle NFT Case, celebrating the first WWE premium live event in the UK in 30 years!"
-                                }else if attributeValue.contains("Summer"){
-                                    image = "Summer Slam 1_1"
-                                    imageWide = "Summer Slam Tile"
-                                    bgImage = "Summer Slam BG"
-                                    description = "Every Moonsault Case contains 3 NFT Flips that immortalize the most amazing slams, highlights, and Superstars from WWE events. The SummerSlam Case features the biggest moments from SummerSlam matches of our current era and from our rich history. Open a SummerSlam Case today!"
-                                }else if attributeValue.contains("Survivor"){
-                                    image = "Survivor 1_1"
-                                    imageWide = "Survivor Tile"
-                                    bgImage = "Survivor BG"
-                                    description = """
-                                For the first time in WWE history, WWE Superstars will step into a monstrous steel cage encapsulating two rings where anything goes and they’ll battle for glory. As more Superstars enter the rings, the more action packed the perilous combat becomes.
-                                
-                                But, this war is anything but a game. This Survivor Series Drop will feature the WWE Universe’s favorite Superstars, and it’ll mean giving your all on the battlefield to snag the victor.
-                                
-                                Fight for your fandom. Claim yours now on November 18th.
-                                """
-                                }
-                                
-                                var newProj = ProjectModel(title:attributeValue,
-                                                           description: description,
-                                                           image:image,
-                                                           image_wide:imageWide,
-                                                           background_image_tv: bgImage)
-                                item.property = moonProp
-                                newProj.contents.append(item)
-                                newProj.property = moonProp
-                                dropsDict[attributeValue] = newProj
-                                drops.append(newProj)
-                            }
-                        }
-                    //}
-                }else {
-                    
-                    if let name = item.meta.displayName {
-                        if name.contains("Ring") || name.contains("Superman"){
-                            item.property = wbProp
-                        }else if name.contains("Run"){
-                            item.property = dollyProp
-                        }else if name.contains("Sports"){
-                            item.property = foxSportsProp
-                        }else if name.contains("Weather"){
-                            item.property = foxNewsProp
-                        }else if name.contains("Eluvio"){
-                            item.property = eluvioProp
-                        }
-                    }
-                    
-                    items.append(item)
-                }
-            }
-             */
-
-            self.items = items
-            
-            /*
-            let sorted = dropsDict.sorted { $0.key < $1.key }
-            moonProp.contents = Array(sorted.map({ $0.value }))
-             */
-            /*
-            if (!moonProp.contents.isEmpty){
-                print( moonProp.contents[0])
-                
-                do {
-                    let jsonData = try JSONEncoder().encode(moonProp.contents[0])
-                    let jsonString = String(data: jsonData, encoding: .utf8)!
-                    print(jsonString) // [{"sentence":"Hello world","lang":"en"},{"sentence":"Hallo Welt","lang":"de"}]
-                    
-                } catch { print(error) }
-                
-            }*/
-            
-            /*
             properties = [
-                foxEntertianmentProp,
-                foxNewsProp,
-                foxSportsProp,
-                wbProp,
-                dollyProp,
-                moonProp
+                wbProp
             ]
-             */
             
             self.properties = properties
-            //self.drops = moonProp.contents
                 
         }catch{
             print ("Refresh Error: \(error)")
@@ -1130,19 +972,9 @@ class Fabric: ObservableObject {
         self.signInResponse = nil
         self.signer = nil
         self.fabricToken = ""
-        self.tenantItems = []  //Array of {"tenant":tenant, "nfts": nfts} objects of the user's items per tenant
-        self.featured = Features()
-        self.videos = []
-        self.galleries = []
-        self.images  = []
-        self.albums = []
-        self.html = []
-        self.books = []
-        self.library = []
+
+        self.library = MediaLibrary()
         self.properties = []
-        self.drops = []
-        self.tenants = []
-        self.items = []
 
         UserDefaults.standard.removeObject(forKey: "access_token")
         UserDefaults.standard.removeObject(forKey: "id_token")
