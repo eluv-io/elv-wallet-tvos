@@ -21,4 +21,7 @@
         "client_id" : "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar",
         "grant_type" : "urn:ietf:params:oauth:grant-type:device_code"
     },
+    "allowed_tenants":[
+        "iten29j4CvEN5FwVK7Vpdsd9zvi7hF3f"
+    ]
 }
