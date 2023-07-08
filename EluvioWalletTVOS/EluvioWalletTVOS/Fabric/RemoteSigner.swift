@@ -52,17 +52,10 @@ class RemoteSigner {
         return try await withCheckedThrowingContinuation({ continuation in
             
             do {
-                var endpoint = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress)
-                
-                if (!APP_CONFIG.allowed_tenants.isEmpty){
-                    endpoint = endpoint.appending("?")
-                }
-                
-                for (index, tenant) in APP_CONFIG.allowed_tenants.enumerated() {
-                    endpoint = endpoint.appending("filter=tenant:eq:\(tenant)")
-                    if (index < APP_CONFIG.allowed_tenants.count - 1){
-                        endpoint = endpoint.appending("&")
-                    }
+                var endpoint = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress).appending("?limit=100")
+
+                for tenant in APP_CONFIG.allowed_tenants{
+                    endpoint = endpoint.appending("&filter=tenant:eq:\(tenant)")
                 }
 
                 print("getWalletData Request: \(endpoint)")
