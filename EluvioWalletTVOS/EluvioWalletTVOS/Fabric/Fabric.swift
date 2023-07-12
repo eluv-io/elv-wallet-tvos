@@ -1044,7 +1044,7 @@ class Fabric: ObservableObject {
         let json: [String: Any] = ["ext": ["share_email":true]]
         request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
         
-        //print("http request: ", request)
+        print("http request: ", request)
         //print("http request headers: ", request.allHTTPHeaderFields)
         
         let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
@@ -1059,6 +1059,7 @@ class Fabric: ObservableObject {
                     
                     // Parse the JSON data
                     let login = try JSONDecoder().decode(LoginResponse.self, from: data)
+                    debugPrint(login)
                     Task {
                         await self.setLogin(login: login)
                     }

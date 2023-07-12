@@ -29,6 +29,7 @@ struct NetworkConfig: Codable {
     var main_obj_id: String
     var main_obj_lib_id: String //TEMP: Should use obj id only to retrieve lib id
     var state_store_urls: [String]
+    var wallet_url: String
     var overrides: NetworkOverrides?
 }
 
