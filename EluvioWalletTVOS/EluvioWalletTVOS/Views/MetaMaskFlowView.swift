@@ -151,9 +151,12 @@ struct MetaMaskFlowView: View {
             debugPrint("MetaMask create response: ",json)
             //self.url = json?["verification_uri"] as! String
             self.url = json["metamask_url"].stringValue
-            
+            if (!self.url.hasPrefix("https") && !self.url.hasPrefix("http")){
+                self.url = "https://".appending(self.url)
+            }
+
             //Tried the metamask:// prefix but doesn't work either
-            self.url = self.url.replacingOccurrences(of: "metamask.app.link", with: "metamask:/")
+            //self.url = self.url.replacingOccurrences(of: "metamask.app.link", with: "metamask:/")
             
             debugPrint("METAMASK URL: ", self.url)
             
