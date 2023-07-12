@@ -170,7 +170,7 @@ struct SeriesDetailView: View {
                                     Text(recentMedia.name).font(.rowSubtitle).foregroundColor(Color.white)
                                 }
 
-                                ForEach(self.matchedRedeemables) {redeemable in
+                                ForEach(matchedRedeemables) {redeemable in
                                     VStack(alignment:.leading, spacing:10){
                                         RedeemableCardView(redeemable:redeemable)
                                         Spacer()

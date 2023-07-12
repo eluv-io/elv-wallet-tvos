@@ -79,7 +79,8 @@ struct MainView: View {
         }
         //.edgesIgnoringSafeArea(.all)
         .onAppear(){
-            self.cancellable = fabric.objectWillChange.sink { val in
+            self.cancellable = fabric.$isLoggedOut.sink { val in
+                print("MainView fabric changed, ", val)
                 if fabric.isLoggedOut == true {
                     self.selection = Tab.Items
                 }

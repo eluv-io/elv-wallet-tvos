@@ -563,7 +563,7 @@ class Fabric: ObservableObject {
     }
     
     //Waits for transaction for pollSeconds
-    func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = 100) async throws -> JSON {
+    func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = 100) async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String) {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
@@ -584,7 +584,8 @@ class Fabric: ObservableObject {
             throw FabricError.unexpectedResponse("Could not get tenant ID from nft \(contractAddr)")
         }
         
-        let query = ["dry_run":"true"]
+        //let query = ["dry_run":"true"]
+        let query:[String:String] = [:]
         let uuid = UUID()
         let confirmationId = try uuid.shortened(using: .base58)
         let body: [String: Any] = [
@@ -597,13 +598,7 @@ class Fabric: ObservableObject {
         
         try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
         
-        let status = try await redeemComplete(confirmationId: confirmationId, tenantId: tenantId)
-        
-        if (status.isRedeemed){
-            return try await redeemFulfillment(transactionHash:status.transactionHash)
-        }
-        
-        throw FabricError.unexpectedResponse("Could not retrieve fullfillment data \(status)")
+        return try await redeemComplete(confirmationId: confirmationId, tenantId: tenantId, pollSeconds: pollSeconds)
     }
     
     func getStateStoreUrl()->String? {

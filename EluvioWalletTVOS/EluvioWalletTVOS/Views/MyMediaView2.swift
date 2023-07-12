@@ -135,16 +135,17 @@ struct MyMediaView2: View {
                     }
                     
                     Spacer(minLength: 20)
-                    
-                    ForEach(library.mediaRows) { row in
-                        VStack(alignment: .leading, spacing: 20){
-                            Text(row.name).font(.rowTitle)
-                            MediaCollectionView(mediaCollection: row.collection)
+                    if(!library.mediaRows.isEmpty) {
+                        ForEach(library.mediaRows) { row in
+                            if (!row.collection.media.isEmpty){
+                                VStack(alignment: .leading, spacing: 20){
+                                    Text(row.name).font(.rowTitle)
+                                    MediaCollectionView(mediaCollection: row.collection)
+                                }
+                                .focusSection()
+                            }
                         }
-                        .focusSection()
                     }
-
-                
                     
                     if (!items.isEmpty){
                         VStack(alignment: .leading, spacing: 40){

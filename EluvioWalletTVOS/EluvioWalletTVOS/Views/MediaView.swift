@@ -247,23 +247,15 @@ struct RedeemFlag: View {
     }
     
     private var text: String {
-        if redeemable.status.isRedeemed {
-            return "REWARD"
-        } else {
-            return "REDEEM"
-        }
+        return "REWARD"
     }
     
     private var textColor: Color {
-        if redeemable.status.isRedeemed {
-            return Color.white
-        } else {
-            return Color.black
-        }
+        return Color.black
     }
     
     private var bgColor: Color {
-        return Color(red: 255/255, green: 213/255, blue: 65/255)
+        return Color(red: 255/255, green: 215/255, blue: 0/255)
     }
     
     var body: some View {
@@ -299,7 +291,7 @@ struct RedeemFlag: View {
 
 struct RedeemableCardView: View {
     @EnvironmentObject var fabric: Fabric
-    @State var redeemable: RedeemableViewModel
+    var redeemable: RedeemableViewModel
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.square
     @State var showOfferView: Bool = false
@@ -375,6 +367,30 @@ struct MediaCard: View {
                         .aspectRatio(contentMode: .fill)
                         .frame( width: width, height: height)
                         .cornerRadius(cornerRadius)
+                }else {
+                    //No image, display like the focused state with a lighter background
+                    VStack(alignment: .center, spacing: 7) {
+                        if ( !centerFocusedText ){
+                            Spacer()
+                        }
+                        if showFocusedTitle {
+                            Text(title)
+                                .foregroundColor(Color.white)
+                                .font(.subheadline)
+                        }
+                        Text(subtitle)
+                            .font(.small)
+                            .foregroundColor(Color.white)
+                            .lineLimit(3)
+                    }
+                    .frame(maxWidth:.infinity, maxHeight:.infinity)
+                    .padding(20)
+                    .cornerRadius(cornerRadius)
+                    .background(Color.white.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(Color.gray, lineWidth: 2)
+                    )
                 }
             }
 

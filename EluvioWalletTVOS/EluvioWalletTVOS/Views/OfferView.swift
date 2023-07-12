@@ -8,22 +8,30 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import AVFoundation
+import SwiftyJSON
 
 struct OfferView: View {
     @EnvironmentObject var fabric: Fabric
-    @State var redeemable: RedeemableViewModel
+    @StateObject var redeemable: RedeemableViewModel
     @State private var playerItem: AVPlayerItem? = nil
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.square
     @State var imageUrl: String = ""
     @State var showPlayer: Bool = false
     @State var showResult: Bool = false
-    @State var url: String = ""
     @State var playerFinished: Bool = false
     @State var isRedeeming: Bool = false
     
     private var isRedeemed : Bool {
         return redeemable.status.isRedeemed
+    }
+    
+    private var isActive : Bool {
+        return redeemable.status.isActive
+    }
+    
+    private var hasImage :  Bool {
+        return redeemable.posterUrl != "" || redeemable.imageUrl != ""
     }
     
     var body: some View {
@@ -38,7 +46,7 @@ struct OfferView: View {
                             .transition(.fade(duration: 0.5))
                             .scaledToFit()
                             .frame(width:400)
-                    }else {
+                    }else if (redeemable.imageUrl != ""){
                         WebImage(url:URL(string:redeemable.imageUrl))
                             .resizable()
                             .indicator(.activity)
@@ -46,18 +54,23 @@ struct OfferView: View {
                             .scaledToFit()
                             .frame(width:400)
                     }
-                    VStack(alignment: .leading, spacing: 30) {
+                    VStack(alignment: hasImage ? .leading : .center, spacing: 30) {
                         Text(redeemable.name).font(.title)
                             .foregroundColor(.white)
                         HStack(spacing:10){
-                            Text("OFFER VALID").foregroundColor(Color(red:243/255, green:192/255, blue:66/255))
-                                .font(.fine)
-                            Text(redeemable.availableAtFormatted)
-                                .foregroundColor(.white)
-                                .font(.fine)
-                            Text("-")
-                                .foregroundColor(.white)
-                                .font(.fine)
+                            if (redeemable.availableAtFormatted != "") {
+                                Text("OFFER VALID").foregroundColor(Color(red:243/255, green:192/255, blue:66/255))
+                                    .font(.fine)
+                                Text(redeemable.availableAtFormatted)
+                                    .foregroundColor(.white)
+                                    .font(.fine)
+                                Text("-")
+                                    .foregroundColor(.white)
+                                    .font(.fine)
+                            }else if (redeemable.expiresAtFormatted != ""){
+                                Text("OFFER VALID UNTIL").foregroundColor(Color(red:243/255, green:192/255, blue:66/255))
+                                    .font(.fine)
+                            }
                             Text(redeemable.expiresAtFormatted)
                                 .foregroundColor(.white)
                                 .font(.fine)
@@ -73,7 +86,7 @@ struct OfferView: View {
                                 }
                                 if !self.isRedeemed {
                                     self.isRedeeming = true
-                                    /*
+
                                     Task{
                                         if redeemable.redeemAnimationLink != nil {
                                             do{
@@ -90,39 +103,43 @@ struct OfferView: View {
                                         
                                         //var isRedeemed = false
                                         print("Redeeming...", redeemable.id)
+                                        var status = RedeemStatus()
+                                        var fulfillment: JSON? = nil
                                         var redeemed = false
+                                        var transactionId = ""
+                                        var transactionHash = ""
                                         do {
                                             if let offerId = redeemable.id {
                                                 print("Redeeming... offer Id ", offerId)
                                                 let result = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
+                                                redeemed = result.isRedeemed
+                                                transactionId = result.transactionId
+                                                transactionHash = result.transactionHash
                                                 
                                                 print("Redeem result", result)
-                                                for _ in 0...1 {
-                                                    try await Task.sleep(nanoseconds: UInt64(5 * Double(NSEC_PER_SEC)))
-                                                    /*if(try await fabric.isRedeemed(offerId: offerId, nft: redeemable.nft)){
-                                                        isRedeemed = true
-                                                        break;
-                                                    }*/
-                                                }
-                                                
-                                                //DEMO ONLY
-                                                redeemed = true
+
                                             }
                                         }catch {
                                             print("Failed to redeemOffer", error)
                                         }
+
                                         await MainActor.run {
                                             self.isRedeeming = false
                                             self.redeemable.status.isRedeemed = redeemed
+                                            self.redeemable.status.transactionId = transactionId
+                                            self.redeemable.status.transactionHash = transactionHash
                                             self.showResult = true
+                                            Task{
+                                                await fabric.refresh()
+                                                print ("refresh")
+                                            }
                                         }
-                                    }*/
+                                    }
                                     
                                 }
                                 else{
                                     self.showResult = true
                                 }
-                                
                             }) {
                                 Text(self.isRedeeming ? "Redeeming..." : (isRedeemed ? "View" : "Redeem Now"))
                             }
@@ -157,8 +174,7 @@ struct OfferView: View {
                         }else{
                             self.showResult = true
                         }
-                        
-                        //var isRedeemed = false
+                        /*
                         print("Redeeming...", redeemable.offerId)
                         var redeemed = false
                         var transactionId: String? = nil
@@ -173,20 +189,19 @@ struct OfferView: View {
                         }catch {
                             print("Failed to redeemOffer", error)
                         }
-
-                        //await MainActor.run {
-                            self.isRedeeming = false
-                            if (redeemed) {
-                                do {
-                                    self.redeemable.status = try await self.redeemable.checkOfferStatus(fabric: fabric)
-                                    self.showResult = true
-                                }catch{
-                                    print("Error checking status")
-                                    self.showResult = false
-                                }
+                        
+                        self.isRedeeming = false
+                        if (redeemed) {
+                            do {
+                                self.redeemable.status = try await self.redeemable.checkOfferStatus(fabric: fabric)
+                                self.showResult = true
+                            }catch{
+                                print("Error checking status")
+                                self.showResult = false
                             }
                         }
-                    //}
+                         */
+                    }
                 }
             }
         }
@@ -205,7 +220,7 @@ struct OfferView: View {
             PlayerView(playerItem:$playerItem, finished:$playerFinished)
         }
         .fullScreenCover(isPresented: $showResult) {
-            OfferResultView(url:$url, title: "Success", description: "Present this QR code on your next visit.", isRedeeming:$isRedeeming)
+            OfferResultView(redeemable: redeemable, isRedeeming:$isRedeeming)
         }
         
     }
@@ -214,9 +229,13 @@ struct OfferView: View {
 
 struct OfferResultView: View {
     @EnvironmentObject var fabric: Fabric
-    @Binding var url: String
-    @State var title: String = "Point your camera to the QR Code below for content"
+    @StateObject var redeemable: RedeemableViewModel
+    
+    @State var url: String = ""
+    @State var title: String = ""
+    @State var error: Bool = true
     @State var description: String = ""
+    @State var code: String = ""
     @Binding var isRedeeming: Bool
     @FocusState var appleWalletFocused
     @Environment(\.presentationMode) var presentationMode
@@ -225,7 +244,7 @@ struct OfferResultView: View {
         if isRedeeming {
             VStack(alignment: .center, spacing:50){
                 Spacer()
-                Text("Redeeming In Progress...").font(.title3)
+                Text("Redeeming In Progress. Please Wait...").font(.title3)
                     .multilineTextAlignment(.center)
                     .padding()
                 ProgressView()
@@ -238,33 +257,48 @@ struct OfferResultView: View {
         }else{
             VStack(alignment: .center, spacing:20){
                 Text(title).font(.title)
+                    .foregroundColor(.white)
                     .multilineTextAlignment(.center)
                     .padding()
                     .frame(width:1000)
                 if description != "" {
                     Text(description).font(.description)
+                        .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding()
                         .frame(width:1000)
-                }
-                Image(uiImage: GenerateQRCode(from: url))
-                    .interpolation(.none)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 400, height: 400)
-                
-                HStack(alignment: .center){
-                    Button(action:{
-                        print("Add to Apple Wallet Pressed")
-                    }){
-                        Image("add_to_apple_wallet")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 80)
+                    if (!error && code != ""){
+                        Text(code)
+                            .font(.custom("Helvetica Neue", size: 50))
+                            .fontWeight(.semibold)
                     }
-                    .padding()
-                    .buttonStyle(IconButtonStyle(focused:appleWalletFocused))
-                    .focused($appleWalletFocused)
+                }
+                
+                if (!error){
+                    Image(uiImage: GenerateQRCode(from: url))
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 400, height: 400)
+                }
+                Spacer()
+                    .frame(height: 10.0)
+                HStack(alignment: .center){
+                    /*
+                    if (!error){
+                        Button(action:{
+                            print("Add to Apple Wallet Pressed")
+                        }){
+                            Image("add_to_apple_wallet")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 80)
+                        }
+                        .padding()
+                        .buttonStyle(IconButtonStyle(focused:appleWalletFocused))
+                        .focused($appleWalletFocused)
+                    }
+                     */
                     
                     Button(action:{
                         presentationMode.wrappedValue.dismiss()
@@ -279,8 +313,52 @@ struct OfferResultView: View {
             .background(Color.black.opacity(0.8))
             .background(.thinMaterial)
             .onAppear(){
-                print("Experience URL \(url)")
+                print("OnAppear URL \(url)")
+                if let fulfillment = redeemable.status.fulfillment {
+                    setFulfillment(fulfillment: fulfillment)
+                }else{
+                    title = "Loading..."
+                    Task{
+                        do {
+                            var fulfillment: JSON? = nil
+                            let transactionHash = self.redeemable.status.transactionHash
+                            if (transactionHash != ""){
+                                fulfillment = try await fabric.redeemFulfillment(transactionHash:transactionHash)
+                                setFulfillment(fulfillment: fulfillment)
+                            }else{
+                                print("TransactionHash is empty for offer ", self.redeemable)
+                                setError()
+                            }
+                        }catch{
+                            setError()
+                        }
+                    }
+                }
             }
         }
+    }
+    
+    @MainActor
+    func setFulfillment(fulfillment: JSON?){
+        if let fulfill = fulfillment {
+            title = "Success"
+            code = fulfill["fulfillment_data"]["code"].stringValue
+            url = fulfill["fulfillment_data"]["url"].stringValue
+            if (code != "" && url != ""){
+                description = "Scan the QR Code with your camera app or a QR code reader on your device to claim your reward."
+                error = false
+                return
+            }
+        }
+        
+        setError()
+        
+    }
+    
+    @MainActor
+    func setError(){
+        title = "Error"
+        description = "Sorry...something went wrong. Please try again."
+        self.error = true
     }
 }

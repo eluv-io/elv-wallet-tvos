@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
+import Combine
 
 struct NFTDetailView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
@@ -31,6 +32,7 @@ struct NFTDetailView: View {
     @State var redeemableFeatures: [RedeemableViewModel] = []
     @State var localizedFeatures: [MediaItem] = []
     @State var localizedRedeemables: [RedeemableViewModel] = []
+    @State private var cancellable: AnyCancellable? = nil
     
     private var sections: [MediaSection] {
         if let additionalMedia = nft.additional_media_sections {
@@ -41,7 +43,9 @@ struct NFTDetailView: View {
     }
     
     private var preferredLocation:String {
-        fabric.profile.profileData.preferredLocation ?? ""
+        //fabric.profile.profileData.preferredLocation ?? ""
+        //TODO:
+        return ""
     }
     
     var body: some View {
@@ -84,11 +88,11 @@ struct NFTDetailView: View {
                                     .frame(maxWidth:1200, alignment:.leading)
                                     .lineLimit(3)
                             }else{
-                               Text(self.richText)
+                                Text(self.richText)
                                     .foregroundColor(Color.white)
                                     .padding(.top)
                                     .frame(maxWidth:1200, alignment:.leading)
-                                    .lineLimit(3)
+                                    .lineLimit(10)
                             }
                             
 
@@ -193,7 +197,7 @@ struct NFTDetailView: View {
                     
                     //Just features for initial release
                     VStack(spacing: 40){
-                        if self.featuredMedia.count > 0 {
+                        if self.featuredMedia.count > 0 || self.redeemableFeatures.count > 0{
                             VStack(alignment: .leading, spacing: 10)  {
                                 ScrollView(.horizontal) {
                                     LazyHStack(alignment: .top, spacing: 50) {
@@ -206,6 +210,11 @@ struct NFTDetailView: View {
                                             }
                                         
                                         }
+                                        
+                                        ForEach(redeemableFeatures) {redeemable in
+                                            RedeemableCardView(redeemable:redeemable)
+                                        }
+                                        
                                     }
                                     .padding(20)
                                 }
@@ -241,119 +250,10 @@ struct NFTDetailView: View {
                 view.clipsToBounds = false
             }
             .onAppear(){
-                //print("NFT FEATURES: \(self.nft.additional_media_sections?.featured_media)")
-
-                Task {
-                    
-                    if let redeemableOffers = nft.redeemable_offers {
-                        //print("RedeemableOffers ", redeemableOffers)
-                        if !redeemableOffers.isEmpty {
-                            var redeemableFeatures: [RedeemableViewModel] = []
-                            var localizedRedeemables : [RedeemableViewModel] = []
-                            for redeemable in redeemableOffers {
-                                do{
-                                    if (!preferredLocation.isEmpty) {
-                                        
-                                        if redeemable.location.lowercased() == preferredLocation.lowercased(){
-                                            //Expensive operation
-                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                            localizedRedeemables.append(redeem)
-                                        }
-                                        
-                                        if redeemable.location == "" {
-                                            //Expensive operation
-                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                            redeemableFeatures.append(redeem)
-                                        }
-                                    }else{
-                                        //Expensive operation
-                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                        redeemableFeatures.append(redeem)
-                                    }
-                                }catch{
-                                    print("Error processing redemption ", error)
-                                }
-                            }
-                            self.redeemableFeatures = redeemableFeatures
-                            self.localizedRedeemables = localizedRedeemables
-                        }
-                    }
-                }
-                
-                Task{
-                    if let additions = nft.additional_media_sections {
-                        if (!preferredLocation.isEmpty) {
-                            var features:[MediaItem] = []
-                            var locals:[MediaItem] = []
-                            
-                            for feature in additions.featured_media {
-                                if (feature.location == ""){
-                                    features.append(feature)
-                                }
-                                
-                                if (feature.location == preferredLocation){
-                                    locals.append(feature)
-                                }
-                            }
-                            self.featuredMedia = features
-                            self.localizedFeatures = locals
-                        }else{
-                            self.featuredMedia = additions.featured_media
-                        }
-                        
-                        var collections: [MediaCollection] = []
-                        for section in additions.sections {
-                            for collection in section.collections {
-                                collections.append(collection)
-                            }
-                        }
-                        
-                        self.collections = collections
-                        //print("Collections: ",collections)
-                    }
-                }
-                
-                Task {
-                   let data = Data(nft.meta_full?["description_rich_text"].stringValue.utf8 ?? "".utf8)
-                   if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
-                       self.richText = AttributedString(attributedString)
-                       self.richText.foregroundColor = .white
-                       self.richText.font = .body
-                   }
-                    
-                   self.description = nft.meta_full?["short_description"].stringValue ?? ""
-                   
-                   if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
-                       self.backgroundImageUrl = "https://picsum.photos/600/800"
-                   }else{
-                       var imageLink: JSON? = nil
-                       do {
-                           if (!localizedFeatures.isEmpty) {
-                               imageLink = localizedFeatures[0].background_image_tv
-                               self.backgroundImageUrl = try fabric.getUrlFromLink(link: imageLink)
-                           }
-                           
-                           if self.backgroundImageUrl == "" {
-                               if let bg = nft.background_image_tv {
-                                   if bg != "" {
-                                       self.backgroundImageUrl = bg
-                                   }
-                               }else{
-                                   
-                                   //Use the NFT's background image
-                                   if let featured = nft.additional_media_sections?.featured_media {
-                                       if !featured.isEmpty {
-                                           imageLink = featured[0].background_image_tv
-                                           self.backgroundImageUrl = try fabric.getUrlFromLink(link: imageLink)
-                                       }
-                                   }
-                               }
-                           }
-
-                       }catch{
-                           print("Error getting background image:", error)
-                       }
-                   }
+                //update()
+                self.cancellable = fabric.$library.sink { val in
+                    //print("ON CHANGE!", val)
+                    update()
                 }
             }
         }
@@ -363,6 +263,147 @@ struct NFTDetailView: View {
         .focusSection()
         .fullScreenCover(isPresented: $showDetails) {
             NFTXRayView(nft: nft, richText:self.richText)
+        }
+    }
+    func update(){
+        Task {
+            if let redeemableOffers = nft.redeemable_offers {
+                print("RedeemableOffers ", redeemableOffers)
+                if !redeemableOffers.isEmpty {
+                    var redeemableFeatures: [RedeemableViewModel] = []
+                    var localizedRedeemables : [RedeemableViewModel] = []
+                    for redeemable in redeemableOffers {
+                        do{
+                            if (!preferredLocation.isEmpty) {
+                                
+                                if redeemable.location.lowercased() == preferredLocation.lowercased(){
+                                    //Expensive operation
+                                    let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                    localizedRedeemables.append(redeem)
+                                }
+                                
+                                if redeemable.location == "" {
+                                    //Expensive operation
+                                    let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                    redeemableFeatures.append(redeem)
+                                }
+                            }else{
+                                //Expensive operation
+                                let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                redeemableFeatures.append(redeem)
+                                print("Appended redeemable status \(redeem.name)", redeem.status)
+                            }
+                        }catch{
+                            print("Error processing redemption ", error)
+                        }
+                    }
+                    await MainActor.run {
+                        self.redeemableFeatures = redeemableFeatures
+                        self.localizedRedeemables = localizedRedeemables
+                    }
+                }
+            }
+        }
+        
+        Task{
+            if let additions = nft.additional_media_sections {
+                if (!preferredLocation.isEmpty) {
+                    var features:[MediaItem] = []
+                    var locals:[MediaItem] = []
+                    
+                    for feature in additions.featured_media {
+                        if (feature.location == ""){
+                            features.append(feature)
+                        }
+                        
+                        if (feature.location == preferredLocation){
+                            locals.append(feature)
+                        }
+                    }
+                    await MainActor.run {
+                        self.featuredMedia = features
+                        self.localizedFeatures = locals
+                    }
+                }else{
+                    await MainActor.run {
+                        self.featuredMedia = additions.featured_media
+                    }
+                }
+                
+                var collections: [MediaCollection] = []
+                for section in additions.sections {
+                    for collection in section.collections {
+                        collections.append(collection)
+                    }
+                }
+                
+                await MainActor.run {
+                    self.collections = collections
+                }
+                //print("Collections: ",collections)
+            }
+        }
+        
+        Task {
+            var descRichText = nft.meta_full?["description_rich_text"].stringValue ?? ""
+            if (descRichText == ""){
+                descRichText = nft.meta_full?["description"].stringValue ?? ""
+            }
+            
+            if (descRichText != ""){
+                let data = Data(descRichText.utf8)
+                if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
+                    self.richText = AttributedString(attributedString)
+                    self.richText.foregroundColor = .white
+                    self.richText.font = .body
+                }
+            }
+            
+            await MainActor.run {
+                self.description = nft.meta_full?["short_description"].stringValue ?? ""
+            }
+            
+            //print("short_description ", nft.meta_full?["short_description"].stringValue)
+            //print("description ", nft.meta_full?["description"].stringValue)
+            //print("saved ", self.description)
+            
+            if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
+                self.backgroundImageUrl = "https://picsum.photos/600/800"
+            }else{
+                var imageLink: JSON? = nil
+                var imageUrl = ""
+                do {
+                    if (!localizedFeatures.isEmpty) {
+                        imageLink = localizedFeatures[0].background_image_tv
+                        imageUrl = try fabric.getUrlFromLink(link: imageLink)
+                        
+                    }
+                    
+                    if imageUrl == "" {
+                        if let bg = nft.background_image_tv {
+                            if bg != "" {
+                                imageUrl = bg
+                            }
+                        }else{
+                            
+                            //Use the NFT's background image
+                            if let featured = nft.additional_media_sections?.featured_media {
+                                if !featured.isEmpty {
+                                    imageLink = featured[0].background_image_tv
+                                    imageUrl  = try fabric.getUrlFromLink(link: imageLink)
+                                }
+                            }
+                        }
+                    }
+                    
+                    await MainActor.run {
+                        self.backgroundImageUrl = imageUrl
+                    }
+                    
+                }catch{
+                    print("Error getting background image:", error)
+                }
+            }
         }
     }
 }

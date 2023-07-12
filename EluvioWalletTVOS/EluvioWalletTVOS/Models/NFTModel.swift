@@ -13,9 +13,12 @@ import AVKit
 struct RedeemStatus {
     var isRedeemed = false
     var isActive = true
+    var transactionId = ""
+    var transactionHash = ""
+    var fulfillment: JSON?
 }
 
-struct RedeemableViewModel: Identifiable {
+class RedeemableViewModel: Identifiable, ObservableObject {
     var id: String? = UUID().uuidString
     var offerId: String = ""
     var expiresAt: String = ""
@@ -24,11 +27,41 @@ struct RedeemableViewModel: Identifiable {
     var animationLink: JSON?
     var redeemAnimationLink: JSON?
     var availableAt: String = ""
+    @Published
     var status = RedeemStatus()
     var imageUrl: String = ""
     var posterUrl: String = ""
     var tags: [TagMeta] = []
     var nft = NFTModel()
+    
+    init(id:String? = UUID().uuidString,
+         offerId: String = "",
+         expiresAt: String = "",
+         name: String = "",
+         description:String = "",
+         animationLink: JSON?,
+         redeemAnimationLink: JSON?,
+         availableAt: String = "",
+         status: RedeemStatus = RedeemStatus(),
+         imageUrl: String = "",
+         posterUrl: String = "",
+         tags: [TagMeta] = [],
+         nft: NFTModel = NFTModel()
+    ){
+        self.id = id
+        self.offerId = offerId
+        self.expiresAt = expiresAt
+        self.name = name
+        self.description = description
+        self.animationLink = animationLink
+        self.redeemAnimationLink = redeemAnimationLink
+        self.availableAt = availableAt
+        self.status = status
+        self.imageUrl = imageUrl
+        self.posterUrl = posterUrl
+        self.tags = tags
+        self.nft = nft
+    }
     
     var availableAtFormatted: String {
         let dateFormatter = ISO8601DateFormatter()
@@ -119,13 +152,14 @@ struct RedeemableViewModel: Identifiable {
                 isOfferActive = result.isActive
                 isRedeemed = result.isRedeemed
                 offer = result.offerStats
+                print("OfferStatus: \(redeemable.name) ", result)
             }catch{
                 print ("Error finding redeem status ", error)
             }
         }
 
 
-        let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive)
+        let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive, transactionHash: offer["transaction"].stringValue)
         
         return RedeemableViewModel(id:redeemable.id,
                                    offerId: redeemable.offer_id ?? "",
