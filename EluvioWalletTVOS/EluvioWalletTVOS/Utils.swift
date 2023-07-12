@@ -8,6 +8,7 @@
 import Foundation
 import Base58Swift
 import SwiftUI
+import Alamofire
 
 func loadJsonFile<T: Decodable>(_ filename: String) -> T {
     let data: Data
@@ -212,6 +213,19 @@ func GenerateQRCode(from string: String) -> UIImage {
     }
 
     return UIImage(systemName: "xmark.circle") ?? UIImage()
+}
+
+extension Request {
+    public func debugLog() -> Self {
+    #if DEBUG
+    cURLDescription(calling: { (curl) in
+        debugPrint("=======================================")
+        print(curl)
+        debugPrint("=======================================")
+    })
+    #endif
+    return self
+  }
 }
 
 extension RangeReplaceableCollection where Element: Equatable {

@@ -76,6 +76,14 @@ class Fabric: ObservableObject {
     }
     
     func getEndpoint() throws -> String{
+        
+        if let node = APP_CONFIG.network[network]?.overrides?.fabric_url {
+            if node != "" {
+                print ("Found dev fabric node: ", node)
+                return node
+            }
+        }
+        
         guard let config = self.configuration else {
             throw FabricError.configError("No configuration set")
         }
@@ -147,7 +155,7 @@ class Fabric: ObservableObject {
         guard let asApi = self.configuration?.getAuthServices() else{
             throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
         }
-        self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi)
+        self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
         
         self.configUrl = configUrl
         self.network = _network

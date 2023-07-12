@@ -24,14 +24,23 @@ class RemoteSigner {
     var authorityApi: [String]
     var currentEthIndex = 0
     var currentAuthIndex = 0
+    var network : String
 
-    init(ethApi: [String], authorityApi: [String]){
+    init(ethApi: [String], authorityApi: [String], network: String){
         self.ethApi = ethApi
         self.authorityApi = authorityApi
+        self.network = network
     }
     
     //TODO: implement fail over
     func getEthEndpoint() throws -> String{
+        if let node = APP_CONFIG.network[network]?.overrides?.eth_url {
+            if node != "" {
+                print ("Found dev elvmaster node: ", node)
+                return node
+            }
+        }
+        
         let endpoint = self.ethApi[self.currentEthIndex]
         if(endpoint.isEmpty){
             throw FabricError.configError("getEthEndpoint: could not get endpoint")
@@ -40,6 +49,12 @@ class RemoteSigner {
     }
     
     func getAuthEndpoint() throws -> String{
+        if let node = APP_CONFIG.network[network]?.overrides?.as_url {
+            if node != "" {
+                print ("Found dev authd node: ", node)
+                return node
+            }
+        }
         let endpoint = self.authorityApi[self.currentAuthIndex]
         if(endpoint.isEmpty){
             throw FabricError.configError("getEthEndpoint: could not get endpoint")
@@ -50,7 +65,7 @@ class RemoteSigner {
     //TODO: Convert this to responseDecodable
     func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            
+            print("****** getWalletData ******")
             do {
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress).appending("?limit=100")
 
@@ -255,9 +270,10 @@ class RemoteSigner {
     // authToken: token given back from the /wlt/login/jwt endpoint
     func signDigest(digest: Data, accountId: String, authToken: String) async throws -> [String: AnyObject] {
         return try await withCheckedThrowingContinuation({ continuation in
+            print("****** signDigest ******")
             do {
                 let endpoint: String = try self.getAuthEndpoint().appending("/wlt/sign/eth/").appending(accountId);
-                //print("Request: \(endpoint)")
+                print("Request: \(endpoint)")
                 
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(authToken)",
@@ -267,8 +283,10 @@ class RemoteSigner {
                 //print("digest: \(digest.hexEncodedString())")
                 let parameters : [String: Any] = ["hash":digest.hexEncodedString()]
                 
-                AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers ).responseJSON { response in
-                    //debugPrint("signDigest Response: \(response)")
+                AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers )
+                    .debugLog()
+                    .responseJSON { response in
+                    debugPrint("signDigest Response: \(response)")
                     
                     switch (response.result) {
                         case .success( _):
@@ -300,7 +318,7 @@ class RemoteSigner {
     
     func getNftInfo(nftAddress: String, tokenId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            
+            print("****** getNftInfo ******")
             do {
                 let endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)/\(tokenId)");
                 //print("Request: \(endpoint)")
