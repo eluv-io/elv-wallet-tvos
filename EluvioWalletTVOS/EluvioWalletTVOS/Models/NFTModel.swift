@@ -15,6 +15,7 @@ struct RedeemStatus {
     var isActive = true
     var transactionId = ""
     var transactionHash = ""
+    var redeemer = ""
     var fulfillment: JSON?
 }
 
@@ -77,6 +78,21 @@ class RedeemableViewModel: Identifiable, ObservableObject {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         return formatter.string(from: date)
+    }
+    
+    var isExpired: Bool {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: expiresAt) else { return false}
+        return date < Date()
+    }
+
+    func shouldDisplay(currentUserAddress:String) -> Bool {
+        return status.isActive && (!status.isRedeemed && !isExpired || isRedeemer(address:currentUserAddress) && !isExpired || isRedeemer(address:currentUserAddress) && isExpired && status.isRedeemed)
+    }
+    
+    
+    func isRedeemer(address:String) -> Bool {
+        return !status.isRedeemed || address.lowercased() == status.redeemer.lowercased()
     }
     
     var location: String {
@@ -159,7 +175,9 @@ class RedeemableViewModel: Identifiable, ObservableObject {
         }
 
 
-        let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive, transactionHash: offer["transaction"].stringValue)
+        let redeemStatus = RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive,
+                                        transactionHash: offer["transaction"].stringValue,
+                                        redeemer: offer["redeemer"].stringValue)
         
         return RedeemableViewModel(id:redeemable.id,
                                    offerId: redeemable.offer_id ?? "",

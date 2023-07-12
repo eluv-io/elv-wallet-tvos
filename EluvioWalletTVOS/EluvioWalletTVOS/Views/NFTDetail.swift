@@ -279,19 +279,29 @@ struct NFTDetailView: View {
                                 if redeemable.location.lowercased() == preferredLocation.lowercased(){
                                     //Expensive operation
                                     let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                    localizedRedeemables.append(redeem)
+                                    if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                        localizedRedeemables.append(redeem)
+                                    }
                                 }
                                 
                                 if redeemable.location == "" {
                                     //Expensive operation
                                     let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                    redeemableFeatures.append(redeem)
+                                    if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                        redeemableFeatures.append(redeem)
+                                    }
                                 }
                             }else{
                                 //Expensive operation
                                 let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                redeemableFeatures.append(redeem)
+                                if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                    redeemableFeatures.append(redeem)
+                                }
+                                print("Appended redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try fabric.getAccountAddress()))
                                 print("Appended redeemable status \(redeem.name)", redeem.status)
+                                print("Appended redeemable expired? \(redeem.name)", redeem.isExpired)
+                                print("Appended redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
+                                
                             }
                         }catch{
                             print("Error processing redemption ", error)
