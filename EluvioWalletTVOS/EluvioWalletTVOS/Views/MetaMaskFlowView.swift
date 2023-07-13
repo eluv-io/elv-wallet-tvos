@@ -138,10 +138,7 @@ struct MetaMaskFlowView: View {
                 return
             }
             
-            guard let json = try await self.fabric.signer?.createMetaMaskLogin() else {
-                print("MetaMaskFlowView regenerateCode() createMetaMaskLogin returned nil")
-                return
-            }
+            let json = try await signer.createMetaMaskLogin()
             
             self.response = json
             
@@ -179,16 +176,16 @@ struct MetaMaskFlowView: View {
     func checkDeviceVerification() async{
         print("Metamask checkDeviceVerification \(self.code)");
         do {
-            guard let json = try await self.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
+            guard let result = try await self.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
                 print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
             }
             
 
-            let status = json["status"].intValue
+            let status = result["status"].intValue
             
             if(status != 200){
-                print("Check value \(json)")
+                print("Check value \(result)")
                 /*
                 self.timerCancellable!.cancel()
                 print("Error \(json)")
@@ -198,13 +195,22 @@ struct MetaMaskFlowView: View {
                 return
             }
             
+            debugPrint("Result ", result)
+            
+            let json = JSON.init(parseJSON:result["payload"].stringValue)
+            
+            if json.isEmpty {
+                print("MetaMaskFlowView checkDeviceVerification() json payload is empty.")
+                showError = true
+                return
+            }
             
             let token = json["token"].stringValue
             let addr = json["addr"].stringValue
             let eth = json["eth"].stringValue
             
             let login = LoginResponse(addr:addr, eth:eth, token:token)
-            fabric.setLogin(login: login)
+            fabric.setLogin(login: login, isMetamask: true)
             
             self.timerCancellable!.cancel()
             

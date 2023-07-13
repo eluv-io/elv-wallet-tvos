@@ -39,6 +39,8 @@ class Fabric: ObservableObject {
     
     var configUrl = ""
     var network = ""
+    var isMetamask = false
+    
     @Published
     var configuration : FabricConfiguration? = nil
     @Published
@@ -50,7 +52,9 @@ class Fabric: ObservableObject {
     @Published
     var signInResponse: SignInResponse? = nil
     var profileData: [String: Any] = [:]
-    
+
+    var loginExpiration = Date()
+    var loginTime = Date()
     
     //Move these models to the app level
     @Published
@@ -74,6 +78,16 @@ class Fabric: ObservableObject {
     init(){
         print("Fabric init config_url \(self.configUrl)");
     }
+    
+    func signOutIfExpired()  {
+        if self.loginTime != self.loginExpiration {
+            if Date() > self.loginExpiration {
+                self.signOut()
+            }
+        }
+    }
+    
+    
     
     func getEndpoint() throws -> String{
         
@@ -163,6 +177,9 @@ class Fabric: ObservableObject {
         
         self.checkToken { success in
             print("Check Token: ", success)
+            if (self.isMetamask == false){
+                return
+            }
             guard success == true else {
                 self.signingIn = false
                 self.isLoggedOut = true
@@ -634,6 +651,7 @@ class Fabric: ObservableObject {
     //Move this to the app level
     @MainActor
     func refresh() async {
+        debugPrint("refresh")
         if self.signingIn {
             return
         }
@@ -665,7 +683,9 @@ class Fabric: ObservableObject {
             
             var properties: [PropertyModel] = []
             
-            self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token)
+            if (!self.isMetamask){
+                self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token)
+            }
             //print("Fabric Token: \(self.fabricToken)");
             
             let profileData = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
@@ -942,13 +962,23 @@ class Fabric: ObservableObject {
     }
 
     @MainActor
-    func setLogin(login:  LoginResponse){
+    func setLogin(login:  LoginResponse, isMetamask: Bool = false){
+        debugPrint("SetLogin ", login)
         self.login = login
         self.isLoggedOut = false
         self.signingIn = false
+        
+        self.isMetamask = isMetamask
+        if(isMetamask){
+            self.fabricToken = login.token
+        }
+        
         Task {
             await self.refresh()
         }
+        
+        self.loginTime = Date()
+        self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
     }
     
     func signOut(){
@@ -975,6 +1005,7 @@ class Fabric: ObservableObject {
         self.signInResponse = nil
         self.signer = nil
         self.fabricToken = ""
+        self.isMetamask = false
 
         self.library = MediaLibrary()
         self.properties = []
@@ -1060,9 +1091,9 @@ class Fabric: ObservableObject {
                     // Parse the JSON data
                     let login = try JSONDecoder().decode(LoginResponse.self, from: data)
                     debugPrint(login)
-                    Task {
-                        await self.setLogin(login: login)
-                    }
+
+                    self.setLogin(login: login)
+
                 }catch{
                     print(error)
                 }
