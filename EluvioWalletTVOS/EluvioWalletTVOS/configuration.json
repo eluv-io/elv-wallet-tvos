@@ -15,11 +15,8 @@
           "main_obj_id": "iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R",
           "main_obj_lib_id": "ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9",
           "state_store_urls": ["https://appsvc.svc.eluv.io"],
-          "wallet_url": "https://wallet.preview.contentfabric.io?action=login&mode=login&response=code&source=code#/login",
+          "wallet_url": "https://wallet.contentfabric.io?action=login&mode=login&response=code&source=code#/login",
           "overrides":{
-              "fabric_url": "https://host-154-14-192-66.contentfabric.io",
-              "as_url": "https://host-154-14-192-66.contentfabric.io/as",
-              "eth_url": "https://host-154-14-192-66.contentfabric.io/eth"
           }
       }
     },
