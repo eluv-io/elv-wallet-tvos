@@ -7,13 +7,17 @@
           "config_url":"https://demov3.net955210.contentfabric.io/config",
           "main_obj_id": "iq__2gkNh8CCZqFFnoRpEUmz7P3PaBQG",
           "main_obj_lib_id": "ilib36Wi5fJDLXix8ckL7ZfaAJwJXWGD",
-          "state_store_urls": ["https://appsvc.svc.eluv.io"]
+          "state_store_urls": ["https://appsvc.svc.eluv.io"],
+          "wallet_url": "https://wallet.demov3.contentfabric.io?action=login&mode=login&response=code&source=code#/login"
       },
       "main": {
           "config_url":"https://main.net955305.contentfabric.io/config",
           "main_obj_id": "iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R",
           "main_obj_lib_id": "ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9",
-          "state_store_urls": ["https://appsvc.svc.eluv.io"]
+          "state_store_urls": ["https://appsvc.svc.eluv.io"],
+          "wallet_url": "https://wallet.contentfabric.io?action=login&mode=login&response=code&source=code#/login",
+          "overrides":{
+          }
       }
     },
     "auth0" : {

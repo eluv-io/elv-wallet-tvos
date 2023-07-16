@@ -41,6 +41,7 @@ struct MainView: View {
     var logo = "e_logo"
     var logoUrl = ""
     var name = "Eluvio Wallet"
+    @State var logOutTimer = Timer.publish(every:24*60*60, on: .main, in: .common)
     
     init(nfts:[NFTModel] = []) {
         UITabBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.2)
@@ -92,6 +93,9 @@ struct MainView: View {
                     await fabric.refresh()
                 }
             }
+        }
+        .onReceive(logOutTimer) { _ in
+            fabric.signOutIfExpired()
         }
     }
 }

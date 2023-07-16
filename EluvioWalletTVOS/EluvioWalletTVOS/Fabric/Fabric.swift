@@ -39,6 +39,8 @@ class Fabric: ObservableObject {
     
     var configUrl = ""
     var network = ""
+    var isMetamask = false
+    
     @Published
     var configuration : FabricConfiguration? = nil
     @Published
@@ -50,7 +52,9 @@ class Fabric: ObservableObject {
     @Published
     var signInResponse: SignInResponse? = nil
     var profileData: [String: Any] = [:]
-    
+
+    var loginExpiration = Date()
+    var loginTime = Date()
     
     //Move these models to the app level
     @Published
@@ -75,7 +79,25 @@ class Fabric: ObservableObject {
         print("Fabric init config_url \(self.configUrl)");
     }
     
+    func signOutIfExpired()  {
+        if self.loginTime != self.loginExpiration {
+            if Date() > self.loginExpiration {
+                self.signOut()
+            }
+        }
+    }
+    
+    
+    
     func getEndpoint() throws -> String{
+        
+        if let node = APP_CONFIG.network[network]?.overrides?.fabric_url {
+            if node != "" {
+                print ("Found dev fabric node: ", node)
+                return node
+            }
+        }
+        
         guard let config = self.configuration else {
             throw FabricError.configError("No configuration set")
         }
@@ -147,7 +169,7 @@ class Fabric: ObservableObject {
         guard let asApi = self.configuration?.getAuthServices() else{
             throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
         }
-        self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi)
+        self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
         
         self.configUrl = configUrl
         self.network = _network
@@ -155,6 +177,9 @@ class Fabric: ObservableObject {
         
         self.checkToken { success in
             print("Check Token: ", success)
+            if (self.isMetamask == false){
+                return
+            }
             guard success == true else {
                 self.signingIn = false
                 self.isLoggedOut = true
@@ -626,6 +651,7 @@ class Fabric: ObservableObject {
     //Move this to the app level
     @MainActor
     func refresh() async {
+        debugPrint("refresh")
         if self.signingIn {
             return
         }
@@ -657,7 +683,9 @@ class Fabric: ObservableObject {
             
             var properties: [PropertyModel] = []
             
-            self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token)
+            if (!self.isMetamask){
+                self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token)
+            }
             //print("Fabric Token: \(self.fabricToken)");
             
             let profileData = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
@@ -934,13 +962,23 @@ class Fabric: ObservableObject {
     }
 
     @MainActor
-    func setLogin(login:  LoginResponse){
+    func setLogin(login:  LoginResponse, isMetamask: Bool = false){
+        debugPrint("SetLogin ", login)
         self.login = login
         self.isLoggedOut = false
         self.signingIn = false
+        
+        self.isMetamask = isMetamask
+        if(isMetamask){
+            self.fabricToken = login.token
+        }
+        
         Task {
             await self.refresh()
         }
+        
+        self.loginTime = Date()
+        self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
     }
     
     func signOut(){
@@ -967,6 +1005,7 @@ class Fabric: ObservableObject {
         self.signInResponse = nil
         self.signer = nil
         self.fabricToken = ""
+        self.isMetamask = false
 
         self.library = MediaLibrary()
         self.properties = []
@@ -1036,7 +1075,7 @@ class Fabric: ObservableObject {
         let json: [String: Any] = ["ext": ["share_email":true]]
         request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
         
-        //print("http request: ", request)
+        print("http request: ", request)
         //print("http request headers: ", request.allHTTPHeaderFields)
         
         let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
@@ -1051,9 +1090,10 @@ class Fabric: ObservableObject {
                     
                     // Parse the JSON data
                     let login = try JSONDecoder().decode(LoginResponse.self, from: data)
-                    Task {
-                        await self.setLogin(login: login)
-                    }
+                    debugPrint(login)
+
+                    self.setLogin(login: login)
+
                 }catch{
                     print(error)
                 }

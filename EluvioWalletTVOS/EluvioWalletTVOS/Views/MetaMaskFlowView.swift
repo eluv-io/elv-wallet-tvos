@@ -1,8 +1,8 @@
 //
-//  SignInView.swift
-//  EluvioLiveIOS
+//  MetaMaskFlowView.swift
+//  EluvioWalletTVOS
 //
-//  Created by Wayne Tran on 2021-08-10.
+//  Created by Wayne Tran on 2023-07-12.
 //
 
 import SwiftUI
@@ -11,35 +11,31 @@ import SwiftEventBus
 import CoreImage.CIFilterBuiltins
 import Alamofire
 import Combine
+import SwiftyJSON
 
-struct DeviceFlowView: View {
+struct MetaMaskFlowView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
 
     @State var url = ""
-    @State var urlComplete = ""
     @State var code = ""
     @State var deviceCode = ""
     @State var timer = Timer.publish(every: 1, on: .main, in: .common)
     @State var timerCancellable: Cancellable? = nil
-    @Binding var showDeviceFlow: Bool
     @State var showError = false
+    @State var errorMessage = ""
     @FocusState private var metaMaskFocus: Bool
     @State var showMetaMaskFlow = false
     
     var countDown:Timer!
     var expired = false
-    var ClientId = ""
     var Domain = ""
-    var GrantType = ""
     
-    init(showDeviceFlow: Binding<Bool>){
-        //print("SignInView init()")
-        self.ClientId = "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar"
+    @State private var response = JSON()
+    
+    init(show: Binding<Bool>){
         self.Domain = "prod-elv.us.auth0.com"
-        self.GrantType = "urn:ietf:params:oauth:grant-type:device_code"
-        _showDeviceFlow = showDeviceFlow
     }
 
 
@@ -68,76 +64,59 @@ struct DeviceFlowView: View {
                      }*/
                     
                     
-                    Text("Scan QR Code")
+                    Text("Sign On with MetaMask")
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)
-                    Text("Scan the QR Code with your camera app or a QR code reader on your device to verify the code.")
-                        .font(.custom("Helvetica Neue", size: 30))
-                        .fontWeight(.thin)
-                        .frame(width: 600)
-                        .multilineTextAlignment(.center)
-                        .padding()
+                    
+                    Image("metamask_logo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width:150)
                     
                     Text(code)
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)
-                    
-                    Image(uiImage: GenerateQRCode(from: urlComplete))
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 400, height: 400)
+
+                    if (url != ""){
+                        Image(uiImage: GenerateQRCode(from: url))
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 400, height: 400)
+                    }else{
+                        ProgressView()
+                            .frame(width: 400, height: 450)
+                    }
                 }
                 .frame(width: 700)
                 
                 Spacer()
                     .frame(height: 10.0)
                 
-                VStack(alignment:.center){
-                    HStack(alignment: .center, spacing:20){
-                    Button(action: {
-                        self.regenerateCode()
-                    }) {
-                        Text("Request New Code")
-                            .frame(maxWidth:.infinity)
-                    }
-                    Button(action: {
-                        //self.fabric.isLoggedOut = false
-                        //self.presentationMode.wrappedValue.dismiss()
-                        showDeviceFlow = false
-                    }) {
-                        Text("Back")
-                    }
-                }
-                .frame(maxWidth:.infinity)
-                .focusSection()
-                
                 Button(action: {
-                    self.showMetaMaskFlow = true
+                    Task{
+                        await self.regenerateCode()
+                    }
                 }) {
-
-                    Text("-Or- Sign On With Metamask")
-                        .foregroundColor(metaMaskFocus ? .black : .gray)
-                        .frame(width:600)
-                        
+                    Text("Request New Code")
+                        //.frame(width:400)
                 }
-                .buttonStyle(.plain)
-                .focused($metaMaskFocus)
-
-
-            }
-            .frame(width: 675)
+        
             }
         }
         .onAppear(perform: {
             if(!self.fabric.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
             }else{
-                self.regenerateCode()
+                Task{
+                    await self.regenerateCode()
+                }
             }
         })
         .onReceive(timer) { _ in
-            checkDeviceVerification()
+            Task{
+                await checkDeviceVerification()
+            }
         }
         .fullScreenCover(isPresented: $showError) {
             VStack{
@@ -148,50 +127,98 @@ struct DeviceFlowView: View {
             .background(Color.black.opacity(0.8))
             .background(.thickMaterial)
         }
-        .fullScreenCover(isPresented: $showMetaMaskFlow){
-            MetaMaskFlowView(show: $showMetaMaskFlow)
-        }
-        
     }
     
-    func regenerateCode() {
-        self.fabric.startDeviceCodeFlow(completion: {
-            json,err in
-            
-            print("startDeviceCodeFlow completed");
-            
-            guard err == nil else {
-                print(err)
-                return
-                
-            }
-            guard json?["error"] == nil else {
-                
-                print((json?["error_description"] as? String)!)
+    func regenerateCode() async {
+        self.errorMessage = ""
+        
+        do {
+            guard let signer = self.fabric.signer else {
+                print("MetaMaskFlowView regenerateCode() called without a signer.")
                 return
             }
             
-            //print(json)
+            let json = try await signer.createMetaMaskLogin()
+            
+            self.response = json
+            
+            print("createMetaMaskLogin completed");
+            
+            
+            debugPrint("MetaMask create response: ",json)
             //self.url = json?["verification_uri"] as! String
-            self.url = "https://elv.lv/activate"
+            self.url = json["metamask_url"].stringValue
+            if (!self.url.hasPrefix("https") && !self.url.hasPrefix("http")){
+                self.url = "https://".appending(self.url)
+            }
+
+            //Tried the metamask:// prefix but doesn't work either
+            //self.url = self.url.replacingOccurrences(of: "metamask.app.link", with: "metamask:/")
             
-            self.urlComplete = json?["verification_uri_complete"] as! String
-            self.code = json?["user_code"] as! String
-            self.deviceCode = json?["device_code"] as! String
+            debugPrint("METAMASK URL: ", self.url)
             
-            var interval = json?["interval"] as! Double + 1.0
-            let validFor = json?["expires_in"] as! Int
+            self.code = json["id"].stringValue
+            self.deviceCode = json["passcode"].stringValue
+            
+            let interval = 5.0
             self.timer = Timer.publish(every: interval, on: .main, in: .common)
             self.timerCancellable = self.timer.connect()
             /*self.countDown = Timer.scheduledTimer(timeInterval: TimeInterval(validFor), target: self, selector: #selector(self.onTimerFires), userInfo: nil, repeats: true)*/
-
+            
             //self.expired = false
-
-        })
+            
+        }catch{
+            print("Could not get code for MetaMask login", error)
+        }
     }
                                     
     
-    func checkDeviceVerification(){
+    func checkDeviceVerification() async{
+        print("Metamask checkDeviceVerification \(self.code)");
+        do {
+            guard let result = try await self.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
+                print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
+                return
+            }
+            
+
+            let status = result["status"].intValue
+            
+            if(status != 200){
+                print("Check value \(result)")
+                /*
+                self.timerCancellable!.cancel()
+                print("Error \(json)")
+                self.errorMessage = json["error"].stringValue
+                showError = true
+                 */
+                return
+            }
+            
+            debugPrint("Result ", result)
+            
+            let json = JSON.init(parseJSON:result["payload"].stringValue)
+            
+            if json.isEmpty {
+                print("MetaMaskFlowView checkDeviceVerification() json payload is empty.")
+                showError = true
+                return
+            }
+            
+            let token = json["token"].stringValue
+            let addr = json["addr"].stringValue
+            let eth = json["eth"].stringValue
+            
+            let login = LoginResponse(addr:addr, eth:eth, token:token)
+            fabric.setLogin(login: login, isMetamask: true)
+            
+            self.timerCancellable!.cancel()
+            
+        } catch {
+            print("checkDeviceVerification error", error)
+        }
+        
+        /*
         print("checkDeviceVerification \(self.code)");
         let oAuthEndpoint: String = "https://".appending(self.Domain).appending("/oauth/token");
         
@@ -230,10 +257,11 @@ struct DeviceFlowView: View {
                  }
             return
         }
+         */
     }
 }
 
-struct DeviceFlowView_Previews: PreviewProvider {
+struct MetaMaskFlowView_Previews: PreviewProvider {
     static var previews: some View {
         SignInView()
             .preferredColorScheme(.dark)
