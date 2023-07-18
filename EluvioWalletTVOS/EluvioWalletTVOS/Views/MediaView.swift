@@ -164,22 +164,24 @@ struct MediaView2: View {
                                 //print("****** playerItem set ", self.playerItem)
                             }catch{
                                 print("Error creating MediaItemViewModel playerItem",error)
-                                
                                 do{
-                                    let meta = try await fabric.contentObjectMetadata(versionHash:media.mediaHash, metadataSubtree: "public/asset_metadata/permission_message")
+                                    let meta = try await fabric.contentObjectMetadata(versionHash:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
                                     
-                                    print("Permission: ", meta)
+                                    print("permissions_message: ", meta)
                                     
-                                    errorMessage = meta.stringValue
-                                    showError = true
-                                    
+                                    if meta.stringValue != "" {
+                                        errorMessage = meta.stringValue
+                                        showError = true
+                                        await fabric.refresh()
+                                        return
+                                    }
                                 }catch{
-                                    errorMessage = "Access is denied"
-                                    showError = true
+                                    print("Error getting permissions message", error)
                                 }
                                 
-                                errorMessage = "Something went wrong"
+                                errorMessage = "Could not access content"
                                 showError = true
+                                await fabric.refresh()
                             }
                         }
                     }
@@ -248,13 +250,8 @@ struct MediaView2: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
-        .alert("Error", isPresented:$showError, actions: {
-            Button("OK", role: .cancel, action: {
-                errorMessage = ""
-            })
-        }, message: {
-            Text(errorMessage)
-        })
+        .alert(errorMessage, isPresented:$showError){
+        }
     }
 
 }

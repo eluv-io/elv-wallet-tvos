@@ -177,7 +177,8 @@ class Fabric: ObservableObject {
         
         self.checkToken { success in
             print("Check Token: ", success)
-            if (self.isMetamask == false){
+            if (self.isMetamask == true){
+                print("is Metamask login")
                 return
             }
             guard success == true else {
@@ -237,7 +238,10 @@ class Fabric: ObservableObject {
             var mediaRow = MediaRowViewModel()
             
             do {
-                let parsedModels = try await self.parseNft(nft)
+                let data = try nft.rawData()
+                let nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                
+                let parsedModels = try await self.parseNft(nftmodel)
                 guard let model = parsedModels.nftModel else {
                     print("Error parsing nft: \(nft)")
                     continue
@@ -289,7 +293,10 @@ class Fabric: ObservableObject {
         var items : [NFTModel] = []
         for nft in nfts {
             do {
-                let parsedModels = try await self.parseNft(nft)
+                let data = try nft.rawData()
+                let nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                
+                let parsedModels = try await self.parseNft(nftmodel)
                 guard let model = parsedModels.nftModel else {
                     print("Error parsing nft: \(nft)")
                     continue
@@ -331,7 +338,7 @@ class Fabric: ObservableObject {
         return (items, featured.unique(), albums.unique(), videos.unique(), images.unique(), galleries.unique(), html.unique(), books.unique(), liveStreams.unique())
     }
     
-    func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:Features, videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
+    func parseNft(_ _nftmodel: NFTModel) async throws -> (nftModel: NFTModel?, featured:Features, videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
         
         //print("Parse NFT")
         
@@ -344,12 +351,8 @@ class Fabric: ObservableObject {
         var liveStreams: [MediaItem] = []
         var redeemables: [Redeemable]
         
-        //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
-        let data = try nft.rawData()
+        var nftmodel = _nftmodel
         
-        //print("DATA ",nft)
-        //print("before decoding ")
-        var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
         //print("after decoding ", nftmodel)
         guard let contractAddr = nftmodel.contract_addr else{
             throw FabricError.invalidURL("contract_addr does not exist for \(nftmodel.contract_name)")
@@ -1443,6 +1446,7 @@ class Fabric: ObservableObject {
             print("HEADERS ", headers)
             
             AF.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers:headers)
+                .debugLog()
                 .responseJSON { response in
                 switch (response.result) {
                     case .success( _):
