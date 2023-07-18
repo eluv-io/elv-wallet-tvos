@@ -122,6 +122,8 @@ struct MediaView2: View {
     @State var playerTextOverlay : String = ""
     @State var playerFinished = false
     @State var showFocusName = true
+    @State var showError = false
+    @State var errorMessage = ""
     
     var display: MediaDisplay = MediaDisplay.square
     
@@ -162,6 +164,22 @@ struct MediaView2: View {
                                 //print("****** playerItem set ", self.playerItem)
                             }catch{
                                 print("Error creating MediaItemViewModel playerItem",error)
+                                
+                                do{
+                                    let meta = try await fabric.contentObjectMetadata(versionHash:media.mediaHash, metadataSubtree: "public/asset_metadata/permission_message")
+                                    
+                                    print("Permission: ", meta)
+                                    
+                                    errorMessage = meta.stringValue
+                                    showError = true
+                                    
+                                }catch{
+                                    errorMessage = "Access is denied"
+                                    showError = true
+                                }
+                                
+                                errorMessage = "Something went wrong"
+                                showError = true
                             }
                         }
                     }
@@ -230,6 +248,13 @@ struct MediaView2: View {
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
+        .alert("Error", isPresented:$showError, actions: {
+            Button("OK", role: .cancel, action: {
+                errorMessage = ""
+            })
+        }, message: {
+            Text(errorMessage)
+        })
     }
 
 }

@@ -1542,10 +1542,28 @@ class Fabric: ObservableObject {
     
     //TODO: only need objectId
     //TODO: provide the other params from elv-client-js
-    func contentObjectMetadata(libraryId: String, objectId: String, metadataSubtree: String? = "") async throws -> JSON {
-        let url: String = try self.getEndpoint().appending("/qlibs/").appending("\(libraryId)").appending("/q/").appending("\(objectId)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
-        
-        return try await self.getJsonRequest(url: url)
+    func contentObjectMetadata(libraryId: String="", objectId: String="", versionHash: String = "", metadataSubtree: String? = "") async throws -> JSON {
+        if versionHash.isEmpty {
+            
+            if (libraryId == ""){
+                //TODO:
+                throw FabricError.badInput("No library ID.")
+            }
+            
+            if (objectId == ""){
+                throw FabricError.badInput("No object ID.")
+            }
+            
+            let url: String = try self.getEndpoint().appending("/qlibs/").appending("\(libraryId)").appending("/q/").appending("\(objectId)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
+            
+            
+            return try await self.getJsonRequest(url: url)
+        }else {
+            let url: String = try self.getEndpoint().appending("/q/").appending("\(versionHash)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
+            
+            
+            return try await self.getJsonRequest(url: url)
+        }
     }
     
     //TODO: Use contract call to get lib ID from objectID

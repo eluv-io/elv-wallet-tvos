@@ -54,9 +54,12 @@ class RemoteSigner {
             do {
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress).appending("?limit=100")
 
+                #if DEBUG
+                #else
                 for tenant in APP_CONFIG.allowed_tenants{
                     endpoint = endpoint.appending("&filter=tenant:eq:\(tenant)")
                 }
+                #endif
 
                 print("getWalletData Request: \(endpoint)")
                 //print("Params: \(parameters)")
