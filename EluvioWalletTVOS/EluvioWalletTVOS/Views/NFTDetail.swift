@@ -95,7 +95,6 @@ struct NFTDetailView: View {
                                     .lineLimit(10)
                             }
                             
-
                             Spacer()
                         }
                     }

@@ -7,6 +7,21 @@
 
 import SwiftUI
 
+struct FormEntry : View {
+    var message: String
+    init(_ message:String = ""){
+        self.message = message
+    }
+    
+    var body: some View {
+        Button{} label: {
+            Text(message)  // <<: Do anything you want with your imported View here.
+                .font(.small)
+                .frame(maxWidth:.infinity, alignment: .leading)
+        }.buttonStyle(.plain)
+    }
+}
+
 struct ProfileView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
@@ -14,6 +29,9 @@ struct ProfileView: View {
     @State var userId : String = ""
     @State var network : String = ""
     @State var node : String = ""
+    @State var asNode : String = ""
+    @State var ethNode : String = ""
+    
     var logo = "e_logo"
     var logoUrl = ""
     var name = ""
@@ -32,31 +50,19 @@ struct ProfileView: View {
             
                 VStack(alignment: .center){
                     Form {
-                        Section(header: Text("Profile").foregroundColor(.white.opacity(0.6))) {
-                            Text("Address:  \(address)")
-                            Text("User Id:  \(userId)")
-                            /*
-                            Picker("Preferred location:", selection: $selectedLocation) {
-                                ForEach(locations, id: \.self) {
-                                    Text($0.uppercased())
-                                }
-                            }
-                            .onChange(of: selectedLocation) { selected in
-                                print("Selected location: ", selected)
-                                Task{
-                                    do{
-                                        try await fabric.profile.setPreferredLocation(location: selected)
-                                    }catch{
-                                        print("Error setting preferred location", error)
-                                    }
-                                }
-                            }
-                             */
+                        
+                        Section(header:Text("Profile").foregroundColor(.white.opacity(0.6)))
+                        {
+                            FormEntry("Address:  \(address)")
+                            FormEntry("User Id:  \(userId)")
                         }
                         .padding()
+                        
                         Section(header: Text("Fabric").foregroundColor(.white.opacity(0.6))) {
-                            Text("Network:  \(network.localizedUppercase)")
-                            Text("Fabric Node:  \(node)")
+                            FormEntry("Network:  \(network.localizedUppercase)")
+                            FormEntry("Fabric Node:  \(node)")
+                            FormEntry("Authority Service:  \(asNode)")
+                            FormEntry("Eth Service:  \(ethNode)")
                         }
                         .padding()
                         
@@ -77,6 +83,8 @@ struct ProfileView: View {
                 self.userId = try fabric.getAccountId()
                 self.network = fabric.network
                 self.node = try fabric.getEndpoint()
+                self.asNode = try fabric.signer?.getAuthEndpoint() ?? ""
+                self.ethNode = try fabric.signer?.getEthEndpoint() ?? ""
                 
                 self.locations = fabric.profile.profileData.locations ?? []
                 self.selectedLocation = fabric.profile.profileData.preferredLocation ?? ""
