@@ -12,6 +12,7 @@ import Base58Swift
 import Alamofire
 import SwiftyJSON
 import UUIDShortener
+import CryptoKit
 
 var APP_CONFIG : AppConfiguration = loadJsonFile("configuration.json")
 enum FabricError: Error {
@@ -40,6 +41,8 @@ class Fabric: ObservableObject {
     var configUrl = ""
     var network = ""
     var isMetamask = false
+    
+    var previousRefreshHash = SHA256.hash(data:Data())
     
     @Published
     var configuration : FabricConfiguration? = nil
@@ -691,12 +694,21 @@ class Fabric: ObservableObject {
             }
             //print("Fabric Token: \(self.fabricToken)");
             
-            let profileData = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
-                                                                   accessCode: login.token)
+            let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
+                accessCode: login.token)
+            let profileData = response.result
 
+            debugPrint("Previous Hash ", previousRefreshHash.description)
+            debugPrint("New Hash ", response.hash.description)
+            // Same data, exit so we don't affect UI
+            if response.hash == self.previousRefreshHash {
+                debugPrint("exiting refresh...same data.")
+                return
+            }
+            
             let nfts = profileData["contents"].arrayValue
 
-            var parsedLibrary = try await parseNftsToLibrary(nfts)
+            let parsedLibrary = try await parseNftsToLibrary(nfts)
             
             self.library = parsedLibrary
 
@@ -706,6 +718,7 @@ class Fabric: ObservableObject {
             ]
             
             self.properties = properties
+            self.previousRefreshHash = response.hash
                 
         }catch{
             print ("Refresh Error: \(error)")
@@ -984,6 +997,12 @@ class Fabric: ObservableObject {
         self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
     }
     
+    func resetWalletData(){
+        self.library = MediaLibrary()
+        self.properties = []
+
+    }
+    
     func signOut(){
         //print("Fabric: signOut()")
         let domain = APP_CONFIG.auth0.domain
@@ -1010,8 +1029,7 @@ class Fabric: ObservableObject {
         self.fabricToken = ""
         self.isMetamask = false
 
-        self.library = MediaLibrary()
-        self.properties = []
+        resetWalletData()
 
         UserDefaults.standard.removeObject(forKey: "access_token")
         UserDefaults.standard.removeObject(forKey: "id_token")
@@ -1543,8 +1561,9 @@ class Fabric: ObservableObject {
             
             var items : JSON
             do {
-                items = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
+                let response = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
                                                                  accessCode: self.login!.token, parameters:parameters)
+                items = response.result
             }catch{
                 continue
             }

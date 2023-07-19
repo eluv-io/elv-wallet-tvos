@@ -11,6 +11,7 @@ import SwiftKeccak
 import RLPSwift
 import SwiftyJSON
 import Base58Swift
+import CryptoKit
 
 struct JRPCParams: Codable {
     var jsonrpc = "2.0"
@@ -63,7 +64,7 @@ class RemoteSigner {
     }
     
     //TODO: Convert this to responseDecodable
-    func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
+    func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> (result: JSON, hash: SHA256Digest) {
         return try await withCheckedThrowingContinuation({ continuation in
             print("****** getWalletData ******")
             do {
@@ -87,7 +88,8 @@ class RemoteSigner {
 
                     switch (response.result) {
                         case .success(let result):
-                            continuation.resume(returning: JSON(result))
+                        let hash = SHA256.hash(data: response.data ?? Data())
+                            continuation.resume(returning: (JSON(result), hash))
                          case .failure(let error):
                             print("Get Wallet Data Request error: \(error)")
                             continuation.resume(throwing: error)
