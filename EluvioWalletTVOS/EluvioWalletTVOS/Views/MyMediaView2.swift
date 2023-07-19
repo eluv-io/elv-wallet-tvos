@@ -74,7 +74,7 @@ struct MyMediaView2: View {
                         .padding(.bottom,80)
                 }
                 
-                LazyVStack(alignment: .center, spacing: 40) {
+                VStack(alignment: .center, spacing: 40) {
 
                     if (featuredListCount <= 3){
                         HStack() {

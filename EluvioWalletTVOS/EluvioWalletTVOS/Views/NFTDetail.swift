@@ -249,9 +249,6 @@ struct NFTDetailView: View {
                 view.clipsToBounds = false
             }
             .onAppear(){
-                Task{
-                    await fabric.refresh()
-                }
                 self.cancellable = fabric.$library.sink { val in
                     update()
                 }
