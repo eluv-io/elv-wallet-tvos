@@ -21,7 +21,7 @@ struct MediaCollectionView: View {
     
     var body: some View {
         ScrollView(.horizontal) {
-            HStack(alignment: .top, spacing: 52) {
+            LazyHStack(alignment: .top, spacing: 52) {
                 ForEach(self.mediaCollection.media) {media in
                     VStack(alignment:.leading, spacing:10){
                         if (media.isLive || media.media_type == "Video"){

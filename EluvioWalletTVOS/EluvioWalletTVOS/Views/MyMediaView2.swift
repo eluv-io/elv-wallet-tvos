@@ -74,10 +74,10 @@ struct MyMediaView2: View {
                         .padding(.bottom,80)
                 }
                 
-                VStack(alignment: .center, spacing: 40) {
+                LazyVStack(alignment: .center, spacing: 40) {
 
                     if (featuredListCount <= 3){
-                        HStack() {
+                        LazyHStack() {
                             ForEach(featured.media) { media in
                                 MediaView2(mediaItem: media, display: MediaDisplay.feature)
                             }
@@ -103,7 +103,7 @@ struct MyMediaView2: View {
                         .focusSection()
                     }else{
                         ScrollView (.horizontal, showsIndicators: false) {
-                            HStack(alignment: .top, spacing: 52) {
+                            LazyHStack(alignment: .top, spacing: 52) {
                                 ForEach(featured.media) { media in
                                     MediaView2(mediaItem: media, display: MediaDisplay.feature)
                                 }
@@ -138,7 +138,7 @@ struct MyMediaView2: View {
                     if(!library.mediaRows.isEmpty) {
                         ForEach(library.mediaRows) { row in
                             if (!row.collection.media.isEmpty){
-                                VStack(alignment: .leading, spacing: 20){
+                                LazyVStack(alignment: .leading, spacing: 20){
                                     Text(row.name).font(.rowTitle)
                                     MediaCollectionView(mediaCollection: row.collection)
                                 }
@@ -148,7 +148,7 @@ struct MyMediaView2: View {
                     }
                     
                     if (!items.isEmpty){
-                        VStack(alignment: .leading, spacing: 40){
+                        LazyVStack(alignment: .leading, spacing: 40){
                             Text("Items").font(.rowTitle)
                             ScrollView (.horizontal, showsIndicators: false) {
                                 LazyHStack(alignment: .top, spacing: 52) {
