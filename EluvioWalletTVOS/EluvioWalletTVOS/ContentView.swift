@@ -22,7 +22,7 @@ struct ContentView: View {
                 
         }else{
             NavigationView {
-                MainView(nfts:fabric.library.items)
+                MainView()
                     .preferredColorScheme(colorScheme)
                     /*.fullScreenCover(isPresented: $fabric.isLoggedOut) {
                         SignInView()

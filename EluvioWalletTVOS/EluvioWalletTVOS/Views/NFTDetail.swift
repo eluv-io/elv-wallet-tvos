@@ -249,9 +249,7 @@ struct NFTDetailView: View {
                 view.clipsToBounds = false
             }
             .onAppear(){
-                //update()
                 self.cancellable = fabric.$library.sink { val in
-                    //print("ON CHANGE!", val)
                     update()
                 }
             }

@@ -34,7 +34,6 @@ struct HeaderView: View {
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
-    var nfts : [NFTModel] = []
     enum Tab { case Items, Media, Profile, Search }
     @State var selection: Tab = Tab.Items
     @State private var cancellable: AnyCancellable? = nil
@@ -43,14 +42,13 @@ struct MainView: View {
     var name = "Eluvio Wallet"
     @State var logOutTimer = Timer.publish(every:24*60*60, on: .main, in: .common)
     
-    init(nfts:[NFTModel] = []) {
+    init() {
         UITabBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.2)
-        self.nfts = nfts
     }
     
     var body: some View {
         TabView(selection: $selection) {
-            MyItemsView(nfts: nfts).preferredColorScheme(colorScheme)
+            MyItemsView(nfts: fabric.library.items).preferredColorScheme(colorScheme)
                 .tabItem{
                     Text("My Items")
                 }
@@ -88,10 +86,8 @@ struct MainView: View {
             }
         }
         .onChange(of: selection){ newValue in
-            if (newValue == Tab.Profile){
-                Task {
-                    await fabric.refresh()
-                }
+            Task {
+                await fabric.refresh()
             }
         }
         .onReceive(logOutTimer) { _ in

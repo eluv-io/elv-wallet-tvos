@@ -122,6 +122,8 @@ struct MediaView2: View {
     @State var playerTextOverlay : String = ""
     @State var playerFinished = false
     @State var showFocusName = true
+    @State var showError = false
+    @State var errorMessage = ""
     
     var display: MediaDisplay = MediaDisplay.square
     
@@ -162,6 +164,24 @@ struct MediaView2: View {
                                 //print("****** playerItem set ", self.playerItem)
                             }catch{
                                 print("Error creating MediaItemViewModel playerItem",error)
+                                do{
+                                    let meta = try await fabric.contentObjectMetadata(versionHash:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
+                                    
+                                    print("permissions_message: ", meta)
+                                    
+                                    if meta.stringValue != "" {
+                                        errorMessage = meta.stringValue
+                                        showError = true
+                                        await fabric.refresh()
+                                        return
+                                    }
+                                }catch{
+                                    print("Error getting permissions message", error)
+                                }
+                                
+                                errorMessage = "Could not access content"
+                                showError = true
+                                await fabric.refresh()
                             }
                         }
                     }
@@ -229,6 +249,8 @@ struct MediaView2: View {
                        finished:$playerFinished
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .alert(errorMessage, isPresented:$showError){
         }
     }
 

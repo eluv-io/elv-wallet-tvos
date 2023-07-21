@@ -12,6 +12,7 @@ import Base58Swift
 import Alamofire
 import SwiftyJSON
 import UUIDShortener
+import CryptoKit
 
 var APP_CONFIG : AppConfiguration = loadJsonFile("configuration.json")
 enum FabricError: Error {
@@ -40,6 +41,8 @@ class Fabric: ObservableObject {
     var configUrl = ""
     var network = ""
     var isMetamask = false
+    
+    var previousRefreshHash = SHA256.hash(data:Data())
     
     @Published
     var configuration : FabricConfiguration? = nil
@@ -177,7 +180,8 @@ class Fabric: ObservableObject {
         
         self.checkToken { success in
             print("Check Token: ", success)
-            if (self.isMetamask == false){
+            if (self.isMetamask == true){
+                print("is Metamask login")
                 return
             }
             guard success == true else {
@@ -237,7 +241,10 @@ class Fabric: ObservableObject {
             var mediaRow = MediaRowViewModel()
             
             do {
-                let parsedModels = try await self.parseNft(nft)
+                let data = try nft.rawData()
+                let nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                
+                let parsedModels = try await self.parseNft(nftmodel)
                 guard let model = parsedModels.nftModel else {
                     print("Error parsing nft: \(nft)")
                     continue
@@ -289,7 +296,10 @@ class Fabric: ObservableObject {
         var items : [NFTModel] = []
         for nft in nfts {
             do {
-                let parsedModels = try await self.parseNft(nft)
+                let data = try nft.rawData()
+                let nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                
+                let parsedModels = try await self.parseNft(nftmodel)
                 guard let model = parsedModels.nftModel else {
                     print("Error parsing nft: \(nft)")
                     continue
@@ -331,7 +341,7 @@ class Fabric: ObservableObject {
         return (items, featured.unique(), albums.unique(), videos.unique(), images.unique(), galleries.unique(), html.unique(), books.unique(), liveStreams.unique())
     }
     
-    func parseNft(_ nft: JSON) async throws -> (nftModel: NFTModel?, featured:Features, videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
+    func parseNft(_ _nftmodel: NFTModel) async throws -> (nftModel: NFTModel?, featured:Features, videos: [MediaItem] , images:[MediaItem] , galleries: [MediaItem] , html: [MediaItem] , books: [MediaItem], liveStreams: [MediaItem] ) {
         
         //print("Parse NFT")
         
@@ -344,12 +354,8 @@ class Fabric: ObservableObject {
         var liveStreams: [MediaItem] = []
         var redeemables: [Redeemable]
         
-        //let data = try JSONSerialization.data(withJSONObject: nft, options: .prettyPrinted)
-        let data = try nft.rawData()
+        var nftmodel = _nftmodel
         
-        //print("DATA ",nft)
-        //print("before decoding ")
-        var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
         //print("after decoding ", nftmodel)
         guard let contractAddr = nftmodel.contract_addr else{
             throw FabricError.invalidURL("contract_addr does not exist for \(nftmodel.contract_name)")
@@ -688,12 +694,21 @@ class Fabric: ObservableObject {
             }
             //print("Fabric Token: \(self.fabricToken)");
             
-            let profileData = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
-                                                                   accessCode: login.token)
+            let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
+                accessCode: login.token)
+            let profileData = response.result
 
+            debugPrint("Previous Hash ", previousRefreshHash.description)
+            debugPrint("New Hash ", response.hash.description)
+            // Same data, exit so we don't affect UI
+            if response.hash == self.previousRefreshHash {
+                debugPrint("exiting refresh...same data.")
+                return
+            }
+            
             let nfts = profileData["contents"].arrayValue
 
-            var parsedLibrary = try await parseNftsToLibrary(nfts)
+            let parsedLibrary = try await parseNftsToLibrary(nfts)
             
             self.library = parsedLibrary
 
@@ -703,6 +718,7 @@ class Fabric: ObservableObject {
             ]
             
             self.properties = properties
+            self.previousRefreshHash = response.hash
                 
         }catch{
             print ("Refresh Error: \(error)")
@@ -981,6 +997,12 @@ class Fabric: ObservableObject {
         self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
     }
     
+    func resetWalletData(){
+        self.library = MediaLibrary()
+        self.properties = []
+
+    }
+    
     func signOut(){
         //print("Fabric: signOut()")
         let domain = APP_CONFIG.auth0.domain
@@ -1007,8 +1029,7 @@ class Fabric: ObservableObject {
         self.fabricToken = ""
         self.isMetamask = false
 
-        self.library = MediaLibrary()
-        self.properties = []
+        resetWalletData()
 
         UserDefaults.standard.removeObject(forKey: "access_token")
         UserDefaults.standard.removeObject(forKey: "id_token")
@@ -1443,6 +1464,7 @@ class Fabric: ObservableObject {
             print("HEADERS ", headers)
             
             AF.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers:headers)
+                .debugLog()
                 .responseJSON { response in
                 switch (response.result) {
                     case .success( _):
@@ -1539,8 +1561,9 @@ class Fabric: ObservableObject {
             
             var items : JSON
             do {
-                items = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
+                let response = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
                                                                  accessCode: self.login!.token, parameters:parameters)
+                items = response.result
             }catch{
                 continue
             }
@@ -1582,10 +1605,28 @@ class Fabric: ObservableObject {
     
     //TODO: only need objectId
     //TODO: provide the other params from elv-client-js
-    func contentObjectMetadata(libraryId: String, objectId: String, metadataSubtree: String? = "") async throws -> JSON {
-        let url: String = try self.getEndpoint().appending("/qlibs/").appending("\(libraryId)").appending("/q/").appending("\(objectId)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
-        
-        return try await self.getJsonRequest(url: url)
+    func contentObjectMetadata(libraryId: String="", objectId: String="", versionHash: String = "", metadataSubtree: String? = "") async throws -> JSON {
+        if versionHash.isEmpty {
+            
+            if (libraryId == ""){
+                //TODO:
+                throw FabricError.badInput("No library ID.")
+            }
+            
+            if (objectId == ""){
+                throw FabricError.badInput("No object ID.")
+            }
+            
+            let url: String = try self.getEndpoint().appending("/qlibs/").appending("\(libraryId)").appending("/q/").appending("\(objectId)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
+            
+            
+            return try await self.getJsonRequest(url: url)
+        }else {
+            let url: String = try self.getEndpoint().appending("/q/").appending("\(versionHash)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
+            
+            
+            return try await self.getJsonRequest(url: url)
+        }
     }
     
     //TODO: Use contract call to get lib ID from objectID
