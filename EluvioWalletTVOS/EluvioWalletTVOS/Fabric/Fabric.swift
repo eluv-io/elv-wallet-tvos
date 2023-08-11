@@ -382,6 +382,17 @@ class Fabric: ObservableObject {
         }
         
         let nftData = try await self.getNFTData(tokenUri: tokenUri)
+        //TODO: use the template
+        /*
+        var nftData = JSON()
+        if let template = nftmodel.nft_template  {
+            nftData = template
+            debugPrint("Found template ", template)
+        }else {
+            nftData = try await self.getNFTData(tokenUri: tokenUri)
+        }
+         */
+        
         nftmodel.meta_full = nftData
         //print("******")
         //print(nftData)
@@ -706,13 +717,13 @@ class Fabric: ObservableObject {
             //print("Fabric Token: \(self.fabricToken)");
             
             let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
-                accessCode: login.token)
+                                                          accessCode: self.fabricToken)
             let profileData = response.result
 
             debugPrint("Previous Hash ", previousRefreshHash.description)
             debugPrint("New Hash ", response.hash.description)
             // Same data, exit so we don't affect UI
-            if response.hash == self.previousRefreshHash {
+            if !self.library.isEmpty && response.hash == self.previousRefreshHash {
                 debugPrint("exiting refresh...same data.")
                 return
             }
@@ -1625,7 +1636,7 @@ class Fabric: ObservableObject {
             var items : JSON
             do {
                 let response = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
-                                                                 accessCode: self.login!.token, parameters:parameters)
+                                                                    accessCode: self.fabricToken, parameters:parameters)
                 items = response.result
             }catch{
                 continue

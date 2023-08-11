@@ -258,6 +258,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var token_owner: String?
     var token_uri: String?
     var meta : NFTMetaResponse = NFTMetaResponse()
+    var nft_template: JSON?
     
     //TODO: Move to a ViewModel
     var meta_full: JSON?

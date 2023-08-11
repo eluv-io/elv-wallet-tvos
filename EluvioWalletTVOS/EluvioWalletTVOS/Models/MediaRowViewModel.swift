@@ -12,6 +12,9 @@ struct MediaLibrary: Identifiable {
     var features: Features = Features()
     var items: [NFTModel] = []
     var mediaRows: [MediaRowViewModel] = []
+    var isEmpty : Bool {
+        return items.isEmpty && features.isEmpty
+    }
 }
 
 enum MediaRowFilter {case all; case video; case images; case apps; case books; case albums; case items}

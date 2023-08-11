@@ -137,7 +137,7 @@ struct MyMediaView2: View {
                     if(!library.mediaRows.isEmpty) {
                         ForEach(library.mediaRows) { row in
                             if (!row.collection.media.isEmpty){
-                                LazyVStack(alignment: .leading, spacing: 20){
+                                VStack(alignment: .leading, spacing: 20){
                                     Text(row.name).font(.rowTitle)
                                     MediaCollectionView(mediaCollection: row.collection)
                                 }
@@ -147,7 +147,7 @@ struct MyMediaView2: View {
                     }
                     
                     if (!items.isEmpty){
-                        LazyVStack(alignment: .leading, spacing: 40){
+                        VStack(alignment: .leading, spacing: 40){
                             Text("Items").font(.rowTitle)
                             ScrollView (.horizontal, showsIndicators: false) {
                                 LazyHStack(alignment: .top, spacing: 52) {

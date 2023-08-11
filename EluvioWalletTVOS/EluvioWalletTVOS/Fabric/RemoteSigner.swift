@@ -68,15 +68,20 @@ class RemoteSigner {
         return try await withCheckedThrowingContinuation({ continuation in
             print("****** getWalletData ******")
             do {
-                var endpoint = try self.getAuthEndpoint().appending("/wlt/").appending(accountAddress).appending("?limit=100")
-
+                /*var endpoint = try self.getAuthEndpoint().appending("/apigw/").appending("/wlt/").appending(accountAddress).appending("?limit=100")
+                 */
+                /*
                 #if DEBUG
                 #else
+
                 for tenant in APP_CONFIG.allowed_tenants{
                     endpoint = endpoint.appending("&filter=tenant:eq:\(tenant)")
                 }
-                #endif
 
+                #endif
+                */
+                var endpoint = try self.getAuthEndpoint().appending("/apigw").appending("/nfts").appending("?limit=100")
+                                                                    
                 print("getWalletData Request: \(endpoint)")
                 //print("Params: \(parameters)")
                 let headers: HTTPHeaders = [
@@ -84,7 +89,9 @@ class RemoteSigner {
                          "Accept": "application/json" ]
                 //print("Headers: \(headers)")
                 
-                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
+                    .debugLog()
+                    .responseJSON { response in
 
                     switch (response.result) {
                         case .success(let result):
