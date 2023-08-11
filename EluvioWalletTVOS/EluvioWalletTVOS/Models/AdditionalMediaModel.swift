@@ -174,6 +174,11 @@ struct MediaItemViewModel:Identifiable {
             }
         }
         
+        let name = media.name
+        let subtitle1 = media.subtitle_1 ?? ""
+        let subtitle2 = media.subtitle_2 ?? ""
+        let description = media.description ?? ""
+        
         
         return MediaItemViewModel(
             id: media.id,
@@ -182,7 +187,7 @@ struct MediaItemViewModel:Identifiable {
             image: media.image ?? "",
             posterImage: posterImage,
             animation:animationItem,
-            name:media.name ?? "",
+            name:media.name ,
             subtitle1: media.subtitle_1 ?? "",
             subtitle2: media.subtitle_2 ?? "",
             description: media.description ?? "",
@@ -223,7 +228,11 @@ struct MediaItemViewModel:Identifiable {
     var mediaHash: String = ""
     var mediaSection: MediaSection? = nil
     var mediaCollection: MediaCollection? = nil
+    var hidden = false
+    var locked = false
+    
     var nft: NFTModel? = nil
+
     
     var contentTag: String {
         for tag in tags {
@@ -298,6 +307,8 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var offerings: [String]? = []
     var tags: [TagMeta]?
     var media_reference: MediaReference? = nil
+    var locked: Bool? = false
+    var locked_state: JSON?
     
     //For Demo
     var nft: NFTModel? = nil
@@ -368,6 +379,11 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         offerings = try container.decodeIfPresent([String].self, forKey: .offerings) ?? []
         tags = try container.decodeIfPresent([TagMeta].self, forKey: .tags) ?? []
         media_reference = try container.decodeIfPresent(MediaReference.self, forKey: .media_reference) ?? nil
+        
+        locked = try container.decodeIfPresent(Bool.self, forKey: .locked) ?? false
+        if locked ?? false {
+            locked_state = try container.decodeIfPresent(JSON.self, forKey: .locked_state)
+        }
         
         id = try container.decodeIfPresent(String.self, forKey: .id) ??  (name ) + (media_type ?? "")
         

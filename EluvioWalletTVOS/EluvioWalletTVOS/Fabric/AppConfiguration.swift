@@ -31,6 +31,7 @@ struct NetworkConfig: Codable {
     var state_store_urls: [String]
     var wallet_url: String
     var overrides: NetworkOverrides?
+    var badger_address: String
 }
 
 struct Auth0Config: Codable {

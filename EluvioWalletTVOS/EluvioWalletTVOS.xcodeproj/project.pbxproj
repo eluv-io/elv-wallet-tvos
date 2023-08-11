@@ -47,6 +47,7 @@
 		B06C4C4F2A5D09A9003C414A /* configuration_bak.json in Resources */ = {isa = PBXBuildFile; fileRef = B06C4C4E2A5D09A9003C414A /* configuration_bak.json */; };
 		B06C4C512A5F0872003C414A /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C502A5F0872003C414A /* AppConfiguration.swift */; };
 		B06C4C532A5F35D5003C414A /* MetaMaskFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C522A5F35D5003C414A /* MetaMaskFlowView.swift */; };
+		B06C4C552A7B2C2A003C414A /* ProfileClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C542A7B2C2A003C414A /* ProfileClient.swift */; };
 		B06C92BF2A3060370001CF4E /* DropDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C92BE2A3060370001CF4E /* DropDetail.swift */; };
 		B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D520E2A12875D00BD68D1 /* MyItemsView.swift */; };
 		B06D52112A12F83500BD68D1 /* property.json in Resources */ = {isa = PBXBuildFile; fileRef = B06D52102A12F83500BD68D1 /* property.json */; };
@@ -116,6 +117,7 @@
 		B06C4C4E2A5D09A9003C414A /* configuration_bak.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = configuration_bak.json; sourceTree = "<group>"; };
 		B06C4C502A5F0872003C414A /* AppConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfiguration.swift; sourceTree = "<group>"; };
 		B06C4C522A5F35D5003C414A /* MetaMaskFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetaMaskFlowView.swift; sourceTree = "<group>"; };
+		B06C4C542A7B2C2A003C414A /* ProfileClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileClient.swift; sourceTree = "<group>"; };
 		B06C92BE2A3060370001CF4E /* DropDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropDetail.swift; sourceTree = "<group>"; };
 		B06D520D2A0C0BBF00BD68D1 /* tenant.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tenant.json; sourceTree = "<group>"; };
 		B06D520E2A12875D00BD68D1 /* MyItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyItemsView.swift; sourceTree = "<group>"; };
@@ -247,6 +249,7 @@
 				B0E60F8829CD71840079661E /* RemoteSigner.swift */,
 				B069A4842A428672006C9E7B /* Profile.swift */,
 				B06C4C502A5F0872003C414A /* AppConfiguration.swift */,
+				B06C4C542A7B2C2A003C414A /* ProfileClient.swift */,
 			);
 			path = Fabric;
 			sourceTree = "<group>";
@@ -442,6 +445,7 @@
 				B06C4C532A5F35D5003C414A /* MetaMaskFlowView.swift in Sources */,
 				B06D52192A14882200BD68D1 /* SearchView.swift in Sources */,
 				B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */,
+				B06C4C552A7B2C2A003C414A /* ProfileClient.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
 				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,

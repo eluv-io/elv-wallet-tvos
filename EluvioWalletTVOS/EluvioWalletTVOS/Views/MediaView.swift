@@ -135,7 +135,7 @@ struct MediaView2: View {
             Button(action: {
                 if media.isReference == true{
                     showSeriesView = true
-                    print ("Media: ", media.isReference)
+                    debugPrint("Media: ", media.isReference)
                     return
                 }
                 
@@ -153,7 +153,7 @@ struct MediaView2: View {
                             do {
 
                                 if (media.offering != "default"){
-                                    print("MediaView2 Offering: ", media.offering)
+                                    debugPrint("MediaView2 Offering: ", media.offering)
                                     self.playerItem = try await MakePlayerItemFromVersionHash(fabric:fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
                                 }else{
                                     self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
@@ -186,6 +186,8 @@ struct MediaView2: View {
                         }
                     }
                 } else if media.mediaType == "HTML" {
+                    //debugPrint("locked: ",mediaItem?.locked)
+                    //debugPrint("locked_state", mediaItem?.locked_state)
                     self.qrUrl = media.htmlUrl
                     self.showQRView = true
                 } else if media.mediaType == "Gallery" {

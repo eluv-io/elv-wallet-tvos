@@ -10,6 +10,19 @@ import Base58Swift
 import SwiftUI
 import Alamofire
 
+func FormatAddress(address: String) -> String {
+    if address.isEmpty {
+        return address
+    }
+        
+    var formatted = address.trim()
+    if(!formatted.starts(with: "0x")){
+        formatted = "0x".appending(formatted)
+    }
+    
+    return formatted.lowercased()
+}
+
 func loadJsonFile<T: Decodable>(_ filename: String) -> T {
     let data: Data
 
@@ -63,6 +76,10 @@ extension StringProtocol {
 extension String {
     enum ExtendedEncoding {
         case hexadecimal
+    }
+    
+    func trim() -> String {
+        return self.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func data(using encoding:ExtendedEncoding) -> Data? {

@@ -77,6 +77,7 @@ class Fabric: ObservableObject {
     var currentEnpointIndex = 0
     
     var profile = Profile()
+    var profileClient : ProfileClient? = nil
     
     init(){
         print("Fabric init config_url \(self.configUrl)");
@@ -177,6 +178,8 @@ class Fabric: ObservableObject {
         self.configUrl = configUrl
         self.network = _network
         UserDefaults.standard.set(_network, forKey: "fabric_network")
+        
+        self.profileClient = ProfileClient(fabric: self)
         
         self.checkToken { success in
             print("Check Token: ", success)
@@ -641,6 +644,14 @@ class Fabric: ObservableObject {
         return nil
     }
     
+    func getBadgerAddress() throws ->String {
+        if let address = APP_CONFIG.network[self.network]?.badger_address {
+            return address
+        }
+        
+        throw FabricError.configError("No badger_address in configuration.")
+    }
+    
     func redeemFulfillment(transactionHash: String) async throws -> JSON {
         if (transactionHash.isEmpty){
             throw FabricError.configError("Redeem Fulfillment called without transaction ID")
@@ -995,6 +1006,14 @@ class Fabric: ObservableObject {
         
         self.loginTime = Date()
         self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
+        
+        if let profileClient = self.profileClient {
+            Task {
+                let userAddress = try self.getAccountAddress()
+                let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
+                 debugPrint("USER PROFILE: ", userProfile )
+            }
+        }
     }
     
     func resetWalletData(){
@@ -1098,7 +1117,7 @@ class Fabric: ObservableObject {
         
         print("http request: ", request)
         //print("http request headers: ", request.allHTTPHeaderFields)
-        
+        /*
         let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
             
                 do{
@@ -1112,15 +1131,34 @@ class Fabric: ObservableObject {
                     // Parse the JSON data
                     let login = try JSONDecoder().decode(LoginResponse.self, from: data)
                     debugPrint(login)
-
                     self.setLogin(login: login)
-
+                
                 }catch{
                     print(error)
                 }
         
         })
         task.resume()
+         */
+        
+        AF.request(request)
+            .responseJSON { response in
+                switch (response.result) {
+                    case .success(_):
+                        do{
+                            if let data = response.data {
+                                let login = try JSONDecoder().decode(LoginResponse.self, from: data)
+                                self.setLogin(login: login)
+                            }
+                        }catch{
+                            print("Signin response decode error: ", error)
+                        }
+                     case .failure(let error):
+                        print("Signin error",error)
+                 }
+        }
+        
+        
     }
     
     
@@ -1145,7 +1183,7 @@ class Fabric: ObservableObject {
             throw FabricError.noLogin("getAccountAddress")
         }
         
-        return address
+        return FormatAddress(address: address)
     }
     
     func getOptionsJsonFromHash(versionHash: String) async throws -> JSON {
@@ -1448,10 +1486,19 @@ class Fabric: ObservableObject {
         return newUrl.standardized.absoluteString
     }
     
-    func getJsonRequest(url: String, accessToken: String? = nil, parameters : [String: String] = [:]) async throws -> JSON {
+    //Convenience for early code
+    func getJsonRequest(url: String, accessToken: String? = nil, parameters : [String: String] = [:], noAuth: Bool = false) async throws -> JSON {
+        return try await httpJsonRequest(url: url, method: .get, accessToken: accessToken, parameters: parameters, noAuth: noAuth)
+    }
+    
+    func httpJsonRequest(url: String, method: HTTPMethod, accessToken: String? = nil, parameters : [String: String] = [:], noAuth: Bool = false, body: String = "") async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             
-            var token = accessToken ?? self.fabricToken
+            var token = accessToken ?? ""
+            
+            if token.isEmpty && noAuth == false {
+                token = self.fabricToken
+            }
             
             var headers: HTTPHeaders = [
                      "Accept": "application/json"]
@@ -1459,13 +1506,29 @@ class Fabric: ObservableObject {
             if !token.isEmpty {
                 headers["Authorization"] =  "Bearer \(token)"
             }
+
+            debugPrint("GET ",url)
+            debugPrint("HEADERS ", headers)
             
-            print("GET ",url)
-            print("HEADERS ", headers)
+            var components = URLComponents(string: url)!
+            components.queryItems = parameters.map { (key, value) in
+                URLQueryItem(name: key, value: value)
+            }
+            components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+            var request = URLRequest(url: components.url!)
+
+            request.httpMethod = method.rawValue
+            request.headers = headers
+            if (!body.isEmpty){
+                request.httpBody = body.data(using: .utf8)
+            }
             
-            AF.request(url, method: .get, parameters: parameters, encoding: URLEncoding.default, headers:headers)
+            //AF.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers:headers)
+            AF.request(request)
                 .debugLog()
                 .responseJSON { response in
+                    
+                    debugPrint("getJsonRequest response:\n")
                 switch (response.result) {
                     case .success( _):
                         let value = JSON(response.value!)

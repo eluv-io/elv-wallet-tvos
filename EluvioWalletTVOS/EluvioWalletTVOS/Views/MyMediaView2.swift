@@ -96,7 +96,6 @@ struct MyMediaView2: View {
                                         tokenId: nft.token_id_str ?? "",
                                         destination: NFTDetail(nft: nft)
                                     )
-                                    
                                 }
                             }
                         }
