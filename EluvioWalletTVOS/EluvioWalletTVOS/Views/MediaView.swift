@@ -339,6 +339,7 @@ struct RedeemableCardView: View {
                 .focused($isFocused)
         }
         .onAppear(){
+            debugPrint("REDEEMABLE ONAPPEAR", redeemable.id)
             Task{
                 do{
                     playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.animationLink)
@@ -476,7 +477,7 @@ struct MediaCard: View {
         }
         .frame( width: width, height: height)
         .onAppear(){
-            //print("MediaItem title: ", title)
+            print("MediaItem title: ", title)
             //print("MediaItem subtitle: ", subtitle)
             if display == MediaDisplay.feature {
                 width = 400

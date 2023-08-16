@@ -10,7 +10,7 @@ import AVKit
 import SDWebImageSwiftUI
 import SwiftyJSON
 
-struct MyMediaView2: View {
+struct MyMediaViewDemo: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
@@ -43,7 +43,12 @@ struct MyMediaView2: View {
     }
     
     private var featuredListCount: Int {
+        
+        //let num = localizedFeatures.isEmpty ? featured.media.count : localizedFeatures.count
+        //return redeemableFeatures.count + num  + featured.items.count
+
         return library.features.media.count + library.features.items.count
+        
     }
     
     var body: some View {
@@ -71,12 +76,23 @@ struct MyMediaView2: View {
                 VStack(alignment: .center, spacing: 40) {
                     if (featuredListCount <= 3){
                         HStack() {
- 
+                            ForEach(redeemableFeatures) { redeemable in
+                                RedeemableCardView(redeemable: redeemable, display: MediaDisplay.feature)
+                            }
+                            
+                            
                             ForEach(featured.media) { media in
                                 MediaView2(mediaItem: media, display: MediaDisplay.feature)
                             }
                              
-
+                            /*
+                            if !localizedFeatures.isEmpty {
+                                ForEach(localizedFeatures) { media in
+                                    MediaView2(mediaItem: media, display: MediaDisplay.feature)
+                                }
+                            }
+                             */
+                            
                             ForEach(featured.items) { nft in
                                 if nft.has_album ?? false {
                                     NFTAlbumView(nft:nft, display: MediaDisplay.feature)
@@ -107,6 +123,14 @@ struct MyMediaView2: View {
                                     MediaView2(mediaItem: media, display: MediaDisplay.feature)
                                 }
                                 
+                                /*
+                                if !localizedFeatures.isEmpty {
+                                    ForEach(localizedFeatures) { media in
+                                        MediaView2(mediaItem: media, display: MediaDisplay.feature)
+                                    }
+                                }
+                                 */
+
                                 ForEach(featured.items) { nft in
                                     if nft.has_album ?? false {
                                         NFTAlbumView(nft:nft, display: MediaDisplay.feature)
@@ -186,12 +210,65 @@ struct MyMediaView2: View {
         .introspectScrollView { view in
             view.clipsToBounds = false
         }
+        .onAppear(){
+            Task {
+                var locals:[MediaItem] = []
+                var redeemableFeatures: [RedeemableViewModel] = []
+                
+                for nft in self.items {
+                    if let redeemableOffers = nft.redeemable_offers {
+                        debugPrint("RedeemableOffers ", redeemableOffers)
+                        if !redeemableOffers.isEmpty {
+                            for redeemable in redeemableOffers {
+                                do{
+                                    if (!preferredLocation.isEmpty) {
+                                        debugPrint("Redeemable: ", redeemable.name)
+                                        if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
+                                            debugPrint("location matched: ", redeemable.location.lowercased())
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+
+                                            redeemableFeatures.append(redeem)
+                                            debugPrint("Appended.")
+                                        }
+                                    }else{
+                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                        redeemableFeatures.append(redeem)
+                                    }
+                                }catch{
+                                    print("Error processing redemption ", redeemable)
+                                }
+                            }
+                        }
+                    }
+                    
+                    
+                    if let additions = nft.additional_media_sections {
+                        if (!preferredLocation.isEmpty) {
+                            
+                            for feature in additions.featured_media {
+                                if (feature.location == ""){
+                                    locals.append(feature)
+                                }
+                                
+                                if (feature.location == preferredLocation){
+                                    locals.append(feature)
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+                self.redeemableFeatures = redeemableFeatures.unique()
+                self.localizedFeatures = locals.unique()
+            }
+        }
     }
 }
 
 
-struct MyMediaView2_Previews: PreviewProvider {
+struct MyMediaViewDemo_Previews: PreviewProvider {
     static var previews: some View {
-        MyMediaView2()
+        MyMediaViewDemo()
     }
 }
+

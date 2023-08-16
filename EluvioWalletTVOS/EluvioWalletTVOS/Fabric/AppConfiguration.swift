@@ -11,11 +11,15 @@ struct AppConfiguration: Codable {
     var app: AppConfig
     var network: [String: NetworkConfig]
     var auth0 : Auth0Config
-    var allowed_tenants: [String]
+}
+
+enum AppMode: String, Codable{
+    case demo, prod
 }
 
 struct AppConfig: Codable {
     var name: String
+    var mode: AppMode
 }
 
 struct NetworkOverrides: Codable {

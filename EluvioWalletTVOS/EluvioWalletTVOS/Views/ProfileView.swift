@@ -55,6 +55,24 @@ struct ProfileView: View {
                         {
                             FormEntry("Address:  \(address)")
                             FormEntry("User Id:  \(userId)")
+                            
+                            if IsDemoMode()  {
+                                Picker("Preferred location:", selection: $selectedLocation) {
+                                    ForEach(locations, id: \.self) {
+                                        Text($0.uppercased())
+                                    }
+                                }
+                                .onChange(of: selectedLocation) { selected in
+                                    print("Selected location: ", selected)
+                                    Task{
+                                        do{
+                                            try await fabric.profile.setPreferredLocation(location: selected)
+                                        }catch{
+                                            print("Error setting preferred location", error)
+                                        }
+                                    }
+                                }
+                            }
                         }
                         .padding()
                         

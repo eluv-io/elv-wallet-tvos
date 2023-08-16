@@ -169,7 +169,7 @@ struct NFTView<DestinationType: View>: View {
                                 .frame(width:40, height: 40, alignment: .center)
                                 .clipped()
                                 .brightness(logoBrightness)
-                        }else {
+                        }else if (propertyLogo != ""){
                             Image(propertyLogo)
                                 .resizable()
                                 .scaledToFill()
