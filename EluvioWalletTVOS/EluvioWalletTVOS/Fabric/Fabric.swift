@@ -15,6 +15,11 @@ import UUIDShortener
 import CryptoKit
 
 var APP_CONFIG : AppConfiguration = loadJsonFile("configuration.json")
+
+func IsDemoMode()->Bool {
+    return APP_CONFIG.app.mode == .demo
+}
+
 enum FabricError: Error {
     case invalidURL(String)
     case configError(String)
@@ -679,7 +684,7 @@ class Fabric: ObservableObject {
     //Move this to the app level
     @MainActor
     func refresh() async {
-        debugPrint("refresh")
+        debugPrint("Fabric refresh")
         if self.signingIn {
             return
         }

@@ -68,19 +68,16 @@ class RemoteSigner {
         return try await withCheckedThrowingContinuation({ continuation in
             print("****** getWalletData ******")
             do {
-                /*var endpoint = try self.getAuthEndpoint().appending("/apigw/").appending("/wlt/").appending(accountAddress).appending("?limit=100")
-                 */
-                /*
-                #if DEBUG
-                #else
-
-                for tenant in APP_CONFIG.allowed_tenants{
-                    endpoint = endpoint.appending("&filter=tenant:eq:\(tenant)")
+                
+                var endpoint = try self.getAuthEndpoint()
+                
+                // get all the tenants
+                if IsDemoMode() {
+                    endpoint = endpoint.appending("/wlt/").appending(accountAddress).appending("?limit=100")
+                } else {
+                    //apigw should have only tenants returned that are configured
+                    endpoint = endpoint.appending("/apigw").appending("/nfts").appending("?limit=100")
                 }
-
-                #endif
-                */
-                var endpoint = try self.getAuthEndpoint().appending("/apigw").appending("/nfts").appending("?limit=100")
                                                                     
                 print("getWalletData Request: \(endpoint)")
                 //print("Params: \(parameters)")

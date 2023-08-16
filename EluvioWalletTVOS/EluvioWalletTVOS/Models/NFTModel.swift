@@ -19,7 +19,7 @@ struct RedeemStatus {
     var fulfillment: JSON?
 }
 
-class RedeemableViewModel: Identifiable, ObservableObject {
+class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     var id: String? = UUID().uuidString
     var offerId: String = ""
     var expiresAt: String = ""
@@ -168,7 +168,7 @@ class RedeemableViewModel: Identifiable, ObservableObject {
                 isOfferActive = result.isActive
                 isRedeemed = result.isRedeemed
                 offer = result.offerStats
-                print("OfferStatus: \(redeemable.name) ", result)
+                debugPrint("OfferStatus: \(redeemable.name) ", result)
             }catch{
                 print ("Error finding redeem status ", error)
             }
@@ -191,12 +191,21 @@ class RedeemableViewModel: Identifiable, ObservableObject {
                                    imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [], nft:nft)
     }
     
+    //TODO: Find a good id for this
+    static func == (lhs: RedeemableViewModel, rhs: RedeemableViewModel) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
 }
 
 struct Redeemable: FeatureProtocol {
     var id: String? {
         if let offerid = offer_id {
-            return offerid
+            return (name ?? UUID().uuidString) + " - " + offerid
         }
         return UUID().uuidString
     }

@@ -131,7 +131,7 @@ struct OfferView: View {
                                             self.showResult = true
                                             Task{
                                                 await fabric.refresh()
-                                                print ("refresh")
+                                                debugPrint ("OfferView refresh")
                                             }
                                         }
                                     }

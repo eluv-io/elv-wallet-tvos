@@ -54,12 +54,19 @@ struct MainView: View {
                 }
                 .tag(Tab.Items)
             
-            
-            MyMediaView2(library: fabric.library).preferredColorScheme(colorScheme)
-                .tabItem{
-                    Text("My Media")
-                }
-                .tag(Tab.Media)
+            if IsDemoMode(){
+                MyMediaViewDemo(library: fabric.library).preferredColorScheme(colorScheme)
+                    .tabItem{
+                        Text("My Media")
+                    }
+                    .tag(Tab.Media)
+            }else{
+                MyMediaView2(library: fabric.library).preferredColorScheme(colorScheme)
+                    .tabItem{
+                        Text("My Media")
+                    }
+                    .tag(Tab.Media)
+            }
             
             ProfileView().preferredColorScheme(colorScheme)
                 .tabItem{
