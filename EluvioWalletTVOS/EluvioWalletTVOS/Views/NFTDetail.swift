@@ -521,10 +521,10 @@ struct NFTDetailView: View {
                             if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
                                 redeemableFeatures.append(redeem)
                             }
-                            print("Appended redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try fabric.getAccountAddress()))
-                            print("Appended redeemable status \(redeem.name)", redeem.status)
-                            print("Appended redeemable expired? \(redeem.name)", redeem.isExpired)
-                            print("Appended redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
+                            debugPrint("Appended redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try fabric.getAccountAddress()))
+                            debugPrint("Appended redeemable status \(redeem.name)", redeem.status)
+                            debugPrint("Appended redeemable expired? \(redeem.name)", redeem.isExpired)
+                            debugPrint("Appended redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
                         }catch{
                             print("Error processing redemption ", error)
                         }

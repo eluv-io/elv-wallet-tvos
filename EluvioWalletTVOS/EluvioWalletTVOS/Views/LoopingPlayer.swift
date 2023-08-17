@@ -39,22 +39,14 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
             player.play()
             
             if endAction != .none {
-                NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime,
-                                                       object: nil,
-                                                       queue: nil) { [self] notification in
-                    let currentItem = notification.object as? AVPlayerItem
-                    if endAction == .loop,
-                       let currentItem = currentItem {
-                        //player.removeAllItems()
-                        player.seek(to: .zero)
-                       // player.advanceToNextItem()
-                        //player.insert(currentItem, after: nil)
-                    } else if currentItem == playerItems.last,
-                              case let .perform(action) = endAction {
-                        action()
-                    }
-                }
+                NotificationCenter.default.addObserver(self, selector: #selector(rewindVideo(notification:)),
+                                                       name: .AVPlayerItemDidPlayToEndTime, object: player.currentItem)
             }
+        }
+        
+        @objc
+        func rewindVideo(notification: Notification) {
+            player.seek(to: .zero)
         }
     }
     
