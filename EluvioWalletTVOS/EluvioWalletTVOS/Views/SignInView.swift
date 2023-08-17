@@ -78,15 +78,16 @@ struct SignInView: View {
                             .font(.custom("Helvetica Neue", size: 90))
                             .padding(.bottom,40)
 
-#if DEBUG
-                        Picker("Networks", selection: $networkSelection) {
-                            ForEach(Networks.allCases) { network in
-                                Text("\(network.name.capitalizingFirstLetter())")
-                                    .font(.custom("Helvetica Neue", size: 10))
+                        if IsDemoMode() {
+                            Picker("Networks", selection: $networkSelection) {
+                                ForEach(Networks.allCases) { network in
+                                    Text("\(network.name.capitalizingFirstLetter())")
+                                        .font(.custom("Helvetica Neue", size: 10))
+                                }
                             }
+                            .frame(width:300)
                         }
-                        .frame(width:300)
-#endif
+
                     }
                     
                     if fabric.signingIn {
@@ -97,11 +98,11 @@ struct SignInView: View {
                             Task {
                                 do {
                                     //ONLY MAIN FOR PROD
-#if DEBUG
-                                    try await fabric.connect(network:networkSelection.name)
-#else
-                                    try await fabric.connect(network:"main")
-#endif
+                                    if IsDemoMode() {
+                                        try await fabric.connect(network:networkSelection.name)
+                                    }else {
+                                        try await fabric.connect(network:"main")
+                                    }
                                 } catch {
                                     print("Request failed with error: \(error)")
                                 }
