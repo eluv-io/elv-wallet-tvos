@@ -509,6 +509,33 @@ struct NFTDetailView: View {
         }
     }
     func update(){
+        Task {
+            if let redeemableOffers = nft.redeemable_offers {
+                debugPrint("RedeemableOffers ", redeemableOffers)
+                if !redeemableOffers.isEmpty {
+                    var redeemableFeatures: [RedeemableViewModel] = []
+                    for redeemable in redeemableOffers {
+                        do{
+                            //Expensive operation
+                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                            if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                redeemableFeatures.append(redeem)
+                            }
+                            print("Appended redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try fabric.getAccountAddress()))
+                            print("Appended redeemable status \(redeem.name)", redeem.status)
+                            print("Appended redeemable expired? \(redeem.name)", redeem.isExpired)
+                            print("Appended redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
+                        }catch{
+                            print("Error processing redemption ", error)
+                        }
+                    }
+                    await MainActor.run {
+                        self.redeemableFeatures = redeemableFeatures
+                    }
+                }
+            }
+        }
+        
         Task{
             if let additions = nft.additional_media_sections {
                 if (!preferredLocation.isEmpty) {
