@@ -377,6 +377,7 @@ struct MediaCard: View {
             if (playerItem != nil){
                 LoopingVideoPlayer([playerItem!], endAction: .loop)
                     .frame(width:width, height:height, alignment: .center)
+                    .cornerRadius(cornerRadius)
             }else{
                 if (image.hasPrefix("http")){
                     WebImage(url: URL(string: image))

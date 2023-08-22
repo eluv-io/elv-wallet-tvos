@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Introspect
 
 struct FormEntry : View {
     var message: String
@@ -41,16 +42,15 @@ struct ProfileView: View {
     @State private var selectedLocation = ""
     
     var body: some View {
-        //ScrollView() {
-        VStack() {
-            HeaderView(logo:logo, logoUrl: logoUrl)
-                .padding(.top,50)
-                .padding(.leading,80)
-                .padding(.bottom,80)
-            
+        NavigationStack {
+            VStack() {
+                HeaderView(logo:logo, logoUrl: logoUrl)
+                    .padding(.top,50)
+                    .padding(.leading,80)
+                    .padding(.bottom,80)
+                
                 VStack(alignment: .center){
                     Form {
-                        
                         Section(header:Text("Profile").foregroundColor(.white.opacity(0.6)))
                         {
                             FormEntry("Address:  \(address)")
@@ -62,6 +62,8 @@ struct ProfileView: View {
                                         Text($0.uppercased())
                                     }
                                 }
+                                
+                                
                                 .onChange(of: selectedLocation) { selected in
                                     print("Selected location: ", selected)
                                     Task{
@@ -72,7 +74,9 @@ struct ProfileView: View {
                                         }
                                     }
                                 }
+                                
                             }
+                            
                         }
                         .padding()
                         
@@ -83,7 +87,6 @@ struct ProfileView: View {
                             FormEntry("Eth Service:  \(ethNode)")
                         }
                         .padding()
-                        
                     }
                     .frame(width:1200)
                     
@@ -93,21 +96,22 @@ struct ProfileView: View {
                 }
                 .padding([.leading,.trailing,.bottom],80)
             }
-        //}
-        .ignoresSafeArea()
-        .onAppear(){
-            do {
-                self.address = try fabric.getAccountAddress()
-                self.userId = try fabric.getAccountId()
-                self.network = fabric.network
-                self.node = try fabric.getEndpoint()
-                self.asNode = try fabric.signer?.getAuthEndpoint() ?? ""
-                self.ethNode = try fabric.signer?.getEthEndpoint() ?? ""
-                
-                self.locations = fabric.profile.profileData.locations ?? []
-                self.selectedLocation = fabric.profile.profileData.preferredLocation ?? ""
-            }catch {
-                
+            //}
+            .ignoresSafeArea()
+            .onAppear(){
+                do {
+                    self.address = try fabric.getAccountAddress()
+                    self.userId = try fabric.getAccountId()
+                    self.network = fabric.network
+                    self.node = try fabric.getEndpoint()
+                    self.asNode = try fabric.signer?.getAuthEndpoint() ?? ""
+                    self.ethNode = try fabric.signer?.getEthEndpoint() ?? ""
+                    
+                    self.locations = fabric.profile.profileData.locations ?? []
+                    self.selectedLocation = fabric.profile.profileData.preferredLocation ?? ""
+                }catch {
+                    
+                }
             }
         }
     }

@@ -73,6 +73,7 @@ struct MainView: View {
                     Text("Profile")
                 }
                 .tag(Tab.Profile)
+                .preferredColorScheme(.dark)
             
             /*
             SearchView().preferredColorScheme(colorScheme)
