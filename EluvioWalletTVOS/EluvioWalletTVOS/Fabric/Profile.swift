@@ -8,8 +8,9 @@
 import Foundation
 
 struct ProfileData: Codable {
-    var locations : [String]? = []
-    var preferredLocation: String?
+    //DEMO:
+    var locations : [String]? = ["los angeles", "phoenix", "washington dc"]
+    var preferredLocation: String? = "los angeles"
 }
 
 class Profile: ObservableObject {
@@ -44,14 +45,13 @@ class Profile: ObservableObject {
     func refresh() async throws{
         if let settings = UserDefaults.standard.string(forKey: "profile_settings")?.data(using:.utf8) {
             do {
-                profileData = try JSONDecoder().decode(ProfileData.self, from:settings)
-                //print("Profile DATA",profileData)
+                let data = try JSONDecoder().decode(ProfileData.self, from:settings)
+                profileData = ProfileData(preferredLocation: data.preferredLocation)
             }catch{
                 print("Error fetching profile data ", error)
             }
         }else{
-            //XXX:Demo only
-            profileData = ProfileData(locations:["los angeles", "phoenix", "new york"], preferredLocation: "los angeles")
+            profileData = ProfileData()
             try await save()
         }
     }

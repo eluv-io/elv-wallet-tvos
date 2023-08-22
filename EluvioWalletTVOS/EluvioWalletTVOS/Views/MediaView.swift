@@ -477,7 +477,7 @@ struct MediaCard: View {
         }
         .frame( width: width, height: height)
         .onAppear(){
-            print("MediaItem title: ", title)
+            debugPrint("MediaItem title: ", title)
             //print("MediaItem subtitle: ", subtitle)
             if display == MediaDisplay.feature {
                 width = 400

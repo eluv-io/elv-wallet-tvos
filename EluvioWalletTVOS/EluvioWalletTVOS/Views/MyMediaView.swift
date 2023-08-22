@@ -321,7 +321,6 @@ struct MyMediaView: View {
             Task {
                 for nft in self.items {
                     if let redeemableOffers = nft.redeemable_offers {
-                        //print("RedeemableOffers ", redeemableOffers)
                         if !redeemableOffers.isEmpty {
                             var redeemableFeatures: [RedeemableViewModel] = []
                             for redeemable in redeemableOffers {
