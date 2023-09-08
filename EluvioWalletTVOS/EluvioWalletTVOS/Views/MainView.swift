@@ -75,16 +75,16 @@ struct MainView: View {
                 .tag(Tab.Profile)
                 .preferredColorScheme(.dark)
             
-            /*
-            SearchView().preferredColorScheme(colorScheme)
-                .tabItem{
-                    Image(systemName: "magnifyingglass")
-                }
-                .tag(Tab.Search)
-             */
+            if IsDemoMode(){
+                SearchView().preferredColorScheme(colorScheme)
+                    .tabItem{
+                        Image(systemName: "magnifyingglass")
+                    }
+                    .tag(Tab.Search)
+            }
+             
             
         }
-        //.edgesIgnoringSafeArea(.all)
         .onAppear(){
             self.cancellable = fabric.$isLoggedOut.sink { val in
                 print("MainView fabric changed, ", val)

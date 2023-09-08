@@ -342,7 +342,9 @@ struct RedeemableCardView: View {
             debugPrint("REDEEMABLE ONAPPEAR", redeemable.id)
             Task{
                 do{
-                    playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.animationLink)
+                    if (display == MediaDisplay.square){
+                        playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.animationLink)
+                    }
                 }catch{
                     print("Error creating player item", error)
                 }
@@ -481,8 +483,8 @@ struct MediaCard: View {
             debugPrint("MediaItem title: ", title)
             //print("MediaItem subtitle: ", subtitle)
             if display == MediaDisplay.feature {
-                width = 400
-                height = 560
+                width = 393
+                height = 590
                 cornerRadius = 3
             }else if display == MediaDisplay.video || isLive{
                 width =  534

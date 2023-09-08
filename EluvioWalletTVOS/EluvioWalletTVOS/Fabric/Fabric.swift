@@ -739,9 +739,9 @@ class Fabric: ObservableObject {
             
             self.library = parsedLibrary
 
-            let wbProp = try await createWbDemoProp(nfts: nfts)
+            let uefaProp = try await createUEFAProp(nfts: nfts)
             properties = [
-                wbProp
+                uefaProp
             ]
             
             self.properties = properties
@@ -1004,6 +1004,44 @@ class Fabric: ObservableObject {
         return prop
     }
 
+    func createUEFAProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let name = nft["contract_name"].stringValue
+            if name.lowercased().contains("uefa") {
+                demoNfts.append(nft)
+            }
+            
+            let tokenId = nft["token_id"].intValue
+            if tokenId == 924 {
+                demoNfts.append(nft)
+            }
+            
+        }
+        
+        let demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        var sections : [MediaSection] = []
+        
+        var newItems : [NFTModel] = []
+        
+        for item in demoLib.items{
+            if let additions = item.additional_media_sections {
+                for section in additions.sections {
+                    sections.append(section)
+                    /*for collection in section.collections {
+                        demoMedia.append(collection)
+                    }*/
+                }
+            }
+            newItems.append(item)
+        }
+
+        let prop = CreateTestPropertyModel(title:"UEFA Euro2024", logo: "UEFA_light_logo", image:"UEFA", heroImage:"UEFA_property_strip",  featured: demoLib.featured, media: demoMedia, sections: sections, items:newItems)
+        
+        return prop
+    }
+    
     @MainActor
     func setLogin(login:  LoginResponse, isMetamask: Bool = false){
         debugPrint("SetLogin ", login)
