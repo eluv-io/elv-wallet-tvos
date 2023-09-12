@@ -232,7 +232,7 @@ struct MediaView2: View {
                     self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
                     //print ("MediaView name ", media.name)
                     debugPrint("MediaItem title: ", self.mediaItem?.name)
-                    debugPrint("ratio: ", self.mediaItem?.image_aspect_ratio)
+                    debugPrint("display: ", display)
                 }catch{
                     print("MediaView could not create MediaItemViewModel ", error)
                 }
@@ -486,6 +486,7 @@ struct MediaCard: View {
         }
         .frame( width: width, height: height)
         .onAppear(){
+            /*
             if let ratio = image_ratio {
                 if ratio == "Square"{
                     width =  300
@@ -500,13 +501,15 @@ struct MediaCard: View {
                     height = 300
                     cornerRadius = 16
                 }
-            }else {
+            }else {*/
+            //debugPrint("Media ", title)
+            //debugPrint("Media Display ", display)
                 
                 if display == MediaDisplay.feature {
                     width = 393
                     height = 590
                     cornerRadius = 3
-                }else if display == MediaDisplay.video || isLive{
+                }else if display == MediaDisplay.video{
                     width =  534
                     height = 300
                     cornerRadius = 16
@@ -527,7 +530,7 @@ struct MediaCard: View {
                     height = 300
                     cornerRadius = 16
                 }
-            }
+            //}
         }
     }
 }
