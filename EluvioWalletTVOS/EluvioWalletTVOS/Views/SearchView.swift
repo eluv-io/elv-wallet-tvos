@@ -28,6 +28,7 @@ struct SearchView: View {
                         Image(systemName: "magnifyingglass").resizable().frame(width:40,height:40)
                         TextField("Search...", text: $searchString)
                             .frame(alignment: .leading)
+                            .font(.rowTitle)
                     }
                     Divider().overlay(Color.gray).padding()
                     PropertiesView(properties:fabric.properties)

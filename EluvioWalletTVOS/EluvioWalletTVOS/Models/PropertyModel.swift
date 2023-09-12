@@ -21,6 +21,14 @@ struct PropertyModel: Identifiable, Codable  {
     var live_streams: [MediaItem] //Temp. Need to do a new LiveMediaItem model?
     var sections: [MediaSection] = []
     var contents: [ProjectModel] = []
+    
+    var isEmpty: Bool {
+        if let first = contents.first {
+            return first.contents.isEmpty
+        }else {
+            return contents.isEmpty
+        }
+    }
 }
 
 struct ProjectModel: Identifiable, Codable {

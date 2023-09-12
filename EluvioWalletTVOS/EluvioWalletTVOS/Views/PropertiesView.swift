@@ -66,7 +66,9 @@ struct PropertiesView: View {
             ScrollView() {
                 LazyVGrid(columns: columns, alignment: .leading, spacing:40) {
                     ForEach(properties) { property in
-                        PropertyView(property: property)
+                        if !property.isEmpty {
+                            PropertyView(property: property)
+                        }
                     }
                 }
             }

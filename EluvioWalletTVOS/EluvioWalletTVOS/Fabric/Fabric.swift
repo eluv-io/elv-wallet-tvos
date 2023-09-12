@@ -753,8 +753,10 @@ class Fabric: ObservableObject {
                 let wbProp = try await createWbDemoProp(nfts: nfts)
                 let foxEntProp = try await createFoxEntertainmentProp(nfts: nfts)
                 let foxSportsProp = try await createFoxSportsDemoProp(nfts: nfts)
+                let foxWeatherProp = try await createFoxWeatherProp(nfts: nfts)
                 let foxNewsProp = try await createFoxNewsProp(nfts: nfts)
                 let dollyDemoProp = try await createDollyDemoProp(nfts: nfts)
+                let moonProp = try await createMoonProp(nfts: nfts)
                 
                 properties = [
                     uefaProp,
@@ -762,7 +764,9 @@ class Fabric: ObservableObject {
                     foxEntProp,
                     foxSportsProp,
                     foxNewsProp,
-                    dollyDemoProp
+                    foxWeatherProp,
+                    dollyDemoProp,
+                    moonProp
                 ]
             }
             
@@ -978,6 +982,40 @@ class Fabric: ObservableObject {
         var demoNfts: [JSON] = []
         for nft in nfts{
             let name = nft["contract_name"].stringValue
+            if name.contains("FOX News") {
+                demoNfts.append(nft)
+            }else if name.contains("FOX All USA") {
+                demoNfts.append(nft)
+            }
+        }
+        
+        let demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        var sections : [MediaSection] = []
+        var newItems : [NFTModel] = []
+        
+        for item in demoLib.items{
+            if let additions = item.additional_media_sections {
+                for section in additions.sections {
+                    sections.append(section)
+                    for collection in section.collections {
+                        demoMedia.append(collection)
+                    }
+                }
+            }
+            newItems.append(item)
+        }
+        
+
+        let prop = CreateTestPropertyModel(title:"Fox News", logo: "FoxLogo", image:"FoxNews", heroImage:"FoxNews_TopImage",  featured: demoLib.featured, sections: sections, items:newItems)
+        
+        return prop
+    }
+    
+    func createFoxWeatherProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let name = nft["contract_name"].stringValue
             if name.contains("FOX Weather") {
                 demoNfts.append(nft)
             }
@@ -999,7 +1037,7 @@ class Fabric: ObservableObject {
             newItems.append(item)
         }
         
-        let prop = CreateTestPropertyModel(title:"Fox News and Weather", logo: "FoxLogo", image:"FoxNewsAndWeather_SearchResultBubble_v2", heroImage:"FoxNews_Weather_Header_v2",  featured: demoLib.featured, media: demoMedia, items:newItems)
+        let prop = CreateTestPropertyModel(title:"Fox Weather", logo: "FoxLogo", image:"FoxNewsAndWeather_SearchResultBubble_v2", heroImage:"FoxNews_Weather_Header_v2",  featured: demoLib.featured, media: demoMedia, items:newItems)
         
         return prop
     }
