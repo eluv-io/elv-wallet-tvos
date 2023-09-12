@@ -483,11 +483,16 @@ class Fabric: ObservableObject {
                         }
                         
                         //XXX: Demo only until we have a proper Live mediaType
+                        /*if media.name.lowercased().contains("live matches") {
+                            debugPrint("Featured media: ", media)
+                        }*/
+                        
                         if media.name.contains("Live"){
-                        //if mediaType == "Live" {
                             media.isLive = true
                             liveStreams.append(media)
+                            //debugPrint("Featured media: ", media)
                         }
+                        
                         nftmodel.additional_media_sections?.featured_media[index] = media
                     }
                     
@@ -511,6 +516,10 @@ class Fabric: ObservableObject {
                         
                         for mediaIndex in 0..<collection.media.count{
                             var media = collection.media[mediaIndex]
+                            
+                            if media.name.lowercased().contains("live matches") {
+                                debugPrint("media: ", media)
+                            }
                             
                             if let mediaType = media.media_type {
                                 //XXX: Demo only until we have a proper Live mediaType
@@ -739,10 +748,23 @@ class Fabric: ObservableObject {
             
             self.library = parsedLibrary
 
-            let uefaProp = try await createUEFAProp(nfts: nfts)
-            properties = [
-                uefaProp
-            ]
+            if IsDemoMode() {
+                let uefaProp = try await createUEFAProp(nfts: nfts)
+                let wbProp = try await createWbDemoProp(nfts: nfts)
+                let foxEntProp = try await createFoxEntertainmentProp(nfts: nfts)
+                let foxSportsProp = try await createFoxSportsDemoProp(nfts: nfts)
+                let foxNewsProp = try await createFoxNewsProp(nfts: nfts)
+                let dollyDemoProp = try await createDollyDemoProp(nfts: nfts)
+                
+                properties = [
+                    uefaProp,
+                    wbProp,
+                    foxEntProp,
+                    foxSportsProp,
+                    foxNewsProp,
+                    dollyDemoProp
+                ]
+            }
             
             self.properties = properties
             self.previousRefreshHash = response.hash
@@ -784,6 +806,8 @@ class Fabric: ObservableObject {
                 demoNfts.append(nft)
             }else if name.contains("Superman") {
                 demoNfts.append(nft)
+            }else if name.contains("Flash") {
+                demoNfts.append(nft)
             }
         }
         
@@ -804,12 +828,14 @@ class Fabric: ObservableObject {
                     item.title_image = "LOTR_Tile Group_Shire"
                 }else if name.contains("Superman"){
                     item.title_image = "WB_Superman_Hope_Tile Group"
+                }else if name.contains("Flash"){
+                    item.title_image = "Flash Premium Tile Group_trio"
                 }
             }
             newItems.append(item)
         }
         
-        let prop = CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage",
+        let prop = CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage-v2",
                                     featured: demoLib.featured, media: demoMedia, liveStreams: demoLib.liveStreams, items:newItems)
         
         return prop
@@ -1005,6 +1031,7 @@ class Fabric: ObservableObject {
     }
 
     func createUEFAProp(nfts:[JSON]) async throws -> PropertyModel {
+        debugPrint("CreateUEFAProp()")
         var demoNfts: [JSON] = []
         for nft in nfts{
             let name = nft["contract_name"].stringValue
@@ -1012,11 +1039,7 @@ class Fabric: ObservableObject {
                 demoNfts.append(nft)
             }
             
-            let tokenId = nft["token_id"].intValue
-            if tokenId == 924 {
-                demoNfts.append(nft)
-            }
-            
+            debugPrint("UEFA NFT: ", nft)
         }
         
         let demoLib = try await parseNfts(demoNfts)
@@ -1025,19 +1048,25 @@ class Fabric: ObservableObject {
         
         var newItems : [NFTModel] = []
         
+        debugPrint("Items ", demoLib.items.count)
+        
         for item in demoLib.items{
+            debugPrint("Item ", item.contract_name)
             if let additions = item.additional_media_sections {
+                debugPrint("Additions sections number ", additions.sections.count)
                 for section in additions.sections {
+                    debugPrint("Section: ", section.name)
                     sections.append(section)
                     /*for collection in section.collections {
                         demoMedia.append(collection)
+                        debugPrint("Collection: ", collection.name)
                     }*/
                 }
             }
             newItems.append(item)
         }
 
-        let prop = CreateTestPropertyModel(title:"UEFA Euro2024", logo: "UEFA_light_logo", image:"UEFA", heroImage:"UEFA_property_strip",  featured: demoLib.featured, media: demoMedia, sections: sections, items:newItems)
+        let prop = CreateTestPropertyModel(title:"UEFA Euro2024", logo: "UEFA_light_logo", image:"UEFA", heroImage:"UEFA_property_strip",  featured: demoLib.featured, sections: sections, items:newItems)
         
         return prop
     }

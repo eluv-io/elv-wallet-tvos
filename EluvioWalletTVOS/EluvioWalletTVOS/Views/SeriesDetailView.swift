@@ -168,6 +168,7 @@ struct SeriesDetailView: View {
                                            showFocusName: false,
                                            display: MediaDisplay.video)
                                     Text(recentMedia.name).font(.rowSubtitle).foregroundColor(Color.white)
+                                        .frame(maxWidth: 500)
                                 }
 
                                 ForEach(matchedRedeemables) {redeemable in

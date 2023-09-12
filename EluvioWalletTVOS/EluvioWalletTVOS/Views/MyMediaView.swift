@@ -60,7 +60,7 @@ struct MyMediaView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth:.infinity)
-                            .frame(width:1920,height: 739, alignment: .topLeading)
+                            //.frame(width:1920,height: 739, alignment: .topLeading)
                             .clipped()
                     }
                     .padding(.bottom, 40)
@@ -318,6 +318,7 @@ struct MyMediaView: View {
             view.clipsToBounds = false
         }
         .onAppear(){
+            /*
             Task {
                 for nft in self.items {
                     if let redeemableOffers = nft.redeemable_offers {
@@ -362,7 +363,9 @@ struct MyMediaView: View {
                     
                 }
             }
+             */
         }
+             
     }
 }
 

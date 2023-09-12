@@ -109,12 +109,12 @@ struct NFTDetailViewDemo: View {
                                     LazyHStack(alignment: .top, spacing: 50) {
                                         
                                         ForEach(self.localizedFeatures) {media in
-                                            if (media.isLive){
+                                            /*if (media.isLive){
                                                 MediaView2(mediaItem: media,
                                                            display: MediaDisplay.video)
-                                            }else{
+                                            }else{*/
                                                 MediaView2(mediaItem: media)
-                                            }
+                                            //}
                                         }
                                         
                                         ForEach(self.localizedRedeemables) {redeemable in
@@ -135,12 +135,12 @@ struct NFTDetailViewDemo: View {
                                     ScrollView(.horizontal) {
                                         LazyHStack(alignment: .top, spacing: 50) {
                                             ForEach(self.featuredMedia) {media in
-                                                if (media.isLive){
+                                                /*if (media.isLive){
                                                     MediaView2(mediaItem: media,
                                                                display: MediaDisplay.video)
-                                                }else{
+                                                }else{*/
                                                     MediaView2(mediaItem: media)
-                                                }
+                                                //}
                                             
                                             }
                                             

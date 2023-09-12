@@ -55,7 +55,7 @@ struct MyMediaView2: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth:.infinity)
-                            .frame(width:1920,height: 739, alignment: .topLeading)
+                            //.frame(width:1920,height: 739, alignment: .topLeading)
                             .clipped()
                     }
                     .padding(.bottom, 40)

@@ -185,6 +185,7 @@ struct MediaItemViewModel:Identifiable {
             backgroundImage: backgroundImage,
             titleLogo: backgroundLogo,
             image: media.image ?? "",
+            imageRatio : media.image_aspect_ratio ?? "Square",
             posterImage: posterImage,
             animation:animationItem,
             name:media.name ,
@@ -211,6 +212,7 @@ struct MediaItemViewModel:Identifiable {
     var backgroundImage: String = ""
     var titleLogo: String = ""
     var image: String = ""
+    var imageRatio: String = "Square"
     var posterImage: String = ""
     var animation: AVPlayerItem? = nil
     var name: String = ""

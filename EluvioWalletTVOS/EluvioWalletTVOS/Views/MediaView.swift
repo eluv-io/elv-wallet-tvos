@@ -34,8 +34,10 @@ struct MediaCollectionView: View {
                             )
                         }
                         
+                        //Move this to the MediaView2
                         if nameBelow == true {
                             Text(media.name).font(.rowSubtitle).foregroundColor(Color.white)
+                                .frame(maxWidth: 500)
                         }
                     }
                 }
@@ -205,6 +207,7 @@ struct MediaView2: View {
                           title: media.name,
                           isLive: media.isLive,
                           showFocusedTitle: showFocusName
+                          //image_ratio: mediaItem?.image_aspect_ratio
                 )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
@@ -228,6 +231,8 @@ struct MediaView2: View {
                     //print("*** MediaView onChange")
                     self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
                     //print ("MediaView name ", media.name)
+                    debugPrint("MediaItem title: ", self.mediaItem?.name)
+                    debugPrint("ratio: ", self.mediaItem?.image_aspect_ratio)
                 }catch{
                     print("MediaView could not create MediaItemViewModel ", error)
                 }
@@ -367,6 +372,7 @@ struct MediaCard: View {
     var isLive: Bool = false
     var centerFocusedText: Bool = false
     var showFocusedTitle = true
+    var image_ratio: String? = nil //Square, Wide, Tall or nil
 
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
@@ -480,32 +486,47 @@ struct MediaCard: View {
         }
         .frame( width: width, height: height)
         .onAppear(){
-            debugPrint("MediaItem title: ", title)
-            //print("MediaItem subtitle: ", subtitle)
-            if display == MediaDisplay.feature {
-                width = 393
-                height = 590
-                cornerRadius = 3
-            }else if display == MediaDisplay.video || isLive{
-                width =  534
-                height = 300
-                cornerRadius = 16
-            }else if display == MediaDisplay.books {
-                width =  235
-                height = 300
-                cornerRadius = 16
-            }else if display == MediaDisplay.property {
-                width =  405
-                height = 247
-                cornerRadius = 16
-            }else if display == MediaDisplay.tile {
-                width =  887
-                height = 551
-                cornerRadius = 0
+            if let ratio = image_ratio {
+                if ratio == "Square"{
+                    width =  300
+                    height = 300
+                    cornerRadius = 16
+                } else if ratio == "Tall"{
+                    width = 393
+                    height = 590
+                    cornerRadius = 3
+                } else if ratio == "Wide" {
+                    width =  534
+                    height = 300
+                    cornerRadius = 16
+                }
             }else {
-                width =  300
-                height = 300
-                cornerRadius = 16
+                
+                if display == MediaDisplay.feature {
+                    width = 393
+                    height = 590
+                    cornerRadius = 3
+                }else if display == MediaDisplay.video || isLive{
+                    width =  534
+                    height = 300
+                    cornerRadius = 16
+                }else if display == MediaDisplay.books {
+                    width =  235
+                    height = 300
+                    cornerRadius = 16
+                }else if display == MediaDisplay.property {
+                    width =  405
+                    height = 247
+                    cornerRadius = 16
+                }else if display == MediaDisplay.tile {
+                    width =  887
+                    height = 551
+                    cornerRadius = 0
+                }else {
+                    width =  300
+                    height = 300
+                    cornerRadius = 16
+                }
             }
         }
     }
