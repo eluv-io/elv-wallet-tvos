@@ -180,6 +180,7 @@ struct MyMediaView2: View {
                 }
                 .padding([.leading,.trailing,.bottom], 80)
             }
+            .padding(.bottom, 100) //This fixes bottom row being cut off
         }
         .ignoresSafeArea()
         .background(Color.mainBackground)
