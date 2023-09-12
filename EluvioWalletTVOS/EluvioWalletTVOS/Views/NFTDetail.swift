@@ -176,6 +176,7 @@ struct NFTDetailViewDemo: View {
                             }
                         }
                     }
+                    .padding(.bottom, 200) //This fixes bottom row being cut off
                 }
                 .padding(80)
                 .focusSection()
@@ -487,6 +488,7 @@ struct NFTDetailView: View {
                             }
                         }
                     }
+                    .padding(.bottom, 200) //This fixes bottom row being cut off
                 }
                 .padding(80)
                 .focusSection()
