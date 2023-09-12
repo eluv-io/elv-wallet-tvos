@@ -473,7 +473,8 @@ class Fabric: ObservableObject {
                 for index in 0..<mediaSections.featured_media.count{
                     var media = mediaSections.featured_media[index]
                     media.nft = nftmodel
-                    //print("Media ", media)
+                    debugPrint("Featured Media ", media.name)
+                    debugPrint("Featured Media ID", media.id)
                     if let mediaType = media.media_type {
                         if mediaType == "Video"{
                             hasPlayableMedia = true
@@ -816,6 +817,12 @@ class Fabric: ObservableObject {
         }
         
         let demoLib = try await parseNfts(demoNfts)
+        
+        for media in demoLib.featured.media {
+            debugPrint("WB Featured: ", media.name)
+        }
+
+        
         var demoMedia : [MediaCollection] = []
         demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
         demoMedia.append(MediaCollection(name:"Image Gallery", media:demoLib.galleries))
@@ -1077,7 +1084,7 @@ class Fabric: ObservableObject {
                 demoNfts.append(nft)
             }
             
-            debugPrint("UEFA NFT: ", nft)
+            //debugPrint("UEFA NFT: ", nft)
         }
         
         let demoLib = try await parseNfts(demoNfts)
@@ -1086,14 +1093,14 @@ class Fabric: ObservableObject {
         
         var newItems : [NFTModel] = []
         
-        debugPrint("Items ", demoLib.items.count)
+        //debugPrint("Items ", demoLib.items.count)
         
         for item in demoLib.items{
-            debugPrint("Item ", item.contract_name)
+            //debugPrint("Item ", item.contract_name)
             if let additions = item.additional_media_sections {
-                debugPrint("Additions sections number ", additions.sections.count)
+                //debugPrint("Additions sections number ", additions.sections.count)
                 for section in additions.sections {
-                    debugPrint("Section: ", section.name)
+                    //debugPrint("Section: ", section.name)
                     sections.append(section)
                     /*for collection in section.collections {
                         demoMedia.append(collection)

@@ -387,7 +387,9 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
             locked_state = try container.decodeIfPresent(JSON.self, forKey: .locked_state)
         }
         
-        id = try container.decodeIfPresent(String.self, forKey: .id) ??  (name ) + (media_type ?? "")
+        id = try container.decodeIfPresent(String.self, forKey: .id) ??  media_type ?? ""
+        //UGLY: Workaround for non unique ids (mistake when copying nft templates)
+        id = (id ?? "")  + name
         
         //TODO: compute from media_type when ready
         isLive = false
@@ -396,7 +398,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         endDateTime = nil
     }
     
-    //TODO: Find a good id for this
+    //TODO: Find a good id for this (using name because we have some media items with the same id due to an error in template copying)
     static func == (lhs: MediaItem, rhs: MediaItem) -> Bool {
         return lhs.id == rhs.id
     }
