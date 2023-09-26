@@ -42,8 +42,9 @@ struct LaunchPage: View {
             Image(image)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
-                .frame(maxWidth:.infinity, maxHeight:.infinity, alignment: .leading)
+                .edgesIgnoringSafeArea(.all)
         }
         .buttonStyle(NoButtonStyle())
+        .edgesIgnoringSafeArea(.all)
     }
 }

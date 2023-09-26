@@ -23,10 +23,10 @@ let urls = [
 let appStoreUrl = "https://apps.apple.com/in/app/eluvio-media-wallet/id1591550411"
 
 let urls = [
-    "FOX - Weather All Access":"elvwallet://items?contract=0xeb65174e4ed37a0b99b2f8d130ef84c7cc740264&token=2",
-    "FOX - Sports All Access":"elvwallet://items?contract=0x91eaf3bfa0e26cd94f035950e9b79ef3bfa0b1f8&token=1",
-    "The Flash":"elvwallet://items?contract=0x896409ad1da7f3f48749d15602eabac3578694b4&token=630",
-    "One Love":"elvwallet://items"
+    "FOX - Weather All Access":"elvwallet://items?contract=0xeb65174e4ed37a0b99b2f8d130ef84c7cc740264&token=2&sku=RzVfTVinSpRh1jde2uS5b8",
+    "FOX - Sports All Access":"elvwallet://items?contract=0x91eaf3bfa0e26cd94f035950e9b79ef3bfa0b1f8&token=1&sku=3HVqSTXa4N1seLkL3sYnSL",
+    "The Flash":"elvwallet://items?contract=0x896409ad1da7f3f48749d15602eabac3578694b4&token=630&sku=S9rrmcKoQdAma1346pSZwy",
+    "One Love":"elvwallet://items?sku=UaZHyXZnXEb1EVqawpwFG7"
 ]
 
 struct ContentView: View {

@@ -1,11 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "VUDU TV App Launch.jpg",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "VUDU TV App Launch.jpg",
       "idiom" : "universal",
       "scale" : "2x"
     },
