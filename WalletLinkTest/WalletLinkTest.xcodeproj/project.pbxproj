@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B05565A92AC29FB900E57F42 /* LaunchPages.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05565A82AC29FB900E57F42 /* LaunchPages.swift */; };
 		B0A2FCA02AB29C3800AC825D /* WalletLinkTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FC9F2AB29C3800AC825D /* WalletLinkTestApp.swift */; };
 		B0A2FCA22AB29C3800AC825D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCA12AB29C3800AC825D /* ContentView.swift */; };
 		B0A2FCA42AB29C3900AC825D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCA32AB29C3900AC825D /* Assets.xcassets */; };
@@ -14,6 +15,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B05565A82AC29FB900E57F42 /* LaunchPages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchPages.swift; sourceTree = "<group>"; };
 		B0A2FC9C2AB29C3800AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FC9F2AB29C3800AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
 		B0A2FCA12AB29C3800AC825D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -53,6 +55,7 @@
 			children = (
 				B0A2FC9F2AB29C3800AC825D /* WalletLinkTestApp.swift */,
 				B0A2FCA12AB29C3800AC825D /* ContentView.swift */,
+				B05565A82AC29FB900E57F42 /* LaunchPages.swift */,
 				B0A2FCA32AB29C3900AC825D /* Assets.xcassets */,
 				B0A2FCA52AB29C3900AC825D /* Preview Content */,
 			);
@@ -139,6 +142,7 @@
 			files = (
 				B0A2FCA22AB29C3800AC825D /* ContentView.swift in Sources */,
 				B0A2FCA02AB29C3800AC825D /* WalletLinkTestApp.swift in Sources */,
+				B05565A92AC29FB900E57F42 /* LaunchPages.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,12 +270,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Wallet Link Test";
+				INFOPLIST_KEY_CFBundleDisplayName = "Wallet Link Demo";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -284,6 +288,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 16.1;
 			};
 			name = Debug;
 		};
@@ -294,12 +299,12 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Wallet Link Test";
+				INFOPLIST_KEY_CFBundleDisplayName = "Wallet Link Demo";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -312,6 +317,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 16.1;
 			};
 			name = Release;
 		};
