@@ -1,0 +1,18 @@
+{
+  "images" : [
+    {
+      "filename" : "WLD Top Shelf Wide (2320 x 720).png",
+      "idiom" : "tv",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "WLD Top Shelf Wide (4640 x 1440).png",
+      "idiom" : "tv",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

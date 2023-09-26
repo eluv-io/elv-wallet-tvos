@@ -473,8 +473,8 @@ class Fabric: ObservableObject {
                 for index in 0..<mediaSections.featured_media.count{
                     var media = mediaSections.featured_media[index]
                     media.nft = nftmodel
-                    debugPrint("Featured Media ", media.name)
-                    debugPrint("Featured Media ID", media.id)
+                    //debugPrint("Featured Media ", media.name)
+                    //debugPrint("Featured Media ID", media.id)
                     if let mediaType = media.media_type {
                         if mediaType == "Video"{
                             hasPlayableMedia = true
@@ -818,9 +818,9 @@ class Fabric: ObservableObject {
         
         let demoLib = try await parseNfts(demoNfts)
         
-        for media in demoLib.featured.media {
+        /*for media in demoLib.featured.media {
             debugPrint("WB Featured: ", media.name)
-        }
+        }*/
 
         
         var demoMedia : [MediaCollection] = []
@@ -1723,6 +1723,22 @@ class Fabric: ObservableObject {
                         completion(false)
                  }
         }
+    }
+    
+    func getNFT(contract: String,
+                token: String) -> NFTModel?{
+        debugPrint("Fabric getNFT \(contract) token: \(token)")
+        for nft in library.items {
+            debugPrint("Contract", nft.contract_addr)
+            debugPrint("Token", nft.token_id_str)
+            if nft.contract_addr == contract.lowercased() &&
+                nft.token_id_str == token {
+                debugPrint("Found NFT")
+                return nft
+            }
+        }
+        
+        return nil
     }
     
     

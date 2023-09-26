@@ -406,7 +406,7 @@ class RemoteSigner {
     
     func getNftInfo(nftAddress: String, tokenId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** getNftInfo ******")
+            //print("****** getNftInfo ******")
             do {
                 let endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)/\(tokenId)");
                 //print("Request: \(endpoint)")

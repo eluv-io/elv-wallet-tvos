@@ -7,8 +7,22 @@
 
 import SwiftUI
 
+enum LinkOp {
+    case item, media, none
+}
+
 class ViewState: ObservableObject {
-    @Published var headerVisible = true
+    @Published var op: LinkOp  = .none
+    var itemContract = ""
+    var itemTokenStr = ""
+    var mediaId = ""
+    
+    func reset() {
+        itemContract = ""
+        itemTokenStr = ""
+        mediaId = ""
+        op = .none
+    }
 }
 
 @main
@@ -20,6 +34,25 @@ struct EluvioWalletTVOSApp: App {
     
     init(){
         print("App Init")
+    }
+    
+    func handleLink(url:URL){
+        if let host = url.host()?.lowercased() {
+            debugPrint("handleLink ", host)
+             
+            switch(host){
+            case "items":
+                viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
+                viewState.itemTokenStr = url.valueOf("token") ?? ""
+                viewState.op = .item
+                debugPrint("handleLink viewState changed")
+            case "media":
+                viewState.mediaId = url.valueOf("id") ?? ""
+                viewState.op = .media
+            default:
+                return
+            }
+        }
     }
     
     var body: some Scene {
@@ -36,6 +69,11 @@ struct EluvioWalletTVOSApp: App {
                             print("Error connecting to the fabric: ", error)
                         }
                     }
+                }
+                .onOpenURL { url in
+                    debugPrint("url opened: ", url)
+                    
+                    handleLink(url:url)
                 }
                 .edgesIgnoringSafeArea(.all)
         }

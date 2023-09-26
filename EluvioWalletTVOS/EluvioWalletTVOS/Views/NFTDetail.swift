@@ -19,7 +19,7 @@ struct NFTDetailViewDemo: View {
     @State var showDetails = false
     @State var searchText = ""
     var title = ""
-    @Binding var nft: NFTModel
+    var nft: NFTModel
     @State var featuredMedia: [MediaItem] = []
     @State var collections: [MediaCollection] = []
     @State var richText : AttributedString = ""
@@ -174,6 +174,7 @@ struct NFTDetailViewDemo: View {
                 view.clipsToBounds = false
             }
             .onAppear(){
+                debugPrint("NFTDetailViewDemo onAppear", nft.contract_name)
                 self.cancellable = fabric.$library.sink { val in
                     update()
                 }
@@ -191,7 +192,7 @@ struct NFTDetailViewDemo: View {
         debugPrint("preferredLocation ", preferredLocation)
         Task {
             if let redeemableOffers = nft.redeemable_offers {
-                debugPrint("RedeemableOffers ", redeemableOffers)
+                //debugPrint("RedeemableOffers ", redeemableOffers)
                 if !redeemableOffers.isEmpty {
                     var redeemableFeatures: [RedeemableViewModel] = []
                     var localizedRedeemables : [RedeemableViewModel] = []
@@ -349,7 +350,7 @@ struct NFTDetailView: View {
     @State var showDetails = false
     @State var searchText = ""
     var title = ""
-    @Binding var nft: NFTModel
+    var nft: NFTModel
     @State var featuredMedia: [MediaItem] = []
     @State var collections: [MediaCollection] = []
     @State var richText : AttributedString = ""
@@ -683,19 +684,22 @@ struct NFTXRayView: View {
 struct NFTDetail: View {
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
-    @State var nft : NFTModel
+    var nft : NFTModel
     
     var body: some View {
         VStack{
             if IsDemoMode() {
-                NFTDetailViewDemo(nft:$nft)
+                NFTDetailViewDemo(nft:nft)
                     .environmentObject(fabric)
             }else{
-                NFTDetailView(nft:$nft)
+                NFTDetailView(nft:nft)
                     .environmentObject(fabric)
             }
         }
         .background(Color.secondaryBackground)
+        .onAppear(){
+            debugPrint("NFTDetail onAppear", nft.contract_name)
+        }
     }
     
 }
