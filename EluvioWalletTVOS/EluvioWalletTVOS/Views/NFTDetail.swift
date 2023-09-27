@@ -23,7 +23,13 @@ struct NFTDetailViewDemo: View {
     @State var featuredMedia: [MediaItem] = []
     @State var collections: [MediaCollection] = []
     @State var richText : AttributedString = ""
-    @State var description = ""
+    var description : String {
+        if let desc = nft.meta_full?["short_description"].stringValue {
+            return desc
+        }
+        
+        return ""
+    }
     @FocusState var isFocused
     @State var backgroundImageUrl : String = ""
     @FocusState private var headerFocused: Bool
@@ -33,6 +39,8 @@ struct NFTDetailViewDemo: View {
     @State var localizedFeatures: [MediaItem] = []
     @State var localizedRedeemables: [RedeemableViewModel] = []
     @State private var cancellable: AnyCancellable? = nil
+    
+    @State private var showProgress = true
     
     private var sections: [MediaSection] {
         if let additionalMedia = nft.additional_media_sections {
@@ -47,131 +55,134 @@ struct NFTDetailViewDemo: View {
     }
     
     var body: some View {
-        ZStack(alignment:.topLeading) {
-            if (self.backgroundImageUrl.hasPrefix("http")){
-                WebImage(url: URL(string: self.backgroundImageUrl))
-                    .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth:.infinity, maxHeight:.infinity)
-                    .frame(alignment: .topLeading)
-                    .clipped()
-            }else if(self.backgroundImageUrl != "") {
-                Image(self.backgroundImageUrl)
-                    .resizable()
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth:.infinity, maxHeight:.infinity)
-                    .frame(alignment: .topLeading)
-                    .clipped()
-            }else{
-                Rectangle().foregroundColor(Color.clear)
-                .frame(maxWidth:.infinity, maxHeight:.infinity)
-            }
-            
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    Button{} label: {
-                        VStack(alignment: .leading, spacing: 20)  {
-                            Text(nft.meta.displayName ?? "").font(.title3)
-                                .foregroundColor(Color.white)
-                                .fontWeight(.bold)
-                                .frame(maxWidth:1500, alignment:.leading)
-                            
-                            if (description != "") {
-                                Text(description)
-                                    .foregroundColor(Color.white)
-                                    .padding(.top)
-                                    .frame(maxWidth:1200, alignment:.leading)
-                                    .lineLimit(3)
-                            }else{
-                                Text(self.richText)
-                                    .foregroundColor(Color.white)
-                                    .padding(.top)
-                                    .frame(maxWidth:1200, alignment:.leading)
-                                    .lineLimit(10)
-                            }
-                            
-                            Spacer()
-                        }
-                    }
-                    .buttonStyle(NonSelectionButtonStyle())
-                    .focused($headerFocused)
-                    
- 
-                    //Just features for initial release
-                    LazyVStack(spacing: 40){
-                        
-                        if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
-                            VStack(alignment: .leading, spacing: 10)  {
-                                ScrollView(.horizontal) {
-                                    LazyHStack(alignment: .top, spacing: 50) {
-                                        
-                                        ForEach(self.localizedFeatures) {media in
-                                            MediaView2(mediaItem: media)
-                                        }
-                                        
-                                        ForEach(self.localizedRedeemables) {redeemable in
-                                            RedeemableCardView(redeemable:redeemable)
-                                        }
-                                        
+            ZStack(alignment:.topLeading) {
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 10) {
+                            Button{} label: {
+                                VStack(alignment: .leading, spacing: 20)  {
+                                    Text(nft.meta.displayName ?? "").font(.title3)
+                                        .foregroundColor(Color.white)
+                                        .fontWeight(.bold)
+                                        .frame(maxWidth:1500, alignment:.leading)
+                                    
+                                    if (description != "") {
+                                        Text(description)
+                                            .foregroundColor(Color.white)
+                                            .padding(.top)
+                                            .frame(maxWidth:1200, alignment:.leading)
+                                            .lineLimit(3)
+                                    }else{
+                                        Text(self.richText)
+                                            .foregroundColor(Color.white)
+                                            .padding(.top)
+                                            .frame(maxWidth:1200, alignment:.leading)
+                                            .lineLimit(10)
                                     }
-                                    .padding(20)
-                                }
-                                .introspectScrollView { view in
-                                    view.clipsToBounds = false
+                                    
+                                    Spacer()
                                 }
                             }
-                            .padding(.top)
-                        }else{
-                            if self.featuredMedia.count > 0 || self.redeemableFeatures.count > 0{
-                                VStack(alignment: .leading, spacing: 10)  {
-                                    ScrollView(.horizontal) {
-                                        LazyHStack(alignment: .top, spacing: 50) {
-                                            ForEach(self.featuredMedia) {media in
-                                                MediaView2(mediaItem: media)
-                                            }
-                                            
-                                            ForEach(redeemableFeatures) {redeemable in
-                                                RedeemableCardView(redeemable:redeemable)
-                                            }
-                                            
-                                        }
-                                        .padding(20)
-                                    }
-                                    .introspectScrollView { view in
-                                        view.clipsToBounds = false
-                                    }
-                                }
-                                .padding(.top)
-                            }
-                        }
+                            .buttonStyle(NonSelectionButtonStyle())
+                            .focused($headerFocused)
 
-                        if(!sections.isEmpty){
-                            ForEach(sections) { section in
-                                VStack(alignment: .leading, spacing: 20){
-                                    Text(section.name).font(.rowTitle).foregroundColor(Color.white)
-                                    ForEach(section.collections) { collection in
-                                        if(!collection.media.isEmpty){
-                                            VStack(alignment: .leading, spacing: 10){
-                                                Text(collection.name).font(.rowSubtitle).foregroundColor(Color.white)
-                                                MediaCollectionView(mediaCollection: collection)
+                            //Just features for initial release
+                            VStack(spacing: 40){
+                                if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
+                                    VStack(alignment: .leading, spacing: 10)  {
+                                        ScrollView(.horizontal) {
+                                            HStack(alignment: .top, spacing: 50) {
+                                                
+                                                ForEach(self.localizedFeatures) {media in
+                                                    MediaView2(mediaItem: media)
+                                                }
+                                                
+                                                ForEach(self.localizedRedeemables) {redeemable in
+                                                    RedeemableCardView(redeemable:redeemable)
+                                                }
+                                                
                                             }
-                                            .focusSection()
+                                            .padding(20)
+                                        }
+                                        .introspectScrollView { view in
+                                            view.clipsToBounds = false
+                                        }
+                                    }
+                                    .padding(.top)
+                                }else{
+                                    if self.featuredMedia.count > 0 || self.redeemableFeatures.count > 0{
+                                        VStack(alignment: .leading, spacing: 10)  {
+                                            ScrollView(.horizontal) {
+                                                HStack(alignment: .top, spacing: 50) {
+                                                    ForEach(self.featuredMedia) {media in
+                                                        MediaView2(mediaItem: media)
+                                                    }
+                                                    
+                                                    ForEach(redeemableFeatures) {redeemable in
+                                                        RedeemableCardView(redeemable:redeemable)
+                                                    }
+                                                    
+                                                }
+                                                .padding(20)
+                                            }
+                                            .introspectScrollView { view in
+                                                view.clipsToBounds = false
+                                            }
+                                        }
+                                        .padding(.top)
+                                    }
+                                }
+                                
+                                if(!sections.isEmpty){
+                                    ForEach(sections) { section in
+                                        VStack(alignment: .leading, spacing: 20){
+                                            Text(section.name).font(.rowTitle).foregroundColor(Color.white)
+                                            ForEach(section.collections) { collection in
+                                                if(!collection.media.isEmpty){
+                                                    VStack(alignment: .leading, spacing: 10){
+                                                        Text(collection.name).font(.rowSubtitle).foregroundColor(Color.white)
+                                                        MediaCollectionView(mediaCollection: collection)
+                                                    }
+                                                    .focusSection()
+                                                }
+                                            }
                                         }
                                     }
                                 }
                             }
+                            .padding(.bottom, 200) //This fixes bottom row being cut off
                         }
+                        .padding(80)
                     }
-                    .padding(.bottom, 200) //This fixes bottom row being cut off
-                }
-                .padding(80)
-                .focusSection()
+                    .opacity(showProgress ? 0.0 : 1.0)
+                    .introspectScrollView { view in
+                        view.clipsToBounds = false
+                    }
             }
-            .introspectScrollView { view in
-                view.clipsToBounds = false
+            .frame(maxWidth:.infinity, maxHeight:.infinity)
+            .background(
+                Group {
+                    if (self.backgroundImageUrl.hasPrefix("http")){
+                        WebImage(url: URL(string: self.backgroundImageUrl))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth:.infinity, maxHeight:.infinity)
+                            .frame(alignment: .topLeading)
+                            .clipped()
+                            .opacity(showProgress ? 0.0 : 1.0)
+                    }else if(self.backgroundImageUrl != "") {
+                        Image(self.backgroundImageUrl)
+                            .resizable()
+                            .transition(.fade(duration: 0.5))
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth:.infinity, maxHeight:.infinity)
+                            .frame(alignment: .topLeading)
+                            .clipped()
+                    }
+                }
+            )
+            .edgesIgnoringSafeArea(.all)
+            .fullScreenCover(isPresented: $showDetails) {
+                NFTXRayView(nft: nft, richText:self.richText)
             }
             .onAppear(){
                 debugPrint("NFTDetailViewDemo onAppear", nft.contract_name)
@@ -179,17 +190,18 @@ struct NFTDetailViewDemo: View {
                     update()
                 }
             }
-        }
-        .background(Color.mainBackground)
-        .frame(maxWidth:.infinity, maxHeight:.infinity)
-        .ignoresSafeArea()
-        .focusSection()
-        .fullScreenCover(isPresented: $showDetails) {
-            NFTXRayView(nft: nft, richText:self.richText)
-        }
     }
+        
     func update(){
         debugPrint("preferredLocation ", preferredLocation)
+        self.showProgress = true
+        Task {
+            try? await Task.sleep(nanoseconds: 2000000000)
+            await MainActor.run {
+                self.showProgress = false
+            }
+        }
+
         Task {
             if let redeemableOffers = nft.redeemable_offers {
                 //debugPrint("RedeemableOffers ", redeemableOffers)
@@ -237,9 +249,7 @@ struct NFTDetailViewDemo: View {
                     }
                 }
             }
-        }
-        
-        Task{
+            
             if let additions = nft.additional_media_sections {
                 if (!preferredLocation.isEmpty) {
                     var features:[MediaItem] = []
@@ -276,9 +286,7 @@ struct NFTDetailViewDemo: View {
                 }
                 //print("Collections: ",collections)
             }
-        }
-        
-        Task {
+            
             var descRichText = nft.meta_full?["description_rich_text"].stringValue ?? ""
             if (descRichText == ""){
                 descRichText = nft.meta_full?["description"].stringValue ?? ""
@@ -292,14 +300,6 @@ struct NFTDetailViewDemo: View {
                     self.richText.font = .body
                 }
             }
-            
-            await MainActor.run {
-                self.description = nft.meta_full?["short_description"].stringValue ?? ""
-            }
-            
-            //print("short_description ", nft.meta_full?["short_description"].stringValue)
-            //print("description ", nft.meta_full?["description"].stringValue)
-            //print("saved ", self.description)
             
             if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                 self.backgroundImageUrl = "https://picsum.photos/600/800"
@@ -339,6 +339,7 @@ struct NFTDetailViewDemo: View {
                 }
             }
         }
+            
     }
 }
 
@@ -582,7 +583,9 @@ struct NFTDetailView: View {
             //print("short_description ", nft.meta_full?["short_description"].stringValue)
             //print("description ", nft.meta_full?["description"].stringValue)
             //print("saved ", self.description)
-            
+        }
+        
+        Task{
             if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                 self.backgroundImageUrl = "https://picsum.photos/600/800"
             }else{
@@ -687,18 +690,12 @@ struct NFTDetail: View {
     var nft : NFTModel
     
     var body: some View {
-        VStack{
-            if IsDemoMode() {
-                NFTDetailViewDemo(nft:nft)
-                    .environmentObject(fabric)
-            }else{
-                NFTDetailView(nft:nft)
-                    .environmentObject(fabric)
-            }
-        }
-        .background(Color.secondaryBackground)
-        .onAppear(){
-            debugPrint("NFTDetail onAppear", nft.contract_name)
+        if IsDemoMode() {
+            NFTDetailViewDemo(nft:nft)
+                .environmentObject(fabric)
+        }else{
+            NFTDetailView(nft:nft)
+                .environmentObject(fabric)
         }
     }
     

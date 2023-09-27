@@ -82,15 +82,6 @@ struct GalleryView: View {
                 }
             }
             .background(){
-                /*
-                AsyncImage(url: URL(string: currentImageUrl)) { image in
-                    image.resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .edgesIgnoringSafeArea(.all)
-                } placeholder: {
-                    ProgressView()
-                }
-                 */
                 WebImage(url: URL(string: currentImageUrl))
                     .resizable()
                     .aspectRatio(contentMode: .fit)

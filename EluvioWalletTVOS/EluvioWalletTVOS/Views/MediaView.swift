@@ -127,6 +127,15 @@ struct MediaView2: View {
     @State var showError = false
     @State var errorMessage = ""
     
+    @State var showImage = false
+    var image: String {
+        if self.media.posterImage != "" {
+            return media.posterImage
+        }
+        
+        return self.media.image
+    }
+    
     var display: MediaDisplay = MediaDisplay.square
     
     @State private var showSeriesView = false
@@ -135,6 +144,8 @@ struct MediaView2: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             Button(action: {
+                debugPrint("Media Type: ", media.mediaType)
+                
                 if media.isReference == true{
                     showSeriesView = true
                     debugPrint("Media: ", media.isReference)
@@ -197,6 +208,8 @@ struct MediaView2: View {
                         self.gallery = media.gallery
                         self.showGallery = true
                     }
+                } else if media.mediaType == "Image" {
+                    self.showImage = true
                 }
  
             }) {
@@ -231,8 +244,8 @@ struct MediaView2: View {
                     //print("*** MediaView onChange")
                     self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
                     //print ("MediaView name ", media.name)
-                    debugPrint("MediaItem title: ", self.mediaItem?.name)
-                    debugPrint("display: ", display)
+                    //debugPrint("MediaItem title: ", self.mediaItem?.name)
+                    //debugPrint("display: ", display)
                 }catch{
                     print("MediaView could not create MediaItemViewModel ", error)
                 }
@@ -256,6 +269,14 @@ struct MediaView2: View {
                        finished:$playerFinished
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .fullScreenCover(isPresented: $showImage){
+            WebImage(url: URL(string: self.image))
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .edgesIgnoringSafeArea(.all)
+                .background(.thinMaterial)
         }
         .alert(errorMessage, isPresented:$showError){
         }

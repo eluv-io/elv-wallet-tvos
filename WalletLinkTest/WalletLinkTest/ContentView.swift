@@ -25,8 +25,10 @@ let appStoreUrl = "https://apps.apple.com/in/app/eluvio-media-wallet/id159155041
 let urls = [
     "FOX - Weather All Access":"elvwallet://items?contract=0xeb65174e4ed37a0b99b2f8d130ef84c7cc740264&token=2&sku=RzVfTVinSpRh1jde2uS5b8",
     "FOX - Sports All Access":"elvwallet://items?contract=0x91eaf3bfa0e26cd94f035950e9b79ef3bfa0b1f8&token=1&sku=3HVqSTXa4N1seLkL3sYnSL",
+    //"FOX - Entertainment": "elvwallet://items?contract=0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7&token=1&sku=NUwRFs3huWmSJQJryHcELP",
     "The Flash":"elvwallet://items?contract=0x896409ad1da7f3f48749d15602eabac3578694b4&token=630&sku=S9rrmcKoQdAma1346pSZwy",
-    "One Love":"elvwallet://items?sku=UaZHyXZnXEb1EVqawpwFG7"
+    "One Love":"elvwallet://items?contract=0xfe6eca032ff865731c280d1f10f641a573b3ffb6&token=2&sku=UaZHyXZnXEb1EVqawpwFG7",
+    //"UEFA":"elvwallet://items?contract=0xeca0c98159392ea41c4b0c8136da3ea387b1bd37&token=924&sku=2DgqQquXtXoyWmRHuRTmss",
 ]
 
 struct ContentView: View {
@@ -52,28 +54,6 @@ struct ContentView: View {
                                 .frame(width:700)
                         }
                     }
-                    /*
-                    ForEach(urls.sorted(by: >) , id:\.key) { key,value in
-                        Button {
-                            if let url = URL(string: value) {
-                                openURL(url) { accepted in
-                                    print(accepted ? "Success" : "Failure")
-                                    if (!accepted){
-                                        openURL(URL(string:appStoreUrl)!) { accepted in
-                                            print(accepted ? "Success" : "Failure")
-                                            if (!accepted) {
-                                                print("Could not open URL ", appStoreUrl)
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                            }
-                        } label: {
-                            Text("\(key)")
-                        }
-                    }
-                    */
                 }
                 .padding(.top,40)
                 
