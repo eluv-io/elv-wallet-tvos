@@ -81,7 +81,8 @@ struct OfferView: View {
                                 .lineLimit(3)
                                 .padding(.bottom,20)
                             Button(action: {
-                                if (self.isRedeeming ){
+                                if self.isRedeeming {
+                                    print("already isRedeeming")
                                     return
                                 }
                                 if !self.isRedeemed {
@@ -101,15 +102,16 @@ struct OfferView: View {
                                             }
                                         }
                                         
-                                        //var isRedeemed = false
-                                        print("Redeeming...", redeemable.id)
                                         var status = RedeemStatus()
-                                        var fulfillment: JSON? = nil
                                         var redeemed = false
                                         var transactionId = ""
                                         var transactionHash = ""
                                         do {
-                                            print("Redeeming... offerId", redeemable.offerId)
+                                            print("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
+                                            
+                                            // we want to refresh here
+                                            self.isRedeeming = true
+                                            
                                             let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
                                             redeemed = result.isRedeemed
                                             transactionId = result.transactionId
@@ -121,7 +123,10 @@ struct OfferView: View {
                                         }
 
                                         await MainActor.run {
-                                            self.isRedeeming = false
+                                            print("MainActor.run isRedeeming=\(isRedeeming)")
+                                            if self.isRedeeming {
+                                                self.isRedeeming = false
+                                            }
                                             self.redeemable.status.isRedeemed = redeemed
                                             self.redeemable.status.transactionId = transactionId
                                             self.redeemable.status.transactionHash = transactionHash
@@ -133,8 +138,7 @@ struct OfferView: View {
                                         }
                                     }
                                     
-                                }
-                                else{
+                                } else {
                                     self.showResult = true
                                 }
                             }) {
@@ -153,6 +157,7 @@ struct OfferView: View {
         }
         .background(.thinMaterial)
         .onChange(of:isRedeeming) { value in
+            print("onChange of:isRedeeming")
             if isRedeeming == true {
                 if !self.isRedeemed {
                    
@@ -251,6 +256,9 @@ struct OfferResultView: View {
             .edgesIgnoringSafeArea(.all)
             .background(Color.black.opacity(0.8))
             .background(.thinMaterial)
+            .onAppear(){
+                print("isRedeeming: showing Redeeming In Progress. Pleaes Wait...")
+            }
         }else{
             VStack(alignment: .center, spacing:20){
                 Text(title).font(.title)
