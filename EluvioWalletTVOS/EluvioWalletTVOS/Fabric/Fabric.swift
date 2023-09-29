@@ -599,8 +599,7 @@ class Fabric: ObservableObject {
             try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
             
             let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
-            print("Wallet Status Result: ", result)
-            //TODO: Get redeem status nft-offer-redeem
+            //print("Wallet Status Result: ", result)
             
             for status in result.arrayValue {
                 let op = status["op"].stringValue
@@ -609,6 +608,7 @@ class Fabric: ObservableObject {
                 if opSplit.count == 5 {
                     if opSplit[0] == "nft-offer-redeem" && opSplit[4] == confirmationId {
                         if (status["status"] == "complete"){
+                            print("Wallet Status Result: complete: ", op)
                             return (true,
                                     status["extra"]["trans_id"].stringValue,
                                     status["extra"]["tx_hash"].stringValue
