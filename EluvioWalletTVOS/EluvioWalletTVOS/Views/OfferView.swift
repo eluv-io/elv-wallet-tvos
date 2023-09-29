@@ -359,10 +359,8 @@ struct OfferResultView: View {
             
             // for no more codes
             if fulfill["err"]["op"].stringValue == "no more redemption codes available" {
-                url = "https://eluv.io/"
                 code = ""
                 description = "No more redemption codes available.  Please contact your merchant."
-                error = false
                 return
             }
             setError(cause: "setFullfillment completed with no code or url" + fulfill.stringValue)
