@@ -109,17 +109,14 @@ struct OfferView: View {
                                         var transactionId = ""
                                         var transactionHash = ""
                                         do {
-                                            if let offerId = redeemable.id {
-                                                print("Redeeming... offer Id ", offerId)
-                                                let result = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
-                                                redeemed = result.isRedeemed
-                                                transactionId = result.transactionId
-                                                transactionHash = result.transactionHash
-                                                
-                                                print("Redeem result", result)
-
-                                            }
-                                        }catch {
+                                            print("Redeeming... offerId", redeemable.offerId)
+                                            let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
+                                            redeemed = result.isRedeemed
+                                            transactionId = result.transactionId
+                                            transactionHash = result.transactionHash
+                                            
+                                            print("Redeem result", result)
+                                        } catch {
                                             print("Failed to redeemOffer", error)
                                         }
 
@@ -313,10 +310,10 @@ struct OfferResultView: View {
             .background(Color.black.opacity(0.8))
             .background(.thinMaterial)
             .onAppear(){
-                print("OnAppear URL \(url)")
+                print("OfferResultView OnAppear URL \(url) redeemable \(redeemable.status)")
                 if let fulfillment = redeemable.status.fulfillment {
                     setFulfillment(fulfillment: fulfillment)
-                }else{
+                } else {
                     title = "Loading..."
                     Task{
                         do {
@@ -327,10 +324,10 @@ struct OfferResultView: View {
                                 setFulfillment(fulfillment: fulfillment)
                             }else{
                                 print("TransactionHash is empty for offer ", self.redeemable)
-                                setError()
+                                setError(cause: "no transactionHash")
                             }
                         }catch{
-                            setError()
+                            setError(cause: "caught in getting fullfillment")
                         }
                     }
                 }
@@ -341,6 +338,7 @@ struct OfferResultView: View {
     @MainActor
     func setFulfillment(fulfillment: JSON?){
         if let fulfill = fulfillment {
+            print("setFulfillment got json:", fulfill)
             title = "Success"
             code = fulfill["fulfillment_data"]["code"].stringValue
             url = fulfill["fulfillment_data"]["url"].stringValue
@@ -349,14 +347,31 @@ struct OfferResultView: View {
                 error = false
                 return
             }
+            
+            // for dry_run
+            if fulfill["err"]["request"]["transaction"].stringValue.contains("tx-test-") {
+                code = "dry-run complete"
+                url = "https://eluv.io/"
+                description = "Scan the QR Code with your camera app or a QR code reader on your device to claim your reward."
+                error = false
+                return
+            }
+            
+            // for no more codes
+            if fulfill["err"]["op"].stringValue == "no more redemption codes available" {
+                code = ""
+                description = "No more redemption codes available.  Please contact your merchant."
+                return
+            }
+            setError(cause: "setFullfillment completed with no code or url" + fulfill.stringValue)
+        } else {
+            setError(cause: "setFullfillment completed with no fulfillment data")
         }
-        
-        setError()
-        
     }
     
     @MainActor
-    func setError(){
+    func setError(cause: String) {
+        print("calling setError from", cause)
         title = "Error"
         description = "Sorry...something went wrong. Please try again."
         self.error = true

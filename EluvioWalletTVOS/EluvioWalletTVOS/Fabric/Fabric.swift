@@ -653,7 +653,7 @@ class Fabric: ObservableObject {
             "client_reference_id": confirmationId,
             "tok_addr": contractAddr,
             "tok_id": tokenId,
-            "offer_id": Int(offerId) ?? -1
+            "offer_id": offerId
         ]
         
         try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
