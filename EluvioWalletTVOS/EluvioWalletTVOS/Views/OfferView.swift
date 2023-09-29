@@ -109,17 +109,14 @@ struct OfferView: View {
                                         var transactionId = ""
                                         var transactionHash = ""
                                         do {
-                                            if let offerId = redeemable.id {
-                                                print("Redeeming... offer Id ", offerId)
-                                                let result = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
-                                                redeemed = result.isRedeemed
-                                                transactionId = result.transactionId
-                                                transactionHash = result.transactionHash
-                                                
-                                                print("Redeem result", result)
-
-                                            }
-                                        }catch {
+                                            print("Redeeming... offerId", redeemable.offerId)
+                                            let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
+                                            redeemed = result.isRedeemed
+                                            transactionId = result.transactionId
+                                            transactionHash = result.transactionHash
+                                            
+                                            print("Redeem result", result)
+                                        } catch {
                                             print("Failed to redeemOffer", error)
                                         }
 
