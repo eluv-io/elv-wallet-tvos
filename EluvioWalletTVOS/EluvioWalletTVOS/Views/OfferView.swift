@@ -108,9 +108,11 @@ struct OfferView: View {
                                         var transactionHash = ""
                                         do {
                                             print("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
-                                            
-                                            // we want to refresh here
-                                            self.isRedeeming = true
+                                           
+                                            await MainActor.run {
+                                                // we want to refresh here
+                                                self.isRedeeming = true
+                                            }
                                             
                                             let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
                                             redeemed = result.isRedeemed
