@@ -57,6 +57,12 @@
 		B06D52192A14882200BD68D1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52182A14882200BD68D1 /* SearchView.swift */; };
 		B06D521B2A149EDC00BD68D1 /* PropertiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */; };
 		B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521C2A14A21100BD68D1 /* PropertyModel.swift */; };
+		B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */; };
+		B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCEA2AC8940E00AC825D /* ContentView.swift */; };
+		B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */; };
+		B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */; };
+		B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */; };
+		B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF52AC894EB00AC825D /* TubiPage.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0DFFF922A15E72200F1E358 /* MyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* MyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
@@ -83,16 +89,6 @@
 		B0E60FAD29D223870079661E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
 		B0E60FB229D2288C0079661E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		B0A2FCB12AB29C3A00AC825D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = B0A2FCAD2AB29C3900AC825D /* WalletLinkTest.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = B0A2FC9C2AB29C3800AC825D;
-			remoteInfo = WalletLinkTest;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		B009459F29E91DE000B00FC3 /* GalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalleryView.swift; sourceTree = "<group>"; };
@@ -138,7 +134,13 @@
 		B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertiesView.swift; sourceTree = "<group>"; };
 		B06D521C2A14A21100BD68D1 /* PropertyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyModel.swift; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		B0A2FCAD2AB29C3900AC825D /* WalletLinkTest.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WalletLinkTest.xcodeproj; path = ../WalletLinkTest/WalletLinkTest.xcodeproj; sourceTree = "<group>"; };
+		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
+		B0A2FCEA2AC8940E00AC825D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchPage.swift; sourceTree = "<group>"; };
+		B0A2FCF52AC894EB00AC825D /* TubiPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TubiPage.swift; sourceTree = "<group>"; };
 		B0DFFF912A15E72200F1E358 /* MyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0DFFF952A250E3500F1E358 /* MediaDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetail.swift; sourceTree = "<group>"; };
@@ -163,6 +165,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		B0A2FCE32AC8940E00AC825D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B0E60F6929CC23510079661E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -209,19 +218,32 @@
 			path = Managers;
 			sourceTree = "<group>";
 		};
-		B0A2FCAE2AB29C3900AC825D /* Products */ = {
+		B0A2FCE72AC8940E00AC825D /* WalletLinkTest */ = {
 			isa = PBXGroup;
 			children = (
-				B0A2FCB22AB29C3A00AC825D /* WalletLinkTest.app */,
+				B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */,
+				B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */,
+				B0A2FCF52AC894EB00AC825D /* TubiPage.swift */,
+				B0A2FCEA2AC8940E00AC825D /* ContentView.swift */,
+				B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */,
+				B0A2FCEE2AC8940F00AC825D /* Preview Content */,
 			);
-			name = Products;
+			path = WalletLinkTest;
+			sourceTree = "<group>";
+		};
+		B0A2FCEE2AC8940F00AC825D /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		B0E60F6329CC23510079661E = {
 			isa = PBXGroup;
 			children = (
-				B0A2FCAD2AB29C3900AC825D /* WalletLinkTest.xcodeproj */,
 				B0E60F6E29CC23510079661E /* EluvioWalletTVOS */,
+				B0A2FCE72AC8940E00AC825D /* WalletLinkTest */,
 				B0E60F6D29CC23510079661E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -230,6 +252,7 @@
 			isa = PBXGroup;
 			children = (
 				B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */,
+				B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -332,6 +355,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		B0A2FCE52AC8940E00AC825D /* WalletLinkTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B0A2FCF12AC8940F00AC825D /* Build configuration list for PBXNativeTarget "WalletLinkTest" */;
+			buildPhases = (
+				B0A2FCE22AC8940E00AC825D /* Sources */,
+				B0A2FCE32AC8940E00AC825D /* Frameworks */,
+				B0A2FCE42AC8940E00AC825D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WalletLinkTest;
+			productName = WalletLinkTest;
+			productReference = B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */;
+			productType = "com.apple.product-type.application";
+		};
 		B0E60F6B29CC23510079661E /* EluvioWalletTVOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "EluvioWalletTVOS" */;
@@ -371,9 +411,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1420;
 				TargetAttributes = {
+					B0A2FCE52AC8940E00AC825D = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
 					B0E60F6B29CC23510079661E = {
 						CreatedOnToolsVersion = 14.2;
 					};
@@ -403,30 +446,24 @@
 			);
 			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = B0A2FCAE2AB29C3900AC825D /* Products */;
-					ProjectRef = B0A2FCAD2AB29C3900AC825D /* WalletLinkTest.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				B0E60F6B29CC23510079661E /* EluvioWalletTVOS */,
+				B0A2FCE52AC8940E00AC825D /* WalletLinkTest */,
 			);
 		};
 /* End PBXProject section */
 
-/* Begin PBXReferenceProxy section */
-		B0A2FCB22AB29C3A00AC825D /* WalletLinkTest.app */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.application;
-			path = WalletLinkTest.app;
-			remoteRef = B0A2FCB12AB29C3A00AC825D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
-
 /* Begin PBXResourcesBuildPhase section */
+		B0A2FCE42AC8940E00AC825D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */,
+				B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B0E60F6A29CC23510079661E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -448,6 +485,17 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		B0A2FCE22AC8940E00AC825D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */,
+				B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */,
+				B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */,
+				B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		B0E60F6829CC23510079661E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -509,6 +557,60 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		B0A2FCF22AC8940F00AC825D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
+				DEVELOPMENT_TEAM = 2KH8KC3MMX;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.WalletLinkTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 16.4;
+			};
+			name = Debug;
+		};
+		B0A2FCF32AC8940F00AC825D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
+				DEVELOPMENT_TEAM = 2KH8KC3MMX;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.WalletLinkTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 16.4;
+			};
+			name = Release;
+		};
 		B0E60F7829CC23530079661E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -690,6 +792,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		B0A2FCF12AC8940F00AC825D /* Build configuration list for PBXNativeTarget "WalletLinkTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B0A2FCF22AC8940F00AC825D /* Debug */,
+				B0A2FCF32AC8940F00AC825D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		B0E60F6729CC23510079661E /* Build configuration list for PBXProject "EluvioWalletTVOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
