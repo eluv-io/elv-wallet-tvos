@@ -86,9 +86,10 @@ struct OfferView: View {
                                     return
                                 }
                                 if !self.isRedeemed {
-                                    self.isRedeeming = true
-
                                     Task{
+                                        await MainActor.run {
+                                            self.isRedeeming = true
+                                        }
                                         if redeemable.redeemAnimationLink != nil {
                                             do{
                                                 print("Found animation")
@@ -109,11 +110,6 @@ struct OfferView: View {
                                         do {
                                             print("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
                                            
-                                            await MainActor.run {
-                                                // we want to refresh here
-                                                self.isRedeeming = true
-                                            }
-                                            
                                             let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
                                             redeemed = result.isRedeemed
                                             transactionId = result.transactionId
