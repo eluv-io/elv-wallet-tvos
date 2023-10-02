@@ -196,7 +196,6 @@ struct MediaItemViewModel:Identifiable {
             defaultOptionsLink:optionsLink,
             parameters: media.parameters,
             htmlUrl:htmlUrl,
-            isLive: media.isLive,
             tags: media.tags ?? [],
             offering: offering,
             gallery: media.gallery ?? [],
@@ -223,7 +222,9 @@ struct MediaItemViewModel:Identifiable {
     var defaultOptionsLink: JSON? = nil
     var parameters: [JSON]? = []
     var htmlUrl: String = ""
-    var isLive: Bool = false
+    var isLive: Bool {
+        return self.mediaType == "Live Video"
+    }
     var tags: [TagMeta] = []
     var offering: String = "default"
     var gallery: [GalleryItem] = []
@@ -314,7 +315,9 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     
     //For Demo
     var nft: NFTModel? = nil
-    var isLive: Bool = false
+    var isLive: Bool {
+        return self.media_type == "Live Video"
+    }
     var schedule: [MediaItem]? = []
     var startDateTime: Date? = nil
     var startDateTimeString: String {
@@ -392,7 +395,6 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         id = (id ?? "")  + name
         
         //TODO: compute from media_type when ready
-        isLive = false
         schedule = []
         startDateTime = nil
         endDateTime = nil

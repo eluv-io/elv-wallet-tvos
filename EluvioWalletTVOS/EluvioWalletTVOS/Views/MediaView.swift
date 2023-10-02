@@ -152,9 +152,9 @@ struct MediaView2: View {
                     return
                 }
                 
-                if media.mediaType == "Video" || media.mediaType == "Audio"{
+                if media.mediaType == "Video" || media.mediaType == "Audio" || media.isLive {
                     if(media.defaultOptionsLink != nil) {
-                        if media.mediaType == "Video" {
+                        if media.mediaType == "Video" || media.isLive{
                             self.playerImageOverlayUrl = ""
                             self.playerTextOverlay = ""
                         } else {
@@ -226,7 +226,7 @@ struct MediaView2: View {
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
             .overlay(content: {
-                if (media.mediaType == "Video" && !isFocused){
+                if ((media.mediaType == "Video" || media.isLive) && !isFocused){
                     Image(systemName: "play.fill")
                         .font(.system(size: 80))
                         .foregroundColor(.white)

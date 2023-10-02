@@ -483,15 +483,8 @@ class Fabric: ObservableObject {
                             hasPlayableMedia = true
                         }
                         
-                        //XXX: Demo only until we have a proper Live mediaType
-                        /*if media.name.lowercased().contains("live matches") {
-                            debugPrint("Featured media: ", media)
-                        }*/
-                        
-                        if media.name.contains("Live"){
-                            media.isLive = true
+                        if mediaType == "Live Video"{
                             liveStreams.append(media)
-                            //debugPrint("Featured media: ", media)
                         }
                         
                         nftmodel.additional_media_sections?.featured_media[index] = media
@@ -518,14 +511,9 @@ class Fabric: ObservableObject {
                         for mediaIndex in 0..<collection.media.count{
                             var media = collection.media[mediaIndex]
                             
-                            if media.name.lowercased().contains("live matches") {
-                                debugPrint("media: ", media)
-                            }
-                            
                             if let mediaType = media.media_type {
                                 //XXX: Demo only until we have a proper Live mediaType
-                                if media.name.contains("Live"){
-                                    media.isLive = true
+                                if mediaType == "Live Video"{
                                     hasPlayableMedia = true
                                     liveStreams.append(media)
                                 }else if mediaType == "Video" {
