@@ -47,7 +47,9 @@ struct EluvioWalletTVOSApp: App {
                 viewState.op = .item
                 debugPrint("handleLink viewState changed")
             case "media":
-                viewState.mediaId = url.valueOf("id") ?? ""
+                viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
+                viewState.itemTokenStr = url.valueOf("token") ?? ""
+                viewState.mediaId = url.valueOf("media") ?? ""
                 viewState.op = .media
             default:
                 return

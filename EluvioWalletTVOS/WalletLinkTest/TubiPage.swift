@@ -29,15 +29,14 @@ struct IconButtonStyle: ButtonStyle {
             .foregroundColor(.white)
             .background(focused ? highlightColor : Color.clear)
             .cornerRadius(10)
-            .scaleEffect(self.focused ? 1.1: 1, anchor: .center)
-            .shadow(color: self.focused ? .gray.opacity(0.5) : .black, radius: self.focused ? 8 : 0, x: 2, y: 2)
-            .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            .scaleEffect(self.focused ? 1.03: 1, anchor: .center)
+            .animation(self.focused ? .easeIn(duration: 0.1) : .easeOut(duration: 0.1), value: self.focused)
             .opacity(self.focused ? 1.0 : initialOpacity)
     }
 }
 
 
-struct LaunchButton: View {
+struct TubiLaunchButton: View {
     var image = ""
     var showPlayOverlay = false
     var buttonIcon = ""
@@ -56,7 +55,7 @@ struct LaunchButton: View {
                 .aspectRatio(contentMode: .fill)
                 .frame(width:430, height: 430*9/16)
                 .overlay(content: {
-                    if (showPlayOverlay && !isFocused){
+                    if (showPlayOverlay){
                         Image(systemName: "play.fill")
                             .font(.system(size: 80))
                             .foregroundColor(.white)
@@ -84,8 +83,7 @@ struct LaunchButton: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 20)
-                
-                .frame(width:400)
+                .frame(width:420)
             }
             .buttonStyle(IconButtonStyle(focused:isFocused, highlightColor: hightlightColor))
             .focused($isFocused)
@@ -114,15 +112,29 @@ struct TubiPage: View {
         VStack(alignment:.center) {
             HStack(){
 
-                LaunchButton(
+                TubiLaunchButton(
                     image: playImage,
                     showPlayOverlay: true,
                     buttonIcon: "icon_play",
                     buttonText:playButtonText,
-                    action: {}
+                    action: {
+                        if let url = URL(string: playUrl) {
+                            openURL(url) { accepted in
+                                print(accepted ? "Success" : "Failure")
+                                if (!accepted){
+                                    openURL(URL(string:appStoreUrl)!) { accepted in
+                                        print(accepted ? "Success" : "Failure")
+                                        if (!accepted) {
+                                            print("Could not open URL ", appStoreUrl)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 )
                 
-                LaunchButton(
+                TubiLaunchButton(
                     image:bundleImage,
                     buttonIcon: "icon_bundle",
                     buttonText: buncleButtonText,

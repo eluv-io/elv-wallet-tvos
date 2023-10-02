@@ -1731,6 +1731,7 @@ class Fabric: ObservableObject {
         for nft in library.items {
             debugPrint("Contract", nft.contract_addr)
             debugPrint("Token", nft.token_id_str)
+
             if nft.contract_addr == contract.lowercased() &&
                 nft.token_id_str == token {
                 debugPrint("Found NFT")
@@ -1738,6 +1739,7 @@ class Fabric: ObservableObject {
             }
         }
         
+        debugPrint("Could not find token")
         return nil
     }
     
