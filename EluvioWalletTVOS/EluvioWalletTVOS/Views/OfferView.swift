@@ -86,8 +86,6 @@ struct OfferView: View {
                                     return
                                 }
                                 if !self.isRedeemed {
-                                    self.isRedeeming = true
-
                                     Task{
                                         if redeemable.redeemAnimationLink != nil {
                                             do{
@@ -97,21 +95,22 @@ struct OfferView: View {
                                                     self.playerItem = playerItem
                                                     showPlayer = true
                                                 }
-                                            }catch{
+                                            } catch {
                                                 print("Error creating playerItem for redeem animation: ", error)
                                             }
                                         }
                                         
-                                        var status = RedeemStatus()
+                                        await MainActor.run {
+                                            self.showResult = true
+                                            self.isRedeeming = true
+                                        }
+
                                         var redeemed = false
                                         var transactionId = ""
                                         var transactionHash = ""
                                         do {
                                             print("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
-                                            
-                                            // we want to refresh here
-                                            self.isRedeeming = true
-                                            
+                                           
                                             let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
                                             redeemed = result.isRedeemed
                                             transactionId = result.transactionId
@@ -139,6 +138,7 @@ struct OfferView: View {
                                     }
                                     
                                 } else {
+                                    print("isRedeemed, set showResult")
                                     self.showResult = true
                                 }
                             }) {
@@ -223,6 +223,9 @@ struct OfferView: View {
         }
         .fullScreenCover(isPresented: $showResult) {
             OfferResultView(redeemable: redeemable, isRedeeming:$isRedeeming)
+                .onAppear() {
+                    print("init OfferResultView w/ isRedeeming=\(isRedeeming) showResult=\(showResult)")
+                }
         }
         
     }
@@ -257,7 +260,7 @@ struct OfferResultView: View {
             .background(Color.black.opacity(0.8))
             .background(.thinMaterial)
             .onAppear(){
-                print("isRedeeming: showing Redeeming In Progress. Pleaes Wait...")
+                print("isRedeeming: showing Redeeming In Progress...")
             }
         }else{
             VStack(alignment: .center, spacing:20){

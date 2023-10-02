@@ -445,7 +445,7 @@ class RemoteSigner {
                 print("Headers: \(headers)")
                 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
-                    print("Response : \(response)")
+                    //print("Response : \(response)")
                     
                     switch (response.result) {
                         case .success(let result):
