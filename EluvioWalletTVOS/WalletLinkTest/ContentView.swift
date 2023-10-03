@@ -43,7 +43,7 @@ func CreateBundleLink(contract:String, token: String, marketplace: String, sku: 
 }
 
 func CreatePlayLink(contract:String, token: String, marketplace: String, sku: String, mediaId: String) -> String {
-    return bundleBaseURL + "?" + "&contract=\(contract)" + "&token=\(token)" + "&marketplace=\(marketplace)"
+    return playBaseURL + "?" + "&contract=\(contract)" + "&token=\(token)" + "&marketplace=\(marketplace)"
         + "&sku=\(sku)" + "&media=\(mediaId)"
 }
 
@@ -70,7 +70,8 @@ struct ContentView: View {
                                              bundleImage: "FOX Sports Bundle Thumbnail",
                                              bundleLink: CreateBundleLink(contract: "0x91eaf3bfa0e26cd94f035950e9b79ef3bfa0b1f8", token: "1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku: "3HVqSTXa4N1seLkL3sYnSL"),
                                              playImage: "Live Fox Sports Thumbnail",
-                                             playUrl: CreatePlayLink(contract: "0x91eaf3bfa0e26cd94f035950e9b79ef3bfa0b1f8", token: "1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku: "3HVqSTXa4N1seLkL3sYnSL", mediaId: "XJT6Xp6mVUzFT76yJHDkPg")
+                                             /*playUrl: CreatePlayLink(contract: "0x91eaf3bfa0e26cd94f035950e9b79ef3bfa0b1f8", token: "1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku: "3HVqSTXa4N1seLkL3sYnSL", mediaId: "XJT6Xp6mVUzFT76yJHDkPg")*/
+                                             playUrl: "https://main.net955305.contentfabric.io/s/q/iq__3tfUq87qve9ywYu1jL3tGYfXk1ij/rep/playout/default/hls-clear/playlist.m3u8"
                                             )) {
                         Text("FOX - Sports All Access")
                             .frame(width:700)
@@ -81,7 +82,8 @@ struct ContentView: View {
                                              bundleImage: "FOX Weather Bundle Thumbnail",
                                              bundleLink: CreateBundleLink(contract:"0xeb65174e4ed37a0b99b2f8d130ef84c7cc740264", token:"2", marketplace:"iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"RzVfTVinSpRh1jde2uS5b8"),
                                              playImage: "Live Fox Weather Thumbnail",
-                                             playUrl: CreatePlayLink(contract:"0xeb65174e4ed37a0b99b2f8d130ef84c7cc740264", token:"2", marketplace:"iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"RzVfTVinSpRh1jde2uS5b8", mediaId:"Pkw7Kp7xgaseNCnyDFuprP")
+                                             /*playUrl: CreatePlayLink(contract:"0xeb65174e4ed37a0b99b2f8d130ef84c7cc740264", token:"2", marketplace:"iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"RzVfTVinSpRh1jde2uS5b8", mediaId:"Pkw7Kp7xgaseNCnyDFuprP")*/
+                                             playUrl: "https://main.net955305.contentfabric.io/s/q/iq__2EnYCsx2wn4dpbXDJAk137n9RPU6/rep/playout/default/hls-clear/playlist.m3u8"
                                             )) {
                         Text("FOX - Weather All Access")
                             .frame(width:700)
@@ -92,7 +94,8 @@ struct ContentView: View {
                                              bundleImage: "FOX Entertainment Bundle Thumbnail",
                                              bundleLink: CreateBundleLink(contract:"0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7", token:"1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"NUwRFs3huWmSJQJryHcELP"),
                                              playImage: "FOX Example VOD Thumbnail",
-                                             playUrl: CreatePlayLink(contract:"0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7", token:"1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"NUwRFs3huWmSJQJryHcELP", mediaId: "SCsC5xsZskBSEPLePN9fcc"),
+                                             /*playUrl: CreatePlayLink(contract:"0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7", token:"1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"NUwRFs3huWmSJQJryHcELP", mediaId: "SCsC5xsZskBSEPLePN9fcc"),*/
+                                             playUrl: "https://main.net955305.contentfabric.io/s/q/iq__2D4nVMqCEEEr3xaaxzZFXq9mKXr8/rep/playout/default/hls-aes128/playlist.m3u8",
                                              playButtonText: "Play"
                                             )) {
                         Text("FOX - Entertainment")
@@ -102,7 +105,8 @@ struct ContentView: View {
                     NavigationLink(destination:
                                     BluePage(bgImage: "SWISS BLUE App Launch - no buttons",
                                              bundleLink: CreateBundleLink(contract:"0xfe6eca032ff865731c280d1f10f641a573b3ffb6",token:"2",marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU", sku:"UaZHyXZnXEb1EVqawpwFG7"),
-                                             playUrl: CreatePlayLink(contract:"0xfe6eca032ff865731c280d1f10f641a573b3ffb6",token:"2",marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU", sku:"UaZHyXZnXEb1EVqawpwFG7", mediaId:"3pmffSGd1U6u7pD6AYyzrV")
+                                             /*playUrl: CreatePlayLink(contract:"0xfe6eca032ff865731c280d1f10f641a573b3ffb6",token:"2",marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU", sku:"UaZHyXZnXEb1EVqawpwFG7", mediaId:"3pmffSGd1U6u7pD6AYyzrV")*/
+                                             playUrl: "https://main.net955305.contentfabric.io/s/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
                                             )) {
                         Text("One Love")
                             .frame(width:700)
@@ -111,7 +115,9 @@ struct ContentView: View {
                     NavigationLink(destination:
                                     MaxPage(bgImage: "Max Launch Screen - no buttons",
                                              bundleLink: CreateBundleLink(contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",token:"630",marketplace:"iq__3YdURECX5V1rhE84vREnXfavwn5s", sku:"S9rrmcKoQdAma1346pSZwy"),
-                                             playUrl: CreatePlayLink(contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",token:"630",marketplace:"iq__3YdURECX5V1rhE84vREnXfavwn5s", sku:"S9rrmcKoQdAma1346pSZwy", mediaId:"8REEVKxKhLdvAyC2UQxTHs")
+                                             /*playUrl: CreatePlayLink(contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",token:"630",marketplace:"iq__3YdURECX5V1rhE84vREnXfavwn5s", sku:"S9rrmcKoQdAma1346pSZwy", mediaId:"8REEVKxKhLdvAyC2UQxTHs")*/
+                                            playUrl: "",
+                                            playLink: CreatePlayLink(contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",token:"630",marketplace:"iq__3YdURECX5V1rhE84vREnXfavwn5s", sku:"S9rrmcKoQdAma1346pSZwy", mediaId:"8REEVKxKhLdvAyC2UQxTHs")
                                             )) {
                         Text("The Flash")
                             .frame(width:700)
@@ -120,7 +126,8 @@ struct ContentView: View {
                     NavigationLink(destination:
                                     UEFAPage(bgImage: "UEFA Launch Screen - no buttons",
                                              bundleLink: CreateBundleLink(contract:"0xeca0c98159392ea41c4b0c8136da3ea387b1bd37",token:"924",marketplace:"", sku:"2DgqQquXtXoyWmRHuRTmss"),
-                                             playUrl: CreatePlayLink(contract:"0xeca0c98159392ea41c4b0c8136da3ea387b1bd37",token:"924",marketplace:"", sku:"2DgqQquXtXoyWmRHuRTmss", mediaId:"9UE8eCZmWhNvT8LDPGEhzE")
+                                             /*playUrl: CreatePlayLink(contract:"0xeca0c98159392ea41c4b0c8136da3ea387b1bd37",token:"924",marketplace:"", sku:"2DgqQquXtXoyWmRHuRTmss", mediaId:"9UE8eCZmWhNvT8LDPGEhzE")*/
+                                             playUrl: "https://main.net955305.contentfabric.io/s/q/iq__2HUxmn3xLv1vJMU8YLL7vmoKvqvY/rep/playout/default/hls-clear/playlist.m3u8"
                                             )) {
                         Text("UEFA EURO2024")
                             .frame(width:700)

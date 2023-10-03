@@ -87,6 +87,9 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     }
 
     func shouldDisplay(currentUserAddress:String) -> Bool {
+        debugPrint("RedeemableViewModel: shouldDisplay")
+        debugPrint("status: ", status)
+        debugPrint("address: ", currentUserAddress)
         return status.isActive && (!status.isRedeemed && !isExpired || isRedeemer(address:currentUserAddress) && !isExpired || isRedeemer(address:currentUserAddress) && isExpired && status.isRedeemed)
     }
     
@@ -135,7 +138,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         return redeemStatus
 
     }
-    
+
     static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel) async throws -> RedeemableViewModel {
 
         let animationLink = redeemable.animation?["sources"]["default"]
@@ -279,6 +282,8 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var background_image_tv: String? = "" //XXX: Demo only
     var title_image: String? = "" //XXX: Demo only
     var redeemable_offers: [Redeemable]?
+    
+    var mediaCache : [String: MediaItem]? = [:]
 
     func getTag(key:String)->String {
         if let tags = self.meta.tags {
@@ -331,6 +336,17 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
         return count > 1
     }
     
+    
+    func getMediaItem(id:String) -> MediaItem?{
+        if id == "" {
+            return nil
+        }
+        
+        debugPrint("getMediaItem mediaCache ", mediaCache?.keys)
+        
+        return mediaCache?[id]
+    }
+    
     init(){
         block = 0
         created = 0
@@ -345,6 +361,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
         token_uri = ""
         has_playable_feature = false
         additional_media_sections = nil
+        mediaCache = [:]
     }
     
     //TODO: Find a good id for this

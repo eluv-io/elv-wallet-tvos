@@ -87,6 +87,36 @@ struct NFTDetailViewDemo: View {
 
                             //Just features for initial release
                             VStack(spacing: 40){
+                                VStack(alignment: .leading, spacing: 10)  {
+                                    ScrollView(.horizontal) {
+                                        HStack(alignment: .top, spacing: 50) {
+                                            
+                                            ForEach(self.localizedFeatures) {media in
+                                                MediaView2(mediaItem: media)
+                                            }
+                                            
+                                            ForEach(self.featuredMedia) {media in
+                                                MediaView2(mediaItem: media)
+                                            }
+                                            
+                                            ForEach(self.localizedRedeemables) {redeemable in
+                                                RedeemableCardView(redeemable:redeemable)
+                                            }
+
+                                            ForEach(redeemableFeatures) {redeemable in
+                                                RedeemableCardView(redeemable:redeemable)
+                                            }
+                                            
+                                        }
+                                        .padding(20)
+                                    }
+                                    .introspectScrollView { view in
+                                        view.clipsToBounds = false
+                                    }
+                                }
+                                .padding(.top)
+                                
+                                /*
                                 if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
                                     VStack(alignment: .leading, spacing: 10)  {
                                         ScrollView(.horizontal) {
@@ -131,6 +161,7 @@ struct NFTDetailViewDemo: View {
                                         .padding(.top)
                                     }
                                 }
+                                 */
                                 
                                 if(!sections.isEmpty){
                                     ForEach(sections) { section in
@@ -204,39 +235,51 @@ struct NFTDetailViewDemo: View {
 
         Task {
             if let redeemableOffers = nft.redeemable_offers {
-                //debugPrint("RedeemableOffers ", redeemableOffers)
+                debugPrint("RedeemableOffers ", redeemableOffers)
                 if !redeemableOffers.isEmpty {
                     var redeemableFeatures: [RedeemableViewModel] = []
                     var localizedRedeemables : [RedeemableViewModel] = []
                     for redeemable in redeemableOffers {
                         do{
                             if (!preferredLocation.isEmpty) {
-                                
+                                debugPrint("Preferred Location ", preferredLocation)
+                                debugPrint("Redeemable Location ", redeemable.location)
                                 if redeemable.location.lowercased() == preferredLocation.lowercased(){
                                     //Expensive operation
                                     let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
                                     if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                        debugPrint("Redeemable should display!")
                                         localizedRedeemables.append(redeem)
+                                    }else{
+                                        debugPrint("Redeemable should NOT display")
                                     }
                                 }
                                 
                                 if redeemable.location == "" {
+                                    debugPrint("redeemable location is empty")
                                     //Expensive operation
                                     let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
                                     if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                        debugPrint("Redeemable should display!")
                                         redeemableFeatures.append(redeem)
+                                    }else{
+                                        debugPrint("Redeemable should NOT display")
                                     }
                                 }
                             }else{
+                                debugPrint("No profile location ")
                                 //Expensive operation
                                 let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
                                 if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
                                     redeemableFeatures.append(redeem)
+                                    debugPrint("Redeemable should display!")
+                                }else{
+                                    debugPrint("Redeemable should NOT display")
                                 }
-                                print("Appended redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try fabric.getAccountAddress()))
-                                print("Appended redeemable status \(redeem.name)", redeem.status)
-                                print("Appended redeemable expired? \(redeem.name)", redeem.isExpired)
-                                print("Appended redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
+                                debugPrint("Redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try fabric.getAccountAddress()))
+                                debugPrint(" redeemable status \(redeem.name)", redeem.status)
+                                debugPrint(" redeemable expired? \(redeem.name)", redeem.isExpired)
+                                debugPrint(" redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
                                 
                             }
                         }catch{
@@ -256,12 +299,13 @@ struct NFTDetailViewDemo: View {
                     var locals:[MediaItem] = []
                     
                     for feature in additions.featured_media {
+                        debugPrint("feature ", feature.name)
                         if (feature.location == ""){
                             features.append(feature)
-                        }
-                        
-                        if (feature.location == preferredLocation){
+                            debugPrint("feature appended with no location")
+                        }else if (feature.location == preferredLocation){
                             locals.append(feature)
+                            debugPrint("feature appended with location", feature.location)
                         }
                     }
                     await MainActor.run {

@@ -76,7 +76,9 @@ struct BluePage: View {
     var playButtonText = "Play Feature Film"
     var buncleButtonText = "Launch Bundle"
     
-    @State private var showPlayer = ""
+    @State private var showPlayer = false
+    @State private var url = URL(string:"")
+    @State private var playerFinished = false
 
     var body: some View {
         VStack(alignment:.center) {
@@ -87,6 +89,7 @@ struct BluePage: View {
                     buttonText:playButtonText,
                     action: {
                         if let url = URL(string: playUrl) {
+                            /*
                             openURL(url) { accepted in
                                 print(accepted ? "Success" : "Failure")
                                 if (!accepted){
@@ -98,6 +101,9 @@ struct BluePage: View {
                                     }
                                 }
                             }
+                             */
+                            self.url = url
+                            showPlayer = true
                         }
                     }
                 )
@@ -135,6 +141,8 @@ struct BluePage: View {
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
         )
-
+        .fullScreenCover(isPresented:$showPlayer){
+            PlayerView(playoutUrl:$url, finished: $playerFinished)
+        }
     }
 }

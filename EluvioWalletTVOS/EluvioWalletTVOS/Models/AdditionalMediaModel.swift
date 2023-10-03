@@ -182,6 +182,7 @@ struct MediaItemViewModel:Identifiable {
         
         return MediaItemViewModel(
             id: media.id,
+            mediaId: media.mediaId,
             backgroundImage: backgroundImage,
             titleLogo: backgroundLogo,
             image: media.image ?? "",
@@ -208,6 +209,7 @@ struct MediaItemViewModel:Identifiable {
     }
     
     var id: String? = UUID().uuidString
+    var mediaId: String? = UUID().uuidString
     var backgroundImage: String = ""
     var titleLogo: String = ""
     var image: String = ""
@@ -287,6 +289,9 @@ struct MediaReference: Codable {
 
 struct MediaItem: FeatureProtocol, Equatable, Hashable {
     var id: String? = UUID().uuidString
+    //There could be duplicates, bug in datamodel from fabric copy
+    var mediaId: String? = UUID().uuidString
+    
     var image: String? = ""
     var background_image_tv: JSON? = nil
     var background_image_tv_url: String? = ""
@@ -390,9 +395,9 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
             locked_state = try container.decodeIfPresent(JSON.self, forKey: .locked_state)
         }
         
-        id = try container.decodeIfPresent(String.self, forKey: .id) ??  media_type ?? ""
-        //UGLY: Workaround for non unique ids (mistake when copying nft templates)
-        id = (id ?? "")  + name
+        mediaId = try container.decodeIfPresent(String.self, forKey: .id) ?? ""
+        
+        id = (mediaId ?? "")  + name
         
         //TODO: compute from media_type when ready
         schedule = []

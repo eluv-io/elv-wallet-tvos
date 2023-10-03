@@ -305,8 +305,8 @@ class Fabric: ObservableObject {
         for nft in nfts {
             do {
                 let data = try nft.rawData()
-                let nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
-                
+                var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+
                 let parsedModels = try await self.parseNft(nftmodel)
                 guard let model = parsedModels.nftModel else {
                     print("Error parsing nft: \(nft)")
@@ -363,6 +363,7 @@ class Fabric: ObservableObject {
         var redeemables: [Redeemable]
         
         var nftmodel = _nftmodel
+        nftmodel.mediaCache = [:]
         
         //print("after decoding ", nftmodel)
         guard let contractAddr = nftmodel.contract_addr else{
@@ -473,6 +474,9 @@ class Fabric: ObservableObject {
                 for index in 0..<mediaSections.featured_media.count{
                     var media = mediaSections.featured_media[index]
                     media.nft = nftmodel
+                    if let mediaId = media.mediaId {
+                        nftmodel.mediaCache?[mediaId] = media
+                    }
                     //debugPrint("Featured Media ", media.name)
                     //debugPrint("Featured Media ID", media.id)
                     if let mediaType = media.media_type {
@@ -510,6 +514,9 @@ class Fabric: ObservableObject {
                         
                         for mediaIndex in 0..<collection.media.count{
                             var media = collection.media[mediaIndex]
+                            if let mediaId = media.mediaId {
+                                nftmodel.mediaCache?[mediaId] = media
+                            }
                             
                             if let mediaType = media.media_type {
                                 //XXX: Demo only until we have a proper Live mediaType
@@ -530,7 +537,7 @@ class Fabric: ObservableObject {
                                 }else if mediaType == "Ebook"{
                                     books.append(media)
                                 }
-                                
+
                                 media.nft = nftmodel
                                 nftmodel.additional_media_sections?.sections[sectionIndex].collections[collectionIndex].media[mediaIndex] = media
                             }
@@ -552,7 +559,7 @@ class Fabric: ObservableObject {
 
         let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
         
-        //print ("NFTINFO", nftInfo)
+        print ("NFT INFO", nftInfo)
 
         if let offers = nftInfo["offers"].array{
             for offer in offers {

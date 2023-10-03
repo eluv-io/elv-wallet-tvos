@@ -18,7 +18,9 @@ struct UEFAPage: View {
     var playButtonText = "Watch Latest Match"
     var buncleButtonText = "Launch Bundle"
     
-    @State private var showPlayer = ""
+    @State private var showPlayer = false
+    @State private var url = URL(string:"")
+    @State private var playerFinished = false
 
     var body: some View {
         VStack(alignment:.center) {
@@ -31,6 +33,7 @@ struct UEFAPage: View {
                     hightlightColor: Color.white,
                     highlightTextColor: Color.black,
                     action: {
+                        /*
                         if let url = URL(string: playUrl) {
                             openURL(url) { accepted in
                                 print(accepted ? "Success" : "Failure")
@@ -44,6 +47,13 @@ struct UEFAPage: View {
                                 }
                             }
                         }
+                         */
+                        
+                        if let url = URL(string: playUrl) {
+                            self.url = url
+                            showPlayer = true
+                        }
+                        
                     }
                 )
                 
@@ -83,6 +93,9 @@ struct UEFAPage: View {
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
         )
+        .fullScreenCover(isPresented:$showPlayer){
+            PlayerView(playoutUrl:$url, finished: $playerFinished)
+        }
 
     }
 }

@@ -15,10 +15,13 @@ struct MaxPage: View {
     var bundleLink = ""
     var playImage = ""
     var playUrl = ""
+    var playLink = ""
     var playButtonText = "Play Feature Film"
     var buncleButtonText = "Launch Bundle"
     
-    @State private var showPlayer = ""
+    @State private var showPlayer = false
+    @State private var url = URL(string:"")
+    @State private var playerFinished = false
 
     var body: some View {
         VStack(alignment:.center) {
@@ -32,6 +35,22 @@ struct MaxPage: View {
                     highlightTextColor: Color.black,
                     action: {
                         if let url = URL(string: playUrl) {
+                            /*
+                            openURL(url) { accepted in
+                                print(accepted ? "Success" : "Failure")
+                                if (!accepted){
+                                    openURL(URL(string:appStoreUrl)!) { accepted in
+                                        print(accepted ? "Success" : "Failure")
+                                        if (!accepted) {
+                                            print("Could not open URL ", appStoreUrl)
+                                        }
+                                    }
+                                }
+                            }
+                             */
+                            self.url = url
+                            showPlayer = true
+                        }else if let url = URL(string: playLink){
                             openURL(url) { accepted in
                                 print(accepted ? "Success" : "Failure")
                                 if (!accepted){
@@ -83,6 +102,8 @@ struct MaxPage: View {
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
         )
-
+        .fullScreenCover(isPresented:$showPlayer){
+            PlayerView(playoutUrl:$url, finished: $playerFinished)
+        }
     }
 }

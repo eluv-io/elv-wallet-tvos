@@ -106,7 +106,9 @@ struct TubiPage: View {
     var playButtonText = "Play Live Channel"
     var buncleButtonText = "Launch Bundle"
     
-    @State private var showPlayer = ""
+    @State private var showPlayer = false
+    @State var url = URL(string:"")
+    @State private var playerFinished = false
 
     var body: some View {
         VStack(alignment:.center) {
@@ -119,6 +121,7 @@ struct TubiPage: View {
                     buttonText:playButtonText,
                     action: {
                         if let url = URL(string: playUrl) {
+                            /*
                             openURL(url) { accepted in
                                 print(accepted ? "Success" : "Failure")
                                 if (!accepted){
@@ -130,6 +133,10 @@ struct TubiPage: View {
                                     }
                                 }
                             }
+                             */
+                            debugPrint("Play URL ", url)
+                            self.url = url
+                            self.showPlayer = true
                         }
                     }
                 )
@@ -169,6 +176,9 @@ struct TubiPage: View {
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
         )
+        .fullScreenCover(isPresented:$showPlayer){
+            PlayerView(playoutUrl:$url, finished: $playerFinished)
+        }
 
     }
 }

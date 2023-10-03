@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum LinkOp {
-    case item, media, none
+    case item, play, none
 }
 
 class ViewState: ObservableObject {
@@ -46,11 +46,11 @@ struct EluvioWalletTVOSApp: App {
                 viewState.itemTokenStr = url.valueOf("token") ?? ""
                 viewState.op = .item
                 debugPrint("handleLink viewState changed")
-            case "media":
+            case "play":
                 viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
                 viewState.itemTokenStr = url.valueOf("token") ?? ""
                 viewState.mediaId = url.valueOf("media") ?? ""
-                viewState.op = .media
+                viewState.op = .play
             default:
                 return
             }
