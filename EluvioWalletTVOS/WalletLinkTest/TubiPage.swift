@@ -94,14 +94,14 @@ struct TubiLaunchButton: View {
 
 struct TubiPage: View {
     @Environment(\.openURL) private var openURL
-
+    @EnvironmentObject var fabric: Fabric
+    
     var bgImage = ""
     var bundleImage = ""
-    //deeplink into the wallet
     var bundleLink = ""
-    
     var playImage = ""
     var playUrl = ""
+    var playOutPath = ""
     
     var playButtonText = "Play Live Channel"
     var buncleButtonText = "Launch Bundle"
@@ -120,20 +120,8 @@ struct TubiPage: View {
                     buttonIcon: "icon_play",
                     buttonText:playButtonText,
                     action: {
-                        if let url = URL(string: playUrl) {
-                            /*
-                            openURL(url) { accepted in
-                                print(accepted ? "Success" : "Failure")
-                                if (!accepted){
-                                    openURL(URL(string:appStoreUrl)!) { accepted in
-                                        print(accepted ? "Success" : "Failure")
-                                        if (!accepted) {
-                                            print("Could not open URL ", appStoreUrl)
-                                        }
-                                    }
-                                }
-                            }
-                             */
+                        let combinedUrl = fabric.createUrl(path:playOutPath)
+                        if let url = URL(string: combinedUrl) {
                             debugPrint("Play URL ", url)
                             self.url = url
                             self.showPlayer = true

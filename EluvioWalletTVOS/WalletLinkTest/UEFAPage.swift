@@ -9,12 +9,13 @@ import SwiftUI
 
 struct UEFAPage: View {
     @Environment(\.openURL) private var openURL
-
+    @EnvironmentObject var fabric: Fabric
+    
     var bgImage = ""
     var bundleImage = ""
     var bundleLink = ""
     var playImage = ""
-    var playUrl = ""
+    var playOutPath = ""
     var playButtonText = "Watch Latest Match"
     var buncleButtonText = "Launch Bundle"
     
@@ -33,23 +34,8 @@ struct UEFAPage: View {
                     hightlightColor: Color.white,
                     highlightTextColor: Color.black,
                     action: {
-                        /*
-                        if let url = URL(string: playUrl) {
-                            openURL(url) { accepted in
-                                print(accepted ? "Success" : "Failure")
-                                if (!accepted){
-                                    openURL(URL(string:appStoreUrl)!) { accepted in
-                                        print(accepted ? "Success" : "Failure")
-                                        if (!accepted) {
-                                            print("Could not open URL ", appStoreUrl)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                         */
-                        
-                        if let url = URL(string: playUrl) {
+                        let combinedUrl = fabric.createUrl(path:playOutPath)
+                        if let url = URL(string: combinedUrl) {
                             self.url = url
                             showPlayer = true
                         }
