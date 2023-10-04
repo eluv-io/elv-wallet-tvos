@@ -111,6 +111,7 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
 struct MediaView2: View {
     @EnvironmentObject var fabric: Fabric
     @State var mediaItem: MediaItem?
+    @State var showSharing: Bool = false
     @State private var media = MediaItemViewModel()
     @FocusState var isFocused
     @State var showGallery = false
@@ -126,6 +127,7 @@ struct MediaView2: View {
     @State var showFocusName = true
     @State var showError = false
     @State var errorMessage = ""
+    
     
     @State var showImage = false
     var image: String {
@@ -271,12 +273,28 @@ struct MediaView2: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .fullScreenCover(isPresented: $showImage){
-            WebImage(url: URL(string: self.image))
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .edgesIgnoringSafeArea(.all)
-                .background(.thinMaterial)
+            ZStack{
+                WebImage(url: URL(string: self.image))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                    .edgesIgnoringSafeArea(.all)
+                    .background(.thinMaterial)
+                
+                if IsDemoMode(){
+                    VStack{
+                        Spacer()
+                        HStack{
+                            Spacer()
+                            Image("Share - placeholder")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxWidth: 200, maxHeight: 200, alignment: .trailing)
+                        }
+                    }
+                }
+            
+            }
         }
         .alert(errorMessage, isPresented:$showError){
         }

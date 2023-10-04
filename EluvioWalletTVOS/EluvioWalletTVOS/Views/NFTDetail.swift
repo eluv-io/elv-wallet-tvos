@@ -116,53 +116,6 @@ struct NFTDetailViewDemo: View {
                                 }
                                 .padding(.top)
                                 
-                                /*
-                                if self.localizedRedeemables.count > 0 || self.localizedFeatures.count > 0{
-                                    VStack(alignment: .leading, spacing: 10)  {
-                                        ScrollView(.horizontal) {
-                                            HStack(alignment: .top, spacing: 50) {
-                                                
-                                                ForEach(self.localizedFeatures) {media in
-                                                    MediaView2(mediaItem: media)
-                                                }
-                                                
-                                                ForEach(self.localizedRedeemables) {redeemable in
-                                                    RedeemableCardView(redeemable:redeemable)
-                                                }
-                                                
-                                            }
-                                            .padding(20)
-                                        }
-                                        .introspectScrollView { view in
-                                            view.clipsToBounds = false
-                                        }
-                                    }
-                                    .padding(.top)
-                                }else{
-                                    if self.featuredMedia.count > 0 || self.redeemableFeatures.count > 0{
-                                        VStack(alignment: .leading, spacing: 10)  {
-                                            ScrollView(.horizontal) {
-                                                HStack(alignment: .top, spacing: 50) {
-                                                    ForEach(self.featuredMedia) {media in
-                                                        MediaView2(mediaItem: media)
-                                                    }
-                                                    
-                                                    ForEach(redeemableFeatures) {redeemable in
-                                                        RedeemableCardView(redeemable:redeemable)
-                                                    }
-                                                    
-                                                }
-                                                .padding(20)
-                                            }
-                                            .introspectScrollView { view in
-                                                view.clipsToBounds = false
-                                            }
-                                        }
-                                        .padding(.top)
-                                    }
-                                }
-                                 */
-                                
                                 if(!sections.isEmpty){
                                     ForEach(sections) { section in
                                         VStack(alignment: .leading, spacing: 20){
@@ -732,14 +685,56 @@ struct NFTDetail: View {
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
     var nft : NFTModel
+    @State var feature = MediaItemViewModel()
+    @State private var isLoaded: Bool = false
     
     var body: some View {
-        if IsDemoMode() {
-            NFTDetailViewDemo(nft:nft)
-                .environmentObject(fabric)
-        }else{
-            NFTDetailView(nft:nft)
-                .environmentObject(fabric)
+        Group {
+            if isLoaded == true {
+                if nft.isMovieLayout {
+                    NFTDetailMovieView(seriesMediaItem: feature)
+                }else {
+                    if IsDemoMode() {
+                        NFTDetailViewDemo(nft:nft)
+                            .environmentObject(fabric)
+                    }else{
+                        NFTDetailView(nft:nft)
+                            .environmentObject(fabric)
+                    }
+                }
+            }else {
+                ProfileView()
+                    .edgesIgnoringSafeArea(.all)
+            }
+        }
+        .onAppear(){
+            Task {
+                await MainActor.run {
+                    self.isLoaded = false
+                }
+                var mediaItem = MediaItemViewModel()
+                var ok = false;
+                do{
+                    //print("*** MediaView onChange")
+                    if let media = nft.getFirstFeature {
+                        mediaItem = try await MediaItemViewModel.create(fabric:fabric, mediaItem:media)
+                        //print ("MediaView name ", media.name)
+                        //debugPrint("MediaItem title: ", self.mediaItem?.name)
+                        //debugPrint("display: ", display)
+                        ok = true
+                    }
+                    
+                }catch{
+                    print("MediaView could not create MediaItemViewModel ", error)
+                }
+                
+                await MainActor.run {
+                    self.isLoaded = true
+                    if ok {
+                        self.feature = mediaItem
+                    }
+                }
+            }
         }
     }
     

@@ -284,6 +284,25 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var redeemable_offers: [Redeemable]?
     
     var mediaCache : [String: MediaItem]? = [:]
+    
+    var getFirstFeature: MediaItem? {
+        if let sections = additional_media_sections {
+            if !sections.featured_media.isEmpty {
+                return sections.featured_media[0]
+                
+            }
+        }
+        return nil
+    }
+    
+    //XXX: Demo only, the layout tag is burried inside the first featured media
+    var isMovieLayout : Bool {
+        if let media = getFirstFeature {
+            return media.getTag(key: "layout").lowercased() == "movie"
+        }
+        
+        return false
+    }
 
     func getTag(key:String)->String {
         if let tags = self.meta.tags {

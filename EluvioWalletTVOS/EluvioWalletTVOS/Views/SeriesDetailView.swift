@@ -92,10 +92,9 @@ struct SeriesDetailView: View {
                             VStack(alignment: .leading)  {
                                 WebImage(url: URL(string: seriesMediaItem.titleLogo))
                                     .resizable()
-                                    .indicator(.activity) // Activity Indicator
                                     .transition(.fade(duration: 0.5))
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(width:700, height:300, alignment: .center)
+                                    .frame(width:700, height:300, alignment: .leading)
 
                                 HStack(alignment: .top, spacing:0) {
                                     VStack(alignment: .leading, spacing: 10)  {

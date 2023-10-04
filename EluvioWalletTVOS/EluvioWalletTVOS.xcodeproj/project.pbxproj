@@ -69,6 +69,7 @@
 		B0A2FCFF2ACB658E00AC825D /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCFE2ACB658E00AC825D /* PlayerView.swift */; };
 		B0A2FD012ACC98B500AC825D /* Fabric.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD002ACC98B500AC825D /* Fabric.swift */; };
 		B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8629CD71840079661E /* FabricConfiguration.swift */; };
+		B0A2FD042ACD557100AC825D /* NFTDetailMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0DFFF922A15E72200F1E358 /* MyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* MyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
@@ -152,6 +153,7 @@
 		B0A2FCFC2ACAA3CA00AC825D /* UEFAPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UEFAPage.swift; sourceTree = "<group>"; };
 		B0A2FCFE2ACB658E00AC825D /* PlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerView.swift; sourceTree = "<group>"; };
 		B0A2FD002ACC98B500AC825D /* Fabric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fabric.swift; sourceTree = "<group>"; };
+		B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDetailMovieView.swift; sourceTree = "<group>"; };
 		B0DFFF912A15E72200F1E358 /* MyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0DFFF952A250E3500F1E358 /* MediaDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetail.swift; sourceTree = "<group>"; };
@@ -364,6 +366,7 @@
 				B069A4882A4A0784006C9E7B /* SeriesDetailView.swift */,
 				B06C4C522A5F35D5003C414A /* MetaMaskFlowView.swift */,
 				B06C4C562A8C7B0A003C414A /* MyMediaViewDemo.swift */,
+				B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -527,6 +530,7 @@
 				B06C92BF2A3060370001CF4E /* DropDetail.swift in Sources */,
 				B06C4C572A8C7B0A003C414A /* MyMediaViewDemo.swift in Sources */,
 				B0670F5529D6C48F00676872 /* Auth0Models.swift in Sources */,
+				B0A2FD042ACD557100AC825D /* NFTDetailMovieView.swift in Sources */,
 				B0E60FA829D211040079661E /* ProfileModel.swift in Sources */,
 				B00945A029E91DE000B00FC3 /* GalleryView.swift in Sources */,
 				B0670F4129D542A100676872 /* Color.swift in Sources */,

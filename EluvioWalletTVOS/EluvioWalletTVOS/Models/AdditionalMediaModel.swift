@@ -174,11 +174,10 @@ struct MediaItemViewModel:Identifiable {
             }
         }
         
-        let name = media.name
         let subtitle1 = media.subtitle_1 ?? ""
         let subtitle2 = media.subtitle_2 ?? ""
         let description = media.description ?? ""
-        
+        let descriptionText = media.description_text ?? ""
         
         return MediaItemViewModel(
             id: media.id,
@@ -190,9 +189,10 @@ struct MediaItemViewModel:Identifiable {
             posterImage: posterImage,
             animation:animationItem,
             name:media.name ,
-            subtitle1: media.subtitle_1 ?? "",
-            subtitle2: media.subtitle_2 ?? "",
-            description: media.description ?? "",
+            subtitle1: subtitle1,
+            subtitle2: subtitle2,
+            description: description,
+            description_text: descriptionText,
             mediaType:media.media_type ?? "",
             defaultOptionsLink:optionsLink,
             parameters: media.parameters,
@@ -220,6 +220,7 @@ struct MediaItemViewModel:Identifiable {
     var subtitle1: String = ""
     var subtitle2: String = ""
     var description: String = ""
+    var description_text: String = ""
     var mediaType: String = ""
     var defaultOptionsLink: JSON? = nil
     var parameters: [JSON]? = []
@@ -303,6 +304,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     
     var name: String = ""
     var description: String? = ""
+    var description_text: String? = ""
     var subtitle_1: String? = ""
     var subtitle_2: String? = ""
     var image_aspect_ratio: String? = ""
@@ -378,7 +380,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
         subtitle_1 = try container.decodeIfPresent(String.self, forKey: .subtitle_1) ?? ""
         subtitle_2 = try container.decodeIfPresent(String.self, forKey: .subtitle_2) ?? ""
         description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
-        
+        description_text = try container.decodeIfPresent(String.self, forKey: .description_text) ?? ""
         media_type = try container.decodeIfPresent(String.self, forKey: .media_type) ?? ""
         requires_permissions = try container.decodeIfPresent(Bool.self, forKey: .requires_permissions) ?? false
         image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio) ?? ""
