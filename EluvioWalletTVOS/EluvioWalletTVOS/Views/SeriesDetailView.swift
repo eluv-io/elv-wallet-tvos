@@ -86,42 +86,17 @@ struct SeriesDetailView: View {
     
     var body: some View {
         ZStack(alignment:.topLeading) {
-            if (seriesMediaItem.backgroundImage.hasPrefix("http")){
-                WebImage(url: URL(string: seriesMediaItem.backgroundImage))
-                    .resizable()
-                    .indicator(.activity) // Activity Indicator
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth:.infinity, maxHeight:.infinity)
-                    .frame(alignment: .topLeading)
-                    .clipped()
-            }else if(seriesMediaItem.backgroundImage != "") {
-                Image(seriesMediaItem.backgroundImage)
-                    .resizable()
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fill)
-                    .frame(maxWidth:.infinity, maxHeight:.infinity)
-                    .frame(alignment: .topLeading)
-                    .clipped()
-            }else{
-                Rectangle().foregroundColor(Color.clear)
-                .frame(maxWidth:.infinity, maxHeight:.infinity)
-            }
-            
             ScrollView {
                 VStack(alignment: .leading, spacing: 40) {
                     Button{} label: {
-                            VStack(alignment: .leading, spacing: 10)  {
+                            VStack(alignment: .leading)  {
                                 WebImage(url: URL(string: seriesMediaItem.titleLogo))
                                     .resizable()
                                     .indicator(.activity) // Activity Indicator
                                     .transition(.fade(duration: 0.5))
                                     .aspectRatio(contentMode: .fit)
-                                    .frame(width:700, height:400)
-                                    .frame(alignment: .topLeading)
-                                    .clipped()
-                                    .padding(.bottom, 30)
-                                
+                                    .frame(width:700, height:300, alignment: .center)
+
                                 HStack(alignment: .top, spacing:0) {
                                     VStack(alignment: .leading, spacing: 10)  {
                                         Text(subtitle)
@@ -151,12 +126,9 @@ struct SeriesDetailView: View {
                                             }
                                         }
                                     }
-                                    
                                 }
                             }
-
                     }
-                    .padding(.bottom, 20)
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($headerFocused)
 
@@ -205,6 +177,30 @@ struct SeriesDetailView: View {
                 view.clipsToBounds = false
             }
         }
+        .frame(maxWidth:.infinity, maxHeight:.infinity)
+        .background(
+            Group {
+                if (seriesMediaItem.backgroundImage.hasPrefix("http")){
+                    WebImage(url: URL(string: seriesMediaItem.backgroundImage))
+                        .resizable()
+                        .indicator(.activity) // Activity Indicator
+                        .transition(.fade(duration: 0.5))
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth:.infinity, maxHeight:.infinity)
+                        .frame(alignment: .topLeading)
+                        .clipped()
+                }else if(seriesMediaItem.backgroundImage != "") {
+                    Image(seriesMediaItem.backgroundImage)
+                        .resizable()
+                        .transition(.fade(duration: 0.5))
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth:.infinity, maxHeight:.infinity)
+                        .frame(alignment: .topLeading)
+                        .clipped()
+                }
+            }
+        )
+        .edgesIgnoringSafeArea(.all)
         .onAppear(){
             //print("LOGO: ",seriesMediaItem.titleLogo)
             Task{
