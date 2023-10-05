@@ -180,7 +180,7 @@ struct MediaView2: View {
                             }catch{
                                 print("Error creating MediaItemViewModel playerItem",error)
                                 do{
-                                    let meta = try await fabric.contentObjectMetadata(versionHash:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
+                                    let meta = try await fabric.contentObjectMetadata(id:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
                                     
                                     print("permissions_message: ", meta)
                                     

@@ -8,19 +8,26 @@
 import SwiftUI
 
 enum LinkOp {
-    case item, play, none
+    case item, play, mint, none
 }
 
 class ViewState: ObservableObject {
     @Published var op: LinkOp  = .none
     var itemContract = ""
     var itemTokenStr = ""
+    var marketplaceId = ""
+    var itemSKU = ""
     var mediaId = ""
     
     func reset() {
         itemContract = ""
         itemTokenStr = ""
+        marketplaceId = ""
+        itemSKU = ""
         mediaId = ""
+        if op == .none {
+            return
+        }
         op = .none
     }
 }
@@ -39,11 +46,14 @@ struct EluvioWalletTVOSApp: App {
     func handleLink(url:URL){
         if let host = url.host()?.lowercased() {
             debugPrint("handleLink ", host)
+            viewState.reset()
              
             switch(host){
             case "items":
                 viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
                 viewState.itemTokenStr = url.valueOf("token") ?? ""
+                viewState.marketplaceId = url.valueOf("marketplace") ?? ""
+                viewState.itemSKU = url.valueOf("sku") ?? ""
                 viewState.op = .item
                 debugPrint("handleLink viewState changed")
             case "play":
@@ -51,6 +61,10 @@ struct EluvioWalletTVOSApp: App {
                 viewState.itemTokenStr = url.valueOf("token") ?? ""
                 viewState.mediaId = url.valueOf("media") ?? ""
                 viewState.op = .play
+            case "mint":
+                viewState.marketplaceId = url.valueOf("marketplace") ?? ""
+                viewState.itemSKU = url.valueOf("sku") ?? ""
+                viewState.op = .mint
             default:
                 return
             }

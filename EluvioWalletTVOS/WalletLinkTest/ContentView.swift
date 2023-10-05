@@ -38,6 +38,7 @@ let staticTokenMain = "eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZW
 
 let bundleBaseURL = "elvwallet://items"
 let playBaseURL = "elvwallet://play"
+let mintBaseURL = "elvwallet://mint"
 
 func CreateBundleLink(contract:String, token: String, marketplace: String, sku: String) -> String {
     return bundleBaseURL + "?" + "contract=\(contract)" + "&token=\(token)" + "&marketplace=\(marketplace)"
@@ -47,6 +48,11 @@ func CreateBundleLink(contract:String, token: String, marketplace: String, sku: 
 func CreatePlayLink(contract:String, token: String, marketplace: String, sku: String, mediaId: String) -> String {
     return playBaseURL + "?" + "&contract=\(contract)" + "&token=\(token)" + "&marketplace=\(marketplace)"
         + "&sku=\(sku)" + "&media=\(mediaId)"
+}
+
+//For DEMO ONLY: minting into the a wallet even if it exists
+func CreateMintLink(marketplace: String, sku: String) -> String{
+    return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)"
 }
 
 struct ContentView: View {
@@ -98,7 +104,8 @@ struct ContentView: View {
                     NavigationLink(destination:
                                     TubiPage(bgImage: "TUBI launch screen - Entertainment - no buttons",
                                              bundleImage: "FOX Entertainment Bundle Thumbnail",
-                                             bundleLink: CreateBundleLink(contract:"0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7", token:"1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"NUwRFs3huWmSJQJryHcELP"),
+                                             //For DEMO force minting
+                                             bundleLink: CreateMintLink(marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"NUwRFs3huWmSJQJryHcELP"),
                                              playImage: "FOX Example VOD Thumbnail",
                                              /*playUrl: CreatePlayLink(contract:"0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7", token:"1", marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82", sku:"NUwRFs3huWmSJQJryHcELP", mediaId: "SCsC5xsZskBSEPLePN9fcc"),*/
                                              /*playUrl: "https://main.net955305.contentfabric.io/s/q/iq__2D4nVMqCEEEr3xaaxzZFXq9mKXr8/rep/playout/default/hls-aes128/playlist.m3u8",*/

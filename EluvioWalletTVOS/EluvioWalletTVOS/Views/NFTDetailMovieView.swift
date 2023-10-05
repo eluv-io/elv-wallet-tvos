@@ -58,6 +58,11 @@ struct NFTDetailMovieView: View {
             info.append(("Director:",director))
         }
         
+        let writers = seriesMediaItem.getTag(key:"Writers")
+        if !writers.isEmpty{
+            info.append(("Writers:",writers))
+        }
+        
         let producer = seriesMediaItem.getTag(key:"Producer")
         if !producer.isEmpty{
             info.append(("Producer:",producer))
@@ -70,7 +75,12 @@ struct NFTDetailMovieView: View {
         
         let cast = seriesMediaItem.getTag(key:"Cast")
         if !cast.isEmpty{
-            info.append(("Cast:",language))
+            info.append(("Cast:",cast))
+        }
+        
+        let stars = seriesMediaItem.getTag(key:"Stars")
+        if !stars.isEmpty{
+            info.append(("Stars:",stars))
         }
         
         return info
@@ -171,7 +181,7 @@ struct NFTDetailMovieView: View {
                                         }
                                         Spacer()
                                     }
-                                    .frame(maxWidth:800, alignment:.leading)
+                                    .frame(maxWidth:900, alignment:.leading)
                                     
                                     Text(seriesMediaItem.description_text)
                                         .foregroundColor(Color.white)
@@ -181,7 +191,7 @@ struct NFTDetailMovieView: View {
                                 }
                                 
                                 Spacer()
-                                    .frame(width: 300)
+                                    .frame(width: 250)
                                 
                                 Grid(alignment: .topLeading,
                                      horizontalSpacing: 10, verticalSpacing: 1) {

@@ -656,6 +656,38 @@ class Fabric: ObservableObject {
         return try await redeemComplete(confirmationId: confirmationId, tenantId: tenantId, pollSeconds: pollSeconds)
     }
     
+    func findItem(marketplaceId: String, sku: String) async throws -> JSON?{
+        let marketMeta = try await contentObjectMetadata(id: marketplaceId, metadataSubtree:"/public/asset_metadata")
+
+        let items = marketMeta["info"]["items"].arrayValue
+        
+        var foundItem: JSON?
+        for item in items {
+            if item["sku"].stringValue == sku {
+                foundItem = item
+            }
+        }
+        
+        if foundItem == nil {
+            throw FabricError.badInput("Could not find item from sku: \(sku)")
+        }
+        
+        return foundItem
+    }
+    
+    //Waits for transaction for pollSeconds
+    func mintItem(itemJSON : JSON, pollSeconds: Int = 100) async throws -> (transactionId:String, transactionHash:String) {
+        debugPrint("MintItem \(itemJSON)")
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+
+        var result = ("", "")
+        return result
+    }
+    
     func getStateStoreUrl()->String? {
         if let urls = APP_CONFIG.network[self.network]?.state_store_urls {
             if urls.count > 0 {
@@ -1745,7 +1777,7 @@ class Fabric: ObservableObject {
         let objectId = try self.getNetworkConfig().main_obj_id
         let libraryId = try self.getNetworkConfig().main_obj_lib_id
         let metadataSubtree = "public/asset_metadata/tenants"
-        return try await self.contentObjectMetadata(libraryId:libraryId, objectId:objectId, metadataSubtree:metadataSubtree)
+        return try await self.contentObjectMetadata(id:objectId, metadataSubtree:metadataSubtree)
     }
     
     
@@ -1807,6 +1839,14 @@ class Fabric: ObservableObject {
     
     //ELV-CLIENT API
     
+    // id is objectId or versionHash
+    func contentObjectMetadata(id: String, metadataSubtree: String? = "") async throws -> JSON {
+        let url: String = try self.getEndpoint().appending("/s/\(network)/").appending("/q/").appending("\(id)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
+
+        return try await self.getJsonRequest(url: url)
+    }
+    
+    /*
     //TODO: only need objectId
     //TODO: provide the other params from elv-client-js
     func contentObjectMetadata(libraryId: String="", objectId: String="", versionHash: String = "", metadataSubtree: String? = "") async throws -> JSON {
@@ -1832,6 +1872,7 @@ class Fabric: ObservableObject {
             return try await self.getJsonRequest(url: url)
         }
     }
+     */
     
     //TODO: Use contract call to get lib ID from objectID
     func contentObjectLibraryId(_objectId: String?) async throws -> String {

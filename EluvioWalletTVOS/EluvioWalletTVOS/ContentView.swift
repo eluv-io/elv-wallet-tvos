@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import AVKit
+import SwiftyJSON
 
 struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -26,21 +27,21 @@ struct ContentView: View {
     @State var playerFinished = false
     @State var showActivity = false
     
+    @State var showMinter : Bool = false
+    @State var mintItem = JSON()
+    
     func checkViewState() {
         debugPrint("checkViewState op ", viewState.op)
-        if viewState.op == .none {
-            return
-        }
-        self.showActivity = true
-        if fabric.library.isEmpty {
-            debugPrint("fabric library isEmpty")
-            return
-        }
-        
+
         defer {
             viewState.reset()
             showActivity = false
         }
+
+        if viewState.op == .none {
+            return
+        }
+        self.showActivity = true
         
         if viewState.op == .item {
             if let _nft = fabric.getNFT(contract: viewState.itemContract,
@@ -65,10 +66,31 @@ struct ContentView: View {
                                 self.showPlayer = true
                             }
                         }catch{
-                            print("MediaView could not create MediaItemViewModel ", error)
+                            print("checkViewState - could not create MediaItemViewModel ", error)
                         }
 
                     }
+                }
+            }
+        }else if viewState.op == .mint {
+            debugPrint("Mint marketplace: ", viewState.marketplaceId)
+            debugPrint("Mint: sku", viewState.itemSKU)
+            
+            let marketplace = viewState.marketplaceId
+            let sku = viewState.itemSKU
+            Task{
+                do {
+                    let itemJSON = try await fabric.findItem(marketplaceId: marketplace, sku: sku)
+
+                    if let item = itemJSON {
+                        await MainActor.run {
+                            self.mintItem = item
+                            debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
+                            self.showMinter = true
+                        }
+                    }
+                }catch{
+                    print("checkViewState mint error ", error)
                 }
             }
         }
@@ -102,16 +124,19 @@ struct ContentView: View {
                         }
                     }
                     .fullScreenCover(isPresented: $showActivity){
-                        ProgressView()
-                            .background(Color.black)
-                            .frame(maxWidth:.infinity, maxHeight:.infinity)
-                            .edgesIgnoringSafeArea(.all)
+                        ZStack{
+                            Color.black.edgesIgnoringSafeArea(.all)
+                            ProgressView()
+                        }
                     }
                     .fullScreenCover(isPresented: $showNft) {
                         NFTDetail(nft: self.nft)
                     }
                     .fullScreenCover(isPresented: $showPlayer) {
                         PlayerView(playerItem:self.$playerItem, finished: $playerFinished)
+                    }
+                    .fullScreenCover(isPresented: $showMinter) {
+                        MinterView(marketItem: $mintItem)
                     }
             }
             .navigationViewStyle(.stack)
