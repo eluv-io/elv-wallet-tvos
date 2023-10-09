@@ -104,7 +104,7 @@ struct TubiPage: View {
     var playOutPath = ""
     
     var playButtonText = "Play Live Channel"
-    var buncleButtonText = "Launch Bundle"
+    var bundleButtonText = "Launch Bundle"
     
     @State private var showPlayer = false
     @State var url = URL(string:"")
@@ -132,7 +132,7 @@ struct TubiPage: View {
                 TubiLaunchButton(
                     image:bundleImage,
                     buttonIcon: "icon_bundle",
-                    buttonText: buncleButtonText,
+                    buttonText: bundleButtonText,
                     action: {
                         if let url = URL(string: bundleLink) {
                             openURL(url) { accepted in

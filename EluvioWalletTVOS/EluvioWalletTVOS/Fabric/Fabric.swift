@@ -300,7 +300,6 @@ class Fabric: ObservableObject {
         var html: [MediaItem] = []
         var books: [MediaItem] = []
         var liveStreams: [MediaItem] = []
-        
         var items : [NFTModel] = []
         for nft in nfts {
             do {
@@ -585,7 +584,7 @@ class Fabric: ObservableObject {
     
     func redeemComplete(confirmationId: String, tenantId: String, pollSeconds:Int = 100)  async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String){
         
-        print("REDEEM_COMPLETE")
+        print("Redeem Complete check")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
@@ -656,7 +655,7 @@ class Fabric: ObservableObject {
         return try await redeemComplete(confirmationId: confirmationId, tenantId: tenantId, pollSeconds: pollSeconds)
     }
     
-    func findItem(marketplaceId: String, sku: String) async throws -> JSON?{
+    func findItem(marketplaceId: String, sku: String) async throws -> (item: JSON?, tenantId: String){
         let marketMeta = try await contentObjectMetadata(id: marketplaceId, metadataSubtree:"/public/asset_metadata")
 
         let items = marketMeta["info"]["items"].arrayValue
@@ -672,20 +671,88 @@ class Fabric: ObservableObject {
             throw FabricError.badInput("Could not find item from sku: \(sku)")
         }
         
-        return foundItem
+        let tenantId = marketMeta["info"]["tenant_id"].stringValue
+        
+        return (foundItem, tenantId)
     }
     
     //Waits for transaction for pollSeconds
-    func mintItem(itemJSON : JSON, pollSeconds: Int = 100) async throws -> (transactionId:String, transactionHash:String) {
-        debugPrint("MintItem \(itemJSON)")
+    func mintItem(tenantId: String, marketplaceId: String, sku: String, pollSeconds: Int = 120) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
         
+        if tenantId == "" {
+            throw FabricError.unexpectedResponse("Error minting item. tenantId is empty")
+        }
+        if marketplaceId == "" {
+            throw FabricError.unexpectedResponse("Error minting item. marketplaceId is empty")
+        }
+        if sku == "" {
+            throw FabricError.unexpectedResponse("Error minting item. sku is empty")
+        }
+        
+        debugPrint("mintItem \(tenantId) \(marketplaceId) \(sku)")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
         
-
-        var result = ("", "")
+        //let query = ["dry_run":"true"]
+        let query:[String:String] = [:]
+        let uuid = UUID()
+        let confirmationId = try uuid.shortened(using: .base58)
+        let body: [String: Any] = [
+            "op": "nft-claim",
+            "client_reference_id": confirmationId,
+            "sid": marketplaceId,
+            "sku": sku,
+            "email": "" //TODO
+        ]
+        
+        //DEMO:
+        var contractAddress = "0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7"
+        if let nft = getNFT(contract:contractAddress) {
+            let result = try await mintComplete(confirmationId: confirmationId, tenantId: tenantId, marketplaceId: marketplaceId, sku:sku, pollSeconds: 5)
+            return (true,contractAddress,"")
+        }
+        
+        try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
+        
+        let result =  try await mintComplete(confirmationId: confirmationId, tenantId: tenantId, marketplaceId: marketplaceId, sku:sku, pollSeconds: pollSeconds)
         return result
+    }
+    
+    //TODO: change pollSeconds to 120 or something. 30 is just demo
+    func mintComplete(confirmationId: String, tenantId: String, marketplaceId: String, sku:String, pollSeconds:Int = 120)  async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String){
+        
+        print("mintComplete check")
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        //confimrationId doesn't return yet
+        for _ in 0...pollSeconds {
+            try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+            
+            let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
+            debugPrint("Wallet Status Result: ", result)
+            
+            for status in result.arrayValue {
+                let op = status["op"].stringValue
+                
+                let opSplit = op.split(separator: ":")
+                //confimrationId doesn't return yet. Should check using that once done
+                
+                if opSplit[0] == "nft-claim" && opSplit[1] == marketplaceId && opSplit[2] == sku {
+                    if (status["status"] == "complete"){
+                        print("Wallet Status Result: complete: ", op)
+                        return (true,
+                                status["extra"]["0"]["token_addr"].stringValue,
+                                status["extra"]["0"]["token_id"].stringValue
+                        )
+                    }
+                }
+            }
+        }
+        
+        return (true, "","")
     }
     
     func getStateStoreUrl()->String? {
@@ -1753,16 +1820,23 @@ class Fabric: ObservableObject {
     }
     
     func getNFT(contract: String,
-                token: String) -> NFTModel?{
+                token: String="") -> NFTModel?{
         debugPrint("Fabric getNFT \(contract) token: \(token)")
         for nft in library.items {
             debugPrint("Contract", nft.contract_addr)
             debugPrint("Token", nft.token_id_str)
 
-            if nft.contract_addr == contract.lowercased() &&
-                nft.token_id_str == token {
-                debugPrint("Found NFT")
-                return nft
+            if token != "" {
+                if nft.contract_addr == contract.lowercased() &&
+                    nft.token_id_str == token {
+                    debugPrint("Found NFT")
+                    return nft
+                }
+            }else {
+                if nft.contract_addr == contract.lowercased() {
+                    debugPrint("Found NFT")
+                    return nft
+                }
             }
         }
         

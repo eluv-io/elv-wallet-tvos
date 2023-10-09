@@ -144,7 +144,8 @@ struct NFTDetailViewDemo: View {
             }
             .frame(maxWidth:.infinity, maxHeight:.infinity)
             .background(
-                Group {
+                ZStack {
+                    Color.black.edgesIgnoringSafeArea(.all)
                     if (self.backgroundImageUrl.hasPrefix("http")){
                         WebImage(url: URL(string: self.backgroundImageUrl))
                             .resizable()
@@ -163,6 +164,7 @@ struct NFTDetailViewDemo: View {
                             .clipped()
                     }
                 }
+                
             )
             .edgesIgnoringSafeArea(.all)
             .fullScreenCover(isPresented: $showDetails) {
@@ -179,10 +181,13 @@ struct NFTDetailViewDemo: View {
     func update(){
         debugPrint("preferredLocation ", preferredLocation)
         self.showProgress = true
+        
         Task {
             try? await Task.sleep(nanoseconds: 2000000000)
-            await MainActor.run {
-                self.showProgress = false
+            if self.showProgress {
+                await MainActor.run {
+                    self.showProgress = false
+                }
             }
         }
 
@@ -335,8 +340,11 @@ struct NFTDetailViewDemo: View {
                     print("Error getting background image:", error)
                 }
             }
+            await MainActor.run {
+                self.showProgress = false
+            }
         }
-            
+
     }
 }
 
@@ -703,15 +711,26 @@ struct NFTDetail: View {
                     }
                 }
             }else {
-                ProfileView()
-                    .edgesIgnoringSafeArea(.all)
+                ZStack{
+                    Color.black.edgesIgnoringSafeArea(.all)
+                    ProgressView()
+                }
             }
         }
         .onAppear(){
+            debugPrint("NFTDetail OnAppear")
+            self.isLoaded = false
+            
             Task {
-                await MainActor.run {
-                    self.isLoaded = false
+                try? await Task.sleep(nanoseconds: 2000000000)
+                if !self.isLoaded {
+                    await MainActor.run {
+                        self.isLoaded = true
+                    }
                 }
+            }
+            
+            Task {
                 var mediaItem = MediaItemViewModel()
                 var ok = false;
                 do{

@@ -34,6 +34,8 @@ struct HeaderView: View {
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
+    
     enum Tab { case Items, Media, Profile, Search }
     @State var selection: Tab = Tab.Items
     @State private var cancellable: AnyCancellable? = nil
@@ -94,6 +96,7 @@ struct MainView: View {
             }
         }
         .onChange(of: selection){ newValue in
+            debugPrint("onChange of selection viewState ", viewState.op)
             Task {
                 await fabric.refresh()
             }
