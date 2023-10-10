@@ -10,7 +10,7 @@ import AVKit
 import SDWebImageSwiftUI
 import SwiftyJSON
 
-struct MyMediaView: View {
+struct PropertyMediaView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
@@ -42,11 +42,6 @@ struct MyMediaView: View {
     }
     
     private var featuredListCount: Int {
-        /*
-        let num = localizedFeatures.isEmpty ? featured.media.count : localizedFeatures.count
-        return redeemableFeatures.count + num  + featured.items.count
-         */
-        
         return featured.media.count + featured.items.count
         
     }
@@ -60,7 +55,6 @@ struct MyMediaView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth:.infinity)
-                            //.frame(width:1920,height: 739, alignment: .topLeading)
                             .clipped()
                     }
                     .padding(.bottom, 40)
@@ -87,32 +81,13 @@ struct MyMediaView: View {
                             }
                             .focusSection()
                         }
-                        .introspectScrollView { view in
-                            view.clipsToBounds = false
+                        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                            scrollView.clipsToBounds = false
                         }
                     }
                     
                     if (featuredListCount <= 3){
                         HStack() {
-                            /*
-                            if !redeemableFeatures.isEmpty {
-                                ForEach(redeemableFeatures) { redeemable in
-                                    RedeemableCardView(redeemable: redeemable, display: MediaDisplay.feature)
-                                }
-                                
-                            }
-                            
-                            if !localizedFeatures.isEmpty {
-                                ForEach(localizedFeatures) { media in
-                                    MediaView2(mediaItem: media, display: MediaDisplay.feature)
-                                }
-                            }else{
-                                ForEach(featured.media) { media in
-                                    MediaView2(mediaItem: media, display: MediaDisplay.feature)
-                                }
-                            }
-                            */
-                            
                             ForEach(featured.media) { media in
                                 MediaView2(mediaItem: media, display: MediaDisplay.feature)
                             }
@@ -174,8 +149,8 @@ struct MyMediaView: View {
                             }
                             .focusSection()
                         }
-                        .introspectScrollView { view in
-                            view.clipsToBounds = false
+                        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                            scrollView.clipsToBounds = false
                         }
                     }
                     
@@ -201,8 +176,8 @@ struct MyMediaView: View {
                                     }
                                 }
                             }
-                            .introspectScrollView { view in
-                                view.clipsToBounds = false
+                            .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                                scrollView.clipsToBounds = false
                             }
                         }
                         .focusSection()
@@ -225,8 +200,8 @@ struct MyMediaView: View {
                                         
                                     }
                                 }
-                                .introspectScrollView { view in
-                                    view.clipsToBounds = false
+                                .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                                    scrollView.clipsToBounds = false
                                 }
                             }
                         }
@@ -275,8 +250,8 @@ struct MyMediaView: View {
                                     }
                                 }
                             }
-                            .introspectScrollView { view in
-                                view.clipsToBounds = false
+                            .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                                scrollView.clipsToBounds = false
                             }
                         }
                         .focusSection()
@@ -302,8 +277,8 @@ struct MyMediaView: View {
                                         }
                                     }
                                 }
-                                .introspectScrollView { view in
-                                    view.clipsToBounds = false
+                                .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                                    scrollView.clipsToBounds = false
                                 }
                             }
                         }
@@ -315,64 +290,19 @@ struct MyMediaView: View {
         }
         .ignoresSafeArea()
         .background(Color.mainBackground)
-        .introspectScrollView { view in
-            view.clipsToBounds = false
+        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+            scrollView.clipsToBounds = false
         }
         .onAppear(){
-            /*
-            Task {
-                for nft in self.items {
-                    if let redeemableOffers = nft.redeemable_offers {
-                        if !redeemableOffers.isEmpty {
-                            var redeemableFeatures: [RedeemableViewModel] = []
-                            for redeemable in redeemableOffers {
-                                do{
-                                    if (!preferredLocation.isEmpty) {
-                                        if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
-                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                            redeemableFeatures.append(redeem)
-                                        }
-                                    }else{
-                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                        redeemableFeatures.append(redeem)
-                                    }
-                                }catch{
-                                    print("Error processing redemption ", redeemable)
-                                }
-                            }
-                            self.redeemableFeatures = redeemableFeatures
-                        }
-                    }
-                    
-                    
-                    if let additions = nft.additional_media_sections {
-                        if (!preferredLocation.isEmpty) {
-                            var locals:[MediaItem] = []
-                            
-                            for feature in additions.featured_media {
-                                if (feature.location == ""){
-                                    locals.append(feature)
-                                }
-                                
-                                if (feature.location == preferredLocation){
-                                    locals.append(feature)
-                                }
-                            }
-                            self.localizedFeatures = locals
-                        }
-                    }
-                    
-                }
-            }
-             */
+
         }
              
     }
 }
 
 
-struct MyMediaView_Previews: PreviewProvider {
+struct PropertyMediaView_Previews: PreviewProvider {
     static var previews: some View {
-        MyMediaView()
+        PropertyMediaView()
     }
 }

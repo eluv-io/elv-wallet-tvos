@@ -59,6 +59,11 @@ struct NFTPlayerView: View {
                 //print("Play!!")
             }
         }
+        .onDisappear {
+            print("ContentView disappeared!")
+            self.player.pause()
+            self.player.replaceCurrentItem(with: nil)
+        }
         .onAppear(){
             Task{
                 if let mediaType = nft.meta_full?["media_type"].stringValue {
@@ -160,6 +165,11 @@ struct PlayerView: View {
                 self.player.play()
                 newItem = true
                 self.finishedObserver = PlayerFinishedObserver(player: player)
+            }
+            .onDisappear {
+                print("ContentView disappeared!")
+                self.player.pause()
+                self.player.replaceCurrentItem(with: nil)
             }
     }
     

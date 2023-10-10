@@ -27,6 +27,11 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
     
     var body: some View {
         VideoPlayer(player: viewModel.player, videoOverlay: videoOverlay)
+            .onDisappear {
+                print("ContentView disappeared!")
+                viewModel.player.pause()
+                viewModel.player.replaceCurrentItem(with: nil)
+            }
     }
     
     class ViewModel: ObservableObject {

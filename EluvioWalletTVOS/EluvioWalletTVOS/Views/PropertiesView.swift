@@ -33,7 +33,7 @@ struct PropertyView : View {
     
     var body: some View {
         VStack(spacing:40) {
-            NavigationLink(destination:MyMediaView(featured: property.featured,
+            NavigationLink(destination:PropertyMediaView(featured: property.featured,
                                                    library: property.media,
                                                    albums: property.albums,
                                                    items: items,

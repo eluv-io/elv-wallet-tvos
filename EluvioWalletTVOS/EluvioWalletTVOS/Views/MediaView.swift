@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
+import SwiftUIIntrospect
 
 enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile; case square}
 
@@ -44,8 +45,8 @@ struct MediaCollectionView: View {
             }
             .padding([.top,.bottom],20)
         }
-        .introspectScrollView { view in
-            view.clipsToBounds = false
+        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+            scrollView.clipsToBounds = false
         }
     }
 }
@@ -264,7 +265,7 @@ struct MediaView2: View {
             QRView(url: $qrUrl)
                 .environmentObject(self.fabric)
         }
-        .fullScreenCover(isPresented: $showPlayer) {
+        .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) {
             PlayerView(playerItem:self.$playerItem,
                        playerImageOverlayUrl:playerImageOverlayUrl,
                        playerTextOverlay:playerTextOverlay,
@@ -298,6 +299,11 @@ struct MediaView2: View {
         }
         .alert(errorMessage, isPresented:$showError){
         }
+    }
+    
+    func onPlayerDismiss() {
+        debugPrint("Player Dismiss")
+        self.playerItem = nil
     }
 
 }

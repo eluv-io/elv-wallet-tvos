@@ -57,6 +57,7 @@
 		B06D52192A14882200BD68D1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52182A14882200BD68D1 /* SearchView.swift */; };
 		B06D521B2A149EDC00BD68D1 /* PropertiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */; };
 		B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521C2A14A21100BD68D1 /* PropertyModel.swift */; };
+		B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */; };
 		B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */; };
 		B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCEA2AC8940E00AC825D /* ContentView.swift */; };
 		B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */; };
@@ -72,7 +73,7 @@
 		B0A2FD042ACD557100AC825D /* NFTDetailMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */; };
 		B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
-		B0DFFF922A15E72200F1E358 /* MyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* MyMediaView.swift */; };
+		B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
 		B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF952A250E3500F1E358 /* MediaDetail.swift */; };
 		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
@@ -156,7 +157,7 @@
 		B0A2FD002ACC98B500AC825D /* Fabric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fabric.swift; sourceTree = "<group>"; };
 		B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDetailMovieView.swift; sourceTree = "<group>"; };
 		B0A2FD052ACF3E6A00AC825D /* MinterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinterView.swift; sourceTree = "<group>"; };
-		B0DFFF912A15E72200F1E358 /* MyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyMediaView.swift; sourceTree = "<group>"; };
+		B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0DFFF952A250E3500F1E358 /* MediaDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetail.swift; sourceTree = "<group>"; };
 		B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -198,6 +199,7 @@
 				B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */,
 				B06D52172A14657E00BD68D1 /* Introspect-Static in Frameworks */,
 				B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */,
+				B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */,
 				B0E60F9229CD84160079661E /* Auth0 in Frameworks */,
 				B0E60F9529CD84420079661E /* Alamofire in Frameworks */,
 				B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */,
@@ -358,7 +360,7 @@
 				B06D520E2A12875D00BD68D1 /* MyItemsView.swift */,
 				B06D52182A14882200BD68D1 /* SearchView.swift */,
 				B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */,
-				B0DFFF912A15E72200F1E358 /* MyMediaView.swift */,
+				B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */,
 				B06C4C4A2A58858D003C414A /* MyMediaView2.swift */,
 				B0DFFF932A17129200F1E358 /* MediaView.swift */,
 				B0DFFF952A250E3500F1E358 /* MediaDetail.swift */,
@@ -421,6 +423,7 @@
 				B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */,
 				B06D52162A14657E00BD68D1 /* Introspect-Static */,
 				B069A48B2A5225A4006C9E7B /* UUIDShortener */,
+				B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -434,7 +437,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1420;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					B0A2FCE52AC8940E00AC825D = {
 						CreatedOnToolsVersion = 14.3.1;
@@ -555,7 +558,7 @@
 				B0E60FAA29D211040079661E /* NFTModel.swift in Sources */,
 				B0E60FAD29D223870079661E /* SignInView.swift in Sources */,
 				B0E60F8A29CD71840079661E /* Fabric.swift in Sources */,
-				B0DFFF922A15E72200F1E358 /* MyMediaView.swift in Sources */,
+				B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */,
 				B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */,
 				B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */,
 				B0670F3C29D5427400676872 /* NFTView.swift in Sources */,
@@ -645,6 +648,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -677,6 +681,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -697,7 +702,7 @@
 				SDKROOT = appletvos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TVOS_DEPLOYMENT_TARGET = 16.1;
+				TVOS_DEPLOYMENT_TARGET = 16.0;
 			};
 			name = Debug;
 		};
@@ -705,6 +710,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -737,6 +743,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -750,7 +757,7 @@
 				SDKROOT = appletvos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				TVOS_DEPLOYMENT_TARGET = 16.1;
+				TVOS_DEPLOYMENT_TARGET = 16.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -762,7 +769,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 118;
+				CURRENT_PROJECT_VERSION = 119;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -776,14 +783,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 16.0;
+				TVOS_DEPLOYMENT_TARGET = 16.1;
 			};
 			name = Debug;
 		};
@@ -794,7 +801,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 118;
+				CURRENT_PROJECT_VERSION = 119;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -808,14 +815,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 16.0;
+				TVOS_DEPLOYMENT_TARGET = 16.1;
 			};
 			name = Release;
 		};
@@ -982,6 +989,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = "Introspect-Static";
+		};
+		B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = SwiftUIIntrospect;
 		};
 		B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;

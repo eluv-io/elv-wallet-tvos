@@ -128,8 +128,8 @@ struct MyMediaView2: View {
                             }
                             .focusSection()
                         }
-                        .introspectScrollView { view in
-                            view.clipsToBounds = false
+                        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                            scrollView.clipsToBounds = false
                         }
                     }
                     
@@ -171,8 +171,8 @@ struct MyMediaView2: View {
                                     }
                                 }
                             }
-                            .introspectScrollView { view in
-                                view.clipsToBounds = false
+                            .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+                                scrollView.clipsToBounds = false
                             }
                         }
                         .focusSection()
@@ -184,8 +184,8 @@ struct MyMediaView2: View {
         }
         .ignoresSafeArea()
         .background(Color.mainBackground)
-        .introspectScrollView { view in
-            view.clipsToBounds = false
+        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
+            scrollView.clipsToBounds = false
         }
     }
 }

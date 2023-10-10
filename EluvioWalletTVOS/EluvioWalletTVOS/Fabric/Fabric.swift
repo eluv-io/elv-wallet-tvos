@@ -707,10 +707,12 @@ class Fabric: ObservableObject {
         ]
         
         //DEMO:
-        var contractAddress = "0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7"
-        if let nft = getNFT(contract:contractAddress) {
-            let result = try await mintComplete(confirmationId: confirmationId, tenantId: tenantId, marketplaceId: marketplaceId, sku:sku, pollSeconds: 5)
-            return (true,contractAddress,"")
+        if IsDemoMode() {
+            var contractAddress = "0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7"
+            if let nft = getNFT(contract:contractAddress) {
+                let result = try await mintComplete(confirmationId: confirmationId, tenantId: tenantId, marketplaceId: marketplaceId, sku:sku, pollSeconds: 5)
+                return (true,contractAddress,"")
+            }
         }
         
         try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
