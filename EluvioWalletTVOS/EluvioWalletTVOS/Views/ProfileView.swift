@@ -37,9 +37,14 @@ struct ProfileView: View {
     var logoUrl = ""
     var name = ""
     
+    var locations : [String] {
+        return fabric.profile.profileData.locations ?? []
+    }
+    
     @State
-    var locations : [String] = []
-    @State private var selectedLocation = ""
+    var selectedLocation : String = ""
+    
+    @State var initialized = false
     
     var body: some View {
         NavigationStack {
@@ -62,8 +67,6 @@ struct ProfileView: View {
                                         Text($0.uppercased())
                                     }
                                 }
-                                
-                                
                                 .onChange(of: selectedLocation) { selected in
                                     print("Selected location: ", selected)
                                     Task{
@@ -107,8 +110,14 @@ struct ProfileView: View {
                     self.asNode = try fabric.signer?.getAuthEndpoint() ?? ""
                     self.ethNode = try fabric.signer?.getEthEndpoint() ?? ""
                     
-                    self.locations = fabric.profile.profileData.locations ?? []
-                    self.selectedLocation = fabric.profile.profileData.preferredLocation ?? ""
+                    if !initialized {
+                        
+                        self.selectedLocation = fabric.profile.profileData.preferredLocation ?? ""
+                        
+                        debugPrint("ProfileView OnAppear - locations", self.locations)
+                        debugPrint("ProfileView OnAppear - selectedLocation", self.selectedLocation)
+                        initialized = true
+                    }
                 }catch {
                     
                 }

@@ -15,6 +15,7 @@ import UUIDShortener
 import CryptoKit
 
 var APP_CONFIG : AppConfiguration = loadJsonFile("configuration.json")
+let POLLSECONDS = 300
 
 func IsDemoMode()->Bool {
     return APP_CONFIG.app.mode == .demo
@@ -582,12 +583,16 @@ class Fabric: ObservableObject {
         return (false, false, JSON())
     }
     
-    func redeemComplete(confirmationId: String, tenantId: String, pollSeconds:Int = 100)  async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String){
+    func redeemComplete(confirmationId: String, tenantId: String, pollSeconds:Int = POLLSECONDS)  async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String){
         
         print("Redeem Complete check")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
+        
+        var transactionId = ""
+        var transactionHash = ""
+        var complete = false
         
         for _ in 0...pollSeconds {
             try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
@@ -603,9 +608,12 @@ class Fabric: ObservableObject {
                     if opSplit[0] == "nft-offer-redeem" && opSplit[4] == confirmationId {
                         if (status["status"] == "complete"){
                             print("Wallet Status Result: complete: ", op)
-                            return (true,
-                                    status["extra"]["trans_id"].stringValue,
-                                    status["extra"]["tx_hash"].stringValue
+                            transactionId = status["extra"]["trans_id"].stringValue
+                            transactionHash = status["extra"]["tx_hash"].stringValue
+                            complete = true
+                            return (complete,
+                                    transactionId,
+                                    transactionHash 
                                     )
                         }
                     }
@@ -613,11 +621,11 @@ class Fabric: ObservableObject {
             }
         }
         
-        return (false, "","")
+        return (complete, transactionId,transactionHash)
     }
     
     //Waits for transaction for pollSeconds
-    func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = 100) async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String) {
+    func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String) {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
@@ -677,7 +685,7 @@ class Fabric: ObservableObject {
     }
     
     //Waits for transaction for pollSeconds
-    func mintItem(tenantId: String, marketplaceId: String, sku: String, pollSeconds: Int = 120) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
+    func mintItem(tenantId: String, marketplaceId: String, sku: String, pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
         
         if tenantId == "" {
             throw FabricError.unexpectedResponse("Error minting item. tenantId is empty")
@@ -722,7 +730,7 @@ class Fabric: ObservableObject {
     }
     
     //TODO: change pollSeconds to 120 or something. 30 is just demo
-    func mintComplete(confirmationId: String, tenantId: String, marketplaceId: String, sku:String, pollSeconds:Int = 120)  async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String){
+    func mintComplete(confirmationId: String, tenantId: String, marketplaceId: String, sku:String, pollSeconds:Int = POLLSECONDS)  async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String){
         
         print("mintComplete check")
         guard let signer = self.signer else {

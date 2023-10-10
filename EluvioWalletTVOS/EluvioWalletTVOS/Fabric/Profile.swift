@@ -6,10 +6,11 @@
 //
 
 import Foundation
+var DEMO_LOCATIONS : [String]? = ["los angeles", "phoenix", "washington dc"]
 
 struct ProfileData: Codable {
     //DEMO:
-    var locations : [String]? = ["los angeles", "phoenix", "washington dc"]
+    var locations : [String]? = DEMO_LOCATIONS
     var preferredLocation: String? = "los angeles"
 }
 
@@ -29,8 +30,10 @@ class Profile: ObservableObject {
                 profileData.locations = locations
             }
         }else {
-            profileData.locations = []
+            profileData.locations = DEMO_LOCATIONS
         }
+        
+        debugPrint("SetPreferredLocation ", location)
         
         try await save()
     }
@@ -38,6 +41,8 @@ class Profile: ObservableObject {
     func save() async throws {
         let jsonData = try JSONEncoder().encode(profileData)
         let jsonString = String(data: jsonData, encoding: .utf8)!
+        
+        debugPrint("Saving settings ", jsonString)
         
         UserDefaults.standard.set(jsonString, forKey: "profile_settings")
     }

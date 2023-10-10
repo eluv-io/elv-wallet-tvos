@@ -89,11 +89,12 @@ struct OfferView: View {
                                     Task{
                                         if redeemable.redeemAnimationLink != nil {
                                             do{
-                                                print("Found animation")
+                                                debugPrint("Found animation")
                                                 let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
                                                 await MainActor.run {
                                                     self.playerItem = playerItem
                                                     showPlayer = true
+                                                    debugPrint("ShowPlayer = true")
                                                 }
                                             } catch {
                                                 print("Error creating playerItem for redeem animation: ", error)
@@ -103,26 +104,27 @@ struct OfferView: View {
                                         await MainActor.run {
                                             self.showResult = true
                                             self.isRedeeming = true
+                                            debugPrint("showResult = true, is redeeming ")
                                         }
 
                                         var redeemed = false
                                         var transactionId = ""
                                         var transactionHash = ""
                                         do {
-                                            print("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
+                                            debugPrint("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
                                            
                                             let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
                                             redeemed = result.isRedeemed
                                             transactionId = result.transactionId
                                             transactionHash = result.transactionHash
                                             
-                                            print("Redeem result", result)
+                                            debugPrint("Redeem result", result)
                                         } catch {
                                             print("Failed to redeemOffer", error)
                                         }
 
                                         await MainActor.run {
-                                            print("MainActor.run isRedeeming=\(isRedeeming)")
+                                            debugPrint("MainActor.run isRedeeming=\(isRedeeming)")
                                             if self.isRedeeming {
                                                 self.isRedeeming = false
                                             }
@@ -130,15 +132,12 @@ struct OfferView: View {
                                             self.redeemable.status.transactionId = transactionId
                                             self.redeemable.status.transactionHash = transactionHash
                                             self.showResult = true
-                                            Task{
-                                                await fabric.refresh()
-                                                debugPrint ("OfferView refresh")
-                                            }
+                                            debugPrint("showResult = true, is redeemed.")
                                         }
                                     }
                                     
                                 } else {
-                                    print("isRedeemed, set showResult")
+                                    debugPrint("isRedeemed, set showResult")
                                     self.showResult = true
                                 }
                             }) {
@@ -156,19 +155,29 @@ struct OfferView: View {
             .background(Color.black.opacity(0.8))
         }
         .background(.thinMaterial)
+        .onDisappear(){
+            Task{
+                debugPrint ("OfferView onDisappear")
+                await fabric.refresh()
+                debugPrint ("OfferView refresh")
+            }
+        }
         .onChange(of:isRedeeming) { value in
             print("onChange of:isRedeeming")
+                /*
             if isRedeeming == true {
                 if !self.isRedeemed {
                    
                     Task{
-                        if redeemable.redeemAnimationLink != nil {
+                        /*
+                        if self.playerItem == nil && redeemable.redeemAnimationLink != nil {
                             do{
                                 print("Found animation")
                                 let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
                                 await MainActor.run {
                                     self.playerItem = playerItem
                                     showPlayer = true
+                                    debugPrint("ShowPlayer = true")
                                 }
                             }catch{
                                 print("Error creating playerItem for redeem animation: ", error)
@@ -176,7 +185,7 @@ struct OfferView: View {
                         }else{
                             self.showResult = true
                         }
-                        /*
+
                         print("Redeeming...", redeemable.offerId)
                         var redeemed = false
                         var transactionId: String? = nil
@@ -206,14 +215,15 @@ struct OfferView: View {
                     }
                 }
             }
+                 */
         }
         .onChange(of:showPlayer) { value in
-            if showPlayer == false {
+            if value == false {
                 self.showResult = true
             }
         }
         .onChange(of:playerFinished) { value in
-            if playerFinished {
+            if value {
                 print("FINISHED IN OFFERVIEW")
                 self.showPlayer = false
             }
@@ -322,6 +332,13 @@ struct OfferResultView: View {
             .background(.thinMaterial)
             .onAppear(){
                 print("OfferResultView OnAppear URL \(url) redeemable \(redeemable.status)")
+                
+                if !self.redeemable.status.isRedeemed {
+                    setError(message: "The redemption is taking longer than usual. Please check back later.")
+                    return
+                }
+                
+                
                 if let fulfillment = redeemable.status.fulfillment {
                     setFulfillment(fulfillment: fulfillment)
                 } else {
@@ -334,11 +351,11 @@ struct OfferResultView: View {
                                 fulfillment = try await fabric.redeemFulfillment(transactionHash:transactionHash)
                                 setFulfillment(fulfillment: fulfillment)
                             }else{
-                                print("TransactionHash is empty for offer ", self.redeemable)
-                                setError(cause: "no transactionHash")
+                                debugPrint("TransactionHash is empty for offer ", self.redeemable)
+                                setError(message: "Something went wrong... Transaction Hash is missing from the redemption.")
                             }
                         }catch{
-                            setError(cause: "caught in getting fullfillment")
+                            setError(message: "Something went wrong retrieving fulfillment. Please try again later.")
                         }
                     }
                 }
@@ -359,6 +376,22 @@ struct OfferResultView: View {
                 return
             }
             
+            //TODO: No fulfillment data, show transaction?
+            debugPrint(fulfill["err"])
+            debugPrint(fulfill["err"].isEmpty)
+            if (fulfill["err"].isEmpty) {
+                if (!redeemable.status.transactionId.isEmpty && !redeemable.status.transactionHash.isEmpty){
+                    description = "You have successfully redeedeemd.\nTransaction ID: \(redeemable.status.transactionId)\n\(redeemable.status.transactionHash)"
+                }else{
+                    description = "You have successfully redeedeemd."
+                }
+                error = false
+                return
+            }
+            
+            
+            let op = fulfill["err"]["op"].stringValue
+            
             // for dry_run
             if fulfill["err"]["request"]["transaction"].stringValue.contains("tx-test-") {
                 code = "dry-run complete"
@@ -367,24 +400,25 @@ struct OfferResultView: View {
                 error = false
                 return
             }
+
             
-            // for no more codes
-            if fulfill["err"]["op"].stringValue == "no more redemption codes available" {
-                code = ""
-                description = "No more redemption codes available.  Please contact your merchant."
+            if !op.isEmpty {
+                setError(message: "Sorry, we could not get the reward. \(op).")
                 return
             }
-            setError(cause: "setFullfillment completed with no code or url" + fulfill.stringValue)
+            
+            setError()
         } else {
-            setError(cause: "setFullfillment completed with no fulfillment data")
+            setError()
         }
     }
     
     @MainActor
-    func setError(cause: String) {
-        print("calling setError from", cause)
+    func setError(message: String = "") {
+        print("calling setError from", message)
         title = "Error"
-        description = "Sorry...something went wrong. Please try again."
+        code = ""
+        description = message
         self.error = true
     }
 }
