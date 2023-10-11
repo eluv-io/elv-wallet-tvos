@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Introspect
+import SwiftUIIntrospect
 
 struct FormEntry : View {
     var message: String
@@ -47,7 +48,7 @@ struct ProfileView: View {
     @State var initialized = false
     
     var body: some View {
-        NavigationStack {
+    //    NavigationStack {
             VStack() {
                 HeaderView(logo:logo, logoUrl: logoUrl)
                     .padding(.top,50)
@@ -61,12 +62,18 @@ struct ProfileView: View {
                             FormEntry("Address:  \(address)")
                             FormEntry("User Id:  \(userId)")
                             
-                            if IsDemoMode()  {
-                                Picker("Preferred location:", selection: $selectedLocation) {
+                        }
+                        .padding()
+                        if IsDemoMode()  {
+                            Section(header:Text("Preferred location").foregroundColor(.white.opacity(0.6))){
+
+                                Picker("",selection: $selectedLocation) {
                                     ForEach(locations, id: \.self) {
-                                        Text($0.uppercased())
+                                        FormEntry($0.uppercased())
                                     }
                                 }
+                                //FIX: The highlight foreground color doesn't change from white, setting it to gray so it shows up all the time
+                                .accentColor(.gray)
                                 .onChange(of: selectedLocation) { selected in
                                     print("Selected location: ", selected)
                                     Task{
@@ -79,10 +86,10 @@ struct ProfileView: View {
                                 }
                                 
                             }
-                            
+                            .padding()
                         }
-                        .padding()
-                        
+
+                    
                         Section(header: Text("Fabric").foregroundColor(.white.opacity(0.6))) {
                             FormEntry("Network:  \(network.localizedUppercase)")
                             FormEntry("Fabric Node:  \(node)")
@@ -123,7 +130,7 @@ struct ProfileView: View {
                 }
             }
         }
-    }
+  //  }
 }
 
 struct Profile_Previews: PreviewProvider {
