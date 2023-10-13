@@ -9,6 +9,7 @@ import Foundation
 import Base58Swift
 import SwiftUI
 import Alamofire
+import AVKit
 
 func FormatAddress(address: String) -> String {
     if address.isEmpty {
@@ -286,5 +287,18 @@ extension URL {
     func valueOf(_ queryParameterName: String) -> String? {
         guard let url = URLComponents(string: self.absoluteString) else { return nil }
         return url.queryItems?.first(where: { $0.name == queryParameterName })?.value
+    }
+}
+
+
+extension AVPlayer {
+    func addProgressObserver(intervalSeconds: Int64 = 5, action:@escaping ((Double) -> Void)) -> Any {
+        return self.addPeriodicTimeObserver(forInterval: CMTime.init(value: intervalSeconds, timescale: 1), queue: .main, using: { time in
+            if let duration = self.currentItem?.duration {
+                let duration = CMTimeGetSeconds(duration), time = CMTimeGetSeconds(time)
+                let progress = (time/duration)
+                action(progress)
+            }
+        })
     }
 }

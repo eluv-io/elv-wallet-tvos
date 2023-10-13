@@ -8,48 +8,6 @@
 import SwiftUI
 import QGrid
 
-/*
-struct NFTList: View {
-
-    var title: String
-    var nfts : [NFTModel]
-    @State private var editMode = EditMode.inactive
-    let columns = [
-        GridItem(.flexible()),GridItem(.flexible()),
-        GridItem(.flexible())
-    ]
-    
-    let column = [GridItem(.flexible())]
-
-    @State var search = false
-    @State var searchText = ""
-    @State var gridOption = false
-    var body: some View {
-        VStack {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text(title).font(.subheadline)
-                }
-                Spacer()
-            }
-            .padding(.bottom, 20)
-            ScrollView (.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(nfts) { nft in
-                        NFTView(nft: nft)
-                            .frame(width:400, height: 400)
-                    }
-                }
-            }
-            .introspectScrollView { view in
-                view.clipsToBounds = false
-            }
-        }
-        .focusSection()
-    }
-}
-*/
-
 struct NFTGrid: View {
 
     var title: String = ""

@@ -87,9 +87,7 @@ struct DropDetail: View {
                                     }
                                 }
                             }
-                            .introspectScrollView { view in
-                                view.clipsToBounds = false
-                            }
+                            .scrollClipDisabled()
                         }
                         .focusSection()
                     }
@@ -98,9 +96,7 @@ struct DropDetail: View {
                 .padding(80)
                 .focusSection()
             }
-            .introspectScrollView { view in
-                view.clipsToBounds = false
-            }
+            .scrollClipDisabled()
             .fullScreenCover(isPresented: $showPlayer) {
                 PlayerView(playerItem:self.$playerItem,
                            playerImageOverlayUrl:playerImageOverlayUrl,

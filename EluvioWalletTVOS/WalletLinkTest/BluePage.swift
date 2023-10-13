@@ -7,64 +7,6 @@
 
 import SwiftUI
 
-extension Color {
-    init(hex: UInt, alpha: Double = 1) {
-        self.init(
-            .sRGB,
-            red: Double((hex >> 16) & 0xff) / 255,
-            green: Double((hex >> 08) & 0xff) / 255,
-            blue: Double((hex >> 00) & 0xff) / 255,
-            opacity: alpha
-        )
-    }
-}
-
-struct LaunchButton: View {
-    var buttonIcon = ""
-    var buttonIconHighlighted = ""
-    var buttonText = ""
-    var hightlightColor : Color = Color(hex:0x2c59d3)
-    var highlightTextColor = Color.white
-    var action: ()->Void
-    
-    @FocusState private var isFocused
-    
-    
-    var body: some View {
-        Button {
-                action()
-        } label: {
-            HStack(spacing:10){
-                if (isFocused && buttonIconHighlighted != ""){
-                    Image(buttonIconHighlighted)
-                        .resizable()
-                        .frame(width:40, height:40)
-                }else {
-                    Image(buttonIcon)
-                        .resizable()
-                        .frame(width:40, height:40)
-                }
-                
-                Text(buttonText)
-                    .font(.system(size: 32))
-                    .fontWeight(.medium)
-                    .foregroundColor(isFocused ? highlightTextColor : Color.white)
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 20)
-            .frame(width:380)
-            .overlay(content: {
-                if (!isFocused) {
-                    RoundedRectangle(cornerRadius:10)
-                        .stroke(Color.white, lineWidth: 4)
-                }
-            })
-        }
-        .buttonStyle(IconButtonStyle(focused:isFocused, highlightColor: hightlightColor))
-        .focused($isFocused)
-    }
-}
-
 struct BluePage: View {
     @Environment(\.openURL) private var openURL
     @EnvironmentObject var fabric: Fabric
@@ -76,7 +18,7 @@ struct BluePage: View {
     var playUrl = ""
     var playOutPath = ""
     var playButtonText = "Play Feature Film"
-    var buncleButtonText = "Launch Bundle"
+    var bundleButtonText = "Launch Bundle"
     
     @State private var showPlayer = false
     @State private var url = URL(string:"")
@@ -101,7 +43,7 @@ struct BluePage: View {
                 
                 LaunchButton(
                     buttonIcon: "icon_bundle",
-                    buttonText: buncleButtonText,
+                    buttonText: bundleButtonText,
                     action: {
                         if let url = URL(string: bundleLink) {
                             openURL(url) { accepted in
@@ -121,7 +63,7 @@ struct BluePage: View {
                 
                 Spacer()
             }
-            .offset(x:420, y: 160)
+            .offset(x:420, y: 200)
         }
         .frame(maxWidth:.infinity, maxHeight:.infinity)
         .edgesIgnoringSafeArea(.all)

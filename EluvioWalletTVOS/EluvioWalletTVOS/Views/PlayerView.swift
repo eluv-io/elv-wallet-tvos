@@ -39,18 +39,11 @@ struct NFTPlayerView: View {
     
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
-    
+    var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
+
     var body: some View {
         VideoPlayer(player: player)
         .ignoresSafeArea()
-        .onChange(of: playerItem) { value in
-            if (self.playerItem != nil) {
-                self.player.replaceCurrentItem(with: self.playerItem)
-                print("PlayerView: replaced current Item \(self.playerItem?.asset)")
-                newItem = true
-
-            }
-        }
         .onReceive(timer) { time in
             //print("Item Status \(self.playerItem?.status.rawValue)")
             if (newItem && self.playerItem?.status == .readyToPlay){
@@ -65,6 +58,15 @@ struct NFTPlayerView: View {
             self.player.replaceCurrentItem(with: nil)
         }
         .onAppear(){
+            player.addProgressObserver { progress in
+                if let progressCallback = self.progressCallback {
+                    progressCallback(progress,
+                                     player.currentItem?.currentTime().seconds ?? 0.0,
+                                     player.currentItem?.duration.seconds ?? 0.0)
+                }
+                
+            }
+            
             Task{
                 if let mediaType = nft.meta_full?["media_type"].stringValue {
                     if mediaType == "Video" {
@@ -104,28 +106,22 @@ struct PlayerView: View {
     @State var playerImageOverlayUrl = ""
     @State var playerTextOverlay = ""
     @State var finishedObserver = PlayerFinishedObserver()
+    @State var seekTimeS: Double = 0.0
     @Binding var finished: Bool
-    
+    var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
 
     var body: some View {
             VideoPlayer(player: player)
             .ignoresSafeArea()
-        //CAREFUL: Crashes to have the following:
-        /*
-            .onChange(of: playerItem) { value in
-                if (self.playerItem != self.player.currentItem) {
-                    self.player.replaceCurrentItem(with: self.playerItem)
-                    print("PlayerView: replaced current Item \(self.playerItem?.asset)")
-                    newItem = true
-                }
-            }
-         */
             .onReceive(timer) { time in
                 //print("Item Status \(self.playerItem?.status.rawValue)")
                 if (newItem && self.playerItem?.status == .readyToPlay){
                     self.player.play()
                     newItem = false
-                    //print("Play!!")
+                    debugPrint("Play!!")
+                    if seekTimeS > 5.0 {
+                        self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
+                    }
                 }
                 
             }
@@ -162,7 +158,20 @@ struct PlayerView: View {
                     print("player.replaceCurrentItem()")
                 }
                 
+                player.addProgressObserver { progress in
+                    debugPrint("Player progress: ", progress)
+                    debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
+                    debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
+                    
+                    if let progressCallback = self.progressCallback {
+                        progressCallback(progress,
+                                         player.currentItem?.currentTime().seconds ?? 0.0,
+                                         player.currentItem?.duration.seconds ?? 0.0)
+                    }
+                    
+                }
                 self.player.play()
+
                 newItem = true
                 self.finishedObserver = PlayerFinishedObserver(player: player)
             }

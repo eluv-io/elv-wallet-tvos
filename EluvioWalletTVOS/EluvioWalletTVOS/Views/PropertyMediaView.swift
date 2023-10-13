@@ -81,9 +81,7 @@ struct PropertyMediaView: View {
                             }
                             .focusSection()
                         }
-                        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                            scrollView.clipsToBounds = false
-                        }
+                        .scrollClipDisabled()
                     }
                     
                     if (featuredListCount <= 3){
@@ -149,9 +147,7 @@ struct PropertyMediaView: View {
                             }
                             .focusSection()
                         }
-                        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                            scrollView.clipsToBounds = false
-                        }
+                        .scrollClipDisabled()
                     }
                     
                     Spacer(minLength: 20)
@@ -176,9 +172,7 @@ struct PropertyMediaView: View {
                                     }
                                 }
                             }
-                            .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                                scrollView.clipsToBounds = false
-                            }
+                            .scrollClipDisabled()
                         }
                         .focusSection()
                     }
@@ -200,9 +194,7 @@ struct PropertyMediaView: View {
                                         
                                     }
                                 }
-                                .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                                    scrollView.clipsToBounds = false
-                                }
+                                .scrollClipDisabled()
                             }
                         }
                         .focusSection()
@@ -250,9 +242,7 @@ struct PropertyMediaView: View {
                                     }
                                 }
                             }
-                            .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                                scrollView.clipsToBounds = false
-                            }
+                            .scrollClipDisabled()
                         }
                         .focusSection()
                     }
@@ -277,9 +267,7 @@ struct PropertyMediaView: View {
                                         }
                                     }
                                 }
-                                .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                                    scrollView.clipsToBounds = false
-                                }
+                                .scrollClipDisabled()
                             }
                         }
                     }
@@ -290,9 +278,7 @@ struct PropertyMediaView: View {
         }
         .ignoresSafeArea()
         .background(Color.mainBackground)
-        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-            scrollView.clipsToBounds = false
-        }
+        .scrollClipDisabled()
         .onAppear(){
 
         }

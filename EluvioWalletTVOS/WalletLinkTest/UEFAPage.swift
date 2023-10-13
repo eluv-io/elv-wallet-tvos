@@ -31,7 +31,7 @@ struct UEFAPage: View {
                     buttonIcon: "icon_play",
                     buttonIconHighlighted: "icon_play_black",
                     buttonText:playButtonText,
-                    hightlightColor: Color.white,
+                    highlightColor: Color.white,
                     highlightTextColor: Color.black,
                     action: {
                         let combinedUrl = fabric.createUrl(path:playOutPath)
@@ -47,7 +47,7 @@ struct UEFAPage: View {
                     buttonIcon: "icon_bundle",
                     buttonIconHighlighted: "icon_bundle_black",
                     buttonText: buncleButtonText,
-                    hightlightColor: Color.white,
+                    highlightColor: Color.white,
                     highlightTextColor: Color.black,
                     action: {
                         if let url = URL(string: bundleLink) {

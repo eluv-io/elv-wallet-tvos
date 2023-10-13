@@ -151,9 +151,7 @@ struct SeriesDetailView: View {
                             }
                             .padding(20)
                         }
-                        .introspectScrollView { view in
-                            view.clipsToBounds = false
-                        }
+                        .scrollClipDisabled()
                     }
                     
                     VStack(alignment: .leading, spacing: 20){
@@ -172,9 +170,7 @@ struct SeriesDetailView: View {
             }
             .padding(80)
             .focusSection()
-            .introspectScrollView { view in
-                view.clipsToBounds = false
-            }
+            .scrollClipDisabled()
         }
         .frame(maxWidth:.infinity, maxHeight:.infinity)
         .background(

@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftyJSON
-import Introspect
 
 struct MyItemsView: View {
     @EnvironmentObject var fabric: Fabric
@@ -29,9 +28,7 @@ struct MyItemsView: View {
             }
         }
         .ignoresSafeArea()
-        .introspectScrollView { view in
-            view.clipsToBounds = false
-        }
+        .scrollClipDisabled()
     }
 }
 

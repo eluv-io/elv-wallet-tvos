@@ -72,9 +72,7 @@ struct PropertiesView: View {
                     }
                 }
             }
-            .introspectScrollView { view in
-                view.clipsToBounds = false
-            }
+            .scrollClipDisabled()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 60)

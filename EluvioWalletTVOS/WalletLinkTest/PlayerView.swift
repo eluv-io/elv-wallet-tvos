@@ -67,6 +67,11 @@ struct PlayerView: View {
                     debugPrint("PlayerView onAppear finsihed.")
                 }
             }
+            .onDisappear(){
+                if let playerItem = self.player.currentItem {
+                    self.player.pause()
+                }
+            }
     }
     
     func playerDidFinishPlaying(note: NSNotification) {

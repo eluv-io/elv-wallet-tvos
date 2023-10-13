@@ -231,18 +231,14 @@ struct NFTDetailMovieView: View {
                                 }
                                 .padding(20)
                             }
-                            .introspectScrollView { view in
-                                view.clipsToBounds = false
-                            }
+                            .scrollClipDisabled()
                         }
                         .padding(.top)
                     }
                 }
                 .padding(80)
                 .focusSection()
-                .introspectScrollView { view in
-                    view.clipsToBounds = false
-                }
+                .scrollClipDisabled()
             }
             .frame(maxWidth:.infinity, maxHeight:.infinity)
             .background(

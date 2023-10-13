@@ -1347,31 +1347,7 @@ class Fabric: ObservableObject {
         let json: [String: Any] = ["ext": ["share_email":true]]
         request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
         
-        print("http request: ", request)
-        //print("http request headers: ", request.allHTTPHeaderFields)
-        /*
-        let task = URLSession.shared.dataTask(with: request, completionHandler: { (data, response, error) in
-            
-                do{
-                    guard let data = data else {
-                        self.signingIn = false
-                        throw FabricError.unexpectedResponse("Error response data: \(response)")
-                    }
-
-                    //let str = String(decoding: data, as: UTF8.self)
-                    
-                    // Parse the JSON data
-                    let login = try JSONDecoder().decode(LoginResponse.self, from: data)
-                    debugPrint(login)
-                    self.setLogin(login: login)
-                
-                }catch{
-                    print(error)
-                }
-        
-        })
-        task.resume()
-         */
+        debugPrint("http request: ", request)
         
         AF.request(request)
             .responseJSON { response in
@@ -1555,6 +1531,56 @@ class Fabric: ObservableObject {
                  }
 
                 return
+        }
+    }
+    
+    private func getKeyMediaProgressContainer() throws -> String {
+        return "\(try getAccountAddress()) - media_progress"
+    }
+    
+    func getUserViewedProgressContainer() throws -> MediaProgressContainer {
+        //TODO: Store these constants for user defaults somewhere
+        guard let data = UserDefaults.standard.object(forKey: try getKeyMediaProgressContainer()) as? Data else {
+            debugPrint("Couldn't find media_progress from defaults.")
+            return MediaProgressContainer()
+        }
+        
+        let decoder = JSONDecoder()
+        guard let container = try? decoder.decode(MediaProgressContainer.self, from: data) else {
+            debugPrint("Couldn't decode media_progress from defaults.")
+            return MediaProgressContainer()
+        }
+        
+        return container
+    }
+    
+    //TODO: Retrieve from app services profile
+    func getUserViewedProgress(nftContract: String, mediaId: String) throws -> MediaProgress {
+        if let container = try? getUserViewedProgressContainer() {
+            //TODO: create a key maker function
+            let mediaProgress = container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] ?? MediaProgress()
+            debugPrint("getUserViewedProgress \(mediaProgress)")
+            return mediaProgress
+        }
+        debugPrint("getUserViewedProgress - could not get container")
+        return MediaProgress()
+    }
+    
+    //TODO: Set into the app services profile
+    func setUserViewedProgress(nftContract: String, mediaId: String, progress:MediaProgress) throws{
+        
+        var container = MediaProgressContainer()
+        do {
+            container = try getUserViewedProgressContainer()
+        }catch{}
+        
+        container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] = progress
+        
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(container) {
+            let defaults = UserDefaults.standard
+            defaults.set(encoded, forKey: try getKeyMediaProgressContainer())
+            debugPrint("Saved to defaults")
         }
     }
     

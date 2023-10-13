@@ -10,7 +10,7 @@ import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
 import Combine
-import SwiftUIIntrospect
+//import SwiftUIIntrospect
 
 struct NFTDetailView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
@@ -115,9 +115,7 @@ struct NFTDetailView: View {
                                         }
                                         .padding(20)
                                     }
-                                    .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                                        scrollView.clipsToBounds = false
-                                    }
+                                    .scrollClipDisabled()
                                 }
                                 .padding(.top)
                                 
@@ -143,9 +141,7 @@ struct NFTDetailView: View {
                         .padding(80)
                     }
                     .opacity(showProgress ? 0.0 : 1.0)
-                    .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-                        scrollView.clipsToBounds = false
-                    }
+                    .scrollClipDisabled()
             }
             .frame(maxWidth:.infinity, maxHeight:.infinity)
             .background(

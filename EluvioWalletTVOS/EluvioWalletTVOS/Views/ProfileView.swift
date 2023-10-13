@@ -6,8 +6,6 @@
 //
 
 import SwiftUI
-import Introspect
-import SwiftUIIntrospect
 
 struct FormEntry : View {
     var message: String

@@ -12,3 +12,13 @@ struct LoginResponse: Codable {
     var eth: String
     var token: String
 }
+
+struct MediaProgress: Identifiable, Codable {
+    var id: String = ""
+    var duration_s: Double = 0.0
+    var current_time_s: Double = 0.0
+}
+
+struct MediaProgressContainer: Codable {
+    var media : [String: MediaProgress] = [:]
+}

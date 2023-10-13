@@ -39,9 +39,7 @@ struct SearchView: View {
             }
         }
         .ignoresSafeArea()
-        .introspectScrollView { view in
-            view.clipsToBounds = false
-        }
+        .scrollClipDisabled()
     }
 }
 

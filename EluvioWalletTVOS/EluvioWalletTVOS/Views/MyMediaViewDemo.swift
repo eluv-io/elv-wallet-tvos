@@ -152,9 +152,7 @@ struct MyMediaViewDemo: View {
                             }
                             .focusSection()
                         }
-                        .introspectScrollView { view in
-                            view.clipsToBounds = false
-                        }
+                        .scrollClipDisabled()
                     }
                     
                     Spacer(minLength: 20)
@@ -195,9 +193,7 @@ struct MyMediaViewDemo: View {
                                     }
                                 }
                             }
-                            .introspectScrollView { view in
-                                view.clipsToBounds = false
-                            }
+                            .scrollClipDisabled()
                         }
                         .focusSection()
                     }
@@ -207,9 +203,7 @@ struct MyMediaViewDemo: View {
         }
         .ignoresSafeArea()
         .background(Color.mainBackground)
-        .introspectScrollView { view in
-            view.clipsToBounds = false
-        }
+        .scrollClipDisabled()
         .onAppear(){
             Task {
                 var locals:[MediaItem] = []

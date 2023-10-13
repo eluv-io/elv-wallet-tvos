@@ -10,7 +10,6 @@ import SwiftUI
 import SwiftyJSON
 import AVKit
 import SDWebImageSwiftUI
-import SwiftUIIntrospect
 
 enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile; case square}
 
@@ -45,9 +44,7 @@ struct MediaCollectionView: View {
             }
             .padding([.top,.bottom],20)
         }
-        .introspect(.scrollView, on: .tvOS(.v16, .v17)) { (scrollView: UIScrollView) in
-            scrollView.clipsToBounds = false
-        }
+        .scrollClipDisabled()
     }
 }
 
@@ -128,6 +125,7 @@ struct MediaView2: View {
     @State var showFocusName = true
     @State var showError = false
     @State var errorMessage = ""
+    @State var startTimeS = 0.0
     
     
     @State var showImage = false
@@ -175,6 +173,19 @@ struct MediaView2: View {
                                     self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
                                 }
                             
+                                do {
+                                    if let contract = media.nft?.contract_addr {
+                                        if let mediaId = media.mediaId {
+                                            let progress = try fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
+                                            if (progress.current_time_s > 0){
+                                                self.startTimeS = progress.current_time_s
+                                                debugPrint("Found saved progress ", progress)
+                                            }
+                                        }
+                                    }
+
+                                }catch{}
+
                                 self.showPlayer = true
                                 //print("****** showPlayer = true")
                                 //print("****** playerItem set ", self.playerItem)
@@ -269,7 +280,9 @@ struct MediaView2: View {
             PlayerView(playerItem:self.$playerItem,
                        playerImageOverlayUrl:playerImageOverlayUrl,
                        playerTextOverlay:playerTextOverlay,
-                       finished:$playerFinished
+                       seekTimeS: startTimeS, 
+                       finished:$playerFinished,
+                       progressCallback: onPlayerProgress
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
@@ -304,6 +317,24 @@ struct MediaView2: View {
     func onPlayerDismiss() {
         debugPrint("Player Dismiss")
         self.playerItem = nil
+    }
+    
+    func onPlayerProgress(_ progress: Double,_ currentTimeS: Double,_ durationS: Double) {
+        debugPrint("Player progress: ", progress)
+        debugPrint("Player duration seconds: ", durationS)
+        debugPrint("Player currentTime seconds: ", currentTimeS)
+        guard let contract = self.media.nft?.contract_addr else {
+            return
+        }
+        guard let mediaId = self.media.mediaId else{
+            return
+        }
+        let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)
+        do {
+            try fabric.setUserViewedProgress(nftContract:contract, mediaId: mediaId, progress:mediaProgress)
+        }catch{
+            print(error)
+        }
     }
 
 }
