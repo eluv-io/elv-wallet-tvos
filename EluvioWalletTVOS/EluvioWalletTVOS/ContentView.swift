@@ -183,13 +183,13 @@ struct ContentView: View {
                         if viewState.op == .mint {
                             checkViewState()
                         }
-                    }
+                    }/*
                     .fullScreenCover(isPresented: $showActivity){
                         ZStack{
                             Color.black.edgesIgnoringSafeArea(.all)
                             ProgressView()
                         }
-                    }
+                    }*/
                     .fullScreenCover(isPresented: $showNft) {
                         NFTDetail(nft: self.nft)
                     }

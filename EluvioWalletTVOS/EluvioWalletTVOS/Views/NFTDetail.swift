@@ -165,6 +165,7 @@ struct NFTDetailView: View {
                             .clipped()
                     }
                 }
+                .edgesIgnoringSafeArea(.all)
                 
             )
             .edgesIgnoringSafeArea(.all)
@@ -184,7 +185,7 @@ struct NFTDetailView: View {
         self.showProgress = true
         
         Task {
-            try? await Task.sleep(nanoseconds: 2000000000)
+            try? await Task.sleep(nanoseconds: 1500000000)
             if self.showProgress {
                 await MainActor.run {
                     self.showProgress = false
@@ -303,7 +304,9 @@ struct NFTDetailView: View {
                     self.richText.font = .body
                 }
             }
-            
+        }
+        
+        Task {
             if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                 self.backgroundImageUrl = "https://picsum.photos/600/800"
             }else{
@@ -340,9 +343,6 @@ struct NFTDetailView: View {
                 }catch{
                     print("Error getting background image:", error)
                 }
-            }
-            await MainActor.run {
-                self.showProgress = false
             }
         }
 
@@ -459,10 +459,10 @@ struct NFTDetail: View {
                 }
                 
                 await MainActor.run {
-                    self.isLoaded = true
                     if ok {
                         self.feature = mediaItem
                     }
+                    isLoaded = true
                 }
             }
         }

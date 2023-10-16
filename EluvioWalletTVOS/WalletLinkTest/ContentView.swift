@@ -52,11 +52,13 @@ func CreatePlayLink(
 }
 
 //For DEMO ONLY: minting into the a wallet even if it exists
+//Contract is just for convenience in the demo
 func CreateMintLink(
+    contract:String,
     marketplace: String,
     sku: String
 ) -> String{
-    return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)"
+    return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)"
 }
 
 struct ContentView: View {
@@ -96,12 +98,12 @@ struct ContentView: View {
                         alignment:.center
                     ){
                         
-                        /// A QUIET PLACE: DAY ONE
+                        /// BLUE
                         
                         NavigationLink(
                             destination:
                                 BluePage(
-                                    bgImage: "Blue-A Quiet Place-No Buttons",
+                                    bgImage: "BLUE-AQuietPlace-NoButtons",
                                     bundleLink: CreateBundleLink(
                                         contract:"0x4343b822b172a18416e3b842ecbec7e6f37dc4af",
                                         marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU",
@@ -118,67 +120,6 @@ struct ContentView: View {
                             )
                         }
                         
-                        NavigationLink(
-                            destination:
-                                FetchPage(
-                                    bgImage: "Fetch-A Quiet Place-No Buttons",
-                                    bundleLink: CreateBundleLink(
-                                        contract:"0xa1692fadb4c7869150e9a127832150cbe41d66f7",
-                                        marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
-                                        sku:"VLuvVAzjjESLJUAzgETy2e"
-                                    ),
-                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
-                                )
-                        ) {
-                            Text(
-                                "A Quiet Place: Day One - Fetch"
-                            )
-                            .frame(
-                                width:700
-                            )
-                        }
-                        
-                        NavigationLink(
-                            destination:
-                                KTPage(
-                                    bgImage: "KT-A Quiet Place-No Buttons",
-                                    bundleLink: CreateBundleLink(
-                                        contract:"0xa1d1c0af6e1092610bc94d1468ab53bb1a2ef136",
-                                        marketplace:"iq__2bWmbXgLJ1yd7WHDUAH8HJzurJXs",
-                                        sku:"MyyknMqCm1kKhZ71magLFf"
-                                    ),
-                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
-                                )
-                        ) {
-                            Text(
-                                "A Quiet Place: Day One - KT"
-                            )
-                            .frame(
-                                width:700
-                            )
-                        }
-                        
-                        NavigationLink(
-                            destination:
-                                UNextPage(
-                                    bgImage: "U-NEXT-A Quiet Place-No Buttons",
-                                    bundleLink: CreateBundleLink(
-                                        contract:"0xb6902431d2d0587bf961eb512191284473931e7b",
-                                        marketplace:"iq__4Lje7rSXCzn62RRT2tWZb6VgB5qY",
-                                        sku:"HRfr9ks5YXduw1YUQwruFP"
-                                    ),
-                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
-                                )
-                        ) {
-                            Text(
-                                "A Quiet Place: Day One - U-NEXT"
-                            )
-                            .frame(
-                                width:700
-                            )
-                        }
-                        
-                        /// ONE LOVE
                         
                         NavigationLink(
                             destination:
@@ -194,6 +135,49 @@ struct ContentView: View {
                         ) {
                             Text(
                                 "One Love - Blue"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        NavigationLink(
+                            destination:
+                                BluePage(
+                                    bgImage: "BLUE-TopGun-NoButtons",
+                                    bundleLink: CreateMintLink(
+                                        contract:"0x8f5bd77149dd1543c955fdb062b9eaf283e720e8",
+                                        marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU",
+                                        sku:"SZVBrNZEmutBq1aSvB9VZe"
+                                    ),
+                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "Top Gun - Blue"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        Divider().frame(width:700).padding()
+                        //FETCH
+                        
+                        NavigationLink(
+                            destination:
+                                FetchPage(
+                                    bgImage: "FETCH-AQuietPlace-NoButtons",
+                                    bundleLink: CreateBundleLink(
+                                        contract:"0xa1692fadb4c7869150e9a127832150cbe41d66f7",
+                                        marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
+                                        sku:"VLuvVAzjjESLJUAzgETy2e"
+                                    ),
+                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "A Quiet Place: Day One - Fetch"
                             )
                             .frame(
                                 width:700
@@ -222,6 +206,49 @@ struct ContentView: View {
                         
                         NavigationLink(
                             destination:
+                                FetchPage(
+                                    bgImage: "FETCH-TopGun-NoButtons",
+                                    bundleLink: CreateMintLink(
+                                        contract:"0x31c521b0244a48fd536671b7ff98703483721767",
+                                        marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
+                                        sku:"PcAKhWtiLbFHwGPHwAzbLN"
+                                    ),
+                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "Top Gun - Fetch"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        Divider().frame(width:700).padding()
+                        // KT
+                        
+                        NavigationLink(
+                            destination:
+                                KTPage(
+                                    bgImage: "KT-AQuietPlace-NoButtons",
+                                    bundleLink: CreateBundleLink(
+                                        contract:"0xa1d1c0af6e1092610bc94d1468ab53bb1a2ef136",
+                                        marketplace:"iq__2bWmbXgLJ1yd7WHDUAH8HJzurJXs",
+                                        sku:"MyyknMqCm1kKhZ71magLFf"
+                                    ),
+                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "A Quiet Place: Day One - KT"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        NavigationLink(
+                            destination:
                                 KTPage(
                                     bgImage: "KT-OneLove-NoButtons",
                                     bundleLink: CreateBundleLink(
@@ -242,6 +269,48 @@ struct ContentView: View {
                         
                         NavigationLink(
                             destination:
+                                KTPage(
+                                    bgImage: "KT-TopGun-NoButtons",
+                                    bundleLink: CreateMintLink(
+                                        contract:"0x7ec94256db5fb85ee9f58930fa45c3f951ce3924",
+                                        marketplace:"iq__2bWmbXgLJ1yd7WHDUAH8HJzurJXs",
+                                        sku:"D885THn4zotH8vPzc4N8rW"
+                                    ),
+                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "Top Gun - KT"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+
+                        Divider().frame(width:700).padding()
+                        
+                        NavigationLink(
+                            destination:
+                                UNextPage(
+                                    bgImage: "UNEXT-AQuietPlace-NoButtons",
+                                    bundleLink: CreateBundleLink(
+                                        contract:"0xb6902431d2d0587bf961eb512191284473931e7b",
+                                        marketplace:"iq__4Lje7rSXCzn62RRT2tWZb6VgB5qY",
+                                        sku:"HRfr9ks5YXduw1YUQwruFP"
+                                    ),
+                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "A Quiet Place: Day One - U-Next"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+
+                        NavigationLink(
+                            destination:
                                 UNextPage(
                                     bgImage: "UNEXT-OneLove-NoButtons",
                                     bundleLink: CreateBundleLink(
@@ -259,93 +328,29 @@ struct ContentView: View {
                                 width:700
                             )
                         }
-                        
-                        /// TOP GUN
-                        
-                        NavigationLink(
-                            destination:
-                                BluePage(
-                                    bgImage: "BLUE-TopGun-NoButtons",
-                                    bundleLink: CreateMintLink(
-                                        //contract:"0x8f5bd77149dd1543c955fdb062b9eaf283e720e8",
-                                        marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU",
-                                        sku:"SZVBrNZEmutBq1aSvB9VZe"
-                                    ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
-                                    bundleButtonText: "Activate"
-                                )
-                        ) {
-                            Text(
-                                "Top Gun - Blue"
-                            )
-                            .frame(
-                                width:700
-                            )
-                        }
-                        
-                        NavigationLink(
-                            destination:
-                                FetchPage(
-                                    bgImage: "FETCH-TopGun-NoButtons",
-                                    bundleLink: CreateMintLink(
-                                        //contract:"0x31c521b0244a48fd536671b7ff98703483721767",
-                                        marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
-                                        sku:"PcAKhWtiLbFHwGPHwAzbLN"
-                                    ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
-                                    bundleButtonText: "Activate"
-                                )
-                        ) {
-                            Text(
-                                "Top Gun - Fetch"
-                            )
-                            .frame(
-                                width:700
-                            )
-                        }
-                        
-                        NavigationLink(
-                            destination:
-                                KTPage(
-                                    bgImage: "KT-TopGun-NoButtons",
-                                    bundleLink: CreateMintLink(
-                                        //contract:"0x7ec94256db5fb85ee9f58930fa45c3f951ce3924",
-                                        marketplace:"iq__2bWmbXgLJ1yd7WHDUAH8HJzurJXs",
-                                        sku:"D885THn4zotH8vPzc4N8rW"
-                                    ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
-                                    bundleButtonText: "Activate"
-                                )
-                        ) {
-                            Text(
-                                "Top Gun - KT"
-                            )
-                            .frame(
-                                width:700
-                            )
-                        }
+
                         
                         NavigationLink(
                             destination:
                                 UNextPage(
                                     bgImage: "UNEXT-TopGun-NoButtons",
                                     bundleLink: CreateMintLink(
-                                        //contract:"0x00da448b526b3a2a0e6aa95ab1dc97efc0922c1c",
+                                        contract:"0x00da448b526b3a2a0e6aa95ab1dc97efc0922c1c",
                                         marketplace:"iq__4Lje7rSXCzn62RRT2tWZb6VgB5qY",
                                         sku:"M3CFGNeF236FgT7XLLoAne"
                                     ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
-                                    bundleButtonText: "Activate"
+                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
-                                "Top Gun - UNEXT"
+                                "Top Gun - U-Next"
                             )
                             .frame(
                                 width:700
                             )
                         }
                         
+                        Divider().frame(width:700).padding()
                         // FOX
                         
                         NavigationLink(
@@ -399,6 +404,7 @@ struct ContentView: View {
                                     bundleImage: "FOX Entertainment Bundle Thumbnail",
                                     //For DEMO force minting
                                     bundleLink: CreateMintLink(
+                                        contract:"0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7",
                                         marketplace: "iq__3W16Qeiksnbd4GFwwXEfhiZ89Y82",
                                         sku:"NUwRFs3huWmSJQJryHcELP"
                                     ),
@@ -415,6 +421,8 @@ struct ContentView: View {
                                 width:700
                             )
                         }
+                        
+                        Divider().frame(width:700).padding()
                         
                         // THE FLASH
                         

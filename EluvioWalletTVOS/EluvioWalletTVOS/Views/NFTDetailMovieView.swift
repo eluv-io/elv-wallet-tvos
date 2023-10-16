@@ -41,6 +41,7 @@ struct NFTDetailMovieView: View {
     @State var redeemableFeatures: [RedeemableViewModel] = []
 
     @State private var isLoaded = false
+    @State private var showProgress = true
     
     private var sections: [MediaSection] {
         if let additionalMedia = seriesMediaItem.nft?.additional_media_sections {
@@ -87,56 +88,6 @@ struct NFTDetailMovieView: View {
     }
     
     var body: some View {
-        if !isLoaded {
-            Color.black
-                .frame(maxWidth:.infinity, maxHeight: .infinity)
-                .edgesIgnoringSafeArea(.all)
-                .onAppear(){
-                    self.isLoaded = false
-                    
-                    if let nft = seriesMediaItem.nft {
-                        if let additions = nft.additional_media_sections {
-                            self.featuredMedia = additions.featured_media
-                        }
-                    }
-                    
-                    debugPrint("Featured number" , self.featuredMedia.count)
-                    
-                    Task{
-                        
-                        if let nft = seriesMediaItem.nft {
-                            if let redeemableOffers = nft.redeemable_offers {
-                                //debugPrint("RedeemableOffers ", redeemableOffers)
-                                if !redeemableOffers.isEmpty {
-                                    var redeemableFeatures: [RedeemableViewModel] = []
-                                    for redeemable in redeemableOffers {
-                                        do{
-                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                            if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
-                                                redeemableFeatures.append(redeem)
-                                                //debugPrint("Redeemable should display!")
-                                            }else{
-                                                //debugPrint("Redeemable should NOT display")
-                                            }
-                                        }catch{
-                                            print("Error processing redemption ", error)
-                                        }
-                                    }
-                                    await MainActor.run {
-                                        self.redeemableFeatures = redeemableFeatures
-                                        debugPrint("redeemableFeatures number" , self.redeemableFeatures.count)
-                                        self.isLoaded = true
-                                    }
-                                }
-                            }
-                        }
-                        
-                        await MainActor.run {
-                            self.isLoaded = true
-                        }
-                    }
-                }
-        }else {
             ScrollView{
                 VStack(alignment:.leading){
                     Button{} label: {
@@ -150,13 +101,6 @@ struct NFTDetailMovieView: View {
                             
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: 10)  {
-                                    /*
-                                    Text(subtitle)
-                                        .font(.small)
-                                        .foregroundColor(Color.gray)
-                                        .frame(maxWidth:650, alignment:.leading)
-                                        .lineLimit(1)
-*/
                                     HStack (spacing:20) {
                                         if (rating != ""){
                                             Text(rating)
@@ -236,13 +180,15 @@ struct NFTDetailMovieView: View {
                         .padding(.top)
                     }
                 }
+                .opacity(showProgress ? 0.0 : 1.0)
                 .padding(80)
                 .focusSection()
                 .scrollClipDisabled()
             }
             .frame(maxWidth:.infinity, maxHeight:.infinity)
             .background(
-                Group {
+                ZStack {
+                    Color.black.edgesIgnoringSafeArea(.all)
                     if (seriesMediaItem.backgroundImage.hasPrefix("http")){
                         WebImage(url: URL(string: seriesMediaItem.backgroundImage))
                             .resizable()
@@ -252,6 +198,7 @@ struct NFTDetailMovieView: View {
                             .frame(maxWidth:.infinity, maxHeight:.infinity)
                             .frame(alignment: .topLeading)
                             .clipped()
+                            .opacity(showProgress ? 0.0 : 1.0)
                     }else if(seriesMediaItem.backgroundImage != "") {
                         Image(seriesMediaItem.backgroundImage)
                             .resizable()
@@ -262,8 +209,58 @@ struct NFTDetailMovieView: View {
                             .clipped()
                     }
                 }
+                .edgesIgnoringSafeArea(.all)
             )
             .edgesIgnoringSafeArea(.all)
-        }
+            .onAppear(){
+                self.showProgress = true
+                Task {
+                    try? await Task.sleep(nanoseconds: 1500000000)
+                    if self.showProgress {
+                        await MainActor.run {
+                            self.showProgress = false
+                        }
+                    }
+                }
+                
+                if let nft = seriesMediaItem.nft {
+                    if let additions = nft.additional_media_sections {
+                        self.featuredMedia = additions.featured_media
+                    }
+                }
+                
+                debugPrint("Featured number" , self.featuredMedia.count)
+                
+                Task{
+                    
+                    if let nft = seriesMediaItem.nft {
+                        if let redeemableOffers = nft.redeemable_offers {
+                            //debugPrint("RedeemableOffers ", redeemableOffers)
+                            if !redeemableOffers.isEmpty {
+                                var redeemableFeatures: [RedeemableViewModel] = []
+                                for redeemable in redeemableOffers {
+                                    do{
+                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                        if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                            redeemableFeatures.append(redeem)
+                                            //debugPrint("Redeemable should display!")
+                                        }else{
+                                            //debugPrint("Redeemable should NOT display")
+                                        }
+                                    }catch{
+                                        print("Error processing redemption ", error)
+                                    }
+                                }
+                                await MainActor.run {
+                                    self.redeemableFeatures = redeemableFeatures
+                                    debugPrint("redeemableFeatures number" , self.redeemableFeatures.count)
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        
     }
 }

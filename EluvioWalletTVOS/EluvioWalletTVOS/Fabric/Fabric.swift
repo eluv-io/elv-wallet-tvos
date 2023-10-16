@@ -685,7 +685,7 @@ class Fabric: ObservableObject {
     }
     
     //Waits for transaction for pollSeconds
-    func mintItem(tenantId: String, marketplaceId: String, sku: String, pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
+    func mintItem(tenantId: String, marketplaceId: String, sku: String, contract:String="", pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
         
         if tenantId == "" {
             throw FabricError.unexpectedResponse("Error minting item. tenantId is empty")
@@ -715,8 +715,8 @@ class Fabric: ObservableObject {
         ]
         
         //DEMO:
-        if IsDemoMode() {
-            var contractAddress = "0x78e3e96ed9be5cab65ee1aa937ac816f6fdfbaf7"
+        if IsDemoMode() && contract != ""{
+            var contractAddress = contract
             if let nft = getNFT(contract:contractAddress) {
                 let result = try await mintComplete(confirmationId: confirmationId, tenantId: tenantId, marketplaceId: marketplaceId, sku:sku, pollSeconds: 5)
                 return (true,contractAddress,"")

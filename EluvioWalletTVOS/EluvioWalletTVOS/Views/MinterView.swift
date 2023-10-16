@@ -46,6 +46,9 @@ struct MinterView: View {
     private var description : String {
         return marketItem["nft_template"]["nft"]["description"].stringValue
     }
+    private var contractAddress : String {
+        return marketItem["nft_template"]["nft"]["address"].stringValue
+    }
     
     var body: some View {
         if showNft {
@@ -98,7 +101,7 @@ struct MinterView: View {
                                     
                                     do {
                                         debugPrint("Minting... \(self.marketItem["sku"])")
-                                        let result = try await fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku)
+                                        let result = try await fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku, contract: contractAddress)
                                         print("Redeem result", result)
                                         if result.contractAddress != ""{
                                             await MainActor.run {
