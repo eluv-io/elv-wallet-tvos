@@ -151,7 +151,7 @@ struct PlayerView: View {
                 }
             }
             .onAppear(){
-                //print("*** PlayerView onAppear() ", self.player)
+                print("*** PlayerView onAppear() ")
                 //print("PlayerItem",self.playerItem)
                 if (self.playerItem != self.player.currentItem){
                     self.player.replaceCurrentItem(with: self.playerItem)

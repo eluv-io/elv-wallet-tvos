@@ -31,7 +31,7 @@ class Fabric: ObservableObject {
     var configUrl = ""
     var network = ""
     var configuration : FabricConfiguration? = nil
-    var mainStaticUrl = "https://main.net955305.contentfabric.io"
+    var mainStaticUrl = "https://main.net955305.contentfabric.io/s"
     let mainStaticToken = "eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSJ9Cg=="
     
     func connect(configUrl: String) async throws {

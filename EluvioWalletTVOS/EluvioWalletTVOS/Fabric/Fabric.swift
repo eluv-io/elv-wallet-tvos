@@ -1568,11 +1568,13 @@ class Fabric: ObservableObject {
     
     //TODO: Set into the app services profile
     func setUserViewedProgress(nftContract: String, mediaId: String, progress:MediaProgress) throws{
-        
+        debugPrint("setUserViewedProgress contract \(nftContract) mediaId \(mediaId) progress \(progress)")
         var container = MediaProgressContainer()
         do {
             container = try getUserViewedProgressContainer()
-        }catch{}
+        }catch{
+            debugPrint("No previous user progress found.")
+        }
         
         container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] = progress
         
@@ -1581,6 +1583,8 @@ class Fabric: ObservableObject {
             let defaults = UserDefaults.standard
             defaults.set(encoded, forKey: try getKeyMediaProgressContainer())
             debugPrint("Saved to defaults")
+        }else {
+            debugPrint("Could not encode progress info ", container)
         }
     }
     

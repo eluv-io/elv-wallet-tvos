@@ -320,13 +320,19 @@ struct MediaView2: View {
     }
     
     func onPlayerProgress(_ progress: Double,_ currentTimeS: Double,_ durationS: Double) {
-        debugPrint("Player progress: ", progress)
-        debugPrint("Player duration seconds: ", durationS)
-        debugPrint("Player currentTime seconds: ", currentTimeS)
+        debugPrint("MediaView2 progress: ", progress)
+        debugPrint("MediaView2 duration seconds: ", durationS)
+        debugPrint("MediaView2 currentTime seconds: ", currentTimeS)
+
+        print("media view model", self.media.nft)
+        print("media model ", self.mediaItem?.nft)
+
         guard let contract = self.media.nft?.contract_addr else {
+            print("Could not get nft contract \(self.media.nft?.contract_addr )")
             return
         }
         guard let mediaId = self.media.mediaId else{
+            print("Could not get media ", self.media.mediaId)
             return
         }
         let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)

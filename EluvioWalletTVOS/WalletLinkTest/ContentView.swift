@@ -109,7 +109,7 @@ struct ContentView: View {
                                         marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU",
                                         sku:"H7v4eaU3CNv9TAK1n1RQLk"
                                     ),
-                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -130,7 +130,7 @@ struct ContentView: View {
                                         marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU",
                                         sku:"UaZHyXZnXEb1EVqawpwFG7"
                                     ),
-                                    playOutPath:"/s/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -150,7 +150,7 @@ struct ContentView: View {
                                         marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU",
                                         sku:"SZVBrNZEmutBq1aSvB9VZe"
                                     ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -173,7 +173,7 @@ struct ContentView: View {
                                         marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
                                         sku:"VLuvVAzjjESLJUAzgETy2e"
                                     ),
-                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -193,7 +193,7 @@ struct ContentView: View {
                                         marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
                                         sku:"3MgmkiUxX4AKNgsDqvGVQy"
                                     ),
-                                    playOutPath:"/s/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -213,7 +213,7 @@ struct ContentView: View {
                                         marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
                                         sku:"PcAKhWtiLbFHwGPHwAzbLN"
                                     ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -236,7 +236,7 @@ struct ContentView: View {
                                         marketplace:"iq__2bWmbXgLJ1yd7WHDUAH8HJzurJXs",
                                         sku:"MyyknMqCm1kKhZ71magLFf"
                                     ),
-                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -256,7 +256,7 @@ struct ContentView: View {
                                         marketplace:"iq__2bWmbXgLJ1yd7WHDUAH8HJzurJXs",
                                         sku:"WkHJifc7JUAUANGgZp7eGL"
                                     ),
-                                    playOutPath:"/s/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -276,7 +276,7 @@ struct ContentView: View {
                                         marketplace:"iq__2bWmbXgLJ1yd7WHDUAH8HJzurJXs",
                                         sku:"D885THn4zotH8vPzc4N8rW"
                                     ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -298,7 +298,7 @@ struct ContentView: View {
                                         marketplace:"iq__4Lje7rSXCzn62RRT2tWZb6VgB5qY",
                                         sku:"HRfr9ks5YXduw1YUQwruFP"
                                     ),
-                                    playOutPath:"/s/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -318,7 +318,7 @@ struct ContentView: View {
                                         marketplace:"iq__4Lje7rSXCzn62RRT2tWZb6VgB5qY",
                                         sku:"8uiAgcftFSVrX42LV4BPkW"
                                     ),
-                                    playOutPath:"/s/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -339,7 +339,7 @@ struct ContentView: View {
                                         marketplace:"iq__4Lje7rSXCzn62RRT2tWZb6VgB5qY",
                                         sku:"M3CFGNeF236FgT7XLLoAne"
                                     ),
-                                    playOutPath:"/s/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -364,7 +364,7 @@ struct ContentView: View {
                                         sku: "3HVqSTXa4N1seLkL3sYnSL"
                                     ),
                                     playImage: "Live Fox Sports Thumbnail",
-                                    playOutPath: "/s/q/iq__3tfUq87qve9ywYu1jL3tGYfXk1ij/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath: "/q/iq__3tfUq87qve9ywYu1jL3tGYfXk1ij/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -386,7 +386,7 @@ struct ContentView: View {
                                         sku:"RzVfTVinSpRh1jde2uS5b8"
                                     ),
                                     playImage: "Live Fox Weather Thumbnail",
-                                    playOutPath:"/s/q/iq__2EnYCsx2wn4dpbXDJAk137n9RPU6/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/iq__2EnYCsx2wn4dpbXDJAk137n9RPU6/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
@@ -409,7 +409,7 @@ struct ContentView: View {
                                         sku:"NUwRFs3huWmSJQJryHcELP"
                                     ),
                                     playImage: "FOX Example VOD Thumbnail",
-                                    playOutPath:"/s/q/iq__2D4nVMqCEEEr3xaaxzZFXq9mKXr8/rep/playout/default/hls-aes128/playlist.m3u8",
+                                    playOutPath:"/q/iq__2D4nVMqCEEEr3xaaxzZFXq9mKXr8/rep/playout/default/hls-aes128/playlist.m3u8",
                                     playButtonText: "Play",
                                     bundleButtonText: "Activate"
                                 )
@@ -465,7 +465,7 @@ struct ContentView: View {
                                         marketplace:"",
                                         sku:"2DgqQquXtXoyWmRHuRTmss"
                                     ),
-                                    playOutPath:"/s/q/iq__2HUxmn3xLv1vJMU8YLL7vmoKvqvY/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/iq__2HUxmn3xLv1vJMU8YLL7vmoKvqvY/rep/playout/default/hls-clear/playlist.m3u8"
                                 )
                         ) {
                             Text(
