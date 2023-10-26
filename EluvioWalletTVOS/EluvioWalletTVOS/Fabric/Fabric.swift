@@ -854,7 +854,9 @@ class Fabric: ObservableObject {
             self.library = parsedLibrary
 
             if IsDemoMode() {
+                let vuduProp = try await createVuduDemoProp(nfts: nfts)
                 let uefaProp = try await createUEFAProp(nfts: nfts)
+                let aflProp = try await createAFLProp(nfts: nfts)
                 let wbProp = try await createWbDemoProp(nfts: nfts)
                 let foxEntProp = try await createFoxEntertainmentProp(nfts: nfts)
                 let foxSportsProp = try await createFoxSportsDemoProp(nfts: nfts)
@@ -864,6 +866,8 @@ class Fabric: ObservableObject {
                 let moonProp = try await createMoonProp(nfts: nfts)
                 
                 properties = [
+                    aflProp,
+                    vuduProp,
                     uefaProp,
                     wbProp,
                     foxEntProp,
@@ -903,6 +907,52 @@ class Fabric: ObservableObject {
 
         
         let prop = CreateTestPropertyModel(title:"Moonsault", logo: "MoonSaultLogo_White", image:"MoonSault-search-v4", heroImage:"MoonSault TopImage-v4", items:[])
+        
+        return prop
+    }
+    
+    func createVuduDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let address = nft["contract_addr"].stringValue
+            if address.lowercased() == "0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4"{
+                demoNfts.append(nft)
+            }else if address.lowercased() == "0x8e225b2dbe6272d136b58f94e32c207a72cdfa3b"{
+                demoNfts.append(nft)
+            }else if address.lowercased() == "0x86b9f9b5d26c6f111afaecf64a7c3e3e8a1736da" {
+                demoNfts.append(nft)
+            }
+        }
+        
+        let demoLib = try await parseNfts(demoNfts)
+        
+        /*for media in demoLib.featured.media {
+            debugPrint("WB Featured: ", media.name)
+        }*/
+
+        
+        var demoMedia : [MediaCollection] = []
+        demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+        demoMedia.append(MediaCollection(name:"Images", media:demoLib.galleries))
+        demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+
+        var newItems : [NFTModel] = []
+        
+        for var item in demoLib.items{
+            if let name = item.contract_name {
+                if name.contains("Quiet") {
+                    item.title_image = "TileGroup-A Quiet Place Day One"
+                }else  if name.contains("Love") {
+                    item.title_image = "TileGroup-BobMarleyOneLove"
+                }else if name.contains("Top"){
+                    item.title_image = "TileGroup-Top Gun"
+                }
+            }
+            newItems.append(item)
+        }
+        
+        let prop = CreateTestPropertyModel(title:"VUDU", logo: "", image:"SearchTile - VUDU", heroImage:"PropertyTopImage - VUDU",
+                                    featured: demoLib.featured, media: demoMedia, items:newItems)
         
         return prop
     }
@@ -1216,6 +1266,40 @@ class Fabric: ObservableObject {
         }
 
         let prop = CreateTestPropertyModel(title:"UEFA Euro2024", logo: "UEFA_light_logo", image:"UEFA", heroImage:"UEFA_property_strip",  featured: demoLib.featured, sections: sections, items:newItems)
+        
+        return prop
+    }
+    
+    func createAFLProp(nfts:[JSON]) async throws -> PropertyModel {
+        debugPrint("CreateAFLProp()")
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let address = nft["contract_addr"].stringValue
+            if address.lowercased() == "0x3f50c094f5f48c87bb8c78bdb52c879aeba9ad9e" {
+                demoNfts.append(nft)
+            }
+        }
+        
+        let demoLib = try await parseNfts(demoNfts)
+        var demoMedia : [MediaCollection] = []
+        var sections : [MediaSection] = []
+        
+        var newItems : [NFTModel] = []
+        
+        for item in demoLib.items{
+            if let additions = item.additional_media_sections {
+                for section in additions.sections {
+                    sections.append(section)
+                    /*for collection in section.collections {
+                        demoMedia.append(collection)
+                        debugPrint("Collection: ", collection.name)
+                    }*/
+                }
+            }
+            newItems.append(item)
+        }
+
+        let prop = CreateTestPropertyModel(title:"AFL Plus", logo: "", image:"AFL_SearchResultCardTemplate", heroImage:"AFL_Property_Header",  featured: demoLib.featured, sections: sections, items:newItems)
         
         return prop
     }

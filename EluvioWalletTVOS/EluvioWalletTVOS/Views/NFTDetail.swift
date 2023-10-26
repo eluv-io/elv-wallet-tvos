@@ -306,46 +306,66 @@ struct NFTDetailView: View {
             }
         }
         
-        Task {
-            if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
-                self.backgroundImageUrl = "https://picsum.photos/600/800"
-            }else{
-                var imageLink: JSON? = nil
-                var imageUrl = ""
-                do {
-                    if (!localizedFeatures.isEmpty) {
-                        imageLink = localizedFeatures[0].background_image_tv
-                        imageUrl = try fabric.getUrlFromLink(link: imageLink)
-                        
-                    }
+        if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
+            self.backgroundImageUrl = "https://picsum.photos/600/800"
+        }else{
+            var imageLink: JSON? = nil
+            var imageUrl = ""
+            do {
+                if (!localizedFeatures.isEmpty) {
+                    debugPrint("local feature background Image: ", localizedFeatures[0].background_image_tv)
+                    imageLink = localizedFeatures[0].background_image_tv
+                    imageUrl = try fabric.getUrlFromLink(link: imageLink)
                     
-                    if imageUrl == "" {
-                        if let bg = nft.background_image_tv {
-                            if bg != "" {
-                                imageUrl = bg
-                            }
-                        }else{
-                            
-                            //Use the NFT's background image
-                            if let featured = nft.additional_media_sections?.featured_media {
-                                if !featured.isEmpty {
-                                    imageLink = featured[0].background_image_tv
-                                    imageUrl  = try fabric.getUrlFromLink(link: imageLink)
-                                }
-                            }
+                }
+                
+                if imageUrl == "" {
+                    
+                    if let imageLink = nft.meta_full?["background_image_tv"] {
+                        if !imageLink.isEmpty {
+                            do {
+                                imageUrl  = try fabric.getUrlFromLink(link: imageLink)
+                                debugPrint("NFT background Image TV: ", imageUrl )
+                            }catch{}
+
                         }
                     }
-                    
-                    await MainActor.run {
-                        self.backgroundImageUrl = imageUrl
-                    }
-                    
-                }catch{
-                    print("Error getting background image:", error)
                 }
+                
+                if imageUrl == "" {
+                    
+                    if let imageLink = nft.meta_full?["background_image"] {
+                        if !imageLink.isEmpty {
+                            do {
+                                imageUrl  = try fabric.getUrlFromLink(link: imageLink)
+                                debugPrint("NFT background Image: ", imageUrl )
+                            }catch{}
+
+                        }
+                    }
+                }
+                
+                    
+                    
+                if imageUrl == "" {
+                        
+                    //Use the NFT's first feature's background image
+                    if let featured = nft.additional_media_sections?.featured_media {
+                        if !featured.isEmpty {
+                            imageLink = featured[0].background_image_tv
+                            imageUrl  = try fabric.getUrlFromLink(link: imageLink)
+                            debugPrint("featured background Image: ", imageUrl )
+                        }
+                    }
+                }
+            
+                
+                self.backgroundImageUrl = imageUrl
+            }catch{
+                print("Error getting background image:", error)
             }
         }
-
+        
     }
 }
 

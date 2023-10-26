@@ -77,6 +77,7 @@
 		B0A2FD042ACD557100AC825D /* NFTDetailMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */; };
 		B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
+		B0D53D702AE754E900E0A82E /* VuduPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53D6F2AE754E900E0A82E /* VuduPage.swift */; };
 		B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
 		B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF952A250E3500F1E358 /* MediaDetail.swift */; };
@@ -165,6 +166,7 @@
 		B0A2FD002ACC98B500AC825D /* Fabric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fabric.swift; sourceTree = "<group>"; };
 		B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDetailMovieView.swift; sourceTree = "<group>"; };
 		B0A2FD052ACF3E6A00AC825D /* MinterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinterView.swift; sourceTree = "<group>"; };
+		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
 		B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0DFFF952A250E3500F1E358 /* MediaDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetail.swift; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				B00FA9E62AD905D500CFBFF7 /* KTPage.swift */,
 				B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */,
 				B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */,
+				B0D53D6F2AE754E900E0A82E /* VuduPage.swift */,
 			);
 			path = WalletLinkTest;
 			sourceTree = "<group>";
@@ -538,6 +541,7 @@
 				B00FA9E72AD905D500CFBFF7 /* KTPage.swift in Sources */,
 				B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */,
 				B00FA9E52AD904F400CFBFF7 /* FetchPage.swift in Sources */,
+				B0D53D702AE754E900E0A82E /* VuduPage.swift in Sources */,
 				B0A2FCFD2ACAA3CA00AC825D /* UEFAPage.swift in Sources */,
 				B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */,
 			);
@@ -612,7 +616,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -639,7 +643,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 24;
+				CURRENT_PROJECT_VERSION = 25;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -785,7 +789,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 130;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -817,7 +821,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 126;
+				CURRENT_PROJECT_VERSION = 130;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

@@ -280,6 +280,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var property : PropertyModel? = nil
     var project : ProjectModel? = nil
     var background_image_tv: String? = "" //XXX: Demo only
+    var background_image: String? = "" //XXX: Demo only
     var title_image: String? = "" //XXX: Demo only
     var redeemable_offers: [Redeemable]?
     

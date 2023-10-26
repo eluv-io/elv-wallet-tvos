@@ -71,9 +71,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack(
-                    alignment:.center
-                ) {
+                LazyVStack(alignment:.center) {
                     HStack(
                         alignment:.center,
                         spacing:20
@@ -97,6 +95,72 @@ struct ContentView: View {
                     VStack(
                         alignment:.center
                     ){
+                        /// VUDU
+                        
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU-AQuietPlace-NoButtons",
+                                    bundleLink: CreateBundleLink(
+                                        contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
+                                        marketplace:"iq__486mYdFPkvmJ8YDQHxHEsW7TRr1D",
+                                        sku:"NTSaHLRni4rXc8HY4u9Ap5"
+                                    ),
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "A Quiet Place: Day One - VUDU"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU-OneLove-NoButtons",
+                                    bundleLink: CreateBundleLink(
+                                        contract:"0x8e225b2dbe6272d136b58f94e32c207a72cdfa3b",
+                                        marketplace:"iq__486mYdFPkvmJ8YDQHxHEsW7TRr1D",
+                                        sku:"6zEubv9HxV6sD7TiKCt2Uh"
+                                    ),
+                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "One Love - VUDU"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU-TopGun-NoButtons",
+                                    bundleLink: CreateMintLink(
+                                        contract:"0x86b9f9b5d26c6f111afaecf64a7c3e3e8a1736da",
+                                        marketplace:"iq__486mYdFPkvmJ8YDQHxHEsW7TRr1D",
+                                        sku:"4K7QgmEhnVUhbX5knUv47B"
+                                    ),
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
+                                    bundleButtonText: "Activate"
+                                )
+                        ) {
+                            Text(
+                                "Top Gun - VUDU"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        Divider().frame(width:700).padding()
+                        
                         
                         /// BLUE
                         
@@ -150,7 +214,8 @@ struct ContentView: View {
                                         marketplace:"iq__2JfsLkPskQ4wBFqL6FaXxnicU8XU",
                                         sku:"SZVBrNZEmutBq1aSvB9VZe"
                                     ),
-                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
+                                    bundleButtonText: "Activate"
                                 )
                         ) {
                             Text(
@@ -213,7 +278,8 @@ struct ContentView: View {
                                         marketplace:"iq__9YVCGN888PEEZ42ydQznrKqGCzv",
                                         sku:"PcAKhWtiLbFHwGPHwAzbLN"
                                     ),
-                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
+                                    bundleButtonText: "Activate"
                                 )
                         ) {
                             Text(
