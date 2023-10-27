@@ -106,25 +106,25 @@ struct PlayerView: View {
     @State var playerImageOverlayUrl = ""
     @State var playerTextOverlay = ""
     @State var finishedObserver = PlayerFinishedObserver()
-    @State var seekTimeS: Double = 0.0
+    var seekTimeS: Double
     @Binding var finished: Bool
     var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
 
     var body: some View {
             VideoPlayer(player: player)
             .ignoresSafeArea()
-            .onReceive(timer) { time in
+            /*.onReceive(timer) { time in
                 //print("Item Status \(self.playerItem?.status.rawValue)")
                 if (newItem && self.playerItem?.status == .readyToPlay){
-                    self.player.play()
-                    newItem = false
-                    debugPrint("Play!!")
                     if seekTimeS > 5.0 {
                         self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
                     }
+                    self.player.play()
+                    newItem = false
+                    debugPrint("Play!!")
                 }
                 
-            }
+            }*/
             .onReceive(finishedObserver.publisher) {
                 print("Finished!")
                 self.finished = true
@@ -159,6 +159,7 @@ struct PlayerView: View {
                 }
                 
                 player.addProgressObserver { progress in
+
                     debugPrint("Player progress: ", progress)
                     debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
                     debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
@@ -170,7 +171,11 @@ struct PlayerView: View {
                     }
                     
                 }
+                
+                self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
                 self.player.play()
+                
+                print("*** PlayerView PLAY", seekTimeS)
 
                 newItem = true
                 self.finishedObserver = PlayerFinishedObserver(player: player)

@@ -259,7 +259,8 @@ struct NFTDetailView: View {
                     var locals:[MediaItem] = []
                     
                     for feature in additions.featured_media {
-                        debugPrint("feature ", feature.name)
+                        debugPrint("feature name ", feature.name)
+                        debugPrint("feature nft ", feature.nft)
                         if (feature.location == ""){
                             features.append(feature)
                             debugPrint("feature appended with no location")
@@ -273,6 +274,11 @@ struct NFTDetailView: View {
                         self.localizedFeatures = locals
                     }
                 }else{
+                    for feature in additions.featured_media {
+                        debugPrint("No location feature name ", feature.name)
+                        debugPrint("No location feature nft ", feature.nft)
+                    }
+                    
                     await MainActor.run {
                         self.featuredMedia = additions.featured_media
                     }

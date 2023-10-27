@@ -194,7 +194,7 @@ struct ContentView: View {
                         NFTDetail(nft: self.nft)
                     }
                     .fullScreenCover(isPresented: $showPlayer) {
-                        PlayerView(playerItem:self.$playerItem, finished: $playerFinished)
+                        PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished)
                     }
                     .fullScreenCover(isPresented: $showMinter) {
                         MinterView(marketItem: $mintItem, mintInfo:$mintInfo)

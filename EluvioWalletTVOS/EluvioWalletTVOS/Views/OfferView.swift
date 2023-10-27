@@ -229,7 +229,7 @@ struct OfferView: View {
             }
         }
         .fullScreenCover(isPresented: $showPlayer) {
-            PlayerView(playerItem:$playerItem, finished:$playerFinished)
+            PlayerView(playerItem:$playerItem, seekTimeS: 0, finished:$playerFinished)
         }
         .fullScreenCover(isPresented: $showResult) {
             OfferResultView(redeemable: redeemable, isRedeeming:$isRedeeming)

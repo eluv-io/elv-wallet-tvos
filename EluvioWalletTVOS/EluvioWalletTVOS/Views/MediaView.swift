@@ -166,19 +166,22 @@ struct MediaView2: View {
                         Task{
                             do {
 
+                                var item : AVPlayerItem? = nil
                                 if (media.offering != "default"){
                                     debugPrint("MediaView2 Offering: ", media.offering)
-                                    self.playerItem = try await MakePlayerItemFromVersionHash(fabric:fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
+                                    item = try await MakePlayerItemFromVersionHash(fabric:fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
                                 }else{
-                                    self.playerItem = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
+                                    item = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
                                 }
                             
+                                var startTime = 0.0
+                                
                                 do {
                                     if let contract = media.nft?.contract_addr {
                                         if let mediaId = media.mediaId {
                                             let progress = try fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
                                             if (progress.current_time_s > 0){
-                                                self.startTimeS = progress.current_time_s
+                                                startTime = progress.current_time_s
                                                 debugPrint("Found saved progress ", progress)
                                             }
                                         }
@@ -186,7 +189,18 @@ struct MediaView2: View {
 
                                 }catch{}
 
-                                self.showPlayer = true
+                                await MainActor.run {
+                                    guard let playerItem = item else {
+                                        print("Could not create player.")
+                                        errorMessage = "Sorry...something went wrong"
+                                        showError = true
+                                        return
+                                    }
+                                    self.playerItem = playerItem
+                                    self.startTimeS = startTime
+                                    debugPrint("Set Starttime ", self.startTimeS)
+                                    self.showPlayer = true
+                                }
                                 //print("****** showPlayer = true")
                                 //print("****** playerItem set ", self.playerItem)
                             }catch{
@@ -276,7 +290,8 @@ struct MediaView2: View {
             QRView(url: $qrUrl)
                 .environmentObject(self.fabric)
         }
-        .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) {
+        
+        .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) { [startTimeS] in //Need the capture list to update state https://stackoverflow.com/questions/75498944/why-is-this-swiftui-state-not-updated-when-passed-as-a-non-binding-parameter
             PlayerView(playerItem:self.$playerItem,
                        playerImageOverlayUrl:playerImageOverlayUrl,
                        playerTextOverlay:playerTextOverlay,
@@ -324,8 +339,8 @@ struct MediaView2: View {
         debugPrint("MediaView2 duration seconds: ", durationS)
         debugPrint("MediaView2 currentTime seconds: ", currentTimeS)
 
-        print("media view model", self.media.nft)
-        print("media model ", self.mediaItem?.nft)
+        //print("media view model", self.media.nft)
+        //print("media model ", self.mediaItem?.nft)
 
         guard let contract = self.media.nft?.contract_addr else {
             print("Could not get nft contract \(self.media.nft?.contract_addr )")

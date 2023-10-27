@@ -224,8 +224,17 @@ struct NFTDetailMovieView: View {
                 }
                 
                 if let nft = seriesMediaItem.nft {
+                    var featured : [MediaItem] = []
                     if let additions = nft.additional_media_sections {
-                        self.featuredMedia = additions.featured_media
+                        for var feature in additions.featured_media {
+                            //Need to add nft since we only added the nft to one level of the media item. This is the second level
+                            feature.nft = nft
+                            featured.append(feature)
+                            debugPrint("feature name ", feature.name)
+                            debugPrint("feature nft ", feature.nft?.contract_name)
+                        }
+                        
+                        self.featuredMedia = featured
                     }
                 }
                 

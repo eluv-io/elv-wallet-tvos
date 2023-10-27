@@ -101,6 +101,7 @@ struct DropDetail: View {
                 PlayerView(playerItem:self.$playerItem,
                            playerImageOverlayUrl:playerImageOverlayUrl,
                            playerTextOverlay:playerTextOverlay,
+                           seekTimeS: 0,
                            finished: $playerFinished
                 )
                 .preferredColorScheme(colorScheme)
