@@ -126,7 +126,27 @@ struct MediaView2: View {
     @State var showError = false
     @State var errorMessage = ""
     @State var startTimeS = 0.0
-    
+    @State var mediaProgress: MediaProgress?
+    var progressText: String {
+        guard let progress = mediaProgress else {
+            return ""
+        }
+        
+        let left = progress.duration_s - progress.current_time_s
+        let timeStr = left.asTimeString(style: .abbreviated)
+        return "\(timeStr) left"
+    }
+    var progressValue: Double {
+        guard let progress = mediaProgress else {
+            return 0.0
+        }
+        
+        if (progress.duration_s != 0) {
+            return progress.current_time_s / progress.duration_s
+        }
+        
+        return 0.0
+    }
     
     @State var showImage = false
     var image: String {
@@ -173,21 +193,6 @@ struct MediaView2: View {
                                 }else{
                                     item = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
                                 }
-                            
-                                var startTime = 0.0
-                                
-                                do {
-                                    if let contract = media.nft?.contract_addr {
-                                        if let mediaId = media.mediaId {
-                                            let progress = try fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
-                                            if (progress.current_time_s > 0){
-                                                startTime = progress.current_time_s
-                                                debugPrint("Found saved progress ", progress)
-                                            }
-                                        }
-                                    }
-
-                                }catch{}
 
                                 await MainActor.run {
                                     guard let playerItem = item else {
@@ -197,8 +202,6 @@ struct MediaView2: View {
                                         return
                                     }
                                     self.playerItem = playerItem
-                                    self.startTimeS = startTime
-                                    debugPrint("Set Starttime ", self.startTimeS)
                                     self.showPlayer = true
                                 }
                                 //print("****** showPlayer = true")
@@ -254,12 +257,29 @@ struct MediaView2: View {
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
             .overlay(content: {
-                if ((media.mediaType == "Video" || media.isLive) && !isFocused){
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 80))
-                        .foregroundColor(.white)
-                        .opacity(0.7)
+                if (media.mediaType == "Video"){
+                    if !isFocused  {
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 80))
+                            .foregroundColor(.white)
+                            .opacity(0.7)
+                    }else{
+                        if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
+                            VStack{
+                                Spacer()
+                                VStack(alignment:.leading, spacing:5){
+                                    Text(progressText).foregroundColor(.white)
+                                        .font(.system(size: 12))
+                                    ProgressView(value:progressValue)
+                                        .foregroundColor(.white)
+                                        .frame(height:4)
+                                }
+                                .padding()
+                            }
+                        }
+                    }
                 }
+                
             })
         }
         .fullScreenCover(isPresented: $showSeriesView) {
@@ -267,17 +287,7 @@ struct MediaView2: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         }
         .onAppear(){
-            Task {
-                do{
-                    //print("*** MediaView onChange")
-                    self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
-                    //print ("MediaView name ", media.name)
-                    //debugPrint("MediaItem title: ", self.mediaItem?.name)
-                    //debugPrint("display: ", display)
-                }catch{
-                    print("MediaView could not create MediaItemViewModel ", error)
-                }
-            }
+            updateProgress()
         }
         .fullScreenCover(isPresented: $showGallery) {
             GalleryView(gallery: $gallery)
@@ -329,9 +339,34 @@ struct MediaView2: View {
         }
     }
     
+    func updateProgress() {
+        Task {
+            do{
+                //print("*** MediaView onChange")
+                self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
+                    if let contract = media.nft?.contract_addr {
+                    if let mediaId = media.mediaId {
+                        let progress = try fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
+                        if (progress.current_time_s > 0){
+                            debugPrint("Found saved progress ", progress)
+                            await MainActor.run {
+                                self.startTimeS = progress.current_time_s
+                                self.mediaProgress = progress
+                            }
+                        }
+                    }
+                }
+
+            }catch{
+                print("MediaView could not create MediaItemViewModel ", error)
+            }
+        }
+    }
+    
     func onPlayerDismiss() {
         debugPrint("Player Dismiss")
         self.playerItem = nil
+        updateProgress()
     }
     
     func onPlayerProgress(_ progress: Double,_ currentTimeS: Double,_ durationS: Double) {
@@ -350,7 +385,9 @@ struct MediaView2: View {
             print("Could not get media ", self.media.mediaId)
             return
         }
+        
         let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)
+
         do {
             try fabric.setUserViewedProgress(nftContract:contract, mediaId: mediaId, progress:mediaProgress)
         }catch{
@@ -516,6 +553,7 @@ struct MediaCard: View {
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity)
                     .padding(20)
+                    .padding(.bottom, 50)
                     .cornerRadius(cornerRadius)
                     .background(Color.white.opacity(0.1))
                     .overlay(
@@ -542,6 +580,7 @@ struct MediaCard: View {
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .padding(20)
+                .padding(.bottom, 25)
                 .cornerRadius(cornerRadius)
                 .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
                 .overlay(
@@ -559,6 +598,7 @@ struct MediaCard: View {
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
                 .padding(20)
+                .padding(.bottom, 25)
                 .background(Color.black.opacity( 0.8))
             }
             
