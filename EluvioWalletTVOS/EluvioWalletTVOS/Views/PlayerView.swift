@@ -98,6 +98,8 @@ struct PlayerView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
+    @Namespace var playerNamespace
+    
     @State var player = AVPlayer()
     @State var isPlaying: Bool = false
     @Binding var playerItem : AVPlayerItem?
@@ -109,10 +111,42 @@ struct PlayerView: View {
     var seekTimeS: Double
     @Binding var finished: Bool
     var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
+    
+    @FocusState private var focusedField: Field?
+    
+    @State var showRestartButton = false
+
+    enum Field: Hashable {
+        case startFromBeginningField
+    }
 
     var body: some View {
+        ZStack{
             VideoPlayer(player: player)
-            .ignoresSafeArea()
+                .ignoresSafeArea()
+            
+            if showRestartButton {
+                VStack(alignment:.leading) {
+                    Spacer()
+                    HStack{
+                        Button {
+                            self.player.seek(to: CMTime(seconds: 0, preferredTimescale: 1))
+                            showRestartButton = false
+                        } label: {
+                            HStack(spacing:10){
+                                Image(systemName: "play.fill")
+                                Text("From Beginning")
+                            }
+                        }
+                        .focused($focusedField, equals: .startFromBeginningField)
+                        .padding()
+                        .padding(.bottom,100)
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .defaultFocus($focusedField, .startFromBeginningField)
             /*.onReceive(timer) { time in
                 //print("Item Status \(self.playerItem?.status.rawValue)")
                 if (newItem && self.playerItem?.status == .readyToPlay){
@@ -125,6 +159,11 @@ struct PlayerView: View {
                 }
                 
             }*/
+        .onChange(of: focusedField) {
+            if focusedField != .startFromBeginningField {
+                showRestartButton = false
+            }
+        }
             .onReceive(finishedObserver.publisher) {
                 print("Finished!")
                 self.finished = true
@@ -170,15 +209,28 @@ struct PlayerView: View {
                                          player.currentItem?.duration.seconds ?? 0.0)
                     }
                     
+                    if player.currentItem?.duration.seconds ?? 0 > 0{
+                        if showRestartButton {
+                            Task {
+                                await removeButtons()
+                            }
+                        }
+                    }
+                    
                 }
+                
                 
                 self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
                 self.player.play()
                 
+                if !showRestartButton && seekTimeS > 0 {
+                    showRestartButton = true
+                }
                 print("*** PlayerView PLAY", seekTimeS)
 
                 newItem = true
                 self.finishedObserver = PlayerFinishedObserver(player: player)
+
             }
             .onDisappear {
                 print("ContentView disappeared!")
@@ -189,6 +241,11 @@ struct PlayerView: View {
     
     func playerDidFinishPlaying(note: NSNotification) {
         print("Video Finished")
+    }
+    
+    private func removeButtons() async {
+        try? await Task.sleep(nanoseconds: 10_000_000_000)
+        showRestartButton = false
     }
 }
 
