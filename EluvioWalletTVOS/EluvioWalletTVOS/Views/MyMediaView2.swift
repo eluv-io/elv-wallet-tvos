@@ -28,9 +28,6 @@ struct MyMediaView2: View {
     @State var playerTextOverlay : String = ""
     @State var showPlayer = false
     @State var playerItem : AVPlayerItem? = nil
-    var logo = "e_logo"
-    var logoUrl = ""
-    var name = ""
     @State var redeemableFeatures: [RedeemableViewModel] = []
     @State var localizedFeatures: [MediaItem] = []
     private var preferredLocation:String {
@@ -62,7 +59,7 @@ struct MyMediaView2: View {
                     .buttonStyle(NonSelectionButtonStyle())
                     .focusSection()
                 }else{
-                    HeaderView(logo:logo, logoUrl: logoUrl)
+                    HeaderView()
                         .padding(.top,50)
                         .padding(.leading,80)
                         .padding(.bottom,80)

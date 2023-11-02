@@ -9,28 +9,6 @@ import SwiftUI
 import Combine
 import SwiftyJSON
 
-struct HeaderView: View {
-    var logo = "e_logo"
-    var logoUrl = ""
-    var name = APP_CONFIG.app.name
-
-    var body: some View {
-        VStack {
-            HStack(spacing:20) {
-                Image(logo)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width:60)
-                Text(name)
-                    .foregroundColor(Color.white)
-                    .font(.headline)
-                
-            }
-            .frame(maxWidth:.infinity, alignment: .leading)
-        }
-    }
-}
-
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
@@ -39,9 +17,6 @@ struct MainView: View {
     enum Tab { case Items, Media, Profile, Search }
     @State var selection: Tab = Tab.Items
     @State private var cancellable: AnyCancellable? = nil
-    var logo = "e_logo"
-    var logoUrl = ""
-    var name = "Eluvio Wallet"
     @State var logOutTimer = Timer.publish(every:24*60*60, on: .main, in: .common)
     
     init() {

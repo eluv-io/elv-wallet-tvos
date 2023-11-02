@@ -1,20 +1,17 @@
 {
   "images" : [
     {
-      "idiom" : "tv",
+      "filename" : "Fandango-logo-sign-in-screen.png",
+      "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "idiom" : "tv",
+      "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "idiom" : "tv-marketing",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "tv-marketing",
-      "scale" : "2x"
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {

@@ -66,16 +66,12 @@ struct SignInView: View {
                 Color.mainBackground.edgesIgnoringSafeArea(.all)
                 VStack(alignment: .center, spacing: 30){
                     VStack(alignment: .center, spacing:10){
-                        Image("e_logo")
+                        Image("SignIn_logo")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width:200)
-                        Text("Welcome to")
-                            .font(.custom("Helvetica Neue", size: 61))
-                            .fontWeight(.thin)
-                            .foregroundColor(Color.white.opacity(0.8))
+                            .frame(width:700)
                         Text("Media Wallet")
-                            .font(.custom("Helvetica Neue", size: 90))
+                            .font(.custom("Helvetica Neue", size: 110))
                             .padding(.bottom,40)
 
                         //if IsDemoMode() {

@@ -56,18 +56,7 @@ struct DeviceFlowView: View {
             .edgesIgnoringSafeArea(.all)
             VStack(alignment: .center, spacing: 30){
                 VStack(alignment: .center, spacing:20){
-                    /*
-                     VStack(alignment: .center, spacing:10){
-                     Image("e_logo")
-                     .resizable()
-                     .aspectRatio(contentMode: .fit)
-                     .frame(width:200)
-                     Text("Media Wallet")
-                     .font(.custom("Helvetica Neue", size: 90))
-                     .padding(.bottom,40)
-                     }*/
-                    
-                    
+  
                     Text("Scan QR Code")
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)

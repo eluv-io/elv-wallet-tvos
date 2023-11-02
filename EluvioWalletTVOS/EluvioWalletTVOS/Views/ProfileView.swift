@@ -31,11 +31,7 @@ struct ProfileView: View {
     @State var node : String = ""
     @State var asNode : String = ""
     @State var ethNode : String = ""
-    
-    var logo = "e_logo"
-    var logoUrl = ""
-    var name = ""
-    
+
     var locations : [String] {
         return fabric.profile.profileData.locations ?? []
     }
@@ -48,7 +44,7 @@ struct ProfileView: View {
     var body: some View {
     //    NavigationStack {
             VStack() {
-                HeaderView(logo:logo, logoUrl: logoUrl)
+                HeaderView()
                     .padding(.top,50)
                     .padding(.leading,80)
                     .padding(.bottom,80)

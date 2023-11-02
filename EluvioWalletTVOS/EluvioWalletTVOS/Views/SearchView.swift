@@ -11,14 +11,11 @@ struct SearchView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @State var searchString : String = ""
-    var logo = "e_logo"
-    var logoUrl = ""
-    var name = ""
-    
+
     var body: some View {
         ScrollView{
             VStack(alignment:.leading) {
-                HeaderView(logo:logo, logoUrl: logoUrl)
+                HeaderView()
                     .padding(.top,50)
                     .padding(.leading,80)
                     .padding(.bottom,40)

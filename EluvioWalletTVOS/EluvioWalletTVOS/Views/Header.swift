@@ -7,29 +7,18 @@
 
 import SwiftUI
 
-struct Header: View {
-    @State var search = false
-    @State var searchText = ""
-    var title = ""
-    
+struct HeaderView: View {
+    var logo = "header_logo"
+    var logoUrl = ""
     var body: some View {
-        HStack() {
-                HStack{
-                    Image("wallet_logo").resizable().aspectRatio(contentMode:.fit).frame(width:24)
-                    Text(title).font(.title2).bold().foregroundColor(.headerForeground)
-
-                }
+        VStack {
+            HStack(spacing:20) {
+                Image(logo)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width:350)
             }
-            .foregroundColor(.gray)
-    }
-        
-}
-
-
-
-struct Header_Previews: PreviewProvider {
-    static var previews: some View {
-        Header(title: "Wallet")
+            .frame(maxWidth:.infinity, alignment: .leading)
+        }
     }
 }
-

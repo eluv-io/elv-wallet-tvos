@@ -13,14 +13,11 @@ struct MyItemsView: View {
     @State var searchText = ""
     var nfts : [NFTModel] = []
     var drops : [ProjectModel] = []
-    var logo = "e_logo"
-    var logoUrl = ""
-    var name = ""
     
     var body: some View {
         ScrollView{
             VStack{
-                HeaderView(logo:logo, logoUrl: logoUrl)
+                HeaderView()
                     .padding(.top,50)
                     .padding(.leading,80)
                     .padding(.bottom,80)
