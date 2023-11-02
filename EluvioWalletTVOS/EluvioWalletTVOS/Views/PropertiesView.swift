@@ -40,7 +40,7 @@ struct PropertyView : View {
                                                    drops: drops,
                                                    liveStreams: property.live_streams,
                                                    sections: property.sections,
-                                                   heroImage: property.heroImage
+                                                   heroImage: property.heroImage ?? ""
                                                   )
                 .preferredColorScheme(colorScheme)) {
                 MediaCard(display: MediaDisplay.property, image:property.image ?? "", isFocused:focused, title:property.title ?? "")

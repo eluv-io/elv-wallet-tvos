@@ -684,6 +684,14 @@ class Fabric: ObservableObject {
         return (foundItem, tenantId)
     }
     
+    func getMarketplace(marketplaceId: String) async throws -> MarketplaceViewModel{
+        let marketMeta = try await contentObjectMetadata(id: marketplaceId, metadataSubtree:"/public/asset_metadata")
+        
+        let model = try JSONDecoder().decode(AssetMetadataModel.self, from: marketMeta.rawData())
+        
+        return try CreateMarketplaceVeiwModel(meta: model, fabric: self)
+    }
+    
     //Waits for transaction for pollSeconds
     func mintItem(tenantId: String, marketplaceId: String, sku: String, contract:String="", pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
         
@@ -921,6 +929,17 @@ class Fabric: ObservableObject {
                 demoNfts.append(nft)
             }else if address.lowercased() == "0x86b9f9b5d26c6f111afaecf64a7c3e3e8a1736da" {
                 demoNfts.append(nft)
+            }else if address.lowercased() == "0x86b9f9b5d26c6f111afaecf64a7c3e3e8a1736da" {
+                demoNfts.append(nft)
+            }
+            
+            let name = nft["contract_name"].stringValue
+            if name.contains("Rings") {
+                demoNfts.append(nft)
+            }else if name.contains("Superman") {
+                demoNfts.append(nft)
+            }else if name.contains("Flash") {
+                demoNfts.append(nft)
             }
         }
         
@@ -946,12 +965,26 @@ class Fabric: ObservableObject {
                     item.title_image = "TileGroup-BobMarleyOneLove"
                 }else if name.contains("Top"){
                     item.title_image = "TileGroup-Top Gun"
+                }else if name.contains("Epic") {
+                    item.title_image = "LOTR_Tile Group_Epic"
+                }else  if name.contains("Shire") {
+                    item.title_image = "LOTR_Tile Group_Shire"
+                }else if name.contains("Superman"){
+                    item.title_image = "WB_Superman_Hope_Tile Group"
+                }else if name.contains("Flash"){
+                    item.title_image = "Flash Premium Tile Group_trio"
                 }
+                
             }
             newItems.append(item)
         }
         
-        let prop = CreateTestPropertyModel(title:"VUDU", logo: "", image:"SearchTile - VUDU", heroImage:"PropertyTopImage - VUDU",
+        let marketplaceId = "iq__2YZajc8kZwzJGZi51HJB7TAKdio2"
+        let marketplace = try await self.getMarketplace(marketplaceId: marketplaceId)
+        
+        //debugPrint("Marketplace: ", marketplace)
+        
+        let prop = CreateTestPropertyModel(title:marketplace.title, logo: marketplace.logo, image:marketplace.image, heroImage:marketplace.header,
                                     featured: demoLib.featured, media: demoMedia, items:newItems)
         
         return prop

@@ -18,5 +18,5 @@ struct ProfileModel: Identifiable, Codable {
     var following = ""
     var num_sold = ""
     var tokens = ""
-    var marketplaces : [MarketplaceModel]
+    var marketplaces : [MarketplaceViewModel]
 }

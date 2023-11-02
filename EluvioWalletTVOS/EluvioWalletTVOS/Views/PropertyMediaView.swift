@@ -36,9 +36,9 @@ struct PropertyMediaView: View {
         fabric.profile.profileData.preferredLocation ?? ""
     }
     
-    @State var heroImage : String?
+    var heroImage : String = ""
     private var hasHero: Bool {
-        return heroImage != nil && heroImage != ""
+        return heroImage != ""
     }
     
     private var featuredListCount: Int {
@@ -51,11 +51,22 @@ struct PropertyMediaView: View {
             VStack(alignment: .leading, spacing: 0){
                 if (hasHero) {
                     Button{} label: {
-                        Image(heroImage ?? "")
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(maxWidth:.infinity)
-                            .clipped()
+
+                        
+                        if (heroImage.hasPrefix("http")){
+                            WebImage(url: URL(string: heroImage))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(maxWidth:.infinity)
+                                .clipped()
+                        }else if (heroImage != ""){
+                            Image(heroImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(maxWidth:.infinity)
+                                .clipped()
+                        }
+                        
                     }
                     .padding(.bottom, 40)
                     .buttonStyle(NonSelectionButtonStyle())
