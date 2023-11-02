@@ -78,7 +78,7 @@ struct SignInView: View {
                             .font(.custom("Helvetica Neue", size: 90))
                             .padding(.bottom,40)
 
-                        //if IsDemoMode() {
+                        if IsDemoMode() {
                             Picker("Networks", selection: $networkSelection) {
                                 ForEach(Networks.allCases) { network in
                                     Text("\(network.name.capitalizingFirstLetter())")
@@ -86,7 +86,7 @@ struct SignInView: View {
                                 }
                             }
                             .frame(width:300)
-                        //}
+                        }
 
                     }
                     
