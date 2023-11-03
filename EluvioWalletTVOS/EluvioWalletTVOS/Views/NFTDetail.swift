@@ -76,6 +76,7 @@ struct NFTDetailView: View {
                                     BackButton(buttonIcon:backLinkIcon,
                                                action: {
                                         debugPrint("BackButton link: ", backLink)
+                                        debugPrint("BackButton link Icon: ", backLinkIcon)
                                         if let url = URL(string: backLink) {
                                             openURL(url) { accepted in
                                                 print(accepted ? "Success" : "Failure")
@@ -205,8 +206,10 @@ struct NFTDetailView: View {
             .onAppear(){
                 debugPrint("NFTDetailViewDemo onAppear", nft.contract_name)
                 self.cancellable = fabric.$library.sink { val in
-                    update()
+                    debugPrint("NFTDetailView library changed ", fabric.isRefreshing)
+                    //update()
                 }
+                update()
             }
     }
         
@@ -289,8 +292,8 @@ struct NFTDetailView: View {
                     var locals:[MediaItem] = []
                     
                     for feature in additions.featured_media {
-                        debugPrint("feature name ", feature.name)
-                        debugPrint("feature nft ", feature.nft)
+                        //debugPrint("feature name ", feature.name)
+                        //debugPrint("feature nft ", feature.nft)
                         if (feature.location == ""){
                             features.append(feature)
                             debugPrint("feature appended with no location")
@@ -304,10 +307,12 @@ struct NFTDetailView: View {
                         self.localizedFeatures = locals
                     }
                 }else{
+                    /*
                     for feature in additions.featured_media {
                         debugPrint("No location feature name ", feature.name)
                         debugPrint("No location feature nft ", feature.nft)
                     }
+                     */
                     
                     await MainActor.run {
                         self.featuredMedia = additions.featured_media
