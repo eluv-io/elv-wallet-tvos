@@ -17,6 +17,7 @@ struct VuduPage: View {
     var playImage = ""
     var playUrl = ""
     var playOutPath = ""
+    var playLink = ""
     var playButtonText = "Play Feature Film"
     var bundleButtonText = "Launch Bundle"
     var buttonHighlightColor = Color(hex:0x3984c5)
@@ -34,11 +35,27 @@ struct VuduPage: View {
                     buttonText:playButtonText,
                     highlightColor: buttonHighlightColor,
                     action: {
-                        let combinedUrl = fabric.createUrl(path:playOutPath)
-                        if let url = URL(string: combinedUrl) {
-                            debugPrint("Play URL ", url)
-                            self.url = url
-                            self.showPlayer = true
+                        if playOutPath != "" {
+                            let combinedUrl = fabric.createUrl(path:playOutPath)
+                            if let url = URL(string: combinedUrl) {
+                                self.url = url
+                                showPlayer = true
+                            }else{
+                                print("Error creating url", combinedUrl)
+                            }
+                        }
+                        else if let url = URL(string: playLink){
+                            openURL(url) { accepted in
+                                print(accepted ? "Success" : "Failure")
+                                if (!accepted){
+                                    openURL(URL(string:appStoreUrl)!) { accepted in
+                                        print(accepted ? "Success" : "Failure")
+                                        if (!accepted) {
+                                            print("Could not open URL ", appStoreUrl)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 )

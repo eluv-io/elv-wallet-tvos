@@ -31,7 +31,7 @@ struct ContentView: View {
     @State var mediaItem : MediaItem?
     @State var playerItem : AVPlayerItem?
     @State var playerFinished = false
-    @State var showActivity = false
+    @State var showActivity = true
     @State var backLink = ""
     @State var backLinkIcon = ""
     
@@ -63,20 +63,18 @@ struct ContentView: View {
     func checkViewState() {
         debugPrint("checkViewState op ", viewState.op)
         if self.showActivity == true {
-            return
-        }
-        
-        defer {
-            //viewState.reset()
-            showActivity = false
+            //return
         }
 
         if viewState.op == .none {
             return
         }
         
-        self.showActivity = true
-
+        Task{
+            self.showActivity = true
+            debugPrint("showActivity true ")
+        }
+        
         if viewState.op == .item {
             let marketplace = viewState.marketplaceId
             let sku = viewState.itemSKU
@@ -191,90 +189,94 @@ struct ContentView: View {
                 viewState.reset()
                 showActivity = false
             }
+        }else{
+            viewState.reset()
+            showActivity = false
         }
     }
     
     var body: some View {
-        if fabric.isLoggedOut {
-            SignInView()
-                .environmentObject(self.fabric)
-                .preferredColorScheme(colorScheme)
-                .background(Color.mainBackground)
-                
-        }else{
-            NavigationView {
-                MainView()
+            if fabric.isLoggedOut {
+                SignInView()
+                    .environmentObject(self.fabric)
                     .preferredColorScheme(colorScheme)
                     .background(Color.mainBackground)
-                    .navigationBarHidden(true)
-                    /*.onReceive(timer) { time in
-                        //debugPrint("Content View Timer")
-                        if viewState.op == .none || fabric.isLoggedOut || showActivity == true{
-                            return
-                        }
-                        
-                        checkViewState()
-                    }*/
-                    .onAppear(){
-                        debugPrint("ContentView onAppear")
-                        reset()
-                        self.viewStateCancellable = fabric.$library
-                            .receive(on: DispatchQueue.main) //Delays the sink closure to get called after didSet
-                            .sink { val in
-                            debugPrint("Fabric library changed. viewState", viewState.op)
-                            if viewState.op == .none || fabric.isLoggedOut {
-                                return
+                
+            }else{
+                NavigationView {
+                    MainView()
+                        .preferredColorScheme(colorScheme)
+                        .background(Color.mainBackground)
+                        .navigationBarHidden(true)
+                    //FIXME: The activity is buggy and might not be wanted...
+                        /*.overlay {
+                            if (showActivity){
+                                ZStack{
+                                    Color.black.edgesIgnoringSafeArea(.all)
+                                    ProgressView()
+                                }
                             }
-                                
-                            checkViewState()
-                        }
-                        self.fabricCancellable = viewState.$op
-                            .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                            .sink { val in
-                            debugPrint("viewState changed.", val)
-                            if val == .none || fabric.isLoggedOut{
-                                return
+                        }*/
+                        .onAppear(){
+                            debugPrint("ContentView onAppear")
+                            //reset()
+                            self.viewStateCancellable = fabric.$library
+                                .receive(on: DispatchQueue.main) //Delays the sink closure to get called after didSet
+                                .sink { val in
+                                    debugPrint("Fabric library changed. viewState", viewState.op)
+                                    if viewState.op == .none || fabric.isLoggedOut {
+                                        if !fabric.isRefreshing {
+                                            showActivity = false
+                                        }
+                                        return
+                                    }
+                                    
+                                    checkViewState()
+                                    showActivity = false
+                                }
+                            self.fabricCancellable = viewState.$op
+                                .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+                                .sink { val in
+                                    debugPrint("viewState changed.", val)
+                                    if val == .none || fabric.isLoggedOut{
+                                        return
+                                    }
+                                    checkViewState()
+                                    showActivity = false
+                                }
+                            if viewState.op == .mint {
+                                checkViewState()
+                                showActivity = false
                             }
-                            checkViewState()
                         }
-                        if viewState.op == .mint {
-                            checkViewState()
+                        .fullScreenCover(isPresented: $showNft) { [backLink, backLinkIcon] in
+                            NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
                         }
-                    }/*
-                    .fullScreenCover(isPresented: $showActivity){
-                        ZStack{
-                            Color.black.edgesIgnoringSafeArea(.all)
-                            ProgressView()
+                        .fullScreenCover(isPresented: $showPlayer) {
+                            PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished)
                         }
-                    }*/
-                    .fullScreenCover(isPresented: $showNft) { [backLink, backLinkIcon] in
-                        NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
-                    }
-                    .fullScreenCover(isPresented: $showPlayer) {
-                        PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished)
-                    }
-                    .fullScreenCover(isPresented: $showMinter) {
-                        MinterView(marketItem: $mintItem, mintInfo:$mintInfo)
-                    }
-                    .fullScreenCover(isPresented: $showProperty) {
-                        if let prop = property {
-                            let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
-                            NavigationView {
-                                PropertyMediaView(featured: prop.featured,
-                                                  library: prop.media,
-                                                  albums: prop.albums,
-                                                  items: items,
-                                                  liveStreams: prop.live_streams,
-                                                  sections: prop.sections,
-                                                  heroImage: prop.heroImage ?? ""
-                                )
+                        .fullScreenCover(isPresented: $showMinter) {
+                            MinterView(marketItem: $mintItem, mintInfo:$mintInfo)
+                        }
+                        .fullScreenCover(isPresented: $showProperty) {
+                            if let prop = property {
+                                let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
+                                NavigationView {
+                                    PropertyMediaView(featured: prop.featured,
+                                                      library: prop.media,
+                                                      albums: prop.albums,
+                                                      items: items,
+                                                      liveStreams: prop.live_streams,
+                                                      sections: prop.sections,
+                                                      heroImage: prop.heroImage ?? ""
+                                    )
+                                }
+                                .navigationViewStyle(.stack)
                             }
-                            .navigationViewStyle(.stack)
                         }
-                    }
-            }
-            .navigationViewStyle(.stack)
-            .edgesIgnoringSafeArea(.all)
+                }
+                .navigationViewStyle(.stack)
+                .edgesIgnoringSafeArea(.all)
         }
     }
 }
