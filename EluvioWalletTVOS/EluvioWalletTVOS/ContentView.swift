@@ -32,12 +32,17 @@ struct ContentView: View {
     @State var playerItem : AVPlayerItem?
     @State var playerFinished = false
     @State var showActivity = false
+    @State var backLink = ""
+    @State var backLinkIcon = ""
     
     @State var showMinter : Bool = false
     @State var mintItem = JSON()
     @State var mintInfo = MintInfo()
-    @State var timer = Timer.publish(every: 1, on: .main, in: .common)
+    @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var timerCancellable: Cancellable? = nil
+    
+    @State var showProperty : Bool = false
+    @State var property : PropertyModel?
     
     func reset() {
         showNft = false
@@ -47,8 +52,12 @@ struct ContentView: View {
         playerFinished = false
         showActivity = false
         showMinter = false
+        showProperty = false
+        property = nil
         mintItem = JSON()
         mintInfo = MintInfo()
+        backLink = ""
+        backLinkIcon = ""
     }
     
     func checkViewState() {
@@ -57,14 +66,8 @@ struct ContentView: View {
             return
         }
         
-        /*
-        if fabric.isRefreshing {
-            return
-        }
-         */
-        
         defer {
-            viewState.reset()
+            //viewState.reset()
             showActivity = false
         }
 
@@ -73,15 +76,45 @@ struct ContentView: View {
         }
         
         self.showActivity = true
-        
+
         if viewState.op == .item {
+            let marketplace = viewState.marketplaceId
+            let sku = viewState.itemSKU
+            
             if let _nft = fabric.getNFT(contract: viewState.itemContract,
                                         token: viewState.itemTokenStr) {
                 self.nft = _nft
-                viewState.reset()
-                showActivity = false
-                debugPrint("Showing NFT: ", nft.contract_name)
-                self.showNft = true
+                debugPrint("backlink: ", viewState.backLink)
+                self.backLink = viewState.backLink
+            
+                Task {
+                    do {
+                        let startTime = DispatchTime.now()
+                        let market = try await fabric.getMarketplace(marketplaceId: marketplace)
+                        
+                        let endTime = DispatchTime.now()
+
+                        let elapsedTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
+                        let elapsedTimeInMilliSeconds = Double(elapsedTime) / 1_000_000.0
+                        debugPrint("getMarketplace function time ms: ", elapsedTimeInMilliSeconds)
+                        
+                        await MainActor.run {
+                            viewState.reset()
+                            showActivity = false
+                            debugPrint("Showing NFT: ", nft.contract_name)
+                            self.backLinkIcon = market.logo
+                            self.showNft = true
+                        }
+                    }catch{
+                        print("checkViewState - could not create MediaItemViewModel ", error)
+                        await MainActor.run {
+                            viewState.reset()
+                            showActivity = false
+                        }
+                    }
+                }
+                
+                
             }
         }else if viewState.op == .play {
             debugPrint("Playmedia: ", viewState.mediaId)
@@ -96,6 +129,7 @@ struct ContentView: View {
                         do {
                             let item  = try await MakePlayerItem(fabric: fabric, media: item)
                             await MainActor.run {
+                                viewState.reset()
                                 self.playerItem = item
                                 self.showActivity = false
                                 self.showPlayer = true
@@ -142,6 +176,21 @@ struct ContentView: View {
                 
 
             }
+        }else if viewState.op == .property {
+            debugPrint("property marketplace: ", viewState.marketplaceId)
+
+            let marketplace = viewState.marketplaceId
+
+            do {
+                property = try fabric.findProperty(marketplaceId: marketplace)
+                viewState.reset()
+                showActivity = false
+                showProperty = true
+            }catch{
+                debugPrint("Could not find property ", marketplace)
+                viewState.reset()
+                showActivity = false
+            }
         }
     }
     
@@ -158,6 +207,14 @@ struct ContentView: View {
                     .preferredColorScheme(colorScheme)
                     .background(Color.mainBackground)
                     .navigationBarHidden(true)
+                    /*.onReceive(timer) { time in
+                        //debugPrint("Content View Timer")
+                        if viewState.op == .none || fabric.isLoggedOut || showActivity == true{
+                            return
+                        }
+                        
+                        checkViewState()
+                    }*/
                     .onAppear(){
                         debugPrint("ContentView onAppear")
                         reset()
@@ -190,14 +247,30 @@ struct ContentView: View {
                             ProgressView()
                         }
                     }*/
-                    .fullScreenCover(isPresented: $showNft) {
-                        NFTDetail(nft: self.nft)
+                    .fullScreenCover(isPresented: $showNft) { [backLink, backLinkIcon] in
+                        NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
                     }
                     .fullScreenCover(isPresented: $showPlayer) {
                         PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished)
                     }
                     .fullScreenCover(isPresented: $showMinter) {
                         MinterView(marketItem: $mintItem, mintInfo:$mintInfo)
+                    }
+                    .fullScreenCover(isPresented: $showProperty) {
+                        if let prop = property {
+                            let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
+                            NavigationView {
+                                PropertyMediaView(featured: prop.featured,
+                                                  library: prop.media,
+                                                  albums: prop.albums,
+                                                  items: items,
+                                                  liveStreams: prop.live_streams,
+                                                  sections: prop.sections,
+                                                  heroImage: prop.heroImage ?? ""
+                                )
+                            }
+                            .navigationViewStyle(.stack)
+                        }
                     }
             }
             .navigationViewStyle(.stack)

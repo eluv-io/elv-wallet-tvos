@@ -11,12 +11,18 @@ import AVKit
 import SDWebImageSwiftUI
 
 struct NFTDetailMovieView: View {
+    @EnvironmentObject var viewState: ViewState
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @Namespace var SeriesDetailView
     @EnvironmentObject var fabric: Fabric
-    var seriesMediaItem : MediaItemViewModel
+    @Environment(\.openURL) private var openURL
 
+    var seriesMediaItem : MediaItemViewModel
+    
+    var backLink: String = ""
+    var backLinkIcon: String = ""
+    
     var subtitle : String {
         return seriesMediaItem.subtitle1
     }
@@ -90,6 +96,29 @@ struct NFTDetailMovieView: View {
     var body: some View {
             ScrollView{
                 VStack(alignment:.leading){
+                    if (backLink != ""){
+                        HStack {
+                            Spacer()
+                            BackButton(buttonIcon:backLinkIcon,
+                                       action: {
+                                debugPrint("BackButton link: ", backLink)
+                                if let url = URL(string: backLink) {
+                                    openURL(url) { accepted in
+                                        print(accepted ? "Success" : "Failure")
+                                        if (!accepted){
+                                            print("Could not open URL ", backLink)
+                                        }else{
+                                            self.presentationMode.wrappedValue.dismiss()
+                                        }
+                                    }
+                                }
+                            }
+                            )
+                        }
+                        .focusSection()
+                    }
+                    
+                    
                     Button{} label: {
                         VStack(alignment: .leading, spacing: 40)  {
                             WebImage(url: URL(string: seriesMediaItem.titleLogo))
@@ -159,6 +188,7 @@ struct NFTDetailMovieView: View {
                     .buttonStyle(NonSelectionButtonStyle())
                     .focused($headerFocused)
                     .focusSection()
+                    .prefersDefaultFocus(in: SeriesDetailView)
                     
                     VStack(alignment: .leading, spacing: 20) {
                         VStack(alignment: .leading, spacing: 10)  {

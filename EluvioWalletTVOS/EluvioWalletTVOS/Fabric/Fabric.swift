@@ -684,12 +684,58 @@ class Fabric: ObservableObject {
         return (foundItem, tenantId)
     }
     
+    
+    //XXX: superslow
+    //Gets the marketplace data from the fabric
     func getMarketplace(marketplaceId: String) async throws -> MarketplaceViewModel{
         let marketMeta = try await contentObjectMetadata(id: marketplaceId, metadataSubtree:"/public/asset_metadata")
-        
+        /*
+        let startTime = DispatchTime.now()
         let model = try JSONDecoder().decode(AssetMetadataModel.self, from: marketMeta.rawData())
+        let endTime = DispatchTime.now()
+
+        let elapsedTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
+        let elapsedTimeInMilliSeconds = Double(elapsedTime) / 1_000_000.0
+        debugPrint("getMarketplace JSONDecoder time ms: ", elapsedTimeInMilliSeconds)
         
-        return try CreateMarketplaceVeiwModel(meta: model, fabric: self)
+        return try CreateMarketplaceViewModel(meta: model, fabric: self)
+         */
+        let title = marketMeta["info"]["title"].stringValue
+        var logo = ""
+        do{
+            logo = try getUrlFromLink(link: marketMeta["info"]["branding"]["tv"]["logo"])
+        }catch{}
+        
+        var image = ""
+        do{
+            image = try getUrlFromLink(link: marketMeta["info"]["branding"]["tv"]["image"])
+        }catch{}
+        
+        var header = ""
+        do{
+            header = try getUrlFromLink(link: marketMeta["info"]["branding"]["tv"]["header_image"])
+        }catch{}
+        
+        return MarketplaceViewModel(
+            id: marketplaceId,
+            title: title,
+            image:image, 
+            logo:logo,
+            header:header
+        )
+    }
+    
+    //Returns the property stored in memory based on the id (currently using the marketplace id)
+    func findProperty(marketplaceId: String) throws -> PropertyModel?{
+        debugPrint("findProperty ", marketplaceId)
+        for prop in properties {
+            debugPrint("Property \(prop.title) ID: ", prop.id)
+            if prop.id == marketplaceId {
+                return prop
+            }
+        }
+        
+        return nil
     }
     
     //Waits for transaction for pollSeconds
@@ -859,8 +905,6 @@ class Fabric: ObservableObject {
 
             let parsedLibrary = try await parseNftsToLibrary(nfts)
             
-            self.library = parsedLibrary
-
             if IsDemoMode() {
                 let vuduProp = try await createVuduDemoProp(nfts: nfts)
                 let uefaProp = try await createUEFAProp(nfts: nfts)
@@ -889,6 +933,7 @@ class Fabric: ObservableObject {
             
             self.properties = properties
             self.previousRefreshHash = response.hash
+            self.library = parsedLibrary
                 
         }catch{
             print ("Refresh Error: \(error)")
@@ -981,10 +1026,7 @@ class Fabric: ObservableObject {
         
         let marketplaceId = "iq__2YZajc8kZwzJGZi51HJB7TAKdio2"
         let marketplace = try await self.getMarketplace(marketplaceId: marketplaceId)
-        
-        //debugPrint("Marketplace: ", marketplace)
-        
-        let prop = CreateTestPropertyModel(title:marketplace.title, logo: marketplace.logo, image:marketplace.image, heroImage:marketplace.header,
+        let prop = CreateTestPropertyModel(id:marketplaceId, title:marketplace.title, logo: marketplace.logo, image:marketplace.image, heroImage:marketplace.header,
                                     featured: demoLib.featured, media: demoMedia, items:newItems)
         
         return prop

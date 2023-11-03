@@ -19,12 +19,19 @@ struct MarketplaceViewModel: Identifiable, Codable {
     var items : [JSON] = []
 }
 
-func CreateMarketplaceVeiwModel(meta: AssetMetadataModel, id: String?="", fabric: Fabric) throws -> MarketplaceViewModel {
+func CreateMarketplaceViewModel(meta: AssetMetadataModel, id: String?="", fabric: Fabric) throws -> MarketplaceViewModel {
     
+    let startTime = DispatchTime.now()
     
     let imageUrl = try fabric.getUrlFromLink(link: meta.info?.branding?.tv?.image)
     let logoUrl = try fabric.getUrlFromLink(link: meta.info?.branding?.tv?.logo)
     let headerUrl = try fabric.getUrlFromLink(link: meta.info?.branding?.tv?.header_image)
+    
+    let endTime = DispatchTime.now()
+
+    let elapsedTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
+    let elapsedTimeInMilliSeconds = Double(elapsedTime) / 1_000_000.0
+    debugPrint("CreateMarketplaceViewModel function time ms: ", elapsedTimeInMilliSeconds)
     
     return MarketplaceViewModel(
         id: id ?? "",
