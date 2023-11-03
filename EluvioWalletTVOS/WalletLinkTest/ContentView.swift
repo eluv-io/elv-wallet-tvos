@@ -34,6 +34,7 @@ let mintBaseURL = "elvwallet://mint"
 let fandangoPropertyBaseURL = "fandango://property"
 let fandangoBundleURL = "fandango://items"
 let fandangoMintURL = "fandango://mint"
+let fandangoPlayURL = "fandango://play"
 
 func CreateFandangoPropertyLink(
     marketplace: String
@@ -48,6 +49,12 @@ func CreateFandangoBundleLink(
 ) -> String {
     return fandangoBundleURL + "?" + "contract=\(contract)" + "&marketplace=\(marketplace)"
     + "&sku=\(sku)" + "&back_link=walletlink://"
+}
+
+func CreateFandangoPlayLink(
+    contract:String
+) -> String {
+    return fandangoPlayURL + "?" + "contract=\(contract)"
 }
 
 func CreateFandangoMintLink(
@@ -197,6 +204,27 @@ struct ContentView: View {
                         ) {
                             Text(
                                 "Top Gun - FANDANGO"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU LOTR Epic - no buttons",
+                                    bundleLink: CreateFandangoBundleLink(
+                                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5",
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                                        sku:""
+                                    ),
+                                    playLink: CreateFandangoPlayLink(
+                                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5")
+                                )
+                        ) {
+                            Text(
+                                "LOTR: Extended Edition Epic - FANDANGO"
                             )
                             .frame(
                                 width:700

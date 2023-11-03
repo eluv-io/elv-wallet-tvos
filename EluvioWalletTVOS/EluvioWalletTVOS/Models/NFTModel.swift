@@ -356,9 +356,19 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
         return count > 1
     }
     
-    
+    // returns the media item identified by id, or the first video feature if it's empty
     func getMediaItem(id:String) -> MediaItem?{
         if id == "" {
+            guard let mediaSections = additional_media_sections else {
+                return nil
+            }
+            
+            for item in mediaSections.featured_media {
+                if item.isLive || item.media_type == "Video" {
+                    return item
+                }
+            }
+            
             return nil
         }
         
