@@ -23,21 +23,22 @@ struct LaunchButton: View {
         Button {
                 action()
         } label: {
-            HStack(spacing:10){
+            HStack(spacing:20){
                 if (isFocused && buttonIconHighlighted != ""){
                     Image(buttonIconHighlighted)
                         .resizable()
                         .frame(width:40, height:40)
-                }else {
+                }else if (buttonIcon != "") {
                     Image(buttonIcon)
                         .resizable()
                         .frame(width:40, height:40)
                 }
-                
-                Text(buttonText)
-                    .font(.system(size: 32))
-                    .fontWeight(.medium)
-                    .foregroundColor(isFocused ? highlightTextColor : Color.white)
+                if (buttonText != "") {
+                    Text(buttonText)
+                        .font(.system(size: 32))
+                        .fontWeight(.medium)
+                        .foregroundColor(isFocused ? highlightTextColor : Color.white)
+                }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 20)

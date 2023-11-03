@@ -13,14 +13,18 @@ import Combine
 //import SwiftUIIntrospect
 
 struct NFTDetailView: View {
+    @EnvironmentObject var viewState: ViewState
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @Namespace var nftDetails
     @EnvironmentObject var fabric: Fabric
+    @Environment(\.openURL) private var openURL
+    
     @State var showDetails = false
     @State var searchText = ""
     var title = ""
     var nft: NFTModel
+    var backLink: String = ""
     @State var featuredMedia: [MediaItem] = []
     @State var collections: [MediaCollection] = []
     @State var richText : AttributedString = ""
@@ -31,6 +35,9 @@ struct NFTDetailView: View {
         
         return ""
     }
+    
+    var backLinkIcon: String = ""
+    
     @FocusState var isFocused
     @State var backgroundImageUrl : String = ""
     @FocusState private var headerFocused: Bool
@@ -63,6 +70,28 @@ struct NFTDetailView: View {
             ZStack(alignment:.topLeading) {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 10) {
+                            if (backLink != ""){
+                                HStack {
+                                    Spacer()
+                                    BackButton(buttonIcon:backLinkIcon,
+                                               action: {
+                                        debugPrint("BackButton link: ", backLink)
+                                        if let url = URL(string: backLink) {
+                                            openURL(url) { accepted in
+                                                print(accepted ? "Success" : "Failure")
+                                                if (!accepted){
+                                                    print("Could not open URL ", backLink)
+                                                }else{
+                                                    self.presentationMode.wrappedValue.dismiss()
+                                                }
+                                            }
+                                        }
+                                    }
+                                    )
+                                }
+                                .focusSection()
+                            }
+                            
                             Button{} label: {
                                 VStack(alignment: .leading, spacing: 20)  {
                                     Text(nft.meta.displayName ?? "").font(.title3)
@@ -89,6 +118,7 @@ struct NFTDetailView: View {
                             }
                             .buttonStyle(NonSelectionButtonStyle())
                             .focused($headerFocused)
+                            .prefersDefaultFocus(in: nftDetails)
 
                             //Just features for initial release
                             VStack(spacing: 40){
@@ -435,6 +465,9 @@ struct NFTDetail: View {
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
     var nft : NFTModel
+    var backLink: String = ""
+    var backLinkIcon: String = ""
+    
     @State var feature = MediaItemViewModel()
     @State private var isLoaded: Bool = false
     
@@ -442,9 +475,9 @@ struct NFTDetail: View {
         Group {
             if isLoaded == true {
                 if nft.isMovieLayout {
-                    NFTDetailMovieView(seriesMediaItem: feature)
+                    NFTDetailMovieView(seriesMediaItem: feature, backLink: backLink, backLinkIcon: backLinkIcon)
                 }else {
-                    NFTDetailView(nft:nft)
+                    NFTDetailView(nft:nft, backLink: backLink, backLinkIcon: backLinkIcon)
                         .environmentObject(fabric)
                 }
             }else {
@@ -457,7 +490,7 @@ struct NFTDetail: View {
         .onAppear(){
             debugPrint("NFTDetail OnAppear")
             self.isLoaded = false
-            
+            debugPrint("Backlink: ", backLink)
             Task {
                 try? await Task.sleep(nanoseconds: 2000000000)
                 if !self.isLoaded {

@@ -31,13 +31,40 @@ let bundleBaseURL = "elvwallet://items"
 let playBaseURL = "elvwallet://play"
 let mintBaseURL = "elvwallet://mint"
 
+let fandangoPropertyBaseURL = "fandango://property"
+let fandangoBundleURL = "fandango://items"
+let fandangoMintURL = "fandango://mint"
+
+func CreateFandangoPropertyLink(
+    marketplace: String
+) -> String {
+    return fandangoPropertyBaseURL + "/\(marketplace)"
+}
+
+func CreateFandangoBundleLink(
+    contract:String,
+    marketplace: String,
+    sku: String
+) -> String {
+    return fandangoBundleURL + "?" + "contract=\(contract)" + "&marketplace=\(marketplace)"
+    + "&sku=\(sku)" + "&back_link=walletlink://"
+}
+
+func CreateFandangoMintLink(
+    contract:String,
+    marketplace: String,
+    sku: String
+) -> String{
+    return fandangoMintURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)"
+}
+
 func CreateBundleLink(
     contract:String,
     marketplace: String,
     sku: String
 ) -> String {
     return bundleBaseURL + "?" + "contract=\(contract)" + "&marketplace=\(marketplace)"
-    + "&sku=\(sku)"
+    + "&sku=\(sku)" + "&back_link=walletlink://"
 }
 
 func CreatePlayLink(
@@ -95,6 +122,89 @@ struct ContentView: View {
                     VStack(
                         alignment:.center
                     ){
+                        // Fandango Media Wallet Launchers
+                        
+                        NavigationLink(
+                            destination:
+                                FandangoPage(
+                                    bgImage: "Fandango Launch - no buttons",
+                                    link: CreateFandangoPropertyLink(
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2"
+                                    )
+                                )
+                        ) {
+                            Text(
+                                "Property Page - FANDANGO"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU-AQuietPlace-NoButtons",
+                                    bundleLink: CreateFandangoBundleLink(
+                                        contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                                        sku:"5teHdjLfYtPuL3CRGKLymd"
+                                    ),
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "A Quiet Place: Day One - FANDANGO"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU-OneLove-NoButtons",
+                                    bundleLink: CreateFandangoBundleLink(
+                                        contract:"0x8e225b2dbe6272d136b58f94e32c207a72cdfa3b",
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                                        sku:"TzTKjJdW1fLhhvJmptU6N6"
+                                    ),
+                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
+                                )
+                        ) {
+                            Text(
+                                "One Love - FANDANGO"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU-TopGun-NoButtons",
+                                    bundleLink: CreateFandangoMintLink(
+                                        contract:"0x86b9f9b5d26c6f111afaecf64a7c3e3e8a1736da",
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                                        sku:"BLnoodkYExnbPJi5AncCJ"
+                                    ),
+                                    playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
+                                    bundleButtonText: "Activate"
+                                )
+                        ) {
+                            Text(
+                                "Top Gun - FANDANGO"
+                            )
+                            .frame(
+                                width:700
+                            )
+                        }
+                        
+                        Divider().frame(width:700).padding()
+                        
                         /// VUDU
                         
                         NavigationLink(

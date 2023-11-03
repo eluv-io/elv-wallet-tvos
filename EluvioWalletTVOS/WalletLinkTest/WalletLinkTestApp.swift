@@ -25,6 +25,9 @@ struct WalletLinkTestApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+            .onOpenURL { url in
+                debugPrint("url opened: ", url)
+            }
         }
     }
 }

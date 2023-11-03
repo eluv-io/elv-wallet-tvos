@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum LinkOp {
-    case item, play, mint, none
+    case item, play, mint, property, none
 }
 
 class ViewState: ObservableObject {
@@ -18,6 +18,7 @@ class ViewState: ObservableObject {
     var marketplaceId = ""
     var itemSKU = ""
     var mediaId = ""
+    var backLink = ""
     
     func reset() {
         itemContract = ""
@@ -25,6 +26,7 @@ class ViewState: ObservableObject {
         marketplaceId = ""
         itemSKU = ""
         mediaId = ""
+        backLink = ""
         if op == .none {
             return
         }
@@ -54,6 +56,11 @@ struct EluvioWalletTVOSApp: App {
                 viewState.itemTokenStr = url.valueOf("token") ?? ""
                 viewState.marketplaceId = url.valueOf("marketplace") ?? ""
                 viewState.itemSKU = url.valueOf("sku") ?? ""
+                
+                if var backlink = url.valueOf("back_link")?.removingPercentEncoding {
+                    viewState.backLink = backlink
+                }
+                debugPrint("backlink: ", viewState.backLink)
                 viewState.op = .item
                 debugPrint("handleLink viewState changed")
             case "play":
@@ -65,6 +72,9 @@ struct EluvioWalletTVOSApp: App {
                 viewState.marketplaceId = url.valueOf("marketplace") ?? ""
                 viewState.itemSKU = url.valueOf("sku") ?? ""
                 viewState.op = .mint
+            case "property":
+                viewState.marketplaceId = url.lastPathComponent
+                viewState.op = .property
             default:
                 return
             }

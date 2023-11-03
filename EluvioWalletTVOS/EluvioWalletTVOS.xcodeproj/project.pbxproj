@@ -20,6 +20,8 @@
 		B00FA9E72AD905D500CFBFF7 /* KTPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9E62AD905D500CFBFF7 /* KTPage.swift */; };
 		B00FA9E92AD905FD00CFBFF7 /* UNextPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */; };
 		B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */; };
+		B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02CE2032AF4C08700F5F495 /* BackButton.swift */; };
+		B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04586F42AF4993B00F1FF25 /* FandangoPage.swift */; };
 		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
 		B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3229D4211700676872 /* DeviceFlowView.swift */; };
 		B0670F3529D5421300676872 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3429D5421300676872 /* WalletView.swift */; };
@@ -118,6 +120,9 @@
 		B00FA9E62AD905D500CFBFF7 /* KTPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KTPage.swift; sourceTree = "<group>"; };
 		B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UNextPage.swift; sourceTree = "<group>"; };
 		B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchButton.swift; sourceTree = "<group>"; };
+		B02CE2032AF4C08700F5F495 /* BackButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButton.swift; sourceTree = "<group>"; };
+		B02CE2052AF4C89500F5F495 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B04586F42AF4993B00F1FF25 /* FandangoPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FandangoPage.swift; sourceTree = "<group>"; };
 		B05DD74929E5220E001E12AF /* HTMLText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLText.swift; sourceTree = "<group>"; };
 		B0670F3229D4211700676872 /* DeviceFlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceFlowView.swift; sourceTree = "<group>"; };
 		B0670F3429D5421300676872 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
@@ -248,6 +253,7 @@
 		B0A2FCE72AC8940E00AC825D /* WalletLinkTest */ = {
 			isa = PBXGroup;
 			children = (
+				B02CE2052AF4C89500F5F495 /* Info.plist */,
 				B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */,
 				B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */,
 				B0A2FCF52AC894EB00AC825D /* TubiPage.swift */,
@@ -264,6 +270,7 @@
 				B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */,
 				B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */,
 				B0D53D6F2AE754E900E0A82E /* VuduPage.swift */,
+				B04586F42AF4993B00F1FF25 /* FandangoPage.swift */,
 			);
 			path = WalletLinkTest;
 			sourceTree = "<group>";
@@ -387,6 +394,7 @@
 				B06C4C562A8C7B0A003C414A /* MyMediaViewDemo.swift */,
 				B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */,
 				B0A2FD052ACF3E6A00AC825D /* MinterView.swift */,
+				B02CE2032AF4C08700F5F495 /* BackButton.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -537,6 +545,7 @@
 				B0A2FCF92ACA8DE400AC825D /* BluePage.swift in Sources */,
 				B0A2FCFF2ACB658E00AC825D /* PlayerView.swift in Sources */,
 				B0A2FD012ACC98B500AC825D /* Fabric.swift in Sources */,
+				B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */,
 				B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */,
 				B00FA9E72AD905D500CFBFF7 /* KTPage.swift in Sources */,
 				B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */,
@@ -601,6 +610,7 @@
 				B06C4C512A5F0872003C414A /* AppConfiguration.swift in Sources */,
 				B00945A429E9514B00B00FC3 /* CachedAsyncImage.swift in Sources */,
 				B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */,
+				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
 				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,
 				B0670F3B29D5427400676872 /* NFTDetail.swift in Sources */,
 				B069A4832A397DA8006C9E7B /* LoopingPlayer.swift in Sources */,
@@ -621,6 +631,7 @@
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WalletLinkTest/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -648,6 +659,7 @@
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WalletLinkTest/Info.plist;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
 				LD_RUNPATH_SEARCH_PATHS = (
