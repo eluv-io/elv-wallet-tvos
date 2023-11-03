@@ -700,6 +700,8 @@ class Fabric: ObservableObject {
         
         return try CreateMarketplaceViewModel(meta: model, fabric: self)
          */
+        
+        debugPrint("marketMeta: ", marketMeta)
         let title = marketMeta["info"]["title"].stringValue
         var logo = ""
         do{
@@ -904,6 +906,7 @@ class Fabric: ObservableObject {
             let nfts = profileData["contents"].arrayValue
 
             let parsedLibrary = try await parseNftsToLibrary(nfts)
+            self.library = parsedLibrary
             
             if IsDemoMode() {
                 let vuduProp = try await createVuduDemoProp(nfts: nfts)
@@ -932,8 +935,9 @@ class Fabric: ObservableObject {
             }
             
             self.properties = properties
+            
+            debugPrint("Properties count ", self.properties.count)
             self.previousRefreshHash = response.hash
-            self.library = parsedLibrary
                 
         }catch{
             print ("Refresh Error: \(error)")
@@ -965,6 +969,7 @@ class Fabric: ObservableObject {
     }
     
     func createVuduDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+        debugPrint("createVuduDemoProp")
         var demoNfts: [JSON] = []
         for nft in nfts{
             let address = nft["contract_addr"].stringValue
@@ -1025,8 +1030,9 @@ class Fabric: ObservableObject {
         }
         
         let marketplaceId = "iq__2YZajc8kZwzJGZi51HJB7TAKdio2"
-        let marketplace = try await self.getMarketplace(marketplaceId: marketplaceId)
-        let prop = CreateTestPropertyModel(id:marketplaceId, title:marketplace.title, logo: marketplace.logo, image:marketplace.image, heroImage:marketplace.header,
+        //let marketplace = try await self.getMarketplace(marketplaceId: marketplaceId)
+        
+        let prop = CreateTestPropertyModel(id:marketplaceId, title:"Fandango At Home", logo: "VUDU-white", image:"Search - Fandango", heroImage:"Fandango Property Page Header",
                                     featured: demoLib.featured, media: demoMedia, items:newItems)
         
         return prop
@@ -1075,7 +1081,7 @@ class Fabric: ObservableObject {
             newItems.append(item)
         }
         
-        let prop = CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"WBMovieverse", heroImage:"WarnerBrothers_TopImage-v2",
+        let prop = CreateTestPropertyModel(title:"Movieverse", logo: "WarnerBrothersLogo", image:"Search - WB", heroImage:"Property_header_WB",
                                     featured: demoLib.featured, media: demoMedia, liveStreams: demoLib.liveStreams, items:newItems)
         
         return prop
@@ -1116,7 +1122,7 @@ class Fabric: ObservableObject {
         //print(demoLib.items[0].isSeries)
 
         
-        let prop = CreateTestPropertyModel(title:"Fox Entertainment", logo: "FoxEntertainment_Logo", image:"FoxEntertainment_SearchResultBubble", heroImage:"Fox Entertainment Header",  featured: demoLib.featured, media: demoMedia, sections: sections, items:demoLib.items)
+        let prop = CreateTestPropertyModel(title:"Fox Entertainment", logo: "FoxEntertainment_Logo", image:"Search - Fox Entertainment", heroImage:"Property_header_Fox_entertainment",  featured: demoLib.featured, media: demoMedia, sections: sections, items:demoLib.items)
         
         return prop
     }
@@ -1209,7 +1215,7 @@ class Fabric: ObservableObject {
             streams.append(item)
         }
         
-        var prop = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"FoxSport", heroImage:"fox_sports_header",  featured: demoLib.featured, media: demoMedia, liveStreams: streams, items:newItems)
+        var prop = CreateTestPropertyModel(title:"Fox Sports", logo: "FoxSportsLogo", image:"Search - Fox Sports", heroImage:"Property_header_fox_sport",  featured: demoLib.featured, media: demoMedia, liveStreams: streams, items:newItems)
         
         return prop
     }
@@ -1243,7 +1249,7 @@ class Fabric: ObservableObject {
         }
         
 
-        let prop = CreateTestPropertyModel(title:"Fox News", logo: "FoxLogo", image:"FoxNews", heroImage:"FoxNews_TopImage",  featured: demoLib.featured, sections: sections, items:newItems)
+        let prop = CreateTestPropertyModel(title:"Fox News", logo: "FoxLogo", image:"Search - Fox News", heroImage:"Property_header_fox_news",  featured: demoLib.featured, sections: sections, items:newItems)
         
         return prop
     }
@@ -1273,7 +1279,7 @@ class Fabric: ObservableObject {
             newItems.append(item)
         }
         
-        let prop = CreateTestPropertyModel(title:"Fox Weather", logo: "FoxLogo", image:"FoxNewsAndWeather_SearchResultBubble_v2", heroImage:"FoxNews_Weather_Header_v2",  featured: demoLib.featured, media: demoMedia, items:newItems)
+        let prop = CreateTestPropertyModel(title:"Fox Weather", logo: "FoxLogo", image:"Search - Fox Weather", heroImage:"Property_header_Fox_weather",  featured: demoLib.featured, media: demoMedia, items:newItems)
         
         return prop
     }
@@ -1299,7 +1305,7 @@ class Fabric: ObservableObject {
             demoLib.items[index].background_image_tv = "Dolly_NFT-Detail-View-BG_4K"
         }
         
-        var prop = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Dollyverse", heroImage:"DollyVerse_TopImage", featured: demoLib.featured, media: demoMedia, albums: demoLib.albums, items:demoLib.items)
+        var prop = CreateTestPropertyModel(title:"Dollyverse", logo: "DollyverseLogo", image:"Search - Dolly", heroImage:"Property_header_Dolly", featured: demoLib.featured, media: demoMedia, albums: demoLib.albums, items:demoLib.items)
         
         return prop
     }
@@ -1374,7 +1380,7 @@ class Fabric: ObservableObject {
             newItems.append(item)
         }
 
-        let prop = CreateTestPropertyModel(title:"AFL Plus", logo: "", image:"AFL_SearchResultCardTemplate", heroImage:"AFL_Property_Header",  featured: demoLib.featured, sections: sections, items:newItems)
+        let prop = CreateTestPropertyModel(title:"AFL Plus", logo: "", image:"Search - AFL", heroImage:"Property_header_AFL",  featured: demoLib.featured, sections: sections, items:newItems)
         
         return prop
     }
@@ -2119,33 +2125,6 @@ class Fabric: ObservableObject {
         return try await self.getJsonRequest(url: url)
     }
     
-    /*
-    //TODO: only need objectId
-    //TODO: provide the other params from elv-client-js
-    func contentObjectMetadata(libraryId: String="", objectId: String="", versionHash: String = "", metadataSubtree: String? = "") async throws -> JSON {
-        if versionHash.isEmpty {
-            
-            if (libraryId == ""){
-                //TODO:
-                throw FabricError.badInput("No library ID.")
-            }
-            
-            if (objectId == ""){
-                throw FabricError.badInput("No object ID.")
-            }
-            
-            let url: String = try self.getEndpoint().appending("/qlibs/").appending("\(libraryId)").appending("/q/").appending("\(objectId)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
-            
-            
-            return try await self.getJsonRequest(url: url)
-        }else {
-            let url: String = try self.getEndpoint().appending("/q/").appending("\(versionHash)").appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
-            
-            
-            return try await self.getJsonRequest(url: url)
-        }
-    }
-     */
     
     //TODO: Use contract call to get lib ID from objectID
     func contentObjectLibraryId(_objectId: String?) async throws -> String {

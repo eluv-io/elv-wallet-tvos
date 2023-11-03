@@ -102,6 +102,7 @@ struct NFTDetailMovieView: View {
                             BackButton(buttonIcon:backLinkIcon,
                                        action: {
                                 debugPrint("BackButton link: ", backLink)
+                                debugPrint("BackButton link Icon: ", backLinkIcon)
                                 if let url = URL(string: backLink) {
                                     openURL(url) { accepted in
                                         print(accepted ? "Success" : "Failure")
@@ -260,8 +261,8 @@ struct NFTDetailMovieView: View {
                             //Need to add nft since we only added the nft to one level of the media item. This is the second level
                             feature.nft = nft
                             featured.append(feature)
-                            debugPrint("feature name ", feature.name)
-                            debugPrint("feature nft ", feature.nft?.contract_name)
+                            //debugPrint("feature name ", feature.name)
+                            //debugPrint("feature nft ", feature.nft?.contract_name)
                         }
                         
                         self.featuredMedia = featured

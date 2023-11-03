@@ -36,7 +36,7 @@ func CreateTestNFTs(num: Int) -> [NFTModel] {
 }
 
 
-func CreateTestPropertyModel(id: String = "", title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], liveStreams: [MediaItem] = [], sections: [MediaSection] = [], items: [NFTModel]) -> PropertyModel {
+func CreateTestPropertyModel(id: String = UUID().uuidString, title: String, logo: String, image: String, heroImage: String, featured: Features = Features(), media: [MediaCollection] = [], albums: [NFTModel] = [], liveStreams: [MediaItem] = [], sections: [MediaSection] = [], items: [NFTModel]) -> PropertyModel {
 
     
     var projects : [ProjectModel] = []
