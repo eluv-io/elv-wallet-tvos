@@ -97,7 +97,14 @@ struct NFTDetailMovieView: View {
             ScrollView{
                 VStack(alignment:.leading){
                     if (backLink != ""){
-                        HStack {
+                        HStack(alignment:.top) {
+                            WebImage(url: URL(string: seriesMediaItem.titleLogo))
+                                .resizable()
+                                .transition(.fade(duration: 0.5))
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width:600, height:280, alignment: .leading)
+                                .padding(.bottom, 20)
+                            
                             Spacer()
                             BackButton(buttonIcon:backLinkIcon,
                                        action: {
@@ -122,13 +129,6 @@ struct NFTDetailMovieView: View {
                     
                     Button{} label: {
                         VStack(alignment: .leading, spacing: 40)  {
-                            WebImage(url: URL(string: seriesMediaItem.titleLogo))
-                                .resizable()
-                                .transition(.fade(duration: 0.5))
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width:600, height:280, alignment: .leading)
-                                .padding(.bottom, 20)
-                            
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: 10)  {
                                     HStack (spacing:20) {

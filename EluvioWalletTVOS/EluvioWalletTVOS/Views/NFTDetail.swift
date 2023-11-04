@@ -71,13 +71,18 @@ struct NFTDetailView: View {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 10) {
                             if (backLink != ""){
-                                HStack {
+                                HStack(alignment:.top) {
+                                    Text(nft.meta.displayName ?? "").font(.title3)
+                                        .foregroundColor(Color.white)
+                                        .fontWeight(.bold)
+                                        .frame(maxWidth:1500, alignment:.leading)
+                                    
                                     Spacer()
                                     BackButton(buttonIcon:backLinkIcon,
                                                action: {
                                         debugPrint("BackButton link: ", backLink)
                                         debugPrint("BackButton link Icon: ", backLinkIcon)
-                                        if let url = URL(string: backLink) {
+                                        if let url = URL(string: "Back To") {
                                             openURL(url) { accepted in
                                                 print(accepted ? "Success" : "Failure")
                                                 if (!accepted){
@@ -95,11 +100,6 @@ struct NFTDetailView: View {
                             
                             Button{} label: {
                                 VStack(alignment: .leading, spacing: 20)  {
-                                    Text(nft.meta.displayName ?? "").font(.title3)
-                                        .foregroundColor(Color.white)
-                                        .fontWeight(.bold)
-                                        .frame(maxWidth:1500, alignment:.leading)
-                                    
                                     if (description != "") {
                                         Text(description)
                                             .foregroundColor(Color.white)
