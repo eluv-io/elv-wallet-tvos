@@ -211,6 +211,21 @@ struct NFTDetailView: View {
                 }
                 update()
             }
+            .onWillDisappear {
+                debugPrint("NFTMovieDetail onWillDisappear ", backLink)
+                if backLink != "" {
+                    if let url = URL(string: backLink) {
+                        openURL(url) { accepted in
+                            print(accepted ? "Success" : "Failure")
+                            if (!accepted){
+                                print("Could not open URL ", backLink)
+                            }else{
+                                self.presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                    }
+                }
+            }
     }
         
     func update(){
@@ -529,20 +544,6 @@ struct NFTDetail: View {
                         self.feature = mediaItem
                     }
                     isLoaded = true
-                }
-            }
-        }
-        .onWillDisappear {
-            if backLink != "" {
-                if let url = URL(string: backLink) {
-                    openURL(url) { accepted in
-                        print(accepted ? "Success" : "Failure")
-                        if (!accepted){
-                            print("Could not open URL ", backLink)
-                        }else{
-                            self.presentationMode.wrappedValue.dismiss()
-                        }
-                    }
                 }
             }
         }

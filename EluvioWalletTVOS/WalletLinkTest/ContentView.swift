@@ -140,7 +140,7 @@ struct ContentView: View {
                             destination:
                                 FandangoPage(
                                     bgImage: "Fandango Launch - no buttons",
-                                    link: CreatePropertyLink( //CreateFandangoPropertyLink(
+                                    link: CreateFandangoPropertyLink(
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2"
                                     )
                                 )
