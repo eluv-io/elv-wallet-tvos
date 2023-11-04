@@ -688,6 +688,10 @@ class Fabric: ObservableObject {
     //XXX: superslow
     //Gets the marketplace data from the fabric
     func getMarketplace(marketplaceId: String) async throws -> MarketplaceViewModel{
+        debugPrint("getMarketplace marketplace id ", marketplaceId)
+        if marketplaceId == "" {
+            throw FabricError.badInput("Could not query marketplace. ID is empty.")
+        }
         let marketMeta = try await contentObjectMetadata(id: marketplaceId, metadataSubtree:"/public/asset_metadata")
         /*
         let startTime = DispatchTime.now()
@@ -701,7 +705,7 @@ class Fabric: ObservableObject {
         return try CreateMarketplaceViewModel(meta: model, fabric: self)
          */
         
-        debugPrint("marketMeta: ", marketMeta)
+        //debugPrint("marketMeta: ", marketMeta)
         let title = marketMeta["info"]["title"].stringValue
         var logo = ""
         do{

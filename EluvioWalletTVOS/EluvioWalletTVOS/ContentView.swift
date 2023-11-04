@@ -88,8 +88,16 @@ struct ContentView: View {
                 Task {
                     do {
                         let startTime = DispatchTime.now()
-                        let market = try await fabric.getMarketplace(marketplaceId: marketplace)
-                        
+                        var logo = ""
+                        if marketplace != ""{
+                            do {
+                                let market = try await fabric.getMarketplace(marketplaceId: marketplace)
+                                logo = market.logo
+                            }catch{
+                                print("Could not getMarketplace", error)
+                            }
+                        }
+
                         let endTime = DispatchTime.now()
 
                         let elapsedTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
@@ -100,7 +108,8 @@ struct ContentView: View {
                             viewState.reset()
                             showActivity = false
                             debugPrint("Showing NFT: ", nft.contract_name)
-                            self.backLinkIcon = market.logo
+                            debugPrint("BackLink Icon: ", logo)
+                            self.backLinkIcon = logo
                             self.showNft = true
                         }
                     }catch{
