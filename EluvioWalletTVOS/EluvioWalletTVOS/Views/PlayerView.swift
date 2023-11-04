@@ -98,8 +98,8 @@ struct PlayerView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
+    @Environment(\.openURL) private var openURL
     @Namespace var playerNamespace
-    
     @State var player = AVPlayer()
     @State var isPlaying: Bool = false
     @Binding var playerItem : AVPlayerItem?
@@ -115,6 +115,8 @@ struct PlayerView: View {
     @FocusState private var focusedField: Field?
     
     @State var showRestartButton = false
+    var backLink: String = ""
+    var backLinkIcon: String = ""
 
     enum Field: Hashable {
         case startFromBeginningField
@@ -232,10 +234,22 @@ struct PlayerView: View {
                 self.finishedObserver = PlayerFinishedObserver(player: player)
 
             }
-            .onDisappear {
-                print("ContentView disappeared!")
+            .onWillDisappear {
+                print("PlayerView onDisappear")
                 self.player.pause()
                 self.player.replaceCurrentItem(with: nil)
+                if backLink != "" {
+                    if let url = URL(string: backLink) {
+                        openURL(url) { accepted in
+                            print(accepted ? "Success" : "Failure")
+                            if (!accepted){
+                                print("Could not open URL ", backLink)
+                            }else{
+                                self.presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                    }
+                }
             }
     }
     

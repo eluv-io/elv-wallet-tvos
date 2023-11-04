@@ -14,6 +14,7 @@ struct PropertyMediaView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
+    @Environment(\.openURL) private var openURL
     @State var searchText = ""
     var featured: Features = Features()
     var library : [MediaCollection] = []
@@ -37,6 +38,12 @@ struct PropertyMediaView: View {
     }
     
     var heroImage : String = ""
+    
+    //If this is set, on dismiss, it will try to open the URL
+    var backLink: String = ""
+    var backLinkIcon: String = ""
+    
+    
     private var hasHero: Bool {
         return heroImage != ""
     }
@@ -292,6 +299,20 @@ struct PropertyMediaView: View {
         .scrollClipDisabled()
         .onAppear(){
 
+        }
+        .onWillDisappear(){
+            if backLink != "" {
+                if let url = URL(string: backLink) {
+                    openURL(url) { accepted in
+                        print(accepted ? "Success" : "Failure")
+                        if (!accepted){
+                            print("Could not open URL ", backLink)
+                        }else{
+                            self.presentationMode.wrappedValue.dismiss()
+                        }
+                    }
+                }
+            }
         }
              
     }

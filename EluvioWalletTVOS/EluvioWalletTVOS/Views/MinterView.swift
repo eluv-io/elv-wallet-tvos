@@ -26,7 +26,8 @@ struct MinterView: View {
     @State var isRedeemed = false
     @State var showNft = false
     @State var nft = NFTModel()
-    
+    var backLink: String = ""
+    var backLinkIcon: String = ""
     private var hasImage :  Bool {
         return marketItem["nft_template"]["nft"]["image"].stringValue != ""
     }
@@ -52,7 +53,7 @@ struct MinterView: View {
     
     var body: some View {
         if showNft {
-            NFTDetail(nft: self.nft)
+            NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
         }else {
             ZStack{
                 VStack{

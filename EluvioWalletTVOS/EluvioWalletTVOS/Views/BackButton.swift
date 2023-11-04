@@ -22,7 +22,6 @@ struct BackButton: View {
     
     @FocusState private var isFocused
     
-    
     var body: some View {
         Button {
                 action()
@@ -69,10 +68,8 @@ struct BackButton: View {
             .frame(width:width, height: height)
             .background(isFocused ? .black : Color(hex: 0, alpha: 0.2))
             .overlay(content: {
-                //if (!isFocused) {
                     RoundedRectangle(cornerRadius:10)
                         .stroke(Color.white, lineWidth: 2)
-                //}
             })
         }
         .buttonStyle(IconButtonStyle(focused:isFocused))
