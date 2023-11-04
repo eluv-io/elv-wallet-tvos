@@ -106,29 +106,30 @@ struct ContentView: View {
     ) private var openURL
     @StateObject
     var fabric = Fabric()
+    @FocusState private var headerFocused: Bool
     
     var body: some View {
         NavigationView {
             ScrollView {
                 LazyVStack(alignment:.center) {
-                    HStack(
-                        alignment:.center,
-                        spacing:20
-                    ){
-                        Image(
-                            "e_logo"
-                        )
-                        .resizable()
-                        .frame(
-                            width:120,
-                            height:120
-                        )
-                        Text(
-                            "Eluvio Wallet Link Demo"
-                        ).font(
-                            .title
-                        )
+                    Button{} label: {
+                        HStack(
+                            alignment:.center,
+                            spacing:20
+                        ){
+                            Image("e_logo")
+                            .resizable()
+                            .frame(
+                                width:120,
+                                height:120
+                            )
+                            Text("Eluvio Wallet Link Demo")
+                                .foregroundColor(Color.white)
+                                .font(.title)
+                        }
                     }
+                    .buttonStyle(NonSelectionButtonStyle())
+                    .focused($headerFocused)
                     
                     Divider()
                     VStack(
