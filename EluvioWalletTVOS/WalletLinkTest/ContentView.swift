@@ -156,7 +156,7 @@ struct ContentView: View {
                         NavigationLink(
                             destination:
                                 VuduPage(
-                                    bgImage: "VUDU-AQuietPlace-NoButtons",
+                                    bgImage: "VUDU launch - A Quiet Place - no buttons",
                                     bundleLink: CreateFandangoBundleLink(
                                         contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
@@ -177,7 +177,7 @@ struct ContentView: View {
                         NavigationLink(
                             destination:
                                 VuduPage(
-                                    bgImage: "VUDU-OneLove-NoButtons",
+                                    bgImage: "VUDU-BobMarley-NoButtons",
                                     bundleLink: CreateFandangoBundleLink(
                                         contract:"0x8e225b2dbe6272d136b58f94e32c207a72cdfa3b",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
@@ -264,7 +264,7 @@ struct ContentView: View {
                         NavigationLink(
                             destination:
                                 VuduPage(
-                                    bgImage: "VUDU-AQuietPlace-NoButtons",
+                                    bgImage: "VUDU launch - A Quiet Place - no buttons",
                                     bundleLink: CreateBundleLink(
                                         contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
                                         marketplace:"iq__486mYdFPkvmJ8YDQHxHEsW7TRr1D",
@@ -284,7 +284,7 @@ struct ContentView: View {
                         NavigationLink(
                             destination:
                                 VuduPage(
-                                    bgImage: "VUDU-OneLove-NoButtons",
+                                    bgImage: "VUDU-BobMarley-NoButtons",
                                     bundleLink: CreateBundleLink(
                                         contract:"0x8e225b2dbe6272d136b58f94e32c207a72cdfa3b",
                                         marketplace:"iq__486mYdFPkvmJ8YDQHxHEsW7TRr1D",
