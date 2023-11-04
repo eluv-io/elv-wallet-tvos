@@ -264,7 +264,8 @@ struct MediaView2: View {
                             .foregroundColor(.white)
                             .opacity(0.7)
                     }else{
-                        if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
+                        //TODO: when enabling resume again
+                        /*if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
                             VStack{
                                 Spacer()
                                 VStack(alignment:.leading, spacing:5){
@@ -276,7 +277,7 @@ struct MediaView2: View {
                                 }
                                 .padding()
                             }
-                        }
+                        }*/
                     }
                 }
                 

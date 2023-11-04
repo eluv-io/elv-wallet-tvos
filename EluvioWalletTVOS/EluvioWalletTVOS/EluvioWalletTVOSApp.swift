@@ -49,6 +49,11 @@ struct EluvioWalletTVOSApp: App {
         if let host = url.host()?.lowercased() {
             debugPrint("handleLink ", host)
             viewState.reset()
+            
+            if var backlink = url.valueOf("back_link")?.removingPercentEncoding {
+                viewState.backLink = backlink
+            }
+            debugPrint("backlink: ", viewState.backLink)
              
             switch(host){
             case "items":

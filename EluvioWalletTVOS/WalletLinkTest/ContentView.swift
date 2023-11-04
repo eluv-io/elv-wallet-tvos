@@ -30,16 +30,19 @@ let staticTokenMain = "eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZW
 let bundleBaseURL = "elvwallet://items"
 let playBaseURL = "elvwallet://play"
 let mintBaseURL = "elvwallet://mint"
+let propertyBaseURL = "elvwallet://property"
 
 let fandangoPropertyBaseURL = "fandango://property"
 let fandangoBundleURL = "fandango://items"
 let fandangoMintURL = "fandango://mint"
 let fandangoPlayURL = "fandango://play"
 
+let CONTENT_WIDTH : CGFloat = 1000
+
 func CreateFandangoPropertyLink(
     marketplace: String
 ) -> String {
-    return fandangoPropertyBaseURL + "/\(marketplace)"
+    return fandangoPropertyBaseURL + "/\(marketplace)" + "?back_link=walletlink://"
 }
 
 func CreateFandangoBundleLink(
@@ -54,7 +57,7 @@ func CreateFandangoBundleLink(
 func CreateFandangoPlayLink(
     contract:String
 ) -> String {
-    return fandangoPlayURL + "?" + "contract=\(contract)"
+    return fandangoPlayURL + "?" + "contract=\(contract)" + "&back_link=walletlink://"
 }
 
 func CreateFandangoMintLink(
@@ -62,7 +65,13 @@ func CreateFandangoMintLink(
     marketplace: String,
     sku: String
 ) -> String{
-    return fandangoMintURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)"
+    return fandangoMintURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)" + "&back_link=walletlink://"
+}
+
+func CreatePropertyLink(
+    marketplace: String
+) -> String {
+    return propertyBaseURL + "/\(marketplace)" + "?back_link=walletlink://"
 }
 
 func CreateBundleLink(
@@ -75,14 +84,9 @@ func CreateBundleLink(
 }
 
 func CreatePlayLink(
-    contract:String,
-    token: String,
-    marketplace: String,
-    sku: String,
-    mediaId: String
+    contract:String
 ) -> String {
-    return playBaseURL + "?" + "&contract=\(contract)" + "&token=\(token)" + "&marketplace=\(marketplace)"
-    + "&sku=\(sku)" + "&media=\(mediaId)"
+    return playBaseURL + "?" + "contract=\(contract)" + "&back_link=walletlink://"
 }
 
 //For DEMO ONLY: minting into the a wallet even if it exists
@@ -93,6 +97,7 @@ func CreateMintLink(
     sku: String
 ) -> String{
     return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)"
+        + "&back_link=walletlink://"
 }
 
 struct ContentView: View {
@@ -144,7 +149,7 @@ struct ContentView: View {
                                 "Property Page - FANDANGO"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -164,7 +169,7 @@ struct ContentView: View {
                                 "A Quiet Place: Day One - FANDANGO"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -185,7 +190,7 @@ struct ContentView: View {
                                 "One Love - FANDANGO"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -206,7 +211,7 @@ struct ContentView: View {
                                 "Top Gun - FANDANGO"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -227,11 +232,32 @@ struct ContentView: View {
                                 "LOTR: Extended Edition Epic - FANDANGO"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
-                        Divider().frame(width:700).padding()
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU Flash Launch screen - no buttons",
+                                    bundleLink: CreateFandangoBundleLink(
+                                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                                        sku:""
+                                    ),
+                                    playLink: CreateFandangoPlayLink(
+                                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4")
+                                )
+                        ) {
+                            Text(
+                                "The Flash - FANDANGO"
+                            )
+                            .frame(
+                                width:CONTENT_WIDTH
+                            )
+                        }
+                        
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         
                         /// VUDU
                         
@@ -251,10 +277,9 @@ struct ContentView: View {
                                 "A Quiet Place: Day One - VUDU"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
-                        
                         
                         NavigationLink(
                             destination:
@@ -272,7 +297,7 @@ struct ContentView: View {
                                 "One Love - VUDU"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -293,11 +318,11 @@ struct ContentView: View {
                                 "Top Gun - VUDU"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
-                        Divider().frame(width:700).padding()
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         
                         
                         /// BLUE
@@ -318,7 +343,7 @@ struct ContentView: View {
                                 "A Quiet Place: Day One - Blue"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -339,7 +364,7 @@ struct ContentView: View {
                                 "One Love - Blue"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -360,11 +385,11 @@ struct ContentView: View {
                                 "Top Gun - Blue"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
-                        Divider().frame(width:700).padding()
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         //FETCH
                         
                         NavigationLink(
@@ -383,7 +408,7 @@ struct ContentView: View {
                                 "A Quiet Place: Day One - Fetch"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -403,7 +428,7 @@ struct ContentView: View {
                                 "One Love - Fetch"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -424,11 +449,11 @@ struct ContentView: View {
                                 "Top Gun - Fetch"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
-                        Divider().frame(width:700).padding()
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         // KT
                         
                         NavigationLink(
@@ -447,7 +472,7 @@ struct ContentView: View {
                                 "A Quiet Place: Day One - KT"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -467,7 +492,7 @@ struct ContentView: View {
                                 "One Love - KT"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -487,11 +512,11 @@ struct ContentView: View {
                                 "Top Gun - KT"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
 
-                        Divider().frame(width:700).padding()
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         
                         NavigationLink(
                             destination:
@@ -509,7 +534,7 @@ struct ContentView: View {
                                 "A Quiet Place: Day One - U-Next"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
 
@@ -529,7 +554,7 @@ struct ContentView: View {
                                 "One Love - U-Next"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
 
@@ -550,11 +575,11 @@ struct ContentView: View {
                                 "Top Gun - U-Next"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
-                        Divider().frame(width:700).padding()
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         // FOX
                         
                         NavigationLink(
@@ -575,7 +600,7 @@ struct ContentView: View {
                                 "FOX - Sports All Access"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -597,7 +622,7 @@ struct ContentView: View {
                                 "FOX - Weather All Access"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -622,11 +647,11 @@ struct ContentView: View {
                                 "FOX - Entertainment"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                         
-                        Divider().frame(width:700).padding()
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         
                         // THE FLASH
                         
@@ -641,19 +666,38 @@ struct ContentView: View {
                                     ),
                                     playUrl: "",
                                     playLink: CreatePlayLink(
-                                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",
-                                        token:"630",
-                                        marketplace:"iq__3YdURECX5V1rhE84vREnXfavwn5s",
-                                        sku:"S9rrmcKoQdAma1346pSZwy",
-                                        mediaId:"8REEVKxKhLdvAyC2UQxTHs"
+                                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4"
                                     )
                                 )
                         ) {
                             Text(
-                                "The Flash"
+                                "The Flash - MAX"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
+                            )
+                        }
+                        
+                        NavigationLink(
+                            destination:
+                                MaxPage(
+                                    bgImage: "Max Launch Screen LOTR - no buttons",
+                                    bundleLink: CreateBundleLink(
+                                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5",
+                                        marketplace:"iq__3YdURECX5V1rhE84vREnXfavwn5s",
+                                        sku:""
+                                    ),
+                                    playUrl: "",
+                                    playLink: CreatePlayLink(
+                                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5"
+                                    )
+                                )
+                        ) {
+                            Text(
+                                "LOTR: Extended Edition Epic - MAX"
+                            )
+                            .frame(
+                                width:CONTENT_WIDTH
                             )
                         }
                         
@@ -676,7 +720,7 @@ struct ContentView: View {
                                 "UEFA EURO2024"
                             )
                             .frame(
-                                width:700
+                                width:CONTENT_WIDTH
                             )
                         }
                     }

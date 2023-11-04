@@ -65,8 +65,6 @@
 		B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521C2A14A21100BD68D1 /* PropertyModel.swift */; };
 		B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */; };
 		B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */; };
-		B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCEA2AC8940E00AC825D /* ContentView.swift */; };
-		B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */; };
 		B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */; };
 		B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */; };
 		B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF52AC894EB00AC825D /* TubiPage.swift */; };
@@ -78,6 +76,9 @@
 		B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8629CD71840079661E /* FabricConfiguration.swift */; };
 		B0A2FD042ACD557100AC825D /* NFTDetailMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */; };
 		B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
+		B0C155472AF6037C00216E71 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C155462AF6037C00216E71 /* onWillDisappear+View.swift */; };
+		B0C155492AF60A9200216E71 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0C155482AF60A9200216E71 /* Assets.xcassets */; };
+		B0C1554D2AF60AF600216E71 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C1554C2AF60AF600216E71 /* ContentView.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0D53D702AE754E900E0A82E /* VuduPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53D6F2AE754E900E0A82E /* VuduPage.swift */; };
 		B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
@@ -159,8 +160,6 @@
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
-		B0A2FCEA2AC8940E00AC825D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LaunchPage.swift; sourceTree = "<group>"; };
 		B0A2FCF52AC894EB00AC825D /* TubiPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TubiPage.swift; sourceTree = "<group>"; };
@@ -171,6 +170,9 @@
 		B0A2FD002ACC98B500AC825D /* Fabric.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fabric.swift; sourceTree = "<group>"; };
 		B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDetailMovieView.swift; sourceTree = "<group>"; };
 		B0A2FD052ACF3E6A00AC825D /* MinterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinterView.swift; sourceTree = "<group>"; };
+		B0C155462AF6037C00216E71 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
+		B0C155482AF60A9200216E71 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B0C1554C2AF60AF600216E71 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
 		B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
@@ -253,14 +255,14 @@
 		B0A2FCE72AC8940E00AC825D /* WalletLinkTest */ = {
 			isa = PBXGroup;
 			children = (
+				B0C1554C2AF60AF600216E71 /* ContentView.swift */,
 				B02CE2052AF4C89500F5F495 /* Info.plist */,
 				B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */,
 				B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */,
 				B0A2FCF52AC894EB00AC825D /* TubiPage.swift */,
-				B0A2FCEA2AC8940E00AC825D /* ContentView.swift */,
-				B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */,
 				B0A2FCEE2AC8940F00AC825D /* Preview Content */,
 				B0A2FCF82ACA8DE400AC825D /* BluePage.swift */,
+				B0C155482AF60A9200216E71 /* Assets.xcassets */,
 				B0A2FCFA2ACA96EC00AC825D /* MaxPage.swift */,
 				B0A2FCFC2ACAA3CA00AC825D /* UEFAPage.swift */,
 				B0A2FCFE2ACB658E00AC825D /* PlayerView.swift */,
@@ -362,6 +364,7 @@
 		B0E60FAB29D223760079661E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B0C155462AF6037C00216E71 /* onWillDisappear+View.swift */,
 				B0670F3F29D542A100676872 /* Color.swift */,
 				B0670F3E29D542A100676872 /* Header.swift */,
 				B0670F3729D5427300676872 /* NFTDetail.swift */,
@@ -507,8 +510,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0C155492AF60A9200216E71 /* Assets.xcassets in Resources */,
 				B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */,
-				B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -539,7 +542,7 @@
 			files = (
 				B00FA9E92AD905FD00CFBFF7 /* UNextPage.swift in Sources */,
 				B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */,
-				B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */,
+				B0C1554D2AF60AF600216E71 /* ContentView.swift in Sources */,
 				B0A2FCFB2ACA96EC00AC825D /* MaxPage.swift in Sources */,
 				B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */,
 				B0A2FCF92ACA8DE400AC825D /* BluePage.swift in Sources */,
@@ -577,6 +580,7 @@
 				B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */,
 				B0E60F8C29CD71840079661E /* NFTMetaResponse.swift in Sources */,
 				B00945AD29EA478D00B00FC3 /* TestData.swift in Sources */,
+				B0C155472AF6037C00216E71 /* onWillDisappear+View.swift in Sources */,
 				B0E60F7229CC23510079661E /* ContentView.swift in Sources */,
 				B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
@@ -626,7 +630,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 28;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -654,7 +658,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 26;
+				CURRENT_PROJECT_VERSION = 28;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -801,7 +805,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -833,7 +837,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

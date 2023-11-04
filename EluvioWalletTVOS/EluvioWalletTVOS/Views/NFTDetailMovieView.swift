@@ -300,6 +300,22 @@ struct NFTDetailMovieView: View {
                     }
                     
                 }
+                
+            }
+            .onWillDisappear {
+                debugPrint("NFTMovieDetail onWillDisappear ", backLink)
+                if backLink != "" {
+                    if let url = URL(string: backLink) {
+                        openURL(url) { accepted in
+                            print(accepted ? "Success" : "Failure")
+                            if (!accepted){
+                                print("Could not open URL ", backLink)
+                            }else{
+                                self.presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                    }
+                }
             }
         
     }

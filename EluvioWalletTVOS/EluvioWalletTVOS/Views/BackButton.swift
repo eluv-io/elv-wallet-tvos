@@ -18,8 +18,9 @@ struct BackButton: View {
     var height: CGFloat = 80
     var action: ()->Void
     
-    @FocusState private var isFocused
+    @State var imageLoaded = false
     
+    @FocusState private var isFocused
     
     var body: some View {
         Button {
@@ -27,7 +28,7 @@ struct BackButton: View {
         } label: {
             HStack(spacing:20){
                 if (buttonText != "") {
-                    Text(buttonText)
+                    Text(buttonIcon == "" || !imageLoaded ? "Back" : buttonText)
                         .font(.system(size: 32))
                         .fontWeight(.medium)
                         .foregroundColor(isFocused ? highlightTextColor : Color.white)
@@ -47,9 +48,13 @@ struct BackButton: View {
                 }else if (buttonIcon != "") {
                     if (buttonIcon.hasPrefix("http")){
                         WebImage(url: URL(string:buttonIcon))
+                            .onSuccess{_, _, _ in
+                                imageLoaded = true
+                            }
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(height:40)
+                            .frame(height: 40)
+
                     }else {
                         Image(buttonIcon)
                             .resizable()
@@ -63,13 +68,13 @@ struct BackButton: View {
             .frame(width:width, height: height)
             .background(isFocused ? .black : Color(hex: 0, alpha: 0.2))
             .overlay(content: {
-                //if (!isFocused) {
                     RoundedRectangle(cornerRadius:10)
                         .stroke(Color.white, lineWidth: 2)
-                //}
             })
         }
         .buttonStyle(IconButtonStyle(focused:isFocused))
         .focused($isFocused)
+        .opacity(imageLoaded ? 1.0 : 0.0)
+        .disabled(!imageLoaded)
     }
 }

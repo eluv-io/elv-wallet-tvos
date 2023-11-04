@@ -211,6 +211,21 @@ struct NFTDetailView: View {
                 }
                 update()
             }
+            .onWillDisappear {
+                debugPrint("NFTMovieDetail onWillDisappear ", backLink)
+                if backLink != "" {
+                    if let url = URL(string: backLink) {
+                        openURL(url) { accepted in
+                            print(accepted ? "Success" : "Failure")
+                            if (!accepted){
+                                print("Could not open URL ", backLink)
+                            }else{
+                                self.presentationMode.wrappedValue.dismiss()
+                            }
+                        }
+                    }
+                }
+            }
     }
         
     func update(){
@@ -467,8 +482,10 @@ struct NFTXRayView: View {
 
 
 struct NFTDetail: View {
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
+    @Environment(\.openURL) private var openURL
     var nft : NFTModel
     var backLink: String = ""
     var backLinkIcon: String = ""
