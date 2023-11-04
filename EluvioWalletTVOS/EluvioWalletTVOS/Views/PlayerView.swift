@@ -222,11 +222,12 @@ struct PlayerView: View {
                 }
                 
                 
-                self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
+                //TODO: Fix the playing from start end then seeking
+                //self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
                 self.player.play()
                 
                 if !showRestartButton && seekTimeS > 0 {
-                    showRestartButton = true
+                    //showRestartButton = true
                 }
                 print("*** PlayerView PLAY", seekTimeS)
 
