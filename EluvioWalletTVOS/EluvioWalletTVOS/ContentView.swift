@@ -181,28 +181,30 @@ struct ContentView: View {
                 
             }else{
                 NavigationView {
-                    MainView()
-                        .preferredColorScheme(colorScheme)
-                        .background(Color.mainBackground)
-                        .navigationBarHidden(true)
-                    //FIXME: The activity is buggy and might not be wanted...
-                        /*.overlay {
-                            if (showActivity){
-                                ZStack{
-                                    Color.black.edgesIgnoringSafeArea(.all)
-                                    ProgressView()
-                                }
+                    Group {
+                        if showActivity {
+                            ZStack{
+                                Color.black.edgesIgnoringSafeArea(.all)
+                                ProgressView()
                             }
-                        }*/
+                        }else {
+                            MainView()
+                                .preferredColorScheme(colorScheme)
+                                .background(Color.mainBackground)
+                                .navigationBarHidden(true)
+                        }
+                    }
                         .onAppear(){
                             debugPrint("ContentView onAppear")
                             //reset()
-                            self.viewStateCancellable = fabric.$library
+                            self.fabricCancellable = fabric.$isRefreshing
                                 .receive(on: DispatchQueue.main) //Delays the sink closure to get called after didSet
                                 .sink { val in
                                     debugPrint("Fabric library changed. viewState", viewState.op)
                                     if viewState.op == .none || fabric.isLoggedOut {
+                                        debugPrint("Fabric refreshing ", fabric.isRefreshing)
                                         if !fabric.isRefreshing {
+                                            debugPrint("showActivity false not refreshing")
                                             showActivity = false
                                         }
                                         return
@@ -210,8 +212,9 @@ struct ContentView: View {
                                     
                                     checkViewState()
                                     showActivity = false
+                                    debugPrint("showActivity false")
                                 }
-                            self.fabricCancellable = viewState.$op
+                            self.viewStateCancellable = viewState.$op
                                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                                 .sink { val in
                                     debugPrint("viewState changed.", val)

@@ -36,10 +36,18 @@ class ViewState: ObservableObject {
 
 @main
 struct EluvioWalletTVOSApp: App {
+    @Environment(\.scenePhase) var scenePhase
+    
     @StateObject
     var fabric = Fabric()
     @StateObject
     var viewState = ViewState()
+    
+    @State var showApp = true
+    
+    var opacity : CGFloat {
+        showApp ? 1.0 : 0.0
+    }
     
     init(){
         print("App Init")
@@ -83,26 +91,47 @@ struct EluvioWalletTVOSApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(fabric)
-                .environmentObject(viewState)
-                .preferredColorScheme(.dark)
-                .onAppear(){
-                    Task {
-                        do {
-                            try await fabric.connect(network:"")
-                        }catch{
-                            print("Error connecting to the fabric: ", error)
+            ZStack{
+                Color.black.edgesIgnoringSafeArea(.all)
+                ContentView()
+                    .environmentObject(fabric)
+                    .environmentObject(viewState)
+                    .preferredColorScheme(.dark)
+                    .opacity(opacity)
+                    .onAppear(){
+                        Task {
+                            do {
+                                try await fabric.connect(network:"")
+                            }catch{
+                                print("Error connecting to the fabric: ", error)
+                            }
                         }
                     }
-                }
-                .onOpenURL { url in
-                    debugPrint("url opened: ", url)
-                    
-                    handleLink(url:url)
-                }
-                .edgesIgnoringSafeArea(.all)
+                    .onChange(of: scenePhase) { newPhase in
+                        if newPhase == .inactive {
+                            print("Inactive")
+                            showApp = false
+                        } else if newPhase == .active {
+                            print("Active ")
+                            Task {
+                                await MainActor.run {
+                                    showApp = true
+                                }
+                            }
+                        } else if newPhase == .background {
+                            print("Background")
+                            showApp = false
+                        }
+                    }
+                    .onOpenURL { url in
+                        debugPrint("url opened: ", url)
+                        
+                        handleLink(url:url)
+                    }
+                    .edgesIgnoringSafeArea(.all)
+            }
         }
+        
     }
 }
    
