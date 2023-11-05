@@ -80,9 +80,9 @@ struct NFTDetailView: View {
                                     Spacer()
                                     BackButton(buttonIcon:backLinkIcon,
                                                action: {
-                                        debugPrint("BackButton link: ", backLink)
+                                        debugPrint("NFT Detail View: BackButton link: ", backLink)
                                         debugPrint("BackButton link Icon: ", backLinkIcon)
-                                        if let url = URL(string: "Back To") {
+                                        if let url = URL(string: backLink) {
                                             openURL(url) { accepted in
                                                 print(accepted ? "Success" : "Failure")
                                                 if (!accepted){
