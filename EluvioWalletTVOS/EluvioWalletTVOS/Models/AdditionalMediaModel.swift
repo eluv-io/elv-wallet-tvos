@@ -275,6 +275,47 @@ struct MediaItemViewModel:Identifiable {
 
         return ""
     }
+    
+    var mediaInfo: [(String,String)]{
+        var info: [(String,String)] = []
+        
+        let director = getTag(key:"Director")
+        if !director.isEmpty {
+            info.append(("Director:",director))
+        }
+        
+        let producer = getTag(key:"Producer")
+        if !producer.isEmpty{
+            info.append(("Producer:",producer))
+        }
+        
+        let language = getTag(key:"Language")
+        if !language.isEmpty{
+            info.append(("Languages:",language))
+        }
+        
+        let cast = getTag(key:"Cast")
+        if !cast.isEmpty{
+            info.append(("Cast:",language))
+        }
+        
+        let rating = getTag(key:"Rating")
+        if !rating.isEmpty{
+            info.append(("Rating:",rating))
+        }
+        
+        let release = getTag(key:"Release Date")
+        if !release.isEmpty{
+            info.append(("Release Date:",release))
+        }
+        
+        let style = getTag(key:"Style")
+        if !style.isEmpty{
+            info.append(("Style:",style))
+        }
+        
+        return info
+    }
 
 }
 

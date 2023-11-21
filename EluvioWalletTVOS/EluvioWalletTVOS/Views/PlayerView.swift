@@ -124,8 +124,9 @@ struct PlayerView: View {
 
     var body: some View {
         ZStack{
-            VideoPlayer(player: player)
-                .ignoresSafeArea()
+            //VideoPlayer(player: player)
+            AVPlayerView(player: $player)
+            .ignoresSafeArea()
             
             if showRestartButton {
                 VStack(alignment:.leading) {
@@ -194,7 +195,7 @@ struct PlayerView: View {
             .onAppear(){
                 print("*** PlayerView onAppear() ")
                 //print("PlayerItem",self.playerItem)
-                if (self.playerItem != self.player.currentItem){
+                if (self.playerItem != self.player.currentItem){                    
                     self.player.replaceCurrentItem(with: self.playerItem)
                     print("player.replaceCurrentItem()")
                 }

@@ -193,14 +193,48 @@ struct MediaView2: View {
                                 }else{
                                     item = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
                                 }
+                                
+                                var image : UIImage? = nil
+                                
+                                do {
+                                    debugPrint("Fetching image ", media.image)
+                                    let imageData = try await fabric.httpDataRequest(url: media.image, method:.get)
+                                    image = UIImage(data: imageData)
+                                    debugPrint("Downloaded image ", image)
+                                }catch{
+                                    print("Could not fetch image from media ", media.mediaId ?? "")
+                                }
 
                                 await MainActor.run {
-                                    guard let playerItem = item else {
+                                    guard var playerItem = item else {
                                         print("Could not create player.")
                                         errorMessage = "Sorry...something went wrong"
                                         showError = true
                                         return
                                     }
+                                    
+                                    let titleMetadataItem = AVMutableMetadataItem()
+                                    titleMetadataItem.identifier = .commonIdentifierTitle
+                                    titleMetadataItem.value = media.name as NSCopying & NSObjectProtocol
+                                    //TODO:
+                                    titleMetadataItem.extendedLanguageTag = "und"
+                                    
+                                    let descriptionMetadataItem = AVMutableMetadataItem()
+                                    descriptionMetadataItem.identifier = .commonIdentifierDescription
+                                    descriptionMetadataItem.value = media.description_text as NSCopying & NSObjectProtocol
+                                    //TODO:
+                                    descriptionMetadataItem.extendedLanguageTag = "und"
+                                    
+                                    let artworkMetadataItem = AVMutableMetadataItem()
+                                    artworkMetadataItem.identifier = .commonIdentifierArtwork
+                                    artworkMetadataItem.value = image?.pngData() as? NSCopying & NSObjectProtocol
+                                    //TODO:
+                                    artworkMetadataItem.extendedLanguageTag = "und"
+                                    
+                                    playerItem.externalMetadata.append(titleMetadataItem)
+                                    playerItem.externalMetadata.append(descriptionMetadataItem)
+                                    playerItem.externalMetadata.append(artworkMetadataItem)
+                                    
                                     self.playerItem = playerItem
                                     self.showPlayer = true
                                 }
