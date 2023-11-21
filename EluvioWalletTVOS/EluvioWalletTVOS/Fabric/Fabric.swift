@@ -1974,6 +1974,53 @@ class Fabric: ObservableObject {
         })
     }
     
+    func httpDataRequest(url: String, method: HTTPMethod, accessToken: String? = nil, parameters : [String: String] = [:], noAuth: Bool = false, body: String = "") async throws -> Data {
+        return try await withCheckedThrowingContinuation({ continuation in
+            
+            var token = accessToken ?? ""
+            
+            if token.isEmpty && noAuth == false {
+                token = self.fabricToken
+            }
+            
+            var headers: HTTPHeaders = []
+            
+            if !token.isEmpty {
+                headers["Authorization"] =  "Bearer \(token)"
+            }
+
+            debugPrint("GET ",url)
+            debugPrint("HEADERS ", headers)
+            
+            var components = URLComponents(string: url)!
+            components.queryItems = parameters.map { (key, value) in
+                URLQueryItem(name: key, value: value)
+            }
+            components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
+            var request = URLRequest(url: components.url!)
+
+            request.httpMethod = method.rawValue
+            request.headers = headers
+            if (!body.isEmpty){
+                request.httpBody = body.data(using: .utf8)
+            }
+
+            AF.request(request)
+                .debugLog()
+                .responseData { response in
+                    
+                    debugPrint("getJsonRequest response:\n")
+                switch (response.result) {
+                    case .success( _):
+                        continuation.resume(returning: response.value!)
+                     case .failure(let error):
+                        print("Get JSON Request error: \(error.localizedDescription)")
+                        continuation.resume(throwing: error)
+                 }
+            }
+        })
+    }
+    
     func getHlsPlaylistFromOptions(optionsJson: JSON?, hash: String, drm: String = "hls-clear", offering: String = "default") throws -> String {
         guard let link = optionsJson else{
             throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
