@@ -80,6 +80,7 @@
 		B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
+		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
 		B0D53D702AE754E900E0A82E /* VuduPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53D6F2AE754E900E0A82E /* VuduPage.swift */; };
 		B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
@@ -173,6 +174,7 @@
 		B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDetailMovieView.swift; sourceTree = "<group>"; };
 		B0A2FD052ACF3E6A00AC825D /* MinterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinterView.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
+		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
 		B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
@@ -398,6 +400,7 @@
 				B0A2FD052ACF3E6A00AC825D /* MinterView.swift */,
 				B02CE2032AF4C08700F5F495 /* BackButton.swift */,
 				B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */,
+				B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -607,6 +610,7 @@
 				B0E60FA929D211040079661E /* MarketplaceModel.swift in Sources */,
 				B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */,
 				B069A4892A4A0784006C9E7B /* SeriesDetailView.swift in Sources */,
+				B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */,
 				B06C4C4D2A589CB6003C414A /* MediaRowViewModel.swift in Sources */,
 				B0670F6929DEA0C600676872 /* AdditionalMediaModel.swift in Sources */,
 				B0E60F8B29CD71840079661E /* FabricConfiguration.swift in Sources */,
@@ -738,7 +742,7 @@
 				SDKROOT = appletvos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				TVOS_DEPLOYMENT_TARGET = 16.0;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Debug;
 		};
@@ -793,7 +797,7 @@
 				SDKROOT = appletvos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				TVOS_DEPLOYMENT_TARGET = 16.0;
+				TVOS_DEPLOYMENT_TARGET = 17.0;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
