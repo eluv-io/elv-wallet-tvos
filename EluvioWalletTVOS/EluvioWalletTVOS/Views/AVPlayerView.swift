@@ -29,12 +29,11 @@ struct AVPlayerView: UIViewControllerRepresentable {
         }
         // Append the action to the array.
         playerController.infoViewActions.append(watchLater)*/
-        
         playerController.player = player
     }
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
-        debugPrint("AVPlayerView makeUIViewController()")
+        //debugPrint("AVPlayerView makeUIViewController()")
         return AVPlayerViewController()
     }
 }

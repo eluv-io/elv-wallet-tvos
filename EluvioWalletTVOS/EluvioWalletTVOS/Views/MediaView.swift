@@ -213,7 +213,7 @@ struct MediaView2: View {
                                         return
                                     }
                                     
-                                    let titleMetadataItem = AVMutableMetadataItem()
+                                   let titleMetadataItem = AVMutableMetadataItem()
                                     titleMetadataItem.identifier = .commonIdentifierTitle
                                     titleMetadataItem.value = media.name as NSCopying & NSObjectProtocol
                                     //TODO:
@@ -299,7 +299,7 @@ struct MediaView2: View {
                             .opacity(0.7)
                     }else{
                         //TODO: when enabling resume again
-                        /*if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
+                        if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
                             VStack{
                                 Spacer()
                                 VStack(alignment:.leading, spacing:5){
@@ -311,7 +311,7 @@ struct MediaView2: View {
                                 }
                                 .padding()
                             }
-                        }*/
+                        }
                     }
                 }
                 

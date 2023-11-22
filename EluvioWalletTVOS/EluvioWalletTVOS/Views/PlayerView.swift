@@ -109,159 +109,120 @@ struct PlayerView: View {
     @State var playerTextOverlay = ""
     @State var finishedObserver = PlayerFinishedObserver()
     var seekTimeS: Double
+    @State var currentTimeS: Double = -1
     @Binding var finished: Bool
     var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
     
     @FocusState private var focusedField: Field?
-    
-    @State var showRestartButton = false
+
     var backLink: String = ""
     var backLinkIcon: String = ""
 
     enum Field: Hashable {
         case startFromBeginningField
     }
+    
+    var hasSeeked : Bool {
+        return currentTimeS > seekTimeS
+    }
 
     var body: some View {
         ZStack{
-            //VideoPlayer(player: player)
             AVPlayerView(player: $player)
             .ignoresSafeArea()
             
-            if showRestartButton {
-                VStack(alignment:.leading) {
-                    Spacer()
-                    HStack{
-                        Button {
-                            self.player.seek(to: CMTime(seconds: 0, preferredTimescale: 1))
-                            showRestartButton = false
-                        } label: {
-                            HStack(spacing:10){
-                                Image(systemName: "play.fill")
-                                Text("From Beginning")
-                            }
+        }
+        .onReceive(finishedObserver.publisher) {
+            print("Finished!")
+            self.finished = true
+        }
+        .overlay {
+            VStack {
+                if !playerImageOverlayUrl.isEmpty {
+                    WebImage(url: URL(string: playerImageOverlayUrl))
+                        .resizable()
+                        .indicator(.activity) // Activity Indicator
+                        .transition(.fade(duration: 0.5))
+                        .aspectRatio(contentMode: .fill)
+                        .frame( width: 600, height: 600)
+                        .cornerRadius(15)
+                }
+                
+                if !playerTextOverlay.isEmpty {
+                    Text(playerTextOverlay)
+                        .foregroundColor(Color.white)
+                        .font(.title)
+                        .lineLimit(3)
+                        .frame(width: 1000, alignment: .center)
+                }
+            }
+        }
+        .onAppear(){
+            print("*** PlayerView onAppear() ")
+            //print("PlayerItem",self.playerItem)
+            if (self.playerItem != self.player.currentItem){
+                self.player.replaceCurrentItem(with: self.playerItem)
+                print("player.replaceCurrentItem()")
+            }
+            
+            player.addProgressObserver { progress in
+
+                debugPrint("Player progress: ", progress)
+                debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
+                debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
+                
+                currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
+                
+                if currentTimeS == -1.0 {
+                    return
+                }
+                
+                /*if self.player.status == .readyToPlay {
+                    debugPrint("Play")
+
+                }*/
+                
+                if let progressCallback = self.progressCallback {
+                    progressCallback(progress,
+                                     player.currentItem?.currentTime().seconds ?? 0.0,
+                                     player.currentItem?.duration.seconds ?? 0.0)
+                }
+            }
+            
+            
+            //TODO: Fix the playing from start end then seeking
+            self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1),
+                             toleranceBefore: .zero, toleranceAfter: .zero
+            )
+            player.play()
+
+            print("*** PlayerView PLAY", seekTimeS)
+
+            newItem = true
+            self.finishedObserver = PlayerFinishedObserver(player: player)
+
+        }
+        .onWillDisappear {
+            print("PlayerView onDisappear")
+            self.player.pause()
+            self.player.replaceCurrentItem(with: nil)
+            if backLink != "" {
+                if let url = URL(string: backLink) {
+                    openURL(url) { accepted in
+                        print(accepted ? "Success" : "Failure")
+                        if (!accepted){
+                            print("Could not open URL ", backLink)
+                        }else{
+                            self.presentationMode.wrappedValue.dismiss()
                         }
-                        .focused($focusedField, equals: .startFromBeginningField)
-                        .padding()
-                        .padding(.bottom,100)
-                        Spacer()
                     }
                 }
             }
         }
-        .defaultFocus($focusedField, .startFromBeginningField)
-            /*.onReceive(timer) { time in
-                //print("Item Status \(self.playerItem?.status.rawValue)")
-                if (newItem && self.playerItem?.status == .readyToPlay){
-                    if seekTimeS > 5.0 {
-                        self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
-                    }
-                    self.player.play()
-                    newItem = false
-                    debugPrint("Play!!")
-                }
-                
-            }*/
-        .onChange(of: focusedField) {
-            if focusedField != .startFromBeginningField {
-                showRestartButton = false
-            }
-        }
-            .onReceive(finishedObserver.publisher) {
-                print("Finished!")
-                self.finished = true
-            }
-            .overlay {
-                VStack {
-                    if !playerImageOverlayUrl.isEmpty {
-                        WebImage(url: URL(string: playerImageOverlayUrl))
-                            .resizable()
-                            .indicator(.activity) // Activity Indicator
-                            .transition(.fade(duration: 0.5))
-                            .aspectRatio(contentMode: .fill)
-                            .frame( width: 600, height: 600)
-                            .cornerRadius(15)
-                    }
-                    
-                    if !playerTextOverlay.isEmpty {
-                        Text(playerTextOverlay)
-                            .foregroundColor(Color.white)
-                            .font(.title)
-                            .lineLimit(3)
-                            .frame(width: 1000, alignment: .center)
-                    }
-                }
-            }
-            .onAppear(){
-                print("*** PlayerView onAppear() ")
-                //print("PlayerItem",self.playerItem)
-                if (self.playerItem != self.player.currentItem){                    
-                    self.player.replaceCurrentItem(with: self.playerItem)
-                    print("player.replaceCurrentItem()")
-                }
-                
-                player.addProgressObserver { progress in
-
-                    debugPrint("Player progress: ", progress)
-                    debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
-                    debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
-                    
-                    if let progressCallback = self.progressCallback {
-                        progressCallback(progress,
-                                         player.currentItem?.currentTime().seconds ?? 0.0,
-                                         player.currentItem?.duration.seconds ?? 0.0)
-                    }
-                    
-                    if player.currentItem?.duration.seconds ?? 0 > 0{
-                        if showRestartButton {
-                            Task {
-                                await removeButtons()
-                            }
-                        }
-                    }
-                    
-                }
-                
-                
-                //TODO: Fix the playing from start end then seeking
-                //self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1))
-                self.player.play()
-                
-                if !showRestartButton && seekTimeS > 0 {
-                    //showRestartButton = true
-                }
-                print("*** PlayerView PLAY", seekTimeS)
-
-                newItem = true
-                self.finishedObserver = PlayerFinishedObserver(player: player)
-
-            }
-            .onWillDisappear {
-                print("PlayerView onDisappear")
-                self.player.pause()
-                self.player.replaceCurrentItem(with: nil)
-                if backLink != "" {
-                    if let url = URL(string: backLink) {
-                        openURL(url) { accepted in
-                            print(accepted ? "Success" : "Failure")
-                            if (!accepted){
-                                print("Could not open URL ", backLink)
-                            }else{
-                                self.presentationMode.wrappedValue.dismiss()
-                            }
-                        }
-                    }
-                }
-            }
     }
     
     func playerDidFinishPlaying(note: NSNotification) {
         print("Video Finished")
-    }
-    
-    private func removeButtons() async {
-        try? await Task.sleep(nanoseconds: 10_000_000_000)
-        showRestartButton = false
     }
 }
 
