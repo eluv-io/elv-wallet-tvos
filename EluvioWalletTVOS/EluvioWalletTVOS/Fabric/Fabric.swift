@@ -914,7 +914,7 @@ class Fabric: ObservableObject {
             
             if IsDemoMode() {
                 let vuduProp = try await createVuduDemoProp(nfts: nfts)
-                let uefaProp = try await createUEFAProp(nfts: nfts)
+                /*let uefaProp = try await createUEFAProp(nfts: nfts)
                 let aflProp = try await createAFLProp(nfts: nfts)
                 let wbProp = try await createWbDemoProp(nfts: nfts)
                 let foxEntProp = try await createFoxEntertainmentProp(nfts: nfts)
@@ -935,7 +935,9 @@ class Fabric: ObservableObject {
                     foxWeatherProp,
                     dollyDemoProp,
                     moonProp
-                ]
+                ]*/
+                
+                properties = [vuduProp]
             }
             
             self.properties = properties
