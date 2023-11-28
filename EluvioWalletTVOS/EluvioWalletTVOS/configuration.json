@@ -1,7 +1,7 @@
 {
     "app":{
         "name": "Media Wallet",
-        "mode": "demo"
+        "mode": "prod"
     },
     "network": {
       "demo": {
