@@ -124,7 +124,7 @@ struct ContentView: View {
                                 height:120
                             )
                             Text("Eluvio Wallet Link Demo")
-                                .foregroundColor(Color.white)
+                                .foregroundColor(Color.black.opacity(0.4))
                                 .font(.title)
                         }
                     }

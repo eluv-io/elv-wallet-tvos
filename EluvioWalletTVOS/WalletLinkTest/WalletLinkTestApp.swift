@@ -60,9 +60,11 @@ struct WalletLinkTestApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .background(.thinMaterial)
             .onOpenURL { url in
                 debugPrint("url opened: ", url)
             }
+            .preferredColorScheme(.light)
         }
     }
 }
