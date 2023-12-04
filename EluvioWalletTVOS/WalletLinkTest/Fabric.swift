@@ -33,7 +33,8 @@ class Fabric: ObservableObject {
     var configuration : FabricConfiguration? = nil
     var mainStaticUrl = "https://main.net955305.contentfabric.io/s"
     let mainStaticToken = "eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSJ9Cg=="
-    
+    var authClient : AuthService? = nil
+
     func connect(configUrl: String) async throws {
         guard let url = URL(string: configUrl) else {
             throw FabricError.invalidURL("\(self.configUrl)")
@@ -49,6 +50,15 @@ class Fabric: ObservableObject {
 
         let config = try JSONDecoder().decode(FabricConfiguration.self, from: data)
         self.configuration = config
+        
+        guard let ethereumApi = self.configuration?.getEthereumAPI() else {
+            throw FabricError.configError("Error getting ethereum apis from config: \(self.configuration)")
+        }
+        
+        guard let asApi = self.configuration?.getAuthServices() else{
+            throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
+        }
+        self.authClient = AuthService(ethApi: ethereumApi, authorityApi:asApi, network:"main")
     }
     
     
@@ -67,7 +77,7 @@ class Fabric: ObservableObject {
         return endpoint
     }
     
-    func createUrl(path:String) -> String {
-        return getEndpoint() + path + "?authorization=\(mainStaticToken)"
+    func createUrl(path:String, token: String = "") -> String {
+        return getEndpoint() + path + "?authorization=\(token.isEmpty ? mainStaticToken : token)"
     }
 }

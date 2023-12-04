@@ -18,6 +18,7 @@ struct VuduPage: View {
     var playUrl = ""
     var playOutPath = ""
     var playLink = ""
+    var token = ""
     var playButtonText = "Play Feature Film"
     var bundleButtonText = "Launch Bundle"
     var buttonHighlightColor = Color(hex:0x3984c5)
@@ -36,7 +37,7 @@ struct VuduPage: View {
                     highlightColor: buttonHighlightColor,
                     action: {
                         if playOutPath != "" {
-                            let combinedUrl = fabric.createUrl(path:playOutPath)
+                            let combinedUrl = fabric.createUrl(path:playOutPath, token:token)
                             if let url = URL(string: combinedUrl) {
                                 self.url = url
                                 showPlayer = true
