@@ -19,6 +19,8 @@ class ViewState: ObservableObject {
     var itemSKU = ""
     var mediaId = ""
     var backLink = ""
+    var authToken = ""
+    var address = ""
     
     func reset() {
         itemContract = ""
@@ -58,40 +60,62 @@ struct EluvioWalletTVOSApp: App {
             debugPrint("handleLink ", host)
             viewState.reset()
             
-            if var backlink = url.valueOf("back_link")?.removingPercentEncoding {
+            if let backlink = url.valueOf("back_link")?.removingPercentEncoding {
                 viewState.backLink = backlink
             }
             debugPrint("backlink: ", viewState.backLink)
-             
-            switch(host){
-            case "items":
-                viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-                viewState.itemTokenStr = url.valueOf("token") ?? ""
-                viewState.marketplaceId = url.valueOf("marketplace") ?? ""
-                viewState.itemSKU = url.valueOf("sku") ?? ""
-                
-                if var backlink = url.valueOf("back_link")?.removingPercentEncoding {
-                    viewState.backLink = backlink
+            
+            if let authToken = url.valueOf("authorization")?.removingPercentEncoding {
+                if let address = url.valueOf("address")?.removingPercentEncoding {
+                    viewState.authToken = authToken
+                    viewState.address = address
+                    debugPrint("Deeplink with auth and address: ", address)
+                    Task {
+                        if IsDemoMode() {
+                            try await fabric.connect(network:"demo")
+                        }else {
+                            try await fabric.connect(network:"main")
+                        }
+                        
+                        let login = LoginResponse(addr:address, eth:"", token:authToken)
+                        fabric.setLogin(login: login, isMetamask: true)
+                        setViewState(host: host, url: url)
+                    }
+                }else{
+                    setViewState(host:host, url:url)
                 }
-                debugPrint("backlink: ", viewState.backLink)
-                viewState.op = .item
-                debugPrint("handleLink viewState changed")
-            case "play":
-                viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-                viewState.itemTokenStr = url.valueOf("token") ?? ""
-                viewState.mediaId = url.valueOf("media") ?? ""
-                viewState.op = .play
-            case "mint":
-                viewState.marketplaceId = url.valueOf("marketplace") ?? ""
-                viewState.itemSKU = url.valueOf("sku") ?? ""
-                viewState.op = .mint
-            case "property":
-                viewState.marketplaceId = url.lastPathComponent
-                viewState.op = .property
-            default:
-                return
+            }else{
+                setViewState(host:host, url:url)
             }
         }
+    }
+    
+    @MainActor
+    func setViewState(host:String, url:URL){
+       switch(host){
+       case "items":
+           viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
+           viewState.itemTokenStr = url.valueOf("token") ?? ""
+           viewState.marketplaceId = url.valueOf("marketplace") ?? ""
+           viewState.itemSKU = url.valueOf("sku") ?? ""
+           debugPrint("backlink: ", viewState.backLink)
+           viewState.op = .item
+           debugPrint("handleLink viewState changed")
+       case "play":
+           viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
+           viewState.itemTokenStr = url.valueOf("token") ?? ""
+           viewState.mediaId = url.valueOf("media") ?? ""
+           viewState.op = .play
+       case "mint":
+           viewState.marketplaceId = url.valueOf("marketplace") ?? ""
+           viewState.itemSKU = url.valueOf("sku") ?? ""
+           viewState.op = .mint
+       case "property":
+           viewState.marketplaceId = url.lastPathComponent
+           viewState.op = .property
+       default:
+           return
+       }
     }
     
     var body: some Scene {
