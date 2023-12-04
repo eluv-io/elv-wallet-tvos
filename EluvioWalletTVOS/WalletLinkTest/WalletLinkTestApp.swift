@@ -64,7 +64,7 @@ struct WalletLinkTestApp: App {
             .onOpenURL { url in
                 debugPrint("url opened: ", url)
             }
-            .preferredColorScheme(.light)
+            .preferredColorScheme(.dark)
         }
     }
 }

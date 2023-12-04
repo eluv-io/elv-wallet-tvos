@@ -22,7 +22,8 @@ let appStoreUrl = "https://apps.apple.com/in/app/eluvio-media-wallet/id159155041
 //Auth Stuff
 let clientId = "ed20064a-a4b9-4ec9-bc89-df559eb983a3"
 let clientSecret = "5bUz_D~uWnZ~_ic_sjGYIhQV64"
-let oauthEndpoint = "https://eloquent-carson-yt726m2tf6.projects.oryapis.com/oauth2/token"
+let authEndpoint = "https://eloquent-carson-yt726m2tf6.projects.oryapis.com/oauth2/token"
+let statusEndpoint = ""
 let wltJwtEndpoint = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
 
 let staticTokenMain = "eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSJ9Cg=="
@@ -37,35 +38,47 @@ let fandangoBundleURL = "fandango://items"
 let fandangoMintURL = "fandango://mint"
 let fandangoPlayURL = "fandango://play"
 
-let CONTENT_WIDTH : CGFloat = 1000
+let CONTENT_WIDTH : CGFloat = 1200
 
 func CreateFandangoPropertyLink(
-    marketplace: String
+    marketplace: String,
+    token: String="",
+    address: String=""
 ) -> String {
     return fandangoPropertyBaseURL + "/\(marketplace)" + "?back_link=walletlink://"
+    + (token.isEmpty ? "" : "&authorization=\(token)") + (address.isEmpty ? "" : "&address=\(address)")
 }
 
 func CreateFandangoBundleLink(
     contract:String,
     marketplace: String,
-    sku: String
+    sku: String,
+    token: String="",
+    address: String=""
 ) -> String {
     return fandangoBundleURL + "?" + "contract=\(contract)" + "&marketplace=\(marketplace)"
     + "&sku=\(sku)" + "&back_link=walletlink://"
+    + (token.isEmpty ? "" : "&authorization=\(token)") + (address.isEmpty ? "" : "&address=\(address)")
 }
 
 func CreateFandangoPlayLink(
-    contract:String
+    contract:String,
+    token: String="",
+    address: String=""
 ) -> String {
     return fandangoPlayURL + "?" + "contract=\(contract)" + "&back_link=walletlink://"
+    + (token.isEmpty ? "" : "&authorization=\(token)") + (address.isEmpty ? "" : "&address=\(address)")
 }
 
 func CreateFandangoMintLink(
     contract:String,
     marketplace: String,
-    sku: String
+    sku: String,
+    token: String="",
+    address: String=""
 ) -> String{
     return fandangoMintURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)" + "&back_link=walletlink://"
+    + (token.isEmpty ? "" : "&authorization=\(token)") + (address.isEmpty ? "" : "&address=\(address)")
 }
 
 func CreatePropertyLink(
@@ -100,6 +113,23 @@ func CreateMintLink(
         + "&back_link=walletlink://"
 }
 
+struct LoginResponse: Decodable {
+    var type = ""
+    var token = ""
+    var addr = ""
+    var eth = ""
+}
+
+class LoginManager : ObservableObject {
+    @Published var isLoggedOut = true
+    @Published var loginInfo : LoginResponse? = nil
+    
+    func signOut() {
+        isLoggedOut = true
+        loginInfo = nil
+    }
+}
+
 struct ContentView: View {
     @Environment(
         \.openURL
@@ -107,32 +137,84 @@ struct ContentView: View {
     @StateObject
     var fabric = Fabric()
     @FocusState private var headerFocused: Bool
+    @Namespace var mainNamespace
+    
+    @StateObject var login = LoginManager()
+    
+    var loginName : String {
+        login.loginInfo?.addr ?? ""
+    }
+    
+    var isLoggedOut : Bool {
+        login.isLoggedOut
+    }
+    
+    @State var showDeviceFlow = false
+    
+    var signInText: String {
+        login.isLoggedOut ? "SIGN IN" : "SIGN OUT"
+    }
+    
+    func signOut() {
+        login.signOut()
+    }
     
     var body: some View {
         NavigationView {
             ScrollView {
-                LazyVStack(alignment:.center) {
-                    Button{} label: {
+                VStack(alignment:.center) {
+                    HStack  {
+
                         HStack(
-                            alignment:.center,
+                            alignment:.top,
                             spacing:20
                         ){
                             Image("e_logo")
-                            .resizable()
-                            .frame(
-                                width:120,
-                                height:120
-                            )
+                                .resizable()
+                                .frame(
+                                    width:120,
+                                    height:120
+                                )
                             Text("Eluvio Wallet Link Demo")
-                                .foregroundColor(Color.black.opacity(0.4))
+                                .foregroundColor(Color.white.opacity(0.4))
                                 .font(.title)
                         }
+                        
+                        Spacer()
+                        VStack(alignment:.leading) {
+                            Button{
+                                if isLoggedOut {
+                                    showDeviceFlow = true
+                                }else {
+                                    signOut()
+                                }
+                            } label: {
+                                HStack(
+                                    alignment:.center,
+                                    spacing:20
+                                ){
+                                    Image(systemName: "person.fill")
+                                        .resizable()
+                                        .frame(
+                                            width:32,
+                                            height:32
+                                        )
+                                    Text(signInText)
+                                        .font(.system(size: 30))
+                                        .fontWeight(.semibold)
+                                }
+                            }
+                            Text(loginName)
+                                .font(.system(size: 30))
+                                .padding(.top,5)
+                                .frame(maxWidth:300)
+                                .lineLimit(1)
+                        }
                     }
-                    .buttonStyle(NonSelectionButtonStyle())
-                    .focused($headerFocused)
+                    .focusSection()
                     
                     Divider()
-                    VStack(
+                    LazyVStack(
                         alignment:.center
                     ){
                         // Fandango Media Wallet Launchers
@@ -142,7 +224,9 @@ struct ContentView: View {
                                 FandangoPage(
                                     bgImage: "Fandango Launch - no buttons",
                                     link: CreateFandangoPropertyLink(
-                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2"
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                                        token: login.loginInfo?.token ?? "",
+                                        address: login.loginInfo?.addr ?? ""
                                     )
                                 )
                         ) {
@@ -161,9 +245,12 @@ struct ContentView: View {
                                     bundleLink: CreateFandangoBundleLink(
                                         contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
-                                        sku:"5teHdjLfYtPuL3CRGKLymd"
+                                        sku:"5teHdjLfYtPuL3CRGKLymd",
+                                        token: login.loginInfo?.token ?? "",
+                                        address: login.loginInfo?.addr ?? ""
                                     ),
-                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8",
+                                    token: login.loginInfo?.token ?? ""
                                 )
                         ) {
                             Text(
@@ -182,9 +269,12 @@ struct ContentView: View {
                                     bundleLink: CreateFandangoBundleLink(
                                         contract:"0x8e225b2dbe6272d136b58f94e32c207a72cdfa3b",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
-                                        sku:"TzTKjJdW1fLhhvJmptU6N6"
+                                        sku:"TzTKjJdW1fLhhvJmptU6N6",
+                                        token: login.loginInfo?.token ?? "",
+                                        address: login.loginInfo?.addr ?? ""
                                     ),
-                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8"
+                                    playOutPath:"/q/hq__3qChzMEkpzsJtde65yxekhnHZitGe43jBAz58PdU4e56KVxKUbPqQFYuvoPu2jCq3CDPJoDHRV/rep/playout/default/hls-clear/playlist.m3u8",
+                                    token: login.loginInfo?.token ?? ""
                                 )
                         ) {
                             Text(
@@ -202,10 +292,14 @@ struct ContentView: View {
                                     bundleLink: CreateFandangoMintLink(
                                         contract:"0x86b9f9b5d26c6f111afaecf64a7c3e3e8a1736da",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
-                                        sku:"BLnoodkYExnbPJi5AncCJ"
+                                        sku:"BLnoodkYExnbPJi5AncCJ",
+                                        token: login.loginInfo?.token ?? "",
+                                        address: login.loginInfo?.addr ?? ""
                                     ),
                                     playOutPath:"/q/hq__MVrabVyoxNPvJKCBiRstnhAsEyZXxBBwaRKvfSS413nfyepktJdFLmZ4q2D8uECNVQ2sxnH9JP/rep/playout/default/hls-clear/playlist.m3u8",
+                                    token: login.loginInfo?.token ?? "",
                                     bundleButtonText: "Activate"
+                                    
                                 )
                         ) {
                             Text(
@@ -223,10 +317,13 @@ struct ContentView: View {
                                     bundleLink: CreateFandangoBundleLink(
                                         contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
-                                        sku:""
+                                        sku:"",
+                                        token: login.loginInfo?.token ?? "",
+                                        address: login.loginInfo?.addr ?? ""
                                     ),
                                     playLink: CreateFandangoPlayLink(
-                                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5")
+                                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5"),
+                                    token: login.loginInfo?.token ?? ""
                                 )
                         ) {
                             Text(
@@ -244,10 +341,13 @@ struct ContentView: View {
                                     bundleLink: CreateFandangoBundleLink(
                                         contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
-                                        sku:""
+                                        sku:"",
+                                        token: login.loginInfo?.token ?? "",
+                                        address: login.loginInfo?.addr ?? ""
                                     ),
                                     playLink: CreateFandangoPlayLink(
-                                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4")
+                                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4"),
+                                    token: login.loginInfo?.token ?? ""
                                 )
                         ) {
                             Text(
@@ -725,16 +825,22 @@ struct ContentView: View {
                             )
                         }
                     }
+                    .focusSection()
+                    .frame(maxWidth: .infinity)
                     .padding(
                         .top,
                         40
                     )
-                    
                     Spacer()
                 }
+                .focusSection()
                 .padding()
             }
             .scrollClipDisabled()
+        }
+        .fullScreenCover(isPresented: $showDeviceFlow){
+            DeviceFlowView(url : authEndpoint, statusUrl: statusEndpoint)
+                .environmentObject(login)
         }
         .environmentObject(
             fabric
