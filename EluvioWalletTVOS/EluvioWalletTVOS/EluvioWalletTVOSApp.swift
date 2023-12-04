@@ -19,6 +19,8 @@ class ViewState: ObservableObject {
     var itemSKU = ""
     var mediaId = ""
     var backLink = ""
+    var authToken = ""
+    var address = ""
     
     func reset() {
         itemContract = ""
@@ -43,7 +45,7 @@ struct EluvioWalletTVOSApp: App {
     @StateObject
     var viewState = ViewState()
     
-    @State var showApp = true
+    @State var showApp = false
     
     var opacity : CGFloat {
         showApp ? 1.0 : 0.0
@@ -58,35 +60,60 @@ struct EluvioWalletTVOSApp: App {
             debugPrint("handleLink ", host)
             viewState.reset()
             
-            if var backlink = url.valueOf("back_link")?.removingPercentEncoding {
+            if let backlink = url.valueOf("back_link")?.removingPercentEncoding {
                 viewState.backLink = backlink
             }
             debugPrint("backlink: ", viewState.backLink)
-             
-            switch(host){
-            case "items":
-                viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-                viewState.itemTokenStr = url.valueOf("token") ?? ""
-                viewState.marketplaceId = url.valueOf("marketplace") ?? ""
-                viewState.itemSKU = url.valueOf("sku") ?? ""
-                viewState.op = .item
-                debugPrint("handleLink viewState changed")
-            case "play":
-                viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-                viewState.itemTokenStr = url.valueOf("token") ?? ""
-                viewState.mediaId = url.valueOf("media") ?? ""
-                viewState.op = .play
-            case "mint":
-                viewState.marketplaceId = url.valueOf("marketplace") ?? ""
-                viewState.itemSKU = url.valueOf("sku") ?? ""
-                viewState.op = .mint
-            case "property":
-                viewState.marketplaceId = url.lastPathComponent
-                viewState.op = .property
-            default:
-                return
+            
+            if let authToken = url.valueOf("authorization")?.removingPercentEncoding {
+                if let address = url.valueOf("address")?.removingPercentEncoding {
+                    viewState.authToken = authToken
+                    viewState.address = address
+                    debugPrint("Deeplink with auth and address: ", address)
+                    Task {
+                        try await fabric.connect(network:"main")
+                        let login = LoginResponse(addr:address, eth:"", token:authToken)
+                        await fabric.setLogin(login: login, isMetamask: true)
+                        setViewState(host: host, url: url)
+                    }
+                }else{
+                    setViewState(host:host, url:url)
+                }
+            }else{
+                setViewState(host:host, url:url)
             }
         }
+    }
+    
+    @MainActor
+    func setViewState(host:String, url:URL){
+       switch(host){
+       case "items":
+           debugPrint("viewStateProperty items")
+           viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
+           viewState.itemTokenStr = url.valueOf("token") ?? ""
+           viewState.marketplaceId = url.valueOf("marketplace") ?? ""
+           viewState.itemSKU = url.valueOf("sku") ?? ""
+           debugPrint("backlink: ", viewState.backLink)
+           viewState.op = .item
+       case "play":
+           debugPrint("viewStateProperty play")
+           viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
+           viewState.itemTokenStr = url.valueOf("token") ?? ""
+           viewState.mediaId = url.valueOf("media") ?? ""
+           viewState.op = .play
+       case "mint":
+           debugPrint("viewStateProperty mint")
+           viewState.marketplaceId = url.valueOf("marketplace") ?? ""
+           viewState.itemSKU = url.valueOf("sku") ?? ""
+           viewState.op = .mint
+       case "property":
+           debugPrint("viewStateProperty property ",viewState.marketplaceId)
+           viewState.marketplaceId = url.lastPathComponent
+           viewState.op = .property
+       default:
+           return
+       }
     }
     
     var body: some Scene {
@@ -114,6 +141,7 @@ struct EluvioWalletTVOSApp: App {
                         } else if newPhase == .active {
                             print("Active ")
                             Task {
+                                try? await Task.sleep(nanoseconds: 1500000000)
                                 await MainActor.run {
                                     showApp = true
                                 }
@@ -135,3 +163,4 @@ struct EluvioWalletTVOSApp: App {
     }
 }
    
+
