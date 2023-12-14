@@ -174,10 +174,16 @@ struct ContentView: View {
                     .background(Color.mainBackground)
             }else{
                 NavigationView {
-                    MainView()
-                        .preferredColorScheme(colorScheme)
-                        .background(Color.mainBackground)
-                        .navigationBarHidden(true)
+                    ZStack {
+                        MainView()
+                            .preferredColorScheme(colorScheme)
+                            .background(Color.mainBackground)
+                            .navigationBarHidden(true)
+                        if (showActivity) {
+                            ProgressView()
+                                .edgesIgnoringSafeArea(.all)
+                        }
+                    }
                     .onAppear(){
                         debugPrint("ContentView onAppear")
                         self.viewStateCancellable = viewState.$op
@@ -191,6 +197,12 @@ struct ContentView: View {
                                 checkViewState()
                                 showActivity = false
                             }
+                        
+                        self.fabricCancellable = fabric.$isRefreshing
+                            .sink { val in
+                            showActivity = val
+                        }
+
                         if viewState.op == .mint {
                             checkViewState()
                             showActivity = false
