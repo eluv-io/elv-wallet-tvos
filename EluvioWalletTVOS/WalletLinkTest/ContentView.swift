@@ -839,7 +839,7 @@ struct ContentView: View {
             .scrollClipDisabled()
         }
         .fullScreenCover(isPresented: $showDeviceFlow){
-            DeviceFlowView(url : authEndpoint, statusUrl: statusEndpoint)
+            DeviceFlowView(marketplaceId:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2", statusUrl: statusEndpoint)
                 .environmentObject(login)
         }
         .environmentObject(
