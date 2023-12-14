@@ -23,6 +23,9 @@
 		B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02CE2032AF4C08700F5F495 /* BackButton.swift */; };
 		B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04586F42AF4993B00F1FF25 /* FandangoPage.swift */; };
 		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
+		B06404CB2B2B8BA500945E98 /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CA2B2B8BA500945E98 /* DeviceFlowView.swift */; };
+		B06404CE2B2B8DF700945E98 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CC2B2B8DF700945E98 /* Utils.swift */; };
+		B06404CF2B2B8DF700945E98 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CD2B2B8DF700945E98 /* AuthService.swift */; };
 		B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3229D4211700676872 /* DeviceFlowView.swift */; };
 		B0670F3529D5421300676872 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3429D5421300676872 /* WalletView.swift */; };
 		B0670F3A29D5427400676872 /* NFTList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3629D5427300676872 /* NFTList.swift */; };
@@ -126,6 +129,9 @@
 		B02CE2052AF4C89500F5F495 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B04586F42AF4993B00F1FF25 /* FandangoPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FandangoPage.swift; sourceTree = "<group>"; };
 		B05DD74929E5220E001E12AF /* HTMLText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTMLText.swift; sourceTree = "<group>"; };
+		B06404CA2B2B8BA500945E98 /* DeviceFlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceFlowView.swift; sourceTree = "<group>"; };
+		B06404CC2B2B8DF700945E98 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		B06404CD2B2B8DF700945E98 /* AuthService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		B0670F3229D4211700676872 /* DeviceFlowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceFlowView.swift; sourceTree = "<group>"; };
 		B0670F3429D5421300676872 /* WalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletView.swift; sourceTree = "<group>"; };
 		B0670F3629D5427300676872 /* NFTList.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTList.swift; sourceTree = "<group>"; };
@@ -257,6 +263,9 @@
 		B0A2FCE72AC8940E00AC825D /* WalletLinkTest */ = {
 			isa = PBXGroup;
 			children = (
+				B06404CD2B2B8DF700945E98 /* AuthService.swift */,
+				B06404CC2B2B8DF700945E98 /* Utils.swift */,
+				B06404CA2B2B8BA500945E98 /* DeviceFlowView.swift */,
 				B02CE2052AF4C89500F5F495 /* Info.plist */,
 				B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */,
 				B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */,
@@ -545,14 +554,17 @@
 			files = (
 				B00FA9E92AD905FD00CFBFF7 /* UNextPage.swift in Sources */,
 				B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */,
+				B06404CB2B2B8BA500945E98 /* DeviceFlowView.swift in Sources */,
 				B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */,
 				B0A2FCFB2ACA96EC00AC825D /* MaxPage.swift in Sources */,
 				B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */,
+				B06404CF2B2B8DF700945E98 /* AuthService.swift in Sources */,
 				B0A2FCF92ACA8DE400AC825D /* BluePage.swift in Sources */,
 				B0A2FCFF2ACB658E00AC825D /* PlayerView.swift in Sources */,
 				B0A2FD012ACC98B500AC825D /* Fabric.swift in Sources */,
 				B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */,
 				B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */,
+				B06404CE2B2B8DF700945E98 /* Utils.swift in Sources */,
 				B00FA9E72AD905D500CFBFF7 /* KTPage.swift in Sources */,
 				B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */,
 				B00FA9E52AD904F400CFBFF7 /* FetchPage.swift in Sources */,
