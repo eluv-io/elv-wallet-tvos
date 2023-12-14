@@ -200,7 +200,11 @@ struct ContentView: View {
                         
                         self.fabricCancellable = fabric.$isRefreshing
                             .sink { val in
-                            showActivity = val
+                                if (val && fabric.library.isEmpty){
+                                    showActivity = true
+                                }else {
+                                    showActivity = false
+                                }
                         }
 
                         if viewState.op == .mint {
