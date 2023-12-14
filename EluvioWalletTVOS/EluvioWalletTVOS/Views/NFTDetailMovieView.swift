@@ -96,16 +96,16 @@ struct NFTDetailMovieView: View {
     var body: some View {
             ScrollView{
                 VStack(alignment:.leading){
-                    if (backLink != ""){
-                        HStack(alignment:.top) {
-                            WebImage(url: URL(string: seriesMediaItem.titleLogo))
-                                .resizable()
-                                .transition(.fade(duration: 0.5))
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width:600, height:280, alignment: .leading)
-                                .padding(.bottom, 20)
-                            
-                            Spacer()
+                    HStack(alignment:.top) {
+                        WebImage(url: URL(string: seriesMediaItem.titleLogo))
+                            .resizable()
+                            .transition(.fade(duration: 0.5))
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width:600, height:280, alignment: .leading)
+                            .padding(.bottom, 20)
+                        
+                        Spacer()
+                        if (backLink != ""){
                             BackButton(buttonIcon:backLinkIcon,
                                        action: {
                                 debugPrint("BackButton link: ", backLink)
@@ -123,9 +123,8 @@ struct NFTDetailMovieView: View {
                             }
                             )
                         }
-                        .focusSection()
                     }
-                    
+                    .focusSection()
                     
                     Button{} label: {
                         VStack(alignment: .leading, spacing: 40)  {

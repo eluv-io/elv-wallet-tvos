@@ -120,8 +120,6 @@ struct MediaItemViewModel:Identifiable {
             }
         }
         
-        
-        //print("media_link sources", media.media_link?["."])
         let optionsLink = media.media_link?["sources"]["default"]
         
         var mediaHash = ""
