@@ -139,8 +139,10 @@ class Fabric: ObservableObject {
     
     @MainActor
     func connect(network: String) async throws {
+        debugPrint("Fabric connect: ", network)
         defer {
             self.signingIn = false
+            debugPrint("Fabric connect finished")
         }
         self.signingIn = true
         
@@ -188,9 +190,9 @@ class Fabric: ObservableObject {
         self.profileClient = ProfileClient(fabric: self)
         
         self.checkToken { success in
-            print("Check Token: ", success)
+            debugPrint("Check Token: ", success)
             if (self.isMetamask == true){
-                print("is Metamask login")
+                debugPrint("is Metamask login, skipping checkToken")
                 return
             }
             guard success == true else {
@@ -1390,33 +1392,34 @@ class Fabric: ObservableObject {
         
         return prop
     }
-    
-    @MainActor
-    func setLogin(login:  LoginResponse, isMetamask: Bool = false){
+
+    func setLogin(login:  LoginResponse, isMetamask: Bool = false) async{
         debugPrint("SetLogin ", login)
-        self.login = login
-        self.isLoggedOut = false
-        self.signingIn = false
-        
-        self.isMetamask = isMetamask
-        if(isMetamask){
-            self.fabricToken = login.token
+        await MainActor.run {
+            self.login = login
+            self.isLoggedOut = false
+            self.signingIn = false
+            
+            self.isMetamask = isMetamask
+            if(isMetamask){
+                self.fabricToken = login.token
+            }
+            
+            self.loginTime = Date()
+            self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
         }
-        
-        Task {
-            await self.refresh()
-        }
-        
-        self.loginTime = Date()
-        self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
         
         if let profileClient = self.profileClient {
-            Task {
+            do {
                 let userAddress = try self.getAccountAddress()
                 let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
-                 debugPrint("USER PROFILE: ", userProfile )
+                debugPrint("USER PROFILE: ", userProfile )
+            }catch{
+                print("Could not get user profile. ", error.localizedDescription)
             }
         }
+        
+        await self.refresh()
     }
     
     func resetWalletData(){
@@ -1527,7 +1530,9 @@ class Fabric: ObservableObject {
                         do{
                             if let data = response.data {
                                 let login = try JSONDecoder().decode(LoginResponse.self, from: data)
-                                self.setLogin(login: login)
+                                Task {
+                                    await self.setLogin(login: login)
+                                }
                             }
                         }catch{
                             print("Signin response decode error: ", error)

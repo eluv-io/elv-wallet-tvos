@@ -272,7 +272,6 @@ struct NFTDetailMovieView: View {
                 debugPrint("Featured number" , self.featuredMedia.count)
                 
                 Task{
-                    
                     if let nft = seriesMediaItem.nft {
                         if let redeemableOffers = nft.redeemable_offers {
                             //debugPrint("RedeemableOffers ", redeemableOffers)

@@ -208,7 +208,7 @@ struct DeviceFlowView: View {
                                 //print("key \(key) value2 \(value)")
                                 UserDefaults.standard.set(value as? String, forKey: key)
                             }
-                            
+
                             self.timerCancellable!.cancel()
                         }else{
                             print("didn't get response yet!")
