@@ -31,7 +31,7 @@ struct ContentView: View {
     @State var mediaItem : MediaItem?
     @State var playerItem : AVPlayerItem?
     @State var playerFinished = false
-    @State var showActivity = true
+    @State var showActivity = false
     @State var backLink = ""
     @State var backLinkIcon = ""
     
@@ -63,13 +63,12 @@ struct ContentView: View {
     func checkViewState() {
         debugPrint("checkViewState op ", viewState.op)
         if self.showActivity == true {
-            //return
+            return
         }
 
         if viewState.op == .none {
             return
         }
-        
         Task{
             self.showActivity = true
             debugPrint("showActivity true ")
@@ -95,10 +94,10 @@ struct ContentView: View {
                                             token: viewState.itemTokenStr) {
                     await MainActor.run {
                         self.nft = _nft
-                        viewState.reset()
-                        showActivity = false
                         debugPrint("Showing NFT: ", nft.contract_name)
+                        self.showActivity = false
                         self.showNft = true
+                        viewState.reset()
                     }
                 }
                 
@@ -113,17 +112,15 @@ struct ContentView: View {
                         do {
                             let item  = try await MakePlayerItem(fabric: fabric, media: item)
                             await MainActor.run {
-                                viewState.reset()
                                 self.playerItem = item
                                 self.showActivity = false
                                 self.showPlayer = true
+                                viewState.reset()
                             }
                         }catch{
                             print("checkViewState - could not create MediaItemViewModel ", error)
-                            await MainActor.run {
-                                viewState.reset()
-                                showActivity = false
-                            }
+                            self.showActivity = false
+                            viewState.reset()
                         }
                     }
                 }
@@ -138,36 +135,33 @@ struct ContentView: View {
                             self.mintItem = item
                             self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku)
                             debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
-                            viewState.reset()
-                            showActivity = false
+                            self.showActivity = false
                             self.showMinter = true
+                            viewState.reset()
                         }
                     }
                 }catch{
                     print("checkViewState mint error ", error)
                     await MainActor.run {
+                        self.showActivity = false
                         viewState.reset()
-                        showActivity = false
                     }
                 }
             }else if viewState.op == .property {
                 debugPrint("property marketplace: ", viewState.marketplaceId)
                 
                 let marketplace = viewState.marketplaceId
-                
-                do {
-                    property = try fabric.findProperty(marketplaceId: marketplace)
-                    viewState.reset()
-                    showActivity = false
-                    showProperty = true
-                }catch{
-                    debugPrint("Could not find property ", marketplace)
-                    viewState.reset()
-                    showActivity = false
+                await MainActor.run {
+                    do {
+                        self.property = try fabric.findProperty(marketplaceId: marketplace)
+                        self.showActivity = false
+                        self.showProperty = true
+                    }catch{
+                        debugPrint("Could not find property ", marketplace)
+                        self.showActivity = false
+                        viewState.reset()
+                    }
                 }
-            }else{
-                viewState.reset()
-                showActivity = false
             }
         }
     }
@@ -178,87 +172,60 @@ struct ContentView: View {
                     .environmentObject(self.fabric)
                     .preferredColorScheme(colorScheme)
                     .background(Color.mainBackground)
-                
             }else{
                 NavigationView {
-                    Group {
-                        if showActivity {
-                            ZStack{
-                                Color.black.edgesIgnoringSafeArea(.all)
-                                ProgressView()
-                            }
-                        }else {
-                            MainView()
-                                .preferredColorScheme(colorScheme)
-                                .background(Color.mainBackground)
-                                .navigationBarHidden(true)
-                        }
-                    }
-                        .onAppear(){
-                            debugPrint("ContentView onAppear")
-                            //reset()
-                            self.fabricCancellable = fabric.$isRefreshing
-                                .receive(on: DispatchQueue.main) //Delays the sink closure to get called after didSet
-                                .sink { val in
-                                    debugPrint("Fabric library changed. viewState", viewState.op)
-                                    if viewState.op == .none || fabric.isLoggedOut {
-                                        debugPrint("Fabric refreshing ", fabric.isRefreshing)
-                                        if !fabric.isRefreshing {
-                                            debugPrint("showActivity false not refreshing")
-                                            showActivity = false
-                                        }
-                                        return
-                                    }
-                                    
-                                    checkViewState()
-                                    showActivity = false
-                                    debugPrint("showActivity false")
+                    MainView()
+                        .preferredColorScheme(colorScheme)
+                        .background(Color.mainBackground)
+                        .navigationBarHidden(true)
+                    .onAppear(){
+                        debugPrint("ContentView onAppear")
+                        self.viewStateCancellable = viewState.$op
+                            .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+                            .sink { val in
+                                debugPrint("viewState changed.", val)
+                                if val == .none || fabric.isLoggedOut{
+                                    self.showActivity = false
+                                    return
                                 }
-                            self.viewStateCancellable = viewState.$op
-                                .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                                .sink { val in
-                                    debugPrint("viewState changed.", val)
-                                    if val == .none || fabric.isLoggedOut{
-                                        return
-                                    }
-                                    checkViewState()
-                                    showActivity = false
-                                }
-                            if viewState.op == .mint {
                                 checkViewState()
                                 showActivity = false
                             }
+                        if viewState.op == .mint {
+                            checkViewState()
+                            showActivity = false
                         }
-                        .fullScreenCover(isPresented: $showNft) { [backLink, backLinkIcon] in
-                            NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
-                        }
-                        .fullScreenCover(isPresented: $showPlayer) { [backLink, backLinkIcon] in
-                            PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished,
-                                       backLink: backLink, backLinkIcon: backLinkIcon
-                            )
-                        }
-                        .fullScreenCover(isPresented: $showMinter) { [backLink, backLinkIcon] in
-                            MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
-                                       backLink: backLink, backLinkIcon: backLinkIcon
-                            )
-                        }
-                        .fullScreenCover(isPresented: $showProperty) { [backLink, backLinkIcon] in
-                            if let prop = property {
-                                let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
-                                NavigationView {
-                                    PropertyMediaView(featured: prop.featured,
-                                                      library: prop.media,
-                                                      albums: prop.albums,
-                                                      items: items,
-                                                      liveStreams: prop.live_streams,
-                                                      sections: prop.sections,
-                                                      heroImage: prop.heroImage ?? "",
-                                                      backLink: backLink, backLinkIcon: backLinkIcon
-                                    )
-                                }
-                                .navigationViewStyle(.stack)
+                    }
+                    .fullScreenCover(isPresented: $showNft) { [backLink, backLinkIcon] in
+                        NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
+                    }
+                    .fullScreenCover(isPresented: $showPlayer) { [backLink, backLinkIcon] in
+                        PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished,
+                                   backLink: backLink, backLinkIcon: backLinkIcon
+                        )
+                    }
+                    .fullScreenCover(isPresented: $showMinter) { [backLink, backLinkIcon] in
+                        MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
+                                   backLink: backLink, backLinkIcon: backLinkIcon
+                        )
+                    }
+                    .fullScreenCover(isPresented: $showProperty) { [backLink, backLinkIcon] in
+                        if let prop = property {
+                            let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
+                            NavigationView {
+                                PropertyMediaView(featured: prop.featured,
+                                                  library: prop.media,
+                                                  albums: prop.albums,
+                                                  items: items,
+                                                  liveStreams: prop.live_streams,
+                                                  sections: prop.sections,
+                                                  heroImage: prop.heroImage ?? "",
+                                                  backLink: backLink, backLinkIcon: backLinkIcon
+                                )
                             }
+                            .navigationViewStyle(.stack)
                         }
+                    }
                 }
                 .navigationViewStyle(.stack)
                 .edgesIgnoringSafeArea(.all)

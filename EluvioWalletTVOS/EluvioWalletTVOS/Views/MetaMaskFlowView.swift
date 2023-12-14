@@ -210,10 +210,8 @@ struct MetaMaskFlowView: View {
             let eth = json["eth"].stringValue
             
             let login = LoginResponse(addr:addr, eth:eth, token:token)
-            
-            await MainActor.run {
-                fabric.setLogin(login: login, isMetamask: true)
-            }
+
+            await fabric.setLogin(login: login, isMetamask: true)
             
             self.timerCancellable!.cancel()
             
