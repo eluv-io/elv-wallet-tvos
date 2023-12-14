@@ -18,6 +18,7 @@ struct DeviceFlowView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var login : LoginManager
+    @State var marketplaceId = ""
     @State var url = ""
     @State var statusUrl: String
     @State var code = ""
@@ -115,7 +116,7 @@ struct DeviceFlowView: View {
                 return
             }
             
-            let url = "https://wallet.preview.contentfabric.io/login?action=login&mode=login&response=code&source=code"
+            let url = "https://wallet.preview.contentfabric.io/login?mid=\(self.marketplaceId)&useOry=true&action=login&mode=login&response=code&source=code"
             let json = try await signer.createAuthLogin(redirectUrl: url)
             
             self.response = json
