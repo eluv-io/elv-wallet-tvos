@@ -70,14 +70,14 @@ struct NFTDetailView: View {
             ZStack(alignment:.topLeading) {
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 10) {
-                            if (backLink != ""){
-                                HStack(alignment:.top) {
-                                    Text(nft.meta.displayName ?? "").font(.title3)
-                                        .foregroundColor(Color.white)
-                                        .fontWeight(.bold)
-                                        .frame(maxWidth:1500, alignment:.leading)
-                                    
-                                    Spacer()
+                            HStack(alignment:.top) {
+                                Text(nft.meta.displayName ?? "").font(.title3)
+                                    .foregroundColor(Color.white)
+                                    .fontWeight(.bold)
+                                    .frame(maxWidth:1500, alignment:.leading)
+                                
+                                Spacer()
+                                if (backLink != ""){
                                     BackButton(buttonIcon:backLinkIcon,
                                                action: {
                                         debugPrint("NFT Detail View: BackButton link: ", backLink)
@@ -95,9 +95,9 @@ struct NFTDetailView: View {
                                     }
                                     )
                                 }
-                                .focusSection()
                             }
-                            
+                            .focusSection()
+
                             Button{} label: {
                                 VStack(alignment: .leading, spacing: 20)  {
                                     if (description != "") {

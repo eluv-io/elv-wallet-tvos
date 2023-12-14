@@ -913,6 +913,7 @@ class Fabric: ObservableObject {
 
             let parsedLibrary = try await parseNftsToLibrary(nfts)
             self.library = parsedLibrary
+            isRefreshing = false
             
             if IsDemoMode() {
                 let vuduProp = try await createVuduDemoProp(nfts: nfts)
