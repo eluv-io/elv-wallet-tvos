@@ -315,6 +315,5 @@ struct NFTDetailMovieView: View {
                     }
                 }
             }
-        
     }
 }

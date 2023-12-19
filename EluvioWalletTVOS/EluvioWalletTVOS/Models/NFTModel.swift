@@ -296,6 +296,17 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
         return nil
     }
     
+    var isPack: Bool {
+        debugPrint("NFTModel isPack ", meta)
+        guard let isOpenable = meta_full?["pack_options"]["is_openable"].boolValue else {
+            debugPrint("could not get packOptions")
+            return false
+        }
+        
+        debugPrint("NFTModel isOpenable", isOpenable)
+        return isOpenable
+    }
+    
     //XXX: Demo only, the layout tag is burried inside the first featured media
     var isMovieLayout : Bool {
         if let media = getFirstFeature {
@@ -402,4 +413,5 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(contract_addr)
     }
+    
 }

@@ -58,7 +58,7 @@ struct NFTMetaResponse: Codable {
     var image: String? = ""
     //var marketplaceAttributes: MarketplaceAttributes = MarketplaceAttributes()
     var name: String? = ""
-    //var packOptions: PackOptions = PackOptions()
+    var packOptions: PackOptions?
     var additional_media_sections: AdditionalMediaModel? = nil
     var playable: Bool? = false
     var templateID: String? = ""
@@ -80,7 +80,7 @@ struct NFTMetaResponse: Codable {
         case image
         //case marketplaceAttributes = "marketplace_attributes"
         case name
-        //case packOptions = "pack_options"
+        case packOptions = "pack_options"
         case playable
         case templateID = "template_id"
         case totalSupply = "total_supply"
@@ -127,14 +127,20 @@ struct Opensea: Codable {
 
 // MARK: - PackOptions
 struct PackOptions: Codable {
-    var isOpenable: String = ""
-    var itemSlots: [JSONAny] = []
-    var openAnimation: String = ""
+    var isOpenable: Bool?
+    var itemSlots: [JSONAny]? = []
+    var openAnimation: JSON? = ""
+    var revealAnimation: JSON? = ""
+    var openButtonText: String? = ""
+    var packGenerator: String? = ""
 
     enum CodingKeys: String, CodingKey {
         case isOpenable = "is_openable"
         case itemSlots = "item_slots"
         case openAnimation = "open_animation"
+        case revealAnimation = "reveal_animation"
+        case openButtonText = "open_button_text"
+        case packGenerator = "pack_generator"
     }
 }
 

@@ -61,6 +61,7 @@ struct MinterView: View {
                         Spacer()
                         if hasImage{
                             NFTView<NFTDetail>(image: imageUrl, title: name, subtitle: edition, destination: NFTDetail(nft: NFTModel()))
+                                .disabled(true)
                         }
                         VStack(alignment: hasImage ? .leading : .center, spacing: 30) {
                             VStack(alignment: .leading, spacing: 20){
@@ -86,6 +87,7 @@ struct MinterView: View {
                                         if let _nft = fabric.getNFT(contract: result.contractAddress) {
                                             self.nft = _nft
                                             self.showNft = true
+                                            return
                                         }
                                     }
                                 }
