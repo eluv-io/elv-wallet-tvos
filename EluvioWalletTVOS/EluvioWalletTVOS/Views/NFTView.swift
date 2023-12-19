@@ -33,6 +33,7 @@ struct NFTTileView: View {
     @State private var buttonFocus: Bool = false
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.tile
+    
     var image : String {
         if (display == MediaDisplay.tile){
             //print("TILE: ", nft.title_image ?? "")

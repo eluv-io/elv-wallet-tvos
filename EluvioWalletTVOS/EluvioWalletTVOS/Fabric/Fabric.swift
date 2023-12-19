@@ -665,6 +665,101 @@ class Fabric: ObservableObject {
         return try await redeemComplete(confirmationId: confirmationId, tenantId: tenantId, pollSeconds: pollSeconds)
     }
     
+    //Waits for transaction for pollSeconds
+    func packOpen(nft: NFTModel, pollSeconds: Int = POLLSECONDS) async throws -> (isComplete:Bool, status:String, transactionId:String,         contractAddress:String, tokenId:String) {
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        guard let tokenId = nft.token_id_str else {
+            throw FabricError.badInput("Could not get token_id_str from nft \(nft)")
+        }
+        
+        guard let contractAddr = nft.contract_addr else {
+            throw FabricError.badInput("Could not get contract_addr from nft \(nft)")
+        }
+        
+        let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
+        
+        let tenantId = nftInfo["tenant"].stringValue
+        
+        if tenantId == "" {
+            throw FabricError.unexpectedResponse("Could not get tenant ID from nft \(contractAddr)")
+        }
+        
+        let op = "nft-open"
+        let query:[String:String] = [:]
+        let uuid = UUID()
+        let confirmationId = ""
+        let body: [String: Any] = [
+            "op": op,
+            "tok_addr": contractAddr,
+            "tok_id": tokenId
+        ]
+        
+        try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
+        
+        return try await packStatus(opString: op, tenantId: tenantId, contractAddr:contractAddr , tokenId:tokenId, pollSeconds: pollSeconds)
+    }
+    
+    func packStatus(opString:String, tenantId: String, contractAddr: String, tokenId:String, pollSeconds:Int = POLLSECONDS)  async throws -> (isComplete:Bool, status:String, transactionId:String, contractAddress:String, tokenId:String){
+        
+        print("Redeem Complete check")
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        var transactionId = ""
+        var complete = false
+        var status = ""
+        let address = contractAddr.starts(with: "0x") ? contractAddr.dropFirst(2).lowercased() : contractAddr.lowercased()
+        
+        for _ in 0...pollSeconds {
+            try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+            
+            let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
+            print("Wallet Status Result: ", result)
+            
+            for stat in result.arrayValue {
+                let op = stat["op"].stringValue
+                debugPrint("Testing op ", op)
+                
+                let opSplit = op.split(separator: ":")
+                if opSplit.count >= 3 {
+                    debugPrint("opSplit 3 ", opSplit)
+                    debugPrint("operator: ", opString)
+                    debugPrint("opSplit[0] ", opSplit[0])
+                    if opSplit[0] == opString {
+                        debugPrint("opSplit op found ", op)
+                        if opSplit[1] == address {
+                            debugPrint("opSplit op! found ", address)
+                            if opSplit[2] == tokenId {
+                                status = stat["status"].stringValue
+                                debugPrint("Matched status", status)
+                                if (status == "complete"){
+                                    print("Wallet Status Result: complete: ", op)
+                                    transactionId = stat["extra"]["trans_id"].stringValue
+                                    let newContractAddr = stat["extra"]["0"]["token_addr"].stringValue
+                                    let newTokenId = stat["extra"]["0"]["token_id_str"].stringValue
+                                    complete = true
+                                    return (complete,
+                                            status,
+                                            transactionId,
+                                            newContractAddr,
+                                            newTokenId
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return (complete, status, transactionId, "", "")
+    }
+    
     func findItem(marketplaceId: String, sku: String) async throws -> (item: JSON?, tenantId: String){
         let marketMeta = try await contentObjectMetadata(id: marketplaceId, metadataSubtree:"/public/asset_metadata")
 

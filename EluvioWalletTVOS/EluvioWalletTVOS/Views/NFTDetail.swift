@@ -421,7 +421,6 @@ struct NFTDetailView: View {
                 print("Error getting background image:", error)
             }
         }
-        
     }
 }
 
@@ -483,6 +482,7 @@ struct NFTXRayView: View {
 
 struct NFTDetail: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @Environment(\.isPresented) var isPresented
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
     @Environment(\.openURL) private var openURL
@@ -498,6 +498,8 @@ struct NFTDetail: View {
             if isLoaded == true {
                 if nft.isMovieLayout {
                     NFTDetailMovieView(seriesMediaItem: feature, backLink: backLink, backLinkIcon: backLinkIcon)
+                }else if nft.isPack {
+                    PackView(nft:nft,backLink: backLink, backLinkIcon: backLinkIcon)
                 }else {
                     NFTDetailView(nft:nft, backLink: backLink, backLinkIcon: backLinkIcon)
                         .environmentObject(fabric)
@@ -544,6 +546,13 @@ struct NFTDetail: View {
                         self.feature = mediaItem
                     }
                     isLoaded = true
+                }
+            }
+        }
+        .onChange(of:isPresented) { newValue in
+            if !newValue {
+                Task {
+                   await fabric.refresh()
                 }
             }
         }
