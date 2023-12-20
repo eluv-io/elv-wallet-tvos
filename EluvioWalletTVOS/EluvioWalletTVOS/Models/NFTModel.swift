@@ -297,7 +297,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     }
     
     var isPack: Bool {
-        debugPrint("NFTModel isPack ", meta)
+        //debugPrint("NFTModel isPack ", meta)
         guard let isOpenable = meta_full?["pack_options"]["is_openable"].boolValue else {
             debugPrint("could not get packOptions")
             return false

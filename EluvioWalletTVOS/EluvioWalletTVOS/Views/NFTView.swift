@@ -130,6 +130,17 @@ struct NFTView<DestinationType: View>: View {
     var propertyLogo = ""
     var propertyName = ""
     var tokenId = ""
+    var tokenDisplay : String {
+        if tokenId.isEmpty {
+            return ""
+        }
+        
+        if tokenId.hasPrefix("#") {
+            return tokenId
+        }
+        
+        return "#\(tokenId)"
+    }
     var destination: DestinationType
     var scale: CGFloat = 1.0
     var width :CGFloat {
@@ -182,7 +193,7 @@ struct NFTView<DestinationType: View>: View {
                         
                         Text(propertyName).foregroundColor(subTitleColor).font(.itemSubtitle)
                         Spacer()
-                        Text(tokenId).foregroundColor(subTitleColor).font(.itemSubtitle)
+                        Text(tokenDisplay).foregroundColor(subTitleColor).font(.itemSubtitle)
                     }
                     .padding(.bottom)
                     if (image.hasPrefix("http")){

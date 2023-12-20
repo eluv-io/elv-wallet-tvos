@@ -23,6 +23,8 @@ struct PackView: View {
     @State var isRedeemed = false
     @State var showNft = false
     @State var nft = NFTModel()
+    @State var mintedNft : NFTModel?
+    
     var backLink: String = ""
     var backLinkIcon: String = ""
     @State var isError = false
@@ -32,25 +34,52 @@ struct PackView: View {
     }
     
     private var imageUrl : String {
-        return nft.meta.image ?? ""
+        if isRedeemed {
+            return mintedNft?.meta.image ?? ""
+        }else {
+            return nft.meta.image ?? ""
+        }
     }
     
     private var name : String {
-        return nft.meta.displayName ?? ""
+        if isRedeemed {
+            return mintedNft?.meta.displayName ?? ""
+        }else {
+            return nft.meta.displayName ?? ""
+        }
     }
     
     private var edition : String {
-        return nft.meta.editionName ?? ""
+        if isRedeemed {
+            return mintedNft?.meta.editionName ?? ""
+        }else {
+            return nft.meta.editionName ?? ""
+        }
+    }
+    
+    private var tokenId : String {
+        if isRedeemed {
+            return mintedNft?.token_id_str ?? ""
+        }else {
+            return nft.token_id_str ?? ""
+        }
     }
     
     private var description : String {
-        if let desc = nft.meta_full?["short_description"].stringValue {
+        var _nft = nft
+        if(isRedeemed && mintedNft != nil){
+            if let minted = mintedNft {
+                _nft = minted
+            }
+        }
+        
+        if let desc = _nft.meta_full?["short_description"].stringValue {
             if (desc != ""){
                 return desc
             }
         }
         
-        if let desc = nft.meta.description {
+        if let desc = _nft.meta.description {
             if (desc != ""){
                 return desc
             }
@@ -58,43 +87,69 @@ struct PackView: View {
         
         return ""
     }
-    private var contractAddress : String {
-        return nft.contract_addr ?? ""
-    }
     
     var body: some View {
-        if showNft {
-            NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
+        if showNft && self.mintedNft != nil{
+            NFTDetail(nft: self.mintedNft!, backLink: backLink, backLinkIcon: backLinkIcon)
         }else {
             ZStack(alignment:.top){
-                VStack{
-                    HStack(alignment:.top, spacing:100){
-                        Spacer()
+                VStack(alignment:.leading){
+                    HStack(alignment:.center, spacing:100){
                         if hasImage{
-                            NFTView<NFTDetail>(image: imageUrl, title: name, subtitle: edition, destination: NFTDetail(nft: NFTModel()))
+                            NFTView<NFTDetail>(image: imageUrl, title: name, subtitle: edition, tokenId: tokenId, destination: NFTDetail(nft: NFTModel()))
                                 .disabled(true)
                         }
-                        VStack(alignment: hasImage ? .leading : .center, spacing: 30) {
-                            VStack(alignment: .leading, spacing: 20){
-                                Text(name).font(.title)
-                                    .foregroundColor(.white)
-                            }
+                        VStack(alignment: hasImage ? .leading : .center, spacing: 20) {
+                            Text(name).font(.title2)
+                                .foregroundColor(.white)
+                                .padding(.bottom,25)
+                        
                             
                             Text(description)
-                                .font(.headline)
-                                .lineLimit(3)
+                                .font(.system(size: 35, weight:.light))
+                                .lineLimit(5)
                                 .foregroundColor(.white.opacity(0.6))
-                                .padding(.bottom,40)
+                                .padding(.bottom,25)
+                            
+                            Text("Open this item to reveal its contents into your wallet.")
+                                .font(.system(size: 35))
+                                .lineLimit(8)
+                                .foregroundColor(.white.opacity(0.9))
+                                .padding(.bottom,10)
+                        
                             
                             HStack {
                                 Button(action: {
                                     if self.isRedeemed{
-                                        if let result = self.result {
-                                            if let _nft = fabric.getNFT(contract: result.contractAddress) {
-                                                self.nft = _nft
-                                                self.showNft = true
-                                                return
+                                        debugPrint("Button pressed isRedeemed", isRedeemed)
+                                        if self.mintedNft == nil {
+                                            if let result = self.result {
+                                                Task {
+                                                    debugPrint("Refreshing")
+                                                    await fabric.refresh()
+                                                    
+                                                    debugPrint("Getting nft")
+                                                    if let _nft = fabric.getNFT(contract: result.contractAddress,
+                                                                                token:result.tokenId) {
+                                                        await MainActor.run {
+                                                            debugPrint("Showing NFT")
+                                                            self.mintedNft = _nft
+                                                            self.showNft = true
+                                                            return
+                                                        }
+                                                    }else{
+                                                        await MainActor.run {
+                                                            self.isError = true
+                                                        }
+                                                    }
+                                                }
+                                            }else{
+                                                debugPrint("No result but isRedeemed == true")
+                                                self.isError = true
                                             }
+                                        }else {
+                                            debugPrint("Showing NFT")
+                                            self.showNft = true
                                         }
                                         return
                                     }
@@ -111,10 +166,11 @@ struct PackView: View {
                                         
                                         do {
                                             let result = try await fabric.packOpen(nft: self.nft)
-                                            
                                             debugPrint("PackOpen result", result)
                                             
                                             if result.contractAddress != "" {
+                                                await fabric.refresh()
+                                                
                                                 await MainActor.run {
                                                     self.result = result
                                                     self.isRedeemed = true
@@ -123,31 +179,39 @@ struct PackView: View {
                                                     if  (result.contractAddress == "" || result.tokenId == ""){
                                                         self.isError = true
                                                     }else{
-                                                        if let _nft = fabric.getNFT(contract: result.contractAddress) {
-                                                            self.nft = _nft
+                                                        if let _nft = fabric.getNFT(contract: result.contractAddress,
+                                                                                    token:tokenId) {
+                                                            self.mintedNft = _nft
+                                                        }else{
+                                                            self.isError = true
                                                         }
                                                     }
                                                 }
+                                            }else{
+                                                self.isError = true
                                             }
-                                            
                                         } catch {
                                             print("Failed to redeemOffer", error)
+                                            self.isError = true
                                         }
                                     }
                                     
                                 }) {
                                     if (isRedeemed){
-                                        Text("Enjoy")
+                                        Text("View")
+                                            .frame(minWidth:200)
                                     } else if (isRedeeming) {
                                         HStack(spacing:10){
                                             ProgressView()
                                             Text("Opening...")
                                         }
+                                        .frame(minWidth:200)
                                     }else{
                                         Text("Open")
+                                            .frame(minWidth:200)
                                     }
                                 }
-                                .padding(.leading, 20)
+                                .padding(.leading, (isRedeeming ? 0 : 20 ))
                                 .disabled(isRedeeming)
                                 
                                 if (isError){
@@ -158,10 +222,6 @@ struct PackView: View {
                                     Text("This may take up to one minute.")
                                         .font(.subheadline)
                                         .foregroundColor(.gray.opacity(0.6))
-                                } else if (isRedeemed){
-                                    Text("Congratulations! You now own this item.")
-                                        .font(.subheadline)
-                                        .foregroundColor(.blue.opacity(0.6))
                                 }
                                 
                             }
@@ -169,7 +229,7 @@ struct PackView: View {
                         }
                         Spacer()
                     }
-                    .padding(50)
+                    .padding(200)
                 }
                 .ignoresSafeArea()
                 .frame( maxWidth: .infinity, maxHeight:.infinity)
