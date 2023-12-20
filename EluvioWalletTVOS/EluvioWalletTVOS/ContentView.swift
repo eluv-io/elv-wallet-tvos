@@ -173,7 +173,8 @@ struct ContentView: View {
                     .preferredColorScheme(colorScheme)
                     .background(Color.mainBackground)
             }else{
-                NavigationView {
+                //Don't use NavigationView, pops back to root on ObservableObject update
+                NavigationStack {
                     ZStack {
                         MainView()
                             .preferredColorScheme(colorScheme)
@@ -228,7 +229,7 @@ struct ContentView: View {
                     .fullScreenCover(isPresented: $showProperty) { [backLink, backLinkIcon] in
                         if let prop = property {
                             let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
-                            NavigationView {
+                            NavigationStack {
                                 PropertyMediaView(featured: prop.featured,
                                                   library: prop.media,
                                                   albums: prop.albums,
@@ -239,11 +240,9 @@ struct ContentView: View {
                                                   backLink: backLink, backLinkIcon: backLinkIcon
                                 )
                             }
-                            .navigationViewStyle(.stack)
                         }
                     }
                 }
-                .navigationViewStyle(.stack)
                 .edgesIgnoringSafeArea(.all)
         }
     }
