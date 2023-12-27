@@ -73,6 +73,7 @@
 		B081E7852B186B8D007AB778 /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B081E7842B186B8D007AB778 /* Base58Swift */; };
 		B081E7872B1D7E5E007AB778 /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B081E7862B1D7E5E007AB778 /* AVPlayerView.swift */; };
 		B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */; };
+		B099A5B92B3C901000C779A0 /* PackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B099A5B82B3C901000C779A0 /* PackView.swift */; };
 		B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */; };
 		B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */; };
 		B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */; };
@@ -170,6 +171,7 @@
 		B081E7772B17CE0B007AB778 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		B081E7792B186AA7007AB778 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		B081E7862B1D7E5E007AB778 /* AVPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
+		B099A5B82B3C901000C779A0 /* PackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PackView.swift; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
@@ -393,6 +395,7 @@
 		B0E60FAB29D223760079661E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B099A5B82B3C901000C779A0 /* PackView.swift */,
 				B081E7862B1D7E5E007AB778 /* AVPlayerView.swift */,
 				B0C155462AF6037C00216E71 /* onWillDisappear+View.swift */,
 				B0670F3F29D542A100676872 /* Color.swift */,
@@ -641,6 +644,7 @@
 				B06D52192A14882200BD68D1 /* SearchView.swift in Sources */,
 				B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */,
 				B06C4C552A7B2C2A003C414A /* ProfileClient.swift in Sources */,
+				B099A5B92B3C901000C779A0 /* PackView.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
 				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,
@@ -846,7 +850,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -878,7 +882,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 12;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
