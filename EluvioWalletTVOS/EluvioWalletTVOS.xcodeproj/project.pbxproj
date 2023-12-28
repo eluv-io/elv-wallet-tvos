@@ -74,6 +74,7 @@
 		B081E7872B1D7E5E007AB778 /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B081E7862B1D7E5E007AB778 /* AVPlayerView.swift */; };
 		B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */; };
 		B099A5B92B3C901000C779A0 /* PackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B099A5B82B3C901000C779A0 /* PackView.swift */; };
+		B099A5BB2B3DDF9C00C779A0 /* MSPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B099A5BA2B3DDF9C00C779A0 /* MSPage.swift */; };
 		B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */; };
 		B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */; };
 		B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */; };
@@ -172,6 +173,7 @@
 		B081E7792B186AA7007AB778 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		B081E7862B1D7E5E007AB778 /* AVPlayerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B099A5B82B3C901000C779A0 /* PackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PackView.swift; sourceTree = "<group>"; };
+		B099A5BA2B3DDF9C00C779A0 /* MSPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MSPage.swift; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
@@ -192,7 +194,7 @@
 		B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0DFFF952A250E3500F1E358 /* MediaDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetail.swift; sourceTree = "<group>"; };
-		B0E60F6C29CC23510079661E /* FandangoWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FandangoWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B0E60F6C29CC23510079661E /* MSWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MSWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioWalletTVOSApp.swift; sourceTree = "<group>"; };
 		B0E60F7129CC23510079661E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B0E60F7329CC23530079661E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -303,6 +305,7 @@
 				B081E7752B17CCB0007AB778 /* DeviceFlowView.swift */,
 				B081E7772B17CE0B007AB778 /* Utils.swift */,
 				B081E7792B186AA7007AB778 /* AuthService.swift */,
+				B099A5BA2B3DDF9C00C779A0 /* MSPage.swift */,
 			);
 			path = WalletLinkTest;
 			sourceTree = "<group>";
@@ -328,7 +331,7 @@
 		B0E60F6D29CC23510079661E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B0E60F6C29CC23510079661E /* FandangoWalletTVOS.app */,
+				B0E60F6C29CC23510079661E /* MSWalletTVOS.app */,
 				B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */,
 			);
 			name = Products;
@@ -462,9 +465,9 @@
 			productReference = B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */;
 			productType = "com.apple.product-type.application";
 		};
-		B0E60F6B29CC23510079661E /* FandangoWalletTVOS */ = {
+		B0E60F6B29CC23510079661E /* MSWalletTVOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "FandangoWalletTVOS" */;
+			buildConfigurationList = B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "MSWalletTVOS" */;
 			buildPhases = (
 				B0E60F6829CC23510079661E /* Sources */,
 				B0E60F6929CC23510079661E /* Frameworks */,
@@ -474,7 +477,7 @@
 			);
 			dependencies = (
 			);
-			name = FandangoWalletTVOS;
+			name = MSWalletTVOS;
 			packageProductDependencies = (
 				B0E60F9129CD84160079661E /* Auth0 */,
 				B0E60F9429CD84420079661E /* Alamofire */,
@@ -492,7 +495,7 @@
 				B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */,
 			);
 			productName = EluvioWalletTVOS;
-			productReference = B0E60F6C29CC23510079661E /* FandangoWalletTVOS.app */;
+			productReference = B0E60F6C29CC23510079661E /* MSWalletTVOS.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -539,7 +542,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B0E60F6B29CC23510079661E /* FandangoWalletTVOS */,
+				B0E60F6B29CC23510079661E /* MSWalletTVOS */,
 				B0A2FCE52AC8940E00AC825D /* WalletLinkTest */,
 			);
 		};
@@ -588,6 +591,7 @@
 				B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */,
 				B0A2FCF92ACA8DE400AC825D /* BluePage.swift in Sources */,
 				B0A2FCFF2ACB658E00AC825D /* PlayerView.swift in Sources */,
+				B099A5BB2B3DDF9C00C779A0 /* MSPage.swift in Sources */,
 				B0A2FD012ACC98B500AC825D /* Fabric.swift in Sources */,
 				B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */,
 				B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */,
@@ -850,13 +854,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EluvioWalletTVOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Fandango Media Wallet";
+				INFOPLIST_KEY_CFBundleDisplayName = "Microsoft Media Wallet";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -865,7 +869,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.fandangowallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.mswallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -882,13 +886,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 12;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = EluvioWalletTVOS/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Fandango Media Wallet";
+				INFOPLIST_KEY_CFBundleDisplayName = "Microsoft Media Wallet";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
@@ -897,7 +901,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.fandangowallet;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.mswallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -928,7 +932,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "FandangoWalletTVOS" */ = {
+		B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "MSWalletTVOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B0E60F7B29CC23530079661E /* Debug */,
