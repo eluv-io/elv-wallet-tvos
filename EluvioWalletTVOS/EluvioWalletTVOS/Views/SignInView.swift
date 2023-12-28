@@ -70,9 +70,7 @@ struct SignInView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width:700)
-                        Text("Media Wallet")
-                            .font(.custom("Helvetica Neue", size: 110))
-                            .padding(.bottom,40)
+                            .padding(.bottom, 80)
 
                         if IsDemoMode() {
                             Picker("Networks", selection: $networkSelection) {
