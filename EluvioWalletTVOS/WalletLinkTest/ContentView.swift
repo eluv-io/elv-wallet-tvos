@@ -7,16 +7,6 @@
 
 import SwiftUI
 
-//
-//  Styles.swift
-//  WalletLinkTest
-//
-//  Created by Wayne Tran on 2023-09-29.
-//
-import SwiftUI
-import Foundation
-
-
 let appStoreUrl = "https://apps.apple.com/in/app/eluvio-media-wallet/id1591550411"
 
 //Auth Stuff
@@ -217,6 +207,13 @@ struct ContentView: View {
                     LazyVStack(
                         alignment:.center
                     ){
+                        
+                        
+                        MSMenuNavigationLinks()
+                            .environmentObject(login)
+                        
+                        Divider().frame(width:CONTENT_WIDTH).padding()
+                        
                         // Fandango Media Wallet Launchers
                         
                         NavigationLink(

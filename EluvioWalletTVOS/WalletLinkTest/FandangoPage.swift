@@ -12,7 +12,6 @@ struct FandangoPage: View {
     @EnvironmentObject var fabric: Fabric
     
     var bgImage = ""
-    //var buttonImage = "Fandango-logo"
     var link = ""
     var buttonText = "Launch App"
     var buttonHighlightColor = Color(hex:0xff7300)
