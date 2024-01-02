@@ -18,34 +18,57 @@ struct NoButtonStyle: ButtonStyle {
 
 struct LaunchPage: View {
     @Environment(\.openURL) private var openURL
-    //Fullscreen image prototyping a launch page
-    var image = ""
-    //deeplink into the wallet
+    @EnvironmentObject var fabric: Fabric
+    
+    var bgImage = ""
     var link = ""
+    var buttonText = "Launch App"
+    var buttonHighlightColor = Color(hex:0xff7300)
+    
+    @State private var showPlayer = false
+    @State private var url = URL(string:"")
+    @State private var playerFinished = false
 
     var body: some View {
-        Button {
-            debugPrint("Tap")
-            if let url = URL(string: link) {
-                openURL(url) { accepted in
-                    print(accepted ? "Success" : "Failure")
-                    if (!accepted){
-                        openURL(URL(string:appStoreUrl)!) { accepted in
-                            print(accepted ? "Success" : "Failure")
-                            if (!accepted) {
-                                print("Could not open URL ", appStoreUrl)
+        VStack(alignment:.center) {
+            HStack(spacing:20){
+                
+                LaunchButton(
+                    //buttonIcon: buttonImage,
+                    buttonText: buttonText,
+                    highlightColor: buttonHighlightColor,
+                    action: {
+                        if let url = URL(string: link) {
+                            openURL(url) { accepted in
+                                print(accepted ? "Success" : "Failure")
+                                if (!accepted){
+                                    openURL(URL(string:appStoreUrl)!) { accepted in
+                                        print(accepted ? "Success" : "Failure")
+                                        if (!accepted) {
+                                            print("Could not open URL ", appStoreUrl)
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
-                }
+                )
+                
+                Spacer()
             }
-        } label: {
-            Image(image)
+            .offset(x:500, y: 100)
+        }
+        .frame(maxWidth:.infinity, maxHeight:.infinity)
+        .edgesIgnoringSafeArea(.all)
+        .background(
+            Image(bgImage)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
+                .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
+        )
+        .fullScreenCover(isPresented:$showPlayer){
+            PlayerView(playoutUrl:$url, finished: $playerFinished)
         }
-        .buttonStyle(NoButtonStyle())
-        .edgesIgnoringSafeArea(.all)
     }
 }
