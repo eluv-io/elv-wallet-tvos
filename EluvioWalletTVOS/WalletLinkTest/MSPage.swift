@@ -67,7 +67,8 @@ struct MSMenuNavigationLinks: View {
                         marketplace:msMarketPlaceId,
                         token: login.loginInfo?.token ?? "",
                         address: login.loginInfo?.addr ?? ""
-                    )
+                    ),
+                    buttonHighlightColor: Color(hex:0x49a1e9)
                 )
         ) {
             Text(
