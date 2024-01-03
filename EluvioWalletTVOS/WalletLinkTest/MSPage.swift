@@ -13,8 +13,6 @@ let msBundleURL = "\(msScheme)://items"
 let msMintURL = "\(msScheme)://mint"
 let msPlayURL = "\(msScheme)://play"
 
-let msMarketPlaceId = "iq__2J6bUaQkReBrLYSFYQ7nfuPtyyA"
-
 func CreateMSPropertyLink(
     marketplace: String,
     token: String="",
@@ -58,6 +56,7 @@ func CreateMSMintLink(
 
 struct MSMenuNavigationLinks: View {
     @EnvironmentObject var login : LoginManager
+    let msMarketPlaceId = "iq__2J6bUaQkReBrLYSFYQ7nfuPtyyA"
     
     var body: some View {
         NavigationLink(
@@ -145,6 +144,54 @@ struct MSMenuNavigationLinks: View {
         ) {
             Text(
                 "Top Gun - MS Wallet"
+            )
+            .frame(
+                width:CONTENT_WIDTH
+            )
+        }
+        
+        NavigationLink(
+            destination:
+                MSPage(
+                    bgImage: "LOTR-no-buttons",
+                    bundleLink: CreateFandangoBundleLink(
+                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5",
+                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                        sku:"QhNCnXHbH5uuDoktGvYuac",
+                        token: login.loginInfo?.token ?? "",
+                        address: login.loginInfo?.addr ?? ""
+                    ),
+                    playLink: CreateFandangoPlayLink(
+                        contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5"),
+                    token: login.loginInfo?.token ?? ""
+                )
+        ) {
+            Text(
+                "LOTR: Extended Edition Epic - MS Wallet"
+            )
+            .frame(
+                width:CONTENT_WIDTH
+            )
+        }
+        
+        NavigationLink(
+            destination:
+                MSPage(
+                    bgImage: "Flash-no-buttons",
+                    bundleLink: CreateFandangoBundleLink(
+                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",
+                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                        sku:"VP9try5Z2zdg7zJczJiAhN",
+                        token: login.loginInfo?.token ?? "",
+                        address: login.loginInfo?.addr ?? ""
+                    ),
+                    playLink: CreateFandangoPlayLink(
+                        contract:"0x896409ad1da7f3f48749d15602eabac3578694b4"),
+                    token: login.loginInfo?.token ?? ""
+                )
+        ) {
+            Text(
+                "The Flash - MS Wallet"
             )
             .frame(
                 width:CONTENT_WIDTH
