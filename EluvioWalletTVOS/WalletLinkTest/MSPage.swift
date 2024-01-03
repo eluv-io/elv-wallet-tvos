@@ -154,7 +154,7 @@ struct MSMenuNavigationLinks: View {
             destination:
                 MSPage(
                     bgImage: "LOTR-no-buttons",
-                    bundleLink: CreateFandangoBundleLink(
+                    bundleLink: CreateMSBundleLink(
                         contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5",
                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
                         sku:"QhNCnXHbH5uuDoktGvYuac",
@@ -178,7 +178,7 @@ struct MSMenuNavigationLinks: View {
             destination:
                 MSPage(
                     bgImage: "Flash-no-buttons",
-                    bundleLink: CreateFandangoBundleLink(
+                    bundleLink: CreateMSBundleLink(
                         contract:"0x896409ad1da7f3f48749d15602eabac3578694b4",
                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
                         sku:"VP9try5Z2zdg7zJczJiAhN",
