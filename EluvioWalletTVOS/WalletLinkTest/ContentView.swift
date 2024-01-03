@@ -9,6 +9,9 @@ import SwiftUI
 
 let appStoreUrl = "https://apps.apple.com/in/app/eluvio-media-wallet/id1591550411"
 
+let FandangoMarketplaceId = "iq__2YZajc8kZwzJGZi51HJB7TAKdio2"
+let MSMarketplaceId = "iq__2J6bUaQkReBrLYSFYQ7nfuPtyyA"
+
 //Auth Stuff
 let clientId = "ed20064a-a4b9-4ec9-bc89-df559eb983a3"
 let clientSecret = "5bUz_D~uWnZ~_ic_sjGYIhQV64"
@@ -836,7 +839,7 @@ struct ContentView: View {
             .scrollClipDisabled()
         }
         .fullScreenCover(isPresented: $showDeviceFlow){
-            DeviceFlowView(marketplaceId:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2", statusUrl: statusEndpoint)
+            DeviceFlowView(marketplaceId:MSMarketplaceId, statusUrl: statusEndpoint)
                 .environmentObject(login)
         }
         .environmentObject(
