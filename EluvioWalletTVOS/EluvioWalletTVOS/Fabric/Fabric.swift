@@ -1085,6 +1085,14 @@ class Fabric: ObservableObject {
             }else if address.lowercased() == "0xd2896f45879b1a007aff5d052b9d6ab8c4933fad" {
                 demoNfts.append(nft)
             }
+            
+            let name = nft["contract_name"].stringValue
+            if name.contains("Rings") {
+                demoNfts.append(nft)
+                debugPrint("LOTR NFT: ", nft)
+            }else if name.contains("Flash") {
+                demoNfts.append(nft)
+            }
         }
         
         let demoLib = try await parseNfts(demoNfts)
@@ -1105,6 +1113,14 @@ class Fabric: ObservableObject {
                     item.title_image = "TileGroup-BobMarleyOneLove"
                 }else if name.contains("Top"){
                     item.title_image = "TileGroup-Top Gun"
+                }else if name.contains("Epic") {
+                    item.title_image = "LOTR_Tile Group_Epic"
+                }else  if name.contains("Shire") {
+                    item.title_image = "LOTR_Tile Group_Shire"
+                }else if name.contains("Superman"){
+                    item.title_image = "WB_Superman_Hope_Tile Group"
+                }else if name.contains("Flash"){
+                    item.title_image = "Flash Premium Tile Group_trio"
                 }
             }
             newItems.append(item)
