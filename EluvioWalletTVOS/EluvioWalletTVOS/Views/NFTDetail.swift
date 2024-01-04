@@ -16,9 +16,10 @@ struct NFTDetailView: View {
     @EnvironmentObject var viewState: ViewState
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.openURL) private var openURL
+    
     @Namespace var nftDetails
     @EnvironmentObject var fabric: Fabric
-    @Environment(\.openURL) private var openURL
     
     @State var showDetails = false
     @State var searchText = ""
@@ -65,7 +66,7 @@ struct NFTDetailView: View {
             return ""
         }
     }
-    
+
     var body: some View {
             ZStack(alignment:.topLeading) {
                     ScrollView {
@@ -210,21 +211,6 @@ struct NFTDetailView: View {
                     //update()
                 }
                 update()
-            }
-            .onWillDisappear {
-                debugPrint("NFTMovieDetail onWillDisappear ", backLink)
-                if backLink != "" {
-                    if let url = URL(string: backLink) {
-                        openURL(url) { accepted in
-                            print(accepted ? "Success" : "Failure")
-                            if (!accepted){
-                                print("Could not open URL ", backLink)
-                            }else{
-                                self.presentationMode.wrappedValue.dismiss()
-                            }
-                        }
-                    }
-                }
             }
     }
         

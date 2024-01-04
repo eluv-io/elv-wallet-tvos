@@ -1072,6 +1072,68 @@ class Fabric: ObservableObject {
         return prop
     }
     
+    func createMSDemoProp(nfts:[JSON]) async throws -> PropertyModel {
+        debugPrint("createVuduDemoProp")
+        var demoNfts: [JSON] = []
+        for nft in nfts{
+            let address = nft["contract_addr"].stringValue
+            if address.lowercased() == "0x265e8cdd7dc0dc85921222e16bf472ebe6f9cf5a"{
+                demoNfts.append(nft)
+            }else if address.lowercased() == "0xee240128c00e0983d3e0ee1adab4da2f2393f3fb"{
+                demoNfts.append(nft)
+            }else if address.lowercased() == "0xd2896f45879b1a007aff5d052b9d6ab8c4933fad" {
+                demoNfts.append(nft)
+            }
+            
+            let name = nft["contract_name"].stringValue
+            if name.contains("Rings") {
+                demoNfts.append(nft)
+                debugPrint("LOTR NFT: ", nft)
+            }else if name.contains("Flash") {
+                demoNfts.append(nft)
+            }
+        }
+        
+        let demoLib = try await parseNfts(demoNfts)
+        
+        
+        var demoMedia : [MediaCollection] = []
+        demoMedia.append(MediaCollection(name:"Video", media:demoLib.videos))
+        demoMedia.append(MediaCollection(name:"Images", media:demoLib.galleries))
+        demoMedia.append(MediaCollection(name:"Apps", media:demoLib.html))
+
+        var newItems : [NFTModel] = []
+        
+        for var item in demoLib.items{
+            if let name = item.contract_name {
+                if name.contains("Quiet") {
+                    item.title_image = "TileGroup-A Quiet Place Day One"
+                }else  if name.contains("Love") {
+                    item.title_image = "TileGroup-BobMarleyOneLove"
+                }else if name.contains("Top"){
+                    item.title_image = "TileGroup-Top Gun"
+                }else if name.contains("Epic") {
+                    item.title_image = "LOTR_Tile Group_Epic"
+                }else  if name.contains("Shire") {
+                    item.title_image = "LOTR_Tile Group_Shire"
+                }else if name.contains("Superman"){
+                    item.title_image = "WB_Superman_Hope_Tile Group"
+                }else if name.contains("Flash"){
+                    item.title_image = "Flash Premium Tile Group_trio"
+                }
+            }
+            newItems.append(item)
+        }
+        
+        let marketplaceId = "iq__2J6bUaQkReBrLYSFYQ7nfuPtyyA"
+        //let marketplace = try await self.getMarketplace(marketplaceId: marketplaceId)
+        
+        let prop = CreateTestPropertyModel(id:marketplaceId, title:"Microsoft Media Wallet", logo: "" , image:"Search - Microsoft", heroImage:"Microsoft-property-header",
+                                    featured: demoLib.featured, media: demoMedia, items:newItems)
+        
+        return prop
+    }
+    
     func createVuduDemoProp(nfts:[JSON]) async throws -> PropertyModel {
         debugPrint("createVuduDemoProp")
         var demoNfts: [JSON] = []

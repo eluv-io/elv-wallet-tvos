@@ -296,25 +296,7 @@ struct PropertyMediaView: View {
         }
         .ignoresSafeArea()
         .background(Color.mainBackground)
-        .scrollClipDisabled()
-        .onAppear(){
-
-        }
-        .onWillDisappear(){
-            if backLink != "" {
-                if let url = URL(string: backLink) {
-                    openURL(url) { accepted in
-                        print(accepted ? "Success" : "Failure")
-                        if (!accepted){
-                            print("Could not open URL ", backLink)
-                        }else{
-                            self.presentationMode.wrappedValue.dismiss()
-                        }
-                    }
-                }
-            }
-        }
-             
+        .scrollClipDisabled()      
     }
 }
 

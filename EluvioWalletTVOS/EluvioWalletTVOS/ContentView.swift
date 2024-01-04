@@ -20,6 +20,7 @@ struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
+    @Environment(\.openURL) private var openURL
     
     @State private var viewStateCancellable: AnyCancellable? = nil
     @State private var fabricCancellable: AnyCancellable? = nil
@@ -44,6 +45,8 @@ struct ContentView: View {
     @State var showProperty : Bool = false
     @State var property : PropertyModel?
     
+    @State var appeared: Double = 1.0
+    
     func reset() {
         showNft = false
         nft = NFTModel()
@@ -58,6 +61,10 @@ struct ContentView: View {
         mintInfo = MintInfo()
         backLink = ""
         backLinkIcon = ""
+        withAnimation(.easeInOut(duration: 2)) {
+            self.appeared = 1.0
+        }
+        viewState.reset()
     }
     
     func checkViewState() {
@@ -65,7 +72,7 @@ struct ContentView: View {
         if self.showActivity == true {
             return
         }
-
+        
         if viewState.op == .none {
             return
         }
@@ -156,6 +163,7 @@ struct ContentView: View {
                         self.property = try fabric.findProperty(marketplaceId: marketplace)
                         self.showActivity = false
                         self.showProperty = true
+                        viewState.reset()
                     }catch{
                         debugPrint("Could not find property ", marketplace)
                         self.showActivity = false
@@ -167,84 +175,123 @@ struct ContentView: View {
     }
     
     var body: some View {
-            if fabric.isLoggedOut {
-                SignInView()
-                    .environmentObject(self.fabric)
-                    .preferredColorScheme(colorScheme)
-                    .background(Color.mainBackground)
-            }else{
-                //Don't use NavigationView, pops back to root on ObservableObject update
-                NavigationStack {
-                    ZStack {
+        if fabric.isLoggedOut {
+            SignInView()
+                .environmentObject(self.fabric)
+                .preferredColorScheme(colorScheme)
+                .background(Color.mainBackground)
+        }else{
+            //Don't use NavigationView, pops back to root on ObservableObject update
+            NavigationStack {
+                ZStack {
+                    if (appeared == 1.0) {
                         MainView()
                             .preferredColorScheme(colorScheme)
                             .background(Color.mainBackground)
                             .navigationBarHidden(true)
-                        if (showActivity) {
-                            ProgressView()
-                                .edgesIgnoringSafeArea(.all)
-                        }
                     }
-                    .onAppear(){
-                        debugPrint("ContentView onAppear")
-                        self.viewStateCancellable = viewState.$op
-                            .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                            .sink { val in
-                                debugPrint("viewState changed.", val)
-                                if val == .none || fabric.isLoggedOut{
-                                    self.showActivity = false
-                                    return
-                                }
-                                checkViewState()
-                                showActivity = false
+                    if (showActivity) {
+                        ProgressView()
+                            .edgesIgnoringSafeArea(.all)
+                    }
+                }
+                .onDisappear {debugPrint("ContentView onDisappear")
+                    self.appeared = 0.0
+                }
+                .onAppear(){
+                    withAnimation(.easeInOut(duration: 2)) {
+                        self.appeared = 1.0
+                    }
+                    debugPrint("ContentView onAppear")
+                    self.viewStateCancellable = viewState.$op
+                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+                        .sink { val in
+                            debugPrint("viewState changed.", val)
+                            if val == .none || fabric.isLoggedOut{
+                                self.showActivity = false
+                                return
                             }
-                        
-                        self.fabricCancellable = fabric.$isRefreshing
-                            .sink { val in
-                                if (val && fabric.library.isEmpty){
-                                    showActivity = true
-                                }else {
-                                    showActivity = false
-                                }
-                        }
-
-                        if viewState.op == .mint {
                             checkViewState()
                             showActivity = false
                         }
-                    }
-                    .fullScreenCover(isPresented: $showNft) { [backLink, backLinkIcon] in
-                        NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
-                    }
-                    .fullScreenCover(isPresented: $showPlayer) { [backLink, backLinkIcon] in
-                        PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished,
-                                   backLink: backLink, backLinkIcon: backLinkIcon
-                        )
-                    }
-                    .fullScreenCover(isPresented: $showMinter) { [backLink, backLinkIcon] in
-                        MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
-                                   backLink: backLink, backLinkIcon: backLinkIcon
-                        )
-                    }
-                    .fullScreenCover(isPresented: $showProperty) { [backLink, backLinkIcon] in
-                        if let prop = property {
-                            let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
-                            NavigationStack {
-                                PropertyMediaView(featured: prop.featured,
-                                                  library: prop.media,
-                                                  albums: prop.albums,
-                                                  items: items,
-                                                  liveStreams: prop.live_streams,
-                                                  sections: prop.sections,
-                                                  heroImage: prop.heroImage ?? "",
-                                                  backLink: backLink, backLinkIcon: backLinkIcon
-                                )
+                    
+                    self.fabricCancellable = fabric.$isRefreshing
+                        .sink { val in
+                            if (val && fabric.library.isEmpty){
+                                showActivity = true
+                            }else {
+                                showActivity = false
                             }
                         }
+                    
+                    if viewState.op == .mint {
+                        checkViewState()
+                        showActivity = false
                     }
                 }
-                .edgesIgnoringSafeArea(.all)
+            }
+            .onChange(of:showNft){
+                if (showNft){
+                    self.appeared = 0.0
+                }
+            }
+            .onChange(of:showMinter){
+                if (showMinter){
+                    self.appeared = 0.0
+                }
+            }
+            .onChange(of:showProperty){
+                if (showProperty){
+                    self.appeared = 0.0
+                }
+            }
+            .onChange(of:showPlayer){
+                if (showProperty){
+                    self.appeared = 0.0
+                }
+            }
+            .edgesIgnoringSafeArea(.all)
+            .fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+                NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
+            }
+            .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+                PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished,
+                           backLink: backLink, backLinkIcon: backLinkIcon
+                )
+            }
+            .fullScreenCover(isPresented: $showMinter, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+                MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
+                           backLink: backLink, backLinkIcon: backLinkIcon
+                )
+            }
+            .fullScreenCover(isPresented: $showProperty, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+                if let prop = property {
+                    let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
+                    NavigationStack {
+                        PropertyMediaView(featured: prop.featured,
+                                          library: prop.media,
+                                          albums: prop.albums,
+                                          items: items,
+                                          liveStreams: prop.live_streams,
+                                          sections: prop.sections,
+                                          heroImage: prop.heroImage ?? "",
+                                          backLink: backLink, backLinkIcon: backLinkIcon
+                        )
+                    }
+                }
+            }
         }
+    }
+    
+    func didFullScreenCoverDismiss() {
+        if (backLink != ""){
+            if let url = URL(string: backLink) {
+                openURL(url) { accepted in
+                    debugPrint(accepted ? "Successfully launched backlink \(backLink)" : "Failure launching backlink \(backLink)")
+                }
+            }
+        }
+        reset()
     }
 }
 
