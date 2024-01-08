@@ -162,7 +162,7 @@ struct MSMenuNavigationLinks: View {
                         token: login.loginInfo?.token ?? "",
                         address: login.loginInfo?.addr ?? ""
                     ),
-                    playLink: CreateFandangoPlayLink(
+                    playLink: CreateMSPlayLink(
                         contract:"0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5"),
                     token: login.loginInfo?.token ?? ""
                 )
@@ -186,7 +186,7 @@ struct MSMenuNavigationLinks: View {
                         token: login.loginInfo?.token ?? "",
                         address: login.loginInfo?.addr ?? ""
                     ),
-                    playLink: CreateFandangoPlayLink(
+                    playLink: CreateMSPlayLink(
                         contract:"0x896409ad1da7f3f48749d15602eabac3578694b4"),
                     token: login.loginInfo?.token ?? ""
                 )
