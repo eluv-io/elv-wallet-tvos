@@ -225,10 +225,11 @@ struct MSPage: View {
         VStack(alignment:.center) {
             HStack(spacing:20){
 
-                LaunchButton(
+                LaunchButton2(
                     buttonIcon: "icon_play",
                     buttonText:playButtonText,
                     highlightColor: buttonHighlightColor,
+                    buttonColor: buttonHighlightColor,
                     height:100,
                     action: {
                         if playOutPath != "" {
@@ -256,10 +257,11 @@ struct MSPage: View {
                     }
                 )
                 
-                LaunchButton(
+                LaunchButton2(
                     buttonIcon: "icon_bundle",
                     buttonText: bundleButtonText,
                     highlightColor: buttonHighlightColor,
+                    buttonColor: buttonHighlightColor,
                     height:100,
                     action: {
                         if let url = URL(string: bundleLink) {
