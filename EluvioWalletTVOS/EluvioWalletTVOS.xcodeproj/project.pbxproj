@@ -115,6 +115,7 @@
 		B0E60FAA29D211040079661E /* NFTModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA729D211040079661E /* NFTModel.swift */; };
 		B0E60FAD29D223870079661E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
 		B0E60FB229D2288C0079661E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
+		B0F9DC322B4F973400499C93 /* MSPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC312B4F973400499C93 /* MSPage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -210,6 +211,7 @@
 		B0E60FA729D211040079661E /* NFTModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTModel.swift; sourceTree = "<group>"; };
 		B0E60FAC29D223870079661E /* SignInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		B0E60FB129D2288C0079661E /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		B0F9DC312B4F973400499C93 /* MSPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MSPage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -288,6 +290,7 @@
 				B02CE2052AF4C89500F5F495 /* Info.plist */,
 				B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */,
 				B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */,
+				B0F9DC312B4F973400499C93 /* MSPage.swift */,
 				B0A2FCF52AC894EB00AC825D /* TubiPage.swift */,
 				B0A2FCEA2AC8940E00AC825D /* ContentView.swift */,
 				B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */,
@@ -588,6 +591,7 @@
 				B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */,
 				B06404CF2B2B8DF700945E98 /* AuthService.swift in Sources */,
 				B0A2FCF92ACA8DE400AC825D /* BluePage.swift in Sources */,
+				B0F9DC322B4F973400499C93 /* MSPage.swift in Sources */,
 				B0A2FCFF2ACB658E00AC825D /* PlayerView.swift in Sources */,
 				B0A2FD012ACC98B500AC825D /* Fabric.swift in Sources */,
 				B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */,
