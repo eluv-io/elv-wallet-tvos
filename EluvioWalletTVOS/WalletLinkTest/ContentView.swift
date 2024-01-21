@@ -211,6 +211,12 @@ struct ContentView: View {
                         alignment:.center
                     ){
                         
+                        NavigationLink(destination: PDFPage())
+                        {
+                            Text("Interactive Media - Ebook").frame(width:CONTENT_WIDTH)
+                        }
+                        
+                        Divider()
                         
                         MSMenuNavigationLinks()
                             .environmentObject(login)

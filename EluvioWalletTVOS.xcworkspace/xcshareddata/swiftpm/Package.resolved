@@ -73,6 +73,15 @@
       }
     },
     {
+      "identity" : "sdwebimagepdfcoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImagePDFCoder.git",
+      "state" : {
+        "revision" : "2aecb0a16e4d054c7f36a140f7feef6e1ede7bb6",
+        "version" : "1.0.1"
+      }
+    },
+    {
       "identity" : "sdwebimageswiftui",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImageSwiftUI.git",

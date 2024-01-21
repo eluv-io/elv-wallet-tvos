@@ -21,16 +21,6 @@ struct GalleryItemView: View {
             Button(action: {
 
             }) {
-                /*
-                CacheAsyncImage(url: URL(string: imageUrl)) { image in
-                    image.resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame( width: 200, height: 200)
-                        .cornerRadius(15)
-                } placeholder: {
-                    ProgressView()
-                }
-                 */
                 WebImage(url: URL(string: imageUrl))
                     .resizable()
                     .aspectRatio(contentMode: .fill)
@@ -46,8 +36,6 @@ struct GalleryItemView: View {
                 }
             }
             .onAppear(){
-                //print("Gallery Item: ", self.media)
-                
                 if(ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"){
                     self.imageUrl = "https://picsum.photos/600/800"
                     self.currentImageUrl = "https://picsum.photos/1000/1000"
