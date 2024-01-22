@@ -22,6 +22,9 @@ struct ThumbnailItemView: View {
     @Binding var page: Int
     var width: CGFloat = 80
     var height: CGFloat = 80
+    //Need to be an array because it is a struct and can't reference itself
+    @Binding var selectedView: [ThumbnailItemView]
+    
     var selected : Bool {
         if let item = self.item1 {
             return page == item.page
@@ -34,14 +37,18 @@ struct ThumbnailItemView: View {
 
         }) {
             HStack(spacing:0){
-                Image(uiImage: item1?.image ?? UIImage())
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame( width: width, height: height, alignment: .trailing)
-                Image(uiImage: item2?.image ?? UIImage())
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame( width: width, height: height, alignment:.leading)
+                if (item1 != nil){
+                    Image(uiImage: item1?.image ?? UIImage())
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame( width: width, height: height, alignment: .top)
+                }
+                if (item2 != nil){
+                    Image(uiImage: item2?.image ?? UIImage())
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame( width: width, height: height, alignment:.top)
+                }
             }
         }
         .buttonStyle(ThumbnailButtonStyle(focused: isFocused, selected: selected))
@@ -51,23 +58,44 @@ struct ThumbnailItemView: View {
                 if let item = self.item1 {
                     debugPrint("page ", page)
                     debugPrint("item.page", item.page)
-                    page = item.page
-                    //}
+                    if (abs(page - item.page) > 2){
+                        debugPrint("selectedView count ", selectedView.count)
+                        if selectedView.count == 1 {
+                            selectedView[0].isFocused = true
+                            debugPrint("Setting focus")
+                        }else{
+                            debugPrint("Setting page, no selected view")
+                            page = item.page
+                        }
+                    }else {
+                        debugPrint("Selecting page ", page)
+                        page = item.page
+                    }
                 }
             }
         }
- /*       .onChange(of:page) {
-            debugPrint("ThumbnailItemView onChange page: ", page)
+        .onChange(of:page) {
             if let item = self.item1 {
-                if page == item.page && !selected{
-                    //isFocused = true
+                if selected{
+                    debugPrint("ThumbnailItemView onChange page: ", page)
+                    debugPrint("Selected ")
+                    if(selectedView.count == 0){
+                        selectedView.append(self)
+                    }else{
+                        selectedView[0] = self
+                    }
                 }
             }
-        }*/
+        }
         .onAppear(){
             if selected {
                 debugPrint("ThumbnailItemView onAppear page: ", page)
                 //isFocused = true
+                if(selectedView.count == 0){
+                    selectedView.append(self)
+                }else{
+                    selectedView[0] = self
+                }
             }
         }
     }
@@ -75,22 +103,27 @@ struct ThumbnailItemView: View {
 
 struct ThumbnailRowView: View {
     @State var thumbs : [ThumbnailItem] = []
+    @State var selectedView: [ThumbnailItemView] = []
     @Binding var page : Int
     var thumbWidth : CGFloat = 50
     var thumbHeight: CGFloat = 80
-
+    @FocusState var isFocused
+    
     var body: some View {
         ScrollViewReader { value in
             ScrollView(.horizontal) {
-                LazyHStack(spacing:10) {
-                    ForEach(Array(stride(from: 0, to: thumbs.count, by: 2)), id: \.self) { index in
+                LazyHStack(spacing:thumbWidth*0.2) {
+                    ThumbnailItemView(item1:thumbs[0], item2: nil, page:$page, width:thumbWidth, height:thumbHeight, selectedView: $selectedView)
+                    
+                    ForEach(Array(stride(from: 1, to: thumbs.count, by: 2)), id: \.self) { index in
                         HStack(spacing:0){
-                            ThumbnailItemView(item1:thumbs[index], item2:thumbs[index+1], page:$page, width:thumbWidth, height:80)
+                            ThumbnailItemView(item1:thumbs[index], item2: index + 1 < thumbs.count ? thumbs[index+1] : nil, page:$page, width:thumbWidth, height:thumbHeight, selectedView: $selectedView)
                         }
                         .id(index)
                     }
                 }
             }
+            .scrollClipDisabled()
             .onChange(of:page) {
                 debugPrint("ThumbnailRowView onChange page ", page)
                 withAnimation {
@@ -107,7 +140,54 @@ struct ThumbnailRowView: View {
     }
 }
 
+struct PDFInfoTab: View {
+    var image: UIImage
+    var title = ""
+    var description = ""
+    var copyright = ""
+    
+    var body: some View {
+        HStack(alignment:.top) {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 250, height: 250, alignment: .top)
+                .clipped()
+                .layoutPriority(1)
+                .padding(.top, 10)
+            
+            VStack(alignment:.leading) {
+                Text(title)
+                    .font(.title2)
+                Text(description)
+                    .opacity(0.8)
+                    .lineLimit(4)
+                Spacer()
+                if (!copyright.isEmpty){
+                    Text("Copyright © \(copyright)")
+                        .font(.footnote)
+                }
+            }
+            .frame(maxWidth:.infinity, alignment: .leading)
+        }
+        .padding(.top,20)
+    }
+}
+
 struct PDFPage: View{
+    var title = "Sample"
+    var urlString = "https://www.thebookcollector.co.uk/sites/default/files/the-book-collector-example-2018-04.pdf"
+    var description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    var coverArtUrl = ""
+    var copyright = "2024 Eluvio Inc"
+    
+    init(title:String, urlString: String, description: String, copyright: String){
+        self.title = title
+        self.urlString = urlString
+        self.description = description
+        self.copyright = copyright
+    }
+    
     enum ControlsLevel {
         case l1, l2, l3
     }
@@ -120,37 +200,57 @@ struct PDFPage: View{
     @State private var increment = 2
     @State private var controlsLayout : ControlsLevel = .l1
     @State private var selectedTab : Tabs = .Info
-
-    let title = "Sample"
-    let pdfUrlString = "https://www.thebookcollector.co.uk/sites/default/files/the-book-collector-example-2018-04.pdf"
-    @State private var leftPage : UIImage = UIImage()
-    @State private var rightPage :UIImage = UIImage()
+    @State private var coverArtImage : UIImage?
+    @State private var leftPage : UIImage?
+    @State private var rightPage :UIImage?
     @State private var document : CGPDFDocument?
     @State private var isLoading = true
-    @FocusState var progressFocused
-    @FocusState var infoFocused
-    @FocusState var thumbsFocused
-    @FocusState var titleFocused
-    @FocusState var l2Focused
+    @FocusState private var progressFocused
+    @FocusState private var infoFocused
+    @FocusState private var thumbsFocused
+    @FocusState private var titleFocused
+    @FocusState private var l2Focused
     
     @State private var progressBarOpacity : CGFloat = 1.0
     
     @State var thumbs : [ThumbnailItem] = []
-    private var thumbWidth : CGFloat = 50
+    private var thumbWidth : CGFloat = 150
     
     var gradientHeight: CGFloat {
         if controlsLayout == .l2 {
-            return 200
+            return 330
         }
         
         return 60
     }
     
+    var tabHeight: CGFloat {
+        return gradientHeight - 80
+    }
+    
+    var gradient: LinearGradient {
+        if controlsLayout == .l1 {
+            return LinearGradient(gradient: Gradient(colors: [.clear, .black.opacity(0.8)]), startPoint: .top, endPoint: .bottom)
+        }
+        return LinearGradient(stops: [
+            Gradient.Stop(color: .clear, location: 0.0),
+                Gradient.Stop(color: .black.opacity(0.8), location: 0.5),
+            ], startPoint: .top, endPoint: .bottom)
+    }
     
     var progress : Float {
         if let document = document {
             let numPages = Float(document.numberOfPages)
             if page > 0 && numPages > 0.0 {
+                
+                if Float(page + increment - 1) >= Float(document.numberOfPages) {
+                    return 1.0
+                }
+                
+                /*if Float(numPages) - Float(page) == 1 && increment == 2{
+                    return 1.0
+                }*/
+                
                 return Float(page) / Float(document.numberOfPages)
             }
         }
@@ -179,13 +279,19 @@ struct PDFPage: View{
             }else{
                 ZStack{
                     HStack(spacing:0) {
-                        Image(uiImage: leftPage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                        Divider()
-                        Image(uiImage: rightPage)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
+                        if leftPage != nil {
+                            Image(uiImage: leftPage ?? UIImage())
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        }
+                        if leftPage != nil && rightPage != nil {
+                            Divider()
+                        }
+                        if rightPage != nil {
+                            Image(uiImage: rightPage ?? UIImage())
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        }
                     }
                     .padding(.bottom,20)
                     ZStack{
@@ -193,7 +299,7 @@ struct PDFPage: View{
                             Spacer()
                             Rectangle()                         // Shapes are resizable by default
                                 .foregroundColor(.clear)        // Making rectangle transparent
-                                .background(LinearGradient(gradient: Gradient(colors: [.clear, .black.opacity(0.8)]), startPoint: .top, endPoint: .bottom))
+                                .background(self.gradient)
                                 .frame(height:gradientHeight)
                         }
                         
@@ -216,10 +322,20 @@ struct PDFPage: View{
                                      infoFocused = true
                                      },*/
                                     leftPressed:{
+                                        if (page == 2){
+                                            page = page - 1
+                                            return
+                                        }
                                         page = page - increment
                                     },
                                     rightPressed: {
-                                        page = page + increment
+                                        if (page == 1){
+                                            page = page + 1
+                                            return
+                                        }
+                                        if (page + increment <= numPages){
+                                            page = page + increment
+                                        }
                                     },
                                     upPressed: {
                                         controlsLayout = .l1
@@ -246,7 +362,7 @@ struct PDFPage: View{
                                     Button{
                                     }label: {
                                         Text("Info")
-                                            .font(.system(size: 20))
+                                            .font(.system(size: 30))
                                     }
                                     .buttonStyle(TextButtonStyle(focused:selectedTab == .Info))
                                     .focused($infoFocused)
@@ -260,7 +376,7 @@ struct PDFPage: View{
                                     Button{
                                     }label: {
                                         Text("Thumbnails")
-                                            .font(.system(size: 20))
+                                            .font(.system(size: 30))
                                     }
                                     .buttonStyle(TextButtonStyle(focused:selectedTab == .Thumbs))
                                     .focused($thumbsFocused)
@@ -277,14 +393,12 @@ struct PDFPage: View{
                                 .padding(.top, 20)
                             
                                 if (selectedTab == .Info) {
-                                    HStack {
-                                        
-                                    }
-                                    .frame(maxWidth:.infinity, maxHeight: 100)
+                                    PDFInfoTab(image:coverArtImage ?? UIImage(), title:title, description: description, copyright:copyright)
+                                    .frame(maxWidth:.infinity, maxHeight: tabHeight)
                                 }
                                 if (selectedTab == .Thumbs) {
-                                    ThumbnailRowView(thumbs:thumbs, page:$page, thumbWidth: thumbWidth, thumbHeight:80)
-                                        .frame(maxWidth:.infinity, maxHeight: 100)
+                                    ThumbnailRowView(thumbs:thumbs, page:$page, thumbWidth: thumbWidth, thumbHeight:tabHeight*0.8)
+                                        .frame(maxWidth:.infinity, maxHeight: tabHeight)
                                 }
                             }
                         }
@@ -292,6 +406,7 @@ struct PDFPage: View{
                 }
             }
         }
+        .background(.ultraThickMaterial)
         .padding([.leading,.trailing],40)
         .padding([.top,.bottom],10)
         .edgesIgnoringSafeArea(.all)
@@ -319,32 +434,56 @@ struct PDFPage: View{
                 self.isLoading = true
             }
             
-            guard let url = NSURL(string: pdfUrlString) else {
-                print("Error creating NSURL from string ", pdfUrlString)
+            guard let url = NSURL(string: urlString) else {
+                print("Error creating NSURL from string ", urlString)
+                self.isLoading = false
                 return
             }
             
             guard let document = CGPDFDocument(url) else {
-                print("Error creating CGPDFDocument from url ", url)
+                print("Error creating CGPDFDocument from url ", urlString)
+                self.isLoading = false
                 return
             }
             
             await MainActor.run {
                 self.document = document
-                self.isLoading = false
                 refreshPages()
+                self.isLoading = false
             }
             
-            for i in 0...(self.document?.numberOfPages ?? 0) {
+            if (coverArtUrl.isEmpty){
+                coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: 400)
+            }else{
+                
+                do {
+                    if let url = URL(string: coverArtUrl) {
+                        let data = try? Data(contentsOf: url)
+                        
+                        if let imageData = data {
+                            let coverArtImage = UIImage(data: imageData)
+                        } else {
+                            throw "Could not create image from data."
+                        }
+                    }else{
+                        throw "Could not create url."
+                    }
+                }catch {
+                    coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: 400)
+                }
+            }
+            
+            for i in 0..<(self.document?.numberOfPages ?? 0) {
                 if let image = imageForPDF(document:self.document!, pageNumber:i+1, imageWidth:thumbWidth) {
                     thumbs.append(ThumbnailItem(page:i+1, image:image))
                 }else{
-                    thumbs.append(ThumbnailItem(page: i+1, image:UIImage(systemName:"exclamationmark.circle") ?? UIImage()))
+                    thumbs.append(ThumbnailItem(page: i+1, image: UIImage()))
                 }
             }
         }
 
     }
+    
     
     func refreshPages() {
         guard let document = self.document else {return}
@@ -357,6 +496,12 @@ struct PDFPage: View{
             leftPage = page1
         }else{
             print("Failed to load pdf page ", page)
+            leftPage = nil
+        }
+        
+        if page == 1 {
+            rightPage = nil
+            return
         }
         
         if (page + 1 <= document.numberOfPages){
@@ -366,40 +511,7 @@ struct PDFPage: View{
                 print("Failed to load pdf page ", page + 1)
             }
         }else {
-            rightPage = UIImage()
+            rightPage = nil
         }
-    }
-    
-    func imageForPDF(document : CGPDFDocument, pageNumber: Int, imageWidth: CGFloat) -> UIImage? {
-        debugPrint("imageForPDF")
-        
-        guard let document = self.document else { return nil }
-        guard let page = document.page(at: pageNumber) else { return nil }
-        
-        debugPrint("got page ", pageNumber)
-        
-        var pageRect = page.getBoxRect(.mediaBox)
-        let scale = imageWidth / pageRect.size.width
-        pageRect.size = CGSize(width: pageRect.size.width * scale,
-                               height: pageRect.size.height * scale)
-        pageRect.origin = CGPoint.zero
-        
-        UIGraphicsBeginImageContext(pageRect.size)
-        guard let context = UIGraphicsGetCurrentContext()  else { return nil }
-        context.setFillColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-        context.fill(pageRect)
-        context.saveGState()
-        
-        // Rotate the PDF so that it’s the right way around
-        context.translateBy(x: 0.0, y: pageRect.size.height)
-        context.scaleBy(x: 1.0, y: -1.0)
-        context.concatenate(page.getDrawingTransform(.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true))
-        
-        context.drawPDFPage(page)
-        context.restoreGState()
-        
-        let image = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return image
     }
 }

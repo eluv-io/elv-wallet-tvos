@@ -211,7 +211,7 @@ struct ContentView: View {
                         alignment:.center
                     ){
                         
-                        NavigationLink(destination: PDFPage())
+                        NavigationLink(destination: BooksGallery())
                         {
                             Text("Interactive Media - Ebook").frame(width:CONTENT_WIDTH)
                         }
