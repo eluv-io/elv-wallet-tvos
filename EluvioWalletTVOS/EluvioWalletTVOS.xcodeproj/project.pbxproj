@@ -120,6 +120,12 @@
 		B0F9DC3E2B57912700499C93 /* PDFPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3D2B57912700499C93 /* PDFPage.swift */; };
 		B0F9DC402B58274200499C93 /* PageGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3F2B58274200499C93 /* PageGesture.swift */; };
 		B0F9DC422B5B4E5500499C93 /* ProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC412B5B4E5500499C93 /* ProgressSlider.swift */; };
+		B0F9DC442B5E216C00499C93 /* BooksGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC432B5E216C00499C93 /* BooksGallery.swift */; };
+		B0F9DC492B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC462B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf */; };
+		B0F9DC4A2B5E30F900499C93 /* Flash_Comic_PDF_demo.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC472B5E30F900499C93 /* Flash_Comic_PDF_demo.pdf */; };
+		B0F9DC4B2B5E30F900499C93 /* a-quiet-place-2018.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC482B5E30F900499C93 /* a-quiet-place-2018.pdf */; };
+		B0F9DC4E2B5E311600499C93 /* the-war-of-the-worlds.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC4C2B5E311600499C93 /* the-war-of-the-worlds.pdf */; };
+		B0F9DC4F2B5E311600499C93 /* the-book-of-five-rings.epub in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC4D2B5E311600499C93 /* the-book-of-five-rings.epub */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -219,6 +225,12 @@
 		B0F9DC3D2B57912700499C93 /* PDFPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PDFPage.swift; sourceTree = "<group>"; };
 		B0F9DC3F2B58274200499C93 /* PageGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageGesture.swift; sourceTree = "<group>"; };
 		B0F9DC412B5B4E5500499C93 /* ProgressSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressSlider.swift; sourceTree = "<group>"; };
+		B0F9DC432B5E216C00499C93 /* BooksGallery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooksGallery.swift; sourceTree = "<group>"; };
+		B0F9DC462B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Entertainment Weekly - 05 July 2015.pdf"; sourceTree = "<group>"; };
+		B0F9DC472B5E30F900499C93 /* Flash_Comic_PDF_demo.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = Flash_Comic_PDF_demo.pdf; sourceTree = "<group>"; };
+		B0F9DC482B5E30F900499C93 /* a-quiet-place-2018.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "a-quiet-place-2018.pdf"; sourceTree = "<group>"; };
+		B0F9DC4C2B5E311600499C93 /* the-war-of-the-worlds.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "the-war-of-the-worlds.pdf"; sourceTree = "<group>"; };
+		B0F9DC4D2B5E311600499C93 /* the-book-of-five-rings.epub */ = {isa = PBXFileReference; lastKnownFileType = file; path = "the-book-of-five-rings.epub"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -310,6 +322,7 @@
 				B0A2FCFE2ACB658E00AC825D /* PlayerView.swift */,
 				B0A2FD002ACC98B500AC825D /* Fabric.swift */,
 				B00FA9E42AD904F400CFBFF7 /* FetchPage.swift */,
+				B0F9DC452B5E30BE00499C93 /* Books */,
 				B00FA9E62AD905D500CFBFF7 /* KTPage.swift */,
 				B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */,
 				B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */,
@@ -317,6 +330,7 @@
 				B04586F42AF4993B00F1FF25 /* FandangoPage.swift */,
 				B0F9DC3F2B58274200499C93 /* PageGesture.swift */,
 				B0F9DC412B5B4E5500499C93 /* ProgressSlider.swift */,
+				B0F9DC432B5E216C00499C93 /* BooksGallery.swift */,
 			);
 			path = WalletLinkTest;
 			sourceTree = "<group>";
@@ -449,6 +463,18 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		B0F9DC452B5E30BE00499C93 /* Books */ = {
+			isa = PBXGroup;
+			children = (
+				B0F9DC4D2B5E311600499C93 /* the-book-of-five-rings.epub */,
+				B0F9DC4C2B5E311600499C93 /* the-war-of-the-worlds.pdf */,
+				B0F9DC482B5E30F900499C93 /* a-quiet-place-2018.pdf */,
+				B0F9DC462B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf */,
+				B0F9DC472B5E30F900499C93 /* Flash_Comic_PDF_demo.pdf */,
+			);
+			path = Books;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -566,7 +592,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0F9DC4A2B5E30F900499C93 /* Flash_Comic_PDF_demo.pdf in Resources */,
+				B0F9DC4E2B5E311600499C93 /* the-war-of-the-worlds.pdf in Resources */,
+				B0F9DC492B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf in Resources */,
+				B0F9DC4B2B5E30F900499C93 /* a-quiet-place-2018.pdf in Resources */,
 				B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */,
+				B0F9DC4F2B5E311600499C93 /* the-book-of-five-rings.epub in Resources */,
 				B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -599,6 +630,7 @@
 				B00FA9E92AD905FD00CFBFF7 /* UNextPage.swift in Sources */,
 				B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */,
 				B06404CB2B2B8BA500945E98 /* DeviceFlowView.swift in Sources */,
+				B0F9DC442B5E216C00499C93 /* BooksGallery.swift in Sources */,
 				B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */,
 				B0F9DC422B5B4E5500499C93 /* ProgressSlider.swift in Sources */,
 				B0A2FCFB2ACA96EC00AC825D /* MaxPage.swift in Sources */,
