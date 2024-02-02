@@ -77,7 +77,7 @@ struct FetchPage: View {
                 .edgesIgnoringSafeArea(.all)
         )
         .fullScreenCover(isPresented:$showPlayer){
-            PlayerView(playoutUrl:$url, finished: $playerFinished)
+            PlayerView2(playoutUrl:url, finished: $playerFinished)
         }
     }
 }

@@ -106,13 +106,6 @@ func CreateMintLink(
         + "&back_link=walletlink://"
 }
 
-struct LoginResponse: Decodable {
-    var type = ""
-    var token = ""
-    var addr = ""
-    var eth = ""
-}
-
 class LoginManager : ObservableObject {
     @Published var isLoggedOut = true
     @Published var loginInfo : LoginResponse? = nil
@@ -213,7 +206,7 @@ struct ContentView: View {
                         
                         NavigationLink(destination: BooksGallery())
                         {
-                            Text("Interactive Media - Ebook").frame(width:CONTENT_WIDTH)
+                            Text("Ebooks and Interactive Media").frame(width:CONTENT_WIDTH)
                         }
                         
                         Divider()
@@ -845,7 +838,7 @@ struct ContentView: View {
             .scrollClipDisabled()
         }
         .fullScreenCover(isPresented: $showDeviceFlow){
-            DeviceFlowView(marketplaceId:MSMarketplaceId, statusUrl: statusEndpoint)
+            DeviceFlowViewNew(marketplaceId:MSMarketplaceId, statusUrl: statusEndpoint)
                 .environmentObject(login)
         }
         .environmentObject(
@@ -854,7 +847,7 @@ struct ContentView: View {
         .task {
             do {
                 try await fabric.connect(
-                    configUrl: "https://main.net955305.contentfabric.io/config"
+                    network: "main"
                 )
             }catch{
                 print(

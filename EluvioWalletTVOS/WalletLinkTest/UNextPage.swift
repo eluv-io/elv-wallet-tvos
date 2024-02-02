@@ -84,8 +84,8 @@ struct UNextPage: View {
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
         )
-        .fullScreenCover(isPresented:$showPlayer){
-            PlayerView(playoutUrl:$url, finished: $playerFinished)
+        .fullScreenCover(isPresented:$showPlayer){  [url] in
+            PlayerView2(playoutUrl:url, finished: $playerFinished)
         }
     }
 }

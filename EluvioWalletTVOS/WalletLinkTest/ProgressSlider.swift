@@ -38,11 +38,30 @@ struct ProgressSlider: UIViewRepresentable {
         down.allowedPressTypes = [NSNumber(value: UIPress.PressType.downArrow.rawValue)];
         down.delegate = context.coordinator
         
+        let upSwipeRecognizer = UISwipeGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.up))
+        upSwipeRecognizer.direction = .up
+        
+        let downSwipeRecognizer = UISwipeGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.down))
+        downSwipeRecognizer.direction = .down
+        
+        let leftSwipeRecognizer = UISwipeGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.left))
+        leftSwipeRecognizer.direction = .left
+        
+        let rightSwipeRecognizer = UISwipeGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.right))
+        rightSwipeRecognizer.direction = .right
+    
+        
         view.addGestureRecognizer(left)
         view.addGestureRecognizer(right)
         view.addGestureRecognizer(up)
         view.addGestureRecognizer(down)
         view.addGestureRecognizer(select)
+        
+        view.addGestureRecognizer(upSwipeRecognizer)
+        view.addGestureRecognizer(downSwipeRecognizer)
+        view.addGestureRecognizer(leftSwipeRecognizer)
+        view.addGestureRecognizer(rightSwipeRecognizer)
+        
         return view
     }
     
@@ -110,6 +129,7 @@ class MyProgressView: UIProgressView {
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.isUserInteractionEnabled = true
     }
     /*
     override func pressesEnded(_ presses: Set<UIPress>, with event: UIPressesEvent?) {

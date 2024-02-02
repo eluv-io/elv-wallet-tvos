@@ -8,10 +8,10 @@
 import Foundation
 import SwiftyJSON
 
-var test_NFTs: [NFTModel] = loadJsonFile("nfts.json")
-var test_sale_NFTs: [NFTModel] = loadJsonFile("nfts_marketplace.json")
-//var test_marketplaces: [MarketplaceModel] = loadJsonFile("marketplaces.json")
-var test_profile: ProfileModel = loadJsonFile("profile.json")
+var test_NFTs: [NFTModel] = loadJsonFileFatal("nfts.json")
+var test_sale_NFTs: [NFTModel] = loadJsonFileFatal("nfts_marketplace.json")
+//var test_marketplaces: [MarketplaceModel] = loadJsonFileFatal("marketplaces.json")
+var test_profile: ProfileModel = loadJsonFileFatal("profile.json")
 
 func CreateTestNFTs(num: Int) -> [NFTModel] {
     var nfts: [NFTModel] = [];

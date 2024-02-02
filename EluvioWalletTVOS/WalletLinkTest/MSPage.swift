@@ -234,6 +234,7 @@ struct MSPage: View {
                     action: {
                         if playOutPath != "" {
                             let combinedUrl = fabric.createUrl(path:playOutPath, token:token)
+                            debugPrint("playoutUrl: ", combinedUrl)
                             if let url = URL(string: combinedUrl) {
                                 self.url = url
                                 showPlayer = true
@@ -293,8 +294,8 @@ struct MSPage: View {
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
         )
-        .fullScreenCover(isPresented:$showPlayer){
-            PlayerView(playoutUrl:$url, finished: $playerFinished)
+        .fullScreenCover(isPresented:$showPlayer){  [url] in
+            PlayerView2(playoutUrl:url, finished: $playerFinished)
         }
     }
 }

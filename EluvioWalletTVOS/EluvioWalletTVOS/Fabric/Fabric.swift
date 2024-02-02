@@ -14,7 +14,7 @@ import SwiftyJSON
 import UUIDShortener
 import CryptoKit
 
-var APP_CONFIG : AppConfiguration = loadJsonFile("configuration.json")
+var APP_CONFIG : AppConfiguration = loadJsonFileFatal("configuration.json")
 let POLLSECONDS = 300
 
 func IsDemoMode()->Bool {
@@ -2328,6 +2328,29 @@ class Fabric: ObservableObject {
         }
         
         return tenantItems
+    }
+    
+    func createStaticToken() -> String {
+        do {
+            let qspaceId = try getContentSpaceId()
+            var dict : [String: Any] = [ "qspace_id": qspaceId ]
+            let jsonData = try JSONSerialization.data(withJSONObject: dict, options: [])
+            let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
+            return jsonString.base64()
+        }catch{
+            print(error.localizedDescription)
+        }
+        
+        return ""
+    }
+    
+    func createUrl(path:String, token: String = "") -> String {
+        do {
+            return try getEndpoint() + path + "?authorization=\(token.isEmpty ? createStaticToken() : token)"
+        }catch{
+            print(error.localizedDescription)
+        }
+        return ""
     }
     
     //ELV-CLIENT API

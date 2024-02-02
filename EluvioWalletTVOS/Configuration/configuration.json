@@ -1,0 +1,33 @@
+{
+    "app":{
+        "name": "Media Wallet",
+        "mode": "demo"
+    },
+    "network": {
+      "demo": {
+          "config_url":"https://demov3.net955210.contentfabric.io/config",
+          "main_obj_id": "iq__2gkNh8CCZqFFnoRpEUmz7P3PaBQG",
+          "main_obj_lib_id": "ilib36Wi5fJDLXix8ckL7ZfaAJwJXWGD",
+          "public_token":"",
+          "state_store_urls": ["https://appsvc.svc.eluv.io"],
+          "badger_address": "0x39e9d567137217e8f7dae73bf168db28d242bb31",
+          "wallet_url": "https://wallet.demov3.contentfabric.io?action=login&mode=login&response=code&source=code#/login"
+      },
+      "main": {
+          "config_url":"https://main.net955305.contentfabric.io/config",
+          "main_obj_id": "iq__suqRJUt2vmXsyiWS5ZaSGwtFU9R",
+          "main_obj_lib_id": "ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9",
+          "public_token": "eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSJ9Cg==",
+          "state_store_urls": ["https://appsvc.svc.eluv.io"],
+          "wallet_url": "https://wallet.contentfabric.io?action=login&mode=login&response=code&source=code#/login",
+          "badger_address": "0xa042a585bbbac4419ba39c397f35ab749fc470f0",
+          "overrides":{
+          }
+      }
+    },
+    "auth0" : {
+        "domain" : "prod-elv.us.auth0.com",
+        "client_id" : "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar",
+        "grant_type" : "urn:ietf:params:oauth:grant-type:device_code"
+    }
+}

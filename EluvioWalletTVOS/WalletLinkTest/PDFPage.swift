@@ -9,170 +9,190 @@ import SwiftUI
 import SDWebImageSwiftUI
 import SDWebImagePDFCoder
 
-struct ThumbnailItem: Identifiable {
-    var id: String? = UUID().uuidString
-    var page: Int = 0
-    var image: UIImage
-}
-
-struct ThumbnailItemView: View {
-    @State var item1: ThumbnailItem? = nil
-    @State var item2: ThumbnailItem? = nil
-    @FocusState var isFocused
-    @Binding var page: Int
-    var width: CGFloat = 80
-    var height: CGFloat = 80
-    //Need to be an array because it is a struct and can't reference itself
-    @Binding var selectedView: [ThumbnailItemView]
+struct PDFPage: View{
+    var title = "Sample"
+    var urlString = "https://www.thebookcollector.co.uk/sites/default/files/the-book-collector-example-2018-04.pdf"
+    var description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    var coverArtUrl = ""
+    var copyright = "2024 Eluvio Inc"
+    var documentWidth = UIScreen.main.bounds.width
     
-    var selected : Bool {
-        if let item = self.item1 {
-            return page == item.page
-        }
-        return false
+    init(title:String, urlString: String, description: String, copyright: String){
+        self.title = title
+        self.urlString = urlString
+        self.description = description
+        self.copyright = copyright
     }
     
-    var body: some View {
-        Button(action: {
-
-        }) {
-            HStack(spacing:0){
-                if (item1 != nil){
-                    Image(uiImage: item1?.image ?? UIImage())
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame( width: width, height: height, alignment: .top)
-                }
-                if (item2 != nil){
-                    Image(uiImage: item2?.image ?? UIImage())
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame( width: width, height: height, alignment:.top)
-                }
-            }
-        }
-        .buttonStyle(ThumbnailButtonStyle(focused: isFocused, selected: selected))
-        .focused($isFocused)
-        .onChange(of: isFocused) {
-            if (isFocused){
-                if let item = self.item1 {
-                    debugPrint("page ", page)
-                    debugPrint("item.page", item.page)
-                    if (abs(page - item.page) > 2){
-                        debugPrint("selectedView count ", selectedView.count)
-                        if selectedView.count == 1 {
-                            selectedView[0].isFocused = true
-                            debugPrint("Setting focus")
-                        }else{
-                            debugPrint("Setting page, no selected view")
-                            page = item.page
-                        }
-                    }else {
-                        debugPrint("Selecting page ", page)
-                        page = item.page
-                    }
-                }
-            }
-        }
-        .onChange(of:page) {
-            if let item = self.item1 {
-                if selected{
-                    debugPrint("ThumbnailItemView onChange page: ", page)
-                    debugPrint("Selected ")
-                    if(selectedView.count == 0){
-                        selectedView.append(self)
-                    }else{
-                        selectedView[0] = self
-                    }
-                }
-            }
-        }
-        .onAppear(){
-            if selected {
-                debugPrint("ThumbnailItemView onAppear page: ", page)
-                //isFocused = true
-                if(selectedView.count == 0){
-                    selectedView.append(self)
-                }else{
-                    selectedView[0] = self
-                }
-            }
-        }
-    }
-}
-
-struct ThumbnailRowView: View {
+    @State private var page = 1
+    @State private var increment = 2
+    @State private var coverArtImage : UIImage?
+    @State private var leftPage : UIImage?
+    @State private var rightPage :UIImage?
+    @State private var document : CGPDFDocument?
+    @State private var isLoading = true
+    @FocusState private var progressFocused
+    @FocusState private var infoFocused
+    @FocusState private var thumbsFocused
+    @FocusState private var titleFocused
+    @FocusState private var l2Focused
+    
     @State var thumbs : [ThumbnailItem] = []
-    @State var selectedView: [ThumbnailItemView] = []
-    @Binding var page : Int
-    var thumbWidth : CGFloat = 50
-    var thumbHeight: CGFloat = 80
-    @FocusState var isFocused
+    private var thumbWidth : CGFloat = 150
+    
+    
+    var progress : Float {
+        if let document = document {
+            let numPages = Float(document.numberOfPages)
+            if page > 0 && numPages > 0.0 {
+                
+                if Float(page + increment - 1) >= Float(document.numberOfPages) {
+                    return 1.0
+                }
+                
+                return Float(page) / Float(document.numberOfPages)
+            }
+        }
+        
+        return 0.0
+    }
+    
+    var numPages : Int {
+        if let document = document {
+            return document.numberOfPages
+        }
+
+        return 0
+    }
+    
+    init(){
+        let PDFCoder = SDImagePDFCoder.shared
+        SDImageCodersManager.shared.addCoder(PDFCoder)
+    }
     
     var body: some View {
-        ScrollViewReader { value in
-            ScrollView(.horizontal) {
-                LazyHStack(spacing:thumbWidth*0.2) {
-                    ThumbnailItemView(item1:thumbs[0], item2: nil, page:$page, width:thumbWidth, height:thumbHeight, selectedView: $selectedView)
-                    
-                    ForEach(Array(stride(from: 1, to: thumbs.count, by: 2)), id: \.self) { index in
-                        HStack(spacing:0){
-                            ThumbnailItemView(item1:thumbs[index], item2: index + 1 < thumbs.count ? thumbs[index+1] : nil, page:$page, width:thumbWidth, height:thumbHeight, selectedView: $selectedView)
+        ZStack {
+            if (isLoading){
+                ProgressView()
+                    .edgesIgnoringSafeArea(.all)
+            }else{
+                ZStack{
+                    HStack(spacing:0) {
+                        if leftPage != nil {
+                            Image(uiImage: leftPage ?? UIImage())
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                         }
-                        .id(index)
+                        if leftPage != nil && rightPage != nil {
+                            Divider()
+                        }
+                        if rightPage != nil {
+                            Image(uiImage: rightPage ?? UIImage())
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                        }
                     }
+                    .padding(.bottom,20)
+                    
+                    ProgressControlView(title:title, description:description, copyright:copyright, thumbs:thumbs, page:$page, numPages: numPages, progress: progress, coverArtImage: coverArtImage)
                 }
             }
-            .scrollClipDisabled()
-            .onChange(of:page) {
-                debugPrint("ThumbnailRowView onChange page ", page)
-                withAnimation {
-                    value.scrollTo(page-1)
+        }
+        .background(.ultraThickMaterial)
+        .padding([.leading,.trailing],40)
+        .padding([.top,.bottom],10)
+        .edgesIgnoringSafeArea(.all)
+        .onChange(of: page){
+            refreshPages()
+        }
+        .task {
+            await MainActor.run {
+                self.isLoading = true
+            }
+            
+            guard let url = NSURL(string: urlString) else {
+                print("Error creating NSURL from string ", urlString)
+                self.isLoading = false
+                return
+            }
+            
+            guard let document = CGPDFDocument(url) else {
+                print("Error creating CGPDFDocument from url ", urlString)
+                self.isLoading = false
+                return
+            }
+            
+            await MainActor.run {
+                self.document = document
+                refreshPages()
+                self.isLoading = false
+            }
+            
+            if (coverArtUrl.isEmpty){
+                coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: documentWidth)
+            }else{
+                
+                do {
+                    if let url = URL(string: coverArtUrl) {
+                        let data = try? Data(contentsOf: url)
+                        
+                        if let imageData = data {
+                            let coverArtImage = UIImage(data: imageData)
+                        } else {
+                            throw "Could not create image from data."
+                        }
+                    }else{
+                        throw "Could not create url."
+                    }
+                }catch {
+                    coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: documentWidth)
                 }
             }
-            .onAppear(){
-                debugPrint("ThumbnailRowView onAppear ", page)
-                withAnimation {
-                    value.scrollTo((page-1))
+            
+            for i in 0..<(self.document?.numberOfPages ?? 0) {
+                if let image = imageForPDF(document:self.document!, pageNumber:i+1, imageWidth:thumbWidth*2) {
+                    thumbs.append(ThumbnailItem(page:i+1, image:image))
+                }else{
+                    thumbs.append(ThumbnailItem(page: i+1, image: UIImage()))
                 }
             }
+        }
+
+    }
+    
+    
+    func refreshPages() {
+        guard let document = self.document else {return}
+        
+        if page < 1 {
+            page = 1
+        }
+        
+        if let page1 = imageForPDF(document: document, pageNumber: page, imageWidth: documentWidth){
+            leftPage = page1
+        }else{
+            print("Failed to load pdf page ", page)
+            leftPage = nil
+        }
+        
+        if page == 1 {
+            rightPage = nil
+            return
+        }
+        
+        if (page + 1 <= document.numberOfPages){
+            if let page2 = imageForPDF(document: document, pageNumber: page + 1, imageWidth: documentWidth){
+                rightPage = page2
+            }else{
+                print("Failed to load pdf page ", page + 1)
+            }
+        }else {
+            rightPage = nil
         }
     }
 }
 
-struct PDFInfoTab: View {
-    var image: UIImage
-    var title = ""
-    var description = ""
-    var copyright = ""
-    
-    var body: some View {
-        HStack(alignment:.top) {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 250, height: 250, alignment: .top)
-                .clipped()
-                .layoutPriority(1)
-                .padding(.top, 10)
-            
-            VStack(alignment:.leading) {
-                Text(title)
-                    .font(.title2)
-                Text(description)
-                    .opacity(0.8)
-                    .lineLimit(4)
-                Spacer()
-                if (!copyright.isEmpty){
-                    Text("Copyright © \(copyright)")
-                        .font(.footnote)
-                }
-            }
-            .frame(maxWidth:.infinity, alignment: .leading)
-        }
-        .padding(.top,20)
-    }
-}
+/*
 
 struct PDFPage: View{
     var title = "Sample"
@@ -180,6 +200,7 @@ struct PDFPage: View{
     var description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     var coverArtUrl = ""
     var copyright = "2024 Eluvio Inc"
+    var documentWidth = UIScreen.main.bounds.width
     
     init(title:String, urlString: String, description: String, copyright: String){
         self.title = title
@@ -247,10 +268,6 @@ struct PDFPage: View{
                     return 1.0
                 }
                 
-                /*if Float(numPages) - Float(page) == 1 && increment == 2{
-                    return 1.0
-                }*/
-                
                 return Float(page) / Float(document.numberOfPages)
             }
         }
@@ -317,10 +334,12 @@ struct PDFPage: View{
                                 
                                 ProgressSlider(
                                     progress : progress,
-                                    /* selectPressed: {
+                                    
+                                    selectPressed: {
                                      controlsLayout = .l2
                                      infoFocused = true
-                                     },*/
+                                    },
+                                    
                                     leftPressed:{
                                         if (page == 2){
                                             page = page - 1
@@ -453,7 +472,7 @@ struct PDFPage: View{
             }
             
             if (coverArtUrl.isEmpty){
-                coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: 400)
+                coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: documentWidth)
             }else{
                 
                 do {
@@ -469,12 +488,12 @@ struct PDFPage: View{
                         throw "Could not create url."
                     }
                 }catch {
-                    coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: 400)
+                    coverArtImage = imageForPDF(document: document, pageNumber: 1, imageWidth: documentWidth)
                 }
             }
             
             for i in 0..<(self.document?.numberOfPages ?? 0) {
-                if let image = imageForPDF(document:self.document!, pageNumber:i+1, imageWidth:thumbWidth) {
+                if let image = imageForPDF(document:self.document!, pageNumber:i+1, imageWidth:thumbWidth*2) {
                     thumbs.append(ThumbnailItem(page:i+1, image:image))
                 }else{
                     thumbs.append(ThumbnailItem(page: i+1, image: UIImage()))
@@ -492,7 +511,7 @@ struct PDFPage: View{
             page = 1
         }
         
-        if let page1 = imageForPDF(document: document, pageNumber: page, imageWidth: 400){
+        if let page1 = imageForPDF(document: document, pageNumber: page, imageWidth: documentWidth){
             leftPage = page1
         }else{
             print("Failed to load pdf page ", page)
@@ -505,7 +524,7 @@ struct PDFPage: View{
         }
         
         if (page + 1 <= document.numberOfPages){
-            if let page2 = imageForPDF(document: document, pageNumber: page + 1, imageWidth: 400){
+            if let page2 = imageForPDF(document: document, pageNumber: page + 1, imageWidth: documentWidth){
                 rightPage = page2
             }else{
                 print("Failed to load pdf page ", page + 1)
@@ -515,3 +534,4 @@ struct PDFPage: View{
         }
     }
 }
+*/

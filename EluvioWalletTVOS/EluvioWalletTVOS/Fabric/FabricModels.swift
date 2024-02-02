@@ -8,6 +8,7 @@
 import Foundation
 
 struct LoginResponse: Codable {
+    var type = ""
     var addr: String
     var eth: String
     var token: String
