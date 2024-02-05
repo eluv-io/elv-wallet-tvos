@@ -38,12 +38,13 @@ struct IconButtonStyle: ButtonStyle {
     var initialOpacity: CGFloat = 1.0
     var highlightColor: Color = Color.clear
     var buttonColor: Color = Color.clear
+    var scale = 1.03
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
             .background(focused ? highlightColor : buttonColor)
             .cornerRadius(10)
-            .scaleEffect(self.focused ? 1.03: 1, anchor: .center)
+            .scaleEffect(self.focused ? scale: 1.0, anchor: .center)
             .animation(self.focused ? .easeIn(duration: 0.1) : .easeOut(duration: 0.1), value: self.focused)
             .opacity(self.focused ? 1.0 : initialOpacity)
     }

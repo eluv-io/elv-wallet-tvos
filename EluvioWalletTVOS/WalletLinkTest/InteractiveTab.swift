@@ -9,36 +9,61 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct MediaTabItemView: View {
-    @Binding var item : MediaItem
+    @Binding var item : InteractiveMediaItem
     @Binding var selected: Bool
-    @Binding var selectedItem: MediaItem
-    var width : CGFloat = 400
+    @Binding var selectedItem: InteractiveMediaItem
+    @FocusState var isFocused
+    var width : CGFloat = 100
     var body: some View {
-        Button{
-            selectedItem = item
-            selected = true
-        } label: {
-            WebImage(url: URL(string:item.image ?? ""))
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width:width, height:width*2)
-                .padding()
+        VStack(spacing:10){
+            Button{
+                selectedItem = item
+                selected = true
+            } label: {
+                if let image = item.image {
+                    Image(uiImage:image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                    //.frame(width:width, height:width)
+                }else{
+                    ZStack{
+                        Rectangle()
+                            .background(.gray)
+                            .frame(width:width, height:width)
+                        VStack{
+                            Image(systemName: "play.rectangle")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width:width/2, height:width/2)
+                                .padding()
+                        }
+                    }
+                }
+            }
+            .buttonStyle(.card)
+            .focused($isFocused)
+            .frame(width:width, height:width*0.8)
+            
+            Text(item.name)
+                .font(.fine)
+                //.padding()
+                .frame(width:width*2)
+                .lineLimit(1)
         }
-        .buttonStyle(.borderless)
-        .frame(width:width, height:width*2)
+        .frame(width:width, height:width)
     }
 }
 
 struct InteractiveTab: View {
-    @State var items: [MediaItem]
-    @State var selectedItem = MediaItem()
-    var imageWidth : CGFloat = 250
+    @State var items: [InteractiveMediaItem]
+    @State var selectedItem = InteractiveMediaItem()
+    var imageWidth : CGFloat = 100
     @State var showItem = false
     
     var body: some View {
         VStack(alignment:.center){
             ScrollView(.horizontal) {
-                LazyHStack(spacing:imageWidth * 0.7) {
+                LazyHStack(spacing:imageWidth) {
                     ForEach(0..<items.count, id: \.self) { index in
                         MediaTabItemView(item: $items[index], selected: $showItem, selectedItem: $selectedItem, width: imageWidth)
                             .padding()
@@ -51,12 +76,9 @@ struct InteractiveTab: View {
             .padding()
         }
         .padding(.top,20)
+        .focusSection()
         .fullScreenCover(isPresented: $showItem){ [selectedItem] in
-            if selectedItem.name != "" {
-
-            }else if let item = selectedItem as? InteractiveMediaItem{
-                InteractiveMediaView(item: item)
-            }
+            InteractiveMediaView(item: selectedItem)
         }
     }
 }

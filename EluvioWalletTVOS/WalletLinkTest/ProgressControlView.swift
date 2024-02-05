@@ -12,11 +12,15 @@ struct ProgressControlView: View {
     var description = ""
     var copyright = ""
     var thumbs : [ThumbnailItem] = []
-    var medaItems : [MediaItem] = []
+    var mediaItems : [InteractiveMediaItem] = []
     var numPages: Int
     var progress: Float
     @Binding var page: Int
     var coverArtImage : UIImage?
+    @Binding var playAudio: Bool
+    
+    var next: (()->())? = nil
+    var previous: (()->())? = nil
     
     enum ControlsLevel {
         case l1, l2, l3
@@ -33,8 +37,10 @@ struct ProgressControlView: View {
     @FocusState private var progressFocused
     @FocusState private var infoFocused
     @FocusState private var thumbsFocused
+    @FocusState private var interactiveFocused
     @FocusState private var titleFocused
     @FocusState private var l2Focused
+    @FocusState private var audioFocused
     
     private var thumbWidth : CGFloat = 150
     @State private var progressBarOpacity : CGFloat = 1.0
@@ -61,15 +67,20 @@ struct ProgressControlView: View {
             ], startPoint: .top, endPoint: .bottom)
     }
     
-    init(title:String="", description:String="", copyright:String="", thumbs:[ThumbnailItem] = [], page: Binding<Int>, numPages: Int, progress: Float, coverArtImage: UIImage?) {
+    init(title:String="", description:String="", copyright:String="", thumbs:[ThumbnailItem] = [], mediaItems : [InteractiveMediaItem] = [], page: Binding<Int>, numPages: Int, progress: Float, coverArtImage: UIImage?, next: ((()->()))? = nil, previous: ((()->()))? = nil, playAudio: Binding<Bool>) {
+        
         self.title = title
         self.description = description
         self.copyright = copyright
         self.thumbs = thumbs
+        self.mediaItems = mediaItems
         self._page = page
         self.numPages = numPages
         self.progress = progress
         self.coverArtImage = coverArtImage
+        self.next = next
+        self.previous = previous
+        self._playAudio = playAudio
     }
     
     
@@ -87,11 +98,16 @@ struct ProgressControlView: View {
                 Spacer()
 
                 Group{
-                    HStack(alignment:.center){
+                    HStack(alignment:.center, spacing:30){
                         Text("\(title)")
                         Spacer()
+                        Image(systemName: playAudio ? "speaker.wave.2.bubble.left.fill" : "speaker.wave.2.bubble.left")
+                            .frame(width:48, height:48)
+                            .foregroundColor(playAudio ? .blue : .white)
                         Text("Page \(self.page) of \(self.numPages)")
-                            .font(.system(size: 20))
+                            .font(.system(size: 24))
+                            .frame(minWidth: 120, alignment:.trailing)
+                            .padding(.bottom, 5)
                     }
                     .frame(maxWidth:.infinity)
                     
@@ -104,6 +120,16 @@ struct ProgressControlView: View {
                         },
                         
                         leftPressed:{
+                            if page <= 1 {
+                                return
+                            }
+                            
+                            defer {
+                                if let callback = previous {
+                                    callback()
+                                }
+                            }
+                            
                             if (page == 2){
                                 page = page - 1
                                 return
@@ -111,6 +137,12 @@ struct ProgressControlView: View {
                             page = page - increment
                         },
                         rightPressed: {
+                            defer{
+                                if let callback = next {
+                                    callback()
+                                }
+                            }
+                            
                             if (page == 1){
                                 page = page + 1
                                 return
@@ -118,6 +150,7 @@ struct ProgressControlView: View {
                             if (page + increment <= numPages){
                                 page = page + increment
                             }
+
                         },
                         upPressed: {
                             if controlsLayout == .l1 {
@@ -160,20 +193,48 @@ struct ProgressControlView: View {
                             }
                         }
                         
-                        Button{
-                        }label: {
-                            Text("Thumbnails")
-                                .font(.system(size: 30))
-                        }
-                        .buttonStyle(TextButtonStyle(focused:selectedTab == .Thumbs))
-                        .focused($thumbsFocused)
-                        .onChange(of:thumbsFocused) {
-                            if (thumbsFocused){
-                                selectedTab = .Thumbs
+                        if !thumbs.isEmpty {
+                            Button{
+                            }label: {
+                                Text("Thumbnails")
+                                    .font(.system(size: 30))
                             }
+                            .buttonStyle(TextButtonStyle(focused:selectedTab == .Thumbs))
+                            .focused($thumbsFocused)
+                            .onChange(of:thumbsFocused) {
+                                if (thumbsFocused){
+                                    selectedTab = .Thumbs
+                                }
+                            }
+                            .opacity(thumbsFocused ? 1.0 : 0.5)
                         }
-                        .opacity(thumbsFocused ? 1.0 : 0.5)
+                        
+                        if !mediaItems.isEmpty {
+                            Button{
+                            }label: {
+                                Text("Interactive")
+                                    .font(.system(size: 30))
+                            }
+                            .buttonStyle(TextButtonStyle(focused:selectedTab == .Interactive))
+                            .focused($interactiveFocused)
+                            .onChange(of:interactiveFocused) {
+                                if (interactiveFocused){
+                                    selectedTab = .Interactive
+                                }
+                            }
+                            .opacity(interactiveFocused ? 1.0 : 0.5)
+                        }
+                        
                         Spacer()
+                        
+                        Button{
+                            playAudio.toggle()
+                        }label: {
+                            Image(systemName: playAudio ? "speaker.wave.2.bubble.left.fill" : "speaker.wave.2.bubble.left")
+                                .frame(width:48, height:48)
+                        }
+                        .buttonStyle(IconButtonStyle(focused:audioFocused, initialOpacity:0.5, scale:1.5))
+                        .focused($audioFocused)
                     }
                     .frame(maxWidth:.infinity)
                     .focusSection()
@@ -188,7 +249,7 @@ struct ProgressControlView: View {
                             .frame(maxWidth:.infinity, maxHeight: tabHeight)
                     }
                     if (selectedTab == .Interactive) {
-                        InteractiveTab(items:medaItems, imageWidth: thumbWidth)
+                        InteractiveTab(items:mediaItems, imageWidth: thumbWidth)
                             .frame(maxWidth:.infinity, maxHeight: tabHeight)
                     }
                 }

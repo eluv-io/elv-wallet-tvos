@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TVUIKit
 
 struct TextItem: Identifiable, Decodable {
     var id: String? = UUID().uuidString
@@ -21,24 +22,33 @@ struct TextItem: Identifiable, Decodable {
 class BookItem: BooksDisplayItem {
     var copyright = ""
     var pdfLink = URL(string:"")
+    var mainAudioLink : URL?
+    var audioPages : [AudioPageModel] = []
     var interactiveItems : [InteractiveMediaItem] = []
     
-    init(id: String? = nil, image: UIImage = UIImage (), name: String = "", description: String = "", copyright: String = "", pdfLink: URL? = nil) {
-        super.init(id:id,image:image,name:name,description:description)
+    init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", copyright: String = "", pdfLink: URL? = nil, mainAudioLink: URL? = nil, audioPages : [AudioPageModel] = []) {
+        
+        debugPrint(" BookItem \(name) poster: \(posterImage)")
+        
+        super.init(id:id,image:image, posterImage: posterImage, name:name,description:description)
         self.copyright = copyright
         self.pdfLink = pdfLink
+        self.mainAudioLink = mainAudioLink
         self.type = .Book
+        self.audioPages = audioPages
     }
 }
 
 class InteractiveMediaItem: BooksDisplayItem {
-    var mainVideoLink = URL(string:"")
+    var mainVideoLink : URL?
+    var mainAudioLink : URL?
     var secondaryVideos : [URL] = []
     var mainVideoText : [TextItem] = []
     
-    init(id: String? = nil, image: UIImage = UIImage (), name: String = "", description: String = "", mainVideoLink: URL, secondaryVideos: [URL] = [], mainVideoText : [TextItem] = []) {
-        super.init(id:id,image:image,name:name,description:description)
+    init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", mainVideoLink: URL? = nil, mainAudioLink: URL? = nil, secondaryVideos: [URL] = [], mainVideoText : [TextItem] = []) {
+        super.init(id:id,image:image,posterImage:posterImage, name:name,description:description)
         self.mainVideoLink = mainVideoLink
+        self.mainAudioLink = mainAudioLink
         self.secondaryVideos = secondaryVideos
         self.mainVideoText = mainVideoText
         self.type = .Interactive
@@ -49,16 +59,51 @@ class BooksDisplayItem: Identifiable {
     enum ItemType {case Book; case Interactive}
     
     var id: String? = UUID().uuidString
-    var image = UIImage ()
+    var image : UIImage?
+    var posterImage : UIImage?
     var name = ""
     var description = ""
     var type : ItemType = .Book
     
-    init(id: String? = nil, image: UIImage = UIImage (), name: String = "", description: String = "") {
+    init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "") {
+        debugPrint(" BooksDisplayItem \(name) poster: \(posterImage)")
         self.id = id
         self.image = image
+        self.posterImage = posterImage
         self.name = name
         self.description = description
+    }
+}
+
+struct TVPoster: UIViewRepresentable {
+    var image: UIImage
+    var title: String?
+    var subtitle: String?
+    var width: CGFloat = 0
+    var height: CGFloat = 0
+
+    func makeUIView(context: Context) -> TVPosterView {
+        let view = TVPosterView(image:image)
+        //view.frame = CGRect(x:0, y:0, width:width, height:height)
+        view.contentSize = CGSize(width:width, height:height)
+        //view.imageView.masksFocusEffectToContents = true
+        view.imageView.clipsToBounds = true
+        view.imageView.contentMode = .scaleAspectFit
+        view.imageView.layer.cornerRadius = 10;
+        view.imageView.layer.masksToBounds = true;
+
+        //view.contentMode = .scaleAspectFit
+        view.title = title
+        view.subtitle = title
+        view.clipsToBounds = true
+        return view
+    }
+
+    func updateUIView(_ uiView: TVPosterView, context: Context) {
+        uiView.contentSize = CGSize(width:40, height:40)
+        uiView.image = image
+        uiView.title = title
+        uiView.subtitle = subtitle
     }
 }
 
@@ -66,20 +111,52 @@ struct BooksGalleryItemView: View {
     @Binding var item : BooksDisplayItem
     @Binding var selected: Bool
     @Binding var selectedItem: BooksDisplayItem
+    @FocusState var focused
+    
     var width : CGFloat = 400
     var body: some View {
-        Button{
-            selectedItem = item
-            selected = true
-        } label: {
-            Image(uiImage: item.image)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(width:width, height:width*2)
+        VStack(spacing:40){
+            Button{
+                selectedItem = item
+                selected = true
+            } label: {
+                if let image = item.posterImage {
+                    //TVPoster(image: image, title: item.name, width: width, height: width*1.5)
+                    //.frame(width:width, height:width*1.5)
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width:width, height:width*1.5)
+                            //.padding()
+                            .clipped()
+                }else{
+                    ZStack{
+                        Rectangle()
+                            .background(.gray)
+                            .frame(width:width, height:width*1.5)
+                        VStack{
+                            Image(systemName: "book")
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width:width/2, height:width/2)
+                                .padding()
+                            
+                        }
+                    }
+                }
+            }
+            .buttonStyle(.card)
+            .focused($focused)
+            
+            //Spacer()
+            
+            Text(item.name)
                 .padding()
+                .frame(width:width)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
         }
-        .buttonStyle(.borderless)
-        .frame(width:width, height:width*2)
+        .frame(width:width, height:width*1.8)
     }
 }
 
@@ -88,14 +165,14 @@ struct BooksGallery: View {
     @State var books : [BooksDisplayItem] = []
     @State var selectedItem = BooksDisplayItem()
     @State var showBook = false
-    var imageWidth : CGFloat = 250
+    var imageWidth : CGFloat = 300
     
     var body: some View {
         VStack(alignment:.center){
             Text("Ebooks and Interactive Media").font(.title)
             VStack(alignment:.center){
                 ScrollView(.horizontal) {
-                    LazyHStack(spacing:imageWidth * 0.7) {
+                    LazyHStack(spacing:40) {
                         //Spacer()
                         ForEach(0..<books.count, id: \.self) { index in
                             BooksGalleryItemView(item: $books[index], selected: $showBook, selectedItem: $selectedItem, width: imageWidth)
@@ -114,9 +191,12 @@ struct BooksGallery: View {
         .fullScreenCover(isPresented: $showBook){ [selectedItem] in
             if let book = selectedItem as? BookItem {
                 PDFPage(title:book.name,
-                        urlString: book.pdfLink?.absoluteString ?? "",
+                        url: book.pdfLink,
+                        audioUrl: book.mainAudioLink,
                         description: book.description,
-                        copyright: book.copyright
+                        copyright: book.copyright,
+                        mediaItems: book.interactiveItems,
+                        audioPages: book.audioPages
                 )
             }else if let item = selectedItem as? InteractiveMediaItem{
                 InteractiveMediaView(item: item)
@@ -132,29 +212,50 @@ struct BooksGallery: View {
                         throw ("Could not get a-quiet-place-2018 url")
                     }
                     
-                    guard let videoUrl = Bundle.main.url(forResource: "A Quiet Place - Opening" , withExtension: "mp4") else {
-                        throw ("Could not get A Quiet Place - Opening")
+                    guard let audioUrl = Bundle.main.url(forResource: "AQP-audio" , withExtension: "wav") else {
+                        throw ("Could not find: AQP-audio.wav")
                     }
                     
+                    let audioPages: [AudioPageModel] = try loadJsonFile("AQP-audio-pages.json")
+                    
+                    
                     let aqpBook = try createBookItem(
-                        "A Quiet Place Script",
-                        "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.",
-                        "2018",
-                        pdfUrl
+                        name: "A Quiet Place Script",
+                        description: "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.",
+                        posterImage: "A-Quiet-Place-Poster.jpg",
+                        copyright:"2018",
+                        pdfLink:pdfUrl,
+                        mainAudioLink: audioUrl,
+                        audioPages: audioPages
                     )
+                    
+                    guard let videoUrl = Bundle.main.url(forResource: "A Quiet Place - Opening" , withExtension: "mp4") else {
+                        throw ("Could not find: A Quiet Place - Opening.mp4")
+                    }
                     let aqpItem = try createInteractiveItem(
-                        "A Quiet Place Interactive Script",
-                        "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.",
-                        "A-Quiet-Place-Poster.jpg",
-                        videoUrl,
-                        "AQP-transcript.json"
+                        name: "A Quiet Place Interactive Script + Video",
+                        description: "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.",
+                        image: "AQP-IME.png",
+                        posterImage: "",
+                        mainVideoLink: videoUrl,
+                        videoTextFile: "AQP-video-transcript.json"
                     )
+                    
+                    
+                    /*let aqpAudio = try createInteractiveItem(
+                        name: "A Quiet Place Interactive Script Dictation",
+                        description: "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.",
+                        image: "AQP-IME.png",
+                        posterImage: "",
+                        mainAudioLink: audioUrl,
+                        videoTextFile: "AQP-audio-transcript.json"
+                    )*/
 
                     aqpBook.interactiveItems.append(aqpItem)
-                    
+                    //aqpBook.interactiveItems.append(aqpAudio)
+
                     await MainActor.run {
                         books.append(aqpBook)
-                        books.append(aqpItem)
                     }
                     
                 }catch{
@@ -163,15 +264,35 @@ struct BooksGallery: View {
                 
                 
                 do {
+                    guard let url = Bundle.main.url(forResource: "Flash-comic" , withExtension: "pdf") else {
+                        debugPrint("Could not get Flash-comic url")
+                        return
+                    }
+                    let flashItem = try createBookItem(
+                        name: "The Flash Interactive Comic",
+                        description: "The Flash, The Fast Man Alive. This is the official movie tie-in comic!",
+                        posterImage:"",
+                        copyright: "2023",
+                        pdfLink: url
+                    )
+                    await MainActor.run {
+                        books.append(flashItem)
+                    }
+                }catch{
+                    print(error)
+                }
+                
+                do {
                     guard let url = Bundle.main.url(forResource: "Entertainment Weekly - 05 July 2015" , withExtension: "pdf") else {
                         throw ("Could not get Entertainment Weekly - 05 July 2015 url")
                     
                     }
                     let EWItem = try createBookItem(
-                        "Entertainment Weekly - 05 July 2015",
-                        "Entertainment Weekly invades Hall H with a pair of starry panels. First off, Outlander’s Sam Heughan and other hot young actors from some of the buzziest TV series talk about the thrills and fears of tackling iconic roles at our “Brave New Warriors” session (July 10, 4 p.m.). Then, Game of Thrones’ Gwendoline Christie is among the awesome females taking the stage as part of our annual salute to “Women Who Kick Ass” (July 11, 3:45 p.m.). You won’t want to miss out!.",
-                        "2015",
-                        url
+                        name: "Entertainment Weekly - 05 July 2015",
+                        description: "Entertainment Weekly invades Hall H with a pair of starry panels. First off, Outlander’s Sam Heughan and other hot young actors from some of the buzziest TV series talk about the thrills and fears of tackling iconic roles at our “Brave New Warriors” session (July 10, 4 p.m.). Then, Game of Thrones’ Gwendoline Christie is among the awesome females taking the stage as part of our annual salute to “Women Who Kick Ass” (July 11, 3:45 p.m.). You won’t want to miss out!.",
+                        posterImage:"",
+                        copyright: "2015",
+                        pdfLink: url
                     )
                     
                     await MainActor.run {
@@ -181,81 +302,63 @@ struct BooksGallery: View {
                     print(error)
                 }
                 
-                /*
-                guard let url = Bundle.main.url(forResource: "Flash_Comic_PDF_demo" , withExtension: "pdf") else {
-                    debugPrint("Could not get Flash_Comic_PDF_demo url")
-                    return
-                }
-                let flashItem = createItem(
-                    "The Flash Comic Example",
-                    "The Flash, The Fast Man Alive. This is the official movie tie-in comic!",
-                    "2023",
-                    url
-                )
-                
-                */
-                
-                do {
-                    guard let url = Bundle.main.url(forResource: "the-war-of-the-worlds" , withExtension: "pdf") else {
-                        debugPrint("Could not get the-war-of-the-worlds url")
-                        return
-                    }
-                    
-                    let worldsItem = try createBookItem(
-                        "H.G. Wells - War of the Worlds",
-                        "The War of the Worlds is one of the earliest stories to detail a conflict between humankind and an extraterrestrial race. The novel is the first-person narrative of an unnamed protagonist in Surrey and his younger brother in London as southern England is invaded by Martians.",
-                        "1898",
-                        url
-                    )
-                    
-                    await MainActor.run {
-                        books.append(worldsItem)
-                    }
-                }catch {
-                    print(error)
-                }
             }
         }
     }
     
-    func createBookItem(_ name:String,_ description:String,_ copyright:String,_ pdfLink: URL ) throws -> BookItem {
+    func createBookItem(name:String,description:String,posterImage:String,copyright:String,pdfLink: URL,mainAudioLink: URL? = nil, audioPages: [AudioPageModel] = []) throws -> BookItem {
         guard let document = CGPDFDocument(NSURL(string: pdfLink.absoluteString)!) else {
             throw "Error creating CGPDFDocument from url \(pdfLink.absoluteString)"
             
         }
         
-        if let image = imageForPDF(document: document, pageNumber: 1, imageWidth: imageWidth) {
-            return BookItem(image:image, name:name,description: description, copyright: copyright, pdfLink: pdfLink)
+        var img : UIImage? = nil
+        
+        if !posterImage.isEmpty {
+            img = getImage(named: posterImage)
+        }else{
+            img = imageForPDF(document: document, pageNumber: 1, imageWidth: imageWidth)
         }
         
-        throw "Error creating book \(name)"
+        return BookItem(posterImage:img, name:name,description: description, copyright: copyright, pdfLink: pdfLink, mainAudioLink: mainAudioLink, audioPages: audioPages)
     }
     
-    func createInteractiveItem(_ name:String,_ description:String,
-                               _ image:String,
-                               _ mainVideoLink: URL, _ videoTextFile: String) throws -> InteractiveMediaItem {
+    func createInteractiveItem(name:String,description:String,
+                               image:String,
+                               posterImage:String,
+                               mainVideoLink: URL? = nil,
+                               mainAudioLink: URL? = nil,
+                               videoTextFile: String) throws -> InteractiveMediaItem {
         
         let videoText: [TextItem] = try loadJsonFile(videoTextFile)
         
-        let split = image.split(separator:".")
-        var imageName = image
+        var img : UIImage? = nil
+        
+        if !image.isEmpty {
+            img = getImage(named: image)
+        }
+        
+        var poster : UIImage? = nil
+        
+        if !posterImage.isEmpty {
+            img = getImage(named: posterImage)
+        }
+        
+        let item = InteractiveMediaItem(image:img, posterImage:poster, name:name, description: description, mainVideoLink: mainVideoLink, mainAudioLink:mainAudioLink, mainVideoText: videoText)
+        return item
+    }
+    
+    func getImage (named filename : String) -> UIImage?
+    {
+        let split = filename.split(separator:".")
+        var imageName = filename
         var imageExt = ""
         if split.count >= 2 {
             imageName = String(split[0])
             imageExt = String(split[split.count - 1])
         }
-        if let img = getImage(named: imageName, ext: imageExt) {
-            let item = InteractiveMediaItem(image:img, name:name, description: description, mainVideoLink: mainVideoLink, mainVideoText: videoText)
-            
-            return item
-        }else {
-            throw "Could not get image \(image)"
-        }
-    }
-    
-    func getImage (named name : String, ext : String) -> UIImage?
-    {
-        if let imgPath = Bundle.main.path(forResource: name, ofType: ext)
+        
+        if let imgPath = Bundle.main.path(forResource: imageName, ofType: imageExt)
         {
             return UIImage(contentsOfFile: imgPath)
         }
