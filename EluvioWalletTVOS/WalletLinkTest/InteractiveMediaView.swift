@@ -130,15 +130,17 @@ struct InteractiveMediaView: View {
     var index: Int {
         var index = 0
         
-        for item in item.mainVideoText {
-            if let start = item.start {
-                if start < currentTimeMS {
-                    index+=1
-                }else {
-                    return index-1
+        if !item.mainText.isEmpty {
+            for item in item.mainText {
+                if let start = item.start {
+                    if start < currentTimeMS {
+                        index+=1
+                    }else {
+                        return index-1
+                    }
+                } else {
+                    index += 1
                 }
-            } else {
-                index += 1
             }
         }
         
@@ -146,7 +148,7 @@ struct InteractiveMediaView: View {
     }
     
     var numIndices: Int {
-        item.mainVideoText.count
+        item.mainText.count
     }
     
     @FocusState private var progressFocused
@@ -160,7 +162,7 @@ struct InteractiveMediaView: View {
     
     func findPreviousStartTime() -> Int64? {
         for i in stride(from: index - 1, to: 0, by: -1) {
-            if let start = item.mainVideoText[i].start {
+            if let start = item.mainText[i].start {
                 return start
             }
         }
@@ -169,8 +171,8 @@ struct InteractiveMediaView: View {
     }
     
     func findNextStartTime() -> Int64? {
-        for i in stride(from: index+1, to: item.mainVideoText.count, by: 1) {
-            if let start = item.mainVideoText[i].start {
+        for i in stride(from: index+1, to: item.mainText.count, by: 1) {
+            if let start = item.mainText[i].start {
                 return start
             }
         }
@@ -206,14 +208,27 @@ struct InteractiveMediaView: View {
     var body: some View {
         ZStack{
             HStack(spacing:0) {
-                SyncedTextView(textItems:item.mainVideoText, currentTimeMS: $currentTimeMS, selectedIndex:index)
-                PlayerView2(playoutUrl:item.mainVideoLink, 
-                           finished: $finished,
-                           currentTimeMS:$currentTimeMS,
-                           durationMS:$durationMS,
-                           seekTimeMS:$seekTimeMS,
-                           playPause:$playPause
-                )
+                SyncedTextView(textItems:item.mainText, currentTimeMS: $currentTimeMS, selectedIndex:index)
+                if item.type == .InteractiveVideo {
+                    PlayerView2(playoutUrl:item.mainLink,
+                                finished: $finished,
+                                currentTimeMS:$currentTimeMS,
+                                durationMS:$durationMS,
+                                seekTimeMS:$seekTimeMS,
+                                playPause:$playPause
+                    )
+                }else if item.type == .InteractiveAudio {
+                    VStack{
+                        SoundPlayer(playoutUrl:item.mainLink,
+                                    finished: $finished,
+                                    currentTimeMS:$currentTimeMS,
+                                    durationMS:$durationMS,
+                                    seekTimeMS:$seekTimeMS,
+                                    playPause:$playPause)
+                        Spacer()
+                    }
+                    .padding()
+                }
             }
             VStack() {
                 Spacer()
@@ -305,6 +320,9 @@ struct InteractiveMediaView: View {
         .preferredColorScheme(.dark)
         .onAppear() {
             progressFocused = true
+            if item.type == .InteractiveAudio {
+                playPause = true
+            }
         }
         .onReceive(timer) { time in
             if timeRemaining > 0 {

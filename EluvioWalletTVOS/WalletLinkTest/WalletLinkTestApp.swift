@@ -55,6 +55,10 @@ struct WalletLinkTestApp: App {
                 debugPrint("url opened: ", url)
             }
             .preferredColorScheme(.dark)
+            .onAppear() {
+                UIApplication.shared.isIdleTimerDisabled = true
+            }
         }
     }
 }
+

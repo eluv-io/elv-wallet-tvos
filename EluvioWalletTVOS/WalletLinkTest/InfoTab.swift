@@ -18,10 +18,11 @@ struct InfoTab: View {
             Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 250, height: 250, alignment: .top)
+                .frame(width: 200, height: 200, alignment: .top)
                 .clipped()
                 .layoutPriority(1)
-                .padding(.top, 10)
+                //.padding(.top, 10)
+                .padding(20)
             
             VStack(alignment:.leading) {
                 Text(title)

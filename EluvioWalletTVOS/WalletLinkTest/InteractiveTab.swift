@@ -13,9 +13,11 @@ struct MediaTabItemView: View {
     @Binding var selected: Bool
     @Binding var selectedItem: InteractiveMediaItem
     @FocusState var isFocused
-    var width : CGFloat = 100
+    var width : CGFloat = 200
+    var height : CGFloat = 200
+    
     var body: some View {
-        VStack(spacing:10){
+        VStack(spacing:20){
             Button{
                 selectedItem = item
                 selected = true
@@ -24,7 +26,7 @@ struct MediaTabItemView: View {
                     Image(uiImage:image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
-                    //.frame(width:width, height:width)
+                        .frame(width:width, height: height)
                 }else{
                     ZStack{
                         Rectangle()
@@ -40,32 +42,32 @@ struct MediaTabItemView: View {
                     }
                 }
             }
-            .buttonStyle(.card)
+            .buttonStyle(.borderless)
             .focused($isFocused)
-            .frame(width:width, height:width*0.8)
+            //.frame(width:width, height:height)
             
             Text(item.name)
                 .font(.fine)
                 //.padding()
                 .frame(width:width*2)
-                .lineLimit(1)
+                .lineLimit(2)
         }
-        .frame(width:width, height:width)
+ //       .frame(width:width, height:height)
     }
 }
 
 struct InteractiveTab: View {
     @State var items: [InteractiveMediaItem]
     @State var selectedItem = InteractiveMediaItem()
-    var imageWidth : CGFloat = 100
+    var imageWidth : CGFloat = 160
     @State var showItem = false
     
     var body: some View {
         VStack(alignment:.center){
             ScrollView(.horizontal) {
-                LazyHStack(spacing:imageWidth) {
+                LazyHStack(spacing:40) {
                     ForEach(0..<items.count, id: \.self) { index in
-                        MediaTabItemView(item: $items[index], selected: $showItem, selectedItem: $selectedItem, width: imageWidth)
+                        MediaTabItemView(item: $items[index], selected: $showItem, selectedItem: $selectedItem, width: imageWidth, height: 130)
                             .padding()
                     }
                 }

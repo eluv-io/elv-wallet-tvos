@@ -266,15 +266,6 @@ struct PlayerView2: View {
     var body: some View {
         ZStack{
             VideoPlayer(player: player)
-            /*HStack(alignment:.top){
-                Spacer()
-                VStack{
-                    Text("\(currentTimeMS.msToSeconds.hourMinuteSecond)")
-                        .font(.scriptTimeStart)
-                        .frame(alignment:.topTrailing)
-                    Spacer()
-                }
-            }*/
         }
         .onChange(of:seekTimeMS){
             seekMS(Double(seekTimeMS))
@@ -335,6 +326,83 @@ struct PlayerView2: View {
             if let playerItem = self.player.currentItem {
                 self.player.pause()
             }
+        }
+    }
+    
+    func playerDidFinishPlaying(note: NSNotification) {
+        print("Video Finished")
+    }
+}
+
+struct SoundPlayer: View {
+    @State var playoutUrl: URL?
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+    @State var finishedObserver = PlayerFinishedObserver()
+    @Binding var finished: Bool
+    @Binding var currentTimeMS: Int64
+    @Binding var durationMS: Int64
+    @Binding var seekTimeMS: Int64
+    @Binding var playPause: Bool
+    @State var audioPlayer :AVAudioPlayer?
+    
+    init(playoutUrl: URL?, finished : Binding<Bool> = .constant(false),
+         currentTimeMS: Binding<Int64> = .constant(0),
+         durationMS: Binding<Int64> = .constant(0),
+         seekTimeMS: Binding<Int64> = .constant(0),
+         playPause: Binding<Bool> = .constant(false)
+    ){
+        
+        _finished = finished
+        _currentTimeMS = currentTimeMS
+        _durationMS = durationMS
+        _seekTimeMS = seekTimeMS
+        _playoutUrl = State(initialValue: playoutUrl)
+        _playPause = playPause
+    }
+    
+    var body: some View {
+        Image(systemName: playPause ? "mic.fill" : "mic")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width:48, height:48)
+            .foregroundColor(playPause ? .blue : .white)
+    
+        .onChange(of:seekTimeMS){
+            AudioPlayer.pause()
+            self.play()
+        }
+        .onChange(of:playPause){
+            self.play()
+        }
+        .onAppear(){
+            debugPrint("SoundPlayer on Appear ", playoutUrl)
+            self.play()
+        }
+        .onDisappear(){
+            AudioPlayer.pause()
+        }
+    }
+    
+    func play() {
+        if playPause {
+            if let audioUrl = playoutUrl {
+                AudioPlayer.play(url:audioUrl, seekS: Double(_seekTimeMS.wrappedValue) / 1000.0) { current, duration in
+                    debugPrint("AudioProgress: current \(current) duration \(duration)")
+                    if current.isNormal {
+                        self.currentTimeMS = Int64(current * 1000)
+                    }
+                    
+                    if duration.isNormal {
+                        self.durationMS = Int64(duration * 1000)
+                    }
+                    
+                    if currentTimeMS == durationMS {
+                        finished = true
+                    }
+                }
+            }
+        }else {
+            AudioPlayer.pause()
         }
     }
     

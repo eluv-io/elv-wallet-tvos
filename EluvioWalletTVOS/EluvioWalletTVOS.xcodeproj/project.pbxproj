@@ -122,14 +122,18 @@
 		B07AE0092B6D6C43005C5E5A /* configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7D29CD63B50079661E /* configuration.json */; };
 		B07AE0112B707A42005C5E5A /* AQP-audio.wav in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0102B707A42005C5E5A /* AQP-audio.wav */; };
 		B07AE0132B707A66005C5E5A /* AQP-IME.png in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0122B707A66005C5E5A /* AQP-IME.png */; };
-		B07AE0172B707D3D005C5E5A /* flash_Page_5.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0142B707D3B005C5E5A /* flash_Page_5.mp4 */; };
-		B07AE0182B707D3D005C5E5A /* flash_Page_1_1 (2).mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0152B707D3B005C5E5A /* flash_Page_1_1 (2).mp4 */; };
+		B07AE0172B707D3D005C5E5A /* flash_page_5.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0142B707D3B005C5E5A /* flash_page_5.mp4 */; };
+		B07AE0182B707D3D005C5E5A /* flash_page_1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0152B707D3B005C5E5A /* flash_page_1.mp4 */; };
 		B07AE0192B707D3D005C5E5A /* Flash-comic.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0162B707D3D005C5E5A /* Flash-comic.pdf */; };
 		B07AE01B2B707FE8005C5E5A /* AQP-audio-pages.json in Resources */ = {isa = PBXBuildFile; fileRef = B07AE01A2B707FE8005C5E5A /* AQP-audio-pages.json */; };
 		B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */; };
 		B08CB4E02B70A30D00E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4DF2B70A30D00E04C0D /* AudioPlayer.swift */; };
 		B08CB4E22B7143EB00E04C0D /* AudioPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */; };
 		B08CB4E32B7143EB00E04C0D /* AudioPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */; };
+		B08CB4E52B72895900E04C0D /* AQP-audio-sync.json in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E42B72895800E04C0D /* AQP-audio-sync.json */; };
+		B08CB4E72B72D8F500E04C0D /* AQP-Script.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E62B72D8F500E04C0D /* AQP-Script.png */; };
+		B08CB4E92B72D96200E04C0D /* AQP-InteractiveVideo.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E82B72D96200E04C0D /* AQP-InteractiveVideo.png */; };
+		B08CB4EB2B72E27C00E04C0D /* AQP-Dictation.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */; };
 		B099A5AF2B336CAD00C779A0 /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5AE2B336CAD00C779A0 /* Auth0 */; };
 		B099A5B12B336CAD00C779A0 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B02B336CAD00C779A0 /* Alamofire */; };
 		B099A5B32B336CAD00C779A0 /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B22B336CAD00C779A0 /* Base58Swift */; };
@@ -261,12 +265,16 @@
 		B07AE0072B6D6BF2005C5E5A /* Configuration */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Configuration; sourceTree = SOURCE_ROOT; };
 		B07AE0102B707A42005C5E5A /* AQP-audio.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = "AQP-audio.wav"; sourceTree = "<group>"; };
 		B07AE0122B707A66005C5E5A /* AQP-IME.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-IME.png"; sourceTree = "<group>"; };
-		B07AE0142B707D3B005C5E5A /* flash_Page_5.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = flash_Page_5.mp4; sourceTree = "<group>"; };
-		B07AE0152B707D3B005C5E5A /* flash_Page_1_1 (2).mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "flash_Page_1_1 (2).mp4"; sourceTree = "<group>"; };
+		B07AE0142B707D3B005C5E5A /* flash_page_5.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = flash_page_5.mp4; sourceTree = "<group>"; };
+		B07AE0152B707D3B005C5E5A /* flash_page_1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = flash_page_1.mp4; sourceTree = "<group>"; };
 		B07AE0162B707D3D005C5E5A /* Flash-comic.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Flash-comic.pdf"; sourceTree = "<group>"; };
 		B07AE01A2B707FE8005C5E5A /* AQP-audio-pages.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "AQP-audio-pages.json"; sourceTree = "<group>"; };
 		B08CB4DF2B70A30D00E04C0D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AudioPlayer.swift; path = EluvioWalletTVOS/SharedViews/AudioPlayer.swift; sourceTree = "<group>"; };
 		B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPageModel.swift; sourceTree = "<group>"; };
+		B08CB4E42B72895800E04C0D /* AQP-audio-sync.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "AQP-audio-sync.json"; sourceTree = "<group>"; };
+		B08CB4E62B72D8F500E04C0D /* AQP-Script.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-Script.png"; sourceTree = "<group>"; };
+		B08CB4E82B72D96200E04C0D /* AQP-InteractiveVideo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-InteractiveVideo.png"; sourceTree = "<group>"; };
+		B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-Dictation.png"; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
@@ -428,8 +436,8 @@
 		B07AE00E2B707991005C5E5A /* FlashComic */ = {
 			isa = PBXGroup;
 			children = (
-				B07AE0152B707D3B005C5E5A /* flash_Page_1_1 (2).mp4 */,
-				B07AE0142B707D3B005C5E5A /* flash_Page_5.mp4 */,
+				B07AE0152B707D3B005C5E5A /* flash_page_1.mp4 */,
+				B07AE0142B707D3B005C5E5A /* flash_page_5.mp4 */,
 				B07AE0162B707D3D005C5E5A /* Flash-comic.pdf */,
 			);
 			path = FlashComic;
@@ -618,7 +626,11 @@
 		B0F9DC452B5E30BE00499C93 /* Books */ = {
 			isa = PBXGroup;
 			children = (
+				B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */,
+				B08CB4E82B72D96200E04C0D /* AQP-InteractiveVideo.png */,
+				B08CB4E62B72D8F500E04C0D /* AQP-Script.png */,
 				B07AE01A2B707FE8005C5E5A /* AQP-audio-pages.json */,
+				B08CB4E42B72895800E04C0D /* AQP-audio-sync.json */,
 				B07AE0122B707A66005C5E5A /* AQP-IME.png */,
 				B07AE0102B707A42005C5E5A /* AQP-audio.wav */,
 				B0F9DC5A2B688D2D00499C93 /* A-Quiet-Place-Poster.jpg */,
@@ -759,15 +771,18 @@
 			files = (
 				B07AE0092B6D6C43005C5E5A /* configuration.json in Resources */,
 				B07ADFED2B6D54C8005C5E5A /* Test in Resources */,
-				B07AE0172B707D3D005C5E5A /* flash_Page_5.mp4 in Resources */,
+				B07AE0172B707D3D005C5E5A /* flash_page_5.mp4 in Resources */,
+				B08CB4E92B72D96200E04C0D /* AQP-InteractiveVideo.png in Resources */,
+				B08CB4E72B72D8F500E04C0D /* AQP-Script.png in Resources */,
 				B07ADFD02B6C22C8005C5E5A /* Models in Resources */,
+				B08CB4E52B72895900E04C0D /* AQP-audio-sync.json in Resources */,
 				B0F9DC4E2B5E311600499C93 /* the-war-of-the-worlds.pdf in Resources */,
 				B0F9DC492B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf in Resources */,
 				B07AE01B2B707FE8005C5E5A /* AQP-audio-pages.json in Resources */,
 				B0F9DC4B2B5E30F900499C93 /* a-quiet-place-2018.pdf in Resources */,
 				B07AE0082B6D6BF2005C5E5A /* Configuration in Resources */,
 				B07ADFDD2B6D5124005C5E5A /* Fabric in Resources */,
-				B07AE0182B707D3D005C5E5A /* flash_Page_1_1 (2).mp4 in Resources */,
+				B07AE0182B707D3D005C5E5A /* flash_page_1.mp4 in Resources */,
 				B07ADFEC2B6D54C8005C5E5A /* Managers in Resources */,
 				B07AE0132B707A66005C5E5A /* AQP-IME.png in Resources */,
 				B0F9DC552B673E1100499C93 /* AQP - opening.pdf in Resources */,
@@ -777,6 +792,7 @@
 				B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */,
 				B0F9DC5B2B688D2D00499C93 /* A-Quiet-Place-Poster.jpg in Resources */,
 				B0F9DC4F2B5E311600499C93 /* the-book-of-five-rings.epub in Resources */,
+				B08CB4EB2B72E27C00E04C0D /* AQP-Dictation.png in Resources */,
 				B07AE0192B707D3D005C5E5A /* Flash-comic.pdf in Resources */,
 				B07AE0112B707A42005C5E5A /* AQP-audio.wav in Resources */,
 				B07ADFD42B6D50EE005C5E5A /* Utils in Resources */,
@@ -953,7 +969,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_PROJECT_VERSION = 46;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -981,7 +997,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 42;
+				CURRENT_PROJECT_VERSION = 46;
 				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

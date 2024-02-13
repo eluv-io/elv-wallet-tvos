@@ -18,6 +18,7 @@ struct ProgressControlView: View {
     @Binding var page: Int
     var coverArtImage : UIImage?
     @Binding var playAudio: Bool
+    var hasAudio: Bool
     
     var next: (()->())? = nil
     var previous: (()->())? = nil
@@ -67,7 +68,7 @@ struct ProgressControlView: View {
             ], startPoint: .top, endPoint: .bottom)
     }
     
-    init(title:String="", description:String="", copyright:String="", thumbs:[ThumbnailItem] = [], mediaItems : [InteractiveMediaItem] = [], page: Binding<Int>, numPages: Int, progress: Float, coverArtImage: UIImage?, next: ((()->()))? = nil, previous: ((()->()))? = nil, playAudio: Binding<Bool>) {
+    init(title:String="", description:String="", copyright:String="", thumbs:[ThumbnailItem] = [], mediaItems : [InteractiveMediaItem] = [], page: Binding<Int>, numPages: Int, progress: Float, coverArtImage: UIImage?, next: ((()->()))? = nil, previous: ((()->()))? = nil, playAudio: Binding<Bool>, hasAudio: Bool) {
         
         self.title = title
         self.description = description
@@ -81,6 +82,7 @@ struct ProgressControlView: View {
         self.next = next
         self.previous = previous
         self._playAudio = playAudio
+        self.hasAudio = hasAudio
     }
     
     
@@ -101,9 +103,11 @@ struct ProgressControlView: View {
                     HStack(alignment:.center, spacing:30){
                         Text("\(title)")
                         Spacer()
-                        Image(systemName: playAudio ? "speaker.wave.2.bubble.left.fill" : "speaker.wave.2.bubble.left")
-                            .frame(width:48, height:48)
-                            .foregroundColor(playAudio ? .blue : .white)
+                        if hasAudio {
+                            Image(systemName: playAudio ? "speaker.wave.2.bubble.left.fill" : "speaker.wave.2.bubble.left")
+                                .frame(width:48, height:48)
+                                .foregroundColor(playAudio ? .blue : .white)
+                        }
                         Text("Page \(self.page) of \(self.numPages)")
                             .font(.system(size: 24))
                             .frame(minWidth: 120, alignment:.trailing)
@@ -226,15 +230,16 @@ struct ProgressControlView: View {
                         }
                         
                         Spacer()
-                        
-                        Button{
-                            playAudio.toggle()
-                        }label: {
-                            Image(systemName: playAudio ? "speaker.wave.2.bubble.left.fill" : "speaker.wave.2.bubble.left")
-                                .frame(width:48, height:48)
+                        if hasAudio {
+                            Button{
+                                playAudio.toggle()
+                            }label: {
+                                Image(systemName: playAudio ? "speaker.wave.2.bubble.left.fill" : "speaker.wave.2.bubble.left")
+                                    .frame(width:48, height:48)
+                            }
+                            .buttonStyle(IconButtonStyle(focused:audioFocused, initialOpacity:0.5, scale:1.5))
+                            .focused($audioFocused)
                         }
-                        .buttonStyle(IconButtonStyle(focused:audioFocused, initialOpacity:0.5, scale:1.5))
-                        .focused($audioFocused)
                     }
                     .frame(maxWidth:.infinity)
                     .focusSection()

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import TVUIKit
+import AVFoundation
 
 struct TextItem: Identifiable, Decodable {
     var id: String? = UUID().uuidString
@@ -19,14 +20,22 @@ struct TextItem: Identifiable, Decodable {
     var highlight: Bool? = true
 }
 
+struct PageOverride {
+    var url : URL
+    var page : Int
+}
+
 class BookItem: BooksDisplayItem {
     var copyright = ""
     var pdfLink = URL(string:"")
     var mainAudioLink : URL?
     var audioPages : [AudioPageModel] = []
     var interactiveItems : [InteractiveMediaItem] = []
+    var pageOverrides: [Int : PageOverride] = [:]
+    var animatePageTransitions = false
+    var coverArtImageUrl : URL?
     
-    init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", copyright: String = "", pdfLink: URL? = nil, mainAudioLink: URL? = nil, audioPages : [AudioPageModel] = []) {
+    init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", copyright: String = "", pdfLink: URL? = nil, mainAudioLink: URL? = nil, audioPages : [AudioPageModel] = [], pageOverrides: [Int : PageOverride] = [:], animatePageTransitions: Bool = false) {
         
         debugPrint(" BookItem \(name) poster: \(posterImage)")
         
@@ -36,27 +45,38 @@ class BookItem: BooksDisplayItem {
         self.mainAudioLink = mainAudioLink
         self.type = .Book
         self.audioPages = audioPages
+        self.pageOverrides = pageOverrides
+        self.animatePageTransitions = animatePageTransitions
+    }
+}
+
+class InteractiveAudioItem: InteractiveMediaItem {
+    override init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", mainLink: URL? = nil, mainText : [TextItem] = []) {
+        super.init(id:id,image:image,posterImage:posterImage, name:name,description:description, mainLink:mainLink, mainText:mainText)
+        self.type = .InteractiveAudio
+    }
+}
+
+class InteractiveVideoItem: InteractiveMediaItem {
+    override init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", mainLink: URL? = nil, mainText : [TextItem] = []) {
+        super.init(id:id,image:image,posterImage:posterImage, name:name,description:description, mainLink:mainLink, mainText:mainText)
+        self.type = .InteractiveVideo
     }
 }
 
 class InteractiveMediaItem: BooksDisplayItem {
-    var mainVideoLink : URL?
-    var mainAudioLink : URL?
-    var secondaryVideos : [URL] = []
-    var mainVideoText : [TextItem] = []
+    var mainLink : URL?
+    var mainText: [TextItem] = []
     
-    init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", mainVideoLink: URL? = nil, mainAudioLink: URL? = nil, secondaryVideos: [URL] = [], mainVideoText : [TextItem] = []) {
+    init(id: String? = nil, image: UIImage? = nil, posterImage: UIImage? = nil, name: String = "", description: String = "", mainLink: URL? = nil, mainText : [TextItem] = []) {
         super.init(id:id,image:image,posterImage:posterImage, name:name,description:description)
-        self.mainVideoLink = mainVideoLink
-        self.mainAudioLink = mainAudioLink
-        self.secondaryVideos = secondaryVideos
-        self.mainVideoText = mainVideoText
-        self.type = .Interactive
+        self.mainLink = mainLink
+        self.mainText = mainText
     }
 }
 
 class BooksDisplayItem: Identifiable {
-    enum ItemType {case Book; case Interactive}
+    enum ItemType {case None; case Book; case InteractiveVideo; case InteractiveAudio}
     
     var id: String? = UUID().uuidString
     var image : UIImage?
@@ -166,7 +186,9 @@ struct BooksGallery: View {
     @State var selectedItem = BooksDisplayItem()
     @State var showBook = false
     var imageWidth : CGFloat = 300
-    
+    // Create a speech synthesizer.
+    var synthesizer = AVSpeechSynthesizer()
+
     var body: some View {
         VStack(alignment:.center){
             Text("Ebooks and Interactive Media").font(.title)
@@ -195,8 +217,10 @@ struct BooksGallery: View {
                         audioUrl: book.mainAudioLink,
                         description: book.description,
                         copyright: book.copyright,
+                        coverArtUrl: book.coverArtImageUrl,
                         mediaItems: book.interactiveItems,
-                        audioPages: book.audioPages
+                        audioPages: book.audioPages,
+                        enablePageTransitions: book.animatePageTransitions
                 )
             }else if let item = selectedItem as? InteractiveMediaItem{
                 InteractiveMediaView(item: item)
@@ -229,30 +253,38 @@ struct BooksGallery: View {
                         audioPages: audioPages
                     )
                     
+                    guard let scriptCoverUrl = Bundle.main.url(forResource: "AQP-Script" , withExtension: "png") else {
+                        throw ("Could not find: AQP-Script.png")
+                    }
+                    
+                    aqpBook.coverArtImageUrl = scriptCoverUrl
+                    
                     guard let videoUrl = Bundle.main.url(forResource: "A Quiet Place - Opening" , withExtension: "mp4") else {
                         throw ("Could not find: A Quiet Place - Opening.mp4")
                     }
                     let aqpItem = try createInteractiveItem(
-                        name: "A Quiet Place Interactive Script + Video",
+                        name: "A Quiet Place Opening Scene",
                         description: "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.",
-                        image: "AQP-IME.png",
+                        image: "AQP-InteractiveVideo.png",
                         posterImage: "",
-                        mainVideoLink: videoUrl,
-                        videoTextFile: "AQP-video-transcript.json"
+                        mainLink: videoUrl,
+                        textFile: "AQP-video-transcript.json",
+                        type: .InteractiveVideo
                     )
                     
                     
-                    /*let aqpAudio = try createInteractiveItem(
-                        name: "A Quiet Place Interactive Script Dictation",
+                    let aqpAudio = try createInteractiveItem(
+                        name: "A Quiet Place Audio Dictation",
                         description: "If they hear you, they hunt you. A family must live in silence to avoid mysterious creatures that hunt by sound. Knowing that even the slightest whisper or footstep can bring death, Evelyn and Lee are determined to find a way to protect their children while desperately searching for a way to fight back.",
-                        image: "AQP-IME.png",
+                        image: "AQP-Dictation.png",
                         posterImage: "",
-                        mainAudioLink: audioUrl,
-                        videoTextFile: "AQP-audio-transcript.json"
-                    )*/
+                        mainLink: audioUrl,
+                        textFile: "AQP-audio-sync.json",
+                        type: .InteractiveAudio
+                    )
 
                     aqpBook.interactiveItems.append(aqpItem)
-                    //aqpBook.interactiveItems.append(aqpAudio)
+                    aqpBook.interactiveItems.append(aqpAudio)
 
                     await MainActor.run {
                         books.append(aqpBook)
@@ -268,13 +300,34 @@ struct BooksGallery: View {
                         debugPrint("Could not get Flash-comic url")
                         return
                     }
+                    
+                    
+                    guard let page1Video = Bundle.main.url(forResource: "flash_page_1" , withExtension: "mp4") else {
+                        debugPrint("Could not get flash_page_1 url")
+                        return
+                    }
+                    
+                    guard let page5Video = Bundle.main.url(forResource: "flash_page_5" , withExtension: "mp4") else {
+                        debugPrint("Could not get flash_page_1 url")
+                        return
+                    }
+                    
+                    
+                    
+                    
+                    let pageOverrides: [Int : PageOverride] = [1:PageOverride(url:page1Video, page:1), 5:PageOverride(url:page5Video, page:5)]
+                    
                     let flashItem = try createBookItem(
                         name: "The Flash Interactive Comic",
                         description: "The Flash, The Fast Man Alive. This is the official movie tie-in comic!",
                         posterImage:"",
                         copyright: "2023",
-                        pdfLink: url
+                        pdfLink: url,
+                        pageOverrides: pageOverrides
                     )
+                    
+                    flashItem.animatePageTransitions = true
+                    
                     await MainActor.run {
                         books.append(flashItem)
                     }
@@ -295,6 +348,8 @@ struct BooksGallery: View {
                         pdfLink: url
                     )
                     
+                    EWItem.animatePageTransitions = true
+                    
                     await MainActor.run {
                         books.append(EWItem)
                     }
@@ -306,7 +361,7 @@ struct BooksGallery: View {
         }
     }
     
-    func createBookItem(name:String,description:String,posterImage:String,copyright:String,pdfLink: URL,mainAudioLink: URL? = nil, audioPages: [AudioPageModel] = []) throws -> BookItem {
+    func createBookItem(name:String,description:String,posterImage:String,copyright:String,pdfLink: URL, pageOverrides: [Int : PageOverride] = [:],mainAudioLink: URL? = nil, audioPages: [AudioPageModel] = []) throws -> BookItem {
         guard let document = CGPDFDocument(NSURL(string: pdfLink.absoluteString)!) else {
             throw "Error creating CGPDFDocument from url \(pdfLink.absoluteString)"
             
@@ -320,17 +375,21 @@ struct BooksGallery: View {
             img = imageForPDF(document: document, pageNumber: 1, imageWidth: imageWidth)
         }
         
-        return BookItem(posterImage:img, name:name,description: description, copyright: copyright, pdfLink: pdfLink, mainAudioLink: mainAudioLink, audioPages: audioPages)
+        return BookItem(posterImage:img, name:name,description: description, copyright: copyright, pdfLink: pdfLink, mainAudioLink: mainAudioLink, audioPages: audioPages, pageOverrides: pageOverrides)
     }
     
     func createInteractiveItem(name:String,description:String,
                                image:String,
                                posterImage:String,
-                               mainVideoLink: URL? = nil,
-                               mainAudioLink: URL? = nil,
-                               videoTextFile: String) throws -> InteractiveMediaItem {
+                               mainLink: URL? = nil,
+                               textFile: String = "",
+                               type: BooksDisplayItem.ItemType
+        ) throws -> InteractiveMediaItem {
         
-        let videoText: [TextItem] = try loadJsonFile(videoTextFile)
+        var textItems : [TextItem] = []
+        if !textFile.isEmpty {
+            textItems = try loadJsonFile(textFile)
+        }
         
         var img : UIImage? = nil
         
@@ -344,8 +403,13 @@ struct BooksGallery: View {
             img = getImage(named: posterImage)
         }
         
-        let item = InteractiveMediaItem(image:img, posterImage:poster, name:name, description: description, mainVideoLink: mainVideoLink, mainAudioLink:mainAudioLink, mainVideoText: videoText)
-        return item
+        if type == .InteractiveVideo {
+            return InteractiveVideoItem(image:img, posterImage:poster, name:name, description: description, mainLink:mainLink, mainText: textItems)
+        }else if type == .InteractiveAudio {
+            return InteractiveAudioItem(image:img, posterImage:poster, name:name, description: description, mainLink:mainLink, mainText: textItems)
+        }
+        
+        throw "Could not create Interactive Item \(name). Unsupported type \(type)"
     }
     
     func getImage (named filename : String) -> UIImage?
