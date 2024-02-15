@@ -134,6 +134,7 @@
 		B08CB4E72B72D8F500E04C0D /* AQP-Script.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E62B72D8F500E04C0D /* AQP-Script.png */; };
 		B08CB4E92B72D96200E04C0D /* AQP-InteractiveVideo.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E82B72D96200E04C0D /* AQP-InteractiveVideo.png */; };
 		B08CB4EB2B72E27C00E04C0D /* AQP-Dictation.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */; };
+		B08CB5072B7D586C00E04C0D /* ShowcasePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5062B7D586C00E04C0D /* ShowcasePage.swift */; };
 		B099A5AF2B336CAD00C779A0 /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5AE2B336CAD00C779A0 /* Auth0 */; };
 		B099A5B12B336CAD00C779A0 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B02B336CAD00C779A0 /* Alamofire */; };
 		B099A5B32B336CAD00C779A0 /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B22B336CAD00C779A0 /* Base58Swift */; };
@@ -275,6 +276,7 @@
 		B08CB4E62B72D8F500E04C0D /* AQP-Script.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-Script.png"; sourceTree = "<group>"; };
 		B08CB4E82B72D96200E04C0D /* AQP-InteractiveVideo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-InteractiveVideo.png"; sourceTree = "<group>"; };
 		B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-Dictation.png"; sourceTree = "<group>"; };
+		B08CB5062B7D586C00E04C0D /* ShowcasePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowcasePage.swift; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
@@ -500,6 +502,7 @@
 				B07ADFBE2B6C1E1A005C5E5A /* ThumbnailView.swift */,
 				B07ADFC02B6C1E39005C5E5A /* InfoTab.swift */,
 				B07ADFC22B6C1E91005C5E5A /* InteractiveTab.swift */,
+				B08CB5062B7D586C00E04C0D /* ShowcasePage.swift */,
 			);
 			path = WalletLinkTest;
 			sourceTree = "<group>";
@@ -836,6 +839,7 @@
 				B07AE0022B6D67B3005C5E5A /* HTMLText.swift in Sources */,
 				B07AE0032B6D67B3005C5E5A /* onWillDisappear+View.swift in Sources */,
 				B07ADFFA2B6D5B11005C5E5A /* MediaView.swift in Sources */,
+				B08CB5072B7D586C00E04C0D /* ShowcasePage.swift in Sources */,
 				B07ADFF02B6D54E4005C5E5A /* TestData.swift in Sources */,
 				B07ADFF12B6D54E4005C5E5A /* nfts.json in Sources */,
 				B07ADFF22B6D54E4005C5E5A /* nfts_marketplace.json in Sources */,
