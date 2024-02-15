@@ -209,7 +209,12 @@ struct ContentView: View {
                             Text("Ebooks and Interactive Media").frame(width:CONTENT_WIDTH)
                         }
                         
-                        Divider()
+                        Divider().frame(width:CONTENT_WIDTH).padding()
+                        
+                        ShowcaseMenu(deepLinkApi:DeepLinkApi())
+                            .environmentObject(login)
+                        
+                        Divider().frame(width:CONTENT_WIDTH).padding()
                         
                         MSMenuNavigationLinks()
                             .environmentObject(login)
