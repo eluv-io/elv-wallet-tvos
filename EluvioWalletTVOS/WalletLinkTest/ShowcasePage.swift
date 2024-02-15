@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DeepLinkApi {
-    let scheme = "elvwallet"
+    var scheme = "elvwallet"
     var propertyBaseURL : String {
         return "\(scheme)://property"
     }

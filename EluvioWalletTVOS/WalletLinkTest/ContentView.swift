@@ -211,7 +211,7 @@ struct ContentView: View {
                         
                         Divider().frame(width:CONTENT_WIDTH).padding()
                         
-                        ShowcaseMenu(deepLinkApi:DeepLinkApi())
+                        ShowcaseMenu(deepLinkApi:DeepLinkApi(scheme:"showcase"))
                             .environmentObject(login)
                         
                         Divider().frame(width:CONTENT_WIDTH).padding()
