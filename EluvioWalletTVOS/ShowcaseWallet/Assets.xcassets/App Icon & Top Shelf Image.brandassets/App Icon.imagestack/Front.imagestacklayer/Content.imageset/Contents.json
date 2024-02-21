@@ -1,0 +1,18 @@
+{
+  "images" : [
+    {
+      "filename" : "Showcase Icon Text (400 x 240).png",
+      "idiom" : "tv",
+      "scale" : "1x"
+    },
+    {
+      "filename" : "Showcase Icon BG Text (800 x 480).png",
+      "idiom" : "tv",
+      "scale" : "2x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

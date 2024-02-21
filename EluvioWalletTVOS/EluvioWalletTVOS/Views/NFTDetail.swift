@@ -498,7 +498,7 @@ struct NFTDetail: View {
             }
         }
         .onAppear(){
-            debugPrint("NFTDetail OnAppear")
+            debugPrint("NFTDetail OnAppear ", nft.contract_addr)
             self.isLoaded = false
             debugPrint("Backlink: ", backLink)
             Task {

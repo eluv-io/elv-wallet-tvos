@@ -7,35 +7,6 @@
 
 import SwiftUI
 
-enum LinkOp {
-    case item, play, mint, property, none
-}
-
-class ViewState: ObservableObject {
-    @Published var op: LinkOp  = .none
-    var itemContract = ""
-    var itemTokenStr = ""
-    var marketplaceId = ""
-    var itemSKU = ""
-    var mediaId = ""
-    var backLink = ""
-    var authToken = ""
-    var address = ""
-    
-    func reset() {
-        itemContract = ""
-        itemTokenStr = ""
-        marketplaceId = ""
-        itemSKU = ""
-        mediaId = ""
-        backLink = ""
-        if op == .none {
-            return
-        }
-        op = .none
-    }
-}
-
 @main
 struct EluvioWalletTVOSApp: App {
     @Environment(\.scenePhase) var scenePhase
@@ -54,68 +25,7 @@ struct EluvioWalletTVOSApp: App {
     init(){
         print("App Init")
     }
-    
-    func handleLink(url:URL){
-        if let host = url.host()?.lowercased() {
-            debugPrint("handleLink ", host)
-            viewState.reset()
-            
-            if let backlink = url.valueOf("back_link")?.removingPercentEncoding {
-                viewState.backLink = backlink
-            }
-            debugPrint("backlink: ", viewState.backLink)
-            
-            if let authToken = url.valueOf("authorization")?.removingPercentEncoding {
-                if let address = url.valueOf("address")?.removingPercentEncoding {
-                    viewState.authToken = authToken
-                    viewState.address = address
-                    debugPrint("Deeplink with auth and address: ", address)
-                    Task {
-                        try await fabric.connect(network:"main")
-                        let login = LoginResponse(addr:address, eth:"", token:authToken)
-                        await fabric.setLogin(login: login, isMetamask: true)
-                        setViewState(host: host, url: url)
-                    }
-                }else{
-                    setViewState(host:host, url:url)
-                }
-            }else{
-                setViewState(host:host, url:url)
-            }
-        }
-    }
-    
-    @MainActor
-    func setViewState(host:String, url:URL){
-       switch(host){
-       case "items":
-           debugPrint("viewStateProperty items")
-           viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-           viewState.itemTokenStr = url.valueOf("token") ?? ""
-           viewState.marketplaceId = url.valueOf("marketplace") ?? ""
-           viewState.itemSKU = url.valueOf("sku") ?? ""
-           debugPrint("backlink: ", viewState.backLink)
-           viewState.op = .item
-       case "play":
-           debugPrint("viewStateProperty play")
-           viewState.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-           viewState.itemTokenStr = url.valueOf("token") ?? ""
-           viewState.mediaId = url.valueOf("media") ?? ""
-           viewState.op = .play
-       case "mint":
-           debugPrint("viewStateProperty mint")
-           viewState.marketplaceId = url.valueOf("marketplace") ?? ""
-           viewState.itemSKU = url.valueOf("sku") ?? ""
-           viewState.op = .mint
-       case "property":
-           debugPrint("viewStateProperty property ",viewState.marketplaceId)
-           viewState.marketplaceId = url.lastPathComponent
-           viewState.op = .property
-       default:
-           return
-       }
-    }
-    
+
     var body: some Scene {
         WindowGroup {
             ZStack{
@@ -154,7 +64,7 @@ struct EluvioWalletTVOSApp: App {
                     .onOpenURL { url in
                         debugPrint("url opened: ", url)
                         
-                        handleLink(url:url)
+                        viewState.handleLink(url:url, fabric:fabric)
                     }
                     .edgesIgnoringSafeArea(.all)
             }

@@ -87,6 +87,7 @@ struct DeviceFlowView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 400, height: 400)
+                        //.border(.white, width:20)
                 }
                 .frame(width: 700)
                 

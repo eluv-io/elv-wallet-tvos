@@ -178,6 +178,7 @@ struct ContentView: View {
         if fabric.isLoggedOut {
             SignInView()
                 .environmentObject(self.fabric)
+                .environmentObject(self.viewState)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
         }else{
@@ -206,8 +207,9 @@ struct ContentView: View {
                     self.viewStateCancellable = viewState.$op
                         .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
-                            debugPrint("viewState changed.", val)
-                            if val == .none || fabric.isLoggedOut{
+                            debugPrint("viewState changed.", viewState.op)
+                            debugPrint("showNFT ", showNft)
+                            if viewState.op == .none || fabric.isLoggedOut{
                                 self.showActivity = false
                                 return
                             }
@@ -250,7 +252,6 @@ struct ContentView: View {
                     self.appeared = 0.0
                 }
             }
-            .edgesIgnoringSafeArea(.all)
             .fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
                 NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
             }
@@ -280,6 +281,7 @@ struct ContentView: View {
                     }
                 }
             }
+            .edgesIgnoringSafeArea(.all)
         }
     }
     

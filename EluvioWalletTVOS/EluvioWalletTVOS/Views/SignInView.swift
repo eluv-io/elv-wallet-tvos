@@ -21,11 +21,13 @@ struct SignInView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
     
     var subscriber : Subscriber?
     @State var url :String = ""
     @State var code :String = ""
     @State var showDeviceFlow = false
+    
     @FocusState private var signInFocus: Bool
 
     enum Networks: String, CaseIterable, Identifiable {
@@ -38,21 +40,6 @@ struct SignInView: View {
     
     @State private var networkSelection: Networks = .main
     
-    let context = CIContext()
-    let filter = CIFilter.qrCodeGenerator()
-    
-    func generateQRCode(from string: String) -> UIImage {
-        filter.message = Data(string.utf8)
-
-        if let outputImage = filter.outputImage {
-            if let cgimg = context.createCGImage(outputImage, from: outputImage.extent) {
-                return UIImage(cgImage: cgimg)
-            }
-        }
-
-        return UIImage(systemName: "xmark.circle") ?? UIImage()
-    }
-    
     init(){
         //print("SignInView init()")
         self.subscriber = Subscriber(view:self)
@@ -63,31 +50,37 @@ struct SignInView: View {
     var body: some View {
         if !showDeviceFlow {
             ZStack {
-                Color.mainBackground.edgesIgnoringSafeArea(.all)
+                viewState.signInBackground.edgesIgnoringSafeArea(.all)
                 VStack(alignment: .center, spacing: 30){
                     VStack(alignment: .center, spacing:10){
-                        Image("e_logo")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width:200)
-                        Text("Welcome to")
-                            .font(.custom("Helvetica Neue", size: 61))
-                            .fontWeight(.thin)
-                            .foregroundColor(Color.white.opacity(0.8))
-                        Text("Media Wallet")
-                            .font(.custom("Helvetica Neue", size: 90))
-                            .padding(.bottom,40)
-
-                        if IsDemoMode() {
-                            Picker("Networks", selection: $networkSelection) {
-                                ForEach(Networks.allCases) { network in
-                                    Text("\(network.name.capitalizingFirstLetter())")
-                                        .font(.custom("Helvetica Neue", size: 10))
+                        if !viewState.isBranded {
+                            Image("start-screen-logo")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width:200)
+                            Text("Welcome to")
+                                .font(.custom("Helvetica Neue", size: 61))
+                                .fontWeight(.thin)
+                                .foregroundColor(Color.white.opacity(0.8))
+                            Text("Media Wallet")
+                                .font(.custom("Helvetica Neue", size: 90))
+                                .padding(.bottom,40)
+                            if IsDemoMode() {
+                                Picker("Networks", selection: $networkSelection) {
+                                    ForEach(Networks.allCases) { network in
+                                        Text("\(network.name.capitalizingFirstLetter())")
+                                            .font(.custom("Helvetica Neue", size: 10))
+                                    }
                                 }
+                                .frame(width:300)
                             }
-                            .frame(width:300)
+                        }else{
+                            Image("start-screen-logo")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width:800)
+                                .padding(.bottom, 80)
                         }
-
                     }
                     
                     if fabric.signingIn {

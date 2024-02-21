@@ -48,6 +48,8 @@ class Fabric: ObservableObject {
     var network = ""
     var isMetamask = false
     
+    var createDemoProperties : Bool = true
+    
     var previousRefreshHash = SHA256.hash(data:Data())
     
     @Published
@@ -85,8 +87,9 @@ class Fabric: ObservableObject {
     var profile = Profile()
     var profileClient : ProfileClient? = nil
     
-    init(){
+    init(createDemoProperties: Bool = true){
         print("Fabric init config_url \(self.configUrl)");
+        self.createDemoProperties = createDemoProperties
     }
     
     func signOutIfExpired()  {
@@ -1010,7 +1013,7 @@ class Fabric: ObservableObject {
             self.library = parsedLibrary
             isRefreshing = false
             
-            if IsDemoMode() {
+            if IsDemoMode() && createDemoProperties {
                 let vuduProp = try await createVuduDemoProp(nfts: nfts)
                 let uefaProp = try await createUEFAProp(nfts: nfts)
                 let aflProp = try await createAFLProp(nfts: nfts)
