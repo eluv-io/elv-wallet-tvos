@@ -104,7 +104,8 @@ struct MinterView: View {
                                     
                                     do {
                                         debugPrint("Minting... \(self.marketItem["sku"])")
-                                        let result = try await fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku, contract: contractAddress)
+                                        
+                                        let result = mintInfo.entitlement.isEmpty ? try await fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku, contract: contractAddress) : try await fabric.mintEntitlement(tenantId:mintInfo.tenantId, entitlement: mintInfo.entitlement)
                                         print("Redeem result", result)
                                         if result.contractAddress != ""{
                                             await MainActor.run {

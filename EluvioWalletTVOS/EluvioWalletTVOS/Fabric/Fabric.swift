@@ -845,6 +845,73 @@ class Fabric: ObservableObject {
     }
     
     //Waits for transaction for pollSeconds
+    func mintEntitlement(tenantId: String, entitlement: String, pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
+        debugPrint("mintEntitlement \(entitlement)")
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        let query:[String:String] = [:]
+        
+        var body: [String: Any] = [
+            "op": "nft-claim-entitlement",
+            "entitlement": entitlement
+        ]
+        
+        //TODO: do signature
+        if let entitlementDict = entitlement.jsonToDictionary() {
+            body = [
+                "op": "nft-claim-entitlement",
+                "entitlement": entitlementDict,
+                "signature" : ""
+            ]
+        }
+        
+        
+        let responseJson = try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
+        let opResponse = responseJson["op"].stringValue
+        let result =  try await mintEntitlementStatus(tenantId: tenantId, opResponse: opResponse, pollSeconds: pollSeconds)
+        return result
+    }
+    
+    //TODO: change pollSeconds to 120 or something. 30 is just demo
+    func mintEntitlementStatus(tenantId: String, opResponse: String, pollSeconds:Int = POLLSECONDS)  async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String){
+        
+        print("mintEntitlementStatus check")
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        if opResponse.isEmpty {
+            throw FabricError.badInput("mintEntitlementStatus: No op string for request")
+        }
+        
+        //confimrationId doesn't return yet
+        for _ in 0...pollSeconds {
+            try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+            
+            let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
+            debugPrint("Wallet Status Result: ", result)
+            
+            for status in result.arrayValue {
+                let op = status["op"].stringValue
+                
+                if opResponse == op {
+                    if (status["status"] == "complete"){
+                        print("Wallet Status Result: complete: ", op)
+                        return (true,
+                                status["extra"]["0"]["token_addr"].stringValue,
+                                status["extra"]["0"]["token_id"].stringValue
+                        )
+                    }
+                }
+            }
+        }
+        
+        return (true, "","")
+    }
+    
+    //Waits for transaction for pollSeconds
     func mintItem(tenantId: String, marketplaceId: String, sku: String, contract:String="", pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
         
         if tenantId == "" {

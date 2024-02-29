@@ -99,6 +99,17 @@ extension String {
         let stringData = self.data(using: .utf8)!
         return stringData.base64EncodedString()
     }
+    
+    func jsonToDictionary() -> [String: Any]? {
+        if let data = self.data(using: .utf8) {
+            do {
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        return nil
+    }
 
     func data(using encoding:ExtendedEncoding) -> Data? {
         let hexStr = self.dropFirst(self.hasPrefix("0x") ? 2 : 0)

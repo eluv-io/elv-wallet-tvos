@@ -21,6 +21,7 @@ class ViewState: ObservableObject {
     var backLink = ""
     var authToken = ""
     var address = ""
+    var entitlement = ""
     
     //App states
     var isBranded = false
@@ -97,6 +98,7 @@ class ViewState: ObservableObject {
            debugPrint("viewStateProperty mint")
            self.marketplaceId = url.valueOf("marketplace") ?? ""
            self.itemSKU = url.valueOf("sku") ?? ""
+           self.entitlement = url.valueOf("entitlement") ?? ""
            self.op = .mint
        case "property":
            debugPrint("viewStateProperty property ",self.marketplaceId)

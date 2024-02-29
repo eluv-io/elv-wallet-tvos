@@ -100,10 +100,36 @@ func CreatePlayLink(
 func CreateMintLink(
     contract:String,
     marketplace: String,
-    sku: String
-) -> String{
-    return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)"
-        + "&back_link=walletlink://"
+    sku: String,
+    entitlement: String = ""
+) -> String {
+    return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)" + "&entitlement=\(entitlement)" + "&back_link=walletlink://"
+}
+
+//Hardcoded for now
+func CreateDemoEntitlement(purchaseId:String = "") -> String {
+    let item = EntitlementItem(sku:"5teHdjLfYtPuL3CRGKLymd", amount: 1)
+    
+    var _purchaseId = purchaseId
+    if _purchaseId.isEmpty {
+        _purchaseId = UUID().uuidString
+    }
+    
+    let entitlement = EntitlementModel(
+        marketplace_id: "iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+        items: [item],
+        nonce: UUID().uuidString,
+        purchase_id: _purchaseId
+    )
+    
+    do {
+        let jsonData = try JSONEncoder().encode(entitlement)
+        let jsonString = String(data: jsonData, encoding: .utf8)!
+        return jsonString
+    }catch{
+        print("Could not encode entitlement ", error)
+        return ""
+    }
 }
 
 class LoginManager : ObservableObject {
@@ -204,6 +230,32 @@ struct ContentView: View {
                         alignment:.center
                     ){
                         
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU launch - A Quiet Place - no buttons",
+                                    bundleLink: CreateMintLink(
+                                        contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
+                                        marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
+                                        sku:"5teHdjLfYtPuL3CRGKLymd",
+                                        entitlement: CreateDemoEntitlement()
+                                    ),
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8",
+                                    token: login.loginInfo?.token ?? "",
+                                    bundleButtonText: "Activate"
+                                )
+                        ) {
+                            Text(
+                                "A Quiet Place: Day One - Entitlement Minting"
+                            )
+                            .frame(
+                                width:CONTENT_WIDTH
+                            )
+                        }
+                        
+                        Divider().frame(width:CONTENT_WIDTH).padding()
+                        
+                        /// BOOKS AND INTERACTIVE MEDIA
                         NavigationLink(destination: BooksGallery())
                         {
                             Text("Ebooks and Interactive Media").frame(width:CONTENT_WIDTH)
@@ -211,11 +263,15 @@ struct ContentView: View {
                         
                         Divider().frame(width:CONTENT_WIDTH).padding()
                         
+                        
+                        // SHOWCASE
                         ShowcaseMenu(deepLinkApi:DeepLinkApi(scheme:"showcase"))
                             .environmentObject(login)
                         
                         Divider().frame(width:CONTENT_WIDTH).padding()
                         
+                        
+                        // MS Media Wallet Launchers
                         MSMenuNavigationLinks()
                             .environmentObject(login)
                         

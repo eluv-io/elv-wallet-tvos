@@ -14,6 +14,7 @@ struct MintInfo {
     var tenantId: String = ""
     var marketplaceId: String = ""
     var sku: String = ""
+    var entitlement: String = ""
 }
 
 struct ContentView: View {
@@ -140,7 +141,7 @@ struct ContentView: View {
                     if let item = itemJSON {
                         await MainActor.run {
                             self.mintItem = item
-                            self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku)
+                            self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku, entitlement:viewState.entitlement)
                             debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
                             self.showActivity = false
                             self.showMinter = true

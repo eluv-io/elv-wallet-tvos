@@ -533,7 +533,7 @@ class RemoteSigner {
         })
     }
     
-    func postWalletStatus(tenantId: String, accessCode: String, query:[String:String], body : [String: Any] = [:]) async throws {
+    func postWalletStatus(tenantId: String, accessCode: String, query:[String:String], body : [String: Any] = [:]) async throws -> JSON{
         return try await withCheckedThrowingContinuation({ continuation in
             do {
                 print("****** postWalletStatus ******")
@@ -570,11 +570,14 @@ class RemoteSigner {
                     
                     switch (response.result) {
                         case .success:
-                            continuation.resume()
+                            if let value = response.value {
+                                continuation.resume(returning: JSON(value))
+                            }else{
+                                continuation.resume(throwing: FabricError.unexpectedResponse("postWalletStatus: could not get value from response \(response)"))
+                            }
                         case .failure:
-                            let errorMsg = String(data: response.data!, encoding: String.Encoding.utf8)!
-                        let error = FabricError.unexpectedResponse(errorMsg)
-                            continuation.resume(throwing: error)
+                        let error = FabricError.unexpectedResponse("Post wallet request failed \(response)")
+                        continuation.resume(throwing: error)
                      }
                 }
             }catch{
