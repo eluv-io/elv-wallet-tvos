@@ -22,7 +22,7 @@ struct MinterView: View {
     @Binding var mintInfo: MintInfo
     
     @State var result :  (isRedeemed:Bool, contractAddress:String, tokenId:String)?
-    
+    @State var errorMsg = ""
     @State var isRedeemed = false
     @State var showNft = false
     @State var nft = NFTModel()
@@ -51,6 +51,10 @@ struct MinterView: View {
         return marketItem["nft_template"]["nft"]["address"].stringValue
     }
     
+    var disableInteraction: Bool {
+        return isRedeeming
+    }
+    
     var body: some View {
         if showNft {
             NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
@@ -70,18 +74,24 @@ struct MinterView: View {
                             }
                             
                             Text(description)
-                                .lineLimit(3)
+                                .lineLimit(4)
                                 .foregroundColor(.white.opacity(0.6))
                                 .padding(.bottom,40)
                             
                             if (isRedeemed){
                                 Text("Congratulations! You now own this item.")
                                     .font(.subheadline)
-                                    .foregroundColor(.blue.opacity(0.6))
-                                    .padding(.bottom,40)
+                                    .foregroundColor(.blue.opacity(0.7))
+                                    .padding(.bottom,20)
+                            }else if (!errorMsg.isEmpty){
+                                Text(errorMsg)
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .padding(.bottom,20)
                             }
                             
                             Button(action: {
+                                errorMsg = ""
                                 if self.isRedeemed{
                                     if let result = self.result {
                                         if let _nft = fabric.getNFT(contract: result.contractAddress) {
@@ -102,22 +112,21 @@ struct MinterView: View {
                                         self.isRedeeming = true
                                     }
                                     
+                                    var redeemed = false
                                     do {
                                         debugPrint("Minting... \(self.marketItem["sku"])")
-                                        
                                         let result = mintInfo.entitlement.isEmpty ? try await fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku, contract: contractAddress) : try await fabric.mintEntitlement(tenantId:mintInfo.tenantId, entitlement: mintInfo.entitlement)
                                         print("Redeem result", result)
                                         if result.contractAddress != ""{
                                             await MainActor.run {
                                                 self.result = result
-                                                self.isRedeemed = true
+                                                redeemed = result.isRedeemed
                                             }
                                             await fabric.refresh()
                                         }
-                                        
-                                        //
                                     } catch {
                                         print("Failed to redeemOffer", error)
+                                        errorMsg = "Sorry, something went wrong."
                                     }
                                     
                                     await MainActor.run {
@@ -125,6 +134,13 @@ struct MinterView: View {
                                         if self.isRedeeming {
                                             self.isRedeeming = false
                                         }
+                                        
+                                        
+                                        self.isRedeemed = redeemed
+                                        if (!redeemed){
+                                            errorMsg = "Sorry, something went wrong."
+                                        }
+                                        
                                     }
                                 }
                                 
@@ -140,16 +156,14 @@ struct MinterView: View {
                                     Text("Activate")
                                 }
                             }
-                            .padding(.leading, 20)
-                            .disabled(isRedeeming)
-                            
+                            .padding(.leading, disableInteraction ? 5 : 20)
+                            .disabled(disableInteraction)
                         }
-                        Spacer()
                     }
                     .padding(50)
                 }
                 .ignoresSafeArea()
-                .frame( maxWidth: .infinity, maxHeight:.infinity)
+                .frame( maxWidth: .infinity, maxHeight: .infinity)
                 .background(Color.black.opacity(0.8))
             }
             .background(.thinMaterial)

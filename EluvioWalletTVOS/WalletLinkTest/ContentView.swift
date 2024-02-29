@@ -253,6 +253,27 @@ struct ContentView: View {
                             )
                         }
                         
+                        NavigationLink(
+                            destination:
+                                VuduPage(
+                                    bgImage: "VUDU launch - A Quiet Place - no buttons",
+                                    bundleLink: CreateBundleLink(
+                                        contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
+                                        marketplace:"iq__486mYdFPkvmJ8YDQHxHEsW7TRr1D",
+                                        sku:"NTSaHLRni4rXc8HY4u9Ap5"
+                                    ),
+                                    playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8",
+                                    token: login.loginInfo?.token ?? ""
+                                )
+                        ) {
+                            Text(
+                                "A Quiet Place: Day One - Launch Bundle"
+                            )
+                            .frame(
+                                width:CONTENT_WIDTH
+                            )
+                        }
+                        
                         Divider().frame(width:CONTENT_WIDTH).padding()
                         
                         /// BOOKS AND INTERACTIVE MEDIA
