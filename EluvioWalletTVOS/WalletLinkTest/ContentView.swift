@@ -118,7 +118,6 @@ func CreateDemoEntitlement(purchaseId:String = "") -> String {
     let entitlement = EntitlementModel(
         marketplace_id: "iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
         items: [item],
-        nonce: UUID().uuidString,
         purchase_id: _purchaseId
     )
     

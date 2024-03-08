@@ -62,7 +62,6 @@ struct MinterView: View {
             ZStack{
                 VStack{
                     HStack(alignment:.top, spacing:100){
-                        Spacer()
                         if hasImage{
                             NFTView<NFTDetail>(image: imageUrl, title: name, subtitle: edition, destination: NFTDetail(nft: NFTModel()))
                                 .disabled(true)
@@ -116,7 +115,7 @@ struct MinterView: View {
                                     do {
                                         debugPrint("Minting... \(self.marketItem["sku"])")
                                         let result = mintInfo.entitlement.isEmpty ? try await fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku, contract: contractAddress) : try await fabric.mintEntitlement(tenantId:mintInfo.tenantId, entitlement: mintInfo.entitlement)
-                                        print("Redeem result", result)
+                                        print("Mint result", result)
                                         if result.contractAddress != ""{
                                             await MainActor.run {
                                                 self.result = result
@@ -125,7 +124,7 @@ struct MinterView: View {
                                             await fabric.refresh()
                                         }
                                     } catch {
-                                        print("Failed to redeemOffer", error)
+                                        print("Failed to Mint", error)
                                         errorMsg = "Sorry, something went wrong."
                                     }
                                     

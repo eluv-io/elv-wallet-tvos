@@ -533,19 +533,19 @@ class RemoteSigner {
         })
     }
     
-    func postWalletStatus(tenantId: String, accessCode: String, query:[String:String], body : [String: Any] = [:]) async throws -> JSON{
+    func postWalletStatus(tenantId: String, accessCode: String, query:[String:String], body : [String: Any] = [:], bodyData : Data? = nil) async throws -> JSON{
         return try await withCheckedThrowingContinuation({ continuation in
             do {
-                print("****** postWalletStatus ******")
+                debugPrint("****** postWalletStatus ******")
                 let endpoint: String = try self.getAuthEndpoint().appending("/wlt/act/\(tenantId)");
-                print("Request: \(endpoint)")
-                print("Body: \(body)")
-                print("Query: \(query)")
+                debugPrint("Request: \(endpoint)")
+                debugPrint("Body: \(body)")
+                debugPrint("Query: \(query)")
                 
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                print("Headers: \(headers)")
+                debugPrint("Headers: \(headers)")
                 
                 guard let url = URL(string: endpoint) else{
                     continuation.resume(throwing: FabricError.badInput("Could not form url from \(endpoint)"))
@@ -559,13 +559,15 @@ class RemoteSigner {
                 
                 encodedURLRequest.headers = headers
                 
-                let jsonData = try JSONSerialization.data(withJSONObject: body)
+                let data = bodyData == nil ? try JSONSerialization.data(withJSONObject: body) : bodyData
                 
-                encodedURLRequest.httpBody = jsonData
+                encodedURLRequest.httpBody = data
                 
                 print("Request: ", encodedURLRequest)
                 
-                AF.request(encodedURLRequest).response{ response in
+                AF.request(encodedURLRequest)
+                    .debugLog()
+                    .response{ response in
                     print("Response : \(response)")
                     
                     switch (response.result) {

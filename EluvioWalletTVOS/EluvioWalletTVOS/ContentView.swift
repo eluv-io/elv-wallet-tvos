@@ -97,8 +97,18 @@ struct ContentView: View {
             self.backLinkIcon = logo
             debugPrint("BackLink Icon: ", logo)
             
+            var contract = viewState.itemContract
+            
+            if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
+                contract = try await fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
+                debugPrint(contract)
+            }
+            
+            
             if viewState.op == .item {
-                if let _nft = fabric.getNFT(contract: viewState.itemContract,
+
+                
+                if let _nft = fabric.getNFT(contract: contract,
                                             token: viewState.itemTokenStr) {
                     await MainActor.run {
                         self.nft = _nft
@@ -111,8 +121,9 @@ struct ContentView: View {
                 
             }else if viewState.op == .play {
                 debugPrint("Playmedia: ", viewState.mediaId)
-                if let _nft = fabric.getNFT(contract: viewState.itemContract,
-                                            token: viewState.itemTokenStr) {
+                
+                if let _nft = fabric.getNFT(contract: contract,
+                                            token: viewState.itemTokenStr){
                     self.nft = _nft
                     if let item = self.nft.getMediaItem(id:viewState.mediaId) {
                         debugPrint("Found item: ", item.name)

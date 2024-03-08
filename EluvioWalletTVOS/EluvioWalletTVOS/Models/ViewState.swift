@@ -93,6 +93,8 @@ class ViewState: ObservableObject {
            self.itemContract = url.valueOf("contract")?.lowercased() ?? ""
            self.itemTokenStr = url.valueOf("token") ?? ""
            self.mediaId = url.valueOf("media") ?? ""
+           self.marketplaceId = url.valueOf("marketplace") ?? ""
+           self.itemSKU = url.valueOf("sku") ?? ""
            self.op = .play
        case "mint":
            debugPrint("viewStateProperty mint")

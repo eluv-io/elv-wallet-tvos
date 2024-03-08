@@ -784,6 +784,17 @@ class Fabric: ObservableObject {
         return (foundItem, tenantId)
     }
     
+    func findItemAddress(marketplaceId: String, sku: String) async throws -> String{
+        let (itemJSON, _) = try await findItem(marketplaceId: marketplaceId, sku: sku)
+        
+        if let item = itemJSON {
+            return item["nft_template"]["nft"]["address"].stringValue
+        }
+        
+        return ""
+        
+    }
+    
     
     //XXX: superslow
     //Gets the marketplace data from the fabric
@@ -853,22 +864,16 @@ class Fabric: ObservableObject {
         
         let query:[String:String] = [:]
         
-        var body: [String: Any] = [
-            "op": "nft-claim-entitlement",
-            "entitlement": entitlement
-        ]
-        
-        //TODO: do signature
-        if let entitlementDict = entitlement.jsonToDictionary() {
-            body = [
-                "op": "nft-claim-entitlement",
-                "entitlement": entitlementDict,
-                "signature" : ""
-            ]
+        guard let data = entitlement.data(using:.utf8) else {
+            throw FabricError.badInput("Could not convert entitlement string to data.")
         }
         
+        var mintRequest = try JSONDecoder().decode(MintRequestModel.self, from: data)
+        mintRequest.op = "nft-claim-entitlement"
         
-        let responseJson = try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
+        let mintBody = try JSONEncoder().encode(mintRequest)
+        
+        let responseJson = try await signer.postWalletStatus(tenantId: tenantId, accessCode: fabricToken, query: query, bodyData: mintBody)
         let opResponse = responseJson["op"].stringValue
         let result =  try await mintEntitlementStatus(tenantId: tenantId, opResponse: opResponse, pollSeconds: pollSeconds)
         return result
