@@ -588,5 +588,36 @@ class RemoteSigner {
         })
     }
     
+    func createEntitlement(tenantId: String, marketplace: String, sku: String, purchaseId: String, authToken: String) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            debugPrint("****** checkAuthLogin ******")
+            let endpoint = "https://appsvc.svc.eluv.io/sample-purchase/gen-entitlement"
+            
+            let headers: HTTPHeaders = [
+                 "Accept": "application/json",
+                 "Content-Type": "application/json",
+                 "Authorization" : "Bearer \(authToken)"]
+            
+            let parameters : [String: Any] = [
+                "tenant_id":tenantId,
+                "marketplace_id":marketplace,
+                "sku":sku,
+                "purchase_id": purchaseId]
+            
+            AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers )
+                .responseJSON { response in
+
+                debugPrint("response: ", response)
+                switch (response.result) {
+                    case .success(let result):
+                        continuation.resume(returning: JSON(result))
+                     case .failure(let error):
+                        print("createEntitlement error: \(error)")
+                        continuation.resume(throwing: error)
+                 }
+            }
+        })
+    }
+    
 }
 

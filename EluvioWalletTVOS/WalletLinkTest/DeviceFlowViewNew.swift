@@ -185,7 +185,9 @@ struct DeviceFlowViewNew: View {
             let addr = json["addr"].stringValue
             let eth = json["eth"].stringValue
 
+            debugPrint("Setting loginInfo")
             login.loginInfo = LoginResponse(type: type, addr:addr, eth:eth, token: token)
+            debugPrint("Set loginInfo ", login.loginInfo)
             login.isLoggedOut = false
             
             self.timerCancellable!.cancel()

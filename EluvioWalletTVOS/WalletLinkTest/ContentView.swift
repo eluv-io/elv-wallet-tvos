@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 let appStoreUrl = "https://apps.apple.com/in/app/eluvio-media-wallet/id1591550411"
 
@@ -95,15 +96,14 @@ func CreatePlayLink(
     return playBaseURL + "?" + "contract=\(contract)" + "&back_link=walletlink://"
 }
 
-//For DEMO ONLY: minting into the a wallet even if it exists
-//Contract is just for convenience in the demo
 func CreateMintLink(
     contract:String,
     marketplace: String,
     sku: String,
-    entitlement: String = ""
+    entitlement: String = "",
+    authToken: String = ""
 ) -> String {
-    return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)" + "&entitlement=\(entitlement)" + "&back_link=walletlink://"
+    return mintBaseURL + "?" + "marketplace=\(marketplace)" + "&sku=\(sku)" + "&contract=\(contract)" + "&entitlement=\(entitlement)" + (authToken.isEmpty ? "" : "&authorization=\(authToken)") + "&back_link=walletlink://"
 }
 
 //Hardcoded for now
@@ -151,6 +151,8 @@ struct ContentView: View {
     @Namespace var mainNamespace
     
     @StateObject var login = LoginManager()
+    @State var mintWithEntitlementLink = ""
+    @State var cancellable: AnyCancellable?
     
     var loginName : String {
         login.loginInfo?.addr ?? ""
@@ -162,6 +164,7 @@ struct ContentView: View {
     
     @State var showDeviceFlow = false
     
+    
     var signInText: String {
         login.isLoggedOut ? "SIGN IN" : "SIGN OUT"
     }
@@ -169,6 +172,7 @@ struct ContentView: View {
     func signOut() {
         login.signOut()
     }
+
     
     var body: some View {
         NavigationView {
@@ -233,24 +237,26 @@ struct ContentView: View {
                             destination:
                                 VuduPage(
                                     bgImage: "VUDU launch - A Quiet Place - no buttons",
-                                    bundleLink: CreateMintLink(
+                                    /*bundleLink: CreateMintLink(
                                         contract:"0xb77dd8be37c6c8a6da8feb87bebdb86efaff74f4",
                                         marketplace:"iq__2YZajc8kZwzJGZi51HJB7TAKdio2",
                                         sku:"5teHdjLfYtPuL3CRGKLymd",
                                         entitlement: CreateDemoEntitlement()
-                                    ),
+                                    ),*/
+                                    bundleLink: self.mintWithEntitlementLink,
                                     playOutPath:"/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8",
                                     token: login.loginInfo?.token ?? "",
                                     bundleButtonText: "Activate"
                                 )
                         ) {
                             Text(
-                                "A Quiet Place: Day One - Entitlement Minting"
+                                login.isLoggedOut ? "A Quiet Place: Day One - Entitlement Minting (Requires Login)" : "A Quiet Place: Day One - Entitlement Minting"
                             )
                             .frame(
                                 width:CONTENT_WIDTH
                             )
                         }
+                        .disabled(login.isLoggedOut)
                         
                         NavigationLink(
                             destination:
@@ -925,6 +931,39 @@ struct ContentView: View {
         .environmentObject(
             fabric
         )
+        .onAppear(){
+            self.cancellable = login.$loginInfo.sink { val in
+                debugPrint("login changed : ", val)
+                if let token = val?.token {
+                    Task {
+                        do {
+                            //Can only mint demo bundle
+                            let tenant = "iten34Y7Tzso2mRqhzZ6yJDZs2Sqf8L"
+                            let marketplace = "iq__D3N77Nw1ATwZvasBNnjAQWeVLWV"
+                            let sku = "5MmuT4t6RoJtrT9h1yTnos"
+                            let purchaseId = UUID().uuidString
+                            
+                            if let entitlementJson = try await fabric.signer?.createEntitlement(tenantId: tenant, marketplace:marketplace, sku: sku, purchaseId: purchaseId, authToken: token) {
+                                if let string = entitlementJson.rawString() {
+                                    debugPrint("Entitlement ", string)
+                                    let urlString = CreateMintLink(contract: "", marketplace: marketplace, sku: sku, entitlement: string, authToken: token)
+                                    debugPrint("mint with entitlement urlString : ", urlString)
+                                    await MainActor.run {
+                                        mintWithEntitlementLink = urlString
+                                    }
+
+                                }
+                            }
+                        }catch{
+                            print("Could not create entitlement from api: ", error)
+                        }
+
+                    }
+                }else{
+                    debugPrint("Could not get token.")
+                }
+            }
+        }
         .task {
             do {
                 try await fabric.connect(
