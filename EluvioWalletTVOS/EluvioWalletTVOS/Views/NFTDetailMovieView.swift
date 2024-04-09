@@ -281,9 +281,8 @@ struct NFTDetailMovieView: View {
                                     let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
                                     if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
                                         redeemableFeatures.append(redeem)
-                                        //debugPrint("Redeemable should display!")
                                     }else{
-                                        //debugPrint("Redeemable should NOT display")
+                                        debugPrint("Redeemable \(redeem.name) could not display ", redeem.status)
                                     }
                                 }catch{
                                     print("Error processing redemption ", error)

@@ -34,6 +34,8 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     var posterUrl: String = ""
     var tags: [TagMeta] = []
     var nft = NFTModel()
+    //Currently used for isClaimed by someone else
+    var isClaimed : Bool = false
     
     init(id:String? = UUID().uuidString,
          offerId: String = "",
@@ -47,7 +49,8 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
          imageUrl: String = "",
          posterUrl: String = "",
          tags: [TagMeta] = [],
-         nft: NFTModel = NFTModel()
+         nft: NFTModel = NFTModel(),
+         isClaimed: Bool = false
     ){
         self.id = id
         self.offerId = offerId
@@ -62,6 +65,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         self.posterUrl = posterUrl
         self.tags = tags
         self.nft = nft
+        self.isClaimed = isClaimed
     }
     
     var availableAtFormatted: String {
@@ -90,7 +94,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         debugPrint("RedeemableViewModel: shouldDisplay")
         debugPrint("status: ", status)
         debugPrint("address: ", currentUserAddress)
-        return status.isActive && (!status.isRedeemed && !isExpired || isRedeemer(address:currentUserAddress) && !isExpired || isRedeemer(address:currentUserAddress) && isExpired && status.isRedeemed)
+        return status.isActive && !status.isRedeemed && !isExpired
     }
     
     
@@ -182,6 +186,15 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
                                         transactionHash: offer["transaction"].stringValue,
                                         redeemer: offer["redeemer"].stringValue)
         
+        var isClaimed = false
+        
+        do{
+            let address = try fabric.getAccountAddress()
+            isClaimed = !redeemStatus.isRedeemed || address.lowercased() == redeemStatus.redeemer.lowercased()
+        }catch{
+            print ("Error getting account address ", error)
+        }
+        
         return RedeemableViewModel(id:redeemable.id,
                                    offerId: redeemable.offer_id ?? "",
                                    expiresAt: redeemable.expires_at ?? "",
@@ -191,7 +204,12 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
                                    redeemAnimationLink: redeemAnimationLink,
                                    availableAt: redeemable.available_at ?? "",
                                    status: redeemStatus,
-                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [], nft:nft)
+                                   imageUrl: imageUrl, 
+                                   posterUrl: posterUrl,
+                                   tags: redeemable.tags ?? [],
+                                   nft:nft,
+                                   isClaimed: isClaimed
+        )
     }
     
     //TODO: Find a good id for this
