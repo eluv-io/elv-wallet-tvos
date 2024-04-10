@@ -74,7 +74,7 @@ struct ShowcaseMenu: View {
     let contract = "0xc88d6660f76645dd8c5e0a041cc422efee9c7078"
     let playoutPath = "/q/hq__B1uYXysLE5XsGis2JUeTuBG8zfK7BaCy7Ng2DK8zmcLcyQArmTgc9B85ZfE5TDt1djQbGMmdbX/rep/playout/default/hls-clear/playlist.m3u8"
     let pageImage = "ShowCase TV Launch - no buttons"
-    let deepLinkApi: DeepLinkApi
+    let deepLinkApi : DeepLinkApi
     
     var body: some View {
         NavigationLink(

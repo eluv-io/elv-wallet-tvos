@@ -10,13 +10,6 @@ import Combine
 import AVKit
 import SwiftyJSON
 
-struct MintInfo {
-    var tenantId: String = ""
-    var marketplaceId: String = ""
-    var sku: String = ""
-    var entitlement: String = ""
-}
-
 struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric

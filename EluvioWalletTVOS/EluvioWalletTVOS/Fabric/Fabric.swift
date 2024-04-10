@@ -21,6 +21,13 @@ func IsDemoMode()->Bool {
     return APP_CONFIG.app.mode == .demo
 }
 
+struct MintInfo {
+    var tenantId: String = ""
+    var marketplaceId: String = ""
+    var sku: String = ""
+    var entitlement: String = ""
+}
+
 enum FabricError: Error {
     case invalidURL(String)
     case configError(String)
