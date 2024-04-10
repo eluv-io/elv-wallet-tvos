@@ -209,7 +209,7 @@ struct ContentView: View {
                     }
                 }
                 .onDisappear {debugPrint("ContentView onDisappear")
-                    self.appeared = 0.0
+                    //self.appeared = 0.0
                 }
                 .onAppear(){
                     withAnimation(.easeInOut(duration: 2)) {
