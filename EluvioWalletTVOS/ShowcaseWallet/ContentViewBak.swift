@@ -9,7 +9,7 @@ import Combine
 import AVKit
 import SwiftyJSON
 
-struct ContentView: View {
+struct ContentViewBack: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
@@ -293,9 +293,9 @@ struct ContentView: View {
 }
 
 
-struct ContentView_Previews: PreviewProvider {
+struct ContentViewBack_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentViewBack()
             .environmentObject(Fabric())
             .preferredColorScheme(.dark)
     }

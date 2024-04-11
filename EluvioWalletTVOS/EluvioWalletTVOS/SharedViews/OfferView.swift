@@ -426,7 +426,11 @@ struct OfferResultView: View {
 
             
             if !op.isEmpty {
-                setError(message: "Sorry, we could not get the reward. \(op).")
+                if op.contains("mismatched user address"){
+                    setError(message: "The reward has been claimed by a different user.")
+                }else {
+                    setError(message: op)
+                }
                 return
             }
             

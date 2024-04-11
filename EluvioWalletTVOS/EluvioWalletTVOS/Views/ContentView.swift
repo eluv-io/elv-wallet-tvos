@@ -223,12 +223,16 @@ struct ContentView: View {
                         }
                     
                     self.fabricCancellable = fabric.$isRefreshing
+                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
-                            if (val && fabric.library.isEmpty){
-                                showActivity = true
-                            }else {
-                                showActivity = false
+                            debugPrint("isRefreshing changed.", fabric.isRefreshing)
+                            if (fabric.isRefreshing && fabric.library.isEmpty){
+                                self.showActivity = true
+                                return
                             }
+                            
+                            checkViewState()
+                            showActivity = false
                         }
                     
                     if viewState.op == .mint {

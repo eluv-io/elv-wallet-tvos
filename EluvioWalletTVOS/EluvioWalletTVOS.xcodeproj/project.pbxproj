@@ -22,6 +22,7 @@
 		B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */; };
 		B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02CE2032AF4C08700F5F495 /* BackButton.swift */; };
 		B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04586F42AF4993B00F1FF25 /* FandangoPage.swift */; };
+		B05648C22BC7E245004540F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentView.swift */; };
 		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
 		B06404CB2B2B8BA500945E98 /* DeviceFlowViewNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CA2B2B8BA500945E98 /* DeviceFlowViewNew.swift */; };
 		B06404CF2B2B8DF700945E98 /* AuthService_bak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CD2B2B8DF700945E98 /* AuthService_bak.swift */; };
@@ -138,7 +139,7 @@
 		B08CB4EB2B72E27C00E04C0D /* AQP-Dictation.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */; };
 		B08CB5072B7D586C00E04C0D /* ShowcasePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5062B7D586C00E04C0D /* ShowcasePage.swift */; };
 		B08CB52F2B7DDB2800E04C0D /* ShowcaseWalletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB52E2B7DDB2800E04C0D /* ShowcaseWalletApp.swift */; };
-		B08CB5312B7DDB2800E04C0D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5302B7DDB2800E04C0D /* ContentView.swift */; };
+		B08CB5312B7DDB2800E04C0D /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5302B7DDB2800E04C0D /* ContentViewBak.swift */; };
 		B08CB5332B7DDB2900E04C0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5322B7DDB2900E04C0D /* Assets.xcassets */; };
 		B08CB5362B7DDB2900E04C0D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5352B7DDB2900E04C0D /* Preview Assets.xcassets */; };
 		B08CB53B2B7DDF0E00E04C0D /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB53A2B7DDF0E00E04C0D /* Auth0 */; };
@@ -369,7 +370,7 @@
 		B08CB5062B7D586C00E04C0D /* ShowcasePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowcasePage.swift; sourceTree = "<group>"; };
 		B08CB52C2B7DDB2800E04C0D /* ShowcaseWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShowcaseWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B08CB52E2B7DDB2800E04C0D /* ShowcaseWalletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowcaseWalletApp.swift; sourceTree = "<group>"; };
-		B08CB5302B7DDB2800E04C0D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		B08CB5302B7DDB2800E04C0D /* ContentViewBak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewBak.swift; sourceTree = "<group>"; };
 		B08CB5322B7DDB2900E04C0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B08CB5352B7DDB2900E04C0D /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B08CB5522B7DDF6900E04C0D /* Utils */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Utils; path = EluvioWalletTVOS/Utils; sourceTree = SOURCE_ROOT; };
@@ -432,7 +433,7 @@
 		B0F9DC482B5E30F900499C93 /* a-quiet-place-2018.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "a-quiet-place-2018.pdf"; sourceTree = "<group>"; };
 		B0F9DC4C2B5E311600499C93 /* the-war-of-the-worlds.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "the-war-of-the-worlds.pdf"; sourceTree = "<group>"; };
 		B0F9DC4D2B5E311600499C93 /* the-book-of-five-rings.epub */ = {isa = PBXFileReference; lastKnownFileType = file; path = "the-book-of-five-rings.epub"; sourceTree = "<group>"; };
-		B0F9DC502B65FA4400499C93 /* A Quiet Place - Opening.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "A Quiet Place - Opening.mp4"; sourceTree = "<group>"; };
+		B0F9DC502B65FA4400499C93 /* A Quiet Place - Opening.mp4 */ = {isa = PBXFileReference; lastKnownFileType = text; path = "A Quiet Place - Opening.mp4"; sourceTree = "<group>"; };
 		B0F9DC522B66FE1C00499C93 /* AQP-video-transcript.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "AQP-video-transcript.json"; sourceTree = "<group>"; };
 		B0F9DC542B673E1100499C93 /* AQP - opening.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "AQP - opening.pdf"; sourceTree = "<group>"; };
 		B0F9DC562B67529E00499C93 /* AQP-Opening-Image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-Opening-Image.png"; sourceTree = "<group>"; };
@@ -595,7 +596,7 @@
 				B08CB5522B7DDF6900E04C0D /* Utils */,
 				B08CB5532B7DDF6900E04C0D /* Views */,
 				B08CB52E2B7DDB2800E04C0D /* ShowcaseWalletApp.swift */,
-				B08CB5302B7DDB2800E04C0D /* ContentView.swift */,
+				B08CB5302B7DDB2800E04C0D /* ContentViewBak.swift */,
 				B08CB5322B7DDB2900E04C0D /* Assets.xcassets */,
 				B08CB5342B7DDB2900E04C0D /* Preview Content */,
 			);
@@ -705,7 +706,6 @@
 				B0E60FA429D210E50079661E /* Models */,
 				B0E60F8329CD70AF0079661E /* Fabric */,
 				B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */,
-				B0E60F7129CC23510079661E /* ContentView.swift */,
 				B00945A729EA478D00B00FC3 /* Test */,
 				B0E60F7329CC23530079661E /* Assets.xcassets */,
 				B0E60F7529CC23530079661E /* Preview Content */,
@@ -758,6 +758,7 @@
 		B0E60FAB29D223760079661E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B0E60F7129CC23510079661E /* ContentView.swift */,
 				B0670F3729D5427300676872 /* NFTDetail.swift */,
 				B0670F3629D5427300676872 /* NFTList.swift */,
 				B0670F3829D5427300676872 /* NFTView.swift */,
@@ -1043,6 +1044,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B05648C22BC7E245004540F6 /* ContentView.swift in Sources */,
 				B08CB5622B7DDFDA00E04C0D /* AudioPlayer.swift in Sources */,
 				B08CB59D2B7DE12800E04C0D /* configuration.json in Sources */,
 				B08CB5AC2B7DE8F200E04C0D /* ViewState.swift in Sources */,
@@ -1102,7 +1104,7 @@
 				B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */,
 				B08CB5992B7DDFDA00E04C0D /* ProfileClient.swift in Sources */,
 				B08CB59A2B7DDFDA00E04C0D /* TestData.swift in Sources */,
-				B08CB5312B7DDB2800E04C0D /* ContentView.swift in Sources */,
+				B08CB5312B7DDB2800E04C0D /* ContentViewBak.swift in Sources */,
 				B08CB52F2B7DDB2800E04C0D /* ShowcaseWalletApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1497,7 +1499,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 154;
+				CURRENT_PROJECT_VERSION = 156;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1529,7 +1531,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 154;
+				CURRENT_PROJECT_VERSION = 156;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

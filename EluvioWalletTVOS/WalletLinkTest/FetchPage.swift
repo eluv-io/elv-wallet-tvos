@@ -16,6 +16,7 @@ struct FetchPage: View {
     var bundleLink = ""
     var playImage = ""
     var playUrl = ""
+    var token = ""
     var playOutPath = ""
     var playButtonText = "Play Feature Film"
     var bundleButtonText = "Launch Bundle"
@@ -33,7 +34,7 @@ struct FetchPage: View {
                     buttonText:playButtonText,
                     highlightColor: Color(hex:0x008bcc),
                     action: {
-                        let combinedUrl = fabric.createUrl(path:playOutPath)
+                        let combinedUrl = fabric.createUrl(path:playOutPath, token:token)
                         if let url = URL(string: combinedUrl) {
                             debugPrint("Play URL ", url)
                             self.url = url
@@ -76,7 +77,7 @@ struct FetchPage: View {
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .edgesIgnoringSafeArea(.all)
         )
-        .fullScreenCover(isPresented:$showPlayer){
+        .fullScreenCover(isPresented:$showPlayer){ [url] in
             PlayerView2(playoutUrl:url, finished: $playerFinished)
         }
     }
