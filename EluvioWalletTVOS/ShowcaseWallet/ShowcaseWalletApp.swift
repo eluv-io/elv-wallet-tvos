@@ -8,6 +8,24 @@
 import SwiftUI
 
 
+/*
+@main
+struct ShowcaseWalletApp: App {
+    @State var isBranded = true
+    @State var openUrl : URL? = nil
+    @State var opacity : CGFloat = 0.0
+    
+    init(){
+        print("App Init")
+    }
+    
+    var body: some Scene {
+        WindowGroup {
+            WalletApp(isBranded: true)
+        }
+    }
+}
+*/
 
 @main
 struct ShowcaseWalletApp: App {
@@ -80,5 +98,4 @@ struct ShowcaseWalletApp: App {
         }
     }
 }
-   
 

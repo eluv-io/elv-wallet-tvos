@@ -427,7 +427,7 @@ struct OfferResultView: View {
             
             if !op.isEmpty {
                 if op.contains("mismatched user address"){
-                    setError(message: "The reward has been claimed by a different user.")
+                    setError(message: "The reward has been claimed by the previous owner.")
                 }else {
                     setError(message: op)
                 }
@@ -443,7 +443,7 @@ struct OfferResultView: View {
     //@MainActor
     func setError(message: String = "") {
         print("calling setError from", message)
-        title = "Error"
+        title = ""
         code = ""
         codeImage = nil
         description = message

@@ -823,7 +823,7 @@ class Fabric: ObservableObject {
         return try CreateMarketplaceViewModel(meta: model, fabric: self)
          */
         
-        //debugPrint("marketMeta: ", marketMeta)
+        debugPrint("marketMeta: ", marketMeta)
         let title = marketMeta["info"]["title"].stringValue
         var logo = ""
         do{

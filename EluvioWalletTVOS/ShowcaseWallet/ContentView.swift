@@ -1,9 +1,8 @@
 //
 //  ContentView.swift
-//  EluvioWalletTVOS
+//  ShowcaseWallet
 //
-//  Created by Wayne Tran on 2023-03-23.
-//
+//  Created by Wayne Tran on 2024-02-15.
 
 import SwiftUI
 import Combine
@@ -39,7 +38,7 @@ struct ContentView: View {
     @State var showProperty : Bool = false
     @State var property : PropertyModel?
     
-    @State var appeared: Double = 1.0
+    @State var appeared: Double = 0.0
     
     func reset() {
         showNft = false
@@ -55,9 +54,7 @@ struct ContentView: View {
         mintInfo = MintInfo()
         backLink = ""
         backLinkIcon = ""
-        withAnimation(.easeInOut(duration: 2)) {
-            self.appeared = 1.0
-        }
+        appeared = 0.0
         viewState.reset()
     }
     
@@ -71,6 +68,7 @@ struct ContentView: View {
             return
         }
         Task{
+            self.appeared = 0.0
             self.showActivity = true
             debugPrint("showActivity true ")
             
@@ -90,33 +88,23 @@ struct ContentView: View {
             self.backLinkIcon = logo
             debugPrint("BackLink Icon: ", logo)
             
-            var contract = viewState.itemContract
-            
-            if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
-                contract = try await fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
-                debugPrint(contract)
-            }
-            
-            
             if viewState.op == .item {
-
-                
-                if let _nft = fabric.getNFT(contract: contract,
+                if let _nft = fabric.getNFT(contract: viewState.itemContract,
                                             token: viewState.itemTokenStr) {
                     await MainActor.run {
                         self.nft = _nft
-                        debugPrint("Showing NFT: ", nft.contract_name)
+                        debugPrint("Showing NFT: ", self.nft.contract_name)
                         self.showActivity = false
                         self.showNft = true
-                        viewState.reset()
+                        //viewState.op = .none
                     }
+
                 }
                 
             }else if viewState.op == .play {
                 debugPrint("Playmedia: ", viewState.mediaId)
-                
-                if let _nft = fabric.getNFT(contract: contract,
-                                            token: viewState.itemTokenStr){
+                if let _nft = fabric.getNFT(contract: viewState.itemContract,
+                                            token: viewState.itemTokenStr) {
                     self.nft = _nft
                     if let item = self.nft.getMediaItem(id:viewState.mediaId) {
                         debugPrint("Found item: ", item.name)
@@ -127,7 +115,6 @@ struct ContentView: View {
                                 self.playerItem = item
                                 self.showActivity = false
                                 self.showPlayer = true
-                                viewState.reset()
                             }
                         }catch{
                             print("checkViewState - could not create MediaItemViewModel ", error)
@@ -145,11 +132,10 @@ struct ContentView: View {
                     if let item = itemJSON {
                         await MainActor.run {
                             self.mintItem = item
-                            self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku, entitlement:viewState.entitlement)
+                            self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku)
                             debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
                             self.showActivity = false
                             self.showMinter = true
-                            viewState.reset()
                         }
                     }
                 }catch{
@@ -168,7 +154,6 @@ struct ContentView: View {
                         self.property = try fabric.findProperty(marketplaceId: marketplace)
                         self.showActivity = false
                         self.showProperty = true
-                        viewState.reset()
                     }catch{
                         debugPrint("Could not find property ", marketplace)
                         self.showActivity = false
@@ -183,7 +168,6 @@ struct ContentView: View {
         if fabric.isLoggedOut {
             SignInView()
                 .environmentObject(self.fabric)
-                .environmentObject(self.viewState)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
         }else{
@@ -202,13 +186,17 @@ struct ContentView: View {
                     }
                 }
                 .onDisappear {debugPrint("ContentView onDisappear")
-                    //self.appeared = 0.0
+                    self.appeared = 0.0
+                    viewState.reset()
                 }
                 .onAppear(){
-                    withAnimation(.easeInOut(duration: 2)) {
-                        self.appeared = 1.0
+                    if viewState.op == .none {
+                        withAnimation(.easeInOut(duration: 2)) {
+                            self.appeared = 1.0
+                        }
                     }
                     debugPrint("ContentView onAppear")
+                    
                     self.viewStateCancellable = viewState.$op
                         .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
@@ -223,16 +211,12 @@ struct ContentView: View {
                         }
                     
                     self.fabricCancellable = fabric.$isRefreshing
-                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
-                            debugPrint("isRefreshing changed.", fabric.isRefreshing)
-                            if (fabric.isRefreshing && fabric.library.isEmpty){
-                                self.showActivity = true
-                                return
+                            if (val && fabric.library.isEmpty){
+                                showActivity = true
+                            }else {
+                                showActivity = false
                             }
-                            
-                            checkViewState()
-                            showActivity = false
                         }
                     
                     if viewState.op == .mint {
@@ -242,6 +226,7 @@ struct ContentView: View {
                 }
             }
             .onChange(of:showNft){
+                debugPrint("OnChange showNFT ", showNft)
                 if (showNft){
                     self.appeared = 0.0
                 }
@@ -290,8 +275,9 @@ struct ContentView: View {
                     }
                 }
             }
-            .edgesIgnoringSafeArea(.all)
+            .edgesIgnoringSafeArea(.all) //Bug: Keep this after the fullscreenCovers
         }
+        
     }
     
     func didFullScreenCoverDismiss() {

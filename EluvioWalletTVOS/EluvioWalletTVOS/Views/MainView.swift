@@ -14,7 +14,7 @@ struct HeaderView: View {
     var logo = "e_logo"
     var logoUrl = ""
     var name = APP_CONFIG.app.name
-
+    
     var body: some View {
         VStack {
             HStack(spacing:20) {

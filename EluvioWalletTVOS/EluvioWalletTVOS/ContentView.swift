@@ -1,15 +1,16 @@
 //
 //  ContentView.swift
-//  ShowcaseWallet
+//  EluvioWalletTVOS
 //
-//  Created by Wayne Tran on 2024-02-15.
+//  Created by Wayne Tran on 2023-03-23.
+//
 
 import SwiftUI
 import Combine
 import AVKit
 import SwiftyJSON
 
-struct ContentViewBack: View {
+struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
@@ -38,7 +39,7 @@ struct ContentViewBack: View {
     @State var showProperty : Bool = false
     @State var property : PropertyModel?
     
-    @State var appeared: Double = 0.0
+    @State var appeared: Double = 1.0
     
     func reset() {
         showNft = false
@@ -54,7 +55,9 @@ struct ContentViewBack: View {
         mintInfo = MintInfo()
         backLink = ""
         backLinkIcon = ""
-        appeared = 0.0
+        withAnimation(.easeInOut(duration: 2)) {
+            self.appeared = 1.0
+        }
         viewState.reset()
     }
     
@@ -68,7 +71,6 @@ struct ContentViewBack: View {
             return
         }
         Task{
-            self.appeared = 0.0
             self.showActivity = true
             debugPrint("showActivity true ")
             
@@ -88,23 +90,32 @@ struct ContentViewBack: View {
             self.backLinkIcon = logo
             debugPrint("BackLink Icon: ", logo)
             
+            var contract = viewState.itemContract
+            
+            if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
+                contract = try await fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
+                debugPrint(contract)
+            }
+            
+            
             if viewState.op == .item {
-                if let _nft = fabric.getNFT(contract: viewState.itemContract,
+
+                
+                if let _nft = fabric.getNFT(contract: contract,
                                             token: viewState.itemTokenStr) {
                     await MainActor.run {
                         self.nft = _nft
-                        debugPrint("Showing NFT: ", self.nft.contract_name)
+                        debugPrint("Showing NFT: ", nft.contract_name)
                         self.showActivity = false
                         self.showNft = true
-                        //viewState.op = .none
                     }
-
                 }
                 
             }else if viewState.op == .play {
                 debugPrint("Playmedia: ", viewState.mediaId)
-                if let _nft = fabric.getNFT(contract: viewState.itemContract,
-                                            token: viewState.itemTokenStr) {
+                
+                if let _nft = fabric.getNFT(contract: contract,
+                                            token: viewState.itemTokenStr){
                     self.nft = _nft
                     if let item = self.nft.getMediaItem(id:viewState.mediaId) {
                         debugPrint("Found item: ", item.name)
@@ -132,7 +143,7 @@ struct ContentViewBack: View {
                     if let item = itemJSON {
                         await MainActor.run {
                             self.mintItem = item
-                            self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku)
+                            self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku, entitlement:viewState.entitlement)
                             debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
                             self.showActivity = false
                             self.showMinter = true
@@ -168,6 +179,7 @@ struct ContentViewBack: View {
         if fabric.isLoggedOut {
             SignInView()
                 .environmentObject(self.fabric)
+                .environmentObject(self.viewState)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
         }else{
@@ -186,17 +198,13 @@ struct ContentViewBack: View {
                     }
                 }
                 .onDisappear {debugPrint("ContentView onDisappear")
-                    self.appeared = 0.0
-                    viewState.reset()
+                    //self.appeared = 0.0
                 }
                 .onAppear(){
-                    if viewState.op == .none {
-                        withAnimation(.easeInOut(duration: 2)) {
-                            self.appeared = 1.0
-                        }
+                    withAnimation(.easeInOut(duration: 2)) {
+                        self.appeared = 1.0
                     }
                     debugPrint("ContentView onAppear")
-                    
                     self.viewStateCancellable = viewState.$op
                         .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
@@ -211,12 +219,16 @@ struct ContentViewBack: View {
                         }
                     
                     self.fabricCancellable = fabric.$isRefreshing
+                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
-                            if (val && fabric.library.isEmpty){
-                                showActivity = true
-                            }else {
-                                showActivity = false
+                            debugPrint("isRefreshing changed.", fabric.isRefreshing)
+                            if (fabric.isRefreshing && fabric.library.isEmpty){
+                                self.showActivity = true
+                                return
                             }
+                            
+                            checkViewState()
+                            showActivity = false
                         }
                     
                     if viewState.op == .mint {
@@ -226,7 +238,6 @@ struct ContentViewBack: View {
                 }
             }
             .onChange(of:showNft){
-                debugPrint("OnChange showNFT ", showNft)
                 if (showNft){
                     self.appeared = 0.0
                 }
@@ -275,9 +286,8 @@ struct ContentViewBack: View {
                     }
                 }
             }
-            .edgesIgnoringSafeArea(.all) //Bug: Keep this after the fullscreenCovers
+            .edgesIgnoringSafeArea(.all)
         }
-        
     }
     
     func didFullScreenCoverDismiss() {
@@ -293,9 +303,9 @@ struct ContentViewBack: View {
 }
 
 
-struct ContentViewBack_Previews: PreviewProvider {
+struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentViewBack()
+        ContentView()
             .environmentObject(Fabric())
             .preferredColorScheme(.dark)
     }
