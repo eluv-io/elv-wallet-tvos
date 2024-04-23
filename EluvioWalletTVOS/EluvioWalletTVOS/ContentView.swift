@@ -41,6 +41,9 @@ struct ContentView: View {
     
     @State var appeared: Double = 1.0
     
+    @State var showError : Bool = false
+    @State var errorMessage: String = ""
+    
     func reset() {
         showNft = false
         nft = NFTModel()
@@ -93,8 +96,17 @@ struct ContentView: View {
             var contract = viewState.itemContract
             
             if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
-                contract = try await fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
-                debugPrint(contract)
+                do {
+                    contract = try await fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
+                    debugPrint(contract)
+                }catch {
+                    print("Could not find NFT contract from marketplace and sku. ")
+                    self.showActivity = false
+                    viewState.reset()
+                    errorMessage = "Could not find bundle."
+                    showError = true
+                    return
+                }
             }
             
             
@@ -109,6 +121,13 @@ struct ContentView: View {
                         self.showActivity = false
                         self.showNft = true
                     }
+                }else{
+                    print("Could not find NFT from deeplink. ")
+                    self.showActivity = false
+                    viewState.reset()
+                    errorMessage = "Could not find bundle."
+                    showError = true
+                    return
                 }
                 
             }else if viewState.op == .play {
@@ -131,6 +150,9 @@ struct ContentView: View {
                             print("checkViewState - could not create MediaItemViewModel ", error)
                             self.showActivity = false
                             viewState.reset()
+                            errorMessage = "Could not play item."
+                            showError = true
+                            return
                         }
                     }
                 }
@@ -151,10 +173,11 @@ struct ContentView: View {
                     }
                 }catch{
                     print("checkViewState mint error ", error)
-                    await MainActor.run {
-                        self.showActivity = false
-                        viewState.reset()
-                    }
+                    self.showActivity = false
+                    viewState.reset()
+                    errorMessage = "Could not mint item."
+                    showError = true
+                    return
                 }
             }else if viewState.op == .property {
                 debugPrint("property marketplace: ", viewState.marketplaceId)
@@ -169,6 +192,9 @@ struct ContentView: View {
                         debugPrint("Could not find property ", marketplace)
                         self.showActivity = false
                         viewState.reset()
+                        errorMessage = "Could not find property."
+                        showError = true
+                        return
                     }
                 }
             }
@@ -285,6 +311,16 @@ struct ContentView: View {
                         )
                     }
                 }
+            }
+            .fullScreenCover(isPresented: $showError, onDismiss: didFullScreenCoverDismiss) {
+                HStack{
+                    Text(errorMessage).font(.description)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding()
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .background(.black)
             }
             .edgesIgnoringSafeArea(.all)
         }
