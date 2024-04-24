@@ -181,6 +181,39 @@ struct MyMediaView2: View {
         .ignoresSafeArea()
         .background(Color.mainBackground)
         .scrollClipDisabled()
+        .onAppear(){
+            Task {
+                var redeemableFeatures: [RedeemableViewModel] = []
+                
+                for nft in self.items {
+                    if let redeemableOffers = nft.redeemable_offers {
+                        //debugPrint("RedeemableOffers ", redeemableOffers)
+                        if !redeemableOffers.isEmpty {
+                            for redeemable in redeemableOffers {
+                                do{
+                                    if (!preferredLocation.isEmpty) {
+                                        //debugPrint("Redeemable: ", redeemable.name)
+                                        if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
+                                            //debugPrint("location matched: ", redeemable.location.lowercased())
+                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+
+                                            redeemableFeatures.append(redeem)
+                                            //debugPrint("Appended.")
+                                        }
+                                    }else{
+                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                        redeemableFeatures.append(redeem)
+                                    }
+                                }catch{
+                                    print("Error processing redemption ", redeemable)
+                                }
+                            }
+                        }
+                    }
+                }
+                self.redeemableFeatures = redeemableFeatures.unique()
+            }
+        }
     }
 }
 
