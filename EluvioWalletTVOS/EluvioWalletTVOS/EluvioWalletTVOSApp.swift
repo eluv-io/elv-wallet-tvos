@@ -42,6 +42,7 @@ struct EluvioWalletTVOSApp: App {
     var fabric = Fabric()
     @StateObject
     var viewState = ViewState()
+    @State var showLoader: Bool = false
     
     @State var opacity : CGFloat = 0.0
     
@@ -54,46 +55,56 @@ struct EluvioWalletTVOSApp: App {
             ZStack{
                 Color.black.edgesIgnoringSafeArea(.all)
                 ContentView()
-                .opacity(opacity)
-                .environmentObject(fabric)
-                .environmentObject(viewState)
-                .preferredColorScheme(.dark)
-                .opacity(opacity)
-                .onAppear(){
-                    Task {
-                        do {
-                            try await fabric.connect(network:"")
-                        }catch{
-                            print("Error connecting to the fabric: ", error)
+                    .opacity(opacity)
+                    .environmentObject(fabric)
+                    .environmentObject(viewState)
+                    .preferredColorScheme(.dark)
+                if showLoader {
+                        ZStack{
+                            Color.black.edgesIgnoringSafeArea(.all)
+                            ProgressView()
                         }
+                        .frame(width: .infinity, height: .infinity)
+                        .edgesIgnoringSafeArea(.all)
+                }
+            }
+            .onAppear(){
+                Task {
+                    do {
+                        try await fabric.connect(network:"")
+                    }catch{
+                        print("Error connecting to the fabric: ", error)
                     }
                 }
-                .onChange(of: scenePhase) { newPhase in
-                    if newPhase == .inactive {
-                        print("Inactive")
-                        self.opacity = 0.0
-                    } else if newPhase == .active {
-                        print("Active ")
-                        Task {
-                            await MainActor.run {
-                                withAnimation(.easeInOut(duration: 3)) {
-                                    self.opacity = 1.0
-                                }
+            }
+            .onChange(of: scenePhase) { newPhase in
+                if newPhase == .inactive {
+                    print("Inactive")
+                    self.opacity = 0.0
+                } else if newPhase == .active {
+                    print("Active ")
+                    Task {
+                        await MainActor.run {
+                            withAnimation(.easeInOut(duration: 3)) {
+                                self.opacity = 1.0
                             }
                         }
-                    } else if newPhase == .background {
-                        print("Background")
-                        self.opacity = 0.0
                     }
+                } else if newPhase == .background {
+                    print("Background")
+                    self.opacity = 0.0
                 }
-                .onOpenURL { url in
-                    debugPrint("url opened: ", url)
-                    
-                    viewState.handleLink(url:url, fabric:fabric)
-                }
-                .edgesIgnoringSafeArea(.all)
             }
+            .onOpenURL { url in
+                Task {
+                    debugPrint("url opened: ", url)
+                    self.showLoader = true
+                    await viewState.handleLink(url:url, fabric:fabric)
+                    self.showLoader = false
+                    debugPrint("handle link done opened: ", url)
+                }
+            }
+            .edgesIgnoringSafeArea(.all)
         }
-        
     }
 }

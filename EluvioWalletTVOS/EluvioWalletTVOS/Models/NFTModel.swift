@@ -34,6 +34,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     var posterUrl: String = ""
     var tags: [TagMeta] = []
     var nft = NFTModel()
+    var isClaimed : Bool = false
     
     init(id:String? = UUID().uuidString,
          offerId: String = "",
@@ -47,6 +48,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
          imageUrl: String = "",
          posterUrl: String = "",
          tags: [TagMeta] = [],
+         isClaimed : Bool = false,
          nft: NFTModel = NFTModel()
     ){
         self.id = id
@@ -61,6 +63,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         self.imageUrl = imageUrl
         self.posterUrl = posterUrl
         self.tags = tags
+        self.isClaimed = isClaimed
         self.nft = nft
     }
     
@@ -85,15 +88,51 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         guard let date = dateFormatter.date(from: expiresAt) else { return false}
         return date < Date()
     }
-
-    func shouldDisplay(currentUserAddress:String) -> Bool {
-        debugPrint("RedeemableViewModel: shouldDisplay")
-        debugPrint("status: ", status)
-        debugPrint("address: ", currentUserAddress)
-        return status.isActive && (!status.isRedeemed && !isExpired || isRedeemer(address:currentUserAddress) && !isExpired || isRedeemer(address:currentUserAddress) && isExpired && status.isRedeemed)
+    
+    var isFuture: Bool {
+        let dateFormatter = ISO8601DateFormatter()
+        guard let date = dateFormatter.date(from: availableAt) else { return false}
+        
+        debugPrint("\(name) date \(date) \(date > Date())")
+        return date > Date()
     }
     
+    var isActionable: Bool {
+        if !status.isActive {
+            return false
+        }
+        
+        if isClaimed {
+            return false
+        }
+        
+        if isExpired && !status.isRedeemed{
+            return false
+        }
+        
+        if isFuture {
+            return false
+        }
+        
+        return true
+    }
     
+    func shouldDisplay(currentUserAddress:String) -> Bool {
+        return status.isActive
+    }
+    
+    func displayLabel(currentUserAddress:String) -> String {
+        if status.isRedeemed && !isRedeemer(address: currentUserAddress) {
+            return "CLAIMED REWARD"
+        }
+        
+        if isExpired {
+            return "EXPIRED REWARD"
+        }
+        
+        return "REWARD"
+    }
+
     func isRedeemer(address:String) -> Bool {
         return !status.isRedeemed || address.lowercased() == status.redeemer.lowercased()
     }
@@ -182,6 +221,12 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
                                         transactionHash: offer["transaction"].stringValue,
                                         redeemer: offer["redeemer"].stringValue)
         
+        var isClaimed = false
+        do {
+            let address = try fabric.getAccountAddress()
+            isClaimed = isRedeemed && redeemStatus.redeemer != address
+        }catch{}
+        
         return RedeemableViewModel(id:redeemable.id,
                                    offerId: redeemable.offer_id ?? "",
                                    expiresAt: redeemable.expires_at ?? "",
@@ -191,7 +236,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
                                    redeemAnimationLink: redeemAnimationLink,
                                    availableAt: redeemable.available_at ?? "",
                                    status: redeemStatus,
-                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [], nft:nft)
+                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [], isClaimed: isClaimed, nft:nft)
     }
     
     //TODO: Find a good id for this

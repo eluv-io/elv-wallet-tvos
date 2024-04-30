@@ -45,7 +45,7 @@ class ViewState: ObservableObject {
         op = .none
     }
     
-    func handleLink(url:URL, fabric: Fabric){
+    func handleLink(url:URL, fabric: Fabric) async{
         if let host = url.host()?.lowercased() {
             debugPrint("handleLink ", host)
             reset()
@@ -56,21 +56,22 @@ class ViewState: ObservableObject {
             debugPrint("backlink: ", backLink)
             
             if let authToken = url.valueOf("authorization")?.removingPercentEncoding {
-                if let address = url.valueOf("address")?.removingPercentEncoding {
-                    self.authToken = authToken
-                    self.address = address
-                    debugPrint("Deeplink with auth and address: ", address)
-                    Task {
-                        try await fabric.connect(network:"main")
-                        let login = LoginResponse(addr:address, eth:"", token:authToken)
-                        await fabric.setLogin(login: login, isMetamask: true)
+                self.authToken = authToken
+                debugPrint("Deeplink with auth", authToken)
+                    do {
+                        try await fabric.connect(network:"main", signIn: false)
+                        var signInResponse = SignInResponse()
+                        signInResponse.idToken = authToken
+                        try await fabric.signIn(signInResponse: signInResponse, external: true)
+                        
+                        debugPrint("Signed In!")
+                        
                         await MainActor.run {
                             setViewState(host: host, url: url)
                         }
+                    }catch {
+                        print("Could not login from deeplink: \(error.localizedDescription)")
                     }
-                }else{
-                    setViewState(host:host, url:url)
-                }
             }else{
                 setViewState(host:host, url:url)
             }

@@ -437,6 +437,7 @@ enum MediaFlagPosition{case bottomRight; case bottomCenter}
 
 //TODO: Make this generic
 struct RedeemFlag: View {
+    @EnvironmentObject var fabric: Fabric
     @State var redeemable: RedeemableViewModel
     @State var position: MediaFlagPosition = .bottomCenter
     
@@ -445,7 +446,16 @@ struct RedeemFlag: View {
     }
     
     private var text: String {
-        return "REWARD"
+        var address = ""
+        
+        do {
+            address = try fabric.getAccountAddress()
+        }catch{
+            print("Could not get account address")
+            return "REWARD"
+        }
+        
+        return redeemable.displayLabel(currentUserAddress: address)
     }
     
     private var textColor: Color {

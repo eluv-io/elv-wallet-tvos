@@ -61,92 +61,111 @@ struct OfferView: View {
                             Text(redeemable.name).font(.title)
                                 .foregroundColor(.white)
                             HStack(spacing:10){
-                                if (redeemable.availableAtFormatted != "") {
+                                
+                                if (redeemable.isClaimed) {
+                                    Text("OFFER CLAIMED").foregroundColor(Color(red:216/255, green:60/255, blue:61/255))
+                                        .font(.fine)
+                                }else if (redeemable.isExpired && !redeemable.status.isRedeemed){
+                                    Text("OFFER EXPIRED").foregroundColor(Color(red:216/255, green:60/255, blue:61/255))
+                                        .font(.fine)
+                                }else if (redeemable.availableAtFormatted == "" && redeemable.expiresAtFormatted != ""){
+                                    Text("OFFER VALID UNTIL").foregroundColor(Color(red:243/255, green:192/255, blue:66/255))
+                                        .font(.fine)
+                                }else{
                                     Text("OFFER VALID").foregroundColor(Color(red:243/255, green:192/255, blue:66/255))
                                         .font(.fine)
+                                }
+                                
+                                if (redeemable.availableAtFormatted != "") {
                                     Text(redeemable.availableAtFormatted)
                                         .foregroundColor(.white)
                                         .font(.fine)
+                                }
+                                
+                                if (redeemable.availableAtFormatted != "" && redeemable.expiresAtFormatted != "") {
                                     Text("-")
                                         .foregroundColor(.white)
                                         .font(.fine)
-                                }else if (redeemable.expiresAtFormatted != ""){
-                                    Text("OFFER VALID UNTIL").foregroundColor(Color(red:243/255, green:192/255, blue:66/255))
+                                }
+                                
+                                if (redeemable.expiresAtFormatted != ""){
+                                    Text(redeemable.expiresAtFormatted)
+                                        .foregroundColor(.white)
                                         .font(.fine)
                                 }
-                                Text(redeemable.expiresAtFormatted)
-                                    .foregroundColor(.white)
-                                    .font(.fine)
+
                             }
                             
                             VStack(alignment: .leading, spacing: 20){
                                 Text(redeemable.description.html2Attributed(font:.description))
                                     .lineLimit(3)
                                     .padding(.bottom,20)
-                                Button(action: {
-                                    if self.isRedeeming {
-                                        print("already isRedeeming")
-                                        return
-                                    }
-                                    if !self.isRedeemed {
-                                        Task{
-                                            if redeemable.redeemAnimationLink != nil {
-                                                do{
-                                                    debugPrint("Found animation")
-                                                    let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
-                                                    await MainActor.run {
-                                                        self.playerItem = playerItem
-                                                        showPlayer = true
-                                                        debugPrint("ShowPlayer = true")
-                                                    }
-                                                } catch {
-                                                    print("Error creating playerItem for redeem animation: ", error)
-                                                }
-                                            }
-                                            
-                                            await MainActor.run {
-                                                self.showResult = true
-                                                self.isRedeeming = true
-                                                debugPrint("showResult = true, is redeeming ")
-                                            }
-                                            
-                                            var redeemed = false
-                                            var transactionId = ""
-                                            var transactionHash = ""
-                                            do {
-                                                debugPrint("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
-                                                
-                                                let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
-                                                redeemed = result.isRedeemed
-                                                transactionId = result.transactionId
-                                                transactionHash = result.transactionHash
-                                                
-                                                debugPrint("Redeem result", result)
-                                            } catch {
-                                                print("Failed to redeemOffer", error)
-                                            }
-                                            
-                                            await MainActor.run {
-                                                debugPrint("MainActor.run isRedeeming=\(isRedeeming)")
-                                                if self.isRedeeming {
-                                                    self.isRedeeming = false
-                                                }
-                                                self.redeemable.status.isRedeemed = redeemed
-                                                self.redeemable.status.transactionId = transactionId
-                                                self.redeemable.status.transactionHash = transactionHash
-                                                self.showResult = true
-                                                debugPrint("showResult = true, is redeemed.")
-                                            }
+                                if (redeemable.isActionable) {
+                                    Button(action: {
+                                        if self.isRedeeming {
+                                            print("already isRedeeming")
+                                            return
                                         }
-                                        
-                                    } else {
-                                        debugPrint("isRedeemed, set showResult")
-                                        self.showResult = true
+                                        if !self.isRedeemed {
+                                            Task{
+                                                if redeemable.redeemAnimationLink != nil {
+                                                    do{
+                                                        debugPrint("Found animation")
+                                                        let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
+                                                        await MainActor.run {
+                                                            self.playerItem = playerItem
+                                                            showPlayer = true
+                                                            debugPrint("ShowPlayer = true")
+                                                        }
+                                                    } catch {
+                                                        print("Error creating playerItem for redeem animation: ", error)
+                                                    }
+                                                }
+                                                
+                                                await MainActor.run {
+                                                    self.showResult = true
+                                                    self.isRedeeming = true
+                                                    debugPrint("showResult = true, is redeeming ")
+                                                }
+                                                
+                                                var redeemed = false
+                                                var transactionId = ""
+                                                var transactionHash = ""
+                                                do {
+                                                    debugPrint("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
+                                                    
+                                                    let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
+                                                    redeemed = result.isRedeemed
+                                                    transactionId = result.transactionId
+                                                    transactionHash = result.transactionHash
+                                                    
+                                                    debugPrint("Redeem result", result)
+                                                } catch {
+                                                    print("Failed to redeemOffer", error)
+                                                }
+                                                
+                                                await MainActor.run {
+                                                    debugPrint("MainActor.run isRedeeming=\(isRedeeming)")
+                                                    if self.isRedeeming {
+                                                        self.isRedeeming = false
+                                                    }
+                                                    self.redeemable.status.isRedeemed = redeemed
+                                                    self.redeemable.status.transactionId = transactionId
+                                                    self.redeemable.status.transactionHash = transactionHash
+                                                    self.showResult = true
+                                                    debugPrint("showResult = true, is redeemed.")
+                                                }
+                                            }
+                                            
+                                        } else {
+                                            debugPrint("isRedeemed, set showResult")
+                                            self.showResult = true
+                                        }
+                                    }) {
+                                        Text(self.isRedeeming ? "Redeeming..." : (isRedeemed ? "View" : "Redeem Now"))
                                     }
-                                }) {
-                                    Text(self.isRedeeming ? "Redeeming..." : (isRedeemed ? "View" : "Redeem Now"))
+                                    .disabled(self.isRedeeming)
                                 }
-                                .disabled(self.isRedeeming)
                             }
                         }
                         Spacer()

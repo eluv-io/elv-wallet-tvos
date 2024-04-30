@@ -75,8 +75,9 @@ struct WalletApp: View {
                     }
                     .onOpenURL { url in
                         debugPrint("url opened: ", url)
-                        
-                        viewState.handleLink(url:url, fabric:fabric)
+                        Task {
+                            await viewState.handleLink(url:url, fabric:fabric)
+                        }
                     }
                     .edgesIgnoringSafeArea(.all)
             }

@@ -274,6 +274,7 @@ struct NFTDetailView: View {
                                 debugPrint(" redeemable status \(redeem.name)", redeem.status)
                                 debugPrint(" redeemable expired? \(redeem.name)", redeem.isExpired)
                                 debugPrint(" redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
+                                debugPrint(" redeemable is future \(redeem.name)", redeem.isFuture)
                                 
                             }
                         }catch{

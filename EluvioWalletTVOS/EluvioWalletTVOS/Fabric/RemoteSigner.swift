@@ -356,6 +356,37 @@ class RemoteSigner {
         return hash
     }
     
+    //This uses the authd api with a cluster token (returned from /login/jwt) to get a fabric token
+    func getFabricToken(authToken:String) async throws -> String{
+        return try await withCheckedThrowingContinuation({ continuation in
+            print("****** checkMetaMaskLogin ******")
+            do {
+
+                let endpoint = try self.getAuthEndpoint().appending("/wlt/sign/csat")
+                
+                let headers: HTTPHeaders = [
+                     "Accept": "application/json",
+                     "Content-Type": "application/json",
+                     "Authorization" : "bearer \(authToken)"]
+
+                AF.request(endpoint, encoding: JSONEncoding.default, headers: headers )
+                    .debugLog()
+                    .responseString { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: result)
+                         case .failure(let error):
+                            print("Get Wallet Data Request error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
     func createFabricToken(duration: Int64 = 1 * 24 * 60 * 60 * 1000, address: String, contentSpaceId: String, authToken: String) async throws -> String {
     
 

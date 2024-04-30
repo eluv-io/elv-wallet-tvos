@@ -172,7 +172,6 @@ struct DeviceFlowView: View {
                 return
             }
             
-            //print(json)
             //self.url = json?["verification_uri"] as! String
             self.url = "https://elv.lv/activate"
             
@@ -180,7 +179,13 @@ struct DeviceFlowView: View {
             self.code = json?["user_code"] as! String
             self.deviceCode = json?["device_code"] as! String
             
-            var interval = json?["interval"] as! Double + 1.0
+            var interval = json?["interval"] as! Double + 2.0
+            debugPrint(interval)
+            
+            if interval < 7.0 {
+                interval = 7.0
+            }
+            
             let validFor = json?["expires_in"] as! Int
             self.timer = Timer.publish(every: interval, on: .main, in: .common)
             self.timerCancellable = self.timer.connect()
@@ -214,11 +219,17 @@ struct DeviceFlowView: View {
                                 return
                             }
                             
-                            fabric.signIn(credentials: json)
-                            
-                            for (key, value) in json {
-                                //print("key \(key) value2 \(value)")
-                                UserDefaults.standard.set(value as? String, forKey: key)
+                            Task {
+                                do {
+                                    try await fabric.signIn(credentials: json)
+                                    
+                                    for (key, value) in json {
+                                        //print("key \(key) value2 \(value)")
+                                        UserDefaults.standard.set(value as? String, forKey: key)
+                                    }
+                                }catch {
+                                    print("could not sign in: \(error.localizedDescription)")
+                                }
                             }
 
                             self.timerCancellable!.cancel()

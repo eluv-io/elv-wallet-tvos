@@ -211,14 +211,14 @@ struct MetaMaskFlowView: View {
             
             let login = LoginResponse(addr:addr, eth:eth, token:token)
 
-            await fabric.setLogin(login: login, isMetamask: true)
+            try await fabric.setLogin(login: login, isMetamask: true)
             
-            self.timerCancellable!.cancel()
+
             
         } catch {
             print("checkDeviceVerification error", error)
         }
-        
+        self.timerCancellable!.cancel()
         /*
         print("checkDeviceVerification \(self.code)");
         let oAuthEndpoint: String = "https://".appending(self.Domain).appending("/oauth/token");

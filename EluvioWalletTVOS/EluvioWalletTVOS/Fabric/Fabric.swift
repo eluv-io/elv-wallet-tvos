@@ -148,7 +148,7 @@ class Fabric: ObservableObject {
     }
     
     @MainActor
-    func connect(network: String) async throws {
+    func connect(network: String, signIn: Bool = true) async throws {
         debugPrint("Fabric connect: ", network)
         defer {
             self.signingIn = false
@@ -235,8 +235,16 @@ class Fabric: ObservableObject {
             credentials["token_type"] = tokenType
             credentials["access_token"] = accessToken
             credentials["id_token"] = idToken
-
-            self.signIn(credentials: credentials)
+            
+            debugPrint("Credentials: ", credentials)
+            
+            Task {
+                do {
+                    try await self.signIn(credentials: credentials)
+                }catch {
+                    print("Could not sign In \(error.localizedDescription)")
+                }
+            }
         }
     }
     
@@ -1631,8 +1639,12 @@ class Fabric: ObservableObject {
         return prop
     }
 
-    func setLogin(login:  LoginResponse, isMetamask: Bool = false) async{
+    func setLogin(login:  LoginResponse, isMetamask: Bool = false) async throws {
         debugPrint("SetLogin ", login)
+        guard let signer = self.signer else {
+            return
+        }
+
         await MainActor.run {
             self.login = login
             self.isLoggedOut = false
@@ -1647,14 +1659,20 @@ class Fabric: ObservableObject {
             self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
         }
         
-        if let profileClient = self.profileClient {
-            do {
-                let userAddress = try self.getAccountAddress()
-                let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
-                debugPrint("USER PROFILE: ", userProfile )
-            }catch{
-                print("Could not get user profile. ", error.localizedDescription)
+
+        if (!self.isMetamask){
+            let result  = try await signer.createFabricToken( address: login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token)
+            await MainActor.run {
+                self.fabricToken = result
             }
+            debugPrint("get Fabric Token ", self.fabricToken)
+        }
+        
+        
+        if let profileClient = self.profileClient {
+            let userAddress = try self.getAccountAddress()
+            let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
+            debugPrint("USER PROFILE: ", userProfile )
         }
         
         await self.refresh()
@@ -1701,7 +1719,27 @@ class Fabric: ObservableObject {
     }
     
     @MainActor
-    func signIn(credentials: [String: AnyObject] ){
+    func signIn(credentials: [String: AnyObject] ) async throws{
+
+        guard let idToken: String = credentials["id_token"] as? String else {
+            print("Could not retrieve id_token")
+            return
+        }
+        
+        //We do not get the refresh token with device sign in for some reason
+        let refreshToken: String = credentials["refresh_token"] as? String ?? ""
+        let accessToken: String = credentials["access_token"] as? String ?? ""
+
+        var signInResponse = SignInResponse()
+        signInResponse.idToken = idToken
+        signInResponse.refreshToken = refreshToken
+        signInResponse.accessToken = accessToken
+        
+        try await signIn(signInResponse: signInResponse)
+    }
+    
+    @MainActor
+    func signIn(signInResponse: SignInResponse , external: Bool = false) async throws {
         
         defer{
             self.signingIn = false
@@ -1711,42 +1749,22 @@ class Fabric: ObservableObject {
         guard let config = self.configuration else
         {
             print("Not configured.")
-            return
+            throw FabricError.configError("Not configured.")
         }
-        
-        //print("Credentials: \(credentials)")
-
-        
-        //print("Web Auth0 Success: idToken: \(credentials["id_token"])")
-        //print("Web Auth0 Success: accessToken: \(credentials["access_token"])")
-        //print("Web Auth0 Success: refreshToken: \(credentials["refresh_token"])")
-        
-        guard let accessToken: String = credentials["access_token"] as? String else {
-            print("Could not retrieve accessToken")
-            return
-            
-        }
-        guard let idToken: String = credentials["id_token"] as? String else {
-            print("Could not retrieve id_token")
-            return
-        }
-        
-        //We do not get the refresh token with device sign in for some reason
-        let refreshToken: String = credentials["refresh_token"] as? String ?? ""
-
-        var signInResponse = SignInResponse()
-        signInResponse.idToken = idToken
-        signInResponse.refreshToken = refreshToken
-        signInResponse.accessToken = accessToken
         
         self.signInResponse = signInResponse
         
-        let urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
+        var urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
+        
+        if external {
+            urlString = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
+        }
+        
         guard let url = URL(string: urlString) else {
             //throw FabricError.invalidURL
             print("Invalid URL \(urlString)")
             self.signingIn = false
-            return
+            throw FabricError.invalidURL("Bad auth service url \(urlString)")
         }
         
 
@@ -1754,33 +1772,17 @@ class Fabric: ObservableObject {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(signInResponse.idToken)", forHTTPHeaderField: "Authorization")
             
         let json: [String: Any] = ["ext": ["share_email":true]]
         request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
         
         debugPrint("http request: ", request)
         
-        AF.request(request)
-            .responseJSON { response in
-                switch (response.result) {
-                    case .success(_):
-                        do{
-                            if let data = response.data {
-                                let login = try JSONDecoder().decode(LoginResponse.self, from: data)
-                                Task {
-                                    await self.setLogin(login: login)
-                                }
-                            }
-                        }catch{
-                            print("Signin response decode error: ", error)
-                        }
-                     case .failure(let error):
-                        print("Signin error",error)
-                 }
-        }
+        let value = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
+        debugPrint("http response: ", value)
         
-        
+        try await self.setLogin(login: value)
     }
     
     

@@ -73,8 +73,11 @@ struct ContentView: View {
         if viewState.op == .none {
             return
         }
+        
+
         Task{
             self.showActivity = true
+        
             debugPrint("showActivity true ")
             
             debugPrint("backlink: ", viewState.backLink)
@@ -108,11 +111,8 @@ struct ContentView: View {
                     return
                 }
             }
-            
-            
+                        
             if viewState.op == .item {
-
-                
                 if let _nft = fabric.getNFT(contract: contract,
                                             token: viewState.itemTokenStr) {
                     await MainActor.run {
@@ -122,7 +122,7 @@ struct ContentView: View {
                         self.showNft = true
                     }
                 }else{
-                    print("Could not find NFT from deeplink. ")
+                    debugPrint("Could not find NFT from deeplink. ")
                     self.showActivity = false
                     viewState.reset()
                     errorMessage = "Could not find bundle."
@@ -279,7 +279,7 @@ struct ContentView: View {
                 }
             }
             .onChange(of:showPlayer){
-                if (showProperty){
+                if (showPlayer){
                     self.appeared = 0.0
                 }
             }
