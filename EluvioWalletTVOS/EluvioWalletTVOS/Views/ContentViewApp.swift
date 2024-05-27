@@ -115,6 +115,7 @@ struct ContentViewApp: View {
     @State var property : PropertyModel?
     
     @State var appeared: Double = 1.0
+    @State var checkingViewState = false
     
     func reset() {
         showNft = false
@@ -130,6 +131,7 @@ struct ContentViewApp: View {
         mintInfo = MintInfo()
         backLink = ""
         backLinkIcon = ""
+        checkingViewState = false
         withAnimation(.easeInOut(duration: 2)) {
             self.appeared = 1.0
         }
@@ -138,15 +140,25 @@ struct ContentViewApp: View {
     
     func checkViewState() {
         debugPrint("checkViewState op ", viewState.op)
-        if self.showActivity == true {
+        if self.checkingViewState == true {
             return
+        }
+        
+        defer {
+            self.checkingViewState = false
         }
         
         if viewState.op == .none {
             return
         }
+    
+        
         Task{
+
+            
             self.showActivity = true
+            self.checkingViewState = true
+            
             debugPrint("showActivity true ")
             
             debugPrint("backlink: ", viewState.backLink)

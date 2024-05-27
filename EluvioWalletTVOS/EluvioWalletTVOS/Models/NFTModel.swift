@@ -19,6 +19,14 @@ struct RedeemStatus {
     var fulfillment: JSON?
 }
 
+struct RedeemVisibility: Codable {
+    var hide_if_expired : Bool = false
+    var hide : Bool = false
+    var featured : Bool = true
+    var hide_if_unreleased : Bool = false
+    
+}
+
 class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     var id: String? = UUID().uuidString
     var offerId: String = ""
@@ -35,6 +43,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     var tags: [TagMeta] = []
     var nft = NFTModel()
     var isClaimed : Bool = false
+    var visibility: RedeemVisibility
     
     init(id:String? = UUID().uuidString,
          offerId: String = "",
@@ -49,6 +58,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
          posterUrl: String = "",
          tags: [TagMeta] = [],
          isClaimed : Bool = false,
+         visibility: RedeemVisibility = RedeemVisibility(),
          nft: NFTModel = NFTModel()
     ){
         self.id = id
@@ -64,6 +74,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         self.posterUrl = posterUrl
         self.tags = tags
         self.isClaimed = isClaimed
+        self.visibility = visibility
         self.nft = nft
     }
     
@@ -118,7 +129,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     }
     
     func shouldDisplay(currentUserAddress:String) -> Bool {
-        return status.isActive
+        return status.isActive && !visibility.hide && !(visibility.hide_if_expired && isExpired) && !(visibility.hide_if_unreleased && isFuture)
     }
     
     func displayLabel(currentUserAddress:String) -> String {
@@ -227,6 +238,9 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
             isClaimed = isRedeemed && redeemStatus.redeemer != address
         }catch{}
         
+        var visibility = redeemable.visibility ?? RedeemVisibility()
+
+        
         return RedeemableViewModel(id:redeemable.id,
                                    offerId: redeemable.offer_id ?? "",
                                    expiresAt: redeemable.expires_at ?? "",
@@ -236,7 +250,12 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
                                    redeemAnimationLink: redeemAnimationLink,
                                    availableAt: redeemable.available_at ?? "",
                                    status: redeemStatus,
-                                   imageUrl: imageUrl, posterUrl: posterUrl, tags: redeemable.tags ?? [], isClaimed: isClaimed, nft:nft)
+                                   imageUrl: imageUrl, 
+                                   posterUrl: posterUrl,
+                                   tags: redeemable.tags ?? [],
+                                   isClaimed: isClaimed,
+                                   visibility: visibility,
+                                   nft:nft)
     }
     
     //TODO: Find a good id for this
@@ -267,7 +286,7 @@ struct Redeemable: FeatureProtocol {
     var offer_id: String?
     var image: JSON?
     var poster_image: JSON?
-    var visibilty: JSON?
+    var visibility: RedeemVisibility?
     var tags: [TagMeta]? = []
     
     var location: String {

@@ -70,12 +70,10 @@ struct MyMediaView2: View {
                 
                 VStack(alignment: .center, spacing: 40) {
                     if (featuredListCount <= 3){
-                        HStack() {
- 
+                        HStack(alignment:.center) {
                             ForEach(featured.media) { media in
                                 MediaView2(mediaItem: media, display: MediaDisplay.feature)
                             }
-                             
 
                             ForEach(featured.items) { nft in
                                 if nft.has_album ?? false {
@@ -94,6 +92,7 @@ struct MyMediaView2: View {
                                 }
                             }
                         }
+                        .frame(minWidth: 0, maxWidth: .infinity)
                         .focusSection()
                     }else{
                         ScrollView (.horizontal, showsIndicators: false) {
@@ -202,7 +201,13 @@ struct MyMediaView2: View {
                                         }
                                     }else{
                                         let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                        redeemableFeatures.append(redeem)
+                                        do {
+                                            if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())) {
+                                                redeemableFeatures.append(redeem)
+                                            }
+                                        }catch{
+                                            print("Couldn't get accound address \(error.localizedDescription)")
+                                        }
                                     }
                                 }catch{
                                     print("Error processing redemption ", redeemable)

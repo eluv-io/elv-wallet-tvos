@@ -20,7 +20,7 @@ struct BackButton: View {
     
     @State var imageLoaded = false
     
-    @FocusState private var isFocused
+    @FocusState var isFocused
     
     var body: some View {
         Button {

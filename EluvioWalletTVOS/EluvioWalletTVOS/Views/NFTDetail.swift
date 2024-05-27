@@ -99,28 +99,47 @@ struct NFTDetailView: View {
                             }
                             .focusSection()
 
-                            Button{} label: {
-                                VStack(alignment: .leading, spacing: 20)  {
-                                    if (description != "") {
-                                        Text(description)
-                                            .foregroundColor(Color.white)
-                                            .padding(.top)
-                                            .frame(maxWidth:1200, alignment:.leading)
-                                            .lineLimit(3)
-                                    }else{
-                                        Text(self.richText)
-                                            .foregroundColor(Color.white)
-                                            .padding(.top)
-                                            .frame(maxWidth:1200, alignment:.leading)
-                                            .lineLimit(10)
-                                    }
-                                    
-                                    Spacer()
+                            if (backLink != ""){
+                                if (description != "") {
+                                    Text(description)
+                                        .foregroundColor(Color.white)
+                                        .padding(.top)
+                                        .frame(maxWidth:1200, alignment:.leading)
+                                        .lineLimit(3)
+                                }else{
+                                    Text(self.richText)
+                                        .foregroundColor(Color.white)
+                                        .padding(.top)
+                                        .frame(maxWidth:1200, alignment:.leading)
+                                        .lineLimit(10)
                                 }
+                                
+                                Spacer()
+                            
+                            }else {
+                                Button{} label: {
+                                    VStack(alignment: .leading, spacing: 20)  {
+                                        if (description != "") {
+                                            Text(description)
+                                                .foregroundColor(Color.white)
+                                                .padding(.top)
+                                                .frame(maxWidth:1200, alignment:.leading)
+                                                .lineLimit(3)
+                                        }else{
+                                            Text(self.richText)
+                                                .foregroundColor(Color.white)
+                                                .padding(.top)
+                                                .frame(maxWidth:1200, alignment:.leading)
+                                                .lineLimit(10)
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                }
+                                .buttonStyle(NonSelectionButtonStyle())
+                                .focused($headerFocused)
+                                .prefersDefaultFocus(in:nftDetails)
                             }
-                            .buttonStyle(NonSelectionButtonStyle())
-                            .focused($headerFocused)
-                            .prefersDefaultFocus(in: nftDetails)
 
                             //Just features for initial release
                             VStack(spacing: 40){
@@ -150,6 +169,7 @@ struct NFTDetailView: View {
                                     .scrollClipDisabled()
                                 }
                                 .padding(.top)
+                                .focusSection()
                                 
                                 if(!sections.isEmpty){
                                     ForEach(sections) { section in

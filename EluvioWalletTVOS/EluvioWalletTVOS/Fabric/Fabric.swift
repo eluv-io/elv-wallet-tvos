@@ -54,6 +54,8 @@ class Fabric: ObservableObject {
     var configUrl = ""
     var network = ""
     var isMetamask = false
+    //Logged in using 3rdparty token through deep link
+    var isExternal = false
     
     var createDemoProperties : Bool = true
     
@@ -199,52 +201,65 @@ class Fabric: ObservableObject {
         
         self.profileClient = ProfileClient(fabric: self)
         
-        self.checkToken { success in
-            debugPrint("Check Token: ", success)
-            if (self.isMetamask == true){
-                debugPrint("is Metamask login, skipping checkToken")
-                return
-            }
-            guard success == true else {
-                self.signingIn = false
-                self.isLoggedOut = true
-                return
-            }
-            
-            guard let accessToken = UserDefaults.standard.object(forKey: "access_token") as? AnyObject else {
-                self.signingIn = false
-                self.isLoggedOut = true
-                return
-            }
-            
-            guard let tokenType = UserDefaults.standard.object(forKey: "token_type") as? AnyObject else {
-                self.signingIn = false
-                self.isLoggedOut = true
-                return
-            }
-            
-            guard let idToken = UserDefaults.standard.object(forKey: "id_token")
-                as? AnyObject else {
+        if signIn {
+            //self.checkToken { success in
+                //debugPrint("Check Token: ", success)
+                if (self.isMetamask == true){
+                    debugPrint("is Metamask login, skipping checkToken")
+                    return
+                }
+                /*guard success == true else {
                     self.signingIn = false
                     self.isLoggedOut = true
-                return
-            }
-
-            var credentials : [String: AnyObject] = [:]
-
-            credentials["token_type"] = tokenType
-            credentials["access_token"] = accessToken
-            credentials["id_token"] = idToken
-            
-            debugPrint("Credentials: ", credentials)
-            
-            Task {
-                do {
-                    try await self.signIn(credentials: credentials)
-                }catch {
-                    print("Could not sign In \(error.localizedDescription)")
+                    return
+                }*/
+                
+                guard let accessToken = UserDefaults.standard.object(forKey: "access_token") as? AnyObject else {
+                    self.signingIn = false
+                    self.isLoggedOut = true
+                    return
                 }
-            }
+                
+                guard let tokenType = UserDefaults.standard.object(forKey: "token_type") as? AnyObject else {
+                    self.signingIn = false
+                    self.isLoggedOut = true
+                    return
+                }
+                
+                guard let idToken = UserDefaults.standard.object(forKey: "id_token")
+                        as? AnyObject else {
+                    self.signingIn = false
+                    self.isLoggedOut = true
+                    return
+                }
+                
+                var isExternal = false
+                
+                if let external = UserDefaults.standard.object(forKey: "is_external")
+                    as? Bool {
+                    isExternal = external
+                    debugPrint("Found is_external in userDefaults: ", isExternal)
+                }
+                
+                var credentials : [String: AnyObject] = [:]
+                
+                credentials["token_type"] = tokenType
+                credentials["access_token"] = accessToken
+                credentials["id_token"] = idToken
+                
+                debugPrint("Credentials: ", credentials)
+                
+                Task {
+                    do {
+                        try await self.signIn(credentials: credentials, external: isExternal)
+                    }catch {
+                        print("Could not sign In \(error.localizedDescription)")
+                        self.signingIn = false
+                        self.isLoggedOut = true
+                        return
+                    }
+                }
+            //}
         }
     }
     
@@ -426,6 +441,7 @@ class Fabric: ObservableObject {
         
         if nftData["redeemable_offers"].exists() {
             //print("redeemable_offers exists for \(nftData["display_name"].stringValue)")
+            debugPrint(nftData["redeemable_offers"])
             do {
                 nftmodel.redeemable_offers = try JSONDecoder().decode([Redeemable].self, from: nftData["redeemable_offers"].rawData())
                 
@@ -1078,7 +1094,7 @@ class Fabric: ObservableObject {
             var properties: [PropertyModel] = []
             
             if (!self.isMetamask){
-                self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token)
+                self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
             }
             //print("Fabric Token: \(self.fabricToken)");
             
@@ -1133,6 +1149,7 @@ class Fabric: ObservableObject {
                 
         }catch{
             print ("Refresh Error: \(error)")
+            signOut()
         }
     }
     
@@ -1639,7 +1656,7 @@ class Fabric: ObservableObject {
         return prop
     }
 
-    func setLogin(login:  LoginResponse, isMetamask: Bool = false) async throws {
+    func setLogin(login:  LoginResponse, isMetamask: Bool = false, external: Bool = false) async throws {
         debugPrint("SetLogin ", login)
         guard let signer = self.signer else {
             return
@@ -1661,14 +1678,14 @@ class Fabric: ObservableObject {
         
 
         if (!self.isMetamask){
-            let result  = try await signer.createFabricToken( address: login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token)
+            let result  = try await signer.createFabricToken( address: login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
             await MainActor.run {
                 self.fabricToken = result
             }
             debugPrint("get Fabric Token ", self.fabricToken)
         }
-        
-        
+    
+
         if let profileClient = self.profileClient {
             let userAddress = try self.getAccountAddress()
             let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
@@ -1686,22 +1703,24 @@ class Fabric: ObservableObject {
     
     func signOut(){
         //print("Fabric: signOut()")
-        let domain = APP_CONFIG.auth0.domain
-        let clientId = APP_CONFIG.auth0.client_id
-        let oAuthEndpoint: String = "https://".appending(domain).appending("/oidc/logout");
-        if let authRequest = ["client_id":clientId,"id_token_hint": self.signInResponse?.idToken] as? Dictionary<String,String> {
-            AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
-                .validate(statusCode: 200 ..< 299)
-                .responseData { response in
-                    
-                    print(response)
-                    switch (response.result) {
-                    case .success( _):
-                        print("Logout Success!")
-                    case .failure(let error):
-                        print("Sign Out Request error: \(error.localizedDescription)")
+        if !self.isExternal {
+            let domain = APP_CONFIG.auth0.domain
+            let clientId = APP_CONFIG.auth0.client_id
+            let oAuthEndpoint: String = "https://".appending(domain).appending("/oidc/logout");
+            if let authRequest = ["client_id":clientId,"id_token_hint": self.signInResponse?.idToken] as? Dictionary<String,String> {
+                AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
+                    .validate(statusCode: 200 ..< 299)
+                    .responseData { response in
+                        
+                        print(response)
+                        switch (response.result) {
+                        case .success( _):
+                            print("Logout Success!")
+                        case .failure(let error):
+                            print("Sign Out Request error: \(error.localizedDescription)")
+                        }
                     }
-                }
+            }
         }
         self.login = nil
         self.isLoggedOut = true
@@ -1716,10 +1735,11 @@ class Fabric: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "id_token")
         UserDefaults.standard.removeObject(forKey: "token_type")
         UserDefaults.standard.removeObject(forKey: "fabric_network")
+        UserDefaults.standard.removeObject(forKey: "is_external")
     }
     
     @MainActor
-    func signIn(credentials: [String: AnyObject] ) async throws{
+    func signIn(credentials: [String: AnyObject], external: Bool = false ) async throws{
 
         guard let idToken: String = credentials["id_token"] as? String else {
             print("Could not retrieve id_token")
@@ -1735,7 +1755,7 @@ class Fabric: ObservableObject {
         signInResponse.refreshToken = refreshToken
         signInResponse.accessToken = accessToken
         
-        try await signIn(signInResponse: signInResponse)
+        try await signIn(signInResponse: signInResponse, external: external)
     }
     
     @MainActor
@@ -1744,6 +1764,8 @@ class Fabric: ObservableObject {
         defer{
             self.signingIn = false
         }
+        
+        self.isExternal = external
         
         //print("Fabric: signIn()")
         guard let config = self.configuration else
@@ -1782,7 +1804,12 @@ class Fabric: ObservableObject {
         let value = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
         debugPrint("http response: ", value)
         
-        try await self.setLogin(login: value)
+        UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
+        UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
+        UserDefaults.standard.set(signInResponse.tokenType, forKey: "token_type")
+        UserDefaults.standard.set(external, forKey: "is_external")
+        
+        try await self.setLogin(login: value, external:external)
     }
     
     

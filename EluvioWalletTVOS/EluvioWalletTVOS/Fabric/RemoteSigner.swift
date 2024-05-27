@@ -387,7 +387,7 @@ class RemoteSigner {
         })
     }
     
-    func createFabricToken(duration: Int64 = 1 * 24 * 60 * 60 * 1000, address: String, contentSpaceId: String, authToken: String) async throws -> String {
+    func createFabricToken(duration: Int64 = 1 * 24 * 60 * 60 * 1000, address: String, contentSpaceId: String, authToken: String, external: Bool = false) async throws -> String {
     
 
         let adr = address.data(using: .hexadecimal)?.base64EncodedString()
@@ -411,7 +411,7 @@ class RemoteSigner {
         
         //print("message ", message)
 
-        guard var signature = try await self.personalSign(message:message, accountId: try addressToId(prefix: "ikms", address: address), authToken: authToken) else {
+        guard var signature = try await self.personalSign(message:message, accountId: try addressToId(prefix: "ikms", address: address), authToken: authToken, external: external) else {
             throw FabricError.unexpectedResponse("personalSign: could not get signature")
         }
         
@@ -431,7 +431,7 @@ class RemoteSigner {
         return fabricToken
     }
     
-    func personalSign(message: String, accountId: String, authToken: String) async throws -> Data? {
+    func personalSign(message: String, accountId: String, authToken: String, external: Bool = false) async throws -> Data? {
         
         let message2 = "\u{19}Ethereum Signed Message:\n\(message.count)\(message)"
         //print("personalSign message ", message2)
@@ -443,7 +443,7 @@ class RemoteSigner {
         //return try self.joinSignature(signature:try await self.signDigest(digest:hash, accountId:accountId, authToken:authToken))
         
         //print("personalSign hash ", hash.hexEncodedString())
-        var signature = try await self.signDigest(digest:hash, accountId:accountId, authToken:authToken)
+        let signature = try await self.signDigest(digest:hash, accountId:accountId, authToken:authToken, external: external)
         
         /*var signature: [String : Any] = ["sig":"0x98f93dae6dc74393e3b917de790304a9954fa46ef0c28596d13eecb7c61b850e0077903fc4d21de6e07d484271f8c5468dc66aca23fae08dc052a48928f1a87701",
               "v": 28,
@@ -458,11 +458,18 @@ class RemoteSigner {
     // digest: hex string of the digest to sign
     // accountId: in ikms___ format
     // authToken: token given back from the /wlt/login/jwt endpoint
-    func signDigest(digest: Data, accountId: String, authToken: String) async throws -> [String: AnyObject] {
+    func signDigest(digest: Data, accountId: String, authToken: String, external: Bool = false) async throws -> [String: AnyObject] {
         return try await withCheckedThrowingContinuation({ continuation in
             print("****** signDigest ******")
             do {
-                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/sign/eth/").appending(accountId);
+                
+                var endpoint: String = ""
+                if external {
+                    endpoint = "https://wlt.stg.svc.eluv.io/as/wlt/sign/eth/".appending(accountId);
+                }else {
+                    endpoint = try self.getAuthEndpoint().appending("/wlt/sign/eth/").appending(accountId);
+                }
+
                 print("Request: \(endpoint)")
                 
                 let headers: HTTPHeaders = [

@@ -26,7 +26,7 @@ struct ContentView: View {
     @State var mediaItem : MediaItem?
     @State var playerItem : AVPlayerItem?
     @State var playerFinished = false
-    @State var showActivity = false
+    @State var showActivity = true
     @State var backLink = ""
     @State var backLinkIcon = ""
     
@@ -43,6 +43,7 @@ struct ContentView: View {
     
     @State var showError : Bool = false
     @State var errorMessage: String = ""
+    @State var checkingViewState = false
     
     func reset() {
         showNft = false
@@ -50,7 +51,7 @@ struct ContentView: View {
         showPlayer = false
         mediaItem = nil
         playerFinished = false
-        showActivity = false
+        showActivity = true
         showMinter = false
         showProperty = false
         property = nil
@@ -58,6 +59,7 @@ struct ContentView: View {
         mintInfo = MintInfo()
         backLink = ""
         backLinkIcon = ""
+        checkingViewState = false
         withAnimation(.easeInOut(duration: 2)) {
             self.appeared = 1.0
         }
@@ -66,11 +68,17 @@ struct ContentView: View {
     
     func checkViewState() {
         debugPrint("checkViewState op ", viewState.op)
-        if self.showActivity == true {
+        if self.checkingViewState == true {
             return
+        }
+        self.checkingViewState = true
+        
+        defer {
+            self.checkingViewState = false
         }
         
         if viewState.op == .none {
+            showActivity = false
             return
         }
         
@@ -118,15 +126,14 @@ struct ContentView: View {
                     await MainActor.run {
                         self.nft = _nft
                         debugPrint("Showing NFT: ", nft.contract_name)
-                        self.showActivity = false
                         self.showNft = true
                     }
                 }else{
                     debugPrint("Could not find NFT from deeplink. ")
-                    self.showActivity = false
                     viewState.reset()
                     errorMessage = "Could not find bundle."
                     showError = true
+                    self.showActivity = false
                     return
                 }
                 
@@ -143,15 +150,14 @@ struct ContentView: View {
                             let item  = try await MakePlayerItem(fabric: fabric, media: item)
                             await MainActor.run {
                                 self.playerItem = item
-                                self.showActivity = false
                                 self.showPlayer = true
                             }
                         }catch{
                             print("checkViewState - could not create MediaItemViewModel ", error)
-                            self.showActivity = false
                             viewState.reset()
                             errorMessage = "Could not play item."
                             showError = true
+                            self.showActivity = false
                             return
                         }
                     }
@@ -167,16 +173,15 @@ struct ContentView: View {
                             self.mintItem = item
                             self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku, entitlement:viewState.entitlement)
                             debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
-                            self.showActivity = false
                             self.showMinter = true
                         }
                     }
                 }catch{
                     print("checkViewState mint error ", error)
-                    self.showActivity = false
                     viewState.reset()
                     errorMessage = "Could not mint item."
                     showError = true
+                    self.showActivity = false
                     return
                 }
             }else if viewState.op == .property {
@@ -186,14 +191,13 @@ struct ContentView: View {
                 await MainActor.run {
                     do {
                         self.property = try fabric.findProperty(marketplaceId: marketplace)
-                        self.showActivity = false
                         self.showProperty = true
                     }catch{
                         debugPrint("Could not find property ", marketplace)
-                        self.showActivity = false
                         viewState.reset()
                         errorMessage = "Could not find property."
                         showError = true
+                        self.showActivity = false
                         return
                     }
                 }
@@ -212,79 +216,43 @@ struct ContentView: View {
             //Don't use NavigationView, pops back to root on ObservableObject update
             NavigationStack {
                 ZStack {
-                    if (appeared == 1.0) {
+                    if (showActivity) {
+                        ProgressView()
+                            .edgesIgnoringSafeArea(.all)
+                    }else {
                         MainView()
                             .preferredColorScheme(colorScheme)
                             .background(Color.mainBackground)
                             .navigationBarHidden(true)
                     }
-                    if (showActivity) {
-                        ProgressView()
-                            .edgesIgnoringSafeArea(.all)
-                    }
-                }
-                .onDisappear {debugPrint("ContentView onDisappear")
-                    //self.appeared = 0.0
                 }
                 .onAppear(){
-                    withAnimation(.easeInOut(duration: 2)) {
-                        self.appeared = 1.0
-                    }
                     debugPrint("ContentView onAppear")
-                    self.viewStateCancellable = viewState.$op
-                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                        .sink { val in
-                            debugPrint("viewState changed.", viewState.op)
-                            debugPrint("showNFT ", showNft)
-                            if viewState.op == .none || fabric.isLoggedOut{
-                                self.showActivity = false
-                                return
-                            }
-                            checkViewState()
-                            showActivity = false
-                        }
-                    
+                    self.showActivity = true
+
                     self.fabricCancellable = fabric.$isRefreshing
                         .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
                             debugPrint("isRefreshing changed.", fabric.isRefreshing)
                             if (fabric.isRefreshing && fabric.library.isEmpty){
-                                self.showActivity = true
                                 return
                             }
                             
                             checkViewState()
-                            showActivity = false
                         }
                     
-                    if viewState.op == .mint {
+                    if viewState.op != .none {
                         checkViewState()
+                    }else {
                         showActivity = false
                     }
                 }
             }
-            .onChange(of:showNft){
-                if (showNft){
-                    self.appeared = 0.0
-                }
+            .onChange(of: self.showActivity) {
+                debugPrint("ShowActivity ", self.showActivity)
             }
-            .onChange(of:showMinter){
-                if (showMinter){
-                    self.appeared = 0.0
-                }
-            }
-            .onChange(of:showProperty){
-                if (showProperty){
-                    self.appeared = 0.0
-                }
-            }
-            .onChange(of:showPlayer){
-                if (showPlayer){
-                    self.appeared = 0.0
-                }
-            }
-            .fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-                NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
+            .fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon, nft] in
+                NFTDetail(nft: nft, backLink: backLink, backLinkIcon: backLinkIcon)
             }
             .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
                 PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished,
@@ -335,6 +303,12 @@ struct ContentView: View {
             }
         }
         reset()
+        Task {
+            try? await Task.sleep(nanoseconds: 1500000000)
+            await MainActor.run {
+                showActivity = false
+            }
+        }
     }
 }
 

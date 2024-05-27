@@ -29,7 +29,9 @@ struct SignInView: View {
     @State var showDeviceFlow = false
     
     @FocusState private var signInFocus: Bool
-
+    @FocusState var titleFocused: Bool
+    @State var clickedNumber = 0
+    
     enum Networks: String, CaseIterable, Identifiable {
         case main="main", demo="demo"
         var name: String {
@@ -38,6 +40,7 @@ struct SignInView: View {
         var id: Self { self }
     }
     
+    @State var showNetworks = false
     @State private var networkSelection: Networks = .main
     
     init(){
@@ -65,7 +68,16 @@ struct SignInView: View {
                             Text("Media Wallet")
                                 .font(.custom("Helvetica Neue", size: 90))
                                 .padding(.bottom,40)
-                            if IsDemoMode() {
+                                .focusable(true)
+                                .focused($titleFocused)
+                                .onTapGesture {
+                                    print("clicked 1")
+                                    clickedNumber += 1
+                                    if (!showNetworks && clickedNumber > 4) {
+                                        showNetworks = true
+                                    }
+                                }
+                            if IsDemoMode() || showNetworks {
                                 Picker("Networks", selection: $networkSelection) {
                                     ForEach(Networks.allCases) { network in
                                         Text("\(network.name.capitalizingFirstLetter())")
@@ -90,6 +102,7 @@ struct SignInView: View {
                             self.showDeviceFlow = true
                             Task {
                                 do {
+                                    debugPrint("")
                                     //ONLY MAIN FOR PROD
                                     //if IsDemoMode() {
                                         try await fabric.connect(network:networkSelection.name)

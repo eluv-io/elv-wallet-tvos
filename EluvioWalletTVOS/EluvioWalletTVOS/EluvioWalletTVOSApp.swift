@@ -54,18 +54,19 @@ struct EluvioWalletTVOSApp: App {
         WindowGroup {
             ZStack{
                 Color.black.edgesIgnoringSafeArea(.all)
-                ContentView()
-                    .opacity(opacity)
-                    .environmentObject(fabric)
-                    .environmentObject(viewState)
-                    .preferredColorScheme(.dark)
                 if showLoader {
                         ZStack{
                             Color.black.edgesIgnoringSafeArea(.all)
                             ProgressView()
                         }
-                        .frame(width: .infinity, height: .infinity)
+                        .frame(minWidth: 0, maxWidth: .infinity , minHeight: 0, maxHeight: .infinity)
                         .edgesIgnoringSafeArea(.all)
+                }else {
+                    ContentView()
+                        .opacity(opacity)
+                        .environmentObject(fabric)
+                        .environmentObject(viewState)
+                        .preferredColorScheme(.dark)
                 }
             }
             .onAppear(){

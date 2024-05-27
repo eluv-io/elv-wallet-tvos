@@ -48,7 +48,7 @@ struct MainView: View {
     @State var selection: Tab = Tab.Items
     @State private var cancellable: AnyCancellable? = nil
     @State var logOutTimer = Timer.publish(every:24*60*60, on: .main, in: .common)
-    
+
     init() {
         UITabBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.2)
     }

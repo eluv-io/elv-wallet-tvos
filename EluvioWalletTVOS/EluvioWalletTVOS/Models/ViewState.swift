@@ -73,7 +73,9 @@ class ViewState: ObservableObject {
                         print("Could not login from deeplink: \(error.localizedDescription)")
                     }
             }else{
-                setViewState(host:host, url:url)
+                await MainActor.run {
+                    setViewState(host:host, url:url)
+                }
             }
         }
     }

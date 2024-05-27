@@ -222,11 +222,6 @@ struct DeviceFlowView: View {
                             Task {
                                 do {
                                     try await fabric.signIn(credentials: json)
-                                    
-                                    for (key, value) in json {
-                                        //print("key \(key) value2 \(value)")
-                                        UserDefaults.standard.set(value as? String, forKey: key)
-                                    }
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")
                                 }
