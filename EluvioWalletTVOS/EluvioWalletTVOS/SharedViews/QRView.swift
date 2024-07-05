@@ -10,7 +10,7 @@ import SwiftyJSON
 
 struct QRView: View {
     @EnvironmentObject var fabric: Fabric
-    @Binding var url: String
+    var url: String
     @State var title: String = "Point your camera to the QR Code below for content"
     @State var description: String = ""
     
@@ -44,7 +44,7 @@ struct QRView: View {
 struct QRView_Previews: PreviewProvider {
     @State static var url = "https://eluv.io"
     static var previews: some View {
-        QRView(url:$url)
+        QRView(url:url)
             .environmentObject(Fabric())
     }
 }

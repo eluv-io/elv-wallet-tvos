@@ -9,6 +9,7 @@ import SwiftUI
 import AuthenticationServices
 import SwiftEventBus
 import CoreImage.CIFilterBuiltins
+import AVKit
 
 class Subscriber {
     var view : Any
@@ -43,6 +44,11 @@ struct SignInView: View {
     @State var showNetworks = false
     @State private var networkSelection: Networks = .main
     
+    @State
+    private var playerItem : AVPlayerItem? = nil
+    
+    @State var backgroundUrl = Bundle.main.url(forResource: "start-screen-bg", withExtension: "mp4")
+    
     init(){
         //print("SignInView init()")
         self.subscriber = Subscriber(view:self)
@@ -54,75 +60,77 @@ struct SignInView: View {
         if !showDeviceFlow {
             ZStack {
                 viewState.signInBackground.edgesIgnoringSafeArea(.all)
-                VStack(alignment: .center, spacing: 30){
-                    VStack(alignment: .center, spacing:10){
-                        if !viewState.isBranded {
-                            Image("start-screen-logo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width:200)
-                            Text("Welcome to")
-                                .font(.custom("Helvetica Neue", size: 61))
-                                .fontWeight(.thin)
-                                .foregroundColor(Color.white.opacity(0.8))
-                            Text("Media Wallet")
-                                .font(.custom("Helvetica Neue", size: 90))
-                                .padding(.bottom,40)
-                                .focusable(true)
-                                .focused($titleFocused)
-                                .onTapGesture {
-                                    print("clicked 1")
-                                    clickedNumber += 1
-                                    if (!showNetworks && clickedNumber > 4) {
-                                        showNetworks = true
-                                    }
-                                }
-                            if IsDemoMode() || showNetworks {
-                                Picker("Networks", selection: $networkSelection) {
-                                    ForEach(Networks.allCases) { network in
-                                        Text("\(network.name.capitalizingFirstLetter())")
-                                            .font(.custom("Helvetica Neue", size: 10))
-                                    }
-                                }
-                                .frame(width:300)
-                            }
-                        }else{
-                            Image("start-screen-logo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width:800)
-                                .padding(.bottom, 80)
-                        }
-                    }
-                    
-                    if fabric.signingIn {
-                        ProgressView()
-                    }else {
-                        Button(action: {
-                            self.showDeviceFlow = true
-                            Task {
-                                do {
-                                    debugPrint("")
-                                    //ONLY MAIN FOR PROD
-                                    //if IsDemoMode() {
-                                        try await fabric.connect(network:networkSelection.name)
-                                    /*}else {
-                                        try await fabric.connect(network:"main")
+                LoopingVideoPlayer(urls:[backgroundUrl!], endAction: .loop)
+                    .edgesIgnoringSafeArea(.all)
+
+                VStack() {
+                    Spacer()
+                    HStack(alignment: .center, spacing: 30){
+                        VStack(alignment: .center, spacing:10){
+                            if !viewState.isBranded {
+                                Image("start-screen-logo")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width:700)
+                                    //.focusable(true)
+                                    //.focused($titleFocused)
+                                    /*.onTapGesture {
+                                        print("clicked 1")
+                                        clickedNumber += 1
+                                        if (!showNetworks && clickedNumber > 4) {
+                                            showNetworks = true
+                                        }
                                     }*/
-                                } catch {
-                                    print("Request failed with error: \(error)")
+                                /*
+                                if IsDemoMode() || showNetworks {
+                                    Picker("Networks", selection: $networkSelection) {
+                                        ForEach(Networks.allCases) { network in
+                                            Text("\(network.name.capitalizingFirstLetter())")
+                                                .font(.custom("Helvetica Neue", size: 10))
+                                        }
+                                    }
+                                    .frame(width:300)
                                 }
+                                 */
+                            }else{
+                                Image("start-screen-logo")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width:700)
+                                    .padding(.bottom, 80)
                             }
-                        }) {
-                            Text("Sign In")
                         }
-                        .focused($signInFocus)
+                        .padding(80)
                         
+                        Spacer()
+                        
+                        if fabric.signingIn {
+                            ProgressView()
+                        }else {
+                            Button(action: {
+                                self.showDeviceFlow = true
+                                Task {
+                                    do {
+                                        try await fabric.connect(network:networkSelection.name)
+                                    } catch {
+                                        print("Request failed with error: \(error)")
+                                    }
+                                }
+                            }) {
+                                Text("Sign In")
+                            }
+                            .padding(120)
+                            .focused($signInFocus)
+                            
+                        }
                     }
                 }
             }.onAppear(){
+                //if (playerItem == nil){
+                    playerItem = AVPlayerItem(url: Bundle.main.url(forResource: "start-screen-bg", withExtension: "mp4")!)
+                //}
                 DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
-                    signInFocus = true
+                    //signInFocus = true
                 }
             }
         } else {

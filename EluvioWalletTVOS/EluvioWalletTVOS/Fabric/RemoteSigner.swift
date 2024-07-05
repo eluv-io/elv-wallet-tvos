@@ -66,7 +66,6 @@ class RemoteSigner {
     //TODO: Convert this to responseDecodable
     func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> (result: JSON, hash: SHA256Digest) {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** getWalletData ******")
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
@@ -96,6 +95,158 @@ class RemoteSigner {
                             continuation.resume(returning: (JSON(result), hash))
                          case .failure(let error):
                             print("Get Wallet Data Request error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
+    
+    func getProperties(accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertiesResponse {
+
+        //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties").appending("?limit=100")
+                                                                    
+                print("getProperties Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
+                    .debugLog()
+                    .responseDecodable(of: MediaPropertiesResponse.self) { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: result)
+                         case .failure(let error):
+                            print("Get properties error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
+    func getPropertySectionsJSON(property: String, sections : [String] = [], accessCode: String) async throws -> JSON{
+
+        //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(property)/sections")
+                                                                    
+                print("getPropertySection Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                guard let url =  URL(string:endpoint) else {
+                    throw FabricError.invalidURL("getPropertySections - could not create url from \(endpoint)")
+                }
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.headers = headers
+                request.httpBody = try JSONSerialization.data(withJSONObject: sections)
+                
+                AF.request(request)
+                    .debugLog()
+                    //.responseDecodable(of: MediaPropertySectionsResponse.self) { response in
+                    .responseJSON() { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get properties sections error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+
+    func getPropertySections(property: String, sections : [String] = [], accessCode: String) async throws -> MediaPropertySectionsResponse{
+
+        //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(property)/sections")
+                                                                    
+                print("getPropertySection Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                guard let url =  URL(string:endpoint) else {
+                    throw FabricError.invalidURL("getPropertySections - could not create url from \(endpoint)")
+                }
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.headers = headers
+                request.httpBody = try JSONSerialization.data(withJSONObject: sections)
+                
+                AF.request(request)
+                    .debugLog()
+                    .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: result)
+                         case .failure(let error):
+                            print("Get properties sections error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
+    func getPropertyPageSections(property: String, page: String, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertySectionsResponse{
+
+        //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
+        return try await withCheckedThrowingContinuation({ continuation in
+            print("****** getPropertyPageSections ******")
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)/sections")
+                                                                    
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
+                    .debugLog()
+                    .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: result)
+                         case .failure(let error):
+                            print("Get property page sections error: \(error)")
                             continuation.resume(throwing: error)
                      }
                 }

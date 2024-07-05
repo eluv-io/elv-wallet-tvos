@@ -161,19 +161,39 @@ extension String {
         self = self.capitalizingFirstLetter()
     }
     
-    func html2Attributed(color: Color = .white, font: Font = .body) -> AttributedString {
+    func html2Attributed(fontScale: Double = 2.5) -> AttributedString {
+
         guard let data = data(using: String.Encoding.utf8) else {
             return ""
         }
-        if let attributedString = try? NSAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
-            var text = AttributedString(attributedString)
-            text.foregroundColor = color
-            text.font = font
-            return text
+ 
+        if let attr = try? NSMutableAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
+            
+            let range = NSRange(location: 0, length: attr.length)
+            attr.enumerateAttribute(.font, in: range, options: .longestEffectiveRangeNotRequired) { attrib, range, _ in
+                if let htmlFont = attrib as? UIFont {
+                    let traits = htmlFont.fontDescriptor.symbolicTraits
+                    var descrip = htmlFont.fontDescriptor.withFamily("Helvetica Neue")
+
+                    if (traits.rawValue & UIFontDescriptor.SymbolicTraits.traitBold.rawValue) != 0 {
+                        descrip = descrip.withSymbolicTraits(.traitBold)!
+                    }
+
+                    if (traits.rawValue & UIFontDescriptor.SymbolicTraits.traitItalic.rawValue) != 0 {
+                        descrip = descrip.withSymbolicTraits(.traitItalic)!
+                    }
+
+                    attr.addAttribute(.font, value: UIFont(descriptor: descrip, size: htmlFont.pointSize * fontScale), range: range)
+                }
+            }
+            
+            return AttributedString(attr)
         }
-        
+         
         return ""
-}
+        
+    }
+    
 }
 
 extension Data {

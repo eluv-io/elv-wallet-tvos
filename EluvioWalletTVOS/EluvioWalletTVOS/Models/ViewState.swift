@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum LinkOp {
-    case item, play, mint, property, none
+    case item, play, mint, property, gallery, none
 }
 
 class ViewState: ObservableObject {
@@ -114,5 +114,12 @@ class ViewState: ObservableObject {
        }
     }
     
-    
+    func setViewState(state: ViewState){
+        self.itemContract = state.itemContract
+        self.itemTokenStr = state.itemTokenStr
+        self.marketplaceId = state.marketplaceId
+        self.itemSKU = state.itemSKU
+        self.mediaId = state.mediaId
+        self.op = state.op
+    }
 }

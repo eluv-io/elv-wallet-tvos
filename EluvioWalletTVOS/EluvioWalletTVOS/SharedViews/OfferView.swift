@@ -97,7 +97,7 @@ struct OfferView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 20){
-                                Text(redeemable.description.html2Attributed(font:.description))
+                                Text(redeemable.description.html2Attributed())
                                     .lineLimit(3)
                                     .padding(.bottom,20)
                                 if (redeemable.isActionable) {
@@ -171,6 +171,7 @@ struct OfferView: View {
                         Spacer()
                     }
                     .padding(50)
+                  
                 }
                 .ignoresSafeArea()
                 .frame( maxWidth: .infinity, maxHeight:.infinity)
@@ -184,61 +185,6 @@ struct OfferView: View {
                 await fabric.refresh()
                 debugPrint ("OfferView refresh")
             }
-        }
-        .onChange(of:isRedeeming) { value in
-            print("onChange of:isRedeeming")
-                /*
-            if isRedeeming == true {
-                if !self.isRedeemed {
-                   
-                    Task{
-                        /*
-                        if self.playerItem == nil && redeemable.redeemAnimationLink != nil {
-                            do{
-                                print("Found animation")
-                                let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
-                                await MainActor.run {
-                                    self.playerItem = playerItem
-                                    showPlayer = true
-                                    debugPrint("ShowPlayer = true")
-                                }
-                            }catch{
-                                print("Error creating playerItem for redeem animation: ", error)
-                            }
-                        }else{
-                            self.showResult = true
-                        }
-
-                        print("Redeeming...", redeemable.offerId)
-                        var redeemed = false
-                        var transactionId: String? = nil
-                        do {
-                            let offerId = redeemable.offerId
-                            print("Redeeming... offer Id ", offerId)
-                            let redeemResult = try await fabric.redeemOffer(offerId: offerId, nft: redeemable.nft)
-                            if (!redeemResult.isEmpty) {
-                                redeemed = true
-                                print ("REDEEMED!", redeemResult)
-                            }
-                        }catch {
-                            print("Failed to redeemOffer", error)
-                        }
-                        
-                        self.isRedeeming = false
-                        if (redeemed) {
-                            do {
-                                self.redeemable.status = try await self.redeemable.checkOfferStatus(fabric: fabric)
-                                self.showResult = true
-                            }catch{
-                                print("Error checking status")
-                                self.showResult = false
-                            }
-                        }
-                         */
-                    }
-                }
-            }
-                 */
         }
         .onChange(of:showPlayer) { value in
             if value == false {

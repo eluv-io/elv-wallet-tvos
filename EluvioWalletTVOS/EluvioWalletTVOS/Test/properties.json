@@ -1,0 +1,107 @@
+{
+    "comments": [
+        "This is a sample response with a single Property: Superman",
+        "Media Property: iq__4XrUn6Z7g1yioEJnvpiKZ5aYfiK8",
+        "Media Catalog: iq__22VgA9GXr8QFPEzZUs2XSKTr9kAV",
+        "==========================================================",
+        "Content starts from the property CF object under:",
+        "----> .public.asset_metadata.info",
+        "That will be our root from here on out.",
+        "==========================================================",
+        "What is changed from the raw CF object:",
+        "- Removed `pages`",
+        "+ Added `main_page: {}`",
+        "+ Added `page_ids: []`",
+        "- Removed `sections`",
+        "- Removed `slug_map`: too verbose and not required by clients"
+    ],
+    "contents": [
+        {
+            "associated_marketplaces": [
+                {
+                    "marketplace_id": "iq__3oCrYs3goRxY16JEFr4JqbeEJU6c",
+                    "marketplace_slug": "b63413a5-ce07-4848-b763-b4d97f4870ec",
+                    "tenant_slug": "warnermedia"
+                }
+            ],
+            "attributes": [],
+            "description": "",
+            "header_logo": {
+                ".": {
+                    "container": "hq__6n5dvA5gpedTn4rFmKPgziMwBDsGocXNEWbNs5WJywZZaBuzuBAMCjJ3ctKwfyTEM2P5SvBCL6"
+                },
+                "/": "./files/WB-logo-for-top-nav.png"
+            },
+            "id": "iq__4XrUn6Z7g1yioEJnvpiKZ5aYfiK8",
+            "image": {
+                ".": {
+                    "container": "hq__6n5dvA5gpedTn4rFmKPgziMwBDsGocXNEWbNs5WJywZZaBuzuBAMCjJ3ctKwfyTEM2P5SvBCL6"
+                },
+                "/": "./files/Superman.jpg"
+            },
+            "media_catalogs": [
+                "iq__22VgA9GXr8QFPEzZUs2XSKTr9kAV"
+            ],
+            "name": "Superman",
+            "page_title": "Superman",
+            "main_page": {
+                "id": "main",
+                "label": "Main Page",
+                "layout": {
+                    "background_image": {
+                        ".": {
+                            "container": "hq__6n5dvA5gpedTn4rFmKPgziMwBDsGocXNEWbNs5WJywZZaBuzuBAMCjJ3ctKwfyTEM2P5SvBCL6"
+                        },
+                        "/": "./files/SuperMan-Drill-Down-Header.jpg"
+                    },
+                    "background_image_mobile": {
+                        ".": {
+                            "container": "hq__6n5dvA5gpedTn4rFmKPgziMwBDsGocXNEWbNs5WJywZZaBuzuBAMCjJ3ctKwfyTEM2P5SvBCL6"
+                        },
+                        "/": "./files/Superman-Header-Mobile.jpg"
+                    },
+                    "description": "",
+                    "description_rich_text": "<h2><strong>The Superman Interactive Movie Experience</strong></h2><h4><strong>A new way to experience the feature film and special features, as well as exclusive image galleries and digital easter eggs.</strong></h4>",
+                    "logo": {
+                        ".": {
+                            "container": "hq__6n5dvA5gpedTn4rFmKPgziMwBDsGocXNEWbNs5WJywZZaBuzuBAMCjJ3ctKwfyTEM2P5SvBCL6"
+                        },
+                        "/": "./files/Superman-Logo-V2.png"
+                    },
+                    "logo_alt": "",
+                    "position": "Left",
+                    "sections": [
+                        "pscm6xkpxpv4afRPVg9R92ZXTV",
+                        "pscm7ztNxTxFupaZyU3wn1vn4z",
+                        "pscm9dUqBnh7guDhwPCzVrwpXW",
+                        "pscmQEsqKBZMX6ZvNWHXsjxRih",
+                        "pscmUJBbydVT1hdGxyF7BZxuzR"
+                    ],
+                    "title": ""
+                },
+                "permissions": {},
+                "slug": "main",
+                "url_slug": ""
+            },
+            "page_ids": [
+                "main"
+            ],
+            "permission_sets": [
+                "iq__2mLd8csJu7Lgrq5fmhFkmAUgi6Cx"
+            ],
+            "permissions": {
+                "behavior": "disable",
+                "property_permissions": [],
+                "property_permissions_behavior": "show_purchase"
+            },
+            "slug": "superman",
+            "subproperties": [],
+            "url_slug": ""
+        }
+    ],
+    "paging": {
+        "start": 0,
+        "limit": 1,
+        "total": 1
+    }
+}

@@ -26,7 +26,8 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
     
     
     var body: some View {
-        VideoPlayer(player: viewModel.player, videoOverlay: videoOverlay)
+        //VideoPlayer(player: viewModel.player, videoOverlay: videoOverlay)
+        AVLoopingPlayerView(player: $viewModel.player)
             .onDisappear {
                 print("ContentView disappeared!")
                 viewModel.player.pause()
@@ -35,9 +36,10 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
     }
     
     class ViewModel: ObservableObject {
-        let player: AVQueuePlayer
+        var player: AVQueuePlayer
         
         init(playerItems: [AVPlayerItem], endAction: EndAction) {
+
             player = AVQueuePlayer(items: playerItems)
             player.actionAtItemEnd = .none
             player.volume = 0.0
@@ -81,6 +83,18 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
 
 extension LoopingVideoPlayer where VideoOverlay == EmptyView {
     init(_ playerItems: [AVPlayerItem], endAction: EndAction) {
+        self.init(playerItems, endAction: endAction) {
+            EmptyView()
+        }
+    }
+    
+    init(urls: [URL], endAction: EndAction) {
+        
+        var playerItems : [AVPlayerItem] = []
+        for url in urls {
+            playerItems.append(AVPlayerItem(url: url))
+        }
+        
         self.init(playerItems, endAction: endAction) {
             EmptyView()
         }

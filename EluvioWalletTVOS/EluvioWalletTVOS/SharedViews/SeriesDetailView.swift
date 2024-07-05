@@ -20,7 +20,7 @@ struct SeriesDetailView: View {
         return seriesMediaItem.subtitle1
     }
     var description : AttributedString {
-        return seriesMediaItem.description.html2Attributed(font:.small)
+        return seriesMediaItem.description.html2Attributed()
     }
     @FocusState var isFocused
 

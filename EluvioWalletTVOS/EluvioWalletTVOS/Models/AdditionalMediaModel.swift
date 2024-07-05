@@ -476,20 +476,25 @@ struct MediaCollection: FeatureProtocol, Equatable, Hashable {
 
 struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
+    var thumbnail: JSON?
     var image: JSON?
     var video: JSON?
     var name: String = ""
     var image_aspect_ratio: String?
     var description: String?
-    
+    var media_type: String?
+
     init (){
         id = UUID().uuidString
+        thumbnail = nil
         image = nil
         video = nil
         name = ""
         image_aspect_ratio = ""
         description = ""
+        media_type = ""
     }
+
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -508,4 +513,34 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(name + (description ?? ""))
     }
+    
+    static func create(propertyMedia: MediaPropertySectionMediaItem) -> GalleryItem{
+    
+        var thumbLink : JSON? = nil
+        if (propertyMedia.thumbnail_image_square != nil) {
+            thumbLink = propertyMedia.thumbnail_image_square
+        }else if (propertyMedia.thumbnail_image_portrait != nil) {
+            thumbLink = propertyMedia.thumbnail_image_portrait
+        }else if (propertyMedia.thumbnail_image_landscape != nil) {
+            thumbLink = propertyMedia.thumbnail_image_landscape
+        }
+        
+        var imageLink : JSON? = nil
+        //TODO:
+        imageLink = thumbLink
+        
+        let videoLink = propertyMedia.media_link
+        
+        var item = GalleryItem()
+        
+        item.id = propertyMedia.id
+        item.thumbnail = thumbLink
+        item.image = imageLink
+        item.video = videoLink
+        item.description = propertyMedia.description ?? ""
+        item.name = propertyMedia.title ?? ""
+        
+        return item
+    }
+    
 }

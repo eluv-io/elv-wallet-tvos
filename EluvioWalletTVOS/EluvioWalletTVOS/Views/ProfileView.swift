@@ -48,10 +48,10 @@ struct ProfileView: View {
     var body: some View {
     //    NavigationStack {
             VStack() {
-                HeaderView(logo:logo, logoUrl: logoUrl)
+                /*HeaderView(logo:logo, logoUrl: logoUrl)
                     .padding(.top,50)
                     .padding(.leading,80)
-                    .padding(.bottom,80)
+                    .padding(.bottom,80)*/
                 
                 VStack(alignment: .center){
                     Form {
@@ -104,8 +104,6 @@ struct ProfileView: View {
                 }
                 .padding([.leading,.trailing,.bottom],80)
             }
-            //}
-            .ignoresSafeArea()
             .onAppear(){
                 do {
                     self.address = try fabric.getAccountAddress()

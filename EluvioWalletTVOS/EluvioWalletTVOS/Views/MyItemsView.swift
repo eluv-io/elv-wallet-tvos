@@ -20,14 +20,14 @@ struct MyItemsView: View {
     var body: some View {
         ScrollView{
             VStack{
-                HeaderView(logo:logo, logoUrl: logoUrl)
+                /*HeaderView(logo:logo, logoUrl: logoUrl)
                     .padding(.top,50)
                     .padding(.leading,80)
-                    .padding(.bottom,80)
+                    .padding(.bottom,80)*/
                 NFTGrid(nfts:nfts, drops:drops)
+                    .padding(.top,40)
             }
         }
-        .ignoresSafeArea()
         .scrollClipDisabled()
     }
 }

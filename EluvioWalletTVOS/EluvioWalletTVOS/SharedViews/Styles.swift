@@ -50,6 +50,23 @@ struct IconButtonStyle: ButtonStyle {
     }
 }
 
+struct NavButtonStyle: ButtonStyle {
+    let focused: Bool
+    var initialOpacity: CGFloat = 1.0
+    var highlightColor: Color = Color.clear
+    var buttonColor: Color = Color.clear
+    var scale = 1.03
+    func makeBody(configuration: Self.Configuration) -> some View {
+            configuration.label
+                .foregroundColor(.white)
+                .background(focused ? highlightColor : buttonColor)
+                .cornerRadius(10)
+                .scaleEffect(self.focused ? scale: 1.0, anchor: .center)
+                .animation(self.focused ? .easeIn(duration: 0.1) : .easeOut(duration: 0.1), value: self.focused)
+                .opacity(self.focused ? 1.0 : initialOpacity)
+    }
+}
+
 struct NonSelectionButtonStyle: ButtonStyle {
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
@@ -164,5 +181,9 @@ extension Font {
     
     public static var rowSubtitle: Font {
         return Font.system(size: 30)
+    }
+    
+    public static var propertyDescription: Font {
+        return Font.system(size:30)
     }
 }

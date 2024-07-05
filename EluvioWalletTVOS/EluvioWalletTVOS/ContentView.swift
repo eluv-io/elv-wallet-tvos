@@ -10,6 +10,24 @@ import Combine
 import AVKit
 import SwiftyJSON
 
+enum NavDestination: String, Hashable {
+    case property, video, gallery, mediaGrid, html
+}
+
+class PathState: ObservableObject {
+    @Published var path : [NavDestination] = []
+    
+    var property : MediaProperty? = nil
+    var propertyPage : MediaPropertyPage? = nil
+    var url : String = ""
+    
+    func reset() {
+        property = nil
+        propertyPage = nil
+        url = ""
+    }
+}
+                            
 struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
@@ -30,6 +48,10 @@ struct ContentView: View {
     @State var backLink = ""
     @State var backLinkIcon = ""
     
+    //Gallery View
+    @State var showGallery: Bool = false
+    @State var mediaList: [GalleryItem] = []
+    
     @State var showMinter : Bool = false
     @State var mintItem = JSON()
     @State var mintInfo = MintInfo()
@@ -44,6 +66,9 @@ struct ContentView: View {
     @State var showError : Bool = false
     @State var errorMessage: String = ""
     @State var checkingViewState = false
+    
+    @StateObject var pathState = PathState()
+    @State private var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
     
     func reset() {
         showNft = false
@@ -60,6 +85,7 @@ struct ContentView: View {
         backLink = ""
         backLinkIcon = ""
         checkingViewState = false
+        mediaList = []
         withAnimation(.easeInOut(duration: 2)) {
             self.appeared = 1.0
         }
@@ -140,6 +166,7 @@ struct ContentView: View {
             }else if viewState.op == .play {
                 debugPrint("Playmedia: ", viewState.mediaId)
                 
+                /*
                 if let _nft = fabric.getNFT(contract: contract,
                                             token: viewState.itemTokenStr){
                     self.nft = _nft
@@ -161,6 +188,65 @@ struct ContentView: View {
                             return
                         }
                     }
+                }
+                 */
+                
+                if let item = fabric.getMediaItem(mediaId:viewState.mediaId) {
+                    debugPrint("Found item: ", item.title)
+
+                    do {
+                        if let link = item.media_link?["sources"]["default"] {
+                            debugPrint("Item link: ", link)
+                            
+                            let item  = try await MakePlayerItemFromLink(fabric: fabric, link: link)
+                            await MainActor.run {
+                                self.playerItem = item
+                                self.showPlayer = true
+                            }
+                        }
+                    }catch{
+                        print("checkViewState - could not create AVPlayerItem ", error)
+                        viewState.reset()
+                        errorMessage = "Could not play item."
+                        showError = true
+                        self.showActivity = false
+                        return
+                    }
+                }
+                
+            }else if viewState.op == .gallery {
+                debugPrint("Gallery View: ", viewState.mediaId)
+                if let item = fabric.getMediaItem(mediaId:viewState.mediaId) {
+                    debugPrint("Found item: ", item.title)
+
+                    do {
+                        if let mediaList = item.media{
+                            debugPrint("Media list: ", mediaList)
+                            
+                            var gallery : [GalleryItem] = []
+                            
+                            for item in mediaList {
+                                gallery.append(GalleryItem.create(propertyMedia:item))
+                            }
+                        
+                            await MainActor.run {
+                                self.mediaList = gallery
+                                self.showGallery = true
+                            }
+                        }
+                    }catch{
+                        print("checkViewState - could not create AVPlayerItem ", error)
+                        viewState.reset()
+                        errorMessage = "Could not play item."
+                        showError = true
+                        self.showActivity = false
+                        return
+                    }
+                }else{
+                    viewState.reset()
+                    errorMessage = "Could not find media."
+                    showError = true
+                    self.showActivity = false
                 }
             }else if viewState.op == .mint {
                 debugPrint("Mint marketplace: ", viewState.marketplaceId)
@@ -212,23 +298,60 @@ struct ContentView: View {
                 .environmentObject(self.viewState)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
+                .environmentObject(self.pathState)
         }else{
             //Don't use NavigationView, pops back to root on ObservableObject update
-            NavigationStack {
+            NavigationStack(path: $pathState.path) {
                 ZStack {
                     if (showActivity) {
                         ProgressView()
                             .edgesIgnoringSafeArea(.all)
                     }else {
                         MainView()
+                            .environmentObject(self.fabric)
+                            .environmentObject(self.viewState)
+                            .environmentObject(self.pathState)
+                            .edgesIgnoringSafeArea(.all)
                             .preferredColorScheme(colorScheme)
                             .background(Color.mainBackground)
                             .navigationBarHidden(true)
                     }
                 }
+                .navigationDestination(for: NavDestination.self) { destination in
+                    switch destination {
+                    case .property:
+                        if let property = pathState.property {
+                            MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric: fabric))
+                               .environmentObject(self.fabric)
+                               .environmentObject(self.viewState)
+                               .environmentObject(self.pathState)
+                        
+                        }
+                    case .html:
+                        QRView(url: pathState.url)
+                            .environmentObject(self.fabric)
+                            .environmentObject(self.viewState)
+                            .environmentObject(self.pathState)
+                    default:
+                        Text("Something went wrong.")
+                    }
+                }
                 .onAppear(){
                     debugPrint("ContentView onAppear")
                     self.showActivity = true
+                    
+                    self.viewStateCancellable = viewState.$op
+                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+                        .sink { val in
+                            debugPrint("viewState changed.", viewState.op)
+                            debugPrint("showNFT ", showNft)
+                            if viewState.op == .none || fabric.isLoggedOut{
+                                self.showActivity = false
+                                return
+                            }
+                            checkViewState()
+                            showActivity = false
+                        }
 
                     self.fabricCancellable = fabric.$isRefreshing
                         .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
@@ -279,6 +402,9 @@ struct ContentView: View {
                         )
                     }
                 }
+            }
+            .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+                GalleryView(gallery: $mediaList)
             }
             .fullScreenCover(isPresented: $showError, onDismiss: didFullScreenCoverDismiss) {
                 HStack{

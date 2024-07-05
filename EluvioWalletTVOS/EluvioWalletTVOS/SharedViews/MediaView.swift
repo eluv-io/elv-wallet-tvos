@@ -331,8 +331,8 @@ struct MediaView2: View {
                 .edgesIgnoringSafeArea(.all)
                 .background(.thinMaterial)
         }
-        .fullScreenCover(isPresented: $showQRView) {
-            QRView(url: $qrUrl)
+        .fullScreenCover(isPresented: $showQRView) { [qrUrl] in
+            QRView(url: qrUrl)
                 .environmentObject(self.fabric)
         }
         
@@ -582,35 +582,37 @@ struct MediaCard: View {
                         .cornerRadius(cornerRadius)
                 }else {
                     //No image, display like the focused state with a lighter background
-                    VStack(alignment: .center, spacing: 7) {
-                        if ( !centerFocusedText ){
-                            Spacer()
-                        }
-                        if showFocusedTitle {
-                            Text(title)
+                    if (!isFocused) {
+                        VStack(alignment: .center, spacing: 7) {
+                            if ( !centerFocusedText ){
+                                Spacer()
+                            }
+                            if showFocusedTitle {
+                                Text(title)
+                                    .foregroundColor(Color.white)
+                                    .font(.subheadline)
+                            }
+                            Text(subtitle)
+                                .font(.small)
                                 .foregroundColor(Color.white)
-                                .font(.subheadline)
+                                .lineLimit(3)
                         }
-                        Text(subtitle)
-                            .font(.small)
-                            .foregroundColor(Color.white)
-                            .lineLimit(3)
+                        .frame(maxWidth:.infinity, maxHeight:.infinity)
+                        .padding(20)
+                        .padding(.bottom, 50)
+                        .cornerRadius(cornerRadius)
+                        .background(Color.white.opacity(0.1))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: cornerRadius)
+                                .stroke(Color.gray, lineWidth: 2)
+                        )
                     }
-                    .frame(maxWidth:.infinity, maxHeight:.infinity)
-                    .padding(20)
-                    .padding(.bottom, 50)
-                    .cornerRadius(cornerRadius)
-                    .background(Color.white.opacity(0.1))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.gray, lineWidth: 2)
-                    )
                 }
             }
 
             if (isFocused){
                 VStack(alignment: .center, spacing: 7) {
-                    if ( !centerFocusedText ){
+                    if ( !centerFocusedText){
                         Spacer()
                     }
                     if showFocusedTitle {
@@ -625,7 +627,7 @@ struct MediaCard: View {
                 }
                 .frame(maxWidth:.infinity, maxHeight:.infinity)
                 .padding(20)
-                .padding(.bottom, 25)
+                .padding(.bottom, 50)
                 .cornerRadius(cornerRadius)
                 .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
                 .overlay(

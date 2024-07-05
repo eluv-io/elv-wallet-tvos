@@ -38,5 +38,23 @@ struct AVPlayerView: UIViewControllerRepresentable {
     }
 }
 
+struct AVLoopingPlayerView: UIViewControllerRepresentable {
+
+    @Binding var player: AVQueuePlayer
+    
+    func updateUIViewController(_ playerController: AVPlayerViewController, context: Context) {
+        playerController.modalPresentationStyle = .fullScreen
+        playerController.player = player
+    }
+
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        //debugPrint("AVPlayerView makeUIViewController()")
+        let controller = AVPlayerViewController()
+        controller.showsPlaybackControls = false
+        controller.view.isUserInteractionEnabled = false
+        return controller
+    }
+}
+
 
 

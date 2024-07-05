@@ -39,72 +39,103 @@ struct HeaderView: View {
     }
 }
 
+enum MainTab { case Discover, Items, Profile}
+
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var pathState: PathState
+    @Namespace var MAIN
     
-    enum Tab { case Items, Media, Profile, Search }
-    @State var selection: Tab = Tab.Items
+
+    @State var selection: MainTab = MainTab.Discover
     @State private var cancellable: AnyCancellable? = nil
     @State var logOutTimer = Timer.publish(every:24*60*60, on: .main, in: .common)
-
+    @FocusState var navFocused
+    @State var showNav = false
+    @State var navDisabled = true
+    @State var justDismissed = false
+    
     init() {
         UITabBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.2)
     }
     
     var body: some View {
-        TabView(selection: $selection) {
-            MyItemsView(nfts: fabric.library.items).preferredColorScheme(colorScheme)
-                .tabItem{
-                    Text("My Items")
-                }
-                .tag(Tab.Items)
-            
-            if IsDemoMode(){
-                MyMediaViewDemo(library: fabric.library).preferredColorScheme(colorScheme)
-                    .tabItem{
-                        Text("My Media")
-                    }
-                    .tag(Tab.Media)
-            }else{
-                MyMediaView2(library: fabric.library).preferredColorScheme(colorScheme)
-                    .tabItem{
-                        Text("My Media")
-                    }
-                    .tag(Tab.Media)
+        ZStack{
+            TabView(selection:$selection){
+                DiscoverView().preferredColorScheme(colorScheme)
+                    .environmentObject(self.pathState)
+                    .prefersDefaultFocus(in: MAIN)
+                    .opacity(selection == .Discover ? 1.0 : 0.0)
+                    .tabItem{Text("Home")}
+                    .tag(MainTab.Discover)
+                
+                MyItemsView(nfts: fabric.library.items).preferredColorScheme(colorScheme)
+                    .environmentObject(self.pathState)
+                    .opacity(selection == .Items ? 1.0 : 0.0)
+                    .tabItem{Text("My Items")}
+                    .tag(MainTab.Items)
+                
+                ProfileView().preferredColorScheme(colorScheme)
+                    .environmentObject(self.pathState)
+                    .opacity(selection == .Profile ? 1.0 : 0.0)
+                    .preferredColorScheme(.dark)
+                    .tabItem{Text("Profile")}
+                    .tag(MainTab.Profile)
             }
-            
-            ProfileView().preferredColorScheme(colorScheme)
-                .tabItem{
-                    Text("Profile")
-                }
-                .tag(Tab.Profile)
-                .preferredColorScheme(.dark)
-            
-            if IsDemoMode(){
-                SearchView().preferredColorScheme(colorScheme)
-                    .tabItem{
-                        Image(systemName: "magnifyingglass")
-                    }
-                    .tag(Tab.Search)
-            }
-             
-            
         }
+        .edgesIgnoringSafeArea(.all)
         .onAppear(){
+            debugPrint("MainView onAppear")
             self.cancellable = fabric.$isLoggedOut.sink { val in
                 print("MainView fabric changed, ", val)
                 if fabric.isLoggedOut == true {
-                    self.selection = Tab.Items
+                    self.selection = MainTab.Discover
+                }
+            }
+            Task {
+                await MainActor.run {
+                    navDisabled = false
                 }
             }
         }
-        .onChange(of: selection){ newValue in
+        .onChange(of: selection){
             debugPrint("onChange of selection viewState ", viewState.op)
             Task {
                 await fabric.refresh()
             }
+        }
+        .onChange(of: navFocused){ old,new in
+            debugPrint("on Nav Focused ", new)
+            debugPrint("justDismissed ", justDismissed)
+            
+            if (new){
+                if (!justDismissed){
+                    debugPrint("showing nav ")
+                    navDisabled = true
+                    showNav = true
+                }else{
+                    //navFocused = false
+                    justDismissed = false
+                }
+            }
+            
+        }
+        .onChange(of: navDisabled){ old,new in
+            debugPrint("on Nav navDisabled ", new)
+            /*
+            if (new) {
+                Task {
+                    do {
+                        try await Task.sleep(nanoseconds: UInt64(3 * Double(NSEC_PER_SEC)))
+                        await MainActor.run {
+                            //navDisabled = false
+                        }
+                    }catch{}
+                }
+            }
+             */
         }
         .onReceive(logOutTimer) { _ in
             fabric.signOutIfExpired()

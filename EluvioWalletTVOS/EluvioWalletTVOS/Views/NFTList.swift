@@ -16,7 +16,8 @@ struct NFTGrid: View {
     
     @State private var editMode = EditMode.inactive
     let columns = [
-        GridItem(.fixed(520),spacing: 0),GridItem(.fixed(520),spacing: 0),
+        GridItem(.fixed(520),spacing: 0),
+        GridItem(.fixed(520),spacing: 0),
         GridItem(.fixed(520),spacing: 0)
     ]
     
@@ -28,26 +29,6 @@ struct NFTGrid: View {
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center, spacing:0) {
             ForEach(nfts) { nft in
-                //TODO: Go directly to Property Page if a series
-                /*if nft.isSeries == true {
-                   NFTView<MyMediaView>(
-                        image: nft.meta.image ?? "",
-                        title: nft.meta.displayName ?? "",
-                        subtitle: nft.meta.editionName ?? "",
-                        propertyLogo: nft.property?.logo ?? "",
-                        propertyName: nft.property?.title ?? "",
-                        tokenId: "#" + (nft.token_id_str ?? ""),
-                        destination: MyMediaView(featured: nft.property?.featured ?? Features(),
-                                                 library: nft.property?.media ?? [],
-                                                 albums: nft.property?.albums ?? [],
-                                                 items: [nft],
-                                                 drops: [],
-                                                 liveStreams: nft.property?.live_streams ?? [],
-                                                 heroImage: nft.property?.heroImage
-                                                )
-                    )
-                    .padding(.bottom,70)
-                }else{*/
                     NFTView<NFTDetail>(
                         image: nft.meta.image ?? "",
                         title: nft.meta.displayName ?? "",
@@ -58,7 +39,6 @@ struct NFTGrid: View {
                         destination: NFTDetail(nft: nft)
                     )
                     .padding(.bottom,70)
-                //}
             }
             
             ForEach(drops) { drop in

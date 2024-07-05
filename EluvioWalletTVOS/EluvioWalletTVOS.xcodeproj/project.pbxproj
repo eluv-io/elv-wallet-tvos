@@ -246,10 +246,32 @@
 		B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8629CD71840079661E /* FabricConfiguration.swift */; };
 		B0A2FD042ACD557100AC825D /* NFTDetailMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */; };
 		B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
+		B0A598D72C22967100D6716F /* SectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D62C22967100D6716F /* SectionItemView.swift */; };
+		B0A598D82C22967100D6716F /* SectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D62C22967100D6716F /* SectionItemView.swift */; };
+		B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */; };
+		B0A598DB2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */; };
+		B0A598E02C33090800D6716F /* start-screen-bg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */; };
+		B0A598E12C33090800D6716F /* start-screen-bg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */; };
+		B0A598E52C33976100D6716F /* PageGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3F2B58274200499C93 /* PageGesture.swift */; };
+		B0A598E72C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
+		B0A598E82C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
+		B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
+		B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
 		B0D53D702AE754E900E0A82E /* VuduPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53D6F2AE754E900E0A82E /* VuduPage.swift */; };
+		B0D5446A2C176EC200558B21 /* properties.json in Resources */ = {isa = PBXBuildFile; fileRef = B0D544692C176EC200558B21 /* properties.json */; };
+		B0D5446C2C17925800558B21 /* MediaPropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446B2C17925800558B21 /* MediaPropertyModel.swift */; };
+		B0D5446D2C17925800558B21 /* MediaPropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446B2C17925800558B21 /* MediaPropertyModel.swift */; };
+		B0D5446F2C1B760800558B21 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446E2C1B760800558B21 /* DiscoverView.swift */; };
+		B0D544702C1B760800558B21 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446E2C1B760800558B21 /* DiscoverView.swift */; };
+		B0D544732C1B7AEE00558B21 /* MediaPropertyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544722C1B7AEE00558B21 /* MediaPropertyViewModel.swift */; };
+		B0D544742C1B7AEE00558B21 /* MediaPropertyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544722C1B7AEE00558B21 /* MediaPropertyViewModel.swift */; };
+		B0D544762C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544752C1B7B0F00558B21 /* MediaPropertyView.swift */; };
+		B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544752C1B7B0F00558B21 /* MediaPropertyView.swift */; };
+		B0D544792C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */; };
+		B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */; };
 		B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
 		B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF952A250E3500F1E358 /* MediaDetail.swift */; };
@@ -402,9 +424,20 @@
 		B0A2FD002ACC98B500AC825D /* Fabric_bak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fabric_bak.swift; sourceTree = "<group>"; };
 		B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTDetailMovieView.swift; sourceTree = "<group>"; };
 		B0A2FD052ACF3E6A00AC825D /* MinterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinterView.swift; sourceTree = "<group>"; };
+		B0A598D62C22967100D6716F /* SectionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionItemView.swift; sourceTree = "<group>"; };
+		B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertySectionItemView.swift; sourceTree = "<group>"; };
+		B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "start-screen-bg.mp4"; sourceTree = "<group>"; };
+		B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewSideNav.swift; sourceTree = "<group>"; };
+		B0A598E92C3433CD00D6716F /* ContentViewBak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewBak.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
+		B0D544692C176EC200558B21 /* properties.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = properties.json; sourceTree = "<group>"; };
+		B0D5446B2C17925800558B21 /* MediaPropertyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertyModel.swift; sourceTree = "<group>"; };
+		B0D5446E2C1B760800558B21 /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
+		B0D544722C1B7AEE00558B21 /* MediaPropertyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertyViewModel.swift; sourceTree = "<group>"; };
+		B0D544752C1B7B0F00558B21 /* MediaPropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertyView.swift; sourceTree = "<group>"; };
+		B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertyDetailView.swift; sourceTree = "<group>"; };
 		B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0DFFF952A250E3500F1E358 /* MediaDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetail.swift; sourceTree = "<group>"; };
@@ -509,6 +542,7 @@
 		B00945A729EA478D00B00FC3 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				B0D544692C176EC200558B21 /* properties.json */,
 				B00945A829EA478D00B00FC3 /* TestData.swift */,
 				B00945A929EA478D00B00FC3 /* nfts.json */,
 				B00945AA29EA478D00B00FC3 /* nfts_marketplace.json */,
@@ -540,6 +574,7 @@
 		B07ADFF72B6D5AD7005C5E5A /* SharedViews */ = {
 			isa = PBXGroup;
 			children = (
+				B0F9DC3F2B58274200499C93 /* PageGesture.swift */,
 				B08CB4DF2B70A30D00E04C0D /* AudioPlayer.swift */,
 				B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */,
 				B0670F6A29E3D68900676872 /* PlayerView.swift */,
@@ -653,7 +688,6 @@
 				B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */,
 				B0D53D6F2AE754E900E0A82E /* VuduPage.swift */,
 				B04586F42AF4993B00F1FF25 /* FandangoPage.swift */,
-				B0F9DC3F2B58274200499C93 /* PageGesture.swift */,
 				B0F9DC412B5B4E5500499C93 /* ProgressSlider.swift */,
 				B0F9DC432B5E216C00499C93 /* BooksGallery.swift */,
 				B0F9DC582B68302400499C93 /* InteractiveMediaView.swift */,
@@ -672,6 +706,15 @@
 				B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		B0D544712C1B7AA900558B21 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				B0D544722C1B7AEE00558B21 /* MediaPropertyViewModel.swift */,
+				B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */,
+			);
+			path = ViewModels;
 			sourceTree = "<group>";
 		};
 		B0E60F6329CC23510079661E = {
@@ -700,6 +743,8 @@
 		B0E60F6E29CC23510079661E /* EluvioWalletTVOS */ = {
 			isa = PBXGroup;
 			children = (
+				B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */,
+				B0D544712C1B7AA900558B21 /* ViewModels */,
 				B07ADFF72B6D5AD7005C5E5A /* SharedViews */,
 				B07ADFD12B6D50BF005C5E5A /* Utils */,
 				B0A2FC922AB28CB000AC825D /* Info.plist */,
@@ -714,6 +759,7 @@
 				B0E60F7529CC23530079661E /* Preview Content */,
 				B06C4C4E2A5D09A9003C414A /* configuration_bak.json */,
 				B0E60F9E29D1B1DE0079661E /* Auth0.plist */,
+				B0A598E92C3433CD00D6716F /* ContentViewBak.swift */,
 			);
 			path = EluvioWalletTVOS;
 			sourceTree = "<group>";
@@ -754,6 +800,7 @@
 				B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */,
 				B08CB5A92B7DE8F200E04C0D /* ViewState.swift */,
 				B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */,
+				B0D5446B2C17925800558B21 /* MediaPropertyModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -785,6 +832,11 @@
 				B0A2FD052ACF3E6A00AC825D /* MinterView.swift */,
 				B02CE2032AF4C08700F5F495 /* BackButton.swift */,
 				B06C6EB12B2BDFF700EBACEA /* PackView.swift */,
+				B0D5446E2C1B760800558B21 /* DiscoverView.swift */,
+				B0D544752C1B7B0F00558B21 /* MediaPropertyView.swift */,
+				B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */,
+				B0A598D62C22967100D6716F /* SectionItemView.swift */,
+				B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -973,6 +1025,7 @@
 				B08CB5A22B7DE34000E04C0D /* configuration.json in Resources */,
 				B08CB5602B7DDF6900E04C0D /* Test in Resources */,
 				B08CB55D2B7DDF6900E04C0D /* Preview Content in Resources */,
+				B0A598E12C33090800D6716F /* start-screen-bg.mp4 in Resources */,
 				B08CB55C2B7DDF6900E04C0D /* Fabric in Resources */,
 				B08CB55F2B7DDF6900E04C0D /* Models in Resources */,
 				B08CB55E2B7DDF6900E04C0D /* Managers in Resources */,
@@ -1030,8 +1083,10 @@
 				B06D52112A12F83500BD68D1 /* property.json in Resources */,
 				B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */,
 				B06D52142A130A9300BD68D1 /* tenant.json in Resources */,
+				B0D5446A2C176EC200558B21 /* properties.json in Resources */,
 				B00945AE29EA478D00B00FC3 /* nfts.json in Resources */,
 				B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */,
+				B0A598E02C33090800D6716F /* start-screen-bg.mp4 in Resources */,
 				B06C4C4F2A5D09A9003C414A /* configuration_bak.json in Resources */,
 				B0E60F7E29CD63B60079661E /* configuration.json in Resources */,
 				B00945B129EA478D00B00FC3 /* profile.json in Resources */,
@@ -1047,6 +1102,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
 				B05648C22BC7E245004540F6 /* ContentViewApp.swift in Sources */,
 				B08CB5622B7DDFDA00E04C0D /* AudioPlayer.swift in Sources */,
 				B08CB59D2B7DE12800E04C0D /* configuration.json in Sources */,
@@ -1054,6 +1110,7 @@
 				B08CB5632B7DDFDA00E04C0D /* AVPlayerView.swift in Sources */,
 				B08CB5642B7DDFDA00E04C0D /* PlayerView.swift in Sources */,
 				B08CB5652B7DDFDA00E04C0D /* OfferView.swift in Sources */,
+				B0D544702C1B760800558B21 /* DiscoverView.swift in Sources */,
 				B08CB5662B7DDFDA00E04C0D /* GalleryView.swift in Sources */,
 				B08CB5672B7DDFDA00E04C0D /* SeriesDetailView.swift in Sources */,
 				B08CB5682B7DDFDA00E04C0D /* HTMLText.swift in Sources */,
@@ -1064,6 +1121,7 @@
 				B08CB56D2B7DDFDA00E04C0D /* LoopingPlayer.swift in Sources */,
 				B08CB56E2B7DDFDA00E04C0D /* MediaView.swift in Sources */,
 				B08CB56F2B7DDFDA00E04C0D /* Utils.swift in Sources */,
+				B0A598D82C22967100D6716F /* SectionItemView.swift in Sources */,
 				B077B8D72B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */,
 				B08CB5702B7DDFDA00E04C0D /* ContentKeyDelegate.swift in Sources */,
 				B08CB5712B7DDFDA00E04C0D /* ContentKeyManager.swift in Sources */,
@@ -1074,6 +1132,7 @@
 				B08CB5772B7DDFDA00E04C0D /* SignInView.swift in Sources */,
 				B08CB5782B7DDFDA00E04C0D /* DeviceFlowView.swift in Sources */,
 				B08CB5792B7DDFDA00E04C0D /* WalletView.swift in Sources */,
+				B0A598DB2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */,
 				B08CB57A2B7DDFDA00E04C0D /* CollectionView.swift in Sources */,
 				B08CB57B2B7DDFDA00E04C0D /* ProfileView.swift in Sources */,
 				B08CB57C2B7DDFDA00E04C0D /* CachedAsyncImage.swift in Sources */,
@@ -1087,6 +1146,7 @@
 				B08CB5842B7DDFDA00E04C0D /* MetaMaskFlowView.swift in Sources */,
 				B08CB5852B7DDFDA00E04C0D /* MyMediaViewDemo.swift in Sources */,
 				B08CB5862B7DDFDA00E04C0D /* NFTDetailMovieView.swift in Sources */,
+				B0D5446D2C17925800558B21 /* MediaPropertyModel.swift in Sources */,
 				B08CB5872B7DDFDA00E04C0D /* MinterView.swift in Sources */,
 				B08CB5882B7DDFDA00E04C0D /* BackButton.swift in Sources */,
 				B08CB5892B7DDFDA00E04C0D /* PackView.swift in Sources */,
@@ -1098,12 +1158,16 @@
 				B08CB58F2B7DDFDA00E04C0D /* PropertyModel.swift in Sources */,
 				B08CB5902B7DDFDA00E04C0D /* MediaRowViewModel.swift in Sources */,
 				B08CB5912B7DDFDA00E04C0D /* AudioPageModel.swift in Sources */,
+				B0D544742C1B7AEE00558B21 /* MediaPropertyViewModel.swift in Sources */,
 				B08CB5922B7DDFDA00E04C0D /* Fabric.swift in Sources */,
+				B0A598E82C33B0E000D6716F /* MainViewSideNav.swift in Sources */,
 				B08CB5932B7DDFDA00E04C0D /* FabricConfiguration.swift in Sources */,
 				B08CB5942B7DDFDA00E04C0D /* FabricModels.swift in Sources */,
 				B08CB5952B7DDFDA00E04C0D /* NFTMetaResponse.swift in Sources */,
 				B08CB5962B7DDFDA00E04C0D /* RemoteSigner.swift in Sources */,
 				B08CB5972B7DDFDA00E04C0D /* Profile.swift in Sources */,
+				B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
+				B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */,
 				B08CB5992B7DDFDA00E04C0D /* ProfileClient.swift in Sources */,
 				B08CB59A2B7DDFDA00E04C0D /* TestData.swift in Sources */,
@@ -1192,6 +1256,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0A598E52C33976100D6716F /* PageGesture.swift in Sources */,
 				B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */,
 				B06D521B2A149EDC00BD68D1 /* PropertiesView.swift in Sources */,
 				B06C92BF2A3060370001CF4E /* DropDetail.swift in Sources */,
@@ -1210,8 +1275,10 @@
 				B06C4C4B2A58858D003C414A /* MyMediaView2.swift in Sources */,
 				B0670F5729D79F9300676872 /* ProfileView.swift in Sources */,
 				B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */,
+				B0D544732C1B7AEE00558B21 /* MediaPropertyViewModel.swift in Sources */,
 				B0E60F8C29CD71840079661E /* NFTMetaResponse.swift in Sources */,
 				B00945AD29EA478D00B00FC3 /* TestData.swift in Sources */,
+				B0D544792C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
 				B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */,
 				B0E60F7229CC23510079661E /* ContentViewApp.swift in Sources */,
 				B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */,
@@ -1224,6 +1291,7 @@
 				B0E60FAD29D223870079661E /* SignInView.swift in Sources */,
 				B0E60F8A29CD71840079661E /* Fabric.swift in Sources */,
 				B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */,
+				B0D5446F2C1B760800558B21 /* DiscoverView.swift in Sources */,
 				B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */,
 				B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */,
 				B05648C42BC9CCBB004540F6 /* ContentView.swift in Sources */,
@@ -1244,15 +1312,21 @@
 				B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */,
 				B06C4C4D2A589CB6003C414A /* MediaRowViewModel.swift in Sources */,
 				B0670F6929DEA0C600676872 /* AdditionalMediaModel.swift in Sources */,
+				B0A598D72C22967100D6716F /* SectionItemView.swift in Sources */,
 				B0E60F8B29CD71840079661E /* FabricConfiguration.swift in Sources */,
+				B0A598E72C33B0E000D6716F /* MainViewSideNav.swift in Sources */,
 				B0670F7029E3DFD800676872 /* ContentKeyDelegate.swift in Sources */,
 				B06C4C512A5F0872003C414A /* AppConfiguration.swift in Sources */,
 				B00945A429E9514B00B00FC3 /* CachedAsyncImage.swift in Sources */,
 				B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */,
+				B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */,
 				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
+				B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,
 				B0670F3B29D5427400676872 /* NFTDetail.swift in Sources */,
 				B069A4832A397DA8006C9E7B /* LoopingPlayer.swift in Sources */,
+				B0D5446C2C17925800558B21 /* MediaPropertyModel.swift in Sources */,
+				B0D544762C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1521,9 +1595,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
+				TARGETED_DEVICE_FAMILY = "3,7";
 				TVOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Debug;
@@ -1553,9 +1629,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator xros xrsimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
+				TARGETED_DEVICE_FAMILY = "3,7";
 				TVOS_DEPLOYMENT_TARGET = 17.0;
 			};
 			name = Release;
