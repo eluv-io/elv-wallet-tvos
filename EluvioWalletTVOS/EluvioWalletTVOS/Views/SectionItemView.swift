@@ -46,6 +46,8 @@ struct SectionItemView: View {
                         
                         viewState.setViewState(state: state)
                     }else if ( mediaItem.type == "subproperty_link") {
+                        debugPrint("Media Subproperty Item", mediaItem.thumbnail)
+                        debugPrint("Media Item", item)
                         Task {
                             do {
                                 if let propertyId = item.subproperty_id {
@@ -73,7 +75,7 @@ struct SectionItemView: View {
                                 debugPrint("Error finding property ", item.subproperty_id)
                             }
                         }
-                        
+
                     }else {
                         debugPrint("Item: ", mediaItem)
                     }

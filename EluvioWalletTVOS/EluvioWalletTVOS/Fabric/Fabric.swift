@@ -1772,12 +1772,6 @@ class Fabric: ObservableObject {
             throw FabricError.badInput("getUrlFromLink: Link is nil")
         }
         
-        var urlString = link["url"].stringValue
-        
-        if (!urlString.isEmpty){
-            return urlString
-        }
-
         var path = link["/"].stringValue
         var hash = link["."]["container"].stringValue
         
@@ -1792,7 +1786,7 @@ class Fabric: ObservableObject {
             path = "/s/main\(path)"
         }
         
-        urlString = baseUrl ?? ""
+        var urlString = baseUrl ?? ""
         
         if urlString.isEmpty {
             urlString = try self.getEndpoint()
