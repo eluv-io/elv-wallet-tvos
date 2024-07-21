@@ -8,10 +8,49 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+struct MediaPropertySectionView: View {
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var viewState: ViewState
+    var propertyId: String
+    var section: MediaPropertySection
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10)  {
+            if let display = section.display {
+                Text(display["title"].stringValue).font(.rowTitle).foregroundColor(Color.white)
+            }
+            
+            ScrollView(.horizontal) {
+                HStack(alignment: .top, spacing: 50) {
+                    ForEach(section.content ?? []) {item in
+                        /*if item.media_type == "list" {
+                            SectionItemListView(propertyId: propertyId, item:item)
+                                .environmentObject(self.pathState)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
+                        }else {*/
+                        SectionItemView(item: item, propertyId: propertyId)
+                                .environmentObject(self.pathState)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
+                        //}
+                    }
+                }
+            }
+            .scrollClipDisabled()
+            
+        }
+        .padding(.top)
+    }
+}
+
 struct MediaPropertyDetailView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var viewState: ViewState
     var property: MediaPropertyViewModel
     @State var sections : [MediaPropertySection] = []
     
@@ -20,24 +59,10 @@ struct MediaPropertyDetailView: View {
             ScrollView() {
                 MediaPropertyHeader(logo: property.logo, title: property.logoAlt, description: property.description, descriptionRichText: property.descriptionRichText)
                 
-                ForEach(self.sections) {section in
-                    VStack(alignment: .leading, spacing: 10)  {
-                        if let display = section.display {
-                            Text(display["title"].stringValue).font(.rowTitle).foregroundColor(Color.white)
-                        }
-                        
-                        ScrollView(.horizontal) {
-                            HStack(alignment: .top, spacing: 50) {
-                                ForEach(section.content ?? []) {item in
-                                    SectionItemView(item: item)
-                                        .environmentObject(self.pathState)
-                                }
-                                
-                            }
-                        }
-                        .scrollClipDisabled()
+                ForEach(sections) {section in
+                    if let propertyId = property.id {
+                        MediaPropertySectionView(propertyId: propertyId, section: section)
                     }
-                    .padding(.top)
                 }
                 
             }
@@ -76,7 +101,8 @@ struct MediaPropertyDetailView: View {
                         return
                     }
                     self.sections = try await  fabric.getPropertySections(property: id, sections: property.sections)
-                    //debugPrint("Sections ", sections)
+                    //let sectionsJSON = try await fabric.getPropertySectionsJSON(property: id, sections: property.sections)
+                    //debugPrint("Sections ", sectionsJSON)
                 }catch {
                     print("Error getting property sections ", error.localizedDescription)
                 }

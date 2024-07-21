@@ -1181,6 +1181,16 @@ class Fabric: ObservableObject {
         return mediaPropertiesCache[property]
     }
     
+    func getPropertySectionsJSON(property: String, sections: [String]) async throws -> JSON {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+        
+        let result = try await signer.getPropertySectionsJSON(property: property, sections: sections, accessCode: self.fabricToken)
+        
+        return result
+    }
+    
     
     func getPropertySections(property: String, sections: [String]) async throws -> [MediaPropertySection] {
         if mediaPropertiesSectionCache.isEmpty {
@@ -1203,34 +1213,49 @@ class Fabric: ObservableObject {
         return retValue
     }
     
+    func getPropertyMediaItems(property: String, mediaItems: [String]) async throws -> [MediaPropertySectionMediaItem] {
+        if mediaPropertiesMediaItemCache.isEmpty {
+            try await cacheMediaItems(property: property, mediaItems: mediaItems)
+        }
+        
+        var retValue: [MediaPropertySectionMediaItem] = []
+        
+        for id in mediaItems {
+            if let item = self.mediaPropertiesMediaItemCache[id] {
+                retValue.append(item)
+            }else {
+                try await cacheMediaItems(property: property, mediaItems: [id])
+                if let item = self.mediaPropertiesMediaItemCache[id] {
+                    retValue.append(item)
+                }
+            }
+        }
+        
+        return retValue
+    }
+    
+    
+    func cacheMediaItems(property: String, mediaItems: [String]) async throws{
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+
+        let result = try await signer.getMediaItems(property: property, mediaItems: mediaItems, accessCode: self.fabricToken)
+
+        await MainActor.run {
+            for item in result.contents {
+                if let id = item.id {
+                    self.mediaPropertiesMediaItemCache[id] = item
+                }
+            }
+        }
+    }
+    
     func cachePropertySections(property: String, sections: [String]) async throws{
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
-        
-        /*
-        let result = try await signer.getPropertySectionsJSON(property: property, sections: sections, accessCode: self.fabricToken)
-        
-        for section in result["contents"].arrayValue {
-            debugPrint("Section id: \(section["id"].stringValue) ")
-            debugPrint("Section : \(section["label"].stringValue) ")
-            
-            if (section["id"].stringValue.isEmpty) {
-                debugPrint(section)
-            }
-            /*self.mediaPropertiesSectionCache[section.id] = section
-            if let sectionContents = section.content {
-                for item in sectionContents {
-                    if let media = item.media {
-                        //debugPrint("Adding media item to cache", media.id)
-                        self.mediaPropertiesMediaItemCache[media.id] = media
-                    }
-                }
-            }*/
-        }
-         */
-        
-        
+
         let result = try await signer.getPropertySections(property: property, sections: sections, accessCode: self.fabricToken)
         
         
@@ -1274,7 +1299,7 @@ class Fabric: ObservableObject {
                     }
                 }
                 
-                try await cachePropertySections(property: id, sections: sections)
+                //try await cachePropertySections(property: id, sections: sections)
             }
         }
         

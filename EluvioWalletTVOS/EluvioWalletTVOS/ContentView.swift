@@ -20,11 +20,19 @@ class PathState: ObservableObject {
     var property : MediaProperty? = nil
     var propertyPage : MediaPropertyPage? = nil
     var url : String = ""
+    var playerItem : AVPlayerItem? = nil
+    var mediaItem : MediaPropertySectionItem? = nil
+    var propertyId: String = ""
+    var gallery : [GalleryItem] = []
     
     func reset() {
         property = nil
+        propertyId = ""
         propertyPage = nil
         url = ""
+        playerItem = nil
+        mediaItem = nil
+        gallery = []
     }
 }
                             
@@ -69,6 +77,8 @@ struct ContentView: View {
     
     @StateObject var pathState = PathState()
     @State private var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
+    
+    @State var playerFinsished : Bool = false
     
     func reset() {
         showNft = false
@@ -226,7 +236,7 @@ struct ContentView: View {
                             var gallery : [GalleryItem] = []
                             
                             for item in mediaList {
-                                gallery.append(GalleryItem.create(propertyMedia:item))
+                                //gallery.append(GalleryItem.create(propertyMedia:item))
                             }
                         
                             await MainActor.run {
@@ -325,13 +335,34 @@ struct ContentView: View {
                                .environmentObject(self.fabric)
                                .environmentObject(self.viewState)
                                .environmentObject(self.pathState)
-                        
                         }
                     case .html:
                         QRView(url: pathState.url)
                             .environmentObject(self.fabric)
                             .environmentObject(self.viewState)
                             .environmentObject(self.pathState)
+                    case .video:
+                        if let playerItem = pathState.playerItem {
+                            PlayerView(playerItem: $pathState.playerItem, seekTimeS: 0, finished: $playerFinsished)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
+                                .environmentObject(self.pathState)
+                        }
+                    case .mediaGrid:
+                        if let item = pathState.mediaItem {
+                            if !pathState.propertyId.isEmpty {
+                                SectionItemListView(propertyId: pathState.propertyId, item:item)
+                                    .environmentObject(self.pathState)
+                                    .environmentObject(self.fabric)
+                                    .environmentObject(self.viewState)
+                            }
+                        }
+                    case .gallery:
+                        GalleryView(gallery:pathState.gallery)
+                            .environmentObject(self.pathState)
+                            .environmentObject(self.fabric)
+                            .environmentObject(self.viewState)
+    
                     default:
                         Text("Something went wrong.")
                     }
@@ -403,8 +434,8 @@ struct ContentView: View {
                     }
                 }
             }
-            .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-                GalleryView(gallery: $mediaList)
+            .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [mediaList] in
+                GalleryView(gallery: mediaList)
             }
             .fullScreenCover(isPresented: $showError, onDismiss: didFullScreenCoverDismiss) {
                 HStack{

@@ -324,8 +324,8 @@ struct MediaView2: View {
         .onAppear(){
             updateProgress()
         }
-        .fullScreenCover(isPresented: $showGallery) {
-            GalleryView(gallery: $gallery)
+        .fullScreenCover(isPresented: $showGallery) { [gallery] in
+            GalleryView(gallery: gallery)
                 .environmentObject(self.fabric)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .edgesIgnoringSafeArea(.all)
@@ -555,6 +555,7 @@ struct MediaCard: View {
 
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
+    var sizeFactor: CGFloat = 1
     @State var cornerRadius: CGFloat = 3
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = true
@@ -690,29 +691,29 @@ struct MediaCard: View {
             //debugPrint("Media Display ", display)
                 
                 if display == MediaDisplay.feature {
-                    width = 393
-                    height = 590
-                    cornerRadius = 3
+                    width = 393 * sizeFactor
+                    height = 590 * sizeFactor
+                    cornerRadius = 3 * sizeFactor
                 }else if display == MediaDisplay.video{
-                    width =  534
-                    height = 300
-                    cornerRadius = 16
+                    width =  534 * sizeFactor
+                    height = 300 * sizeFactor
+                    cornerRadius = 16 * sizeFactor
                 }else if display == MediaDisplay.books {
-                    width =  235
-                    height = 300
-                    cornerRadius = 16
+                    width =  235 * sizeFactor
+                    height = 300 * sizeFactor
+                    cornerRadius = 16 * sizeFactor
                 }else if display == MediaDisplay.property {
-                    width =  405
-                    height = 247
-                    cornerRadius = 16
+                    width =  405 * sizeFactor
+                    height = 247 * sizeFactor
+                    cornerRadius = 16 * sizeFactor
                 }else if display == MediaDisplay.tile {
-                    width =  887
-                    height = 551
+                    width =  887 * sizeFactor
+                    height = 551 * sizeFactor
                     cornerRadius = 0
                 }else {
-                    width =  300
-                    height = 300
-                    cornerRadius = 16
+                    width =  300 * sizeFactor
+                    height = 300 * sizeFactor
+                    cornerRadius = 16 * sizeFactor
                 }
             //}
         }

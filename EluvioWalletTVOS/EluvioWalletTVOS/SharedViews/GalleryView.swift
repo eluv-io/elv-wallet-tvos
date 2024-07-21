@@ -54,7 +54,7 @@ struct GalleryItemView: View {
 
 struct GalleryView: View {
     @EnvironmentObject var fabric: Fabric
-    @Binding var gallery: [GalleryItem]
+    var gallery: [GalleryItem]
     @State var currentImageUrl : String = ""
     
     var body: some View {
@@ -92,6 +92,6 @@ struct GalleryView_Previews: PreviewProvider {
     ]
     
     static var previews: some View {
-        GalleryView(gallery: $test)
+        GalleryView(gallery: test)
     }
 }

@@ -256,6 +256,45 @@ class RemoteSigner {
         })
     }
     
+    func getMediaItems(property: String, mediaItems : [String] = [], accessCode: String) async throws -> MediaPropertyItemsResponse{
+
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(property)/media_items")
+                                                                    
+                print("getPropertySection Request: \(endpoint)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                
+                guard let url =  URL(string:endpoint) else {
+                    throw FabricError.invalidURL("getPropertySections - could not create url from \(endpoint)")
+                }
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.headers = headers
+                request.httpBody = try JSONSerialization.data(withJSONObject: mediaItems)
+                
+                AF.request(request)
+                    .debugLog()
+                    .responseDecodable(of: MediaPropertyItemsResponse.self) { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: result)
+                         case .failure(let error):
+                            print("Get properties sections error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
     //TODO: Convert this to responseDecodable
     func createMetaMaskLogin() async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in

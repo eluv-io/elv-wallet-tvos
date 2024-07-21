@@ -6,6 +6,188 @@
 //
 
 import SwiftUI
+import SwiftyJSON
+
+struct SectionItemListView: View {
+    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var pathState: PathState
+    
+    var propertyId: String
+    var item: MediaPropertySectionItem
+    @State var items : [MediaPropertySectionMediaItem] = []
+    @FocusState var isFocused
+    
+    @State var display : MediaDisplay = .square
+    
+    private let videoColumns = [
+        GridItem(.fixed(560)),
+        GridItem(.fixed(560)),
+        GridItem(.fixed(560))
+    ]
+    private let squareColumns = [
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400))
+    ]
+    
+    var body: some View {
+        ScrollView {
+            HStack{
+                Text(item.media?.title ?? "")
+                    .font(.title)
+                Spacer()
+            }
+            .frame(maxWidth:.infinity)
+            .padding(40)
+            
+            LazyVGrid(columns: display == .video ? videoColumns : squareColumns, alignment: .center, spacing:20) {
+                ForEach(items) {item in
+                    SectionMediaItemView(item:item)
+                }
+            }
+        }
+        .onAppear(){
+            debugPrint("SectionItemListView onAppear item ", item)
+            Task {
+                if let mediaList = item.media?.media {
+                    let result = try await fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
+                    //debugPrint("MediaItems: ", result)
+                    await MainActor.run {
+                        if let item = result.first {
+                            if item.thumbnail_image_portrait != nil {
+                                display = .feature
+                            }
+                            
+                            if item.thumbnail_image_landscape != nil {
+                                display = .video
+                            }
+                            debugPrint("SectionItemListView display ", display)
+                        }
+                       
+                        items = result
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct SectionMediaItemView: View {
+    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var pathState: PathState
+    
+    var item: MediaPropertySectionMediaItem
+    var display : MediaDisplay {
+        if item.thumbnail_image_square != nil {
+            return .square
+        }
+        
+        if item.thumbnail_image_portrait != nil {
+            return .feature
+        }
+        
+        if item.thumbnail_image_landscape != nil {
+            return .video
+        }
+        
+        return .square
+    }
+
+    
+    var thumbnail : String {
+        do {
+            let thumbnailSquare = try fabric.getUrlFromLink(link: item.thumbnail_image_square)
+            if !thumbnailSquare.isEmpty {
+                return thumbnailSquare
+            }
+        }catch{}
+        
+        do {
+            let thumbnailPortrait = try fabric.getUrlFromLink(link: item.thumbnail_image_portrait)
+            if !thumbnailPortrait.isEmpty {
+                return thumbnailPortrait
+            }
+        }catch{}
+        
+        do {
+            let thumbnailLand = try fabric.getUrlFromLink(link: item.thumbnail_image_landscape )
+            if !thumbnailLand.isEmpty {
+                return thumbnailLand
+            }
+        }catch{}
+        
+        return ""
+    }
+    
+    @FocusState var isFocused
+
+    var body: some View {
+        VStack(alignment:.leading, spacing:10){
+            Button(action: {
+                if let type = item.media_type {
+                    if ( type.lowercased() == "video") {
+                        if let link = item.media_link?["sources"]["default"] {
+                            Task{
+                                do {
+                                    let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link)
+                                    pathState.playerItem = playerItem
+                                    pathState.path.append(.video)
+                                }catch{
+                                    print("Error getting link url for playback ", error)
+                                }
+                            }
+                        }
+                    }else if (type.lowercased() == "html") {
+                        
+                        debugPrint("Media Item", item)
+                        do {
+                            if let file = item.media_file {
+                                pathState.url = try fabric.getUrlFromLink(link:file,staticUrl:true)
+                                pathState.path.append(.html)
+                            }else{
+                                print("MediaItem has empty file for html type")
+                            }
+                        }catch{
+                            print("Could not get file url for html media type: ", error)
+                        }
+                    }else if (type.lowercased() == "gallery") {
+                        debugPrint("Media Item Gallery Type ", item)
+                        do {
+                            if let gallery = item.gallery {
+                                pathState.gallery = gallery
+                                pathState.path.append(.gallery)
+                            }else{
+                                print("MediaItem has empty file for html type")
+                            }
+                        }catch{
+                            print("Could not get gallery from item: ", error)
+                        }
+                    }else {
+                        debugPrint("Item media_type: ", item.media_type)
+                        debugPrint("Item without type Item: ", item)
+                    }
+                }
+                
+            }){
+                MediaCard(display: display,
+                          image: thumbnail,
+                          isFocused:isFocused,
+                          title: item.title ?? "",
+                          isLive: item.live ?? false,
+                          showFocusedTitle: item.title ?? "" == "" ? false : true,
+                          sizeFactor: display == .square ? 1.3 : 1.0
+                )
+            }
+            .buttonStyle(TitleButtonStyle(focused: isFocused))
+            .focused($isFocused)
+        }
+    }
+}
+
+    
 
 struct SectionItemView: View {
     @EnvironmentObject var fabric: Fabric
@@ -13,6 +195,7 @@ struct SectionItemView: View {
     @EnvironmentObject var pathState: PathState
     
     var item: MediaPropertySectionItem
+    var propertyId: String
     @State var viewItem : MediaPropertySectionMediaItemView? = nil
     @FocusState var isFocused
     
@@ -21,8 +204,9 @@ struct SectionItemView: View {
             if let mediaItem = viewItem {
                 Button(action: {
                     debugPrint("Item Selected! ", mediaItem.title)
-                    debugPrint("Item Type ", mediaItem.media_type)
-                    debugPrint("Media Item Type ", item.media?.media_type)
+                    debugPrint("MediaItemView Type ", mediaItem.media_type)
+                    debugPrint("Item Type ", item.type)
+                    debugPrint("Item Media Type ", item.media_type)
                     
                     if ( mediaItem.media_type.lowercased() == "video") {
                         let state = ViewState()
@@ -39,12 +223,22 @@ struct SectionItemView: View {
                         }else{
                             print("MediaItem has empty file for html type")
                         }
-                    }else if ( mediaItem.media_type.lowercased() == "list") {
-                        let state = ViewState()
-                        state.op = .gallery
-                        state.mediaId = mediaItem.media_id
+                    }else if ( item.media_type?.lowercased() == "list") {
                         
-                        viewState.setViewState(state: state)
+                        debugPrint("Media Item media List type!", item.media)
+                        
+                        if let media = item.media {
+                            if let list = media.media {
+                                if !list.isEmpty {
+                                    pathState.mediaItem = item
+                                    pathState.propertyId = propertyId
+                                    pathState.path.append(.mediaGrid)
+                                }
+                            }
+                        }else{
+                            print("MediaItem has empty file for html type")
+                        }
+                        
                     }else if ( mediaItem.type == "subproperty_link") {
                         debugPrint("Media Subproperty Item", mediaItem.thumbnail)
                         debugPrint("Media Item", item)
@@ -77,7 +271,7 @@ struct SectionItemView: View {
                         }
 
                     }else {
-                        debugPrint("Item: ", mediaItem)
+                        debugPrint("Item without type Item: ", mediaItem)
                     }
                     
                 }){

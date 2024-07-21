@@ -57,6 +57,11 @@ struct MediaPropertySectionsResponse: Codable {
     var paging : ResponsePaging = ResponsePaging()
 }
 
+struct MediaPropertyItemsResponse: Codable {
+    var contents : [MediaPropertySectionMediaItem] = []
+    var paging : ResponsePaging = ResponsePaging()
+}
+
 struct MediaPropertySection: Codable, Identifiable {
     var id : String = UUID().uuidString
     var content : [MediaPropertySectionItem]? = []
@@ -99,13 +104,17 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable  {
     var catalog_title : String? = ""
     var description : String? = ""
     var description_rich_text : String? = ""
+    var controls : String? = ""
+    var viewed_settings : JSON?
+    var tags : [JSON]?
     var end_time : String? = ""
     var offerings : [String]? = []
     var start_time : String? = ""
     var label : String? = ""
     var live : Bool? = false
-    var media : [MediaPropertySectionMediaItem]? = nil
-    var media_lists : [JSON]? //This is an array of media items but the item's media field is a list of strings?
+    var gallery : [GalleryItem]? = nil
+    var media : [String]? = nil
+    var media_lists : [String]? //This is an array of media items but the item's media field is a list of strings?
     var media_catalog_id : String? = ""
     var media_file : JSON?
     var media_link : JSON?
