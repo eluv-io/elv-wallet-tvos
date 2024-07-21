@@ -11,15 +11,45 @@ import SDWebImageSwiftUI
 struct MediaPropertyView : View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var pathState : PathState
+    @EnvironmentObject var fabric : Fabric
     var property: MediaPropertyViewModel
     @FocusState private var focused : Bool
     @Binding var selected : MediaPropertyViewModel
 
     var body: some View {
         VStack(spacing:10) {
-            NavigationLink(destination:MediaPropertyDetailView(property:property)
-                .environmentObject(self.pathState)
-                .preferredColorScheme(colorScheme)) {
+            Button(action: {
+                Task {
+                    do {
+                        if let propertyId = property.id {
+                            if let property = try await fabric.getProperty(property: propertyId) {
+                                debugPrint("Found Sub property", property)
+                                
+                                await MainActor.run {
+                                    pathState.property = property
+                                }
+                                
+                                if let pageId = property.main_page?.id{
+                                    if let page = try await fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                        await MainActor.run {
+                                            pathState.propertyPage = page
+                                        }
+                                    }
+                                }
+                                
+                                await MainActor.run {
+                                    pathState.path.append(.property)
+                                }
+                            }
+                        }
+                    }catch{
+                        debugPrint("Error finding property ", error.localizedDescription)
+                    }
+                }
+            }){
+            //NavigationLink(destination:MediaPropertyDetailView(property:property)
+            //    .environmentObject(self.pathState)
+            //    .preferredColorScheme(colorScheme)) {
                     WebImage(url: URL(string: property.image))
                         .resizable()
                         .indicator(.activity) // Activity Indicator

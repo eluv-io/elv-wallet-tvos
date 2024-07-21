@@ -31,11 +31,14 @@ struct MediaPropertySectionView: View {
                                 .environmentObject(self.fabric)
                                 .environmentObject(self.viewState)
                         }else {*/
-                        SectionItemView(item: item, propertyId: propertyId)
+                        if item.type == "item_purchase" {
+                            //Skip for now
+                        }else{
+                            SectionItemView(item: item, propertyId: propertyId)
                                 .environmentObject(self.pathState)
                                 .environmentObject(self.fabric)
                                 .environmentObject(self.viewState)
-                        //}
+                        }
                     }
                 }
             }

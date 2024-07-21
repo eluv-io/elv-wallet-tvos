@@ -239,6 +239,14 @@ struct SectionItemView: View {
                             print("MediaItem has empty file for html type")
                         }
                         
+                    }else if (mediaItem.media_type.lowercased() == "gallery") {
+                        debugPrint("Media Item Gallery Type ", item)
+                        if let gallery = item.media?.gallery {
+                            pathState.gallery = gallery
+                            pathState.path.append(.gallery)
+                        }else{
+                            print("MediaItem has empty file for html type")
+                        }
                     }else if ( mediaItem.type == "subproperty_link") {
                         debugPrint("Media Subproperty Item", mediaItem.thumbnail)
                         debugPrint("Media Item", item)
