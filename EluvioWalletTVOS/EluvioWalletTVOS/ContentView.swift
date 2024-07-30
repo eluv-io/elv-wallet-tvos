@@ -11,7 +11,16 @@ import AVKit
 import SwiftyJSON
 
 enum NavDestination: String, Hashable {
-    case property, video, gallery, mediaGrid, html
+    case property, video, gallery, mediaGrid, html, search
+}
+
+struct SearchParams {
+    var propertyId : String = ""
+    var searchTerm : String = ""
+    var primaryFilters : [PrimaryFilterViewModel] = []
+    var secondaryFilters : [String] = []
+    var currentPrimaryFilter : PrimaryFilterViewModel? = nil
+    var currentSecondaryFilter : String = ""
 }
 
 class PathState: ObservableObject {
@@ -23,7 +32,9 @@ class PathState: ObservableObject {
     var playerItem : AVPlayerItem? = nil
     var mediaItem : MediaPropertySectionItem? = nil
     var propertyId: String = ""
+    
     var gallery : [GalleryItem] = []
+    var searchParams : SearchParams?
     
     func reset() {
         property = nil
@@ -33,6 +44,7 @@ class PathState: ObservableObject {
         playerItem = nil
         mediaItem = nil
         gallery = []
+        searchParams = nil
     }
 }
                             
@@ -332,9 +344,9 @@ struct ContentView: View {
                     case .property:
                         if let property = pathState.property {
                             MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric: fabric))
-                               .environmentObject(self.fabric)
-                               .environmentObject(self.viewState)
-                               .environmentObject(self.pathState)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
+                                .environmentObject(self.pathState)
                         }
                     case .html:
                         QRView(url: pathState.url)
@@ -362,9 +374,18 @@ struct ContentView: View {
                             .environmentObject(self.pathState)
                             .environmentObject(self.fabric)
                             .environmentObject(self.viewState)
-    
-                    default:
-                        Text("Something went wrong.")
+                    case .search:
+                        if let params = pathState.searchParams {
+                            SearchView(propertyId: params.propertyId,
+                                       primaryFilters: params.primaryFilters,
+                                       currentPrimaryFilter: params.currentPrimaryFilter,
+                                       currentSecondaryFilter: params.currentSecondaryFilter, 
+                                       secondaryFilters: params.secondaryFilters
+                            )
+                            .environmentObject(self.pathState)
+                            .environmentObject(self.fabric)
+                            .environmentObject(self.viewState)
+                        }
                     }
                 }
                 .onAppear(){

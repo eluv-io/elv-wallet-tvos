@@ -25,12 +25,6 @@ struct MediaPropertySectionView: View {
             ScrollView(.horizontal) {
                 HStack(alignment: .top, spacing: 50) {
                     ForEach(section.content ?? []) {item in
-                        /*if item.media_type == "list" {
-                            SectionItemListView(propertyId: propertyId, item:item)
-                                .environmentObject(self.pathState)
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
-                        }else {*/
                         if item.type == "item_purchase" {
                             //Skip for now
                         }else{
@@ -50,17 +44,42 @@ struct MediaPropertySectionView: View {
 }
 
 struct MediaPropertyDetailView: View {
+    @Namespace var NamespaceProperty
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var pathState: PathState
     @EnvironmentObject var viewState: ViewState
     var property: MediaPropertyViewModel
     @State var sections : [MediaPropertySection] = []
+    @FocusState var searchFocused
+    @FocusState var headerFocused
     
     var body: some View {
-        VStack(alignment:.leading) {
-            ScrollView() {
-                MediaPropertyHeader(logo: property.logo, title: property.logoAlt, description: property.description, descriptionRichText: property.descriptionRichText)
+        ScrollView() {
+            VStack(alignment:.leading) {
+                HStack(alignment:.top){
+                    MediaPropertyHeader(logo: property.logo, title: property.logoAlt, description: property.description, descriptionRichText: property.descriptionRichText)
+                        .prefersDefaultFocus(in: NamespaceProperty)
+                        .focusable()
+                    
+                    Button(action:{
+                        debugPrint("Search....")
+                        pathState.searchParams = SearchParams(propertyId: property.id ?? "")
+                        pathState.path.append(.search)
+                    }){
+                        HStack(){
+                            Image(systemName: "magnifyingglass")
+                                .resizable()
+                                .frame(width:40, height:40)
+                                .padding()
+                        }
+                        .background(Color.black.opacity(0.5))
+                        .clipShape(Circle())
+                    }
+                    .buttonStyle(IconButtonStyle(focused: searchFocused, initialOpacity: 0.7, scale: 1.2))
+                    .focused($searchFocused)
+                }
+                .focusSection()
                 
                 ForEach(sections) {section in
                     if let propertyId = property.id {
@@ -69,10 +88,10 @@ struct MediaPropertyDetailView: View {
                 }
                 
             }
-            .scrollClipDisabled()
+            .frame(maxWidth: .infinity, alignment: .center)
+            .padding(.top, 10)
         }
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, 10)
+        .scrollClipDisabled()
         .background(
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
@@ -116,15 +135,15 @@ struct MediaPropertyDetailView: View {
 
 
 struct MediaPropertyHeader: View {
+    @Namespace var NamespaceProperty
     @EnvironmentObject var fabric: Fabric
     var logo: String = ""
     var title: String = ""
     var description: String = ""
     var descriptionRichText: AttributedString = ""
-    
+
     var body: some View {
         VStack(alignment:.leading, spacing: 10) {
-            
             if (logo.isEmpty) {
                 Text(title).font(.title3)
                     .foregroundColor(Color.white)
@@ -138,7 +157,7 @@ struct MediaPropertyHeader: View {
                     .frame(width:800, height:400, alignment: .leading)
                     .clipped()
             }
-            
+                        
             if (!description.isEmpty) {
                 Text(description)
                     .foregroundColor(Color.white)

@@ -107,20 +107,32 @@ struct SignInView: View {
                         if fabric.signingIn {
                             ProgressView()
                         }else {
-                            Button(action: {
-                                self.showDeviceFlow = true
-                                Task {
-                                    do {
-                                        try await fabric.connect(network:networkSelection.name)
-                                    } catch {
-                                        print("Request failed with error: \(error)")
+                            VStack{
+#if DEBUG
+                                Picker("Networks", selection: $networkSelection) {
+                                    ForEach(Networks.allCases) { network in
+                                        Text("\(network.name.capitalizingFirstLetter())")
+                                            .font(.custom("Helvetica Neue", size: 10))
                                     }
                                 }
-                            }) {
-                                Text("Sign In")
+                                .frame(width:300)
+#endif
+                                
+                                Button(action: {
+                                    self.showDeviceFlow = true
+                                    Task {
+                                        do {
+                                            try await fabric.connect(network:networkSelection.name)
+                                        } catch {
+                                            print("Request failed with error: \(error)")
+                                        }
+                                    }
+                                }) {
+                                    Text("Sign In")
+                                }
+                                .focused($signInFocus)
                             }
-                            .padding(120)
-                            .focused($signInFocus)
+                            .padding([.trailing,.bottom],120)
                             
                         }
                     }

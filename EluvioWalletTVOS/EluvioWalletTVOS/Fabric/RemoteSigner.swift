@@ -181,6 +181,94 @@ class RemoteSigner {
             }
         })
     }
+    
+    func searchProperty(property: String, tags:[String], attributes: [String: Any], searchTerm: String, limit: Int = 100, accessCode: String) async throws -> [MediaPropertySection] {
+        
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(property)/search?limit=\(limit)")
+                                                                    
+                print("getPropertySection Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                let body = [
+                    "tags": tags,
+                    "attributes": attributes,
+                    "search_term" : searchTerm
+                ]
+                
+                guard let url =  URL(string:endpoint) else {
+                    throw FabricError.invalidURL("getPropertySections - could not create url from \(endpoint)")
+                }
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.headers = headers
+                request.httpBody = try JSONSerialization.data(withJSONObject: body)
+                
+                AF.request(request)
+                    .debugLog()
+                    .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
+                    //.responseJSON() { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                        continuation.resume(returning: result.contents)
+                         case .failure(let error):
+                            print("Searc properties error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
+    func getPropertyFilters(property: String, primaryFilter: String = "", accessCode: String) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(property)/filters")
+                
+                if !primaryFilter.isEmpty {
+                    endpoint.append("/\(primaryFilter)")
+                }
+
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+
+                guard let url =  URL(string:endpoint) else {
+                    throw FabricError.invalidURL("getPropertyFilters - could not create url from \(endpoint)")
+                }
+                var request = URLRequest(url: url)
+                request.httpMethod = "GET"
+                request.headers = headers
+                
+                AF.request(request)
+                    .debugLog()
+                    .responseJSON() { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get properties sections error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
 
     func getPropertySections(property: String, sections : [String] = [], accessCode: String) async throws -> MediaPropertySectionsResponse{
 

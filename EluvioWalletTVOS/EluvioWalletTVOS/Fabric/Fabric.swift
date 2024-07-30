@@ -1125,10 +1125,10 @@ class Fabric: ObservableObject {
                 return
             }
             
-            let nfts = profileData["contents"].arrayValue
+            //let nfts = profileData["contents"].arrayValue
 
-            let parsedLibrary = try await parseNftsToLibrary(nfts)
-            self.library = parsedLibrary
+            //let parsedLibrary = try await parseNftsToLibrary(nfts)
+            //self.library = parsedLibrary
             isRefreshing = false
             
             do {
@@ -1317,6 +1317,29 @@ class Fabric: ObservableObject {
         debugPrint("Couldn't find media item", mediaId)
         return nil
     }
+    
+    func searchProperty(property: String, tags:[String] = [], attributes: [String: Any] = [:], searchTerm: String = "") async throws -> [MediaPropertySection] {
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+
+        let result = try await signer.searchProperty(property: property, tags:tags, attributes: attributes, searchTerm: searchTerm, accessCode: self.fabricToken)
+        
+        return result
+    }
+    
+    func getPropertyFilters(property: String, primaryFilter: String = "") async throws -> JSON {
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+
+        let result = try await signer.getPropertyFilters(property: property, primaryFilter: primaryFilter, accessCode: self.fabricToken)
+        
+        return result
+    }
+
 
     func setLogin(login:  LoginResponse, isMetamask: Bool = false, external: Bool = false) async throws {
         debugPrint("SetLogin ", login)

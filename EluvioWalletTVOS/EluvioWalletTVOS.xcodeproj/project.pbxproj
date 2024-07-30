@@ -70,6 +70,8 @@
 		B077B8D52B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */; };
 		B077B8D62B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */; };
 		B077B8D72B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */; };
+		B077BE622C5209F00056DDB1 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077BE612C5209F00056DDB1 /* SearchModels.swift */; };
+		B077BE632C5209F00056DDB1 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077BE612C5209F00056DDB1 /* SearchModels.swift */; };
 		B07ADFBD2B6B3DC7005C5E5A /* ProgressControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07ADFBC2B6B3DC7005C5E5A /* ProgressControlView.swift */; };
 		B07ADFBF2B6C1E1A005C5E5A /* ThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07ADFBE2B6C1E1A005C5E5A /* ThumbnailView.swift */; };
 		B07ADFC12B6C1E39005C5E5A /* InfoTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07ADFC02B6C1E39005C5E5A /* InfoTab.swift */; };
@@ -368,6 +370,7 @@
 		B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertiesView.swift; sourceTree = "<group>"; };
 		B06D521C2A14A21100BD68D1 /* PropertyModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyModel.swift; sourceTree = "<group>"; };
 		B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServicesModels.swift; sourceTree = "<group>"; };
+		B077BE612C5209F00056DDB1 /* SearchModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchModels.swift; sourceTree = "<group>"; };
 		B07ADFBC2B6B3DC7005C5E5A /* ProgressControlView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressControlView.swift; sourceTree = "<group>"; };
 		B07ADFBE2B6C1E1A005C5E5A /* ThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailView.swift; sourceTree = "<group>"; };
 		B07ADFC02B6C1E39005C5E5A /* InfoTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTab.swift; sourceTree = "<group>"; };
@@ -801,6 +804,7 @@
 				B08CB5A92B7DE8F200E04C0D /* ViewState.swift */,
 				B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */,
 				B0D5446B2C17925800558B21 /* MediaPropertyModel.swift */,
+				B077BE612C5209F00056DDB1 /* SearchModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1149,6 +1153,7 @@
 				B0D5446D2C17925800558B21 /* MediaPropertyModel.swift in Sources */,
 				B08CB5872B7DDFDA00E04C0D /* MinterView.swift in Sources */,
 				B08CB5882B7DDFDA00E04C0D /* BackButton.swift in Sources */,
+				B077BE632C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B08CB5892B7DDFDA00E04C0D /* PackView.swift in Sources */,
 				B08CB58A2B7DDFDA00E04C0D /* MarketplaceModel.swift in Sources */,
 				B08CB58B2B7DDFDA00E04C0D /* NFTModel.swift in Sources */,
@@ -1303,6 +1308,7 @@
 				B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */,
 				B06C4C552A7B2C2A003C414A /* ProfileClient.swift in Sources */,
 				B06C6EB22B2BDFF700EBACEA /* PackView.swift in Sources */,
+				B077BE622C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
 				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,
