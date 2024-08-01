@@ -8,6 +8,27 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+public extension FloatingPoint {
+    
+    func wrapped(within range: Range<Self>) -> Self {
+        
+        let breadth = range.upperBound - range.lowerBound
+        
+        let offset: Self
+        if self < range.lowerBound {
+            offset = breadth
+        }
+        else {
+            offset = 0
+        }
+        
+        let baseResult = (self - range.lowerBound).truncatingRemainder(dividingBy: breadth)
+
+        return baseResult + range.lowerBound + offset
+    }
+}
+
+
 struct PrimaryFilterView: View {
     var filter : PrimaryFilterViewModel
     var imageUrl : String {
@@ -21,20 +42,29 @@ struct PrimaryFilterView: View {
     @FocusState var isFocused
     
     var body: some View {
-        VStack(alignment:.center){
+        ZStack(alignment:.center){
             Button(action:action)
             {
-                MediaCard(image: imageUrl,
+                
+                MediaCard(display:.video,
+                          image: imageUrl,
                           isFocused:isFocused,
                           title: title,
                           showFocusedTitle: false
+                )
+                .background(
+                    //Rectangle().fill(Color(hex:UInt(Float(title.hashValue).wrapped(within: 0x3311dd..<0x7711ff))))
+                    //Rectangle().fill(Color(hex:0x0f2c56))
+                        //.brightness(-0.3)
+                    //    .opacity(0.6)
+                    Color.buttonGraident
                 )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
             .padding()
             
-            Text(title.uppercased()).font(.itemTitle.bold())
+            Text(title.uppercased()).font(.largeTitle.bold())
         }
     }
 }
@@ -65,93 +95,103 @@ struct SearchView: View {
     var body: some View {
         ScrollView{
             VStack(alignment:.leading) {
-                HStack(alignment:.center, spacing:20){
-                    if logoUrl.isEmpty {
-                        Image(logo)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height:100)
-                    }else{
-                        WebImage(url:URL(string:logoUrl))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(height:100)
-                    }
-                    HStack (spacing:15){
-                            Image(systemName: "magnifyingglass")
-                            .resizable()
-                            .frame(width:40,height:40)
-                            .padding()
-                            TextField("Search \(name)", text: $searchString)
-                                .frame(alignment: .leading)
-                                .font(.rowTitle)
-                                .onSubmit {
-                                    print("Search submit…", searchString)
-                                    Task {
-                                        if !propertyId.isEmpty {
-                                            do {
-                                                var tags : [String] = []
-                                                var attributes : [String : Any] = [:]
-                                                if let primary = currentPrimaryFilter {
-                                                    attributes[primary.attribute] = primary.id
-                                                    if !currentSecondaryFilter.isEmpty {
-                                                        attributes[primary.seconaryAttribute] = currentSecondaryFilter
+                VStack(alignment:.center){
+                    HStack(alignment:.center, spacing:40){
+                        if logoUrl.isEmpty {
+                            Image(logo)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height:100)
+                        }else{
+                            WebImage(url:URL(string:logoUrl))
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(height:100)
+                        }
+                        VStack{
+                            HStack (spacing:15){
+                                Image(systemName: "magnifyingglass")
+                                    .resizable()
+                                    .frame(width:40,height:40)
+                                    .padding(10)
+                                    .padding(.leading, 0)
+                                TextField("Search \(name)", text: $searchString)
+                                    .frame(alignment: .leading)
+                                    .font(.rowTitle)
+                                    .onSubmit {
+                                        print("Search submit…", searchString)
+                                        Task {
+                                            if !propertyId.isEmpty {
+                                                
+                                                //if searchString.isEmpty {
+                                                debugPrint("Replace Search")
+                                                do {
+                                                    var attributes : [String : Any] = [:]
+                                                    
+                                                    if let primary = currentPrimaryFilter {
+                                                        if !primary.id.isEmpty{
+                                                            attributes[primary.attribute] = [primary.id]
+                                                        }
+                                                        
+                                                        if !currentSecondaryFilter.isEmpty {
+                                                            attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
+                                                        }
                                                     }
+                                                    
+                                                    
+                                                    self.sections = try await fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
+                                                }catch{
+                                                    print("Could not do search ", error.localizedDescription)
+                                                    //TODO: Send to error screen
                                                 }
+                                                //}else {
                                                 
-                                                var groupBy = ""
                                                 
-                                                self.sections = try await fabric.searchProperty(property: propertyId, tags: tags, attributes: attributes, searchTerm: searchString)
-                                                //debugPrint(result)
-                                            }catch{
-                                                print("Could not do search ", error.localizedDescription)
-                                                //TODO: Send to error screen
+                                                
+                                                
+                                                debugPrint("New Search")
+                                                
+                                                /* pathState.searchParams = SearchParams(propertyId: propertyId,
+                                                 searchTerm: searchString,
+                                                 primaryFilters: primaryFilters,
+                                                 currentPrimaryFilter: currentPrimaryFilter,
+                                                 currentSecondaryFilter: currentSecondaryFilter)
+                                                 pathState.path.append(.search)*/
+                                                //}
                                             }
                                         }
                                     }
-                                }
-                        
-                        }
-                }
-                Divider().overlay(Color.gray)
-                
-                if !primaryFilters.isEmpty {
-                    LazyVGrid(columns: squareColumns, alignment: .center, spacing:40){
-                        ForEach(0..<primaryFilters.count, id: \.self) { index in
-                            PrimaryFilterView(
-                                filter:primaryFilters[index],
-                                action:{
-                                    /*
-                                    Task{
-                                        debugPrint("Search Filter \(primaryFilters[index]), text \(searchString)")
-                                        let filter = primaryFilters[index]
-                                        
-                                        var tags : [String] = []
-                                        var attributes : [String : Any] = [:]
-                                        
-                                        if filter.id != "" {
-                                            attributes = [filter.attribute : [filter.id]]
-                                        }
-                                        
-                                        var groupBy = ""
-                                        self.sections = try await fabric.searchProperty(property: propertyId, tags: tags, attributes: attributes, searchTerm: searchString, groupBy: groupBy)
-                                        
-                                        self.secondaryFilters = filter.secondaryFilters
-                                        self.primaryFilters = []
-                                        self.currentPrimaryFilter
-                                    }
-                                     */
-                                    debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
-                                    pathState.searchParams = SearchParams(propertyId: propertyId,
-                                                                          searchTerm: searchString,
-                                                                          secondaryFilters: primaryFilters[index].secondaryFilters,
-                                                                          currentPrimaryFilter: primaryFilters[index]
-                                    )
-                                    pathState.path.append(.search)
-                    
-                                })
+                            }
+                            Divider().overlay(Color.gray)
                         }
                     }
+                }
+                .padding(40)
+                .focusSection()
+                
+                if !primaryFilters.isEmpty{
+                    //LazyVGrid(columns: squareColumns, alignment: .center, spacing:20){
+                    ScrollView(.horizontal){
+                        LazyHStack(spacing:10){
+                            ForEach(0..<primaryFilters.count, id: \.self) { index in
+                                PrimaryFilterView(
+                                    filter:primaryFilters[index],
+                                    action:{
+                                        debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
+                                        pathState.searchParams = SearchParams(propertyId: propertyId,
+                                                                              searchTerm: searchString,
+                                                                              secondaryFilters: primaryFilters[index].secondaryFilters,
+                                                                              currentPrimaryFilter: primaryFilters[index]
+                                        )
+                                        pathState.path.append(.search)
+                                        
+                                    })
+                            }
+                        }
+                        
+                    }
+                    .scrollClipDisabled()
+                    //}
                 }
                 else {
                     
@@ -161,20 +201,6 @@ struct SearchView: View {
                                 ForEach(0..<secondaryFilters.count, id: \.self) { index in
                                     Button(
                                         action:{
-                                            /*
-                                             Task{
-                                             debugPrint("Search Secondary Filter \(secondaryFilters[index]), text \(searchString)")
-                                             let filter = secondaryFilters[index]
-                                             
-                                             var tags : [String] = [filter]
-                                             var attributes : [String : Any] = [:]
-                                             var groupBy = ""
-                                             self.sections = try await fabric.searchProperty(property: propertyId, tags: tags, attributes: attributes, searchTerm: searchString, groupBy: groupBy)
-                                             
-                                             //self.secondaryFilters = filter.secondaryFilters
-                                             }
-                                             */
-                                            
                                             pathState.searchParams = SearchParams(propertyId: propertyId,
                                                                                   searchTerm: searchString,
                                                                                   currentPrimaryFilter: currentPrimaryFilter,
@@ -185,27 +211,25 @@ struct SearchView: View {
                                         }) {
                                             Text(secondaryFilters[index].lowercased())
                                         }
-                                    //.buttonStyle()
                                 }
                             }
                         }
                         .scrollClipDisabled()
                         
                     }
-                    
-                    ForEach(sections) {section in
-                        VStack{
-                            MediaPropertySectionView(propertyId: propertyId, section: section)
-                        }
-                        .frame(maxWidth:.infinity)
-                        .focusSection()
+                }
+                
+                ForEach(sections) {section in
+                    VStack{
+                        MediaPropertySectionView(propertyId: propertyId, section: section)
                     }
+                    .frame(maxWidth:.infinity)
+                    .focusSection()
                 }
                 
                 Spacer()
             }
             .padding([.leading,.trailing,.bottom],80)
-            .padding(.top,40)
         }
         .ignoresSafeArea()
         .scrollClipDisabled()
@@ -221,29 +245,30 @@ struct SearchView: View {
                         }catch{
                             print("Could not get logo from property \(propertyId)", error)
                         }
-                        
-                        if let primary = currentPrimaryFilter {
-                            var attributes : [String : Any] = [:]
-                            if !primary.id.isEmpty{
-                                attributes[primary.attribute] = [primary.id]
-                            }
-                            
-                            
-                            if !currentSecondaryFilter.isEmpty {
-                                attributes [primary.seconaryAttribute] = [currentSecondaryFilter]
-                            }
-                            
 
+                        if !searchString.isEmpty || currentPrimaryFilter != nil{
+                            var attributes : [String : Any] = [:]
+                            if let primary = currentPrimaryFilter {
+                                if !primary.id.isEmpty{
+                                    attributes[primary.attribute] = [primary.id]
+                                }
+                                
+                                if !currentSecondaryFilter.isEmpty {
+                                    attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
+                                }
+                            }
+                            
                             self.sections = try await fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
                             return
-                            
                         }
+
                         
                         let filterResult = try await fabric.getPropertyFilters(property: propertyId)
                         debugPrint("Property Filter Response ",filterResult)
                         
                         let attributes = filterResult["attributes"]
                         let primaryFilterValue = filterResult["primary_filter"].stringValue
+                        let secondaryFilterValue = filterResult["secondary_filter"].stringValue
                         debugPrint("has primary filter ",primaryFilterValue)
                         let primaryAttribute = attributes[primaryFilterValue]
                         
@@ -255,6 +280,16 @@ struct SearchView: View {
                             if !tags.isEmpty {
                                 var newPrimaryFilters : [PrimaryFilterViewModel] = []
                                 tags.insert("", at:0)
+                                
+                                let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
+                                var primary = PrimaryFilterViewModel(id: "",
+                                                                     imageURL: "",
+                                                                     secondaryFilters: secondary,
+                                                                     attribute:primaryFilterValue,
+                                                                     secondaryAttribute: secondaryFilterValue)
+                                
+                                var hasPrimary = false
+                                
                                 for tag in tags {
                                     debugPrint("searching tag ", tag)
                                     for option in options {
@@ -265,33 +300,50 @@ struct SearchView: View {
                                             secondary.append(secondaryItem.stringValue)
                                         }
                                         
-                                        debugPrint("Secondary Filters ", secondary)
-                                        
+
                                         if option["primary_filter_value"].stringValue == tag.stringValue {
                                             debugPrint("matched tag value for option")
-                                            do {
-                                                let primary = PrimaryFilterViewModel(id: tag.stringValue,
-                                                                                     imageURL: try fabric.getUrlFromLink(link: option["primary_filter_image"]),
-                                                                                     secondaryFilters: secondary,
-                                                                                     attribute:primaryFilterValue,
-                                                                                     seconaryAttribute: attributes["secondary_filter"].stringValue
-                                                )
-                                                newPrimaryFilters.append(primary)
-                                            }catch{
-                                                print("Could not create primary filter from data ", error.localizedDescription)
+                                            
+                                            debugPrint("Secondary Filters ", secondary)
+                                            debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
+                                            var image = ""
+                                            
+                                            if !option["primary_filter_image"].isEmpty {
+                                                do {
+                                                    image = try fabric.getUrlFromLink(link: option["primary_filter_image"])
+                                                }catch{
+                                                    print("Could not create image for option \(option)", error.localizedDescription)
+                                                }
                                             }
+                                            
+                                            let filter = PrimaryFilterViewModel(id: tag.stringValue,
+                                                                                imageURL: image,
+                                                                                secondaryFilters: secondary,
+                                                                                attribute:primaryFilterValue,
+                                                                                secondaryAttribute: option["secondary_filter_attribute"].stringValue)
+                                                                                
+                                            if tag.stringValue == "" {
+                                                hasPrimary = true
+                                                
+                                                primary = filter
+                                                
+                                            }else{
+                                                newPrimaryFilters.append(filter)
+                                            }
+
                                         }
                                     }
                                 }
                                 
+                                newPrimaryFilters.insert(primary, at:0)
+                                currentPrimaryFilter = primary
                                 self.primaryFilters = newPrimaryFilters
                             }
                         
                             
-                        }else{
-                            self.sections = try await fabric.searchProperty(property: propertyId)
                         }
-                        
+                        self.sections = try await fabric.searchProperty(property: propertyId)
+
                     }catch{
                         print("Could not do search ", error.localizedDescription)
                         //TODO: Send to error screen

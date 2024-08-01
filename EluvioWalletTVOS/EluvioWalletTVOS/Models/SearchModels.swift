@@ -13,5 +13,5 @@ struct PrimaryFilterViewModel: Identifiable, Codable {
     var imageURL: String = ""
     var secondaryFilters: [String] = []
     var attribute: String = ""
-    var seconaryAttribute: String = ""
+    var secondaryAttribute: String = ""
 }

@@ -376,7 +376,8 @@ struct ContentView: View {
                             .environmentObject(self.viewState)
                     case .search:
                         if let params = pathState.searchParams {
-                            SearchView(propertyId: params.propertyId,
+                            SearchView(searchString: params.searchTerm, 
+                                       propertyId: params.propertyId,
                                        primaryFilters: params.primaryFilters,
                                        currentPrimaryFilter: params.currentPrimaryFilter,
                                        currentSecondaryFilter: params.currentSecondaryFilter, 
