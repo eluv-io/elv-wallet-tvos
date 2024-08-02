@@ -142,6 +142,25 @@ struct TextButtonStyle: ButtonStyle {
     }
 }
 
+struct secondaryFilterButtonStyle: ButtonStyle {
+    let focused: Bool
+    let selected: Bool
+    var scale = 1.00
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .padding([.leading,.trailing],20)
+            .padding([.top,.bottom],10)
+            .background(focused || selected ? .white : Color(hex:0x3b3b3b))
+            .foregroundColor(focused || selected ? .black : .white)
+            .cornerRadius(10)
+            .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
+            .scaleEffect(self.focused || self.selected ? 1.14: 1, anchor: .center)
+            .scaleEffect(configuration.isPressed ? 1.16 : 1)
+            .animation(.easeIn(duration: 0.2), value: self.focused)
+
+    }
+}
+
 
 extension Font {
     

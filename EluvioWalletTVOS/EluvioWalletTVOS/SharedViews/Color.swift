@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 
 extension Color {
-    static let buttonGraident = LinearGradient(gradient: Gradient(colors:
+    static let buttonGradient = LinearGradient(gradient: Gradient(colors:
                                                                     [Color(red: 0.22, green: 0.21, blue: 0.31),
                                                                      Color(red: 0.12, green: 0.12, blue: 0.16)]),
                                                 startPoint: .top, endPoint: .bottom)

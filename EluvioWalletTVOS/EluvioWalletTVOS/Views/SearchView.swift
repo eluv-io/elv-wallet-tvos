@@ -57,7 +57,7 @@ struct PrimaryFilterView: View {
                     //Rectangle().fill(Color(hex:0x0f2c56))
                         //.brightness(-0.3)
                     //    .opacity(0.6)
-                    Color.buttonGraident
+                    Color.buttonGradient
                 )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
@@ -65,6 +65,28 @@ struct PrimaryFilterView: View {
             .padding()
             
             Text(title.uppercased()).font(.largeTitle.bold())
+        }
+    }
+}
+
+struct SecondaryFilterView: View {
+    var imageUrl = ""
+    var title = ""
+    var action : ()->()
+    
+    @FocusState var isFocused
+    var selected = false
+    
+    var body: some View {
+        ZStack(alignment:.center){
+            Button(action:action)
+            {
+                Text(title)
+                    .font(.rowTitle)
+            }
+            .buttonStyle(secondaryFilterButtonStyle(focused: isFocused, selected: selected))
+            .focused($isFocused)
+            .padding()
         }
     }
 }
@@ -91,6 +113,35 @@ struct SearchView: View {
         GridItem(.fixed(400)),
         GridItem(.fixed(400))
     ]
+    
+    func search() {
+        Task {
+            if !propertyId.isEmpty {
+                
+                //if searchString.isEmpty {
+                debugPrint("Replace Search")
+                do {
+                    var attributes : [String : Any] = [:]
+                    
+                    if let primary = currentPrimaryFilter {
+                        if !primary.id.isEmpty{
+                            attributes[primary.attribute] = [primary.id]
+                        }
+                        
+                        if !currentSecondaryFilter.isEmpty {
+                            attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
+                        }
+                    }
+                    
+                    
+                    self.sections = try await fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
+                }catch{
+                    print("Could not do search ", error.localizedDescription)
+                    //TODO: Send to error screen
+                }
+            }
+        }
+    }
     
     var body: some View {
         ScrollView{
@@ -120,46 +171,7 @@ struct SearchView: View {
                                     .font(.rowTitle)
                                     .onSubmit {
                                         print("Search submit…", searchString)
-                                        Task {
-                                            if !propertyId.isEmpty {
-                                                
-                                                //if searchString.isEmpty {
-                                                debugPrint("Replace Search")
-                                                do {
-                                                    var attributes : [String : Any] = [:]
-                                                    
-                                                    if let primary = currentPrimaryFilter {
-                                                        if !primary.id.isEmpty{
-                                                            attributes[primary.attribute] = [primary.id]
-                                                        }
-                                                        
-                                                        if !currentSecondaryFilter.isEmpty {
-                                                            attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
-                                                        }
-                                                    }
-                                                    
-                                                    
-                                                    self.sections = try await fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
-                                                }catch{
-                                                    print("Could not do search ", error.localizedDescription)
-                                                    //TODO: Send to error screen
-                                                }
-                                                //}else {
-                                                
-                                                
-                                                
-                                                
-                                                debugPrint("New Search")
-                                                
-                                                /* pathState.searchParams = SearchParams(propertyId: propertyId,
-                                                 searchTerm: searchString,
-                                                 primaryFilters: primaryFilters,
-                                                 currentPrimaryFilter: currentPrimaryFilter,
-                                                 currentSecondaryFilter: currentSecondaryFilter)
-                                                 pathState.path.append(.search)*/
-                                                //}
-                                            }
-                                        }
+                                        search()
                                     }
                             }
                             Divider().overlay(Color.gray)
@@ -170,7 +182,6 @@ struct SearchView: View {
                 .focusSection()
                 
                 if !primaryFilters.isEmpty{
-                    //LazyVGrid(columns: squareColumns, alignment: .center, spacing:20){
                     ScrollView(.horizontal){
                         LazyHStack(spacing:10){
                             ForEach(0..<primaryFilters.count, id: \.self) { index in
@@ -184,6 +195,7 @@ struct SearchView: View {
                                                                               currentPrimaryFilter: primaryFilters[index]
                                         )
                                         pathState.path.append(.search)
+                                        searchString = ""
                                         
                                     })
                             }
@@ -191,26 +203,41 @@ struct SearchView: View {
                         
                     }
                     .scrollClipDisabled()
-                    //}
                 }
                 else {
                     
                     if !secondaryFilters.isEmpty {
                         ScrollView {
-                            LazyHStack(spacing:20){
-                                ForEach(0..<secondaryFilters.count, id: \.self) { index in
+                            LazyHStack(spacing:10){
+                                HStack(spacing:20){
+                                    Image("back")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(height:30)
+                                    
                                     Button(
                                         action:{
-                                            pathState.searchParams = SearchParams(propertyId: propertyId,
-                                                                                  searchTerm: searchString,
-                                                                                  currentPrimaryFilter: currentPrimaryFilter,
-                                                                                  currentSecondaryFilter: secondaryFilters[index]
-                                            )
-                                            pathState.path.append(.search)
-                                            
+                                            pathState.path.popLast()
                                         }) {
-                                            Text(secondaryFilters[index].lowercased())
+                                            
+                                            if let text = currentPrimaryFilter?.id {
+                                                Text("\(text == "" ? "ALL" : text.uppercased() )")
+                                            }
                                         }
+                                        .buttonBorderShape(.capsule)
+                                }
+
+                                
+                                ForEach(0..<secondaryFilters.count, id: \.self) { index in
+                                    SecondaryFilterView(
+                                        title: secondaryFilters[index],
+                                        action:{
+                                            currentSecondaryFilter = secondaryFilters[index]
+                                            search()
+                                            
+                                        },
+                                        selected: currentSecondaryFilter == secondaryFilters[index]
+                                    )
                                 }
                             }
                         }

@@ -47,9 +47,10 @@ struct MediaPropertyView : View {
                     }
                 }
             }){
-            //NavigationLink(destination:MediaPropertyDetailView(property:property)
-            //    .environmentObject(self.pathState)
-            //    .preferredColorScheme(colorScheme)) {
+                //NavigationLink(destination:MediaPropertyDetailView(property:property)
+                //    .environmentObject(self.pathState)
+                //    .preferredColorScheme(colorScheme)) {
+                if property.image != "" {
                     WebImage(url: URL(string: property.image))
                         .resizable()
                         .indicator(.activity) // Activity Indicator
@@ -57,6 +58,35 @@ struct MediaPropertyView : View {
                         .aspectRatio(contentMode: .fill)
                         .frame( width: 330, height: 470)
                         .cornerRadius(3)
+                }else{
+                    ZStack{
+                        if property.backgroundImage != "" {
+                            WebImage(url: URL(string: property.backgroundImage))
+                                .resizable()
+                                .indicator(.activity) // Activity Indicator
+                                .transition(.fade(duration: 0.5))
+                                .aspectRatio(contentMode: .fill)
+                                .frame( width: 330, height: 470)
+                                .cornerRadius(3)
+                            
+                            Rectangle()
+                                .fill(Color.black)
+                                .opacity(focused ? 0.7 : 0.5)
+                                .frame( width: 330, height: 470)
+                                .cornerRadius(3)
+                        }else{
+                            Rectangle()
+                                .fill(Color.secondaryBackground)
+                                .frame( width: 330, height: 470)
+                                .cornerRadius(3)
+                        }
+                        if property.title.isEmpty {
+                            Text("Untitled").font(.largeTitle)
+                        }else{
+                            Text(property.title).font(.largeTitle.bold())
+                        }
+                    }
+                }
             }
             .buttonStyle(TitleButtonStyle(focused: focused))
             .focused($focused)
