@@ -1383,7 +1383,7 @@ class Fabric: ObservableObject {
     func resetWalletData(){
         self.library = MediaLibrary()
         self.properties = []
-
+        self.mediaProperties = MediaPropertiesResponse()
     }
     
     func signOut(){

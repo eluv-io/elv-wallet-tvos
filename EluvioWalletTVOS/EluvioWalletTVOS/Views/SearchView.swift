@@ -64,7 +64,12 @@ struct PrimaryFilterView: View {
             .focused($isFocused)
             .padding()
             
-            Text(title.uppercased()).font(.largeTitle.bold())
+            if imageUrl.isEmpty {
+                Text(title.uppercased()).font(.largeTitle.bold())
+                    .lineLimit(3)
+                    .frame(maxWidth: 534)
+                    .multilineTextAlignment(.center)
+            }
         }
     }
 }
@@ -217,7 +222,7 @@ struct SearchView: View {
                                     
                                     Button(
                                         action:{
-                                            pathState.path.popLast()
+                                            _ = pathState.path.popLast()
                                         }) {
                                             
                                             if let text = currentPrimaryFilter?.id {
@@ -307,18 +312,16 @@ struct SearchView: View {
                             if !tags.isEmpty {
                                 var newPrimaryFilters : [PrimaryFilterViewModel] = []
                                 tags.insert("", at:0)
-                                
                                 let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
-                                var primary = PrimaryFilterViewModel(id: "",
+                                var allPrimaryFilter = PrimaryFilterViewModel(id: "",
                                                                      imageURL: "",
                                                                      secondaryFilters: secondary,
                                                                      attribute:primaryFilterValue,
                                                                      secondaryAttribute: secondaryFilterValue)
-                                
-                                var hasPrimary = false
-                                
+                                var foundAllPrimary = false
                                 for tag in tags {
                                     debugPrint("searching tag ", tag)
+                                    var foundOptions = false
                                     for option in options {
                                         var secondary : [String] = []
                                         let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
@@ -350,20 +353,30 @@ struct SearchView: View {
                                                                                 secondaryAttribute: option["secondary_filter_attribute"].stringValue)
                                                                                 
                                             if tag.stringValue == "" {
-                                                hasPrimary = true
-                                                
-                                                primary = filter
-                                                
+                                                allPrimaryFilter = filter
                                             }else{
                                                 newPrimaryFilters.append(filter)
                                             }
-
+                                            foundOptions = true
+                                        }
+                                    }
+                                    
+                                    if !foundOptions {
+                                       let filter = PrimaryFilterViewModel(id: tag.stringValue,
+                                                                            imageURL: "",
+                                                                            secondaryFilters: secondary,
+                                                                            attribute:primaryFilterValue,
+                                                                            secondaryAttribute: secondaryFilterValue)
+                                        if tag.stringValue == "" {
+                                            allPrimaryFilter = filter
+                                        }else{
+                                            newPrimaryFilters.append(filter)
                                         }
                                     }
                                 }
                                 
-                                newPrimaryFilters.insert(primary, at:0)
-                                currentPrimaryFilter = primary
+                                newPrimaryFilters.insert(allPrimaryFilter, at:0)
+                                currentPrimaryFilter = allPrimaryFilter
                                 self.primaryFilters = newPrimaryFilters
                             }
                         

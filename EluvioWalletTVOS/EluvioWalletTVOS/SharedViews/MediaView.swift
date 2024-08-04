@@ -592,6 +592,7 @@ struct MediaCard: View {
                                 Text(title)
                                     .foregroundColor(Color.white)
                                     .font(.subheadline)
+                                    .lineLimit(2)
                             }
                             Text(subtitle)
                                 .font(.small)
