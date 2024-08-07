@@ -130,6 +130,7 @@ struct ThumbnailButtonStyle: ButtonStyle {
 struct TextButtonStyle: ButtonStyle {
     let focused: Bool
     var scale = 1.00
+    var bordered = false
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .padding([.leading,.trailing],20)
@@ -138,6 +139,15 @@ struct TextButtonStyle: ButtonStyle {
             .foregroundColor(focused ? .black : .white)
             .cornerRadius(10)
             .opacity(configuration.isPressed ? 0.5 : 1)
+            //.border(Color.gray, width: bordered && !focused ? 1 : 0)
+            .background(
+                    RoundedRectangle(
+                        cornerRadius: 10,
+                        style: .continuous
+                    )
+                    .stroke(.tint, lineWidth: bordered && !focused ? 1 : 0)
+                )
+            
 
     }
 }

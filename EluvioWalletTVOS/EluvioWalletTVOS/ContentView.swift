@@ -11,7 +11,7 @@ import AVKit
 import SwiftyJSON
 
 enum NavDestination: String, Hashable {
-    case property, video, gallery, mediaGrid, html, search
+    case property, video, gallery, mediaGrid, html, search, sectionViewAll
 }
 
 struct SearchParams {
@@ -32,6 +32,7 @@ class PathState: ObservableObject {
     var playerItem : AVPlayerItem? = nil
     var mediaItem : MediaPropertySectionItem? = nil
     var propertyId: String = ""
+    var section: MediaPropertySection? = nil
     
     var gallery : [GalleryItem] = []
     var searchParams : SearchParams?
@@ -45,6 +46,7 @@ class PathState: ObservableObject {
         mediaItem = nil
         gallery = []
         searchParams = nil
+        section = nil
     }
 }
                             
@@ -386,6 +388,13 @@ struct ContentView: View {
                             .environmentObject(self.pathState)
                             .environmentObject(self.fabric)
                             .environmentObject(self.viewState)
+                        }
+                    case .sectionViewAll:
+                        if let section = pathState.section {
+                            SectionGridView(propertyId: pathState.propertyId, section:section)
+                                .environmentObject(self.pathState)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
                         }
                     }
                 }

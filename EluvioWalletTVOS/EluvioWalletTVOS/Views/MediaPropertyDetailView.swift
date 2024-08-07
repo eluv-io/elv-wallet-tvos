@@ -8,6 +8,19 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+struct ViewAllButton: View {
+    @FocusState var isFocused
+    var action: ()->Void
+    
+    var body: some View {
+        Button(action:action, label:{
+            Text("VIEW ALL")
+        })
+        .buttonStyle(TextButtonStyle(focused:isFocused, bordered:true))
+        .focused($isFocused)
+    }
+}
+
 struct MediaPropertySectionView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
@@ -15,11 +28,39 @@ struct MediaPropertySectionView: View {
     @EnvironmentObject var viewState: ViewState
     var propertyId: String
     var section: MediaPropertySection
+    var showViewAll: Bool {
+        if let sectionItems = section.content {
+            if sectionItems.count > 5 || (sectionItems.count > section.displayLimit && section.displayLimit > 0)  {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    var title: String {
+        if let display = section.display {
+            return display["title"].stringValue
+        }
+        return ""
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10)  {
-            if let display = section.display {
-                Text(display["title"].stringValue).font(.rowTitle).foregroundColor(Color.white)
+            if !title.isEmpty {
+                HStack{
+                    Text(title).font(.rowTitle).foregroundColor(Color.white)
+                    if showViewAll {
+                        ViewAllButton(action:{
+                            debugPrint("View All pressed")
+                            pathState.section = section
+                            pathState.propertyId = propertyId
+                            pathState.path.append(.sectionViewAll)
+                        })
+                    }
+                }
+                .padding(.bottom, 20)
+                .focusSection()
             }
             
             ScrollView(.horizontal) {

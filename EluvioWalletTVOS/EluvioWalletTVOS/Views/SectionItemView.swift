@@ -8,17 +8,101 @@
 import SwiftUI
 import SwiftyJSON
 
-struct SectionItemListView: View {
+struct SectionGridView: View {
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var viewState: ViewState
     @EnvironmentObject var pathState: PathState
     
     var propertyId: String
-    var item: MediaPropertySectionItem
-    @State var items : [MediaPropertySectionMediaItem] = []
+    var section: MediaPropertySection
+    
+    var items : [MediaPropertySectionItem] {
+        return section.content ?? []
+    }
+    
+    //@State var display : MediaDisplay = .square
+    
+    var display : MediaDisplay {
+        if let item = items.first {
+            if item.media?.thumbnail_image_portrait != nil {
+                return .feature
+            }
+            
+            if item.media?.thumbnail_image_landscape != nil {
+                return .video
+            }
+        }
+        
+        return .square
+    }
+    
+    var title: String {
+        if let display = section.display {
+            return display["title"].stringValue
+        }
+        return ""
+    }
+    
+    
+    private let videoColumns = [
+        GridItem(.fixed(560)),
+        GridItem(.fixed(560)),
+        GridItem(.fixed(560))
+    ]
+    private let squareColumns = [
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400))
+    ]
+    
+    
+    var body: some View {
+        ScrollView {
+            HStack{
+                Text(title)
+                    .font(.title)
+                Spacer()
+            }
+            .frame(maxWidth:.infinity)
+            .padding(40)
+            
+            LazyVGrid(columns: display == .video ? videoColumns : squareColumns, alignment: .center, spacing:20) {
+                ForEach(section.content ?? []) {item in
+                    SectionItemView(item: item, propertyId: propertyId)
+                        .environmentObject(self.pathState)
+                        .environmentObject(self.fabric)
+                        .environmentObject(self.viewState)
+                }
+            }
+        }
+    }
+}
+
+struct MediaItemGridView: View {
+    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var pathState: PathState
+    
+    var propertyId: String
+    var items : [MediaPropertySectionMediaItem]
+    var title : String = ""
+    
     @FocusState var isFocused
     
-    @State var display : MediaDisplay = .square
+    var display : MediaDisplay {
+        if let item = items.first {
+            if item.thumbnail_image_portrait != nil {
+                return .feature
+            }
+            
+            if item.thumbnail_image_landscape != nil {
+                return .video
+            }
+        }
+        
+        return .square
+    }
     
     private let videoColumns = [
         GridItem(.fixed(560)),
@@ -35,7 +119,7 @@ struct SectionItemListView: View {
     var body: some View {
         ScrollView {
             HStack{
-                Text(item.media?.title ?? "")
+                Text(title)
                     .font(.title)
                 Spacer()
             }
@@ -48,6 +132,34 @@ struct SectionItemListView: View {
                 }
             }
         }
+    }
+}
+
+struct SectionItemListView: View {
+    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var pathState: PathState
+    
+    var propertyId: String
+    var item: MediaPropertySectionItem
+    @State var items : [MediaPropertySectionMediaItem] = []
+    @FocusState var isFocused
+    
+
+    private let videoColumns = [
+        GridItem(.fixed(560)),
+        GridItem(.fixed(560)),
+        GridItem(.fixed(560))
+    ]
+    private let squareColumns = [
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400)),
+        GridItem(.fixed(400))
+    ]
+    
+    var body: some View {
+        MediaItemGridView(propertyId:propertyId, items:items, title: item.media?.title ?? "")
         .onAppear(){
             debugPrint("SectionItemListView onAppear item ", item)
             Task {
@@ -55,7 +167,7 @@ struct SectionItemListView: View {
                     let result = try await fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
                     //debugPrint("MediaItems: ", result)
                     await MainActor.run {
-                        if let item = result.first {
+                      /*  if let item = result.first {
                             if item.thumbnail_image_portrait != nil {
                                 display = .feature
                             }
@@ -64,7 +176,7 @@ struct SectionItemListView: View {
                                 display = .video
                             }
                             debugPrint("SectionItemListView display ", display)
-                        }
+                        }*/
                        
                         items = result
                     }
