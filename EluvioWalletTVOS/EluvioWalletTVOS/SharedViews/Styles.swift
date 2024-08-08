@@ -78,12 +78,23 @@ struct NonSelectionButtonStyle: ButtonStyle {
 struct TitleButtonStyle: ButtonStyle {
     let focused: Bool
     var scale = 1.04
+    var bordered = false
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
             .background(.clear)
             .scaleEffect(self.focused ? scale: 1, anchor: .center)
             .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            .background(
+                RoundedRectangle(
+                    cornerRadius: 0,
+                    style: .continuous
+                )
+                .stroke(.tint, lineWidth: bordered && focused ? 4 : 0)
+                .scaleEffect(self.focused ? scale: 1, anchor: .center)
+                .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            )
+
     }
 }
 
@@ -139,14 +150,13 @@ struct TextButtonStyle: ButtonStyle {
             .foregroundColor(focused ? .black : .white)
             .cornerRadius(10)
             .opacity(configuration.isPressed ? 0.5 : 1)
-            //.border(Color.gray, width: bordered && !focused ? 1 : 0)
             .background(
-                    RoundedRectangle(
-                        cornerRadius: 10,
-                        style: .continuous
-                    )
-                    .stroke(.tint, lineWidth: bordered && !focused ? 1 : 0)
+                RoundedRectangle(
+                    cornerRadius: 10,
+                    style: .continuous
                 )
+                .stroke(.tint, lineWidth: bordered && !focused ? 1 : 0)
+            )
             
 
     }

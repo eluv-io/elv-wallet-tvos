@@ -692,28 +692,28 @@ struct MediaCard: View {
             //debugPrint("Media Display ", display)
                 
                 if display == MediaDisplay.feature {
-                    width = 393 * sizeFactor
-                    height = 590 * sizeFactor
+                    width = 248 * sizeFactor
+                    height = 372 * sizeFactor
                     cornerRadius = 3 * sizeFactor
                 }else if display == MediaDisplay.video{
-                    width =  534 * sizeFactor
-                    height = 300 * sizeFactor
+                    width =  417 * sizeFactor
+                    height = 235 * sizeFactor
                     cornerRadius = 16 * sizeFactor
                 }else if display == MediaDisplay.books {
                     width =  235 * sizeFactor
                     height = 300 * sizeFactor
                     cornerRadius = 16 * sizeFactor
                 }else if display == MediaDisplay.property {
-                    width =  405 * sizeFactor
-                    height = 247 * sizeFactor
+                    width =  330 * sizeFactor
+                    height = 470 * sizeFactor
                     cornerRadius = 16 * sizeFactor
                 }else if display == MediaDisplay.tile {
                     width =  887 * sizeFactor
                     height = 551 * sizeFactor
                     cornerRadius = 0
                 }else {
-                    width =  300 * sizeFactor
-                    height = 300 * sizeFactor
+                    width =  225 * sizeFactor
+                    height = 225 * sizeFactor
                     cornerRadius = 16 * sizeFactor
                 }
             //}

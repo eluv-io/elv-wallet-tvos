@@ -15,6 +15,9 @@ struct MediaPropertyView : View {
     var property: MediaPropertyViewModel
     @FocusState private var focused : Bool
     @Binding var selected : MediaPropertyViewModel
+    static var factor = 1.0
+    var width : CGFloat = 330 * factor
+    var height : CGFloat = 470 * factor
 
     var body: some View {
         VStack(spacing:10) {
@@ -56,7 +59,7 @@ struct MediaPropertyView : View {
                         .indicator(.activity) // Activity Indicator
                         .transition(.fade(duration: 0.5))
                         .aspectRatio(contentMode: .fill)
-                        .frame( width: 330, height: 470)
+                        .frame(width: width, height: height)
                         .cornerRadius(3)
                 }else{
                     ZStack{
@@ -66,18 +69,18 @@ struct MediaPropertyView : View {
                                 .indicator(.activity) // Activity Indicator
                                 .transition(.fade(duration: 0.5))
                                 .aspectRatio(contentMode: .fill)
-                                .frame( width: 330, height: 470)
+                                .frame(width: width, height: height)
                                 .cornerRadius(3)
                             
                             Rectangle()
                                 .fill(Color.black)
                                 .opacity(focused ? 0.7 : 0.5)
-                                .frame( width: 330, height: 470)
+                                .frame(width: width, height: height)
                                 .cornerRadius(3)
                         }else{
                             Rectangle()
                                 .fill(Color.secondaryBackground)
-                                .frame( width: 330, height: 470)
+                                .frame(width: width, height: height)
                                 .cornerRadius(3)
                         }
                         if property.title.isEmpty {
@@ -88,14 +91,14 @@ struct MediaPropertyView : View {
                     }
                 }
             }
-            .buttonStyle(TitleButtonStyle(focused: focused))
+            .buttonStyle(TitleButtonStyle(focused: focused, bordered : true))
             .focused($focused)
         }
         .onChange(of:selected) {old, new in
             //debugPrint("on selected", new.title)
             if (new.id == property.id){
                 //debugPrint("Setting focus", property.title)
-                focused = true
+               // focused = true
             }
         }
         .onChange(of:focused) {old, new in
@@ -113,6 +116,7 @@ struct MediaPropertiesView: View {
     
     var properties: [MediaPropertyViewModel] = []
     @Binding var selected : MediaPropertyViewModel
+    var numColumns = 5
     
     private let columns = [
         GridItem(.fixed(340), spacing: 10),
@@ -122,16 +126,28 @@ struct MediaPropertiesView: View {
         GridItem(.fixed(340), spacing: 10)
     ]
     
+    private let columns2 = [
+        GridItem(.flexible()), GridItem(.flexible()),
+         GridItem(.flexible()), GridItem(.flexible())
+        
+    ]
+    
     var body: some View {
         VStack(alignment:.leading) {
-            LazyVGrid(columns: columns, alignment: .center, spacing:20) {
-                ForEach(properties) { property in
-                    MediaPropertyView(property: property, selected: $selected)
-                        .environmentObject(self.pathState)
+            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 20) {
+                ForEach(0..<(properties.count / numColumns), id: \.self) {index in
+                    GridRow(alignment:.center) {
+                        ForEach(0..<numColumns, id: \.self) { index2 in
+                                MediaPropertyView(property: properties[(index * 4) + index2], selected: $selected)
+                                    .environmentObject(self.pathState)
+                        }
+                    }
+                    .frame(maxWidth:.infinity)
                 }
             }
+            .frame(maxWidth:.infinity, maxHeight: .infinity)
         }
-        .frame(alignment: .center)
+        .frame(maxWidth:.infinity, maxHeight: .infinity)
         .onChange(of: properties) { old, new in
             if properties.count > 0 {
                 selected = properties[0]

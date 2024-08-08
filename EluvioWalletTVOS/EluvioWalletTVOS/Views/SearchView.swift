@@ -250,13 +250,16 @@ struct SearchView: View {
                         
                     }
                 }
-                
-                ForEach(sections) {section in
-                    VStack{
-                        MediaPropertySectionView(propertyId: propertyId, section: section)
+                if sections.count == 1 {
+                    SectionGridView(propertyId: propertyId, section: sections.first!)
+                }else {
+                    ForEach(sections) {section in
+                        VStack{
+                            MediaPropertySectionView(propertyId: propertyId, section: section)
+                        }
+                        .frame(maxWidth:.infinity)
+                        .focusSection()
                     }
-                    .frame(maxWidth:.infinity)
-                    .focusSection()
                 }
                 
                 Spacer()

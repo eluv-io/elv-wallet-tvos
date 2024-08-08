@@ -28,6 +28,11 @@ struct MediaPropertySectionView: View {
     @EnvironmentObject var viewState: ViewState
     var propertyId: String
     var section: MediaPropertySection
+    
+    var items: [MediaPropertySectionItem] {
+        section.content ?? []
+    }
+    
     var showViewAll: Bool {
         if let sectionItems = section.content {
             if sectionItems.count > 5 || (sectionItems.count > section.displayLimit && section.displayLimit > 0)  {

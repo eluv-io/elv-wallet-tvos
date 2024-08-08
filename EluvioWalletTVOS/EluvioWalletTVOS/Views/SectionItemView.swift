@@ -61,11 +61,11 @@ struct SectionGridView: View {
         ScrollView {
             HStack{
                 Text(title)
-                    .font(.title)
+                    .font(.rowTitle)
                 Spacer()
             }
             .frame(maxWidth:.infinity)
-            .padding(40)
+            .padding(.bottom, 30)
             
             LazyVGrid(columns: display == .video ? videoColumns : squareColumns, alignment: .center, spacing:20) {
                 ForEach(section.content ?? []) {item in
@@ -120,11 +120,11 @@ struct MediaItemGridView: View {
         ScrollView {
             HStack{
                 Text(title)
-                    .font(.title)
+                    .font(.rowTitle)
                 Spacer()
             }
             .frame(maxWidth:.infinity)
-            .padding(40)
+            .padding(.bottom, 30)
             
             LazyVGrid(columns: display == .video ? videoColumns : squareColumns, alignment: .center, spacing:20) {
                 ForEach(items) {item in
