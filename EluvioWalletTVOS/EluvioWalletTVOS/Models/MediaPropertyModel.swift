@@ -70,6 +70,7 @@ struct MediaPropertySection: Codable, Identifiable {
     var label : String?
     var permissions : JSON?
     var type : String?
+    var hero_items: JSON?
     
     var displayLimit: Int {
         display?["display"]["display_limit"].intValue ?? 0
@@ -88,6 +89,7 @@ struct MediaPropertySection: Codable, Identifiable {
         label = try container.decodeIfPresent(String.self, forKey: .label) ?? ""
         permissions = try container.decodeIfPresent(JSON.self, forKey: .permissions) ?? nil
         type = try container.decodeIfPresent(String.self, forKey: .type) ?? ""
+        hero_items = try container.decodeIfPresent(JSON.self, forKey: .hero_items) ?? nil
     }
     
 }

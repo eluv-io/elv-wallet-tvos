@@ -65,10 +65,11 @@ struct PrimaryFilterView: View {
             .padding()
             
             if imageUrl.isEmpty {
-                Text(title.uppercased()).font(.largeTitle.bold())
+                Text(title.uppercased()).font(.itemTitle.bold())
                     .lineLimit(3)
-                    .frame(maxWidth: 534)
+                    .frame(maxWidth: 400)
                     .multilineTextAlignment(.center)
+                    .padding()
             }
         }
     }
@@ -149,7 +150,7 @@ struct SearchView: View {
     }
     
     var body: some View {
-        ScrollView{
+        ScrollView(.vertical){
             VStack(alignment:.leading) {
                 VStack(alignment:.center){
                     HStack(alignment:.center, spacing:40){
@@ -251,7 +252,8 @@ struct SearchView: View {
                     }
                 }
                 if sections.count == 1 {
-                    SectionGridView(propertyId: propertyId, section: sections.first!)
+                    SectionGridView(propertyId: propertyId, section: sections.first!, forceDisplay: .video)
+                        //
                 }else {
                     ForEach(sections) {section in
                         VStack{

@@ -56,7 +56,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable  {
         var sections: [String] = []
         
         do {
-            var sec = mediaProperty.main_page?.layout?["sections"].arrayValue ?? []
+            let sec = mediaProperty.main_page?.layout?["sections"].arrayValue ?? []
             for s in sec {
                 sections.append(s.stringValue)
             }
@@ -66,7 +66,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable  {
         return MediaPropertyViewModel(
                 id:mediaProperty.id,
                 title: mediaProperty.page_title ?? "",
-                descriptionRichText: mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "",
+                descriptionRichText:  mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "", description: mediaProperty.main_page?.layout?["description_text"].stringValue ?? "",
                 image: image,
                 backgroundImage: backgroundImage,
                 logo: logo,

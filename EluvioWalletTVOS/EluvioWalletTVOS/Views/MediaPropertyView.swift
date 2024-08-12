@@ -118,27 +118,13 @@ struct MediaPropertiesView: View {
     @Binding var selected : MediaPropertyViewModel
     var numColumns = 5
     
-    private let columns = [
-        GridItem(.fixed(340), spacing: 10),
-        GridItem(.fixed(340), spacing: 10),
-        GridItem(.fixed(340), spacing: 10),
-        GridItem(.fixed(340), spacing: 10),
-        GridItem(.fixed(340), spacing: 10)
-    ]
-    
-    private let columns2 = [
-        GridItem(.flexible()), GridItem(.flexible()),
-         GridItem(.flexible()), GridItem(.flexible())
-        
-    ]
-    
     var body: some View {
         VStack(alignment:.leading) {
             Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 20) {
                 ForEach(0..<(properties.count / numColumns), id: \.self) {index in
                     GridRow(alignment:.center) {
                         ForEach(0..<numColumns, id: \.self) { index2 in
-                                MediaPropertyView(property: properties[(index * 4) + index2], selected: $selected)
+                                MediaPropertyView(property: properties[(index * numColumns) + index2], selected: $selected)
                                     .environmentObject(self.pathState)
                         }
                     }

@@ -22,7 +22,12 @@ struct SectionGridView: View {
     
     //@State var display : MediaDisplay = .square
     
+    var forceDisplay : MediaDisplay? = nil
+    
     var display : MediaDisplay {
+        if let force = forceDisplay {
+            return force
+        }
         if let item = items.first {
             if item.media?.thumbnail_image_portrait != nil {
                 return .feature
@@ -43,22 +48,19 @@ struct SectionGridView: View {
         return ""
     }
     
-    
-    private let videoColumns = [
-        GridItem(.fixed(560)),
-        GridItem(.fixed(560)),
-        GridItem(.fixed(560))
-    ]
-    private let squareColumns = [
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400))
-    ]
+    var numColumns: Int {
+        if display == .video {
+            return 4
+        } else if display == .square {
+            return 7
+        } else {
+            return 4
+        }
+    }
     
     
     var body: some View {
-        ScrollView {
+        ScrollView(.vertical) {
             HStack{
                 Text(title)
                     .font(.rowTitle)
@@ -67,15 +69,21 @@ struct SectionGridView: View {
             .frame(maxWidth:.infinity)
             .padding(.bottom, 30)
             
-            LazyVGrid(columns: display == .video ? videoColumns : squareColumns, alignment: .center, spacing:20) {
-                ForEach(section.content ?? []) {item in
-                    SectionItemView(item: item, propertyId: propertyId)
-                        .environmentObject(self.pathState)
-                        .environmentObject(self.fabric)
-                        .environmentObject(self.viewState)
+            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 20) {
+                ForEach(0..<(items.count / numColumns), id: \.self) {index in
+                    GridRow(alignment:.center) {
+                        ForEach(0..<numColumns, id: \.self) { index2 in
+                            SectionItemView(item: items[(index * (numColumns)) + index2], propertyId: propertyId)
+                                .environmentObject(self.pathState)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
+                        }
+                    }
+                    .frame(maxWidth:UIScreen.main.bounds.size.width)
                 }
             }
         }
+        .scrollClipDisabled()
     }
 }
 

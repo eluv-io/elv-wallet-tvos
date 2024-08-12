@@ -222,6 +222,10 @@ extension Font {
         return Font.system(size: 30)
     }
     
+    public static var sectionLogoText: Font {
+        return Font.system(size: 24)
+    }
+    
     public static var propertyDescription: Font {
         return Font.system(size:30)
     }

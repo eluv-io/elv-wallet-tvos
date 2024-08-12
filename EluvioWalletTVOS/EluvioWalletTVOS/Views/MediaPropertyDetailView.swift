@@ -28,6 +28,7 @@ struct MediaPropertySectionView: View {
     @EnvironmentObject var viewState: ViewState
     var propertyId: String
     var section: MediaPropertySection
+    let margin: CGFloat = 80
     
     var items: [MediaPropertySectionItem] {
         section.content ?? []
@@ -49,43 +50,146 @@ struct MediaPropertySectionView: View {
         }
         return ""
     }
+    
+    var isDisplayable: Bool {
+        if section.display?["display_format"].stringValue == "carousel" || isHero {
+            return true
+        }
+        
+        return false
+    }
+    
+    var isHero: Bool {
+        if section.display?["display_format"].stringValue == "hero"  {
+            return true
+        }
+        return false
+    }
+    
+    @State var logoUrl: String? = nil
+    var logoText: String {
+        if let display = section.display {
+            return display["logo_text"].stringValue
+        }
+        return ""
+    }
+    
+    @State var inlineBackgroundUrl: String? = nil
+    
+    var heroLogoUrl: String {
+        if let items = section.hero_items?.arrayValue {
+            if !items.isEmpty {
+                do {
+                    return try fabric.getUrlFromLink(link: items[0]["display"]["logo"])
+                }catch{
+                    return ""
+                }
+            }
+        }
+        
+        return ""
+    }
+    
+    var heroTitle: String {
+        if let items = section.hero_items?.arrayValue {
+            if !items.isEmpty {
+                return items[0]["display"]["title"].stringValue
+            }
+        }
+        return ""
+    }
+    
+    var heroDescription: String {
+        if let items = section.hero_items?.arrayValue {
+            if !items.isEmpty {
+                return items[0]["display"]["description"].stringValue
+            }
+        }
+        return ""
+    }
+
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10)  {
-            if !title.isEmpty {
-                HStack{
-                    Text(title).font(.rowTitle).foregroundColor(Color.white)
-                    if showViewAll {
-                        ViewAllButton(action:{
-                            debugPrint("View All pressed")
-                            pathState.section = section
-                            pathState.propertyId = propertyId
-                            pathState.path.append(.sectionViewAll)
-                        })
+        if !isDisplayable {
+            EmptyView()
+        } else if isHero {
+            MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
+                .focusable()
+                .padding([.bottom], 40)
+                .padding([.leading,.trailing],margin)
+            
+        } else {
+            HStack{
+                if let url = logoUrl {
+                    VStack(spacing:20) {
+                        WebImage(url:URL(string:url))
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 180, height:180)
+                        Text(logoText)
+                            .font(.sectionLogoText)
                     }
                 }
-                .padding(.bottom, 20)
-                .focusSection()
-            }
-            
-            ScrollView(.horizontal) {
-                HStack(alignment: .top, spacing: 50) {
-                    ForEach(section.content ?? []) {item in
-                        if item.type == "item_purchase" {
-                            //Skip for now
-                        }else{
-                            SectionItemView(item: item, propertyId: propertyId)
-                                .environmentObject(self.pathState)
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
+                VStack(alignment: .leading, spacing: 10)  {
+                    if !title.isEmpty {
+                        HStack{
+                            Text(title).font(.rowTitle).foregroundColor(Color.white)
+                            if showViewAll {
+                                ViewAllButton(action:{
+                                    debugPrint("View All pressed")
+                                    pathState.section = section
+                                    pathState.propertyId = propertyId
+                                    pathState.path.append(.sectionViewAll)
+                                })
+                            }
+                        }
+                        .padding([.top,.bottom], 20)
+                        .focusSection()
+                    }
+                    
+                    ScrollView(.horizontal) {
+                        HStack(alignment: .top, spacing: 50) {
+                            ForEach(section.content ?? []) {item in
+                                if item.type == "item_purchase" {
+                                    //Skip for now
+                                }else{
+                                    SectionItemView(item: item, propertyId: propertyId)
+                                        .environmentObject(self.pathState)
+                                        .environmentObject(self.fabric)
+                                        .environmentObject(self.viewState)
+                                }
+                            }
                         }
                     }
+                    .scrollClipDisabled()
                 }
             }
-            .scrollClipDisabled()
-            
+            .padding([.bottom], 40)
+            .padding([.leading,.trailing],margin)
+            .background(
+                Group {
+                    if let url = inlineBackgroundUrl {
+                        WebImage(url:URL(string:url))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity, maxHeight:402)
+                            .ignoresSafeArea()
+                    }
+                }
+            )
+            .onAppear() {
+                if let display = section.display {
+                    do {
+                        logoUrl = try fabric.getUrlFromLink(link: display["logo"])
+                    }catch{}
+                    
+                    do {
+                        inlineBackgroundUrl = try fabric.getUrlFromLink(link: display["inline_background_image"])
+                    }catch{}
+                    
+                }
+            }
         }
-        .padding(.top)
     }
 }
 
@@ -102,42 +206,52 @@ struct MediaPropertyDetailView: View {
     
     var body: some View {
         ScrollView() {
-            VStack(alignment:.leading) {
+            ZStack() {
                 HStack(alignment:.top){
-                    MediaPropertyHeader(logo: property.logo, title: property.logoAlt, description: property.description, descriptionRichText: property.descriptionRichText)
-                        .prefersDefaultFocus(in: NamespaceProperty)
-                        .focusable()
-                    
-                    Button(action:{
-                        debugPrint("Search....")
-                        pathState.searchParams = SearchParams(propertyId: property.id ?? "")
-                        pathState.path.append(.search)
-                    }){
-                        HStack(){
-                            Image(systemName: "magnifyingglass")
-                                .resizable()
-                                .frame(width:40, height:40)
-                                .padding()
+                    Spacer()
+                    VStack{
+                        Button(action:{
+                            debugPrint("Search....")
+                            pathState.searchParams = SearchParams(propertyId: property.id ?? "")
+                            pathState.path.append(.search)
+                        }){
+                            HStack(){
+                                Image(systemName: "magnifyingglass")
+                                    .resizable()
+                                    .frame(width:40, height:40)
+                                    .padding()
+                            }
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(Circle())
                         }
-                        .background(Color.black.opacity(0.5))
-                        .clipShape(Circle())
+                        .buttonStyle(IconButtonStyle(focused: searchFocused, initialOpacity: 0.7, scale: 1.2))
+                        .focused($searchFocused)
+                        
+                        Spacer()
                     }
-                    .buttonStyle(IconButtonStyle(focused: searchFocused, initialOpacity: 0.7, scale: 1.2))
-                    .focused($searchFocused)
                 }
                 .focusSection()
+                .padding(.trailing, 40)
                 
-                ForEach(sections) {section in
-                    if let propertyId = property.id {
-                        MediaPropertySectionView(propertyId: propertyId, section: section)
+                VStack {
+                    ForEach(sections) {section in
+                        if let propertyId = property.id {
+                            MediaPropertySectionView(propertyId: propertyId, section: section)
+                                .edgesIgnoringSafeArea([.leading,.trailing])
+                        }
                     }
                 }
+                .padding(.top, 40)
+                .prefersDefaultFocus(in: NamespaceProperty)
                 
             }
             .frame(maxWidth: .infinity, alignment: .center)
+            .edgesIgnoringSafeArea([.leading,.trailing])
             .padding(.top, 10)
         }
         .scrollClipDisabled()
+        .frame(maxWidth: .infinity, alignment: .center)
+        .edgesIgnoringSafeArea([.leading,.trailing])
         .background(
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
@@ -186,41 +300,33 @@ struct MediaPropertyHeader: View {
     var logo: String = ""
     var title: String = ""
     var description: String = ""
-    var descriptionRichText: AttributedString = ""
 
     var body: some View {
         VStack(alignment:.leading, spacing: 10) {
-            if (logo.isEmpty) {
-                Text(title).font(.title3)
-                    .foregroundColor(Color.white)
-                    .fontWeight(.bold)
-                    .frame(maxWidth:1500, alignment:.leading)
-            }else{
-                WebImage(url: URL(string: logo))
-                    .resizable()
-                    .transition(.fade(duration: 0.5))
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width:800, height:400, alignment: .leading)
-                    .clipped()
-            }
-                        
-            if (!description.isEmpty) {
-                Text(description)
-                    .foregroundColor(Color.white)
-                    //.padding(.top)
-                    .font(.propertyDescription)
-                    .frame(maxWidth:1200, alignment:.leading)
-                    .lineLimit(3)
-            }else {
-                Text(self.descriptionRichText)
+
+            WebImage(url: URL(string: logo))
+                .resizable()
+                .transition(.fade(duration: 0.5))
+                .aspectRatio(contentMode: .fit)
+                .frame(width:840, height:180, alignment: .leading)
+                .clipped()
+            
+            Text(title).font(.title3)
                 .foregroundColor(Color.white)
-                //.padding(.top)
+                .fontWeight(.bold)
+                .frame(maxWidth:1100, alignment:.leading)
+                .padding(.top, 20)
+            
+            Text(description)
+                .foregroundColor(Color.white)
                 .font(.propertyDescription)
-                .frame(maxWidth:1200, alignment:.leading)
-                .lineLimit(10)
-            }
+                .frame(maxWidth:1100, alignment:.leading)
+                .lineLimit(3)
+                .padding(.top, 20)
+
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 10)
+        .padding(.top, 80)
+        .padding(.bottom, 40)
     }
 }
