@@ -215,7 +215,7 @@ extension Font {
     }
 
     public static var rowTitle: Font {
-        return Font.system(size: 36)
+        return Font.system(size: 32)
     }
     
     public static var rowSubtitle: Font {

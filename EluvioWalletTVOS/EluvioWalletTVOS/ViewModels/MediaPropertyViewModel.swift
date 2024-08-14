@@ -65,7 +65,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable  {
         
         return MediaPropertyViewModel(
                 id:mediaProperty.id,
-                title: mediaProperty.page_title ?? "",
+                title: mediaProperty.title ?? mediaProperty.page_title ?? "",
                 descriptionRichText:  mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "", description: mediaProperty.main_page?.layout?["description_text"].stringValue ?? "",
                 image: image,
                 backgroundImage: backgroundImage,

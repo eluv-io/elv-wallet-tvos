@@ -25,6 +25,7 @@ struct MediaProperty: Codable {
     var id : String?
     var image : JSON?
     var name : String?
+    var title: String?
     var page_title : String?
     var main_page : MediaPropertyPage?
     var media_catalogs : [String]?
@@ -123,6 +124,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable  {
     var label : String? = ""
     var live : Bool? = false
     var gallery : [GalleryItem]? = nil
+    var headers : [String]? = nil
     var media : [String]? = nil
     var media_lists : [String]? //This is an array of media items but the item's media field is a list of strings?
     var media_catalog_id : String? = ""
@@ -134,5 +136,6 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable  {
     var thumbnail_image_portrait : JSON?
     var thumbnail_image_landscape : JSON?
     var title : String? = ""
+    var subtitle : String? = ""
     var type : String? = ""
 }

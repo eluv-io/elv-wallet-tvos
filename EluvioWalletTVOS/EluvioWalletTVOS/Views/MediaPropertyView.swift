@@ -84,7 +84,7 @@ struct MediaPropertyView : View {
                                 .cornerRadius(3)
                         }
                         if property.title.isEmpty {
-                            Text("Untitled").font(.largeTitle)
+                            //Text("Untitled").font(.largeTitle)
                         }else{
                             Text(property.title).font(.largeTitle.bold())
                         }

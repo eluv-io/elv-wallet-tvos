@@ -403,15 +403,20 @@ struct SectionItemView: View {
                     }
                     
                 }){
-                    MediaCard(display: mediaItem.thumb_aspect_ratio == .square ? .square :
-                                mediaItem.thumb_aspect_ratio == .portrait ? .feature :
-                                mediaItem.thumb_aspect_ratio == .landscape ? .video : .square,
-                              image: mediaItem.thumbnail,
-                              isFocused:isFocused,
-                              title: mediaItem.title,
-                              isLive: mediaItem.live,
-                              showFocusedTitle: mediaItem.title.isEmpty ? false : true
-                    )
+                    VStack(alignment: .leading, spacing: 10){
+                        MediaCard(display: mediaItem.thumb_aspect_ratio == .square ? .square :
+                                    mediaItem.thumb_aspect_ratio == .portrait ? .feature :
+                                    mediaItem.thumb_aspect_ratio == .landscape ? .video : .square,
+                                  image: mediaItem.thumbnail,
+                                  isFocused:isFocused,
+                                  title: mediaItem.title,
+                                  subtitle: mediaItem.subtitle,
+                                  timeString: mediaItem.headerString,
+                                  isLive: mediaItem.live, centerFocusedText: false,
+                                  showFocusedTitle: mediaItem.title.isEmpty ? false : true,
+                                  showBottomTitle: true
+                        )
+                    }
                 }
                 .buttonStyle(TitleButtonStyle(focused: isFocused))
                 .focused($isFocused)

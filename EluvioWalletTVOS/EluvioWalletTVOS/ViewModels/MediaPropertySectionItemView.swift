@@ -26,12 +26,14 @@ struct MediaPropertySectionMediaItemView: Codable {
     var media_type : String = ""
     var poster_image_url = ""
     var title : String = ""
+    var subtitle: String = ""
     var type : String = ""
     var thumbnail_image_square : String = ""
     var thumbnail_image_portrait : String = ""
     var thumbnail_image_landscape : String = ""
     var thumbnail : String = ""
     var thumb_aspect_ratio : ImageAspectRatio = .square
+    var headerString: String = ""
     
     static func create(item: MediaPropertySectionItem, fabric: Fabric) -> MediaPropertySectionMediaItemView{
 
@@ -113,6 +115,11 @@ struct MediaPropertySectionMediaItemView: Codable {
             thumb_aspect_ratio = .landscape
         }
         
+        var headerString = ""
+        if let headers = item.media?.headers {
+            headerString = headers.joined(separator: "   ")
+        }
+        
         return MediaPropertySectionMediaItemView (
             id: item.id ?? "",
             media_id : item.media_id ?? "",
@@ -129,12 +136,14 @@ struct MediaPropertySectionMediaItemView: Codable {
             media_type : item.media?.media_type ?? "",
             poster_image_url: posterImage,
             title : title,
+            subtitle : item.media?.subtitle ?? "",
             type : item.type ?? "",
             thumbnail_image_square : thumbnailSquare,
             thumbnail_image_portrait : thumbnailPortrait,
             thumbnail_image_landscape: thumbnailLand,
             thumbnail : thumbnail,
-            thumb_aspect_ratio: thumb_aspect_ratio
+            thumb_aspect_ratio: thumb_aspect_ratio,
+            headerString: headerString
         )
     }
 }

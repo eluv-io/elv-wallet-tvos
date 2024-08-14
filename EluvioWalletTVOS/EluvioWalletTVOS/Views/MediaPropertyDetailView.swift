@@ -14,7 +14,7 @@ struct ViewAllButton: View {
     
     var body: some View {
         Button(action:action, label:{
-            Text("VIEW ALL")
+            Text("VIEW ALL").font(.system(size:24)).bold()
         })
         .buttonStyle(TextButtonStyle(focused:isFocused, bordered:true))
         .focused($isFocused)
@@ -28,7 +28,7 @@ struct MediaPropertySectionView: View {
     @EnvironmentObject var viewState: ViewState
     var propertyId: String
     var section: MediaPropertySection
-    let margin: CGFloat = 80
+    let margin: CGFloat = 100
     
     var items: [MediaPropertySectionItem] {
         section.content ?? []
@@ -115,7 +115,6 @@ struct MediaPropertySectionView: View {
         } else if isHero {
             MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
                 .focusable()
-                .padding([.bottom], 40)
                 .padding([.leading,.trailing],margin)
             
         } else {
@@ -132,7 +131,7 @@ struct MediaPropertySectionView: View {
                 }
                 VStack(alignment: .leading, spacing: 10)  {
                     if !title.isEmpty {
-                        HStack{
+                        HStack(spacing:20){
                             Text(title).font(.rowTitle).foregroundColor(Color.white)
                             if showViewAll {
                                 ViewAllButton(action:{
@@ -143,7 +142,8 @@ struct MediaPropertySectionView: View {
                                 })
                             }
                         }
-                        .padding([.top,.bottom], 20)
+                        .padding(.top, 20)
+                        .padding(.bottom, 40)
                         .focusSection()
                     }
                     
@@ -153,10 +153,12 @@ struct MediaPropertySectionView: View {
                                 if item.type == "item_purchase" {
                                     //Skip for now
                                 }else{
-                                    SectionItemView(item: item, propertyId: propertyId)
-                                        .environmentObject(self.pathState)
-                                        .environmentObject(self.fabric)
-                                        .environmentObject(self.viewState)
+                                    VStack(alignment: .leading, spacing: 10){
+                                        SectionItemView(item: item, propertyId: propertyId)
+                                            .environmentObject(self.pathState)
+                                            .environmentObject(self.fabric)
+                                            .environmentObject(self.viewState)
+                                    }
                                 }
                             }
                         }
@@ -309,24 +311,25 @@ struct MediaPropertyHeader: View {
                 .transition(.fade(duration: 0.5))
                 .aspectRatio(contentMode: .fit)
                 .frame(width:840, height:180, alignment: .leading)
+                .padding(.bottom,40)
                 .clipped()
             
             Text(title).font(.title3)
                 .foregroundColor(Color.white)
                 .fontWeight(.bold)
-                .frame(maxWidth:1100, alignment:.leading)
+                .frame(maxWidth:1020, alignment:.leading)
                 .padding(.top, 20)
             
             Text(description)
                 .foregroundColor(Color.white)
                 .font(.propertyDescription)
-                .frame(maxWidth:1100, alignment:.leading)
+                .frame(maxWidth:1020, alignment:.leading)
                 .lineLimit(3)
                 .padding(.top, 20)
 
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 80)
-        .padding(.bottom, 40)
+        .padding(.top, 40)
+        .padding(.bottom, 60)
     }
 }

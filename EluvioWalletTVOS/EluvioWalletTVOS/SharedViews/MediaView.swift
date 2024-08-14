@@ -548,9 +548,11 @@ struct MediaCard: View {
     var isUpcoming: Bool = false
     var title: String = ""
     var subtitle: String = ""
+    var timeString: String = ""
     var isLive: Bool = false
     var centerFocusedText: Bool = false
     var showFocusedTitle = true
+    var showBottomTitle = true
     var image_ratio: String? = nil //Square, Wide, Tall or nil
 
     @State var width: CGFloat = 300
@@ -561,113 +563,128 @@ struct MediaCard: View {
     @State private var newItem : Bool = true
     
     var body: some View {
-        ZStack{
-            if (playerItem != nil){
-                LoopingVideoPlayer([playerItem!], endAction: .loop)
-                    .frame(width:width, height:height, alignment: .center)
-                    .cornerRadius(cornerRadius)
-            }else{
-                if (image.hasPrefix("http")){
-                    WebImage(url: URL(string: image))
-                        .resizable()
-                        .indicator(.activity) // Activity Indicator
-                        .transition(.fade(duration: 0.5))
-                        .aspectRatio(contentMode: .fill)
-                        .frame( width: width, height: height)
+        VStack(alignment:.leading) {
+            ZStack{
+                if (playerItem != nil){
+                    LoopingVideoPlayer([playerItem!], endAction: .loop)
+                        .frame(width:width, height:height, alignment: .center)
                         .cornerRadius(cornerRadius)
-                }else if (image != ""){
-                    Image(image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame( width: width, height: height)
-                        .cornerRadius(cornerRadius)
-                }else {
-                    //No image, display like the focused state with a lighter background
-                    if (!isFocused) {
-                        VStack(alignment: .center, spacing: 7) {
-                            if ( !centerFocusedText ){
-                                Spacer()
-                            }
-                            if showFocusedTitle {
-                                Text(title)
+                }else{
+                    if (image.hasPrefix("http")){
+                        WebImage(url: URL(string: image))
+                            .resizable()
+                            .indicator(.activity) // Activity Indicator
+                            .transition(.fade(duration: 0.5))
+                            .aspectRatio(contentMode: .fill)
+                            .frame( width: width, height: height)
+                            .cornerRadius(cornerRadius)
+                    }else if (image != ""){
+                        Image(image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame( width: width, height: height)
+                            .cornerRadius(cornerRadius)
+                    }else {
+                        //No image, display like the focused state with a lighter background
+                        if (!isFocused) {
+                            VStack(alignment: .center, spacing: 7) {
+                                if ( !centerFocusedText ){
+                                    Spacer()
+                                }
+                                if showFocusedTitle {
+                                    Text(title)
+                                        .foregroundColor(Color.white)
+                                        .font(.subheadline)
+                                        .lineLimit(2)
+                                }
+                                Text(subtitle)
+                                    .font(.small)
                                     .foregroundColor(Color.white)
-                                    .font(.subheadline)
-                                    .lineLimit(2)
+                                    .lineLimit(3)
                             }
-                            Text(subtitle)
-                                .font(.small)
-                                .foregroundColor(Color.white)
-                                .lineLimit(3)
+                            .frame(maxWidth:.infinity, maxHeight:.infinity)
+                            .padding(20)
+                            .padding(.bottom, 50)
+                            .cornerRadius(cornerRadius)
+                            .background(Color.white.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: cornerRadius)
+                                    .stroke(Color.gray, lineWidth: 2)
+                            )
                         }
-                        .frame(maxWidth:.infinity, maxHeight:.infinity)
-                        .padding(20)
-                        .padding(.bottom, 50)
-                        .cornerRadius(cornerRadius)
-                        .background(Color.white.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: cornerRadius)
-                                .stroke(Color.gray, lineWidth: 2)
-                        )
                     }
                 }
-            }
-
-            if (isFocused){
-                VStack(alignment: .center, spacing: 7) {
-                    if ( !centerFocusedText){
-                        Spacer()
+                
+                if (isFocused){
+                    VStack(alignment: .leading, spacing: 7) {
+                        if ( !centerFocusedText){
+                            Spacer()
+                        }
+                        if showFocusedTitle {
+                            Text(timeString)
+                                .font(.system(size: 15))
+                                .foregroundColor(Color.gray)
+                                .frame(maxWidth:.infinity, alignment:.leading)
+                            
+                            Text(title)
+                                .font(.system(size: 22))
+                                .foregroundColor(Color.white)
+                                .lineLimit(1)
+                                .bold()
+                                .frame(maxWidth:.infinity, alignment:.leading)
+                            
+                            Text(subtitle)
+                                .font(.system(size: 19))
+                                .foregroundColor(Color.gray)
+                                .lineLimit(1)
+                                .frame(maxWidth:.infinity, alignment:.leading)
+                        }
                     }
-                    if showFocusedTitle {
+                    .frame(maxWidth:.infinity, maxHeight:.infinity)
+                    .padding(20)
+                    //.padding(.bottom, 50)
+                    .cornerRadius(cornerRadius)
+                    .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .stroke(Color.highlight, lineWidth: 4)
+                    )
+                }else if (isUpcoming){
+                    VStack(alignment: .trailing, spacing: 7) {
+                        Spacer()
                         Text(title)
                             .foregroundColor(Color.white)
                             .font(.subheadline)
+                        Text(subtitle)
+                            .foregroundColor(Color.white)
                     }
-                    Text(subtitle)
-                        .font(.small)
-                        .foregroundColor(Color.white)
-                        .lineLimit(3)
+                    .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
+                    .padding(20)
+                    .padding(.bottom, 25)
+                    .background(Color.black.opacity( 0.8))
                 }
-                .frame(maxWidth:.infinity, maxHeight:.infinity)
-                .padding(20)
-                .padding(.bottom, 50)
-                .cornerRadius(cornerRadius)
-                .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
-                .overlay(
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(Color.highlight, lineWidth: 4)
-                )
-            }else if (isUpcoming){
-                VStack(alignment: .trailing, spacing: 7) {
-                    Spacer()
-                    Text(title)
-                        .foregroundColor(Color.white)
-                        .font(.subheadline)
-                    Text(subtitle)
-                        .foregroundColor(Color.white)
-                }
-                .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
-                .padding(20)
-                .padding(.bottom, 25)
-                .background(Color.black.opacity( 0.8))
-            }
-            
-            if (isLive && display != .feature){
-                VStack() {
-                    Spacer()
-                    HStack{
+                
+                if (isLive && display != .feature){
+                    VStack() {
                         Spacer()
-                        Text("LIVE")
-                            .font(.custom("Helvetica Neue", size: 21))
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(.white)
-                            .padding(3)
-                            .padding(.leading,7)
-                            .padding(.trailing,7)
-                            .background(RoundedRectangle(cornerRadius: 5).fill(.red))
+                        HStack{
+                            Spacer()
+                            Text("LIVE")
+                                .font(.custom("Helvetica Neue", size: 21))
+                                .multilineTextAlignment(.center)
+                                .foregroundColor(.white)
+                                .padding(3)
+                                .padding(.leading,7)
+                                .padding(.trailing,7)
+                                .background(RoundedRectangle(cornerRadius: 5).fill(.red))
+                        }
                     }
+                    .frame( maxWidth: .infinity, maxHeight:.infinity)
+                    .padding(20)
                 }
-                .frame( maxWidth: .infinity, maxHeight:.infinity)
-                .padding(20)
+            }
+            if showBottomTitle {
+                Text(title).font(.system(size: 22)).lineLimit(1).frame(alignment:.leading)
             }
         }
         .frame( width: width, height: height)

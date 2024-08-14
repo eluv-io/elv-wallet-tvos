@@ -77,8 +77,12 @@ struct DiscoverView: View {
                     
                     for property in val.contents {
                         let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: fabric)
-                        //debugPrint("MediaProperty Created ", mediaProperty.image)
-                        properties.append(mediaProperty)
+                        //debugPrint("\(mediaProperty.title) ---> image \(property.image)")
+                        if mediaProperty.image.isEmpty {
+                            
+                        }else{
+                            properties.append(mediaProperty)
+                        }
                     }
                     self.properties = properties
                 }
