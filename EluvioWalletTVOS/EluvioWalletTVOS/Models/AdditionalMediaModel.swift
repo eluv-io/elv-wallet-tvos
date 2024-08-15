@@ -477,7 +477,6 @@ struct MediaCollection: FeatureProtocol, Equatable, Hashable {
 struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     var id: String? = UUID().uuidString
     var thumbnail: JSON?
-    var image: JSON?
     var video: JSON?
     var name: String = ""
     var image_aspect_ratio: String?
@@ -487,7 +486,6 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     init (){
         id = UUID().uuidString
         thumbnail = nil
-        image = nil
         video = nil
         name = ""
         image_aspect_ratio = ""
@@ -500,10 +498,10 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
         video = try container.decodeIfPresent(JSON.self, forKey: .video) ?? nil
+        thumbnail = try container.decodeIfPresent(JSON.self, forKey: .thumbnail) ?? nil
         name = try container.decodeIfPresent(String.self, forKey: .name) ?? ""
         image_aspect_ratio = try container.decodeIfPresent(String.self, forKey: .image_aspect_ratio) ?? ""
         description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
-        image = try container.decodeIfPresent(JSON.self, forKey: .image) ?? nil
     }
     
     static func == (lhs: GalleryItem, rhs: GalleryItem) -> Bool {
@@ -525,17 +523,12 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
             thumbLink = propertyMedia.thumbnail_image_landscape
         }
         
-        var imageLink : JSON? = nil
-        //TODO:
-        imageLink = thumbLink
-        
         let videoLink = propertyMedia.media_link
         
         var item = GalleryItem()
         
         item.id = propertyMedia.id
         item.thumbnail = thumbLink
-        item.image = imageLink
         item.video = videoLink
         item.description = propertyMedia.description ?? ""
         item.name = propertyMedia.title ?? ""

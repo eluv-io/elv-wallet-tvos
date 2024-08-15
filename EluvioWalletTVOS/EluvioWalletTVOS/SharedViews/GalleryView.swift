@@ -12,7 +12,7 @@ import SDWebImageSwiftUI
 
 struct GalleryItemView: View {
     @EnvironmentObject var fabric: Fabric
-    @State var media: GalleryItem? = nil
+    var media: GalleryItem? = nil
     @State var imageUrl: String = "https://picsum.photos/600/800"
     @Binding var currentImageUrl : String
     @FocusState var isFocused
@@ -41,10 +41,10 @@ struct GalleryItemView: View {
                     self.currentImageUrl = "https://picsum.photos/1000/1000"
                 }else{
                     do {
-                        self.imageUrl = try fabric.getUrlFromLink(link: media?.image)
+                        self.imageUrl = try fabric.getUrlFromLink(link: media?.thumbnail)
                         print("Gallery Image URL: ", self.imageUrl)
                     }catch{
-                        print("Error getting image URL from link ", media?.image as Any)
+                        print("Error getting image URL from link ", media?.thumbnail as Any)
                     }
                 }
             }

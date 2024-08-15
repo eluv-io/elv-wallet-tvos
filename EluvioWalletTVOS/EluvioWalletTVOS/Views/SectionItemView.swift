@@ -20,8 +20,6 @@ struct SectionGridView: View {
         return section.content ?? []
     }
     
-    //@State var display : MediaDisplay = .square
-    
     var forceDisplay : MediaDisplay? = nil
     
     var display : MediaDisplay {
@@ -69,11 +67,11 @@ struct SectionGridView: View {
             .frame(maxWidth:.infinity)
             .padding(.bottom, 30)
             
-            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 20) {
-                ForEach(0..<(items.count / numColumns), id: \.self) {index in
+            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 80) {
+                ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                     GridRow(alignment:.center) {
-                        ForEach(0..<numColumns, id: \.self) { index2 in
-                            SectionItemView(item: items[(index * (numColumns)) + index2], propertyId: propertyId)
+                        ForEach(groups, id: \.self) { item in
+                            SectionItemView(item: item, propertyId: propertyId)
                                 .environmentObject(self.pathState)
                                 .environmentObject(self.fabric)
                                 .environmentObject(self.viewState)
@@ -112,20 +110,18 @@ struct MediaItemGridView: View {
         return .square
     }
     
-    private let videoColumns = [
-        GridItem(.fixed(560)),
-        GridItem(.fixed(560)),
-        GridItem(.fixed(560))
-    ]
-    private let squareColumns = [
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400))
-    ]
+    var numColumns: Int {
+        if display == .video {
+            return 4
+        } else if display == .square {
+            return 7
+        } else {
+            return 4
+        }
+    }
     
     var body: some View {
-        ScrollView {
+        ScrollView(.vertical) {
             HStack{
                 Text(title)
                     .font(.rowTitle)
@@ -134,12 +130,21 @@ struct MediaItemGridView: View {
             .frame(maxWidth:.infinity)
             .padding(.bottom, 30)
             
-            LazyVGrid(columns: display == .video ? videoColumns : squareColumns, alignment: .center, spacing:20) {
-                ForEach(items) {item in
-                    SectionMediaItemView(item:item)
+            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 80) {
+                ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
+                    GridRow(alignment:.center) {
+                        ForEach(groups, id: \.self) { item in
+                            SectionMediaItemView(item: item)
+                                .environmentObject(self.pathState)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
+                        }
+                    }
+                    .frame(maxWidth:UIScreen.main.bounds.size.width)
                 }
             }
         }
+        .scrollClipDisabled()
     }
 }
 
@@ -153,19 +158,6 @@ struct SectionItemListView: View {
     @State var items : [MediaPropertySectionMediaItem] = []
     @FocusState var isFocused
     
-
-    private let videoColumns = [
-        GridItem(.fixed(560)),
-        GridItem(.fixed(560)),
-        GridItem(.fixed(560))
-    ]
-    private let squareColumns = [
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400)),
-        GridItem(.fixed(400))
-    ]
-    
     var body: some View {
         MediaItemGridView(propertyId:propertyId, items:items, title: item.media?.title ?? "")
         .onAppear(){
@@ -173,19 +165,7 @@ struct SectionItemListView: View {
             Task {
                 if let mediaList = item.media?.media {
                     let result = try await fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
-                    //debugPrint("MediaItems: ", result)
                     await MainActor.run {
-                      /*  if let item = result.first {
-                            if item.thumbnail_image_portrait != nil {
-                                display = .feature
-                            }
-                            
-                            if item.thumbnail_image_landscape != nil {
-                                display = .video
-                            }
-                            debugPrint("SectionItemListView display ", display)
-                        }*/
-                       
                         items = result
                     }
                 }

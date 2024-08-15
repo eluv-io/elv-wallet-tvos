@@ -70,6 +70,7 @@ struct DiscoverView: View {
             self.fabricCancellable = fabric.$mediaProperties
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
+                    debugPrint("onMediaProperties changed count: ", val.contents.count )
                     var properties: [MediaPropertyViewModel] = []
                     if val.contents.isEmpty {
                         return
@@ -77,7 +78,7 @@ struct DiscoverView: View {
                     
                     for property in val.contents {
                         let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: fabric)
-                        //debugPrint("\(mediaProperty.title) ---> image \(property.image)")
+                        debugPrint("\(mediaProperty.title) ---> created")
                         if mediaProperty.image.isEmpty {
                             
                         }else{

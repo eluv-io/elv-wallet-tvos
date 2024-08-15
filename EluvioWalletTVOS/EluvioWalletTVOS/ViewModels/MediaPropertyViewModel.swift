@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MediaPropertyViewModel: Identifiable, Codable, Equatable  {
+struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var id: String? = UUID().uuidString
     var title: String = ""
     var descriptionRichText: AttributedString = ""

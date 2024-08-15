@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SDWebImageSwiftUI
+import Foundation
 
 struct MediaPropertyView : View {
     @Environment(\.colorScheme) var colorScheme
@@ -109,22 +110,38 @@ struct MediaPropertyView : View {
     }
 }
 
+extension Array {
+    func dividedIntoGroups(of i: Int = 3) -> [[Element]] {
+        var copy = self
+        var res = [[Element]]()
+        while copy.count > i {
+            res.append( (0 ..< i).map { _ in copy.remove(at: 0) } )
+        }
+        res.append(copy)
+        return res
+    }
+}
+
 struct MediaPropertiesView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var pathState: PathState
     
-    var properties: [MediaPropertyViewModel] = []
-    @Binding var selected : MediaPropertyViewModel
     var numColumns = 5
+    var properties: [MediaPropertyViewModel] = []
+    var propertiesGroups : [[MediaPropertyViewModel]] {
+        return properties.dividedIntoGroups(of: numColumns)
+    }
     
+    @Binding var selected : MediaPropertyViewModel
+
     var body: some View {
         VStack(alignment:.leading) {
             Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 20) {
-                ForEach(0..<(properties.count / numColumns), id: \.self) {index in
+                ForEach(propertiesGroups, id: \.self) {groups in
                     GridRow(alignment:.center) {
-                        ForEach(0..<numColumns, id: \.self) { index2 in
-                                MediaPropertyView(property: properties[(index * numColumns) + index2], selected: $selected)
+                        ForEach(groups, id: \.self) { property in
+                                MediaPropertyView(property: property, selected: $selected)
                                     .environmentObject(self.pathState)
                         }
                     }
@@ -141,3 +158,5 @@ struct MediaPropertiesView: View {
         }
     }
 }
+
+

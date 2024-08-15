@@ -95,7 +95,7 @@ struct MediaPropertySection: Codable, Identifiable {
     
 }
 
-struct MediaPropertySectionItem: Codable, Identifiable  {
+struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     var id : String? = UUID().uuidString
     var media_id : String? = UUID().uuidString
     var media_type : String?
@@ -108,9 +108,17 @@ struct MediaPropertySectionItem: Codable, Identifiable  {
     var use_media_settings : Bool? = false
     var subproperty_id : String?
     var subproperty_page_id : String?
+    
+    static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
-struct MediaPropertySectionMediaItem: Codable, Identifiable  {
+struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var id : String? = UUID().uuidString
     var catalog_title : String? = ""
     var description : String? = ""
@@ -138,4 +146,13 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable  {
     var title : String? = ""
     var subtitle : String? = ""
     var type : String? = ""
+    
+    
+    static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }

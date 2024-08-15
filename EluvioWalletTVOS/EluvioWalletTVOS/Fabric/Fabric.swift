@@ -1290,6 +1290,7 @@ class Fabric: ObservableObject {
                 }
                 mediaProperties[id] = property
                 
+                /*
                 var sections: [String] = []
                 
                 do {
@@ -1300,6 +1301,7 @@ class Fabric: ObservableObject {
                 }
                 
                 //try await cachePropertySections(property: id, sections: sections)
+                 */
             }
         }
         

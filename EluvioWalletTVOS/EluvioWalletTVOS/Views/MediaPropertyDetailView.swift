@@ -148,7 +148,7 @@ struct MediaPropertySectionView: View {
                     }
                     
                     ScrollView(.horizontal) {
-                        HStack(alignment: .top, spacing: 50) {
+                        HStack(alignment: .top, spacing: 20) {
                             ForEach(section.content ?? []) {item in
                                 if item.type == "item_purchase" {
                                     //Skip for now
