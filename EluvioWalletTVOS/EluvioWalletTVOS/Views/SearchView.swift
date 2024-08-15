@@ -50,7 +50,8 @@ struct PrimaryFilterView: View {
                           image: imageUrl,
                           isFocused:isFocused,
                           title: title,
-                          showFocusedTitle: false
+                          showFocusedTitle: false,
+                          showBottomTitle: false
                 )
                 .background(
                     //Rectangle().fill(Color(hex:UInt(Float(title.hashValue).wrapped(within: 0x3311dd..<0x7711ff))))
@@ -184,7 +185,8 @@ struct SearchView: View {
                         }
                     }
                 }
-                .padding(40)
+                .padding(.top,20)
+                .padding([.leading,.trailing], 80)
                 .focusSection()
                 
                 if !primaryFilters.isEmpty{
@@ -209,9 +211,10 @@ struct SearchView: View {
                         
                     }
                     .scrollClipDisabled()
+                    .padding(.top,20)
+                    .padding([.leading,.trailing], 80)
                 }
                 else {
-                    
                     if !secondaryFilters.isEmpty {
                         ScrollView {
                             LazyHStack(spacing:10){
@@ -248,16 +251,23 @@ struct SearchView: View {
                             }
                         }
                         .scrollClipDisabled()
-                        
+                        .padding(.top,20)
+                        .padding([.leading,.trailing], 80)
                     }
                 }
+                
+                
                 if sections.count == 1 {
                     SectionGridView(propertyId: propertyId, section: sections.first!, forceDisplay: .video)
-                        //
+                        .edgesIgnoringSafeArea([.leading,.trailing])
+                        .frame(maxWidth:.infinity)
+                        .padding(.top,20)
+                        .padding([.leading,.trailing], 80)
                 }else {
                     ForEach(sections) {section in
                         VStack{
                             MediaPropertySectionView(propertyId: propertyId, section: section)
+                                .edgesIgnoringSafeArea([.leading,.trailing])
                         }
                         .frame(maxWidth:.infinity)
                         .focusSection()
@@ -266,7 +276,6 @@ struct SearchView: View {
                 
                 Spacer()
             }
-            .padding([.leading,.trailing,.bottom],80)
         }
         .ignoresSafeArea()
         .scrollClipDisabled()
@@ -274,7 +283,7 @@ struct SearchView: View {
             Task {
                 if !propertyId.isEmpty {
                     do {
-                        
+                        debugPrint("Search onAppear()")
                         let property = try await fabric.getProperty(property: propertyId)
                         name = property?.page_title ?? ""
                         do {
@@ -284,6 +293,7 @@ struct SearchView: View {
                         }
 
                         if !searchString.isEmpty || currentPrimaryFilter != nil{
+                            debugPrint("Search searchString \(searchString) currentPrimaryFilter \(currentPrimaryFilter)")
                             var attributes : [String : Any] = [:]
                             if let primary = currentPrimaryFilter {
                                 if !primary.id.isEmpty{
@@ -295,6 +305,7 @@ struct SearchView: View {
                                 }
                             }
                             
+                            debugPrint("Searching property")
                             self.sections = try await fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
                             return
                         }
@@ -316,13 +327,13 @@ struct SearchView: View {
                             
                             if !tags.isEmpty {
                                 var newPrimaryFilters : [PrimaryFilterViewModel] = []
-                                tags.insert("", at:0)
+                                //tags.insert("", at:0)
                                 let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
                                 var allPrimaryFilter = PrimaryFilterViewModel(id: "",
-                                                                     imageURL: "",
-                                                                     secondaryFilters: secondary,
-                                                                     attribute:primaryFilterValue,
-                                                                     secondaryAttribute: secondaryFilterValue)
+                                                                              imageURL: "",
+                                                                              secondaryFilters: secondary,
+                                                                              attribute:primaryFilterValue,
+                                                                              secondaryAttribute: secondaryFilterValue)
                                 var foundAllPrimary = false
                                 for tag in tags {
                                     debugPrint("searching tag ", tag)
@@ -335,7 +346,7 @@ struct SearchView: View {
                                             secondary.append(secondaryItem.stringValue)
                                         }
                                         
-
+                                        
                                         if option["primary_filter_value"].stringValue == tag.stringValue {
                                             debugPrint("matched tag value for option")
                                             
@@ -356,9 +367,10 @@ struct SearchView: View {
                                                                                 secondaryFilters: secondary,
                                                                                 attribute:primaryFilterValue,
                                                                                 secondaryAttribute: option["secondary_filter_attribute"].stringValue)
-                                                                                
+                                            
                                             if tag.stringValue == "" {
                                                 allPrimaryFilter = filter
+                                                foundAllPrimary = true
                                             }else{
                                                 newPrimaryFilters.append(filter)
                                             }
@@ -367,27 +379,35 @@ struct SearchView: View {
                                     }
                                     
                                     if !foundOptions {
-                                       let filter = PrimaryFilterViewModel(id: tag.stringValue,
+                                        let filter = PrimaryFilterViewModel(id: tag.stringValue,
                                                                             imageURL: "",
                                                                             secondaryFilters: secondary,
                                                                             attribute:primaryFilterValue,
                                                                             secondaryAttribute: secondaryFilterValue)
                                         if tag.stringValue == "" {
                                             allPrimaryFilter = filter
+                                            foundAllPrimary = true
                                         }else{
                                             newPrimaryFilters.append(filter)
                                         }
                                     }
                                 }
                                 
-                                newPrimaryFilters.insert(allPrimaryFilter, at:0)
-                                currentPrimaryFilter = allPrimaryFilter
+                                if foundAllPrimary {
+                                    newPrimaryFilters.insert(allPrimaryFilter, at:0)
+                                    currentPrimaryFilter = allPrimaryFilter
+                                }else {
+                                    currentPrimaryFilter = newPrimaryFilters.first
+                                }
                                 self.primaryFilters = newPrimaryFilters
                             }
                         
                             
                         }
+                        
+                        debugPrint("Searching ALL ", propertyId)
                         self.sections = try await fabric.searchProperty(property: propertyId)
+                        debugPrint("result: ", sections.first)
 
                     }catch{
                         print("Could not do search ", error.localizedDescription)

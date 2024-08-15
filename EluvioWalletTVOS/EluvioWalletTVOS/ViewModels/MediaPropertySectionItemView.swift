@@ -44,6 +44,7 @@ struct MediaPropertySectionMediaItemView: Codable {
         var thumbnailLandLink : JSON?
         
         var title = ""
+        var subtitle = ""
         var catalog_title = ""
         var description = ""
         var description_rich_text = ""
@@ -67,13 +68,18 @@ struct MediaPropertySectionMediaItemView: Codable {
             live = media.live ?? false
             media_catalog_id = media.media_catalog_id ?? ""
             title = media.title ?? ""
+            subtitle = media.subtitle ?? ""
         }
         
-        if item.type == "subproperty_link" {
-            if let display = item.display {
-                thumbnailSquareLink = display["thumbnail_image_square"]
-                thumbnailPortraitLink = display["thumbnail_image_portrait"]
-                thumbnailLandLink = display["thumbnail_image_landscape"]
+        if let type = item.type {
+            if type.contains("link") {
+                if let display = item.display {
+                    thumbnailSquareLink = display["thumbnail_image_square"]
+                    thumbnailPortraitLink = display["thumbnail_image_portrait"]
+                    thumbnailLandLink = display["thumbnail_image_landscape"]
+                    title = display["title"].stringValue
+                    subtitle = display["subtitle"].stringValue
+                }
             }
         }
         
@@ -136,7 +142,7 @@ struct MediaPropertySectionMediaItemView: Codable {
             media_type : item.media?.media_type ?? "",
             poster_image_url: posterImage,
             title : title,
-            subtitle : item.media?.subtitle ?? "",
+            subtitle : subtitle,
             type : item.type ?? "",
             thumbnail_image_square : thumbnailSquare,
             thumbnail_image_portrait : thumbnailPortrait,

@@ -58,7 +58,8 @@ struct SectionGridView: View {
     
     
     var body: some View {
-        ScrollView(.vertical) {
+        //ScrollView(.vertical) {
+        VStack{
             HStack{
                 Text(title)
                     .font(.rowTitle)
@@ -67,21 +68,28 @@ struct SectionGridView: View {
             .frame(maxWidth:.infinity)
             .padding(.bottom, 30)
             
-            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 80) {
+            
+            Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
-                    GridRow(alignment:.center) {
+                    GridRow(alignment:.top) {
                         ForEach(groups, id: \.self) { item in
                             SectionItemView(item: item, propertyId: propertyId)
                                 .environmentObject(self.pathState)
                                 .environmentObject(self.fabric)
                                 .environmentObject(self.viewState)
                         }
+                        .gridColumnAlignment(.leading)
                     }
-                    .frame(maxWidth:UIScreen.main.bounds.size.width)
+                    .frame(maxWidth:.infinity, alignment:.leading)
+                    .gridColumnAlignment(.leading)
                 }
             }
+            .frame(maxWidth:.infinity)
+            .focusSection()
         }
-        .scrollClipDisabled()
+            
+        //}
+        //.scrollClipDisabled()
     }
 }
 
@@ -130,7 +138,7 @@ struct MediaItemGridView: View {
             .frame(maxWidth:.infinity)
             .padding(.bottom, 30)
             
-            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 80) {
+            Grid(alignment:.leading, horizontalSpacing: 10, verticalSpacing: 80) {
                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                     GridRow(alignment:.center) {
                         ForEach(groups, id: \.self) { item in
@@ -141,6 +149,7 @@ struct MediaItemGridView: View {
                         }
                     }
                     .frame(maxWidth:UIScreen.main.bounds.size.width)
+                    .focusSection()
                 }
             }
         }
@@ -309,11 +318,24 @@ struct SectionItemView: View {
                     debugPrint("Item Media Type ", item.media_type)
                     
                     if ( mediaItem.media_type.lowercased() == "video") {
-                        let state = ViewState()
+                        /*let state = ViewState()
                         state.op = .play
                         state.mediaId = mediaItem.media_id
                         
-                        viewState.setViewState(state: state)
+                        viewState.setViewState(state: state)*/
+                        
+                        if let link = item.media?.media_link?["sources"]["default"] {
+                            Task{
+                                do {
+                                    let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link)
+                                    pathState.playerItem = playerItem
+                                    pathState.path.append(.video)
+                                }catch{
+                                    print("Error getting link url for playback ", error)
+                                }
+                            }
+                        }
+                        
                     }else if ( mediaItem.media_type.lowercased() == "html") {
                         
                         debugPrint("Media Item", item)

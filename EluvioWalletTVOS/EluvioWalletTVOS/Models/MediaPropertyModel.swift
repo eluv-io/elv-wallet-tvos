@@ -74,11 +74,11 @@ struct MediaPropertySection: Codable, Identifiable {
     var hero_items: JSON?
     
     var displayLimit: Int {
-        display?["display"]["display_limit"].intValue ?? 0
+        display?["display_limit"].intValue ?? 0
     }
     
     var displayTitle: String {
-        display?["display"]["title"].stringValue ?? ""
+        display?["title"].stringValue ?? ""
     }
     
     init(from decoder: Decoder) throws {

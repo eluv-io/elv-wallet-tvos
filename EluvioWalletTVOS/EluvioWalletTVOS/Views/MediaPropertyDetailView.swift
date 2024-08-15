@@ -110,9 +110,9 @@ struct MediaPropertySectionView: View {
 
 
     var body: some View {
-        if !isDisplayable {
+        /*if !isDisplayable {
             EmptyView()
-        } else if isHero {
+        } else */if isHero {
             MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
                 .focusable()
                 .padding([.leading,.trailing],margin)
@@ -166,6 +166,7 @@ struct MediaPropertySectionView: View {
                     .scrollClipDisabled()
                 }
             }
+            .focusSection()
             .padding([.bottom], 40)
             .padding([.leading,.trailing],margin)
             .background(
@@ -180,7 +181,11 @@ struct MediaPropertySectionView: View {
                 }
             )
             .onAppear() {
+                debugPrint("MediaPropertySectionView onAppear()")
                 if let display = section.display {
+                    debugPrint("MediaPropertySectionView section ", display["title"])
+                    debugPrint("Display format ", section.display?["display_format"].stringValue)
+                    
                     do {
                         logoUrl = try fabric.getUrlFromLink(link: display["logo"])
                     }catch{}
@@ -287,6 +292,7 @@ struct MediaPropertyDetailView: View {
                     self.sections = try await  fabric.getPropertySections(property: id, sections: property.sections)
                     //let sectionsJSON = try await fabric.getPropertySectionsJSON(property: id, sections: property.sections)
                     //debugPrint("Sections ", sectionsJSON)
+                    debugPrint(sections.first)
                 }catch {
                     print("Error getting property sections ", error.localizedDescription)
                 }

@@ -189,31 +189,7 @@ struct ContentView: View {
                 
             }else if viewState.op == .play {
                 debugPrint("Playmedia: ", viewState.mediaId)
-                
-                /*
-                if let _nft = fabric.getNFT(contract: contract,
-                                            token: viewState.itemTokenStr){
-                    self.nft = _nft
-                    if let item = self.nft.getMediaItem(id:viewState.mediaId) {
-                        debugPrint("Found item: ", item.name)
-                        self.mediaItem = item
-                        do {
-                            let item  = try await MakePlayerItem(fabric: fabric, media: item)
-                            await MainActor.run {
-                                self.playerItem = item
-                                self.showPlayer = true
-                            }
-                        }catch{
-                            print("checkViewState - could not create MediaItemViewModel ", error)
-                            viewState.reset()
-                            errorMessage = "Could not play item."
-                            showError = true
-                            self.showActivity = false
-                            return
-                        }
-                    }
-                }
-                 */
+            
                 
                 if let item = fabric.getMediaItem(mediaId:viewState.mediaId) {
                     debugPrint("Found item: ", item.title)
@@ -391,10 +367,12 @@ struct ContentView: View {
                         }
                     case .sectionViewAll:
                         if let section = pathState.section {
-                            SectionGridView(propertyId: pathState.propertyId, section:section)
-                                .environmentObject(self.pathState)
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
+                            ScrollView {
+                                SectionGridView(propertyId: pathState.propertyId, section:section)
+                                    .environmentObject(self.pathState)
+                                    .environmentObject(self.fabric)
+                                    .environmentObject(self.viewState)
+                            }
                         }
                     }
                 }
