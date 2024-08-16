@@ -325,6 +325,7 @@ struct SectionItemView: View {
                         viewState.setViewState(state: state)*/
                         
                         if let link = item.media?.media_link?["sources"]["default"] {
+                            debugPrint(item.media?.media_link)
                             Task{
                                 do {
                                     let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link)

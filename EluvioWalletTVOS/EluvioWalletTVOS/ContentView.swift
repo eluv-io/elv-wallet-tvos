@@ -11,7 +11,7 @@ import AVKit
 import SwiftyJSON
 
 enum NavDestination: String, Hashable {
-    case property, video, gallery, mediaGrid, html, search, sectionViewAll
+    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft
 }
 
 struct SearchParams {
@@ -37,6 +37,8 @@ class PathState: ObservableObject {
     var gallery : [GalleryItem] = []
     var searchParams : SearchParams?
     
+    var nft : NFTModel? = nil
+    
     func reset() {
         property = nil
         propertyId = ""
@@ -47,6 +49,7 @@ class PathState: ObservableObject {
         gallery = []
         searchParams = nil
         section = nil
+        nft = nil
     }
 }
                             
@@ -373,6 +376,14 @@ struct ContentView: View {
                                     .environmentObject(self.fabric)
                                     .environmentObject(self.viewState)
                             }
+                            .scrollClipDisabled()
+                        }
+                    case .nft:
+                        if let nft = pathState.nft {
+                            ItemDetailView(item:nft)
+                                .environmentObject(self.pathState)
+                                .environmentObject(self.fabric)
+                                .environmentObject(self.viewState)
                         }
                     }
                 }

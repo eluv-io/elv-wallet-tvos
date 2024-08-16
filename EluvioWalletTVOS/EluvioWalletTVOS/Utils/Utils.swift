@@ -443,3 +443,49 @@ extension TimeInterval {
         Int((self*1000).truncatingRemainder(dividingBy: 1000))
     }
 }
+/*
+ DecodeVersionHash: (versionHash) => {
+   if(!(versionHash.startsWith("hq__") || versionHash.startsWith("tq__"))) {
+     throw new Error(`Invalid version hash: "${versionHash}"`);
+   }
+
+   versionHash = versionHash.slice(4);
+
+   // Decode base58 payload
+   let bytes = Utils.FromB58(versionHash);
+
+   // Remove 32 byte SHA256 digest
+   const digestBytes = bytes.slice(0, 32);
+   const digest = digestBytes.toString("hex");
+   bytes = bytes.slice(32);
+
+   // Determine size of varint content size
+   let sizeLength = 0;
+   while(bytes[sizeLength] >= 128) {
+     sizeLength++;
+   }
+   sizeLength++;
+
+   // Remove size
+   const sizeBytes = bytes.slice(0, sizeLength);
+   const size = VarInt.decode(sizeBytes);
+   bytes = bytes.slice(sizeLength);
+
+   // Remaining bytes is object ID
+   const objectId = "iq__" + Utils.B58(bytes);
+
+   // Part hash is B58 encoded version hash without the ID
+   const partHash = "hqp_" + Utils.B58(Buffer.concat([digestBytes, sizeBytes]));
+
+   return {
+     digest,
+     size,
+     objectId,
+     partHash
+   };
+ }
+ */
+func DecodeVersionHash(versionHash: String) -> (digest:String, size:String, objectId:String, partHash:String){
+    //TODO:
+    return ("","","", "")
+}

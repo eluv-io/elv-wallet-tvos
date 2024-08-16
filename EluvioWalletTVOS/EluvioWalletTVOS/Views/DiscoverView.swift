@@ -25,24 +25,23 @@ struct DiscoverView: View {
     
     var body: some View {
         ScrollView() {
-                VStack(alignment: .leading, spacing: 0){
-                        HStack{
-                            Image("start-screen-logo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width:700)
-                                .padding(.top, 80)
-                                .padding(.bottom, 40)
-                                .padding(.leading, 15)
-                                .id(topId)
-                            Spacer()
-                        }
-                        .frame(maxWidth:.infinity)
-
-                    MediaPropertiesView(properties:properties, selected: $selected)
-                        .environmentObject(self.pathState)
+            VStack(alignment: .leading, spacing: 0){
+                HStack{
+                    Image("start-screen-logo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width:700)
+                        .padding(.top, 80)
+                        .padding(.bottom, 40)
+                        .padding(.leading, 15)
+                        .id(topId)
+                    Spacer()
                 }
+                .frame(maxWidth:.infinity)
+                MediaPropertiesView(properties:properties, selected: $selected)
+                    .environmentObject(self.pathState)
             }
+        }
         .onChange(of:selected){ old, new in
             if !new.backgroundImage.isEmpty {
                 withAnimation(.easeIn(duration: 2)){

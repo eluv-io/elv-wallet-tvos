@@ -1125,10 +1125,10 @@ class Fabric: ObservableObject {
                 return
             }
             
-            //let nfts = profileData["contents"].arrayValue
+            let nfts = profileData["contents"].arrayValue
 
-            //let parsedLibrary = try await parseNftsToLibrary(nfts)
-            //self.library = parsedLibrary
+            let parsedLibrary = try await parseNftsToLibrary(nfts)
+            self.library = parsedLibrary
             isRefreshing = false
             
             do {
@@ -1801,7 +1801,7 @@ class Fabric: ObservableObject {
         }
         
         let optionsJson = try await getJsonRequest(url: optionsUrl)
-        //print("options json \(optionsJson)")
+        print("options json \(optionsJson)")
         
         return (optionsJson, versionsHash)
     }

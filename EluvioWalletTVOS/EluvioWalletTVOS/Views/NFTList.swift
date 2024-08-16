@@ -29,6 +29,7 @@ struct NFTGrid: View {
     var body: some View {
         LazyVGrid(columns: columns, alignment: .center, spacing:0) {
             ForEach(nfts) { nft in
+                /*
                     NFTView<NFTDetail>(
                         image: nft.meta.image ?? "",
                         title: nft.meta.displayName ?? "",
@@ -39,6 +40,13 @@ struct NFTGrid: View {
                         destination: NFTDetail(nft: nft)
                     )
                     .padding(.bottom,70)
+                    .disabled(true)
+                 */
+                
+                NFTView2(
+                    nft:nft
+                )
+                .padding(.bottom,70)
             }
             
             ForEach(drops) { drop in
