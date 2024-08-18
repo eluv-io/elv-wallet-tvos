@@ -73,7 +73,7 @@ struct SectionGridView: View {
                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                     GridRow(alignment:.top) {
                         ForEach(groups, id: \.self) { item in
-                            SectionItemView(item: item, propertyId: propertyId)
+                            SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
                                 .environmentObject(self.pathState)
                                 .environmentObject(self.fabric)
                                 .environmentObject(self.viewState)
@@ -304,6 +304,7 @@ struct SectionItemView: View {
     @EnvironmentObject var pathState: PathState
     
     var item: MediaPropertySectionItem
+    var sectionId : String
     var propertyId: String
     @State var viewItem : MediaPropertySectionMediaItemView? = nil
     @FocusState var isFocused
@@ -318,17 +319,40 @@ struct SectionItemView: View {
                     debugPrint("Item Media Type ", item.media_type)
                     
                     if ( mediaItem.media_type.lowercased() == "video") {
-                        /*let state = ViewState()
-                        state.op = .play
-                        state.mediaId = mediaItem.media_id
-                        
-                        viewState.setViewState(state: state)*/
-                        
-                        if let link = item.media?.media_link?["sources"]["default"] {
-                            debugPrint(item.media?.media_link)
-                            Task{
+                        Task{
+                            if var link = item.media?.media_link?["sources"]["default"] {
+                                debugPrint(item.media?.media_link)
+                                
+                                var hash = item.media?.media_link?["."]["source"].stringValue ?? ""
                                 do {
-                                    let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link)
+                                    debugPrint("item media id ", item.media_id)
+                                    debugPrint("Current Hash ", hash)
+                                    if let mediaId = item.media_id {
+                                        debugPrint("Getting catalog")
+                                        //let result = try await fabric.getMediaCatalogJSON(mediaId: mediaId)
+                                        let result = try await fabric.getPropertySections(property: propertyId, sections: [sectionId])
+                                        for section in result{
+                                            if let content = section.content {
+                                                for newItem in content {
+                                                    if newItem.media_id == mediaId {
+                                                        //debugPrint("found item ", newItem)
+                                                        if let newLink = newItem.media?.media_link?["sources"]["default"] {
+                                                            debugPrint("new Hash ", newItem.media?.media_link?["."]["source"].stringValue)
+                                                            link = newLink
+                                                            hash = newItem.media?.media_link?["."]["source"].stringValue ?? ""
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    
+                                }catch{
+                                    print("Error getting new media item ", item.media_id)
+                                }
+                             
+                                do {
+                                    let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link, hash:hash)
                                     pathState.playerItem = playerItem
                                     pathState.path.append(.video)
                                 }catch{

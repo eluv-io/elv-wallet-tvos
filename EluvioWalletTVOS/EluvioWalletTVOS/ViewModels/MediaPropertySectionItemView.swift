@@ -113,19 +113,31 @@ struct MediaPropertySectionMediaItemView: Codable {
         if !thumbnailSquare.isEmpty {
             thumbnail = thumbnailSquare
             thumb_aspect_ratio = .square
-        }else if !thumbnailPortrait.isEmpty {
-            thumbnail = thumbnailPortrait
-            thumb_aspect_ratio = .portrait
         }else if !thumbnailLand.isEmpty {
             thumbnail = thumbnailLand
             thumb_aspect_ratio = .landscape
+        }else if !thumbnailPortrait.isEmpty {
+            thumbnail = thumbnailPortrait
+            thumb_aspect_ratio = .portrait
         }
         
+        if let aspectRatio = item.display?["aspect_ratio"].stringValue.lowercased() {
+            if aspectRatio == "landscape" {
+                thumb_aspect_ratio = .landscape
+            }else if aspectRatio == "portrait" {
+                thumb_aspect_ratio = .portrait
+            }else if aspectRatio == "square" {
+                thumb_aspect_ratio = .square
+            }
+        }
+        
+            
         var headerString = ""
         if let headers = item.media?.headers {
             headerString = headers.joined(separator: "   ")
         }
         
+
         return MediaPropertySectionMediaItemView (
             id: item.id ?? "",
             media_id : item.media_id ?? "",

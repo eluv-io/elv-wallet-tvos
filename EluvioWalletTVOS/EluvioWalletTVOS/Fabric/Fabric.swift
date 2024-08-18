@@ -1168,6 +1168,14 @@ class Fabric: ObservableObject {
         return nil
     }
     
+    func getMediaCatalogJSON(mediaId: String) async throws -> JSON? {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not initialized.")
+        }
+        
+        return try await signer.getMediaCatalogJSON(accessCode: self.fabricToken, mediaId: mediaId)
+    }
+    
     func getProperty(property: String) async throws -> MediaProperty? {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
@@ -1179,6 +1187,16 @@ class Fabric: ObservableObject {
         }
         
         return mediaPropertiesCache[property]
+    }
+    
+    func getPropertyItems(property: String, sections: [String]) async throws -> JSON {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+        
+        let result = try await signer.getPropertySectionsJSON(property: property, sections: sections, accessCode: self.fabricToken)
+        
+        return result
     }
     
     func getPropertySectionsJSON(property: String, sections: [String]) async throws -> JSON {
@@ -1785,8 +1803,8 @@ class Fabric: ObservableObject {
         return optionsJson
     }
     
-    func getOptionsFromLink(link: JSON?, params: [JSON]? = [], offering:String="default") async throws -> (optionsJson: JSON, versionHash:String) {
-        var optionsUrl = try getUrlFromLink(link: link, params: params)
+    func getOptionsFromLink(link: JSON?, params: [JSON]? = [], offering:String="default", hash:String="") async throws -> (optionsJson: JSON, versionHash:String) {
+        var optionsUrl = try getUrlFromLink(link: link, params: params, hash:hash)
 
         if(offering != "default" && optionsUrl.contains("default/options.json")){
             optionsUrl = optionsUrl.replaceFirst(of: "default/options.json", with: "\(offering)/options.json")
@@ -1813,7 +1831,11 @@ class Fabric: ObservableObject {
         return try getUrlFromLink(link:link, baseUrl: baseUrl, params: params, includeAuth: true)
     }
     
-    func getUrlFromLink(link: JSON?, baseUrl: String? = nil, params: [JSON]? = [], includeAuth: Bool? = true, resolveHeaders: Bool? = false, staticUrl: Bool = false) throws -> String {
+    func getVersionHashFromLink(link: JSON?) -> String  {
+        return link?["."]["container"].stringValue ?? ""
+    }
+    
+    func getUrlFromLink(link: JSON?, baseUrl: String? = nil, params: [JSON]? = [], includeAuth: Bool? = true, resolveHeaders: Bool? = false, staticUrl: Bool = false, hash:String = "") throws -> String {
         guard let link = link else{
             throw FabricError.badInput("getUrlFromLink: Link is nil")
         }
@@ -1823,7 +1845,11 @@ class Fabric: ObservableObject {
         }
         
         var path = link["/"].stringValue
-        var hash = link["."]["container"].stringValue
+        var hash = hash
+        
+        if hash.isEmpty {
+            hash = link["."]["container"].stringValue
+        }
         
         if (path.hasPrefix("/qfab")){
             hash = ""

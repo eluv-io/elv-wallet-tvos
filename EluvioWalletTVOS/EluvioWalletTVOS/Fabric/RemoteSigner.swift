@@ -104,6 +104,34 @@ class RemoteSigner {
         })
     }
     
+    func getMediaCatalogJSON(accessCode: String, mediaId: String, parameters : [String: String] = [:]) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/catalog/").appending(mediaId).appending("?limit=100")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
+                    .debugLog()
+                    .responseJSON{ response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: JSON(result))
+                         case .failure(let error):
+                            print("Get properties error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
     
     func getProperties(accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertiesResponse {
 

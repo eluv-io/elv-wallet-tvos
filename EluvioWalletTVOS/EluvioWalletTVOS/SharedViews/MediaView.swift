@@ -59,9 +59,9 @@ func MakePlayerItem(fabric: Fabric, media: MediaItem?, offering: String = "defau
     return try await MakePlayerItemFromLink(fabric:fabric, link: media?.media_link?["sources"][offering], params: media?.parameters, offering: offering)
 }
 
-func MakePlayerItemFromLink(fabric: Fabric, link: JSON?, params: [JSON]? = [], offering: String = "default") async throws -> AVPlayerItem {
+func MakePlayerItemFromLink(fabric: Fabric, link: JSON?, params: [JSON]? = [], offering: String = "default", hash: String = "") async throws -> AVPlayerItem {
     debugPrint("MakePlayerItemFromLink ", link)
-    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering)
+    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering, hash:hash)
     debugPrint("options finished ", options)
     return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
 }

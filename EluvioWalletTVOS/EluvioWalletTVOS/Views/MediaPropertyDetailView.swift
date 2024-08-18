@@ -110,15 +110,14 @@ struct MediaPropertySectionView: View {
 
 
     var body: some View {
-        /*if !isDisplayable {
-            EmptyView()
-        } else */if isHero {
+        if isHero {
             MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
                 .focusable()
                 .padding([.leading,.trailing],margin)
-            
+        }else if items.isEmpty{
+            EmptyView()
         } else {
-            HStack{
+            HStack(alignment:.center){
                 if let url = logoUrl {
                     VStack(spacing:20) {
                         WebImage(url:URL(string:url))
@@ -130,44 +129,44 @@ struct MediaPropertySectionView: View {
                     }
                 }
                 VStack(alignment: .leading, spacing: 10)  {
-                    if !title.isEmpty {
-                        HStack(spacing:20){
-                            Text(title).font(.rowTitle).foregroundColor(Color.white)
-                            if showViewAll {
-                                ViewAllButton(action:{
-                                    debugPrint("View All pressed")
-                                    pathState.section = section
-                                    pathState.propertyId = propertyId
-                                    pathState.path.append(.sectionViewAll)
-                                })
-                            }
+                    HStack(spacing:20){
+                        Text(title).font(.rowTitle).foregroundColor(Color.white)
+                        if showViewAll {
+                            ViewAllButton(action:{
+                                debugPrint("View All pressed")
+                                pathState.section = section
+                                pathState.propertyId = propertyId
+                                pathState.path.append(.sectionViewAll)
+                            })
                         }
-                        .padding(.top, 20)
-                        .padding(.bottom, 40)
-                        .focusSection()
                     }
+                    .focusSection()
+                    .padding(.top, 20)
+                    .padding(.bottom, 30)
+
                     
                     ScrollView(.horizontal) {
-                        HStack(alignment: .top, spacing: 20) {
+                        HStack(alignment: .center, spacing: 20) {
                             ForEach(section.content ?? []) {item in
                                 if item.type == "item_purchase" {
                                     //Skip for now
                                 }else{
-                                    VStack(alignment: .leading, spacing: 10){
-                                        SectionItemView(item: item, propertyId: propertyId)
+                                    //VStack(alignment: .leading, spacing: 10){
+                                    SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
                                             .environmentObject(self.pathState)
                                             .environmentObject(self.fabric)
                                             .environmentObject(self.viewState)
-                                    }
+                                    //}
                                 }
                             }
                         }
+                        .focusSection()
                     }
                     .scrollClipDisabled()
                 }
+                .padding(.bottom,40)
             }
-            .focusSection()
-            .padding([.bottom], 40)
+            .frame(height:402)
             .padding([.leading,.trailing],margin)
             .background(
                 Group {
@@ -176,9 +175,13 @@ struct MediaPropertySectionView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .frame(maxWidth: .infinity, maxHeight:402)
-                            .ignoresSafeArea()
+                            .frame(height:410)
+                            .clipped()
+                 
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight:402)
+                .frame(height:402)
             )
             .onAppear() {
                 debugPrint("MediaPropertySectionView onAppear()")
@@ -240,7 +243,7 @@ struct MediaPropertyDetailView: View {
                 .focusSection()
                 .padding(.trailing, 40)
                 
-                VStack {
+                VStack() {
                     ForEach(sections) {section in
                         if let propertyId = property.id {
                             MediaPropertySectionView(propertyId: propertyId, section: section)
@@ -292,7 +295,7 @@ struct MediaPropertyDetailView: View {
                     self.sections = try await  fabric.getPropertySections(property: id, sections: property.sections)
                     //let sectionsJSON = try await fabric.getPropertySectionsJSON(property: id, sections: property.sections)
                     //debugPrint("Sections ", sectionsJSON)
-                    debugPrint(sections.first)
+                    //debugPrint(sections.first)
                 }catch {
                     print("Error getting property sections ", error.localizedDescription)
                 }
