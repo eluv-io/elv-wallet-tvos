@@ -64,18 +64,23 @@ class RemoteSigner {
     }
     
     //TODO: Convert this to responseDecodable
-    func getWalletData(accountAddress: String, accessCode: String, parameters : [String: String] = [:]) async throws -> (result: JSON, hash: SHA256Digest) {
+    func getWalletData(accountAddress: String, propertyId:String, accessCode: String, parameters : [String: String] = [:]) async throws -> (result: JSON, hash: SHA256Digest) {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
                 
                 // get all the tenants
-                if IsDemoMode() {
+                /*if IsDemoMode() {
                     endpoint = endpoint.appending("/wlt/").appending(accountAddress).appending("?limit=100")
-                } else {
+                } else {*/
                     //apigw should have only tenants returned that are configured
                     endpoint = endpoint.appending("/apigw").appending("/nfts").appending("?limit=100")
+                //}
+                
+                
+                if !propertyId.isEmpty {
+                    endpoint = endpoint.appending("&property_id=\(propertyId)")
                 }
                                                                     
                 print("getWalletData Request: \(endpoint)")
@@ -133,7 +138,7 @@ class RemoteSigner {
     }
     
     
-    func getProperties(accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertiesResponse {
+    func getProperties(includePublic:Bool = true, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertiesResponse {
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
@@ -141,7 +146,11 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties").appending("?limit=100")
-                                                                    
+                    
+                if includePublic {
+                    endpoint = endpoint.appending("&include_public=\(includePublic ? "true" : "false" )")
+                }
+                
                 print("getProperties Request: \(endpoint)")
                 //print("Params: \(parameters)")
                 let headers: HTTPHeaders = [

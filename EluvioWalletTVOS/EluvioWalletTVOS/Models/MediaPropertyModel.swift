@@ -19,7 +19,7 @@ struct ResponsePaging : Codable {
     var total : Int = 0
 }
 
-struct MediaProperty: Codable {
+struct MediaProperty: Codable, Identifiable {
     var associated_marketplaces : [AssociatedMarketplaces]?
     var header_logo : JSON?
     var id : String?

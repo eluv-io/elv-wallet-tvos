@@ -15,10 +15,14 @@ struct Account {
     var type: AccountType = .Auth0
     var fabricToken: String = ""
     var profile: Profile = Profile()
+    var login :  LoginResponse? = nil
+    var signInResponse: SignInResponse? = nil
 }
 
 typealias PropertyID = String
 typealias PropertyIDAccountDict = [PropertyID:Account]
 struct AccountManager {
     var accounts: [AccountType: PropertyIDAccountDict]
+    var signingIn = false
+    
 }

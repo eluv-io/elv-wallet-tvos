@@ -467,6 +467,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
         has_playable_feature = false
         additional_media_sections = nil
         mediaCache = [:]
+        id = contract_addr
     }
     
     //TODO: Find a good id for this

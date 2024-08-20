@@ -289,6 +289,44 @@ class Fabric: ObservableObject {
         print("QSPACE_ID: \(self.configuration?.qspace.id)")
     }
     
+    func parseNfts(_ nfts: [JSON], propertyId: String) async throws -> [NFTModel] {
+        var items : [NFTModel] = []
+        for nft in nfts {
+            do {
+                let data = try nft.rawData()
+                var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                
+                if (nftmodel.id == nil){
+                    if let contract = nftmodel.contract_addr {
+                        if let token = nftmodel.token_id_str {
+                            nftmodel.id = "\(contract) : \(token )"
+                        }
+                    }
+                    
+                    if nftmodel.id == nil {
+                        continue
+                    }
+                }
+
+                if !propertyId.isEmpty {
+                    if let nftTemplate = nftmodel.nft_template{
+                        debugPrint("bundled_id: ", nftTemplate["bundled_property_id"].stringValue)
+                        if nftTemplate["bundled_property_id"].stringValue == propertyId{
+                            items.append(nftmodel)
+                        }
+                    }
+                }else {
+                    items.append(nftmodel)
+                }
+            } catch {
+                print(error)
+                continue
+            }
+        }
+        
+        return items
+    }
+    
     func parseNftsToLibrary(_ nfts: [JSON]) async throws -> MediaLibrary {
         
         var featured = Features()
@@ -1113,6 +1151,7 @@ class Fabric: ObservableObject {
                 self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
             }
 
+            /*
             let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
                                                           accessCode: self.fabricToken)
             let profileData = response.result
@@ -1127,9 +1166,12 @@ class Fabric: ObservableObject {
             
             let nfts = profileData["contents"].arrayValue
 
+
             let parsedLibrary = try await parseNftsToLibrary(nfts)
             self.library = parsedLibrary
-            isRefreshing = false
+             */
+            
+
             
             do {
                 let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
@@ -1141,11 +1183,32 @@ class Fabric: ObservableObject {
             }catch {
                 print ("error getting mediaProperties: \(error)")
             }
-                
+            
+            isRefreshing = false
         }catch{
             print ("Refresh Error: \(error)")
             signOut()
         }
+    }
+    
+    func getNFTs(propertyId:String="") async throws -> [NFTModel]{
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not initialized.")
+        }
+        let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
+                                                      propertyId:propertyId,
+                                                      accessCode: self.fabricToken)
+        let profileData = response.result
+        return try await parseNfts(profileData["contents"].arrayValue, propertyId:propertyId)
+    }
+    
+    func getProperties(includePublic: Bool) async throws -> [MediaProperty] {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not initialized.")
+        }
+        
+        let response = try await signer.getProperties(includePublic:includePublic, accessCode: self.fabricToken)
+        return response.contents
     }
     
     func getPropertyPage(property: String, page: String) async throws -> MediaPropertyPage? {
@@ -2099,72 +2162,15 @@ class Fabric: ObservableObject {
     func getTenants() async throws -> JSON {
         print ("getTenants")
         let objectId = try self.getNetworkConfig().main_obj_id
-        let libraryId = try self.getNetworkConfig().main_obj_lib_id
+        //let libraryId = try self.getNetworkConfig().main_obj_lib_id
         let metadataSubtree = "public/asset_metadata/tenants"
         return try await self.contentObjectMetadata(id:objectId, metadataSubtree:metadataSubtree)
-    }
-    
-    
-    //Retrieve all wallet items sorted by tenant id
-    //TODO: Cache items
-    func getWalletTenantItems() async throws -> [JSON]{
-        print ("getWalletTenantItems")
-        let tenants = try await self.getTenants()
-        var tenantItems : [JSON] = []
-        
-        for (_, tenant) in tenants {
-            let tenantId = tenant["info"]["tenant_id"].stringValue
-            let tenantTitle = tenant["title"].stringValue
-            print("Tenant: \(tenantTitle) : \(tenantId)")
-            
-            let parameters : [String: String] = ["filter":"tenant:eq:\(tenantId)"]
-            
-            var items : JSON
-            do {
-                let response = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
-                                                                    accessCode: self.fabricToken, parameters:parameters)
-                items = response.result
-            }catch{
-                continue
-            }
-            //print("Items: \(items)")
-            let nfts = items["contents"].arrayValue
-            if !nfts.isEmpty {
-                for (_, marketplace) in tenant["marketplaces"] {
-                    //print(marketplace)
-                    var matchedItems : [JSON] = []
-                    
-                    for (_, mItem) in marketplace["info"]["items"] {
-                        let mAddress = mItem["nft_template"]["nft"]["address"]
-                        for item in nfts {
-                            print("market item address", mAddress.stringValue)
-                            
-                            print("item address", item["contract_addr"])
-                            let address = item["contract_addr"].stringValue
-                            if (mAddress.stringValue.lowercased() == address.lowercased()){
-                                matchedItems.append(item)
-                                print("Found item ", address)
-                            }
-                            
-                        }
-                    }
-                    
-                    if (!matchedItems.isEmpty){
-                        print("Found nfts")
-                        let tenantItem : JSON = ["tenant":tenant, "marketplace": marketplace, "nfts": matchedItems]
-                        tenantItems.append(tenantItem)
-                    }
-                }
-            }
-        }
-        
-        return tenantItems
     }
     
     func createStaticToken() -> String {
         do {
             let qspaceId = try getContentSpaceId()
-            var dict : [String: Any] = [ "qspace_id": qspaceId ]
+            let dict : [String: Any] = [ "qspace_id": qspaceId ]
             let jsonData = try JSONSerialization.data(withJSONObject: dict, options: [])
             let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
             return jsonString.base64()
