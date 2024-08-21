@@ -41,6 +41,7 @@ struct MyItemsView: View {
                             SecondaryFilterView(title:"All", action:{
                                 Task {
                                     do {
+                                        searchString = ""
                                         nfts = try await fabric.getNFTs()
                                     }catch{
                                         print("Could not get nfts ", error.localizedDescription)
