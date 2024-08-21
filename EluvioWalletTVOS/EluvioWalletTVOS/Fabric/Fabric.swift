@@ -1191,12 +1191,13 @@ class Fabric: ObservableObject {
         }
     }
     
-    func getNFTs(propertyId:String="") async throws -> [NFTModel]{
+    func getNFTs(propertyId:String="", description:String="") async throws -> [NFTModel]{
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
         let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
                                                       propertyId:propertyId,
+                                                      description:description,
                                                       accessCode: self.fabricToken)
         let profileData = response.result
         return try await parseNfts(profileData["contents"].arrayValue, propertyId:propertyId)

@@ -20,7 +20,13 @@ struct MyItemsView: View {
     @State var properties : [MediaPropertyViewModel] = []
     
     func search(){
-        
+        Task{
+            do{
+                nfts = try await fabric.getNFTs(description:searchString)
+            }catch{
+                print("Error searching properties: ", error.localizedDescription)
+            }
+        }
     }
     
     var body: some View {

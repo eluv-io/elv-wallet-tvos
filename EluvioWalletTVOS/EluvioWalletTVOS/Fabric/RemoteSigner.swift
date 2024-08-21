@@ -64,7 +64,7 @@ class RemoteSigner {
     }
     
     //TODO: Convert this to responseDecodable
-    func getWalletData(accountAddress: String, propertyId:String, accessCode: String, parameters : [String: String] = [:]) async throws -> (result: JSON, hash: SHA256Digest) {
+    func getWalletData(accountAddress: String, propertyId:String, description:String, accessCode: String, parameters : [String: String] = [:]) async throws -> (result: JSON, hash: SHA256Digest) {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
                 
@@ -81,6 +81,10 @@ class RemoteSigner {
                 
                 if !propertyId.isEmpty {
                     endpoint = endpoint.appending("&property_id=\(propertyId)")
+                }
+                
+                if !description.isEmpty {
+                    endpoint = endpoint.appending("&filter=meta/description:co:\(description)")
                 }
                                                                     
                 print("getWalletData Request: \(endpoint)")
