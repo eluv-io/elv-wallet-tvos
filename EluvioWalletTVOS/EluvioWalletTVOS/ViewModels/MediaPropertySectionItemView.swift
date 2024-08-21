@@ -35,6 +35,59 @@ struct MediaPropertySectionMediaItemView: Codable {
     var thumb_aspect_ratio : ImageAspectRatio = .square
     var headerString: String = ""
     
+    var icons : [JSON]? = nil
+    
+    var startDate : Date? {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [
+            .withFractionalSeconds,
+            .withFullDate,
+            .withTime, // without time zone
+            .withColonSeparatorInTime,
+            .withDashSeparatorInDate
+        ]
+        return dateFormatter.date(from:start_time)
+    }
+    
+    var startDateTimeString: String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM d 'at' hh:mm a"
+        df.amSymbol = "AM"
+        df.pmSymbol = "PM"
+        
+        return df.string(from: startDate ?? Date())
+    }
+    
+    var timeUntilStart: String {
+        if isUpcoming {
+            let formatter = DateComponentsFormatter()
+            formatter.unitsStyle = .positional
+            formatter.allowedUnits = [.hour, .minute, .second]
+            formatter.zeroFormattingBehavior = .pad
+            
+            if let date = startDate {
+                let remainingTime: TimeInterval = date.timeIntervalSince(Date())
+                return formatter.string(from: remainingTime) ?? ""
+            }
+        }
+        
+        return ""
+    }
+    
+    var isUpcoming : Bool {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [
+            .withFractionalSeconds,
+            .withFullDate,
+            .withTime, // without time zone
+            .withColonSeparatorInTime,
+            .withDashSeparatorInDate
+        ]
+        guard let date = dateFormatter.date(from:start_time) else {return false}
+        
+        return date > Date()
+    }
+    
     static func create(item: MediaPropertySectionItem, fabric: Fabric) -> MediaPropertySectionMediaItemView{
 
         var mediaFile : JSON?
@@ -52,7 +105,8 @@ struct MediaPropertySectionMediaItemView: Codable {
         var start_time = ""
         var media_catalog_id = ""
         var live = false
-                
+        var icons : [JSON]? = nil
+        
         if let media = item.media {
             mediaFile = media.media_file
             posterImageLink = media.poster_image
@@ -69,6 +123,7 @@ struct MediaPropertySectionMediaItemView: Codable {
             media_catalog_id = media.media_catalog_id ?? ""
             title = media.title ?? ""
             subtitle = media.subtitle ?? ""
+            icons = media.icons
         }
         
         if let type = item.type {
@@ -161,7 +216,8 @@ struct MediaPropertySectionMediaItemView: Codable {
             thumbnail_image_landscape: thumbnailLand,
             thumbnail : thumbnail,
             thumb_aspect_ratio: thumb_aspect_ratio,
-            headerString: headerString
+            headerString: headerString,
+            icons: item.media?.icons
         )
     }
 }

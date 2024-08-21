@@ -315,15 +315,41 @@ struct SectionItemView: View {
                 Button(action: {
                     debugPrint("Item Selected! ", mediaItem.title)
                     debugPrint("MediaItemView Type ", mediaItem.media_type)
-                    debugPrint("Item Type ", item.type)
-                    debugPrint("Item Media Type ", item.media_type)
-                    
+                    debugPrint("Item Type ", item.type ?? "")
+                    debugPrint("Item Media Type ", item.media_type ?? "")
+
                     if ( mediaItem.media_type.lowercased() == "video") {
                         Task{
+                            var backgroundImage = ""
+                            if let property = try await fabric.getProperty(property: propertyId) {
+                                let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:fabric)
+                                backgroundImage = viewModel.backgroundImage
+                            }
+
                             if var link = item.media?.media_link?["sources"]["default"] {
-                                debugPrint(item.media?.media_link)
-                                
+                                if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
+                                    debugPrint("permission denied! ", mediaItem.title)
+                                    debugPrint("startTime! ", mediaItem.start_time)
+                                    debugPrint("icons! ", mediaItem.icons)
+                                    
+                                    var images : [String] = []
+                                    if let icons = mediaItem.icons {
+                                        for link in icons {
+                                            do {
+                                                let image = try fabric.getUrlFromLink(link: link["icon"])
+                                                images.append(image)
+                                            }catch{}
+                                        }
+                                    }
+
+                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: mediaItem.isUpcoming ? .upcoming : .permission, backgroundImage: backgroundImage, images: images)
+                                    pathState.videoErrorParams = videoErrorParams
+                                    pathState.path.append(.videoError)
+                                    return
+                                }
+
                                 var hash = item.media?.media_link?["."]["source"].stringValue ?? ""
+                                /*
                                 do {
                                     debugPrint("item media id ", item.media_id)
                                     debugPrint("Current Hash ", hash)
@@ -350,6 +376,7 @@ struct SectionItemView: View {
                                 }catch{
                                     print("Error getting new media item ", item.media_id)
                                 }
+                                 */
                              
                                 do {
                                     let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link, hash:hash)
@@ -357,6 +384,9 @@ struct SectionItemView: View {
                                     pathState.path.append(.video)
                                 }catch{
                                     print("Error getting link url for playback ", error)
+                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
+                                    pathState.videoErrorParams = videoErrorParams
+                                    pathState.path.append(.videoError)
                                 }
                             }
                         }

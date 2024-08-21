@@ -219,7 +219,7 @@ class RemoteSigner {
         })
     }
     
-    func searchProperty(property: String, tags:[String], attributes: [String: Any], searchTerm: String, limit: Int = 100, accessCode: String) async throws -> [MediaPropertySection] {
+    func searchProperty(property: String, tags:[String], attributes: [String: Any], searchTerm: String, limit: Int = 30, accessCode: String) async throws -> [MediaPropertySection] {
         
         return try await withCheckedThrowingContinuation({ continuation in
             do {

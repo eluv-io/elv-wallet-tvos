@@ -11,7 +11,7 @@ import AVKit
 import SwiftyJSON
 
 enum NavDestination: String, Hashable {
-    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft
+    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, videoError
 }
 
 struct SearchParams {
@@ -21,6 +21,18 @@ struct SearchParams {
     var secondaryFilters : [String] = []
     var currentPrimaryFilter : PrimaryFilterViewModel? = nil
     var currentSecondaryFilter : String = ""
+}
+
+
+enum VideoErrorType: String, Hashable {
+    case permission, upcoming
+}
+
+struct VideoErrorParams{
+    var mediaItem : MediaPropertySectionMediaItemView? = nil
+    var type : VideoErrorType = .permission
+    var backgroundImage: String = ""
+    var images : [String] = []
 }
 
 class PathState: ObservableObject {
@@ -36,6 +48,7 @@ class PathState: ObservableObject {
     
     var gallery : [GalleryItem] = []
     var searchParams : SearchParams?
+    var videoErrorParams : VideoErrorParams?
     
     var nft : NFTModel? = nil
     
@@ -50,6 +63,7 @@ class PathState: ObservableObject {
         searchParams = nil
         section = nil
         nft = nil
+        videoErrorParams = nil
     }
 }
                             
@@ -336,10 +350,26 @@ struct ContentView: View {
                             .environmentObject(self.pathState)
                     case .video:
                         if let playerItem = pathState.playerItem {
-                            PlayerView(playerItem: $pathState.playerItem, seekTimeS: 0, finished: $playerFinsished)
+                            PlayerView(playerItem: $playerItem, seekTimeS: 0, finished: $playerFinsished)
                                 .environmentObject(self.fabric)
                                 .environmentObject(self.viewState)
                                 .environmentObject(self.pathState)
+                        }
+                        
+                    case .videoError:
+                        if let params = pathState.videoErrorParams {
+                            if let mediaItem = params.mediaItem {
+                                if params.type == .permission {
+                                    PlayerErrorView(backgroundImageUrl:params.backgroundImage, title:"The media is not available")
+                                }else if params.type == .upcoming {
+                                    CountDownView(backgroundImageUrl:params.backgroundImage,
+                                                  images:params.images,
+                                                  imageUrl: mediaItem.thumbnail,
+                                                  title:mediaItem.title,
+                                                  infoText:mediaItem.headerString,
+                                                  startDateTime: mediaItem.start_time)
+                                }
+                            }
                         }
                     case .mediaGrid:
                         if let item = pathState.mediaItem {

@@ -1401,13 +1401,13 @@ class Fabric: ObservableObject {
         return nil
     }
     
-    func searchProperty(property: String, tags:[String] = [], attributes: [String: Any] = [:], searchTerm: String = "") async throws -> [MediaPropertySection] {
+    func searchProperty(property: String, tags:[String] = [], attributes: [String: Any] = [:], searchTerm: String = "", limit:Int=30) async throws -> [MediaPropertySection] {
         
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
 
-        let result = try await signer.searchProperty(property: property, tags:tags, attributes: attributes, searchTerm: searchTerm, accessCode: self.fabricToken)
+        let result = try await signer.searchProperty(property: property, tags:tags, attributes: attributes, searchTerm: searchTerm, limit:limit, accessCode: self.fabricToken)
         
         return result
     }

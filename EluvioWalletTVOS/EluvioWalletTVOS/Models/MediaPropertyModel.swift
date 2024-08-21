@@ -146,6 +146,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var title : String? = ""
     var subtitle : String? = ""
     var type : String? = ""
+    var icons : [JSON]? = nil
     
     
     static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {

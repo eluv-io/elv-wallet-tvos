@@ -263,6 +263,8 @@
 		B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
 		B0A830E22C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
 		B0A830E32C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
+		B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
+		B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -438,6 +440,7 @@
 		B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewSideNav.swift; sourceTree = "<group>"; };
 		B0A598E92C3433CD00D6716F /* ContentViewBak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewBak.swift; sourceTree = "<group>"; };
 		B0A830E12C7129120037BE59 /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
+		B0A830E42C74E9740037BE59 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -849,6 +852,7 @@
 				B0A598D62C22967100D6716F /* SectionItemView.swift */,
 				B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */,
 				B077BE642C6EC8B70056DDB1 /* ItemDetailView.swift */,
+				B0A830E42C74E9740037BE59 /* CountdownView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1179,6 +1183,7 @@
 				B08CB5932B7DDFDA00E04C0D /* FabricConfiguration.swift in Sources */,
 				B08CB5942B7DDFDA00E04C0D /* FabricModels.swift in Sources */,
 				B08CB5952B7DDFDA00E04C0D /* NFTMetaResponse.swift in Sources */,
+				B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */,
 				B08CB5962B7DDFDA00E04C0D /* RemoteSigner.swift in Sources */,
 				B08CB5972B7DDFDA00E04C0D /* Profile.swift in Sources */,
 				B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
@@ -1336,6 +1341,7 @@
 				B0670F7029E3DFD800676872 /* ContentKeyDelegate.swift in Sources */,
 				B06C4C512A5F0872003C414A /* AppConfiguration.swift in Sources */,
 				B00945A429E9514B00B00FC3 /* CachedAsyncImage.swift in Sources */,
+				B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */,
 				B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */,
 				B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */,
 				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
