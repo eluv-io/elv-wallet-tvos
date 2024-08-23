@@ -151,12 +151,10 @@ struct MediaPropertySectionView: View {
                                 if item.type == "item_purchase" {
                                     //Skip for now
                                 }else{
-                                    //VStack(alignment: .leading, spacing: 10){
                                     SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
                                             .environmentObject(self.pathState)
                                             .environmentObject(self.fabric)
                                             .environmentObject(self.viewState)
-                                    //}
                                 }
                             }
                         }
@@ -209,7 +207,7 @@ struct MediaPropertyDetailView: View {
     @EnvironmentObject var fabric: Fabric
     @EnvironmentObject var pathState: PathState
     @EnvironmentObject var viewState: ViewState
-    var property: MediaPropertyViewModel
+    @State var property: MediaPropertyViewModel
     @State var sections : [MediaPropertySection] = []
     @FocusState var searchFocused
     @FocusState var headerFocused

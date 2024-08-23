@@ -62,7 +62,7 @@ class RemoteSigner {
         }
         return endpoint
     }
-    
+
     //TODO: Convert this to responseDecodable
     func getWalletData(accountAddress: String, propertyId:String, description:String, accessCode: String, parameters : [String: String] = [:]) async throws -> (result: JSON, hash: SHA256Digest) {
         return try await withCheckedThrowingContinuation({ continuation in

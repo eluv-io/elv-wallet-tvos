@@ -28,7 +28,7 @@ struct MyItemsView: View {
             }
         }
     }
-    
+
     var body: some View {
         ScrollView{
             VStack{
