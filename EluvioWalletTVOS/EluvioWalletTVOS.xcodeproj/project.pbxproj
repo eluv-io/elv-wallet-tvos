@@ -265,6 +265,10 @@
 		B0A830E32C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
 		B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
 		B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
+		B0A830E82C784DEB0037BE59 /* EluvioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */; };
+		B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */; };
+		B0A830EB2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
+		B0A830EC2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -441,6 +445,8 @@
 		B0A598E92C3433CD00D6716F /* ContentViewBak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewBak.swift; sourceTree = "<group>"; };
 		B0A830E12C7129120037BE59 /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
 		B0A830E42C74E9740037BE59 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
+		B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioAPI.swift; sourceTree = "<group>"; };
+		B0A830EA2C78547B0037BE59 /* States.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = States.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -763,7 +769,7 @@
 				B0670F6C29E3DF6F00676872 /* Managers */,
 				B0E60FAB29D223760079661E /* Views */,
 				B0E60FA429D210E50079661E /* Models */,
-				B0E60F8329CD70AF0079661E /* Fabric */,
+				B0E60F8329CD70AF0079661E /* EluvioAPI */,
 				B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */,
 				B05648C32BC9CCBB004540F6 /* ContentView.swift */,
 				B00945A729EA478D00B00FC3 /* Test */,
@@ -784,7 +790,7 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		B0E60F8329CD70AF0079661E /* Fabric */ = {
+		B0E60F8329CD70AF0079661E /* EluvioAPI */ = {
 			isa = PBXGroup;
 			children = (
 				B0E60F8529CD71840079661E /* Fabric.swift */,
@@ -796,8 +802,10 @@
 				B06C4C502A5F0872003C414A /* AppConfiguration.swift */,
 				B06C4C542A7B2C2A003C414A /* ProfileClient.swift */,
 				B0A830E12C7129120037BE59 /* AccountManager.swift */,
+				B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */,
+				B0A830EA2C78547B0037BE59 /* States.swift */,
 			);
-			path = Fabric;
+			path = EluvioAPI;
 			sourceTree = "<group>";
 		};
 		B0E60FA429D210E50079661E /* Models */ = {
@@ -1169,6 +1177,7 @@
 				B077BE632C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B08CB5892B7DDFDA00E04C0D /* PackView.swift in Sources */,
 				B08CB58A2B7DDFDA00E04C0D /* MarketplaceModel.swift in Sources */,
+				B0A830EC2C78547B0037BE59 /* States.swift in Sources */,
 				B08CB58B2B7DDFDA00E04C0D /* NFTModel.swift in Sources */,
 				B08CB58C2B7DDFDA00E04C0D /* ProfileModel.swift in Sources */,
 				B08CB58D2B7DDFDA00E04C0D /* Auth0Models.swift in Sources */,
@@ -1186,6 +1195,7 @@
 				B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */,
 				B08CB5962B7DDFDA00E04C0D /* RemoteSigner.swift in Sources */,
 				B08CB5972B7DDFDA00E04C0D /* Profile.swift in Sources */,
+				B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
 				B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
 				B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */,
@@ -1327,6 +1337,7 @@
 				B077BE622C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
+				B0A830EB2C78547B0037BE59 /* States.swift in Sources */,
 				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,
 				B0E60FA929D211040079661E /* MarketplaceModel.swift in Sources */,
 				B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */,
@@ -1344,6 +1355,7 @@
 				B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */,
 				B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */,
 				B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */,
+				B0A830E82C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
 				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
 				B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,

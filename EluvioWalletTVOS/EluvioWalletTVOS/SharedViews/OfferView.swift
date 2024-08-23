@@ -197,8 +197,8 @@ struct OfferView: View {
                 self.showPlayer = false
             }
         }
-        .fullScreenCover(isPresented: $showPlayer) {
-            PlayerView(playerItem:$playerItem, seekTimeS: 0, finished:$playerFinished)
+        .fullScreenCover(isPresented: $showPlayer) { [playerItem] in
+            PlayerView(playerItem:playerItem, seekTimeS: 0, finished:$playerFinished)
         }
         /*
         .fullScreenCover(isPresented: $showResult) {

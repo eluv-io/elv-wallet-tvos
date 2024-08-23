@@ -9,10 +9,8 @@ import SwiftUI
 import SwiftyJSON
 
 struct SectionGridView: View {
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
-    @EnvironmentObject var pathState: PathState
-    
+    @EnvironmentObject var eluvio: EluvioAPI
+
     var propertyId: String
     var section: MediaPropertySection
     
@@ -74,9 +72,7 @@ struct SectionGridView: View {
                     GridRow(alignment:.top) {
                         ForEach(groups, id: \.self) { item in
                             SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
-                                .environmentObject(self.pathState)
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
+                                .environmentObject(self.eluvio)
                         }
                         .gridColumnAlignment(.leading)
                     }
@@ -94,9 +90,7 @@ struct SectionGridView: View {
 }
 
 struct MediaItemGridView: View {
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     
     var propertyId: String
     var items : [MediaPropertySectionMediaItem]
@@ -143,9 +137,7 @@ struct MediaItemGridView: View {
                     GridRow(alignment:.center) {
                         ForEach(groups, id: \.self) { item in
                             SectionMediaItemView(item: item)
-                                .environmentObject(self.pathState)
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
+                                .environmentObject(self.eluvio)
                         }
                     }
                     .frame(maxWidth:UIScreen.main.bounds.size.width)
@@ -158,9 +150,7 @@ struct MediaItemGridView: View {
 }
 
 struct SectionItemListView: View {
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     
     var propertyId: String
     var item: MediaPropertySectionItem
@@ -173,7 +163,7 @@ struct SectionItemListView: View {
             debugPrint("SectionItemListView onAppear item ", item)
             Task {
                 if let mediaList = item.media?.media {
-                    let result = try await fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
+                    let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
                     await MainActor.run {
                         items = result
                     }
@@ -184,9 +174,7 @@ struct SectionItemListView: View {
 }
 
 struct SectionMediaItemView: View {
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     
     var item: MediaPropertySectionMediaItem
     var display : MediaDisplay {
@@ -208,21 +196,21 @@ struct SectionMediaItemView: View {
     
     var thumbnail : String {
         do {
-            let thumbnailSquare = try fabric.getUrlFromLink(link: item.thumbnail_image_square)
+            let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_square)
             if !thumbnailSquare.isEmpty {
                 return thumbnailSquare
             }
         }catch{}
         
         do {
-            let thumbnailPortrait = try fabric.getUrlFromLink(link: item.thumbnail_image_portrait)
+            let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_portrait)
             if !thumbnailPortrait.isEmpty {
                 return thumbnailPortrait
             }
         }catch{}
         
         do {
-            let thumbnailLand = try fabric.getUrlFromLink(link: item.thumbnail_image_landscape )
+            let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_landscape )
             if !thumbnailLand.isEmpty {
                 return thumbnailLand
             }
@@ -241,9 +229,9 @@ struct SectionMediaItemView: View {
                         if let link = item.media_link?["sources"]["default"] {
                             Task{
                                 do {
-                                    let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link)
-                                    pathState.playerItem = playerItem
-                                    pathState.path.append(.video)
+                                    let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link)
+                                    eluvio.pathState.playerItem = playerItem
+                                    eluvio.pathState.path.append(.video)
                                 }catch{
                                     print("Error getting link url for playback ", error)
                                 }
@@ -254,8 +242,8 @@ struct SectionMediaItemView: View {
                         debugPrint("Media Item", item)
                         do {
                             if let file = item.media_file {
-                                pathState.url = try fabric.getUrlFromLink(link:file,staticUrl:true)
-                                pathState.path.append(.html)
+                                eluvio.pathState.url = try eluvio.fabric.getUrlFromLink(link:file,staticUrl:true)
+                                eluvio.pathState.path.append(.html)
                             }else{
                                 print("MediaItem has empty file for html type")
                             }
@@ -266,8 +254,8 @@ struct SectionMediaItemView: View {
                         debugPrint("Media Item Gallery Type ", item)
                         do {
                             if let gallery = item.gallery {
-                                pathState.gallery = gallery
-                                pathState.path.append(.gallery)
+                                eluvio.pathState.gallery = gallery
+                                eluvio.pathState.path.append(.gallery)
                             }else{
                                 print("MediaItem has empty file for html type")
                             }
@@ -299,9 +287,7 @@ struct SectionMediaItemView: View {
     
 
 struct SectionItemView: View {
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     
     var item: MediaPropertySectionItem
     var sectionId : String
@@ -321,8 +307,8 @@ struct SectionItemView: View {
                     if ( mediaItem.media_type.lowercased() == "video") {
                         Task{
                             var backgroundImage = ""
-                            if let property = try await fabric.getProperty(property: propertyId) {
-                                let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:fabric)
+                            if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                                let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
                                 backgroundImage = viewModel.backgroundImage
                             }
 
@@ -336,15 +322,15 @@ struct SectionItemView: View {
                                     if let icons = mediaItem.icons {
                                         for link in icons {
                                             do {
-                                                let image = try fabric.getUrlFromLink(link: link["icon"])
+                                                let image = try eluvio.fabric.getUrlFromLink(link: link["icon"])
                                                 images.append(image)
                                             }catch{}
                                         }
                                     }
 
                                     let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: mediaItem.isUpcoming ? .upcoming : .permission, backgroundImage: backgroundImage, images: images)
-                                    pathState.videoErrorParams = videoErrorParams
-                                    pathState.path.append(.videoError)
+                                    eluvio.pathState.videoErrorParams = videoErrorParams
+                                    eluvio.pathState.path.append(.videoError)
                                     return
                                 }
 
@@ -379,14 +365,14 @@ struct SectionItemView: View {
                                  */
                              
                                 do {
-                                    let playerItem  = try await MakePlayerItemFromLink(fabric: fabric, link: link, hash:hash)
-                                    pathState.playerItem = playerItem
-                                    pathState.path.append(.video)
+                                    let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
+                                    eluvio.pathState.playerItem = playerItem
+                                    eluvio.pathState.path.append(.video)
                                 }catch{
                                     print("Error getting link url for playback ", error)
                                     let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
-                                    pathState.videoErrorParams = videoErrorParams
-                                    pathState.path.append(.videoError)
+                                    eluvio.pathState.videoErrorParams = videoErrorParams
+                                    eluvio.pathState.path.append(.videoError)
                                 }
                             }
                         }
@@ -395,8 +381,8 @@ struct SectionItemView: View {
                         
                         debugPrint("Media Item", item)
                         if !mediaItem.media_file_url.isEmpty {
-                            pathState.url = mediaItem.media_file_url
-                            pathState.path.append(.html)
+                            eluvio.pathState.url = mediaItem.media_file_url
+                            eluvio.pathState.path.append(.html)
                         }else{
                             print("MediaItem has empty file for html type")
                         }
@@ -407,9 +393,9 @@ struct SectionItemView: View {
                         if let media = item.media {
                             if let list = media.media {
                                 if !list.isEmpty {
-                                    pathState.mediaItem = item
-                                    pathState.propertyId = propertyId
-                                    pathState.path.append(.mediaGrid)
+                                    eluvio.pathState.mediaItem = item
+                                    eluvio.pathState.propertyId = propertyId
+                                    eluvio.pathState.path.append(.mediaGrid)
                                 }
                             }
                         }else{
@@ -419,8 +405,8 @@ struct SectionItemView: View {
                     }else if (mediaItem.media_type.lowercased() == "gallery") {
                         debugPrint("Media Item Gallery Type ", item)
                         if let gallery = item.media?.gallery {
-                            pathState.gallery = gallery
-                            pathState.path.append(.gallery)
+                            eluvio.pathState.gallery = gallery
+                            eluvio.pathState.path.append(.gallery)
                         }else{
                             print("MediaItem has empty file for html type")
                         }
@@ -430,23 +416,23 @@ struct SectionItemView: View {
                         Task {
                             do {
                                 if let propertyId = item.subproperty_id {
-                                    if let property = try await fabric.getProperty(property: propertyId) {
+                                    if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                         debugPrint("Found Sub property", property)
                                         
                                         await MainActor.run {
-                                            pathState.property = property
+                                            eluvio.pathState.property = property
                                         }
                                         
                                         if let pageId = item.subproperty_page_id {
-                                            if let page = try await fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                            if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
                                                 await MainActor.run {
-                                                    pathState.propertyPage = page
+                                                    eluvio.pathState.propertyPage = page
                                                 }
                                             }
                                         }
                                         
                                         await MainActor.run {
-                                            pathState.path.append(.property)
+                                            eluvio.pathState.path.append(.property)
                                         }
                                     }
                                 }
@@ -510,7 +496,7 @@ struct SectionItemView: View {
             
         }
         .onAppear(){
-            viewItem = MediaPropertySectionMediaItemView.create(item: item, fabric : fabric)
+            viewItem = MediaPropertySectionMediaItemView.create(item: item, fabric : eluvio.fabric)
         }
     }
 }

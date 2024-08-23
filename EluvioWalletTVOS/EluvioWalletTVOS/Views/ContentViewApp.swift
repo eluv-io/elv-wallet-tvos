@@ -351,8 +351,8 @@ struct ContentViewApp: View {
             .fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
                 NFTDetail(nft: self.nft, backLink: backLink, backLinkIcon: backLinkIcon)
             }
-            .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-                PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished,
+            .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
+                PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
                            backLink: backLink, backLinkIcon: backLinkIcon
                 )
             }

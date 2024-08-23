@@ -23,9 +23,7 @@ struct ViewAllButton: View {
 
 struct MediaPropertySectionView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var pathState: PathState
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     var propertyId: String
     var section: MediaPropertySection
     let margin: CGFloat = 100
@@ -80,7 +78,7 @@ struct MediaPropertySectionView: View {
         if let items = section.hero_items?.arrayValue {
             if !items.isEmpty {
                 do {
-                    return try fabric.getUrlFromLink(link: items[0]["display"]["logo"])
+                    return try eluvio.fabric.getUrlFromLink(link: items[0]["display"]["logo"])
                 }catch{
                     return ""
                 }
@@ -134,9 +132,9 @@ struct MediaPropertySectionView: View {
                         if showViewAll {
                             ViewAllButton(action:{
                                 debugPrint("View All pressed")
-                                pathState.section = section
-                                pathState.propertyId = propertyId
-                                pathState.path.append(.sectionViewAll)
+                                eluvio.pathState.section = section
+                                eluvio.pathState.propertyId = propertyId
+                                eluvio.pathState.path.append(.sectionViewAll)
                             })
                         }
                     }
@@ -152,9 +150,7 @@ struct MediaPropertySectionView: View {
                                     //Skip for now
                                 }else{
                                     SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
-                                            .environmentObject(self.pathState)
-                                            .environmentObject(self.fabric)
-                                            .environmentObject(self.viewState)
+                                            .environmentObject(self.eluvio)
                                 }
                             }
                         }
@@ -188,11 +184,11 @@ struct MediaPropertySectionView: View {
                     debugPrint("Display format ", section.display?["display_format"].stringValue)
                     
                     do {
-                        logoUrl = try fabric.getUrlFromLink(link: display["logo"])
+                        logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
                     }catch{}
                     
                     do {
-                        inlineBackgroundUrl = try fabric.getUrlFromLink(link: display["inline_background_image"])
+                        inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
                     }catch{}
                     
                 }
@@ -204,9 +200,7 @@ struct MediaPropertySectionView: View {
 struct MediaPropertyDetailView: View {
     @Namespace var NamespaceProperty
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var pathState: PathState
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var property: MediaPropertyViewModel
     @State var sections : [MediaPropertySection] = []
     @FocusState var searchFocused
@@ -220,8 +214,8 @@ struct MediaPropertyDetailView: View {
                     VStack{
                         Button(action:{
                             debugPrint("Search....")
-                            pathState.searchParams = SearchParams(propertyId: property.id ?? "")
-                            pathState.path.append(.search)
+                            eluvio.pathState.searchParams = SearchParams(propertyId: property.id ?? "")
+                            eluvio.pathState.path.append(.search)
                         }){
                             HStack(){
                                 Image(systemName: "magnifyingglass")
@@ -290,7 +284,7 @@ struct MediaPropertyDetailView: View {
                     guard let id = property.id else {
                         return
                     }
-                    self.sections = try await  fabric.getPropertySections(property: id, sections: property.sections)
+                    self.sections = try await eluvio.fabric.getPropertySections(property: id, sections: property.sections)
                     //let sectionsJSON = try await fabric.getPropertySectionsJSON(property: id, sections: property.sections)
                     //debugPrint("Sections ", sectionsJSON)
                     //debugPrint(sections.first)

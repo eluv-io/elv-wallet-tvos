@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct ItemDetailView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var pathState: PathState
     
@@ -66,23 +66,23 @@ struct ItemDetailView: View {
                                 Button(action: {
                                     debugPrint("Go To Property")
                                     Task {
-                                        if let property = try await fabric.getProperty(property: propertyId) {
+                                        if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                             debugPrint("Found Sub property", property)
                                             
                                             await MainActor.run {
-                                                pathState.property = property
+                                                eluvio.pathState.property = property
                                             }
                                             
                                             if let pageId = property.main_page?.id{
-                                                if let page = try await fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                                if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
                                                     await MainActor.run {
-                                                        pathState.propertyPage = page
+                                                        eluvio.pathState.propertyPage = page
                                                     }
                                                 }
                                             }
                                             
                                             await MainActor.run {
-                                                pathState.path.append(.property)
+                                                eluvio.pathState.path.append(.property)
                                             }
                                         }
     

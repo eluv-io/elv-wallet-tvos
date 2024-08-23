@@ -489,3 +489,15 @@ func DecodeVersionHash(versionHash: String) -> (digest:String, size:String, obje
     //TODO:
     return ("","","", "")
 }
+
+extension Array {
+    func dividedIntoGroups(of i: Int = 3) -> [[Element]] {
+        var copy = self
+        var res = [[Element]]()
+        while copy.count > i {
+            res.append( (0 ..< i).map { _ in copy.remove(at: 0) } )
+        }
+        res.append(copy)
+        return res
+    }
+}

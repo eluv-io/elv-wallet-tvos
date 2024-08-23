@@ -97,8 +97,8 @@ struct DropDetail: View {
                 .focusSection()
             }
             .scrollClipDisabled()
-            .fullScreenCover(isPresented: $showPlayer) {
-                PlayerView(playerItem:self.$playerItem,
+            .fullScreenCover(isPresented: $showPlayer) { [playerItem] in
+                PlayerView(playerItem:playerItem,
                            playerImageOverlayUrl:playerImageOverlayUrl,
                            playerTextOverlay:playerTextOverlay,
                            seekTimeS: 0,

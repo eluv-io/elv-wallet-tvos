@@ -11,8 +11,7 @@ import Combine
 import SDWebImageSwiftUI
 
 struct DiscoverView: View {
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     @State private var properties : [MediaPropertyViewModel] = []
     @State private var fabricCancellable: AnyCancellable? = nil
     @FocusState var headerFocused
@@ -39,7 +38,7 @@ struct DiscoverView: View {
                 }
                 .frame(maxWidth:.infinity)
                 MediaPropertiesView(properties:properties, selected: $selected)
-                    .environmentObject(self.pathState)
+                    .environmentObject(self.eluvio.pathState)
             }
         }
         .onChange(of:selected){ old, new in
@@ -56,17 +55,12 @@ struct DiscoverView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .edgesIgnoringSafeArea(.all)
-                }/*else if (!properties.isEmpty) {
-                    WebImage(url: URL(string:properties[0].backgroundImage))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .edgesIgnoringSafeArea(.all)
-                }*/
+                }
             }
         )
         .scrollClipDisabled()
         .onAppear(){
-            self.fabricCancellable = fabric.$mediaProperties
+            self.fabricCancellable = eluvio.fabric.$mediaProperties
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
                     debugPrint("onMediaProperties changed count: ", val.contents.count )
@@ -76,7 +70,7 @@ struct DiscoverView: View {
                     }
                     
                     for property in val.contents {
-                        let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric:  fabric)
+                        let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                         //debugPrint("\(mediaProperty.title) ---> created")
                         if mediaProperty.image.isEmpty {
                             

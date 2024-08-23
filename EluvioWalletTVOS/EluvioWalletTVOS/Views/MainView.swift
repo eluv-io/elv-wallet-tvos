@@ -43,9 +43,7 @@ enum MainTab { case Discover, Items, Profile}
 
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio : EluvioAPI
     @Namespace var MAIN
     
 
@@ -65,20 +63,20 @@ struct MainView: View {
         ZStack{
             TabView(selection:$selection){
                 DiscoverView().preferredColorScheme(colorScheme)
-                    .environmentObject(self.pathState)
+                    .environmentObject(self.eluvio)
                     .prefersDefaultFocus(in: MAIN)
                     .opacity(selection == .Discover ? 1.0 : 0.0)
                     .tabItem{Text("Home")}
                     .tag(MainTab.Discover)
                 
-                MyItemsView(nfts: fabric.library.items).preferredColorScheme(colorScheme)
-                    .environmentObject(self.pathState)
+                MyItemsView(nfts: eluvio.fabric.library.items).preferredColorScheme(colorScheme)
+                    .environmentObject(self.eluvio)
                     .opacity(selection == .Items ? 1.0 : 0.0)
                     .tabItem{Text("My Items")}
                     .tag(MainTab.Items)
                 
                 ProfileView().preferredColorScheme(colorScheme)
-                    .environmentObject(self.pathState)
+                    .environmentObject(self.eluvio)
                     .opacity(selection == .Profile ? 1.0 : 0.0)
                     .preferredColorScheme(.dark)
                     .tabItem{Text("Profile")}
@@ -88,9 +86,9 @@ struct MainView: View {
         .edgesIgnoringSafeArea(.all)
         .onAppear(){
             debugPrint("MainView onAppear")
-            self.cancellable = fabric.$isLoggedOut.sink { val in
+            self.cancellable = eluvio.fabric.$isLoggedOut.sink { val in
                 print("MainView fabric changed, ", val)
-                if fabric.isLoggedOut == true {
+                if eluvio.fabric.isLoggedOut == true {
                     self.selection = MainTab.Discover
                 }
             }
@@ -101,9 +99,9 @@ struct MainView: View {
             }
         }
         .onChange(of: selection){
-            debugPrint("onChange of selection viewState ", viewState.op)
+            //debugPrint("onChange of selection viewState ",eluvio.viewState.op)
             Task {
-                await fabric.refresh()
+                await eluvio.fabric.refresh()
             }
         }
         .onChange(of: navFocused){ old,new in
@@ -138,7 +136,7 @@ struct MainView: View {
              */
         }
         .onReceive(logOutTimer) { _ in
-            fabric.signOutIfExpired()
+            eluvio.fabric.signOutIfExpired()
         }
     }
 }

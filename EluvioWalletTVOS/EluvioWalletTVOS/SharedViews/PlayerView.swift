@@ -102,7 +102,7 @@ struct PlayerView: View {
     @Namespace var playerNamespace
     @State var player = AVPlayer()
     @State var isPlaying: Bool = false
-    @Binding var playerItem : AVPlayerItem?
+    var playerItem : AVPlayerItem?
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
     @State var playerImageOverlayUrl = ""
@@ -158,8 +158,12 @@ struct PlayerView: View {
             }
         }
         .onAppear(){
-            print("*** PlayerView onAppear() ")
+            print("*** PlayerView onAppear() ", self.playerItem)
             //print("PlayerItem",self.playerItem)
+            if self.playerItem == nil {
+                print("playerItem == nil")
+                return
+            }
             if (self.playerItem != self.player.currentItem){
                 self.player.replaceCurrentItem(with: self.playerItem)
                 print("player.replaceCurrentItem()")
@@ -187,16 +191,17 @@ struct PlayerView: View {
                                      player.currentItem?.currentTime().seconds ?? 0.0,
                                      player.currentItem?.duration.seconds ?? 0.0)
                 }
+                
+                
             }
             
+            NotificationCenter.default.addObserver(forName: .AVPlayerItemNewErrorLogEntry, object: player.currentItem, queue: .main) { [self] _ in
+                    print(player.currentItem?.errorLog()?.events.last?.errorComment)
+            }
             
-            //TODO: Fix the playing from start end then seeking
-            self.player.seek(to: CMTime(seconds: seekTimeS, preferredTimescale: 1),
-                             toleranceBefore: .zero, toleranceAfter: .zero
-            )
             player.play()
 
-            print("*** PlayerView PLAY", seekTimeS)
+            print("*** PlayerView PLAY", player.error)
 
             newItem = true
             self.finishedObserver = PlayerFinishedObserver(player: player)
@@ -224,6 +229,8 @@ struct PlayerView: View {
     func playerDidFinishPlaying(note: NSNotification) {
         print("Video Finished")
     }
+    
+  
 }
 
 struct PlayerView2: View {

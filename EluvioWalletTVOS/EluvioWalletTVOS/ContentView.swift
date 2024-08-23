@@ -9,68 +9,13 @@ import SwiftUI
 import Combine
 import AVKit
 import SwiftyJSON
-
-enum NavDestination: String, Hashable {
-    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, videoError
-}
-
-struct SearchParams {
-    var propertyId : String = ""
-    var searchTerm : String = ""
-    var primaryFilters : [PrimaryFilterViewModel] = []
-    var secondaryFilters : [String] = []
-    var currentPrimaryFilter : PrimaryFilterViewModel? = nil
-    var currentSecondaryFilter : String = ""
-}
-
-
-enum VideoErrorType: String, Hashable {
-    case permission, upcoming
-}
-
-struct VideoErrorParams{
-    var mediaItem : MediaPropertySectionMediaItemView? = nil
-    var type : VideoErrorType = .permission
-    var backgroundImage: String = ""
-    var images : [String] = []
-}
-
-class PathState: ObservableObject {
-    @Published var path : [NavDestination] = []
-    
-    var property : MediaProperty? = nil
-    var propertyPage : MediaPropertyPage? = nil
-    var url : String = ""
-    var playerItem : AVPlayerItem? = nil
-    var mediaItem : MediaPropertySectionItem? = nil
-    var propertyId: String = ""
-    var section: MediaPropertySection? = nil
-    
-    var gallery : [GalleryItem] = []
-    var searchParams : SearchParams?
-    var videoErrorParams : VideoErrorParams?
-    
-    var nft : NFTModel? = nil
-    
-    func reset() {
-        property = nil
-        propertyId = ""
-        propertyPage = nil
-        url = ""
-        playerItem = nil
-        mediaItem = nil
-        gallery = []
-        searchParams = nil
-        section = nil
-        nft = nil
-        videoErrorParams = nil
-    }
-}
                             
 struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
+    var viewState: ViewState {
+        return eluvio.viewState
+    }
     @Environment(\.openURL) private var openURL
     
     @State private var viewStateCancellable: AnyCancellable? = nil
@@ -105,8 +50,7 @@ struct ContentView: View {
     @State var showError : Bool = false
     @State var errorMessage: String = ""
     @State var checkingViewState = false
-    
-    @StateObject var pathState = PathState()
+
     @State private var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
     
     @State var playerFinsished : Bool = false
@@ -162,7 +106,7 @@ struct ContentView: View {
             var logo = ""
             if marketplace != ""{
                 do {
-                    let market = try await fabric.getMarketplace(marketplaceId: marketplace)
+                    let market = try await eluvio.fabric.getMarketplace(marketplaceId: marketplace)
                     logo = market.logo
                 }catch{
                     print("Could not getMarketplace", error)
@@ -175,7 +119,7 @@ struct ContentView: View {
             
             if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
                 do {
-                    contract = try await fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
+                    contract = try await eluvio.fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
                     debugPrint(contract)
                 }catch {
                     print("Could not find NFT contract from marketplace and sku. ")
@@ -188,7 +132,7 @@ struct ContentView: View {
             }
                         
             if viewState.op == .item {
-                if let _nft = fabric.getNFT(contract: contract,
+                if let _nft = eluvio.fabric.getNFT(contract: contract,
                                             token: viewState.itemTokenStr) {
                     await MainActor.run {
                         self.nft = _nft
@@ -208,14 +152,14 @@ struct ContentView: View {
                 debugPrint("Playmedia: ", viewState.mediaId)
             
                 
-                if let item = fabric.getMediaItem(mediaId:viewState.mediaId) {
+                if let item = eluvio.fabric.getMediaItem(mediaId:viewState.mediaId) {
                     debugPrint("Found item: ", item.title)
 
                     do {
                         if let link = item.media_link?["sources"]["default"] {
                             debugPrint("Item link: ", link)
                             
-                            let item  = try await MakePlayerItemFromLink(fabric: fabric, link: link)
+                            let item  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link)
                             await MainActor.run {
                                 self.playerItem = item
                                 self.showPlayer = true
@@ -233,7 +177,7 @@ struct ContentView: View {
                 
             }else if viewState.op == .gallery {
                 debugPrint("Gallery View: ", viewState.mediaId)
-                if let item = fabric.getMediaItem(mediaId:viewState.mediaId) {
+                if let item = eluvio.fabric.getMediaItem(mediaId:viewState.mediaId) {
                     debugPrint("Found item: ", item.title)
 
                     do {
@@ -269,7 +213,7 @@ struct ContentView: View {
                 debugPrint("Mint marketplace: ", viewState.marketplaceId)
                 debugPrint("Mint: sku", viewState.itemSKU)
                 do {
-                    let (itemJSON, tenantId) = try await fabric.findItem(marketplaceId: marketplace, sku: sku)
+                    let (itemJSON, tenantId) = try await eluvio.fabric.findItem(marketplaceId: marketplace, sku: sku)
                     
                     if let item = itemJSON {
                         await MainActor.run {
@@ -293,7 +237,7 @@ struct ContentView: View {
                 let marketplace = viewState.marketplaceId
                 await MainActor.run {
                     do {
-                        self.property = try fabric.findProperty(marketplaceId: marketplace)
+                        self.property = try eluvio.fabric.findProperty(marketplaceId: marketplace)
                         self.showProperty = true
                     }catch{
                         debugPrint("Could not find property ", marketplace)
@@ -309,25 +253,21 @@ struct ContentView: View {
     }
     
     var body: some View {
-        if fabric.isLoggedOut {
+        if eluvio.fabric.isLoggedOut {
             SignInView()
-                .environmentObject(self.fabric)
-                .environmentObject(self.viewState)
+                .environmentObject(self.eluvio)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
-                .environmentObject(self.pathState)
         }else{
             //Don't use NavigationView, pops back to root on ObservableObject update
-            NavigationStack(path: $pathState.path) {
+            NavigationStack(path: $eluvio.pathState.path) {
                 ZStack {
                     if (showActivity) {
                         ProgressView()
                             .edgesIgnoringSafeArea(.all)
                     }else {
                         MainView()
-                            .environmentObject(self.fabric)
-                            .environmentObject(self.viewState)
-                            .environmentObject(self.pathState)
+                            .environmentObject(self.eluvio)
                             .edgesIgnoringSafeArea(.all)
                             .preferredColorScheme(colorScheme)
                             .background(Color.mainBackground)
@@ -337,27 +277,24 @@ struct ContentView: View {
                 .navigationDestination(for: NavDestination.self) { destination in
                     switch destination {
                     case .property:
-                        if let property = pathState.property {
-                            MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric: fabric))
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
-                                .environmentObject(self.pathState)
-                        }
+                        if let property = eluvio.pathState.property {
+                                MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric:eluvio.fabric))
+                                    .environmentObject(self.eluvio)
+                            }else{
+                                Text("Error")
+                            }
+                    
                     case .html:
-                        QRView(url: pathState.url)
-                            .environmentObject(self.fabric)
-                            .environmentObject(self.viewState)
-                            .environmentObject(self.pathState)
+                        QRView(url: eluvio.pathState.url)
+                            .environmentObject(self.eluvio)
                     case .video:
-                        if let playerItem = pathState.playerItem {
-                            PlayerView(playerItem: $playerItem, seekTimeS: 0, finished: $playerFinsished)
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
-                                .environmentObject(self.pathState)
+                        if let playerItem = eluvio.pathState.playerItem {
+                            PlayerView(playerItem: playerItem, seekTimeS: 0, finished: $playerFinsished)
+                                .environmentObject(self.eluvio)
                         }
                         
                     case .videoError:
-                        if let params = pathState.videoErrorParams {
+                        if let params = eluvio.pathState.videoErrorParams {
                             if let mediaItem = params.mediaItem {
                                 if params.type == .permission {
                                     PlayerErrorView(backgroundImageUrl:params.backgroundImage, title:"The media is not available")
@@ -372,48 +309,38 @@ struct ContentView: View {
                             }
                         }
                     case .mediaGrid:
-                        if let item = pathState.mediaItem {
-                            if !pathState.propertyId.isEmpty {
-                                SectionItemListView(propertyId: pathState.propertyId, item:item)
-                                    .environmentObject(self.pathState)
-                                    .environmentObject(self.fabric)
-                                    .environmentObject(self.viewState)
+                        if let item = eluvio.pathState.mediaItem {
+                            if !eluvio.pathState.propertyId.isEmpty {
+                                SectionItemListView(propertyId: eluvio.pathState.propertyId, item:item)
+                                    .environmentObject(self.eluvio)
                             }
                         }
                     case .gallery:
-                        GalleryView(gallery:pathState.gallery)
-                            .environmentObject(self.pathState)
-                            .environmentObject(self.fabric)
-                            .environmentObject(self.viewState)
+                        GalleryView(gallery:eluvio.pathState.gallery)
+                            .environmentObject(self.eluvio)
                     case .search:
-                        if let params = pathState.searchParams {
-                            SearchView(searchString: params.searchTerm, 
+                        if let params = eluvio.pathState.searchParams {
+                            SearchView(searchString: params.searchTerm,
                                        propertyId: params.propertyId,
                                        primaryFilters: params.primaryFilters,
                                        currentPrimaryFilter: params.currentPrimaryFilter,
                                        currentSecondaryFilter: params.currentSecondaryFilter, 
                                        secondaryFilters: params.secondaryFilters
                             )
-                            .environmentObject(self.pathState)
-                            .environmentObject(self.fabric)
-                            .environmentObject(self.viewState)
+                            .environmentObject(self.eluvio)
                         }
                     case .sectionViewAll:
-                        if let section = pathState.section {
+                        if let section = eluvio.pathState.section {
                             ScrollView {
-                                SectionGridView(propertyId: pathState.propertyId, section:section)
-                                    .environmentObject(self.pathState)
-                                    .environmentObject(self.fabric)
-                                    .environmentObject(self.viewState)
+                                SectionGridView(propertyId: eluvio.pathState.propertyId, section:section)
+                                    .environmentObject(self.eluvio)
                             }
                             .scrollClipDisabled()
                         }
                     case .nft:
-                        if let nft = pathState.nft {
+                        if let nft = eluvio.pathState.nft {
                             ItemDetailView(item:nft)
-                                .environmentObject(self.pathState)
-                                .environmentObject(self.fabric)
-                                .environmentObject(self.viewState)
+                                .environmentObject(self.eluvio)
                         }
                     }
                 }
@@ -426,7 +353,7 @@ struct ContentView: View {
                         .sink { val in
                             debugPrint("viewState changed.", viewState.op)
                             debugPrint("showNFT ", showNft)
-                            if viewState.op == .none || fabric.isLoggedOut{
+                            if viewState.op == .none || eluvio.fabric.isLoggedOut{
                                 self.showActivity = false
                                 return
                             }
@@ -434,11 +361,11 @@ struct ContentView: View {
                             showActivity = false
                         }
 
-                    self.fabricCancellable = fabric.$isRefreshing
+                    self.fabricCancellable = eluvio.fabric.$isRefreshing
                         .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
-                            debugPrint("isRefreshing changed.", fabric.isRefreshing)
-                            if (fabric.isRefreshing && fabric.library.isEmpty){
+                            debugPrint("isRefreshing changed.", eluvio.fabric.isRefreshing)
+                            if (eluvio.fabric.isRefreshing){
                                 return
                             }
                             
@@ -458,8 +385,8 @@ struct ContentView: View {
             .fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon, nft] in
                 NFTDetail(nft: nft, backLink: backLink, backLinkIcon: backLinkIcon)
             }
-            .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-                PlayerView(playerItem:self.$playerItem, seekTimeS: 0, finished: $playerFinished,
+            .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
+                PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
                            backLink: backLink, backLinkIcon: backLinkIcon
                 )
             }

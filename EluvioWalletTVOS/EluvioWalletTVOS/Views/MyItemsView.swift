@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftyJSON
 
 struct MyItemsView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var searchString = ""
     @State var nfts : [NFTModel] = []
     var propertyId = ""
@@ -22,7 +22,7 @@ struct MyItemsView: View {
     func search(){
         Task{
             do{
-                nfts = try await fabric.getNFTs(description:searchString)
+                nfts = try await eluvio.fabric.getNFTs(description:searchString)
             }catch{
                 print("Error searching properties: ", error.localizedDescription)
             }
@@ -42,7 +42,7 @@ struct MyItemsView: View {
                                 Task {
                                     do {
                                         searchString = ""
-                                        nfts = try await fabric.getNFTs()
+                                        nfts = try await eluvio.fabric.getNFTs()
                                     }catch{
                                         print("Could not get nfts ", error.localizedDescription)
                                     }
@@ -54,7 +54,7 @@ struct MyItemsView: View {
                                 debugPrint("Property \(property.id ) pressed.")
                                 Task {
                                     do {
-                                        nfts = try await fabric.getNFTs(propertyId:property.id ?? "")
+                                        nfts = try await eluvio.fabric.getNFTs(propertyId:property.id ?? "")
                                     }catch{
                                         print("Could not get nfts ", error.localizedDescription)
                                     }
@@ -73,13 +73,13 @@ struct MyItemsView: View {
         .onAppear(){
             Task{
                 do {
-                    let props = try await fabric.getProperties(includePublic:false)
+                    let props = try await eluvio.fabric.getProperties(includePublic:false)
                     
                     var properties: [MediaPropertyViewModel] = []
                     
                     for property in props {
 
-                        let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: fabric)
+                        let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                         if mediaProperty.title.isEmpty {
                             debugPrint("Property without a title: \(property.slug ?? "").")
                         }else{
@@ -98,7 +98,7 @@ struct MyItemsView: View {
             
             Task {
                 do {
-                    nfts = try await fabric.getNFTs(propertyId:propertyId)
+                    nfts = try await eluvio.fabric.getNFTs(propertyId:propertyId)
                 }catch{
                     print("Could not get nfts ", error.localizedDescription)
                 }

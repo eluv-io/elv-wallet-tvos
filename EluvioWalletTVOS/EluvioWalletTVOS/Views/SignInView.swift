@@ -21,8 +21,7 @@ class Subscriber {
 struct SignInView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     
     var subscriber : Subscriber?
     @State var url :String = ""
@@ -59,7 +58,7 @@ struct SignInView: View {
     var body: some View {
         if !showDeviceFlow {
             ZStack {
-                viewState.signInBackground.edgesIgnoringSafeArea(.all)
+                eluvio.viewState.signInBackground.edgesIgnoringSafeArea(.all)
                 LoopingVideoPlayer(urls:[backgroundUrl!], endAction: .loop)
                     .edgesIgnoringSafeArea(.all)
 
@@ -67,7 +66,7 @@ struct SignInView: View {
                     Spacer()
                     HStack(alignment: .center, spacing: 30){
                         VStack(alignment: .center, spacing:10){
-                            if !viewState.isBranded {
+                            if !eluvio.viewState.isBranded {
                                 Image("start-screen-logo")
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
@@ -104,8 +103,9 @@ struct SignInView: View {
                         
                         Spacer()
                         
-                        if fabric.signingIn {
+                        if eluvio.fabric.signingIn {
                             ProgressView()
+                                .padding([.trailing,.bottom],120)
                         }else {
                             VStack{
 #if DEBUG
@@ -122,7 +122,7 @@ struct SignInView: View {
                                     self.showDeviceFlow = true
                                     Task {
                                         do {
-                                            try await fabric.connect(network:networkSelection.name)
+                                            try await eluvio.fabric.connect(network:networkSelection.name)
                                         } catch {
                                             print("Request failed with error: \(error)")
                                         }
@@ -141,9 +141,9 @@ struct SignInView: View {
                 //if (playerItem == nil){
                     playerItem = AVPlayerItem(url: Bundle.main.url(forResource: "start-screen-bg", withExtension: "mp4")!)
                 //}
-                DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
+                /*DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
                     //signInFocus = true
-                }
+                }*/
             }
         } else {
             DeviceFlowView(showDeviceFlow:$showDeviceFlow)

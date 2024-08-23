@@ -341,8 +341,8 @@ struct MediaView2: View {
                 .environmentObject(self.fabric)
         }
         
-        .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) { [startTimeS] in //Need the capture list to update state https://stackoverflow.com/questions/75498944/why-is-this-swiftui-state-not-updated-when-passed-as-a-non-binding-parameter
-            PlayerView(playerItem:self.$playerItem,
+        .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) { [playerItem, startTimeS] in //Need the capture list to update state https://stackoverflow.com/questions/75498944/why-is-this-swiftui-state-not-updated-when-passed-as-a-non-binding-parameter
+            PlayerView(playerItem:playerItem,
                        playerImageOverlayUrl:playerImageOverlayUrl,
                        playerTextOverlay:playerTextOverlay,
                        seekTimeS: startTimeS, 

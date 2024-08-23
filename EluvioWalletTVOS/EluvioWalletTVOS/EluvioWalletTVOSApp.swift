@@ -37,11 +37,8 @@ struct EluvioWalletTVOSApp: App {
 @main
 struct EluvioWalletTVOSApp: App {
     @Environment(\.scenePhase) var scenePhase
+    @StateObject var eluvio = EluvioAPI()
     
-    @StateObject
-    var fabric = Fabric()
-    @StateObject
-    var viewState = ViewState()
     @State var showLoader: Bool = false
     
     @State var opacity : CGFloat = 0.0
@@ -64,15 +61,14 @@ struct EluvioWalletTVOSApp: App {
                 }else {
                     ContentView()
                         .opacity(opacity)
-                        .environmentObject(fabric)
-                        .environmentObject(viewState)
+                        .environmentObject(eluvio)
                         .preferredColorScheme(.dark)
                 }
             }
             .onAppear(){
                 Task {
                     do {
-                        try await fabric.connect(network:"")
+                        try await eluvio.fabric.connect(network:"")
                     }catch{
                         print("Error connecting to the fabric: ", error)
                     }
@@ -100,7 +96,7 @@ struct EluvioWalletTVOSApp: App {
                 Task {
                     debugPrint("url opened: ", url)
                     self.showLoader = true
-                    await viewState.handleLink(url:url, fabric:fabric)
+                    await eluvio.viewState.handleLink(url:url, fabric:eluvio.fabric)
                     self.showLoader = false
                     debugPrint("handle link done opened: ", url)
                 }

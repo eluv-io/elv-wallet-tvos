@@ -21,8 +21,12 @@ struct Account {
 
 typealias PropertyID = String
 typealias PropertyIDAccountDict = [PropertyID:Account]
-struct AccountManager {
-    var accounts: [AccountType: PropertyIDAccountDict]
+
+class AccountManager : ObservableObject {
+    var accounts: [AccountType: PropertyIDAccountDict] = [:]
     var signingIn = false
+    var isSignedIn: Bool {
+        return !accounts.isEmpty
+    }
     
 }

@@ -11,8 +11,7 @@ import Foundation
 
 struct MediaPropertyView : View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var pathState : PathState
-    @EnvironmentObject var fabric : Fabric
+    @EnvironmentObject var eluvio : EluvioAPI
     var property: MediaPropertyViewModel
     @FocusState private var focused : Bool
     @Binding var selected : MediaPropertyViewModel
@@ -26,23 +25,23 @@ struct MediaPropertyView : View {
                 Task {
                     do {
                         if let propertyId = property.id {
-                            if let property = try await fabric.getProperty(property: propertyId) {
+                            if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                 debugPrint("Found Sub property", property)
                                 
                                 await MainActor.run {
-                                    pathState.property = property
+                                    eluvio.pathState.property = property
                                 }
                                 
                                 if let pageId = property.main_page?.id{
-                                    if let page = try await fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                    if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
                                         await MainActor.run {
-                                            pathState.propertyPage = page
+                                            eluvio.pathState.propertyPage = page
                                         }
                                     }
                                 }
                                 
                                 await MainActor.run {
-                                    pathState.path.append(.property)
+                                    eluvio.pathState.path.append(.property)
                                 }
                             }
                         }
@@ -110,22 +109,9 @@ struct MediaPropertyView : View {
     }
 }
 
-extension Array {
-    func dividedIntoGroups(of i: Int = 3) -> [[Element]] {
-        var copy = self
-        var res = [[Element]]()
-        while copy.count > i {
-            res.append( (0 ..< i).map { _ in copy.remove(at: 0) } )
-        }
-        res.append(copy)
-        return res
-    }
-}
-
 struct MediaPropertiesView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     
     var numColumns = 5
     var properties: [MediaPropertyViewModel] = []
@@ -142,7 +128,7 @@ struct MediaPropertiesView: View {
                     GridRow(alignment:.center) {
                         ForEach(groups, id: \.self) { property in
                                 MediaPropertyView(property: property, selected: $selected)
-                                    .environmentObject(self.pathState)
+                                    .environmentObject(self.eluvio)
                         }
                     }
                     .frame(maxWidth:.infinity)
