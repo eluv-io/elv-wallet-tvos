@@ -15,7 +15,7 @@ import Combine
 struct DeviceFlowView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
 
     @State var url = ""
     @State var urlComplete = ""
@@ -131,7 +131,7 @@ struct DeviceFlowView: View {
             }
         }
         .onAppear(perform: {
-            if(!self.fabric.isLoggedOut){
+            if(!self.eluvio.fabric.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
             }else{
                 self.regenerateCode()
@@ -156,7 +156,7 @@ struct DeviceFlowView: View {
     }
     
     func regenerateCode() {
-        self.fabric.startDeviceCodeFlow(completion: {
+        self.eluvio.fabric.startDeviceCodeFlow(completion: {
             json,err in
             
             print("startDeviceCodeFlow completed");
@@ -221,7 +221,7 @@ struct DeviceFlowView: View {
                             
                             Task {
                                 do {
-                                    try await fabric.signIn(credentials: json)
+                                    try await eluvio.fabric.signIn(credentials: json)
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")
                                 }

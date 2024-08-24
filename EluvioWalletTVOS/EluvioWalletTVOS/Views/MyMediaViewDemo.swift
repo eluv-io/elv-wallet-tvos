@@ -13,7 +13,7 @@ import SwiftyJSON
 struct MyMediaViewDemo: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var searchText = ""
 
     var library = MediaLibrary()
@@ -34,7 +34,7 @@ struct MyMediaViewDemo: View {
     @State var redeemableFeatures: [RedeemableViewModel] = []
     @State var localizedFeatures: [MediaItem] = []
     private var preferredLocation:String {
-        return fabric.profile.profileData.preferredLocation ?? ""
+        return eluvio.fabric.profile.profileData.preferredLocation ?? ""
     }
     
     @State var heroImage : String?
@@ -219,13 +219,13 @@ struct MyMediaViewDemo: View {
                                         //debugPrint("Redeemable: ", redeemable.name)
                                         if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
                                             //debugPrint("location matched: ", redeemable.location.lowercased())
-                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                            let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
 
                                             redeemableFeatures.append(redeem)
                                             //debugPrint("Appended.")
                                         }
                                     }else{
-                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                        let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
                                         redeemableFeatures.append(redeem)
                                     }
                                 }catch{

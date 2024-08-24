@@ -14,7 +14,7 @@ import SDWebImageSwiftUI
 enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile; case square}
 
 struct MediaCollectionView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var mediaCollection: MediaCollection
     var display: MediaDisplay = MediaDisplay.square
     @State var nameBelow = false
@@ -112,7 +112,7 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
 }
 
 struct MediaView2: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var mediaItem: MediaItem?
     @State var showSharing: Bool = false
     @State private var media = MediaItemViewModel()
@@ -194,16 +194,16 @@ struct MediaView2: View {
                                 var item : AVPlayerItem? = nil
                                 if (media.offering != "default"){
                                     debugPrint("MediaView2 Offering: ", media.offering)
-                                    item = try await MakePlayerItemFromVersionHash(fabric:fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
+                                    item = try await MakePlayerItemFromVersionHash(fabric:eluvio.fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
                                 }else{
-                                    item = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
+                                    item = try await MakePlayerItemFromLink(fabric:eluvio.fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
                                 }
                                 
                                 var image : UIImage? = nil
                                 
                                 do {
                                     debugPrint("Fetching image ", media.image)
-                                    let imageData = try await fabric.httpDataRequest(url: media.image, method:.get)
+                                    let imageData = try await eluvio.fabric.httpDataRequest(url: media.image, method:.get)
                                     image = UIImage(data: imageData)
                                     debugPrint("Downloaded image ", image)
                                 }catch{
@@ -248,14 +248,14 @@ struct MediaView2: View {
                             }catch{
                                 print("Error creating MediaItemViewModel playerItem",error)
                                 do{
-                                    let meta = try await fabric.contentObjectMetadata(id:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
+                                    let meta = try await eluvio.fabric.contentObjectMetadata(id:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
                                     
                                     print("permissions_message: ", meta)
                                     
                                     if meta.stringValue != "" {
                                         errorMessage = meta.stringValue
                                         showError = true
-                                        await fabric.refresh()
+                                        await eluvio.fabric.refresh()
                                         return
                                     }
                                 }catch{
@@ -264,7 +264,7 @@ struct MediaView2: View {
                                 
                                 errorMessage = "Could not access content"
                                 showError = true
-                                await fabric.refresh()
+                                await eluvio.fabric.refresh()
                             }
                         }
                     }
@@ -331,14 +331,14 @@ struct MediaView2: View {
         }
         .fullScreenCover(isPresented: $showGallery) { [gallery] in
             GalleryView(gallery: gallery)
-                .environmentObject(self.fabric)
+                .environmentObject(self.eluvio.fabric)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .edgesIgnoringSafeArea(.all)
                 .background(.thinMaterial)
         }
         .fullScreenCover(isPresented: $showQRView) { [qrUrl] in
             QRView(url: qrUrl)
-                .environmentObject(self.fabric)
+                .environmentObject(self.eluvio.fabric)
         }
         
         .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) { [playerItem, startTimeS] in //Need the capture list to update state https://stackoverflow.com/questions/75498944/why-is-this-swiftui-state-not-updated-when-passed-as-a-non-binding-parameter
@@ -383,10 +383,10 @@ struct MediaView2: View {
         Task {
             do{
                 //print("*** MediaView onChange")
-                self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
+                self.media = try await MediaItemViewModel.create(fabric:eluvio.fabric, mediaItem:self.mediaItem)
                     if let contract = media.nft?.contract_addr {
                     if let mediaId = media.mediaId {
-                        let progress = try fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
+                        let progress = try eluvio.fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
                         if (progress.current_time_s > 0){
                             debugPrint("Found saved progress ", progress)
                             await MainActor.run {
@@ -429,7 +429,7 @@ struct MediaView2: View {
         let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)
 
         do {
-            try fabric.setUserViewedProgress(nftContract:contract, mediaId: mediaId, progress:mediaProgress)
+            try eluvio.fabric.setUserViewedProgress(nftContract:contract, mediaId: mediaId, progress:mediaProgress)
         }catch{
             print(error)
         }
@@ -442,7 +442,7 @@ enum MediaFlagPosition{case bottomRight; case bottomCenter}
 
 //TODO: Make this generic
 struct RedeemFlag: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var redeemable: RedeemableViewModel
     @State var position: MediaFlagPosition = .bottomCenter
     
@@ -454,7 +454,7 @@ struct RedeemFlag: View {
         var address = ""
         
         do {
-            address = try fabric.getAccountAddress()
+            address = try eluvio.fabric.getAccountAddress()
         }catch{
             print("Could not get account address")
             return "REWARD"
@@ -503,7 +503,7 @@ struct RedeemFlag: View {
 }
 
 struct RedeemableCardView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     var redeemable: RedeemableViewModel
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.square
@@ -532,7 +532,7 @@ struct RedeemableCardView: View {
             Task{
                 do{
                     if (display == MediaDisplay.square){
-                        playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.animationLink)
+                        playerItem = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: redeemable.animationLink)
                     }
                 }catch{
                     print("Error creating player item", error)

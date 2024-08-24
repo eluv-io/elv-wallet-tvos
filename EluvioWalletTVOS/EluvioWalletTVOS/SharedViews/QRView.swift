@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftyJSON
 
 struct QRView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     var url: String
     @State var title: String = "Point your camera to the QR Code below for content"
     @State var description: String = ""

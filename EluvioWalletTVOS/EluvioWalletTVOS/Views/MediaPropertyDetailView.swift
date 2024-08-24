@@ -299,7 +299,7 @@ struct MediaPropertyDetailView: View {
 
 struct MediaPropertyHeader: View {
     @Namespace var NamespaceProperty
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     var logo: String = ""
     var title: String = ""
     var description: String = ""

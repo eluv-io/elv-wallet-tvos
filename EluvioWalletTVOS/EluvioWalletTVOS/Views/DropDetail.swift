@@ -13,8 +13,7 @@ import SDWebImageSwiftUI
 struct DropDetail: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var drop : ProjectModel
     @State var backgroundImageUrl : String = ""
     @FocusState var isFocused

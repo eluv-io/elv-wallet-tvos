@@ -87,7 +87,7 @@ struct WalletApp: View {
 
 struct ContentViewApp: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @EnvironmentObject var viewState: ViewState
     @Environment(\.openURL) private var openURL
     
@@ -168,7 +168,7 @@ struct ContentViewApp: View {
             var logo = ""
             if marketplace != ""{
                 do {
-                    let market = try await fabric.getMarketplace(marketplaceId: marketplace)
+                    let market = try await eluvio.fabric.getMarketplace(marketplaceId: marketplace)
                     logo = market.logo
                 }catch{
                     print("Could not getMarketplace", error)
@@ -180,7 +180,7 @@ struct ContentViewApp: View {
             var contract = viewState.itemContract
             
             if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
-                contract = try await fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
+                contract = try await eluvio.fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
                 debugPrint(contract)
             }
             
@@ -188,7 +188,7 @@ struct ContentViewApp: View {
             if viewState.op == .item {
 
                 
-                if let _nft = fabric.getNFT(contract: contract,
+                if let _nft = eluvio.fabric.getNFT(contract: contract,
                                             token: viewState.itemTokenStr) {
                     await MainActor.run {
                         self.nft = _nft
@@ -202,14 +202,14 @@ struct ContentViewApp: View {
             }else if viewState.op == .play {
                 debugPrint("Playmedia: ", viewState.mediaId)
                 
-                if let _nft = fabric.getNFT(contract: contract,
+                if let _nft = eluvio.fabric.getNFT(contract: contract,
                                             token: viewState.itemTokenStr){
                     self.nft = _nft
                     if let item = self.nft.getMediaItem(id:viewState.mediaId) {
                         debugPrint("Found item: ", item.name)
                         self.mediaItem = item
                         do {
-                            let item  = try await MakePlayerItem(fabric: fabric, media: item)
+                            let item  = try await MakePlayerItem(fabric: eluvio.fabric, media: item)
                             await MainActor.run {
                                 self.playerItem = item
                                 self.showActivity = false
@@ -227,7 +227,7 @@ struct ContentViewApp: View {
                 debugPrint("Mint marketplace: ", viewState.marketplaceId)
                 debugPrint("Mint: sku", viewState.itemSKU)
                 do {
-                    let (itemJSON, tenantId) = try await fabric.findItem(marketplaceId: marketplace, sku: sku)
+                    let (itemJSON, tenantId) = try await eluvio.fabric.findItem(marketplaceId: marketplace, sku: sku)
                     
                     if let item = itemJSON {
                         await MainActor.run {
@@ -252,7 +252,7 @@ struct ContentViewApp: View {
                 let marketplace = viewState.marketplaceId
                 await MainActor.run {
                     do {
-                        self.property = try fabric.findProperty(marketplaceId: marketplace)
+                        self.property = try eluvio.fabric.findProperty(marketplaceId: marketplace)
                         self.showActivity = false
                         self.showProperty = true
                         //viewState.reset()
@@ -267,9 +267,9 @@ struct ContentViewApp: View {
     }
     
     var body: some View {
-        if fabric.isLoggedOut {
+        if eluvio.fabric.isLoggedOut {
             SignInView()
-                .environmentObject(self.fabric)
+                .environmentObject(self.eluvio.fabric)
                 .environmentObject(self.viewState)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
@@ -301,7 +301,7 @@ struct ContentViewApp: View {
                         .sink { val in
                             debugPrint("viewState changed.", viewState.op)
                             debugPrint("showNFT ", showNft)
-                            if viewState.op == .none || fabric.isLoggedOut{
+                            if viewState.op == .none || eluvio.fabric.isLoggedOut{
                                 self.showActivity = false
                                 return
                             }
@@ -309,11 +309,11 @@ struct ContentViewApp: View {
                             showActivity = false
                         }
                     
-                    self.fabricCancellable = fabric.$isRefreshing
+                    self.fabricCancellable = eluvio.fabric.$isRefreshing
                         .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                         .sink { val in
-                            debugPrint("isRefreshing changed.", fabric.isRefreshing)
-                            if (fabric.isRefreshing && fabric.library.isEmpty){
+                            debugPrint("isRefreshing changed.", eluvio.fabric.isRefreshing)
+                            if (eluvio.fabric.isRefreshing && eluvio.fabric.library.isEmpty){
                                 self.showActivity = true
                                 return
                             }

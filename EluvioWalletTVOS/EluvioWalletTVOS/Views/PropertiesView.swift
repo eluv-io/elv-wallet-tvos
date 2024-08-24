@@ -53,7 +53,7 @@ struct PropertyView : View {
 
 struct PropertiesView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     var properties: [PropertyModel] = []
     
     let columns = [

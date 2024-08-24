@@ -31,7 +31,7 @@ class PlayerFinishedObserver: ObservableObject {
 
 //This player plays the main video of an NFTModel
 struct NFTPlayerView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var player = AVPlayer()
     @State var isPlaying: Bool = false
     @State var playerItem : AVPlayerItem?
@@ -75,11 +75,11 @@ struct NFTPlayerView: View {
                             if let versionHash = FindContentHash(uri: embedUrl) {
                                 print("Content Hash: ", versionHash)
                                 do {
-                                    let optionsJson = try await fabric.getOptionsJsonFromHash(versionHash: versionHash)
+                                    let optionsJson = try await eluvio.fabric.getOptionsJsonFromHash(versionHash: versionHash)
                                     print("Options: ",optionsJson)
-                                    let playListUrl = try await fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash)
+                                    let playListUrl = try await eluvio.fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash)
                                     print("PlaylistUrl: ",playListUrl)
-                                    self.playerItem = try MakePlayerItemFromOptionsJson(fabric: fabric,
+                                    self.playerItem = try MakePlayerItemFromOptionsJson(fabric: eluvio.fabric,
                                                                                     optionsJson: optionsJson,
                                                                                     versionHash: versionHash)
                                 }catch{
@@ -97,7 +97,7 @@ struct NFTPlayerView: View {
 struct PlayerView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.openURL) private var openURL
     @Namespace var playerNamespace
     @State var player = AVPlayer()

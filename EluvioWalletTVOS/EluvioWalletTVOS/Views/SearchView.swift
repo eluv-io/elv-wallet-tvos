@@ -145,8 +145,7 @@ struct SearchBar: View {
 
 struct SearchView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var searchString : String = ""
     var propertyId : String = ""
     @State var logoUrl = ""
@@ -185,7 +184,7 @@ struct SearchView: View {
                     }
                     
                     
-                    self.sections = try await fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
+                    self.sections = try await eluvio.fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
                 }catch{
                     print("Could not do search ", error.localizedDescription)
                     //TODO: Send to error screen
@@ -209,12 +208,12 @@ struct SearchView: View {
                                     filter:primaryFilters[index],
                                     action:{
                                         debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
-                                        pathState.searchParams = SearchParams(propertyId: propertyId,
+                                        eluvio.pathState.searchParams = SearchParams(propertyId: propertyId,
                                                                               searchTerm: searchString,
                                                                               secondaryFilters: primaryFilters[index].secondaryFilters,
                                                                               currentPrimaryFilter: primaryFilters[index]
                                         )
-                                        pathState.path.append(.search)
+                                        eluvio.pathState.path.append(.search)
                                         searchString = ""
                                         
                                     })
@@ -238,7 +237,7 @@ struct SearchView: View {
                                     
                                     Button(
                                         action:{
-                                            _ = pathState.path.popLast()
+                                            _ = eluvio.pathState.path.popLast()
                                         }) {
                                             
                                             if let text = currentPrimaryFilter?.id {
@@ -296,10 +295,10 @@ struct SearchView: View {
                 if !propertyId.isEmpty {
                     do {
                         debugPrint("Search onAppear()")
-                        let property = try await fabric.getProperty(property: propertyId)
+                        let property = try await eluvio.fabric.getProperty(property: propertyId)
                         name = property?.page_title ?? ""
                         do {
-                            logoUrl = try fabric.getUrlFromLink(link: property?.header_logo)
+                            logoUrl = try eluvio.fabric.getUrlFromLink(link: property?.header_logo)
                         }catch{
                             print("Could not get logo from property \(propertyId)", error)
                         }
@@ -318,12 +317,12 @@ struct SearchView: View {
                             }
                             
                             debugPrint("Searching property")
-                            self.sections = try await fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
+                            self.sections = try await eluvio.fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
                             return
                         }
 
                         
-                        let filterResult = try await fabric.getPropertyFilters(property: propertyId)
+                        let filterResult = try await eluvio.fabric.getPropertyFilters(property: propertyId)
                         debugPrint("Property Filter Response ",filterResult)
                         
                         let attributes = filterResult["attributes"]
@@ -368,7 +367,7 @@ struct SearchView: View {
                                             
                                             if !option["primary_filter_image"].isEmpty {
                                                 do {
-                                                    image = try fabric.getUrlFromLink(link: option["primary_filter_image"])
+                                                    image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
                                                 }catch{
                                                     print("Could not create image for option \(option)", error.localizedDescription)
                                                 }
@@ -418,7 +417,7 @@ struct SearchView: View {
                         }
                         
                         debugPrint("Searching ALL ", propertyId)
-                        self.sections = try await fabric.searchProperty(property: propertyId)
+                        self.sections = try await eluvio.fabric.searchProperty(property: propertyId)
                         debugPrint("result: ", sections.first)
 
                     }catch{

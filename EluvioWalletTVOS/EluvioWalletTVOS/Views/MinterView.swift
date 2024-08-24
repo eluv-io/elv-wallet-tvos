@@ -11,7 +11,7 @@ import AVFoundation
 import SwiftyJSON
 
 struct MinterView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var viewState: ViewState
     @FocusState var isFocused
@@ -93,7 +93,7 @@ struct MinterView: View {
                                 errorMsg = ""
                                 if self.isRedeemed{
                                     if let result = self.result {
-                                        if let _nft = fabric.getNFT(contract: result.contractAddress) {
+                                        if let _nft = eluvio.fabric.getNFT(contract: result.contractAddress) {
                                             self.nft = _nft
                                             self.showNft = true
                                             return
@@ -114,14 +114,14 @@ struct MinterView: View {
                                     var redeemed = false
                                     do {
                                         debugPrint("Minting... \(self.marketItem["sku"])")
-                                        let result = mintInfo.entitlement.isEmpty ? try await fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku, contract: contractAddress) : try await fabric.mintEntitlement(tenantId:mintInfo.tenantId, entitlement: mintInfo.entitlement)
+                                        let result = mintInfo.entitlement.isEmpty ? try await eluvio.fabric.mintItem(tenantId:mintInfo.tenantId, marketplaceId: mintInfo.marketplaceId, sku:mintInfo.sku, contract: contractAddress) : try await eluvio.fabric.mintEntitlement(tenantId:mintInfo.tenantId, entitlement: mintInfo.entitlement)
                                         print("Mint result", result)
                                         if result.contractAddress != ""{
                                             await MainActor.run {
                                                 self.result = result
                                                 redeemed = result.isRedeemed
                                             }
-                                            await fabric.refresh()
+                                            await eluvio.fabric.refresh()
                                         }
                                     } catch {
                                         print("Failed to Mint", error)

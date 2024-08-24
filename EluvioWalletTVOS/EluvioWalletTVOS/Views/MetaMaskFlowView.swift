@@ -16,7 +16,7 @@ import SwiftyJSON
 struct MetaMaskFlowView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
 
     @State var url = ""
     @State var code = ""
@@ -105,7 +105,7 @@ struct MetaMaskFlowView: View {
             }
         }
         .onAppear(perform: {
-            if(!self.fabric.isLoggedOut){
+            if(!self.eluvio.fabric.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
             }else{
                 Task{
@@ -133,7 +133,7 @@ struct MetaMaskFlowView: View {
         self.errorMessage = ""
         
         do {
-            guard let signer = self.fabric.signer else {
+            guard let signer = self.eluvio.fabric.signer else {
                 print("MetaMaskFlowView regenerateCode() called without a signer.")
                 return
             }
@@ -176,7 +176,7 @@ struct MetaMaskFlowView: View {
     func checkDeviceVerification() async{
         print("Metamask checkDeviceVerification \(self.code)");
         do {
-            guard let result = try await self.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
+            guard let result = try await eluvio.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
                 print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
             }
@@ -211,7 +211,7 @@ struct MetaMaskFlowView: View {
             
             let login = LoginResponse(addr:addr, eth:eth, token:token)
 
-            try await fabric.setLogin(login: login, isMetamask: true)
+            try await eluvio.fabric.setLogin(login: login, isMetamask: true)
             
 
             

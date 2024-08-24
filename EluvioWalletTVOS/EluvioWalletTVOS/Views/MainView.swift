@@ -10,7 +10,7 @@ import Combine
 import SwiftyJSON
 
 struct HeaderView: View {
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     var logo = "e_logo"
     var logoUrl = ""
     var name = APP_CONFIG.app.name
@@ -18,7 +18,7 @@ struct HeaderView: View {
     var body: some View {
         VStack {
             HStack(spacing:20) {
-                if !viewState.isBranded {
+                if !eluvio.viewState.isBranded {
                     Image(logo)
                         .resizable()
                         .aspectRatio(contentMode: .fit)

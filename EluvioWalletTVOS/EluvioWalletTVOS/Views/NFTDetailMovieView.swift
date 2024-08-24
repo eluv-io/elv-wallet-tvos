@@ -15,7 +15,7 @@ struct NFTDetailMovieView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @Namespace var SeriesDetailView
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.openURL) private var openURL
 
     var seriesMediaItem : MediaItemViewModel
@@ -278,8 +278,8 @@ struct NFTDetailMovieView: View {
                             var redeemableFeatures: [RedeemableViewModel] = []
                             for redeemable in redeemableOffers {
                                 do{
-                                    let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                    if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
+                                    if (redeem.shouldDisplay(currentUserAddress: try eluvio.fabric.getAccountAddress())){
                                         redeemableFeatures.append(redeem)
                                         //debugPrint("Redeemable should display!")
                                     }else{

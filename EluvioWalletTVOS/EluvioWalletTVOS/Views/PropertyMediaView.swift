@@ -13,7 +13,7 @@ import SwiftyJSON
 struct PropertyMediaView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.openURL) private var openURL
     @State var searchText = ""
     var featured: Features = Features()
@@ -34,7 +34,7 @@ struct PropertyMediaView: View {
     @State var redeemableFeatures: [RedeemableViewModel] = []
     @State var localizedFeatures: [MediaItem] = []
     private var preferredLocation:String {
-        fabric.profile.profileData.preferredLocation ?? ""
+        eluvio.fabric.profile.profileData.preferredLocation ?? ""
     }
     
     var heroImage : String = ""

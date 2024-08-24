@@ -11,7 +11,7 @@ import AVFoundation
 import SwiftyJSON
 
 struct OfferView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @StateObject var redeemable: RedeemableViewModel
     @State private var playerItem: AVPlayerItem? = nil
     @FocusState var isFocused
@@ -111,7 +111,7 @@ struct OfferView: View {
                                                 if redeemable.redeemAnimationLink != nil {
                                                     do{
                                                         debugPrint("Found animation")
-                                                        let playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.redeemAnimationLink)
+                                                        let playerItem = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: redeemable.redeemAnimationLink)
                                                         await MainActor.run {
                                                             self.playerItem = playerItem
                                                             showPlayer = true
@@ -134,7 +134,7 @@ struct OfferView: View {
                                                 do {
                                                     debugPrint("Redeeming... \(redeemable.id ?? "<no-id>") offerId \(redeemable.offerId)")
                                                     
-                                                    let result = try await fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
+                                                    let result = try await eluvio.fabric.redeemOffer(offerId: redeemable.offerId, nft: redeemable.nft)
                                                     redeemed = result.isRedeemed
                                                     transactionId = result.transactionId
                                                     transactionHash = result.transactionHash
@@ -182,7 +182,7 @@ struct OfferView: View {
         .onDisappear(){
             Task{
                 debugPrint ("OfferView onDisappear")
-                await fabric.refresh()
+                await eluvio.fabric.refresh()
                 debugPrint ("OfferView refresh")
             }
         }
@@ -215,7 +215,7 @@ struct OfferView: View {
 
 
 struct OfferResultView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @StateObject var redeemable: RedeemableViewModel
     
     @State var url: String = ""
@@ -327,7 +327,7 @@ struct OfferResultView: View {
                             var fulfillment: JSON? = nil
                             let transactionHash = self.redeemable.status.transactionHash
                             if (transactionHash != ""){
-                                fulfillment = try await fabric.redeemFulfillment(transactionHash:transactionHash)
+                                fulfillment = try await eluvio.fabric.redeemFulfillment(transactionHash:transactionHash)
                                 await MainActor.run {
                                     setFulfillment(fulfillment: fulfillment)
                                     debugPrint("fullfillment set.")
