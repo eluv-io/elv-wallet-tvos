@@ -71,15 +71,25 @@ struct DiscoverView: View {
                     
                     for property in val.contents {
                         let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                        //debugPrint("\(mediaProperty.title) ---> created")
+                        debugPrint("\(mediaProperty.title) ---> created")
                         if mediaProperty.image.isEmpty {
                             
                         }else{
+                            debugPrint("image: \(mediaProperty.image)")
                             properties.append(mediaProperty)
                         }
                     }
                     self.properties = properties
                 }
+            
+            if eluvio.fabric.mediaProperties.contents.isEmpty {
+                Task{
+                    do {
+                        try await self.eluvio.fabric.connect(network:"main")
+                        await self.eluvio.fabric.refresh()
+                    }catch{}
+                }
+            }
         }
     }
 }

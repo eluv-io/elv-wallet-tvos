@@ -214,6 +214,7 @@ class Fabric: ObservableObject {
         UserDefaults.standard.set(_network, forKey: "fabric_network")
         
         self.profileClient = ProfileClient(fabric: self)
+        debugPrint("Static token: ", fabricToken)
         
         if signIn {
             //self.checkToken { success in
@@ -1121,22 +1122,26 @@ class Fabric: ObservableObject {
         if self.signingIn {
             return
         }
+        /*
         if self.isLoggedOut {
             return
         }
+         */
         
         if self.isRefreshing {
             return
         }
         
         guard let signer = self.signer else {
+            print("Signer was not initialized!")
             return
         }
-        
+
+        /*
         guard let login = self.login else {
             return
         }
-        
+        */
         
         self.isRefreshing = true
         defer{
@@ -1147,8 +1152,10 @@ class Fabric: ObservableObject {
         do{
             try await profile.refresh()
             
-            if (!self.isMetamask){
-                self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
+            if (!self.isMetamask && self.login != nil){
+                if let login = self.login {
+                    self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
+                }
             }
 
             /*
@@ -1166,13 +1173,10 @@ class Fabric: ObservableObject {
             
             let nfts = profileData["contents"].arrayValue
 
-
             let parsedLibrary = try await parseNftsToLibrary(nfts)
             self.library = parsedLibrary
              */
-            
 
-            
             do {
                 let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
                 
@@ -1207,6 +1211,7 @@ class Fabric: ObservableObject {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
+    
         
         let response = try await signer.getProperties(includePublic:includePublic, accessCode: self.fabricToken)
         return response.contents
@@ -1947,7 +1952,11 @@ class Fabric: ObservableObject {
         
         var queryItems : [URLQueryItem] = []
         if includeAuth! {
-            queryItems.append(URLQueryItem(name: "authorization", value: self.fabricToken))
+            var auth = self.fabricToken
+            if auth.isEmpty {
+                auth = createStaticToken()
+            }
+            queryItems.append(URLQueryItem(name: "authorization", value: auth))
         }
         
         if resolveHeaders! {

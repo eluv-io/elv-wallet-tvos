@@ -254,7 +254,13 @@ struct ContentView: View {
     
     var body: some View {
         if eluvio.fabric.isLoggedOut {
+            /*
             SignInView()
+                .environmentObject(self.eluvio)
+                .preferredColorScheme(colorScheme)
+                .background(Color.mainBackground)
+             */
+            DiscoverView()
                 .environmentObject(self.eluvio)
                 .preferredColorScheme(colorScheme)
                 .background(Color.mainBackground)
