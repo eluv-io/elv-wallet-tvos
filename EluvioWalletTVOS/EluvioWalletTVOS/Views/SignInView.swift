@@ -138,16 +138,11 @@ struct SignInView: View {
                     }
                 }
             }.onAppear(){
-                //if (playerItem == nil){
-                    playerItem = AVPlayerItem(url: Bundle.main.url(forResource: "start-screen-bg", withExtension: "mp4")!)
-                //}
-                /*DispatchQueue.main.asyncAfter(deadline: .now()+0.7) {
-                    //signInFocus = true
-                }*/
+                playerItem = AVPlayerItem(url: Bundle.main.url(forResource: "start-screen-bg", withExtension: "mp4")!)
             }
         } else {
-            DeviceFlowView(showDeviceFlow:$showDeviceFlow)
-                .preferredColorScheme(colorScheme)
+            /*DeviceFlowView(showDeviceFlow:$showDeviceFlow)
+                .preferredColorScheme(colorScheme)*/
         }
     }
 }

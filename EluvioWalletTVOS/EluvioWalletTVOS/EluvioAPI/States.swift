@@ -9,8 +9,16 @@ import Foundation
 import Combine
 import AVKit
 
-enum NavDestination: String, Hashable {
-    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, videoError
+enum NavDestination: Hashable {
+    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, videoError, login(LoginParam), errorView(String)
+}
+
+enum LoginType : String {
+    case auth0, ory
+}
+
+struct LoginParam : Hashable {
+    var type : LoginType
 }
 
 struct SearchParams {
@@ -50,6 +58,7 @@ class PathState: ObservableObject {
     var videoErrorParams : VideoErrorParams?
     
     var nft : NFTModel? = nil
+    
     
     func reset() {
         property = nil

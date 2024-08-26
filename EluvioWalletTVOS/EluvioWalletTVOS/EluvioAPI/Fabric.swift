@@ -1122,11 +1122,6 @@ class Fabric: ObservableObject {
         if self.signingIn {
             return
         }
-        /*
-        if self.isLoggedOut {
-            return
-        }
-         */
         
         if self.isRefreshing {
             return
@@ -1136,12 +1131,6 @@ class Fabric: ObservableObject {
             print("Signer was not initialized!")
             return
         }
-
-        /*
-        guard let login = self.login else {
-            return
-        }
-        */
         
         self.isRefreshing = true
         defer{
@@ -1156,6 +1145,8 @@ class Fabric: ObservableObject {
                 if let login = self.login {
                     self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
                 }
+            }else{
+                self.fabricToken = createStaticToken()
             }
 
             /*
@@ -1465,37 +1456,22 @@ class Fabric: ObservableObject {
             let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
             debugPrint("USER PROFILE: ", userProfile )
         }
-        
-        await self.refresh()
+        Task{
+            await self.refresh()
+        }
     }
     
     func resetWalletData(){
         self.library = MediaLibrary()
         self.properties = []
         self.mediaProperties = MediaPropertiesResponse()
+        self.mediaPropertiesCache = [:]
+        self.mediaPropertiesMediaItemCache = [:]
+        self.mediaPropertiesSectionCache = [:]
     }
     
     func signOut(){
-        //print("Fabric: signOut()")
-        if !self.isExternal {
-            let domain = APP_CONFIG.auth0.domain
-            let clientId = APP_CONFIG.auth0.client_id
-            let oAuthEndpoint: String = "https://".appending(domain).appending("/oidc/logout");
-            if let authRequest = ["client_id":clientId,"id_token_hint": self.signInResponse?.idToken] as? Dictionary<String,String> {
-                AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
-                    .validate(statusCode: 200 ..< 299)
-                    .responseData { response in
-                        
-                        print(response)
-                        switch (response.result) {
-                        case .success( _):
-                            print("Logout Success!")
-                        case .failure(let error):
-                            print("Sign Out Request error: \(error.localizedDescription)")
-                        }
-                    }
-            }
-        }
+        self.signingIn = false
         self.login = nil
         self.isLoggedOut = true
         self.signInResponse = nil
@@ -1515,8 +1491,9 @@ class Fabric: ObservableObject {
     @MainActor
     func signIn(credentials: [String: AnyObject], external: Bool = false ) async throws{
 
+        debugPrint("SignIn credentials ", credentials)
         guard let idToken: String = credentials["id_token"] as? String else {
-            print("Could not retrieve id_token")
+            //print("Could not retrieve id_token")
             return
         }
         
@@ -1535,6 +1512,7 @@ class Fabric: ObservableObject {
     @MainActor
     func signIn(signInResponse: SignInResponse , external: Bool = false) async throws {
         
+        debugPrint("SignIn signInResponse ", signInResponse)
         defer{
             self.signingIn = false
         }
@@ -1550,38 +1528,44 @@ class Fabric: ObservableObject {
         
         self.signInResponse = signInResponse
         
-        var urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
-        
-        if external {
-            urlString = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
-        }
-        
-        guard let url = URL(string: urlString) else {
-            //throw FabricError.invalidURL
-            print("Invalid URL \(urlString)")
-            self.signingIn = false
-            throw FabricError.invalidURL("Bad auth service url \(urlString)")
-        }
-        
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(signInResponse.idToken)", forHTTPHeaderField: "Authorization")
+        var value = LoginResponse()
+        if !external {
             
-        let json: [String: Any] = ["ext": ["share_email":true]]
-        request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
-        
-        debugPrint("http request: ", request)
-        
-        let value = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
-        debugPrint("http response: ", value)
-        
-        UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
-        UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
-        UserDefaults.standard.set(signInResponse.tokenType, forKey: "token_type")
-        UserDefaults.standard.set(external, forKey: "is_external")
+            var urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
+            
+            if external {
+                urlString = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
+            }
+            
+            guard let url = URL(string: urlString) else {
+                //throw FabricError.invalidURL
+                print("Invalid URL \(urlString)")
+                self.signingIn = false
+                throw FabricError.invalidURL("Bad auth service url \(urlString)")
+            }
+            
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Bearer \(signInResponse.idToken)", forHTTPHeaderField: "Authorization")
+            
+            let json: [String: Any] = ["ext": ["share_email":true]]
+            request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
+            
+            debugPrint("http request: ", request)
+            
+            value = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
+            debugPrint("http response: ", value)
+            
+            UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
+            UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
+            UserDefaults.standard.set(signInResponse.tokenType, forKey: "token_type")
+            UserDefaults.standard.set(external, forKey: "is_external")
+        }else {
+            value.token = signInResponse.idToken
+        }
         
         try await self.setLogin(login: value, external:external)
     }

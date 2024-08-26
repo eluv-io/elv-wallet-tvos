@@ -269,6 +269,8 @@
 		B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */; };
 		B0A830EB2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
 		B0A830EC2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
+		B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
+		B0A830EF2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -447,6 +449,7 @@
 		B0A830E42C74E9740037BE59 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 		B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioAPI.swift; sourceTree = "<group>"; };
 		B0A830EA2C78547B0037BE59 /* States.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = States.swift; sourceTree = "<group>"; };
+		B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OryDeviceFlowView.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -861,6 +864,7 @@
 				B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */,
 				B077BE642C6EC8B70056DDB1 /* ItemDetailView.swift */,
 				B0A830E42C74E9740037BE59 /* CountdownView.swift */,
+				B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1153,6 +1157,7 @@
 				B077BE662C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */,
 				B08CB5742B7DDFDA00E04C0D /* NFTList.swift in Sources */,
 				B08CB5752B7DDFDA00E04C0D /* NFTView.swift in Sources */,
+				B0A830EF2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */,
 				B08CB5762B7DDFDA00E04C0D /* MainView.swift in Sources */,
 				B08CB5772B7DDFDA00E04C0D /* SignInView.swift in Sources */,
 				B08CB5782B7DDFDA00E04C0D /* DeviceFlowView.swift in Sources */,
@@ -1313,6 +1318,7 @@
 				B077BE652C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */,
 				B0E60F7229CC23510079661E /* ContentViewApp.swift in Sources */,
 				B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */,
+				B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
 				B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */,
 				B0E60F8929CD71840079661E /* FabricModels.swift in Sources */,

@@ -14,6 +14,8 @@ struct DiscoverView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     @State private var properties : [MediaPropertyViewModel] = []
     @State private var fabricCancellable: AnyCancellable? = nil
+    @State private var fabricCancellable2: AnyCancellable? = nil
+    
     @FocusState var headerFocused
     var topId = "top"
     
@@ -63,7 +65,7 @@ struct DiscoverView: View {
             self.fabricCancellable = eluvio.fabric.$mediaProperties
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
-                    debugPrint("onMediaProperties changed count: ", val.contents.count )
+                    //debugPrint("onMediaProperties changed count: ", val.contents.count )
                     var properties: [MediaPropertyViewModel] = []
                     if val.contents.isEmpty {
                         return
@@ -71,11 +73,11 @@ struct DiscoverView: View {
                     
                     for property in val.contents {
                         let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                        debugPrint("\(mediaProperty.title) ---> created")
+                        //debugPrint("\(mediaProperty.title) ---> created")
                         if mediaProperty.image.isEmpty {
                             
                         }else{
-                            debugPrint("image: \(mediaProperty.image)")
+                            //debugPrint("image: \(mediaProperty.image)")
                             properties.append(mediaProperty)
                         }
                     }
@@ -90,6 +92,19 @@ struct DiscoverView: View {
                     }catch{}
                 }
             }
+            
+            self.fabricCancellable2 = eluvio.fabric.$isLoggedOut
+                .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+                .sink { val in
+                    debugPrint("Discoverview on isLoggedOut ", val)
+                    if val == true && !eluvio.fabric.isRefreshing {
+                        Task {
+                            debugPrint("Discover View refreshing fabric")
+                            try await self.eluvio.fabric.connect(network:"main")
+                            await eluvio.fabric.refresh()
+                        }
+                    }
+                }
         }
     }
 }

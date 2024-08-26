@@ -23,7 +23,6 @@ struct DeviceFlowView: View {
     @State var deviceCode = ""
     @State var timer = Timer.publish(every: 1, on: .main, in: .common)
     @State var timerCancellable: Cancellable? = nil
-    @Binding var showDeviceFlow: Bool
     @State var showError = false
     @FocusState private var metaMaskFocus: Bool
     @State var showMetaMaskFlow = false
@@ -34,12 +33,13 @@ struct DeviceFlowView: View {
     var Domain = ""
     var GrantType = ""
     
-    init(showDeviceFlow: Binding<Bool>){
+    @State var isChecking = false
+    
+    init(){
         //print("SignInView init()")
         self.ClientId = "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar"
         self.Domain = "prod-elv.us.auth0.com"
         self.GrantType = "urn:ietf:params:oauth:grant-type:device_code"
-        _showDeviceFlow = showDeviceFlow
     }
 
 
@@ -104,8 +104,8 @@ struct DeviceFlowView: View {
                     }
                     Button(action: {
                         //self.fabric.isLoggedOut = false
-                        //self.presentationMode.wrappedValue.dismiss()
-                        showDeviceFlow = false
+                        self.presentationMode.wrappedValue.dismiss()
+                        _ = self.eluvio.pathState.path.popLast()
                     }) {
                         Text("Back")
                     }
@@ -198,6 +198,11 @@ struct DeviceFlowView: View {
                                     
     
     func checkDeviceVerification(){
+        if self.isChecking {
+            return
+        }
+        
+        self.isChecking = true
         print("checkDeviceVerification \(self.code)");
         let oAuthEndpoint: String = "https://".appending(self.Domain).appending("/oauth/token");
         
@@ -205,6 +210,10 @@ struct DeviceFlowView: View {
         AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
             .responseJSON { response in
                 debugPrint("Response: \(response)")
+                
+                defer {
+                    self.isChecking = false
+                }
    
                 switch (response.result) {
                     case .success( _):
@@ -221,9 +230,18 @@ struct DeviceFlowView: View {
                             
                             Task {
                                 do {
+                                    debugPrint("verification result: ", json)
                                     try await eluvio.fabric.signIn(credentials: json)
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")
+                                }
+                                
+                                await MainActor.run {
+                                    debugPrint("Sign in finished.")
+                                    let last = eluvio.pathState.path.popLast()
+                                    debugPrint("Popped the path state.", last)
+                                    eluvio.pathState.path.append(.property)
+                                    self.isChecking = false
                                 }
                             }
 
@@ -233,7 +251,6 @@ struct DeviceFlowView: View {
                         }
                      case .failure(let error):
                         print("Request error: \(error.localizedDescription)")
-
                  }
             return
         }

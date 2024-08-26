@@ -32,17 +32,43 @@ struct MediaPropertyView : View {
                                     eluvio.pathState.property = property
                                 }
                                 
-                                if let pageId = property.main_page?.id{
-                                    if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
-                                        await MainActor.run {
-                                            eluvio.pathState.propertyPage = page
+                                if eluvio.fabric.isLoggedOut {
+                                    debugPrint("Property clicked, is logged out. Go to alternate page.")
+                                    if let login = property.login {
+                                        debugPrint("Login: ", login)
+                                        
+                                        let provider = login["settings"]["provider"].stringValue
+                                        if !provider.isEmpty {
+                                            if provider == "auth0" {
+                                                debugPrint("Auth0 login.")
+                                                /*await MainActor.run {
+                                                    eluvio.pathState.path.append(.html)
+                                                }*/
+                                                eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
+                                            }else if provider == "ory" {
+                                                debugPrint("Ory login.")
+                                                eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
+                                            }else {
+                                                debugPrint("Other login type not supported yet.")
+                                                eluvio.pathState.path.append(.errorView("Login type not supported."))
+                                            }
                                         }
+                                    }
+                                }else {
+                                    if let pageId = property.main_page?.id{
+                                        if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                            await MainActor.run {
+                                                eluvio.pathState.propertyPage = page
+                                            }
+                                        }
+                                    }
+                                    
+                                    await MainActor.run {
+                                        eluvio.pathState.path.append(.property)
                                     }
                                 }
                                 
-                                await MainActor.run {
-                                    eluvio.pathState.path.append(.property)
-                                }
+                                
                             }
                         }
                     }catch{

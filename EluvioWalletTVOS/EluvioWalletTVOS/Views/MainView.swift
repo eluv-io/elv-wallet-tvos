@@ -100,9 +100,9 @@ struct MainView: View {
         }
         .onChange(of: selection){
             //debugPrint("onChange of selection viewState ",eluvio.viewState.op)
-            Task {
-                await eluvio.fabric.refresh()
-            }
+           // Task {
+                //await eluvio.fabric.refresh()
+           // }
         }
         .onChange(of: navFocused){ old,new in
             debugPrint("on Nav Focused ", new)

@@ -24,6 +24,7 @@ struct MediaProperty: Codable, Identifiable {
     var header_logo : JSON?
     var id : String?
     var image : JSON?
+    var login: JSON?
     var name : String?
     var title: String?
     var page_title : String?

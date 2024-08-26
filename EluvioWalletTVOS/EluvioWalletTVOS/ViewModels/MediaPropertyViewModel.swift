@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var id: String? = UUID().uuidString
@@ -15,6 +16,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var description: String = ""
     var image: String = ""
     var backgroundImage: String = ""
+    var login: JSON? = nil
     var logo: String = ""
     var logoAlt: String = ""
     var position: String = ""
@@ -71,6 +73,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
                 descriptionRichText:  mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "", description: mediaProperty.main_page?.layout?["description_text"].stringValue ?? "",
                 image: image,
                 backgroundImage: backgroundImage,
+                login: mediaProperty.login,
                 logo: logo,
                 logoAlt: mediaProperty.main_page?.layout?["logo_alt"].stringValue ?? "",
                 position: mediaProperty.main_page?.layout?["position"].stringValue ?? "",

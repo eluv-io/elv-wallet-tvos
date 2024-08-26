@@ -253,33 +253,37 @@ struct ContentView: View {
     }
     
     var body: some View {
-        if eluvio.fabric.isLoggedOut {
-            /*
-            SignInView()
-                .environmentObject(self.eluvio)
-                .preferredColorScheme(colorScheme)
-                .background(Color.mainBackground)
-             */
-            DiscoverView()
-                .environmentObject(self.eluvio)
-                .preferredColorScheme(colorScheme)
-                .background(Color.mainBackground)
-        }else{
-            //Don't use NavigationView, pops back to root on ObservableObject update
-            NavigationStack(path: $eluvio.pathState.path) {
-                ZStack {
-                    if (showActivity) {
-                        ProgressView()
-                            .edgesIgnoringSafeArea(.all)
-                    }else {
-                        MainView()
-                            .environmentObject(self.eluvio)
-                            .edgesIgnoringSafeArea(.all)
-                            .preferredColorScheme(colorScheme)
-                            .background(Color.mainBackground)
-                            .navigationBarHidden(true)
+        NavigationStack(path: $eluvio.pathState.path) {
+            Group{
+                if eluvio.fabric.isLoggedOut {
+                    /*
+                     SignInView()
+                     .environmentObject(self.eluvio)
+                     .preferredColorScheme(colorScheme)
+                     .background(Color.mainBackground)
+                     */
+                    DiscoverView()
+                        .environmentObject(self.eluvio)
+                        .preferredColorScheme(colorScheme)
+                        .background(Color.mainBackground)
+                }else{
+                    //Don't use NavigationView, pops back to root on ObservableObject update
+                    
+                    ZStack {
+                        if (showActivity) {
+                            ProgressView()
+                                .edgesIgnoringSafeArea(.all)
+                        }else {
+                            MainView()
+                                .environmentObject(self.eluvio)
+                                .edgesIgnoringSafeArea(.all)
+                                .preferredColorScheme(colorScheme)
+                                .background(Color.mainBackground)
+                                .navigationBarHidden(true)
+                        }
                     }
                 }
+            }
                 .navigationDestination(for: NavDestination.self) { destination in
                     switch destination {
                     case .property:
@@ -298,7 +302,6 @@ struct ContentView: View {
                             PlayerView(playerItem: playerItem, seekTimeS: 0, finished: $playerFinsished)
                                 .environmentObject(self.eluvio)
                         }
-                        
                     case .videoError:
                         if let params = eluvio.pathState.videoErrorParams {
                             if let mediaItem = params.mediaItem {
@@ -348,7 +351,18 @@ struct ContentView: View {
                             ItemDetailView(item:nft)
                                 .environmentObject(self.eluvio)
                         }
+                    case let .errorView(msg) :
+                        Text(msg)
+                            .background(.black)
+                            .edgesIgnoringSafeArea(.all)
+                    case let .login(params) :
+                        if params.type == .auth0 {
+                            DeviceFlowView()
+                        }else if params.type == .ory {
+                            OryDeviceFlowView()
+                        }
                     }
+
                 }
                 .onAppear(){
                     debugPrint("ContentView onAppear")
@@ -432,7 +446,7 @@ struct ContentView: View {
             }
             .edgesIgnoringSafeArea(.all)
         }
-    }
+    
     
     func didFullScreenCoverDismiss() {
         if (backLink != ""){
