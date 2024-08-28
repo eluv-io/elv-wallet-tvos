@@ -93,15 +93,15 @@ struct ProfileView: View {
                     .frame(width:1200)
                     
                     Button("Sign Out") {
-                        eluvio.fabric.signOut()
+                        eluvio.accountManager.signOut()
                     }
                 }
                 .padding([.leading,.trailing,.bottom],80)
             }
             .onAppear(){
                 do {
-                    self.address = try eluvio.fabric.getAccountAddress()
-                    self.userId = try eluvio.fabric.getAccountId()
+                    self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
+                    self.userId =  eluvio.accountManager.currentAccount?.getAccountId() ?? ""
                     self.network = eluvio.fabric.network
                     self.node = try eluvio.fabric.getEndpoint()
                     self.asNode = try eluvio.fabric.signer?.getAuthEndpoint() ?? ""

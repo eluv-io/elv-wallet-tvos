@@ -80,9 +80,9 @@ struct MainViewSideNav: View {
         }
         .onAppear(){
             debugPrint("MainView onAppear")
-            self.cancellable = eluvio.fabric.$isLoggedOut.sink { val in
+            self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
                 print("MainView fabric changed, ", val)
-                if eluvio.fabric.isLoggedOut == true {
+                if val == nil{
                     self.selection = MainTab.Discover
                 }
             }
@@ -129,9 +129,9 @@ struct MainViewSideNav: View {
             }
              */
         }
-        .onReceive(logOutTimer) { _ in
+        /*.onReceive(logOutTimer) { _ in
             eluvio.fabric.signOutIfExpired()
-        }
+        }*/
     }
 }
 

@@ -63,25 +63,30 @@ struct DiscoverView: View {
         .scrollClipDisabled()
         .onAppear(){
             self.fabricCancellable = eluvio.fabric.$mediaProperties
-                .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
-                    //debugPrint("onMediaProperties changed count: ", val.contents.count )
-                    var properties: [MediaPropertyViewModel] = []
-                    if val.contents.isEmpty {
-                        return
-                    }
-                    
-                    for property in val.contents {
-                        let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                        //debugPrint("\(mediaProperty.title) ---> created")
-                        if mediaProperty.image.isEmpty {
+                    Task{
+                        //debugPrint("onMediaProperties changed count: ", val.contents.count )
+                        var properties: [MediaPropertyViewModel] = []
+                        if val.contents.isEmpty {
+                            return
+                        }
+                        
+                        for property in val.contents {
+                            //debugPrint("PROPERTY: \(property.title)")
                             
-                        }else{
-                            //debugPrint("image: \(mediaProperty.image)")
-                            properties.append(mediaProperty)
+                            let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
+                            //debugPrint("\(mediaProperty.title) ---> created")
+                            if mediaProperty.image.isEmpty {
+                                
+                            }else{
+                                //debugPrint("image: \(mediaProperty.image)")
+                                properties.append(mediaProperty)
+                            }
+                        }
+                        await MainActor.run {
+                            self.properties = properties
                         }
                     }
-                    self.properties = properties
                 }
             
             if eluvio.fabric.mediaProperties.contents.isEmpty {
@@ -93,11 +98,11 @@ struct DiscoverView: View {
                 }
             }
             
-            self.fabricCancellable2 = eluvio.fabric.$isLoggedOut
+            self.fabricCancellable2 = eluvio.accountManager.$currentAccount
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
                     debugPrint("Discoverview on isLoggedOut ", val)
-                    if val == true && !eluvio.fabric.isRefreshing {
+                    if val == nil && !eluvio.fabric.isRefreshing {
                         Task {
                             debugPrint("Discover View refreshing fabric")
                             try await self.eluvio.fabric.connect(network:"main")

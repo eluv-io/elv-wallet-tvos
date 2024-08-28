@@ -57,6 +57,13 @@ struct NFTDetailMovieView: View {
         return []
     }
     
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
+    }
+    
     private var seriesInfo: [(String,String)]{
         var info: [(String,String)] = []
         
@@ -278,8 +285,8 @@ struct NFTDetailMovieView: View {
                             var redeemableFeatures: [RedeemableViewModel] = []
                             for redeemable in redeemableOffers {
                                 do{
-                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
-                                    if (redeem.shouldDisplay(currentUserAddress: try eluvio.fabric.getAccountAddress())){
+                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                    if (redeem.shouldDisplay(currentUserAddress: address)){
                                         redeemableFeatures.append(redeem)
                                         //debugPrint("Redeemable should display!")
                                     }else{

@@ -189,7 +189,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
 
     }
 
-    static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel) async throws -> RedeemableViewModel {
+    static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel, address:String) async throws -> RedeemableViewModel {
 
         let animationLink = redeemable.animation?["sources"]["default"]
 
@@ -234,7 +234,6 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         
         var isClaimed = false
         do {
-            let address = try fabric.getAccountAddress()
             isClaimed = isRedeemed && redeemStatus.redeemer != address
         }catch{}
         

@@ -386,12 +386,14 @@ struct MediaView2: View {
                 self.media = try await MediaItemViewModel.create(fabric:eluvio.fabric, mediaItem:self.mediaItem)
                     if let contract = media.nft?.contract_addr {
                     if let mediaId = media.mediaId {
-                        let progress = try eluvio.fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
-                        if (progress.current_time_s > 0){
-                            debugPrint("Found saved progress ", progress)
-                            await MainActor.run {
-                                self.startTimeS = progress.current_time_s
-                                self.mediaProgress = progress
+                        if let account = eluvio.accountManager.currentAccount {
+                            let progress = try eluvio.fabric.getUserViewedProgress(address: account.getAccountAddress(), nftContract: contract, mediaId: mediaId)
+                            if (progress.current_time_s > 0){
+                                debugPrint("Found saved progress ", progress)
+                                await MainActor.run {
+                                    self.startTimeS = progress.current_time_s
+                                    self.mediaProgress = progress
+                                }
                             }
                         }
                     }
@@ -429,7 +431,9 @@ struct MediaView2: View {
         let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)
 
         do {
-            try eluvio.fabric.setUserViewedProgress(nftContract:contract, mediaId: mediaId, progress:mediaProgress)
+            if let account = eluvio.accountManager.currentAccount {
+                try eluvio.fabric.setUserViewedProgress(address:account.getAccountAddress(), nftContract:contract, mediaId: mediaId, progress:mediaProgress)
+            }
         }catch{
             print(error)
         }
@@ -451,16 +455,13 @@ struct RedeemFlag: View {
     }
     
     private var text: String {
-        var address = ""
-        
-        do {
-            address = try eluvio.fabric.getAccountAddress()
-        }catch{
-            print("Could not get account address")
-            return "REWARD"
+        if let account = eluvio.accountManager.currentAccount {
+            do {
+                return redeemable.displayLabel(currentUserAddress: try account.getAccountAddress())
+            }catch{}
         }
         
-        return redeemable.displayLabel(currentUserAddress: address)
+        return ""
     }
     
     private var textColor: Color {

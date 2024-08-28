@@ -26,14 +26,17 @@ struct MediaPropertyView : View {
                     do {
                         if let propertyId = property.id {
                             if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                debugPrint("Found Sub property", property)
-                                
+                      
                                 await MainActor.run {
                                     eluvio.pathState.property = property
                                 }
+                               
                                 
-                                if eluvio.fabric.isLoggedOut {
-                                    debugPrint("Property clicked, is logged out. Go to alternate page.")
+                                var account = eluvio.accountManager.getPropertyAccount(property: propertyId)
+                                
+                                if let account = account {
+                                    eluvio.accountManager.setCurrentAccount(account: account)
+                                }else {
                                     if let login = property.login {
                                         debugPrint("Login: ", login)
                                         
@@ -41,33 +44,39 @@ struct MediaPropertyView : View {
                                         if !provider.isEmpty {
                                             if provider == "auth0" {
                                                 debugPrint("Auth0 login.")
-                                                /*await MainActor.run {
-                                                    eluvio.pathState.path.append(.html)
-                                                }*/
-                                                eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
+                                                var account = eluvio.accountManager.getAccount(type: .Auth0)
+                                                if account == nil {
+                                                    eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
+                                                    return
+                                                }
                                             }else if provider == "ory" {
                                                 debugPrint("Ory login.")
-                                                eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
+                                                account = eluvio.accountManager.getAccount(type: .Ory)
+                                                if account == nil {
+                                                    eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
+                                                    return
+                                                }
                                             }else {
                                                 debugPrint("Other login type not supported yet.")
                                                 eluvio.pathState.path.append(.errorView("Login type not supported."))
+                                                return
                                             }
                                         }
-                                    }
-                                }else {
-                                    if let pageId = property.main_page?.id{
-                                        if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
-                                            await MainActor.run {
-                                                eluvio.pathState.propertyPage = page
-                                            }
-                                        }
-                                    }
-                                    
-                                    await MainActor.run {
-                                        eluvio.pathState.path.append(.property)
                                     }
                                 }
                                 
+                                
+                                if let pageId = property.main_page?.id{
+                                    if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                        await MainActor.run {
+                                            eluvio.pathState.propertyPage = page
+                                        }
+                                    }
+                                }
+                                
+                                await MainActor.run {
+                                    eluvio.pathState.path.append(.property)
+                                }
                                 
                             }
                         }

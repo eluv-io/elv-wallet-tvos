@@ -84,6 +84,13 @@ struct SeriesDetailView: View {
         return info
     }
     
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
+    }
+    
     var body: some View {
         ZStack(alignment:.topLeading) {
             ScrollView {
@@ -207,7 +214,7 @@ struct SeriesDetailView: View {
                                 do{
                                     //Expensive operation
                                     if redeemable.contentTag.isEmpty || redeemable.contentTag == seriesMediaItem.contentTag {
-                                        let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
+                                        let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
                                         redeemableFeatures.append(redeem)
                                     }
                                         

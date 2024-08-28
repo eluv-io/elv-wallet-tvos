@@ -35,9 +35,6 @@ class ProfileClient {
     
     func userProfilePath(appId:String="", type:ProfileType, mode:ProfileMode = .PUB, userAddress:String="", key:String) throws -> String{
         var address = FormatAddress(address:userAddress)
-        if userAddress.isEmpty {
-            address = try fabric.getAccountAddress()
-        }
         
         if let stateUrl = fabric.getStateStoreUrl() {
             let url = stateUrl.appending(fabric.network == "main" ? "/main" : "/dv3").appending("/\(type == .APP ? "app/"+appId: "usr")").appending("/\(address)").appending("/\(mode.rawValue)").appending("/\(key)")

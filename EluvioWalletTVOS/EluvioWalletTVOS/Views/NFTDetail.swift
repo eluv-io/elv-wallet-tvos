@@ -65,6 +65,13 @@ struct NFTDetailView: View {
             return ""
         }
     }
+    
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
+    }
 
     var body: some View {
             ZStack(alignment:.topLeading) {
@@ -259,8 +266,8 @@ struct NFTDetailView: View {
                                 debugPrint("Redeemable Location ", redeemable.location)
                                 if redeemable.location.lowercased() == preferredLocation.lowercased(){
                                     //Expensive operation
-                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
-                                    if (redeem.shouldDisplay(currentUserAddress: try eluvio.fabric.getAccountAddress())){
+                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                    if (redeem.shouldDisplay(currentUserAddress: address)){
                                         debugPrint("Redeemable should display!")
                                         localizedRedeemables.append(redeem)
                                     }else{
@@ -271,8 +278,8 @@ struct NFTDetailView: View {
                                 if redeemable.location == "" {
                                     debugPrint("redeemable location is empty")
                                     //Expensive operation
-                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
-                                    if (redeem.shouldDisplay(currentUserAddress: try eluvio.fabric.getAccountAddress())){
+                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                    if (redeem.shouldDisplay(currentUserAddress: address)){
                                         debugPrint("Redeemable should display!")
                                         redeemableFeatures.append(redeem)
                                     }else{
@@ -282,14 +289,14 @@ struct NFTDetailView: View {
                             }else{
                                 debugPrint("No profile location ")
                                 //Expensive operation
-                                let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
-                                if (redeem.shouldDisplay(currentUserAddress: try eluvio.fabric.getAccountAddress())){
+                                let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                if (redeem.shouldDisplay(currentUserAddress: address)){
                                     redeemableFeatures.append(redeem)
                                     debugPrint("Redeemable should display!")
                                 }else{
                                     debugPrint("Redeemable should NOT display")
                                 }
-                                debugPrint("Redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try eluvio.fabric.getAccountAddress()))
+                                debugPrint("Redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:address))
                                 debugPrint(" redeemable status \(redeem.name)", redeem.status)
                                 debugPrint(" redeemable expired? \(redeem.name)", redeem.isExpired)
                                 debugPrint(" redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)

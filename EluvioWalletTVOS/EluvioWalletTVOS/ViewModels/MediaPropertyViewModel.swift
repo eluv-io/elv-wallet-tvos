@@ -35,6 +35,8 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
         
         var image = ""
         
+        //debugPrint("Fabric: ", fabric)
+        //debugPrint("image: ", mediaProperty.image)
         do {
             image = try fabric.getUrlFromLink(link: mediaProperty.image)
         }catch{

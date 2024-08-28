@@ -267,7 +267,7 @@ struct ContentViewApp: View {
     }
     
     var body: some View {
-        if eluvio.fabric.isLoggedOut {
+        if eluvio.accountManager.isLoggedOut {
             SignInView()
                 .environmentObject(self.eluvio.fabric)
                 .environmentObject(self.viewState)
@@ -301,7 +301,7 @@ struct ContentViewApp: View {
                         .sink { val in
                             debugPrint("viewState changed.", viewState.op)
                             debugPrint("showNFT ", showNft)
-                            if viewState.op == .none || eluvio.fabric.isLoggedOut{
+                            if viewState.op == .none || eluvio.accountManager.isLoggedOut{
                                 self.showActivity = false
                                 return
                             }

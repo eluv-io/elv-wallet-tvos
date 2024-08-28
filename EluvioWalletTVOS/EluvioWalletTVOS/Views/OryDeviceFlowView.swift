@@ -11,6 +11,7 @@ import CoreImage.CIFilterBuiltins
 import Alamofire
 import Combine
 import SwiftyJSON
+import SDWebImageSwiftUI
 
 struct OryDeviceFlowView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -34,62 +35,96 @@ struct OryDeviceFlowView: View {
     var GrantType = ""
     
     @State var isChecking = false
+    
+    var logo: String {
+        if let logo = eluvio.pathState.property?.login?["styling"]["logo"] {
+            do {
+                return try eluvio.fabric.getUrlFromLink(link: logo)
+            }catch{}
+        }
+        
+        return ""
+    }
+    
+    var backgroundImage: String {
+        if let image = eluvio.pathState.property?.login?["styling"]["background_image_desktop"] {
+            do {
+                return try eluvio.fabric.getUrlFromLink(link: image)
+            }catch{}
+        }
+        
+        return ""
+    }
+    
 
     var body: some View {
-        VStack(alignment: .center, spacing: 30){
-            VStack(alignment: .center, spacing:20){
-
-                Text("Scan QR Code")
-                    .font(.custom("Helvetica Neue", size: 50))
-                    .fontWeight(.semibold)
-                Text("Scan the QR Code with your camera app or a QR code reader on your device to verify the code.")
-                    .font(.custom("Helvetica Neue", size: 30))
-                    .fontWeight(.thin)
-                    .frame(width: 600)
-                    .multilineTextAlignment(.center)
-                    .padding()
-                
-                Text(code)
-                    .font(.custom("Helvetica Neue", size: 50))
-                    .fontWeight(.semibold)
-                
-                Image(uiImage: GenerateQRCode(from: url))
-                    .interpolation(.none)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 400, height: 400)
-            }
-            .frame(width: 700)
+        ZStack {
+            Color.mainBackground.edgesIgnoringSafeArea(.all)
+            WebImage(url:URL(string:backgroundImage))
+                .resizable()
+                .scaledToFill()
+                .edgesIgnoringSafeArea(.all)
             
-            Spacer()
-                .frame(height: 10.0)
-            
-            HStack(alignment: .center, spacing:40){
-                Button(action: {
-                    Task{
-                        await self.regenerateCode()
+            VStack(alignment: .center, spacing: 30){
+                VStack(alignment: .center, spacing:20){
+                    Text("Sign In")
+                        .font(.custom("Helvetica Neue", size: 50))
+                        .fontWeight(.semibold)
+                    
+                    WebImage(url:URL(string:logo))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width:592, height:125)
+                        .padding(20)
+                    
+                    Text(code)
+                        .font(.custom("Helvetica Neue", size: 50))
+                        .fontWeight(.semibold)
+                    
+                    Image(uiImage: GenerateQRCode(from: url))
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 400, height: 400)
+                }
+                .frame(width: 700)
+                
+                Spacer()
+                    .frame(height: 10.0)
+                
+                HStack(alignment: .center, spacing:40){
+                    Button(action: {
+                        Task{
+                            await self.regenerateCode()
+                        }
+                    }) {
+                        Text("Request New Code")
                     }
-                }) {
-                    Text("Request New Code")
+                    Button(action: {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("Back")
+                    }
                 }
-                Button(action: {
-                    self.presentationMode.wrappedValue.dismiss()
-                }) {
-                    Text("Back")
-                }
+                .focusSection()
+                .padding(.bottom,40)
+                
             }
-            .focusSection()
         }
         .frame(maxWidth:.infinity, maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
         .background(.thickMaterial)
         .onAppear(perform: {
-            if(!eluvio.fabric.isLoggedOut){
+            /*if(!eluvio.accountManager.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
             }else{
                 Task{
                     await self.regenerateCode()
                 }
+            }*/
+            
+            Task{
+                await self.regenerateCode()
             }
         })
         .onReceive(timer) { _ in
@@ -195,20 +230,21 @@ struct OryDeviceFlowView: View {
             let addr = json["addr"].stringValue
             let eth = json["eth"].stringValue
 
-            /*
-            debugPrint("Setting loginInfo")
-            login.loginInfo = LoginResponse(type: type, addr:addr, eth:eth, token: token)
-            debugPrint("Set loginInfo ", login.loginInfo)
-            login.isLoggedOut = false
-             */
+
             Task {
                 do {
                     //var signInResponse = SignInResponse()
                     //signInResponse.idToken = token
                     let login = LoginResponse(type: type, addr:addr, eth:eth, token: token)
                     debugPrint("Ory signing in ")
-                    //try await eluvio.fabric.signIn(signInResponse: signInResponse, external:true)
-                    try await eluvio.fabric.setLogin(login:login)
+
+                    let account = Account()
+                    account.type = .Ory
+                    account.fabricToken = token
+                    account.login = login
+                    eluvio.fabric.fabricToken = token
+                    try eluvio.accountManager.addAndSetCurrentAccount(account:account, type:.Ory, property: eluvio.pathState.property?.id ?? "")
+
                     debugPrint("Ory Signing in done!")
                 }catch {
                     print("could not sign in: \(error.localizedDescription)")
@@ -224,7 +260,6 @@ struct OryDeviceFlowView: View {
             }
             
             self.timerCancellable!.cancel()
-            self.presentationMode.wrappedValue.dismiss()
         } catch {
             print("checkDeviceVerification error", error)
             self.errorMessage =  error.localizedDescription

@@ -18,11 +18,18 @@ struct MyItemsView: View {
     var logoUrl = ""
     var name = ""
     @State var properties : [MediaPropertyViewModel] = []
+    var address: String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        
+        return ""
+    }
     
     func search(){
         Task{
             do{
-                nfts = try await eluvio.fabric.getNFTs(description:searchString)
+                nfts = try await eluvio.fabric.getNFTs(address:address, description:searchString)
             }catch{
                 print("Error searching properties: ", error.localizedDescription)
             }
@@ -42,7 +49,7 @@ struct MyItemsView: View {
                                 Task {
                                     do {
                                         searchString = ""
-                                        nfts = try await eluvio.fabric.getNFTs()
+                                        nfts = try await eluvio.fabric.getNFTs(address:address)
                                     }catch{
                                         print("Could not get nfts ", error.localizedDescription)
                                     }
@@ -54,7 +61,7 @@ struct MyItemsView: View {
                                 debugPrint("Property \(property.id ) pressed.")
                                 Task {
                                     do {
-                                        nfts = try await eluvio.fabric.getNFTs(propertyId:property.id ?? "")
+                                        nfts = try await eluvio.fabric.getNFTs(address: address, propertyId:property.id ?? "")
                                     }catch{
                                         print("Could not get nfts ", error.localizedDescription)
                                     }
@@ -98,7 +105,7 @@ struct MyItemsView: View {
             
             Task {
                 do {
-                    nfts = try await eluvio.fabric.getNFTs(propertyId:propertyId)
+                    nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
                 }catch{
                     print("Could not get nfts ", error.localizedDescription)
                 }

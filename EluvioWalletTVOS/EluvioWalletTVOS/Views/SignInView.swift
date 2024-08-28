@@ -103,10 +103,10 @@ struct SignInView: View {
                         
                         Spacer()
                         
-                        if eluvio.fabric.signingIn {
+                        /*if eluvio.fabric.signingIn {
                             ProgressView()
                                 .padding([.trailing,.bottom],120)
-                        }else {
+                        }else {*/
                             VStack{
 #if DEBUG
                                 Picker("Networks", selection: $networkSelection) {
@@ -134,7 +134,7 @@ struct SignInView: View {
                             }
                             .padding([.trailing,.bottom],120)
                             
-                        }
+                        //}
                     }
                 }
             }.onAppear(){

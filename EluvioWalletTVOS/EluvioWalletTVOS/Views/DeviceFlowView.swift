@@ -11,6 +11,7 @@ import SwiftEventBus
 import CoreImage.CIFilterBuiltins
 import Alamofire
 import Combine
+import SDWebImageSwiftUI
 
 struct DeviceFlowView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -35,6 +36,26 @@ struct DeviceFlowView: View {
     
     @State var isChecking = false
     
+    var logo: String {
+        if let logo = eluvio.pathState.property?.login?["styling"]["logo"] {
+            do {
+                return try eluvio.fabric.getUrlFromLink(link: logo)
+            }catch{}
+        }
+        
+        return ""
+    }
+    
+    var backgroundImage: String {
+        if let image = eluvio.pathState.property?.login?["styling"]["background_image_desktop"] {
+            do {
+                return try eluvio.fabric.getUrlFromLink(link: image)
+            }catch{}
+        }
+        
+        return ""
+    }
+    
     init(){
         //print("SignInView init()")
         self.ClientId = "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar"
@@ -46,37 +67,22 @@ struct DeviceFlowView: View {
     var body: some View {
         ZStack {
             Color.mainBackground.edgesIgnoringSafeArea(.all)
-            VStack{
-                HeaderView()
-                    .padding(.top,50)
-                    .padding(.leading,80)
-                    .padding(.bottom,80)
-                Spacer()
-            }
-            .edgesIgnoringSafeArea(.all)
+            WebImage(url:URL(string:backgroundImage))
+                .resizable()
+                .scaledToFill()
+                .edgesIgnoringSafeArea(.all)
             VStack(alignment: .center, spacing: 30){
                 VStack(alignment: .center, spacing:20){
-                    /*
-                     VStack(alignment: .center, spacing:10){
-                     Image("e_logo")
-                     .resizable()
-                     .aspectRatio(contentMode: .fit)
-                     .frame(width:200)
-                     Text("Media Wallet")
-                     .font(.custom("Helvetica Neue", size: 90))
-                     .padding(.bottom,40)
-                     }*/
-                    
-                    
-                    Text("Scan QR Code")
+
+                    Text("Sign In")
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)
-                    Text("Scan the QR Code with your camera app or a QR code reader on your device to verify the code.")
-                        .font(.custom("Helvetica Neue", size: 30))
-                        .fontWeight(.thin)
-                        .frame(width: 600)
-                        .multilineTextAlignment(.center)
-                        .padding()
+                    
+                    WebImage(url:URL(string:logo))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width:592, height:125)
+                        .padding(20)
                     
                     Text(code)
                         .font(.custom("Helvetica Neue", size: 50))
@@ -131,11 +137,12 @@ struct DeviceFlowView: View {
             }
         }
         .onAppear(perform: {
-            if(!self.eluvio.fabric.isLoggedOut){
+            /*if(!self.eluvio.accountManager.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
             }else{
                 self.regenerateCode()
-            }
+            }*/
+            self.regenerateCode()
         })
         .onReceive(timer) { _ in
             checkDeviceVerification()
@@ -231,7 +238,30 @@ struct DeviceFlowView: View {
                             Task {
                                 do {
                                     debugPrint("verification result: ", json)
-                                    try await eluvio.fabric.signIn(credentials: json)
+                                    //try await eluvio.fabric.signIn(credentials: json)
+                                    guard let idToken: String = json["id_token"] as? String else {
+                                        print("Could not retrieve id_token")
+                                        return
+                                    }
+                                    
+                                    //We do not get the refresh token with device sign in for some reason
+                                    let refreshToken: String = json["refresh_token"] as? String ?? ""
+                                    let accessToken: String = json["access_token"] as? String ?? ""
+
+                                    var signInResponse = SignInResponse()
+                                    signInResponse.idToken = idToken
+                                    signInResponse.refreshToken = refreshToken
+                                    signInResponse.accessToken = accessToken
+                                    
+                                    let login = try await eluvio.fabric.login(idToken: idToken)
+                                    
+                                    let account = Account()
+                                    account.type = .Auth0
+                                    account.fabricToken = try await eluvio.fabric.createFabricToken(login:login)
+                                    account.signInResponse = signInResponse
+                                    account.login = login
+                                    eluvio.fabric.fabricToken = account.fabricToken
+                                    try eluvio.accountManager.addAndSetCurrentAccount(account:account, type:.Auth0, property: eluvio.pathState.property?.id ?? "")
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")
                                 }
@@ -239,7 +269,7 @@ struct DeviceFlowView: View {
                                 await MainActor.run {
                                     debugPrint("Sign in finished.")
                                     let last = eluvio.pathState.path.popLast()
-                                    debugPrint("Popped the path state.", last)
+                                    debugPrint("current Account ", eluvio.accountManager.currentAccount?.getAccountAddress())
                                     eluvio.pathState.path.append(.property)
                                     self.isChecking = false
                                 }

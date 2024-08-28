@@ -53,9 +53,9 @@ class Fabric: ObservableObject {
     
     var configUrl = ""
     var network = ""
-    var isMetamask = false
+    //var isMetamask = false
     //Logged in using 3rdparty token through deep link
-    var isExternal = false
+    //var isExternal = false
     
     var createDemoProperties : Bool = true
     
@@ -63,6 +63,8 @@ class Fabric: ObservableObject {
     
     @Published
     var configuration : FabricConfiguration? = nil
+    
+    /*
     @Published
     var login :  LoginResponse? = nil
     @Published
@@ -75,6 +77,8 @@ class Fabric: ObservableObject {
 
     var loginExpiration = Date()
     var loginTime = Date()
+     
+     */
     
     //Move these models to the app level
     @Published
@@ -115,6 +119,7 @@ class Fabric: ObservableObject {
         self.createDemoProperties = createDemoProperties
     }
     
+    /*
     func signOutIfExpired()  {
         if self.loginTime != self.loginExpiration {
             if Date() > self.loginExpiration {
@@ -122,7 +127,7 @@ class Fabric: ObservableObject {
             }
         }
     }
-    
+    */
     
     
     func getEndpoint() throws -> String{
@@ -166,17 +171,18 @@ class Fabric: ObservableObject {
     @MainActor
     func connect(network: String, signIn: Bool = true) async throws {
         debugPrint("Fabric connect: ", network)
-        defer {
+        /*defer {
             self.signingIn = false
             debugPrint("Fabric connect finished")
         }
         self.signingIn = true
+         */
         
         var _network = network
         if(network.isEmpty) {
             guard let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
                     as? String else {
-                self.isLoggedOut = true
+                //self.isLoggedOut = true
                 return
             }
             _network = savedNetwork
@@ -217,17 +223,11 @@ class Fabric: ObservableObject {
         debugPrint("Static token: ", fabricToken)
         
         if signIn {
-            //self.checkToken { success in
-                //debugPrint("Check Token: ", success)
+            /*
                 if (self.isMetamask == true){
                     debugPrint("is Metamask login, skipping checkToken")
                     return
                 }
-                /*guard success == true else {
-                    self.signingIn = false
-                    self.isLoggedOut = true
-                    return
-                }*/
                 
                 guard let accessToken = UserDefaults.standard.object(forKey: "access_token") as? AnyObject else {
                     self.signingIn = false
@@ -274,7 +274,7 @@ class Fabric: ObservableObject {
                         return
                     }
                 }
-            //}
+             */
         }
     }
     
@@ -1119,9 +1119,10 @@ class Fabric: ObservableObject {
     @MainActor
     func refresh() async {
         debugPrint("Fabric refresh")
-        if self.signingIn {
+        /*if self.signingIn {
             return
         }
+         */
         
         if self.isRefreshing {
             return
@@ -1140,7 +1141,7 @@ class Fabric: ObservableObject {
 
         do{
             try await profile.refresh()
-            
+            /*
             if (!self.isMetamask && self.login != nil){
                 if let login = self.login {
                     self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
@@ -1148,6 +1149,7 @@ class Fabric: ObservableObject {
             }else{
                 self.fabricToken = createStaticToken()
             }
+             */
 
             /*
             let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
@@ -1182,15 +1184,15 @@ class Fabric: ObservableObject {
             isRefreshing = false
         }catch{
             print ("Refresh Error: \(error)")
-            signOut()
+            //signOut()
         }
     }
     
-    func getNFTs(propertyId:String="", description:String="") async throws -> [NFTModel]{
+    func getNFTs(address:String, propertyId:String="", description:String="") async throws -> [NFTModel]{
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
-        let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
+        let response = try await signer.getWalletData(accountAddress: address,
                                                       propertyId:propertyId,
                                                       description:description,
                                                       accessCode: self.fabricToken)
@@ -1202,7 +1204,6 @@ class Fabric: ObservableObject {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
-    
         
         let response = try await signer.getProperties(includePublic:includePublic, accessCode: self.fabricToken)
         return response.contents
@@ -1419,8 +1420,90 @@ class Fabric: ObservableObject {
         
         return result
     }
+    
+    //exchanges id token for cluster token
+    func login(idToken: String, address: String = "", external: Bool = false) async throws -> LoginResponse {
+        var login = LoginResponse()
+        if !external {
+            
+            guard let config = self.configuration else
+            {
+                print("Not configured.")
+                throw FabricError.configError("Not configured.")
+            }
+            
+            var urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
+            
+            if external {
+                urlString = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
+            }
+            
+            guard let url = URL(string: urlString) else {
+                //throw FabricError.invalidURL
+                print("Invalid URL \(urlString)")
+                throw FabricError.invalidURL("Bad auth service url \(urlString)")
+            }
+            
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+            
+            let json: [String: Any] = ["ext": ["share_email":true]]
+            request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
+            
+            debugPrint("http request: ", request)
+            
+            login = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
+            debugPrint("http response: ", login)
+            
+            //UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
+            //UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
+            //UserDefaults.standard.set(signInResponse.tokenType, forKey: "token_type")
+            //UserDefaults.standard.set(external, forKey: "is_external")
+        }else {
+            login.token = idToken
+            login.addr = address
+        }
+        
+        return login
+    }
+    
+    
+    
+    func createFabricToken(idToken: String, address: String = "", external: Bool = false) async throws -> String {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+        
+        guard let config = self.configuration else
+        {
+            print("Not configured.")
+            throw FabricError.configError("Not configured.")
+        }
+        
+        var response = try await login(idToken:idToken, address:address, external: external)
+        var authToken = ""
+        return try await signer.createFabricToken( address:response.addr, contentSpaceId: self.getContentSpaceId(), authToken: response.token, external: external)
+    }
+    
+    func createFabricToken(login:LoginResponse, external: Bool = false) async throws -> String {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+        
+        guard let config = self.configuration else
+        {
+            print("Not configured.")
+            throw FabricError.configError("Not configured.")
+        }
 
-
+        return try await signer.createFabricToken( address:login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
+    }
+    
+/*
     func setLogin(login:  LoginResponse, isMetamask: Bool = false, external: Bool = false) async throws {
         debugPrint("SetLogin ", login)
         guard let signer = self.signer else {
@@ -1460,6 +1543,7 @@ class Fabric: ObservableObject {
             await self.refresh()
         }
     }
+    */
     
     func resetWalletData(){
         self.library = MediaLibrary()
@@ -1470,130 +1554,17 @@ class Fabric: ObservableObject {
         self.mediaPropertiesSectionCache = [:]
     }
     
-    func signOut(){
-        self.signingIn = false
-        self.login = nil
-        self.isLoggedOut = true
-        self.signInResponse = nil
+    func reset(){
         self.signer = nil
         self.fabricToken = ""
-        self.isMetamask = false
+        //self.isMetamask = false
 
         resetWalletData()
 
-        UserDefaults.standard.removeObject(forKey: "access_token")
-        UserDefaults.standard.removeObject(forKey: "id_token")
-        UserDefaults.standard.removeObject(forKey: "token_type")
         UserDefaults.standard.removeObject(forKey: "fabric_network")
         UserDefaults.standard.removeObject(forKey: "is_external")
     }
-    
-    @MainActor
-    func signIn(credentials: [String: AnyObject], external: Bool = false ) async throws{
 
-        debugPrint("SignIn credentials ", credentials)
-        guard let idToken: String = credentials["id_token"] as? String else {
-            //print("Could not retrieve id_token")
-            return
-        }
-        
-        //We do not get the refresh token with device sign in for some reason
-        let refreshToken: String = credentials["refresh_token"] as? String ?? ""
-        let accessToken: String = credentials["access_token"] as? String ?? ""
-
-        var signInResponse = SignInResponse()
-        signInResponse.idToken = idToken
-        signInResponse.refreshToken = refreshToken
-        signInResponse.accessToken = accessToken
-        
-        try await signIn(signInResponse: signInResponse, external: external)
-    }
-    
-    @MainActor
-    func signIn(signInResponse: SignInResponse , external: Bool = false) async throws {
-        
-        debugPrint("SignIn signInResponse ", signInResponse)
-        defer{
-            self.signingIn = false
-        }
-        
-        self.isExternal = external
-        
-        //print("Fabric: signIn()")
-        guard let config = self.configuration else
-        {
-            print("Not configured.")
-            throw FabricError.configError("Not configured.")
-        }
-        
-        self.signInResponse = signInResponse
-        
-        var value = LoginResponse()
-        if !external {
-            
-            var urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
-            
-            if external {
-                urlString = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
-            }
-            
-            guard let url = URL(string: urlString) else {
-                //throw FabricError.invalidURL
-                print("Invalid URL \(urlString)")
-                self.signingIn = false
-                throw FabricError.invalidURL("Bad auth service url \(urlString)")
-            }
-            
-            
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            request.setValue("application/json", forHTTPHeaderField: "Accept")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.setValue("Bearer \(signInResponse.idToken)", forHTTPHeaderField: "Authorization")
-            
-            let json: [String: Any] = ["ext": ["share_email":true]]
-            request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
-            
-            debugPrint("http request: ", request)
-            
-            value = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
-            debugPrint("http response: ", value)
-            
-            UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
-            UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
-            UserDefaults.standard.set(signInResponse.tokenType, forKey: "token_type")
-            UserDefaults.standard.set(external, forKey: "is_external")
-        }else {
-            value.token = signInResponse.idToken
-        }
-        
-        try await self.setLogin(login: value, external:external)
-    }
-    
-    
-    func getAccountId() throws -> String {
-        guard let address = self.login?.addr else
-        {
-            throw FabricError.noLogin("getAccountId")
-        }
-        
-        guard let bytes = HexToBytes(address) else {
-            throw FabricError.badInput("getAccountId error getting Bytes for address \(address)")
-        }
-        
-        let encoded = Base58.base58Encode(bytes)
-        
-        return "iusr\(encoded)"
-    }
-    
-    func getAccountAddress() throws -> String {
-        guard let address = self.login?.addr else
-        {
-            throw FabricError.noLogin("getAccountAddress")
-        }
-        
-        return FormatAddress(address: address)
-    }
     
     func getOptionsJsonFromHash(versionHash: String) async throws -> JSON {
         var path = "/q/" + versionHash + "/meta/public/asset_metadata/sources/default"
@@ -1735,13 +1706,13 @@ class Fabric: ObservableObject {
         }
     }
     
-    private func getKeyMediaProgressContainer() throws -> String {
-        return "\(try getAccountAddress()) - media_progress"
+    private func getKeyMediaProgressContainer(address:String) throws -> String {
+        return "\(address) - media_progress"
     }
     
-    func getUserViewedProgressContainer() throws -> MediaProgressContainer {
+    func getUserViewedProgressContainer(address:String) throws -> MediaProgressContainer {
         //TODO: Store these constants for user defaults somewhere
-        guard let data = UserDefaults.standard.object(forKey: try getKeyMediaProgressContainer()) as? Data else {
+        guard let data = UserDefaults.standard.object(forKey: try getKeyMediaProgressContainer(address:address)) as? Data else {
             debugPrint("Couldn't find media_progress from defaults.")
             return MediaProgressContainer()
         }
@@ -1756,8 +1727,8 @@ class Fabric: ObservableObject {
     }
     
     //TODO: Retrieve from app services profile
-    func getUserViewedProgress(nftContract: String, mediaId: String) throws -> MediaProgress {
-        if let container = try? getUserViewedProgressContainer() {
+    func getUserViewedProgress(address:String, nftContract: String, mediaId: String) throws -> MediaProgress {
+        if let container = try? getUserViewedProgressContainer(address:address) {
             //TODO: create a key maker function
             let mediaProgress = container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] ?? MediaProgress()
             debugPrint("getUserViewedProgress \(mediaProgress)")
@@ -1768,11 +1739,11 @@ class Fabric: ObservableObject {
     }
     
     //TODO: Set into the app services profile
-    func setUserViewedProgress(nftContract: String, mediaId: String, progress:MediaProgress) throws{
+    func setUserViewedProgress(address: String, nftContract: String, mediaId: String, progress:MediaProgress) throws{
         debugPrint("setUserViewedProgress contract \(nftContract) mediaId \(mediaId) progress \(progress)")
         var container = MediaProgressContainer()
         do {
-            container = try getUserViewedProgressContainer()
+            container = try getUserViewedProgressContainer(address: address)
         }catch{
             debugPrint("No previous user progress found.")
         }
@@ -1782,7 +1753,7 @@ class Fabric: ObservableObject {
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(container) {
             let defaults = UserDefaults.standard
-            defaults.set(encoded, forKey: try getKeyMediaProgressContainer())
+            defaults.set(encoded, forKey: try getKeyMediaProgressContainer(address:address))
             debugPrint("Saved to defaults")
         }else {
             debugPrint("Could not encode progress info ", container)

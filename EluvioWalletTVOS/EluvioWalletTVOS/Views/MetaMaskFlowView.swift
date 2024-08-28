@@ -105,12 +105,15 @@ struct MetaMaskFlowView: View {
             }
         }
         .onAppear(perform: {
-            if(!self.eluvio.fabric.isLoggedOut){
+          /*  if(!self.eluvio.accountManager.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
             }else{
                 Task{
                     await self.regenerateCode()
                 }
+            }*/
+            Task{
+                await self.regenerateCode()
             }
         })
         .onReceive(timer) { _ in
@@ -211,9 +214,12 @@ struct MetaMaskFlowView: View {
             
             let login = LoginResponse(addr:addr, eth:eth, token:token)
 
-            try await eluvio.fabric.setLogin(login: login, isMetamask: true)
-            
-
+            let account = Account()
+            account.type = .Auth0
+            account.fabricToken = token
+            account.login = login
+            eluvio.fabric.fabricToken = account.fabricToken
+            try eluvio.accountManager.addAndSetCurrentAccount(account:account, type:.Auth0, property: eluvio.pathState.property?.id ?? "")
             
         } catch {
             print("checkDeviceVerification error", error)

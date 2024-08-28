@@ -51,6 +51,13 @@ struct MyMediaViewDemo: View {
         
     }
     
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
+    }
+    
     var body: some View {
         ScrollView{
             VStack(alignment: .leading, spacing: 0){
@@ -219,13 +226,13 @@ struct MyMediaViewDemo: View {
                                         //debugPrint("Redeemable: ", redeemable.name)
                                         if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
                                             //debugPrint("location matched: ", redeemable.location.lowercased())
-                                            let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
+                                            let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
 
                                             redeemableFeatures.append(redeem)
                                             //debugPrint("Appended.")
                                         }
                                     }else{
-                                        let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft)
+                                        let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
                                         redeemableFeatures.append(redeem)
                                     }
                                 }catch{
