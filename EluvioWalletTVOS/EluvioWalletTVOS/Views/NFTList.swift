@@ -50,7 +50,7 @@ struct NFTGrid: View {
                 )
                 .padding(.bottom,70)
             }
-            
+            /*
             ForEach(drops) { drop in
                 NFTView<DropDetail>(
                     image: drop.image ?? "",
@@ -61,11 +61,12 @@ struct NFTGrid: View {
                 )
                 .padding(.bottom,70)
             }
+             */
         }
     }
 }
 
-
+/*
 struct NFTList: View {
 
     var title: String = ""
@@ -115,3 +116,4 @@ struct NFTList_Previews: PreviewProvider {
         NFTList(title:"Wallet", nfts: CreateTestNFTs(num: 10))
     }
 }
+*/

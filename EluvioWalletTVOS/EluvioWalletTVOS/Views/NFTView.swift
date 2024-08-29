@@ -8,6 +8,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+/*
 struct NFTAlbumView: View {
     @State var nft = NFTModel()
     var isForsale = false
@@ -231,6 +232,7 @@ struct NFTView<DestinationType: View>: View {
         .focused($isFocused)
     }
 }
+*/
 
 struct NFTView2: View {
     @EnvironmentObject var pathState: PathState
@@ -397,7 +399,7 @@ struct NFTView2: View {
         .focused($isFocused)
     }
 }
-
+/*
 struct NFTView_Previews: PreviewProvider {
     static var previews: some View {
         NFTView<NFTDetail>(
@@ -411,3 +413,4 @@ struct NFTView_Previews: PreviewProvider {
             .listRowInsets(EdgeInsets())
     }
 }
+*/

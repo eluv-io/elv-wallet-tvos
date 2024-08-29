@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-05-18.
 //
-
+/*
 import SwiftUI
 import AVKit
 import SDWebImageSwiftUI
@@ -306,3 +306,4 @@ struct PropertyMediaView_Previews: PreviewProvider {
         PropertyMediaView()
     }
 }
+*/

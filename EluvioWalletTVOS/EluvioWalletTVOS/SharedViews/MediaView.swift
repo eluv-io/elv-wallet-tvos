@@ -12,7 +12,7 @@ import AVKit
 import SDWebImageSwiftUI
 
 enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile; case square}
-
+/*
 struct MediaCollectionView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     @State var mediaCollection: MediaCollection
@@ -47,7 +47,8 @@ struct MediaCollectionView: View {
         .scrollClipDisabled()
     }
 }
-
+ */
+/*
 func MakePlayerItemFromVersionHash(fabric: Fabric, versionHash: String, params: [JSON]? = [], offering: String = "default") async throws -> AVPlayerItem {
     let options = try await fabric.getOptions(versionHash: versionHash, offering: offering)
     return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
@@ -110,7 +111,8 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
         throw RuntimeError("No available playback options \(options)")
     }
 }
-
+*/
+/*
 struct MediaView2: View {
     @EnvironmentObject var eluvio: EluvioAPI
     @State var mediaItem: MediaItem?
@@ -195,6 +197,7 @@ struct MediaView2: View {
                                 if (media.offering != "default"){
                                     debugPrint("MediaView2 Offering: ", media.offering)
                                     item = try await MakePlayerItemFromVersionHash(fabric:eluvio.fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
+                       
                                 }else{
                                     item = try await MakePlayerItemFromLink(fabric:eluvio.fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
                                 }
@@ -440,6 +443,7 @@ struct MediaView2: View {
     }
 
 }
+*/
 
 enum MediaFlagPosition{case bottomRight; case bottomCenter}
 
@@ -456,9 +460,7 @@ struct RedeemFlag: View {
     
     private var text: String {
         if let account = eluvio.accountManager.currentAccount {
-            do {
-                return redeemable.displayLabel(currentUserAddress: try account.getAccountAddress())
-            }catch{}
+            return redeemable.displayLabel(currentUserAddress: account.getAccountAddress())
         }
         
         return ""

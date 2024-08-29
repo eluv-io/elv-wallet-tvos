@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftyJSON
+import AVFoundation
 
 struct SectionGridView: View {
     @EnvironmentObject var eluvio: EluvioAPI
@@ -292,7 +293,7 @@ struct SectionItemView: View {
     var item: MediaPropertySectionItem
     var sectionId : String
     var propertyId: String
-    @State var viewItem : MediaPropertySectionMediaItemView? = nil
+    @State var viewItem : MediaPropertySectionMediaItemViewModel? = nil
     @FocusState var isFocused
     
     var body: some View {
@@ -335,39 +336,17 @@ struct SectionItemView: View {
                                 }
 
                                 var hash = item.media?.media_link?["."]["source"].stringValue ?? ""
-                                /*
-                                do {
-                                    debugPrint("item media id ", item.media_id)
-                                    debugPrint("Current Hash ", hash)
-                                    if let mediaId = item.media_id {
-                                        debugPrint("Getting catalog")
-                                        //let result = try await fabric.getMediaCatalogJSON(mediaId: mediaId)
-                                        let result = try await fabric.getPropertySections(property: propertyId, sections: [sectionId])
-                                        for section in result{
-                                            if let content = section.content {
-                                                for newItem in content {
-                                                    if newItem.media_id == mediaId {
-                                                        //debugPrint("found item ", newItem)
-                                                        if let newLink = newItem.media?.media_link?["sources"]["default"] {
-                                                            debugPrint("new Hash ", newItem.media?.media_link?["."]["source"].stringValue)
-                                                            link = newLink
-                                                            hash = newItem.media?.media_link?["."]["source"].stringValue ?? ""
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    
-                                }catch{
-                                    print("Error getting new media item ", item.media_id)
-                                }
-                                 */
                              
                                 do {
-                                    let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
-                                    eluvio.pathState.playerItem = playerItem
-                                    eluvio.pathState.path.append(.video)
+                                    //let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
+                                    let urlString = try await eluvio.fabric.getPlayoutFromMediaId(propertyId: propertyId, mediaId: mediaItem.media_id)
+                                    if let url = URL(string:urlString) {
+                                        let playerItem = AVPlayerItem(url:url)
+                                        eluvio.pathState.playerItem = playerItem
+                                        eluvio.pathState.path.append(.video)
+                                    }else{
+                                        throw FabricError.invalidURL("Could not get playout URL.")
+                                    }
                                 }catch{
                                     print("Error getting link url for playback ", error)
                                     let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
@@ -496,7 +475,7 @@ struct SectionItemView: View {
             
         }
         .onAppear(){
-            viewItem = MediaPropertySectionMediaItemView.create(item: item, fabric : eluvio.fabric)
+            viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
         }
     }
 }

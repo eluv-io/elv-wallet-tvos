@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-10-04.
 //
-
+/*
 import SwiftUI
 import SwiftyJSON
 import AVKit
@@ -309,3 +309,4 @@ struct NFTDetailMovieView: View {
         }
     }
 }
+*/

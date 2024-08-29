@@ -402,15 +402,15 @@ struct ContentView: View {
             .onChange(of: self.showActivity) {
                 debugPrint("ShowActivity ", self.showActivity)
             }
-            .fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon, nft] in
+            /*.fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon, nft] in
                 NFTDetail(nft: nft, backLink: backLink, backLinkIcon: backLinkIcon)
-            }
+            }*/
             .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
                 PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
                            backLink: backLink, backLinkIcon: backLinkIcon
                 )
             }
-            .fullScreenCover(isPresented: $showMinter, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+            /*.fullScreenCover(isPresented: $showMinter, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
                 MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
                            backLink: backLink, backLinkIcon: backLinkIcon
                 )
@@ -430,7 +430,7 @@ struct ContentView: View {
                         )
                     }
                 }
-            }
+            }*/
             .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [mediaList] in
                 GalleryView(gallery: mediaList)
             }

@@ -1783,6 +1783,52 @@ class Fabric: ObservableObject {
         }
     }
     
+    //New API for media item playout
+    func getPlayoutFromMediaId(propertyId:String, mediaId:String) async throws -> String {
+        let path = "/as/mw/properties/" + propertyId + "/media_items/" + mediaId + "/offerings/any/playout_options"
+        guard let url = URL(string:try self.getEndpoint()) else {
+            throw FabricError.configError("getNFTData: could not get fabric endpoint")
+        }
+        var components = URLComponents()
+        components.scheme = url.scheme
+        components.host = url.host
+        components.path = path
+
+        guard let newUrl = components.url else {
+            throw FabricError.invalidURL("getNFTData: could not create url from components. \(components)")
+        }
+                                    
+        print("GET ",newUrl)
+
+        let optionsJson = try await self.getJsonRequest(url: newUrl.absoluteString)
+        return try getHlsPlaylistFromMediaOptions(optionsJson: optionsJson)
+    }
+    
+    //New API for media item playout. optionsJson is from the media api, not from fabric options
+    func getHlsPlaylistFromMediaOptions(optionsJson: JSON?, drm: String = "hls-clear", offering: String = "default") throws -> String {
+        guard let link = optionsJson else{
+            throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
+        }
+        
+
+        var uri = link[drm]["uri"].stringValue
+        
+        guard let url = URL(string:try self.getEndpoint()) else {
+            throw FabricError.badInput("getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
+        }
+        
+        var newUrl = "\(url.absoluteString)/\(uri)"
+        if(newUrl.contains("?")){
+            newUrl = newUrl + "&authorization=\(self.fabricToken)"
+        }else{
+            newUrl = newUrl + "?authorization=\(self.fabricToken)"
+        }
+        
+        print("HLS URL: ", newUrl)
+        
+        return newUrl
+    }
+    
     func getOptions(versionHash:String , params: [JSON]? = [], offering:String="default") async throws -> JSON {
         var path = NSString.path(withComponents: ["/","q",versionHash,"rep","playout",offering,"options.json"])
         
@@ -1827,6 +1873,7 @@ class Fabric: ObservableObject {
         return optionsJson
     }
     
+    //Deprectated: Doesn't work with Live
     func getOptionsFromLink(link: JSON?, params: [JSON]? = [], offering:String="default", hash:String="") async throws -> (optionsJson: JSON, versionHash:String) {
         var optionsUrl = try getUrlFromLink(link: link, params: params, hash:hash)
 
@@ -2155,6 +2202,8 @@ class Fabric: ObservableObject {
         return ""
     }
     
+    
+    
     //ELV-CLIENT API
     
     // id is objectId or versionHash
@@ -2169,6 +2218,316 @@ class Fabric: ObservableObject {
     func contentObjectLibraryId(_objectId: String?) async throws -> String {
         return ""
     }
+    
+    func resolvePermission(propertyId:String,
+                           _pageId:String,
+                           sectionId:String,
+                           sectionItemId:String,
+                           mediaCollectionId:String,
+                           mediaListId:String,
+                           mediaItemId:String
+    ) async throws -> ResolvedPermission {
+
+        var result = ResolvedPermission()
+        
+        let mediaProperty = try await getProperty(property: propertyId)
+        if let _behavior = mediaProperty?.permissions?["behavior"] {
+            do{
+                result.behavior = try getBehavior(json:_behavior)
+                if let altPageId = mediaProperty?.permissions?["alternate_page_id"] {
+                    if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                        result.alternatePageId = altPageId.stringValue
+                    }
+                }
+                
+                if let secondaryPurchaseOption = mediaProperty?.permissions?["secondary_market_purchase_option"] {
+                    if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
+                        result.secondaryPurchaseOption = true
+                    }
+                }
+            }catch{}
+        }
+        
+        var pageId = _pageId
+        if pageId.isEmpty {
+            pageId = "main"
+        }
+        
+        if let page = try await getPropertyPage(property: propertyId, page:pageId) {
+            if let _behavior = page.permissions?["behavior"] {
+                do{
+                    result.behavior = try getBehavior(json:_behavior)
+                    if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
+                        if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue {
+                            result.secondaryPurchaseOption = true
+                        }
+                    }
+                }catch{}
+            }
+        }
+        
+        if !sectionId.isEmpty {
+            var response : [MediaPropertySection] = []
+            do {
+                response = try await getPropertySections(property: propertyId, sections: [sectionId])
+            }catch{
+                print("Could not get property sections response, ",error.localizedDescription)
+            }
+            
+            if !response.isEmpty {
+                let section = response[0]
+                if let _behavior = section.permissions?["behavior"] {
+                    do{
+                        result.behavior = try getBehavior(json:_behavior)
+                        if let altPageId = section.permissions?["alternate_page_id"] {
+                            if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                                result.alternatePageId = altPageId.stringValue
+                            }
+                        }
+                        
+                        if let secondaryPurchaseOption = section.permissions?["secondary_market_purchase_option"] {
+                            if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
+                                result.secondaryPurchaseOption = true
+                            }
+                        }
+                        
+                    }catch{}
+                    
+                    if let authorized = section.authorized {
+                        result.authorized = authorized
+                    }
+                    if !result.authorized {
+                        result.cause = "Section permissions"
+                    }
+                    
+                    if let permissionItemsArr = section.permissions?["permission_item_ids"] {
+                        result.permissionItemIds = []
+                        for item in permissionItemsArr.arrayValue {
+                            result.permissionItemIds.append(item.stringValue)
+                        }
+                    }
+                    
+                    if result.authorized && !sectionItemId.isEmpty {
+                        if let sectionItem = section.content?.first(where: {$0.id == sectionItemId}) {
+                            if let _behavior = sectionItem.permissions?["behavior"] {
+                                do{
+                                    result.behavior = try getBehavior(json:_behavior)
+                                    
+                                    if let altPageId = sectionItem.permissions?["alternate_page_id"] {
+                                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                                            result.alternatePageId = altPageId.stringValue
+                                        }
+                                    }
+                                    
+                                    if let secondaryPurchaseOption = sectionItem.permissions?["secondary_market_purchase_option"] {
+                                        if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
+                                            result.secondaryPurchaseOption = true
+                                        }
+                                    }
+                                    
+                                }catch{}
+                            }
+                            
+                            if let authorized = sectionItem.authorized {
+                                result.authorized = authorized
+                            }
+                            if !result.authorized {
+                                result.cause = "Section item permissions"
+                            }
+                            
+                            if let permissionItemsArr = sectionItem.permissions?["permission_item_ids"] {
+                                result.permissionItemIds = []
+                                for item in permissionItemsArr.arrayValue {
+                                    result.permissionItemIds.append(item.stringValue)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        return result
+        
+    }
+    
+    func getBehavior(json:JSON) throws -> PermisionBehavior {
+        switch(json.stringValue.lowercased()){
+        case "hide":
+            return .Hide
+        case "disable":
+            return .Disable
+        case "show_alternate_page":
+            return .showAlternativePage
+        case "show_if_unauthorized":
+            return .showIfUnauthorized
+        case "show_purchase":
+            return .showPurchase
+        default:
+            throw FabricError.unexpectedResponse("no behavior defined.")
+        }
+    }
 }
 
+struct ResolvedPermission {
+    var authorized:Bool = true
+    var behavior:PermisionBehavior = .Hide
+    var hide:Bool = false
+    var disable:Bool = false
+    var purchaseGate: Bool = false
+    var secondaryPurchaseOption: Bool = false
+    var showAlternatePage:Bool = true
+    var alternatePageId:String = ""
+    var permissionItemIds:[String] = []
+    var cause: String = ""
+}
 
+enum PermisionBehavior {
+    case Hide, Disable, showPurchase, showIfUnauthorized, showAlternativePage
+}
+
+/*
+ HIDE: "hide",
+ DISABLE: "disable",
+ SHOW_PURCHASE: "show_purchase",
+ SHOW_IF_UNAUTHORIZED: "show_if_unauthorized",
+ SHOW_ALTERNATE_PAGE: "show_alternate_page"
+ */
+
+/*
+ResolvePermission({
+  mediaPropertySlugOrId,
+  pageSlugOrId,
+  sectionSlugOrId,
+  sectionItemId,
+  mediaCollectionSlugOrId,
+  mediaListSlugOrId,
+  mediaItemSlugOrId
+}) {
+  // Resolve permissions from top down
+  let authorized = true;
+  let behavior = this.PERMISSION_BEHAVIORS.HIDE;
+  let cause;
+  let permissionItemIds;
+
+  const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+  behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
+
+  let alternatePageId = (
+    behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+    mediaProperty?.metadata?.permissions?.alternate_page_id
+  );
+
+  let secondaryPurchaseOption = (
+    behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+    mediaProperty?.metadata?.permissions?.secondary_market_purchase_option
+  );
+
+  const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
+  behavior = page.permissions?.behavior || behavior;
+
+  alternatePageId = (
+    page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+    page?.permissions?.alternate_page_id
+  ) || alternatePageId;
+
+  secondaryPurchaseOption = (
+    page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+    page?.permissions?.permissions?.secondary_market_purchase_option
+  ) || secondaryPurchaseOption;
+
+  if(sectionSlugOrId) {
+    const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
+
+    if(section) {
+      behavior = section.permissions?.behavior || behavior;
+      authorized = section.authorized;
+      cause = !authorized && "Section permissions";
+      permissionItemIds = section.permissions?.permission_item_ids || [];
+      alternatePageId =
+        (
+          section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+          section.permissions?.alternate_page_id
+        ) || alternatePageId;
+
+      secondaryPurchaseOption =
+        (
+          section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+          section.permissions?.secondary_market_purchase_option
+        ) || secondaryPurchaseOption;
+
+      if(authorized && sectionItemId) {
+        const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
+          ?.find(sectionItem => sectionItem.id === sectionItemId);
+
+        if(sectionItem) {
+          behavior = sectionItem.permissions?.behavior || behavior;
+          permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
+          authorized = sectionItem.authorized;
+          cause = cause || !authorized && "Section item permissions";
+          alternatePageId =
+            (
+              sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+              sectionItem.permissions?.alternate_page_id
+            ) || alternatePageId;
+
+          secondaryPurchaseOption =
+            (
+              sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+              sectionItem.permissions?.secondary_market_purchase_option
+            ) || secondaryPurchaseOption;
+        }
+      }
+    }
+  }
+
+  if(authorized && mediaCollectionSlugOrId) {
+    const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
+    authorized = mediaCollection?.authorized || false;
+    permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
+    cause = !authorized && "Media collection permissions";
+  }
+
+  if(authorized && mediaListSlugOrId) {
+    const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
+    authorized = mediaList?.authorized || false;
+    permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
+    cause = !authorized && "Media list permissions";
+  }
+
+  if(authorized && mediaItemSlugOrId) {
+    const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
+    authorized = mediaItem?.authorized || false;
+    permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
+    cause = !authorized && "Media permissions";
+  }
+
+  if(behavior === this.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED) {
+    authorized = !authorized;
+    behavior = this.PERMISSION_BEHAVIORS.HIDE;
+  }
+
+  permissionItemIds = permissionItemIds || [];
+
+  const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
+  const showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
+
+  if(showAlternatePage) {
+    alternatePageId = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId ? alternatePageId : undefined})?.slug || alternatePageId;
+  }
+
+  return {
+    authorized,
+    behavior,
+    // Hide by default, or if behavior is hide, or if no purchasable permissions are available
+    hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
+    disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
+    purchaseGate: purchaseGate && permissionItemIds.length > 0,
+    secondaryPurchaseOption,
+    showAlternatePage,
+    alternatePageId,
+    permissionItemIds,
+    cause: cause || ""
+  };
+}
+*/

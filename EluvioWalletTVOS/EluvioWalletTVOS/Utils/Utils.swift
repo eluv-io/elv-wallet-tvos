@@ -10,6 +10,7 @@ import Base58Swift
 import SwiftUI
 import Alamofire
 import AVKit
+import SwiftyJSON
 
 func FormatAddress(address: String) -> String {
     if address.isEmpty {
@@ -499,5 +500,109 @@ extension Array {
         }
         res.append(copy)
         return res
+    }
+}
+
+
+func MakePlayerItemFromMediaOptions(fabric: Fabric, optionsJson: JSON?, versionHash: String, offering: String = "default") throws -> AVPlayerItem {
+    
+    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
+    
+    var hlsPlaylistUrl: String = ""
+    
+    guard let options = optionsJson else {
+        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
+    }
+    
+    if options["hls-clear"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
+        //print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
+    }else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
+    }else if options["hls-fairplay"].exists() {
+        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+        
+        if(licenseServer.isEmpty)
+        {
+            throw RuntimeError("Error getting licenseServer")
+        }
+        print("license_server \(licenseServer)")
+        
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson,  drm:"hls-fairplay", offering: offering)
+        //print("Playlist URL \(hlsPlaylistUrl)")
+        
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+        return AVPlayerItem(asset: urlAsset)
+        
+    }else{
+        throw RuntimeError("No available playback options \(options)")
+    }
+}
+
+// APIs below are used on
+func MakePlayerItemFromVersionHash(fabric: Fabric, versionHash: String, params: [JSON]? = [], offering: String = "default") async throws -> AVPlayerItem {
+    let options = try await fabric.getOptions(versionHash: versionHash, offering: offering)
+    return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
+}
+
+func MakePlayerItemFromLink(fabric: Fabric, link: JSON?, params: [JSON]? = [], offering: String = "default", hash: String = "") async throws -> AVPlayerItem {
+    debugPrint("MakePlayerItemFromLink ", link)
+    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering, hash:hash)
+    debugPrint("options finished ", options)
+    return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
+}
+
+func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHash: String, offering: String = "default") throws -> AVPlayerItem {
+    
+    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
+    
+    var hlsPlaylistUrl: String = ""
+    
+    guard let options = optionsJson else {
+        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
+    }
+    
+    if options["hls-clear"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-clear", offering: offering)
+        //print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
+    }else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-sample-aes", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
+    }else if options["hls-fairplay"].exists() {
+        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+        
+        if(licenseServer.isEmpty)
+        {
+            throw RuntimeError("Error getting licenseServer")
+        }
+        print("license_server \(licenseServer)")
+        
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-fairplay", offering: offering)
+        //print("Playlist URL \(hlsPlaylistUrl)")
+        
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+        return AVPlayerItem(asset: urlAsset)
+        
+    }else{
+        throw RuntimeError("No available playback options \(options)")
     }
 }

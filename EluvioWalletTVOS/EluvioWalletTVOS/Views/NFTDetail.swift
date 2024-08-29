@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2021-09-27.
 //
-
+/*
 import SwiftUI
 import SwiftyJSON
 import AVKit
@@ -577,3 +577,4 @@ struct NFTDetail_Previews: PreviewProvider {
                 .listRowInsets(EdgeInsets())
     }
 }
+*/

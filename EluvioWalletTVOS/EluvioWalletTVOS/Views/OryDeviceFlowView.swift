@@ -37,7 +37,7 @@ struct OryDeviceFlowView: View {
     @State var isChecking = false
     
     var logo: String {
-        if let logo = eluvio.pathState.property?.login?["styling"]["logo"] {
+        if let logo = eluvio.pathState.property?.main_page?.layout?["logo"]{
             do {
                 return try eluvio.fabric.getUrlFromLink(link: logo)
             }catch{}
@@ -47,7 +47,7 @@ struct OryDeviceFlowView: View {
     }
     
     var backgroundImage: String {
-        if let image = eluvio.pathState.property?.login?["styling"]["background_image_desktop"] {
+        if let image = eluvio.pathState.property?.main_page?.layout?["background_image"] {
             do {
                 return try eluvio.fabric.getUrlFromLink(link: image)
             }catch{}
@@ -68,14 +68,14 @@ struct OryDeviceFlowView: View {
             VStack(alignment: .center, spacing: 30){
                 VStack(alignment: .center, spacing:20){
                     Text("Sign In")
-                        .font(.custom("Helvetica Neue", size: 50))
+                        .font(.custom("Helvetica Neue", size: 62))
                         .fontWeight(.semibold)
                     
                     WebImage(url:URL(string:logo))
                         .resizable()
                         .scaledToFit()
                         .frame(width:592, height:125)
-                        .padding(20)
+                        .padding(10)
                     
                     Text(code)
                         .font(.custom("Helvetica Neue", size: 50))

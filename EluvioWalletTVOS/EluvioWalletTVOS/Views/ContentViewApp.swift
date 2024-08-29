@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-03-23.
 //
-
+/*
 import SwiftUI
 import Combine
 import AVKit
@@ -83,8 +83,8 @@ struct WalletApp: View {
             }
         }
     }
-   
-
+   */
+/*
 struct ContentViewApp: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
@@ -401,3 +401,4 @@ struct ContentViewApp_Previews: PreviewProvider {
             .preferredColorScheme(.dark)
     }
 }
+*/

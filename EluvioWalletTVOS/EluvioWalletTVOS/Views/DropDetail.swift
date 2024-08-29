@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-06-07.
 //
-
+/*
 import SwiftUI
 import SwiftyJSON
 import AVKit
@@ -136,10 +136,4 @@ struct DropDetail: View {
     }
     
 }
-
-struct DropDetail_Previews: PreviewProvider {
-    static var previews: some View {
-        NFTDetail(nft: test_NFTs[0])
-                .listRowInsets(EdgeInsets())
-    }
-}
+*/

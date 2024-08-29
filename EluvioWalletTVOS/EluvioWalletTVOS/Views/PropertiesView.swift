@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-05-17.
 //
-
+/*
 import SwiftUI
 
 struct PropertyView : View {
@@ -86,3 +86,4 @@ struct PropertiesView_Previews: PreviewProvider {
             .environmentObject(Fabric())
     }
 }
+*/

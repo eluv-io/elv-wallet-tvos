@@ -10,7 +10,7 @@ import SwiftyJSON
 
 enum ImageAspectRatio : String, Codable  {case square, portrait , landscape }
 
-struct MediaPropertySectionMediaItemView: Codable {
+struct MediaPropertySectionMediaItemViewModel: Codable {
     var id : String
     var media_id : String
     var display : JSON
@@ -88,7 +88,7 @@ struct MediaPropertySectionMediaItemView: Codable {
         return date > Date()
     }
     
-    static func create(item: MediaPropertySectionItem, fabric: Fabric) -> MediaPropertySectionMediaItemView{
+    static func create(item: MediaPropertySectionItem, fabric: Fabric) -> MediaPropertySectionMediaItemViewModel{
 
         var mediaFile : JSON?
         var posterImageLink : JSON?
@@ -193,7 +193,7 @@ struct MediaPropertySectionMediaItemView: Codable {
         }
         
 
-        return MediaPropertySectionMediaItemView (
+        return MediaPropertySectionMediaItemViewModel (
             id: item.id ?? "",
             media_id : item.media_id ?? "",
             display : item.display ?? JSON(),

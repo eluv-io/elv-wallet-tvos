@@ -36,7 +36,7 @@ enum VideoErrorType: String, Hashable {
 }
 
 struct VideoErrorParams{
-    var mediaItem : MediaPropertySectionMediaItemView? = nil
+    var mediaItem : MediaPropertySectionMediaItemViewModel? = nil
     var type : VideoErrorType = .permission
     var backgroundImage: String = ""
     var images : [String] = []
