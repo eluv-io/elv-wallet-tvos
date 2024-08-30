@@ -285,9 +285,6 @@ struct MediaPropertyDetailView: View {
                         return
                     }
                     self.sections = try await eluvio.fabric.getPropertySections(property: id, sections: property.sections)
-                    //let sectionsJSON = try await fabric.getPropertySectionsJSON(property: id, sections: property.sections)
-                    //debugPrint("Sections ", sectionsJSON)
-                    //debugPrint(sections.first)
                 }catch {
                     print("Error getting property sections ", error.localizedDescription)
                 }

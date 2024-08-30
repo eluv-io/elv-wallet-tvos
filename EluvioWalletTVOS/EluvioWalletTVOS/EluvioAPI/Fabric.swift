@@ -1237,12 +1237,12 @@ class Fabric: ObservableObject {
         return try await signer.getMediaCatalogJSON(accessCode: self.fabricToken, mediaId: mediaId)
     }
     
-    func getProperty(property: String) async throws -> MediaProperty? {
+    func getProperty(property: String, noCache:Bool=false) async throws -> MediaProperty? {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
         
-        if mediaPropertiesCache.isEmpty {
+        if mediaPropertiesCache.isEmpty || noCache {
             let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
             try await cacheMediaProperties(properties: mediaProperties)
         }
@@ -1784,10 +1784,15 @@ class Fabric: ObservableObject {
     }
     
     //New API for media item playout
-    func getPlayoutFromMediaId(propertyId:String, mediaId:String) async throws -> String {
+    func getMediaPlayoutOptions(propertyId:String, mediaId:String) async throws -> JSON {
         let path = "/as/mw/properties/" + propertyId + "/media_items/" + mediaId + "/offerings/any/playout_options"
-        guard let url = URL(string:try self.getEndpoint()) else {
-            throw FabricError.configError("getNFTData: could not get fabric endpoint")
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("getPlayoutFromMediaId: could not get authD endpoint")
+        }
+        
+        guard let url = URL(string:try signer.getAuthEndpoint()) else {
+            throw FabricError.configError("getPlayoutFromMediaId: could not get fabric endpoint")
         }
         var components = URLComponents()
         components.scheme = url.scheme
@@ -1795,14 +1800,14 @@ class Fabric: ObservableObject {
         components.path = path
 
         guard let newUrl = components.url else {
-            throw FabricError.invalidURL("getNFTData: could not create url from components. \(components)")
+            throw FabricError.invalidURL("getPlayoutFromMediaId: could not create url from components. \(components)")
         }
                                     
         print("GET ",newUrl)
 
-        let optionsJson = try await self.getJsonRequest(url: newUrl.absoluteString)
-        return try getHlsPlaylistFromMediaOptions(optionsJson: optionsJson)
+        return try await self.getJsonRequest(url: newUrl.absoluteString)
     }
+    
     
     //New API for media item playout. optionsJson is from the media api, not from fabric options
     func getHlsPlaylistFromMediaOptions(optionsJson: JSON?, drm: String = "hls-clear", offering: String = "default") throws -> String {
@@ -1810,8 +1815,11 @@ class Fabric: ObservableObject {
             throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
         }
         
+        debugPrint("getHlsPlaylistFromMediaOptions ", optionsJson)
+        debugPrint("drm ", drm)
 
-        var uri = link[drm]["uri"].stringValue
+        let uri = link[drm]["uri"].stringValue
+        debugPrint("uri ", drm)
         
         guard let url = URL(string:try self.getEndpoint()) else {
             throw FabricError.badInput("getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")

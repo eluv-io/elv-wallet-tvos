@@ -30,7 +30,6 @@ struct SearchParams {
     var currentSecondaryFilter : String = ""
 }
 
-
 enum VideoErrorType: String, Hashable {
     case permission, upcoming
 }

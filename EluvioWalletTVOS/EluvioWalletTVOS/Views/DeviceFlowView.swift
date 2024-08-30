@@ -42,16 +42,7 @@ struct DeviceFlowView: View {
                 return try eluvio.fabric.getUrlFromLink(link: logo)
             }catch{}
         }
-        
-        //This might look weird, prefer not to use
-        /*
-        if let logo = eluvio.pathState.property?.login?["styling"]["logo"] {
-            do {
-                return try eluvio.fabric.getUrlFromLink(link: logo)
-            }catch{}
-        }
-         */
-        
+
         return ""
     }
     
@@ -62,13 +53,11 @@ struct DeviceFlowView: View {
             }catch{}
         }
         
-        /*
         if let image = eluvio.pathState.property?.login?["styling"]["background_image_desktop"] {
             do {
                 return try eluvio.fabric.getUrlFromLink(link: image)
             }catch{}
         }
-        */
         
         return ""
     }
@@ -94,13 +83,8 @@ struct DeviceFlowView: View {
                     Text("Sign In")
                         .font(.custom("Helvetica Neue", size: 62))
                         .fontWeight(.semibold)
-                    
-                    WebImage(url:URL(string:logo))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width:592, height:125)
-                        .padding(10)
-                    
+                        .padding()
+ 
                     Text(code)
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)

@@ -37,7 +37,7 @@ struct OryDeviceFlowView: View {
     @State var isChecking = false
     
     var logo: String {
-        if let logo = eluvio.pathState.property?.main_page?.layout?["logo"]{
+        if let logo = eluvio.pathState.property?.login?["styling"]["logo_tv"] {
             do {
                 return try eluvio.fabric.getUrlFromLink(link: logo)
             }catch{}
@@ -47,7 +47,13 @@ struct OryDeviceFlowView: View {
     }
     
     var backgroundImage: String {
-        if let image = eluvio.pathState.property?.main_page?.layout?["background_image"] {
+        if let image = eluvio.pathState.property?.login?["styling"]["background_image_tv"] {
+            do {
+                return try eluvio.fabric.getUrlFromLink(link: image)
+            }catch{}
+        }
+        
+        if let image = eluvio.pathState.property?.login?["styling"]["background_image_desktop"] {
             do {
                 return try eluvio.fabric.getUrlFromLink(link: image)
             }catch{}
@@ -70,13 +76,8 @@ struct OryDeviceFlowView: View {
                     Text("Sign In")
                         .font(.custom("Helvetica Neue", size: 62))
                         .fontWeight(.semibold)
-                    
-                    WebImage(url:URL(string:logo))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width:592, height:125)
-                        .padding(10)
-                    
+                        .padding()
+
                     Text(code)
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)
@@ -150,7 +151,7 @@ struct OryDeviceFlowView: View {
                 return
             }
             
-            let url = "https://wallet.dev.contentfabric.io/login?mid=\(self.marketplaceId)&useOry=true&action=login&mode=login&response=code&source=code"
+            let url = "https://wallet.contentfabric.io/login?mid=\(self.marketplaceId)&useOry=true&action=login&mode=login&response=code&source=code"
             let json = try await signer.createAuthLogin(redirectUrl: url)
             
             self.response = json

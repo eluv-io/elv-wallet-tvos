@@ -87,9 +87,6 @@ struct MediaPropertyView : View {
                     }
                 }
             }){
-                //NavigationLink(destination:MediaPropertyDetailView(property:property)
-                //    .environmentObject(self.pathState)
-                //    .preferredColorScheme(colorScheme)) {
                 if property.image != "" {
                     WebImage(url: URL(string: property.image))
                         .resizable()

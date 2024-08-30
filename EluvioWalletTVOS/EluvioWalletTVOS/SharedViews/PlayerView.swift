@@ -201,7 +201,7 @@ struct PlayerView: View {
             
             player.play()
 
-            print("*** PlayerView PLAY", player.error)
+            print("*** PlayerView errors: ", player.error)
 
             newItem = true
             self.finishedObserver = PlayerFinishedObserver(player: player)

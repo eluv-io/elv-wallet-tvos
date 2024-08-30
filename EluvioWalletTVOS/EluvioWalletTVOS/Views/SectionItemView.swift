@@ -317,7 +317,7 @@ struct SectionItemView: View {
                                 if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
                                     debugPrint("permission denied! ", mediaItem.title)
                                     debugPrint("startTime! ", mediaItem.start_time)
-                                    debugPrint("icons! ", mediaItem.icons)
+                                    //debugPrint("icons! ", mediaItem.icons)
                                     
                                     var images : [String] = []
                                     if let icons = mediaItem.icons {
@@ -339,14 +339,10 @@ struct SectionItemView: View {
                              
                                 do {
                                     //let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
-                                    let urlString = try await eluvio.fabric.getPlayoutFromMediaId(propertyId: propertyId, mediaId: mediaItem.media_id)
-                                    if let url = URL(string:urlString) {
-                                        let playerItem = AVPlayerItem(url:url)
+                                    let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
+                                    let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
                                         eluvio.pathState.playerItem = playerItem
                                         eluvio.pathState.path.append(.video)
-                                    }else{
-                                        throw FabricError.invalidURL("Could not get playout URL.")
-                                    }
                                 }catch{
                                     print("Error getting link url for playback ", error)
                                     let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
