@@ -288,12 +288,14 @@ struct ContentView: View {
                     switch destination {
                     case .property:
                         if let property = eluvio.pathState.property {
-                                MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric:eluvio.fabric))
-                                    .environmentObject(self.eluvio)
-                            }else{
-                                Text("Error")
-                            }
-                    
+                            MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric:eluvio.fabric))
+                                .environmentObject(self.eluvio)
+                        }else{
+                            Text("Could not load property.")
+                                .font(.title)
+                                .background(.black)
+                                .edgesIgnoringSafeArea(.all)
+                        }
                     case .html:
                         QRView(url: eluvio.pathState.url)
                             .environmentObject(self.eluvio)
@@ -353,6 +355,7 @@ struct ContentView: View {
                         }
                     case let .errorView(msg) :
                         Text(msg)
+                            .font(.title)
                             .background(.black)
                             .edgesIgnoringSafeArea(.all)
                     case let .login(params) :

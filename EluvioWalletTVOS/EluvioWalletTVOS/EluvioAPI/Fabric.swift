@@ -169,7 +169,7 @@ class Fabric: ObservableObject {
     }
     
     @MainActor
-    func connect(network: String, signIn: Bool = true) async throws {
+    func connect(network: String, signIn: Bool = true, token:String="") async throws {
         debugPrint("Fabric connect: ", network)
         /*defer {
             self.signingIn = false
@@ -220,7 +220,12 @@ class Fabric: ObservableObject {
         UserDefaults.standard.set(_network, forKey: "fabric_network")
         
         self.profileClient = ProfileClient(fabric: self)
-        debugPrint("Static token: ", fabricToken)
+        //debugPrint("Static token: ", fabricToken)
+        if fabricToken == "" && token == "" {
+            fabricToken = createStaticToken()
+        }else if !token.isEmpty{
+            fabricToken = token
+        }
         
         if signIn {
             /*

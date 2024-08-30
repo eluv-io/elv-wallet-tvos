@@ -303,7 +303,7 @@ struct MediaPropertyDetailView: View {
                 }
                 .focusSection()
                 .padding(.trailing, 40)
-                .padding(.top, 10)
+                .padding(.top, 40)
 
                 VStack() {
                     ForEach(sections) {section in
@@ -354,7 +354,7 @@ struct MediaPropertyDetailView: View {
                         return
                     }
                     self.sections = try await eluvio.fabric.getPropertySections(property: id, sections: property.sections)
-                    
+                    debugPrint("finished getting sections. ", sections.count)
                     if !sections.isEmpty{
                         let section = sections[0]
                         if let heros = section.hero_items?.arrayValue {
@@ -382,7 +382,7 @@ struct MediaPropertyDetailView: View {
                     if self.playerItem == nil {
                         await MainActor.run{
                             //withAnimation(.easeInOut(duration: 1), {
-                                backgroundImage = property.backgroundImage
+                                //backgroundImage = property.backgroundImage
                             //})
                         }
                     }

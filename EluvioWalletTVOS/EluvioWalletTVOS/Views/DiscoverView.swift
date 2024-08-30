@@ -92,7 +92,7 @@ struct DiscoverView: View {
             if eluvio.fabric.mediaProperties.contents.isEmpty {
                 Task{
                     do {
-                        try await self.eluvio.fabric.connect(network:"main")
+                        try await self.eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
                         await self.eluvio.fabric.refresh()
                     }catch{}
                 }
@@ -105,7 +105,7 @@ struct DiscoverView: View {
                     if val == nil && !eluvio.fabric.isRefreshing {
                         Task {
                             debugPrint("Discover View refreshing fabric")
-                            try await self.eluvio.fabric.connect(network:"main")
+                            try await self.eluvio.fabric.connect(network:"main", token:val?.fabricToken ?? "")
                             await eluvio.fabric.refresh()
                         }
                     }

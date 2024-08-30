@@ -199,6 +199,7 @@ struct SearchView: View {
                 SearchBar(searchString:$searchString, logoUrl:logoUrl, name:name, action:{ searchString in
                     search()
                 })
+                .padding(.top,40)
                 
                 if !primaryFilters.isEmpty{
                     ScrollView(.horizontal){

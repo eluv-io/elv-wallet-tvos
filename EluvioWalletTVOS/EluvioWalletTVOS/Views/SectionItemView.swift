@@ -304,11 +304,11 @@ struct SectionItemView: View {
                     debugPrint("MediaItemView Type ", mediaItem.media_type)
                     debugPrint("Item Type ", item.type ?? "")
                     debugPrint("Item Media Type ", item.media_type ?? "")
-                    eluvio.pathState.path.append(.black)
 
                     if ( mediaItem.media_type.lowercased() == "video") {
                         Task{
                             if var link = item.media?.media_link?["sources"]["default"] {
+                                eluvio.pathState.path.append(.black)
                                 var backgroundImage = ""
                                 if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                     let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
@@ -408,22 +408,31 @@ struct SectionItemView: View {
                                     if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                         debugPrint("Found Sub property", property)
                                         
+                                        var pageId = "main"
+                                        if let _pageId = item.subproperty_page_id {
+                                            pageId = _pageId
+                                        }
+                                        
+                                        var page = property.main_page
+                                        if let _page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                            debugPrint("Found page")
+                                            page = _page
+                                        }else{
+                                            debugPrint("Could not find page for propertyId")
+                                        }
+
                                         await MainActor.run {
+                                            debugPrint("Found sub property page")
                                             eluvio.pathState.property = property
-                                        }
-                                        
-                                        if let pageId = item.subproperty_page_id {
-                                            if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
-                                                await MainActor.run {
-                                                    eluvio.pathState.propertyPage = page
-                                                }
-                                            }
-                                        }
-                                        
-                                        await MainActor.run {
+                                            eluvio.pathState.propertyPage = page
                                             eluvio.pathState.path.append(.property)
                                         }
+                                        
+                                    }else{
+                                        debugPrint("Could not find property from propertyId ", propertyId)
                                     }
+                                }else{
+                                    debugPrint("Could not find subproperty_id")
                                 }
                             }catch{
                                 debugPrint("Error finding property ", item.subproperty_id)

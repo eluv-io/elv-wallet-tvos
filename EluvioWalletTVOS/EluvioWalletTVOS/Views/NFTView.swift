@@ -235,7 +235,7 @@ struct NFTView<DestinationType: View>: View {
 */
 
 struct NFTView2: View {
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     var nft : NFTModel = NFTModel()
     var isForsale = false
     @State private var buttonFocus: Bool = false
@@ -317,8 +317,8 @@ struct NFTView2: View {
     
     var body: some View {
         Button(action:{
-            pathState.nft = nft
-            pathState.path.append(.nft)
+            eluvio.pathState.nft = nft
+            eluvio.pathState.path.append(.nft)
         }) {
             ZStack{
                 Image("dark-item-top-radial").resizable()

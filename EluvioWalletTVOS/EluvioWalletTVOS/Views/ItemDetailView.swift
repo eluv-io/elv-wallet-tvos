@@ -64,26 +64,24 @@ struct ItemDetailView: View {
                             
                             if !propertyId.isEmpty {
                                 Button(action: {
-                                    debugPrint("Go To Property")
+                                    debugPrint("Go To Property ", propertyId)
                                     Task {
                                         if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                            debugPrint("Found Sub property", property)
+                                            debugPrint("Found property")
+                                        
                                             
+                                            let page = property.main_page
+
                                             await MainActor.run {
+                                                debugPrint("Found sub property page")
                                                 eluvio.pathState.property = property
-                                            }
-                                            
-                                            if let pageId = property.main_page?.id{
-                                                if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
-                                                    await MainActor.run {
-                                                        eluvio.pathState.propertyPage = page
-                                                    }
-                                                }
-                                            }
-                                            
-                                            await MainActor.run {
+                                                eluvio.pathState.propertyPage = page
                                                 eluvio.pathState.path.append(.property)
                                             }
+                                            
+                                        }else{
+                                            debugPrint("Could not find property")
+                                            eluvio.pathState.path.append(.errorView("Could not find property."))
                                         }
     
                                     }

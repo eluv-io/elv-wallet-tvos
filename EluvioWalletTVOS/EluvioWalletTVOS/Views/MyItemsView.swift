@@ -73,6 +73,8 @@ struct MyItemsView: View {
                 .scrollClipDisabled()
                 .padding(.leading, 80)
                 NFTGrid(nfts:nfts, drops:drops)
+                    .edgesIgnoringSafeArea(.all)
+                    .focusSection()
                     .padding(.top,40)
             }
         }

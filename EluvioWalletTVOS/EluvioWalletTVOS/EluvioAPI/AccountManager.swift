@@ -71,8 +71,9 @@ class AccountManager : ObservableObject {
     init(){
         /*
        let account = Account ()
-        account.fabricToken = "acssjcE6QchywYvWdz2tonMozuroKLfT1pN7346dHxsE13KTJE3BoM451LDgbMaCL95AmVtHLoppHHQZhsy2RTxnbLKVHFSGthkGBXdwAX4J53sWVEJVUnf4VcPgXfAUPGDZLXoU7tCeWrR8cgQruxdCUywJsBXML1s5JYX9yzNXo6S9bhHkeJXaH4Pu35EZttK2DJQVonmuVjEJ85XmsVkbv2DjFE4KVYpwjRSaULSCheUut4jiYUTTofyrY14XnzrPNghXYfDo16ManDpPsY5rpeJZnAgZSfsyWgid9CGfbdq8BqxAubWTUZ5UQ9wGwW3f7o8r1to9tR8dhFfDXu9Yp2rg8G4hNPYxn"
+        account.fabricToken = "acspjc7aroSEqAXGCnXEiVhsSQorDy2HgwAT1zg8LoauBNEVr7Vv813VRrYQephcLGCmS7EUyEeV3rykte3QDefM6zj8REc7VZTo1vRbqxoeasT1C4tWrW7LaVSkAhK1XJ5ARKSGfg1fuae2KBF7NFjf7pge7MMX6ababUmCNNcZHEywXs2hBxo5B5t8juaRNnMYVMBNnyo2D7XMrHr1QXqunBpMtGX9igy6LVqgfufJ1Z7QgUPdDVftPYjA9L62KhKqTirZgFjftqDM5P1ey9u4ZWUo1FK8LeYr6oRZ"
         account.type = .DEBUG
+        account.login = LoginResponse(addr:"0x3E8590e6EA1a2105fAC8c63E40Bd80987F8879AF")
         currentAccount = account
          */
     }
