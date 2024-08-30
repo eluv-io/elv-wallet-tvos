@@ -10,7 +10,8 @@ import Combine
 import AVKit
 
 enum NavDestination: Hashable {
-    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, videoError, login(LoginParam), errorView(String)
+    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, 
+         videoError, login(LoginParam), errorView(String), progress, black
 }
 
 enum LoginType : String {

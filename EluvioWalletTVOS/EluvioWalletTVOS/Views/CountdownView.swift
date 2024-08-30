@@ -49,9 +49,9 @@ struct CountDownView: View {
     var title: String = "Solvenia vs Denmark"
     var infoText: String = "16 Jun, 9:00 CET Group F Matchday 1"
     var startDateTime : String = ""
-    
-    @State var timeRemaining : String = ""
-    
+    @State var timeRemaining : String = " "
+
+
     @State var timer:Timer?
     
     var body: some View {
@@ -99,6 +99,8 @@ struct CountDownView: View {
                     .lineLimit(1)
                     .frame(maxWidth: 1600)
                     .multilineTextAlignment(.center)
+                    .transition(.opacity)
+                    .id("time remainging: " + timeRemaining)
                     .padding()
                 Spacer()
             }
@@ -123,10 +125,24 @@ struct CountDownView: View {
                         formatter.zeroFormattingBehavior = .pad
                         
                         let remainingTime: TimeInterval = startDate.timeIntervalSince(Date())
-                        timeRemaining = formatter.string(from: remainingTime) ?? ""
+                        if timeRemaining.isEmpty || timeRemaining == " "{
+                            withAnimation(.easeInOut(duration: 1), {
+                                timeRemaining = formatter.string(from: remainingTime) ?? " "
+                            })
+                        }else{
+                            timeRemaining = formatter.string(from: remainingTime) ?? " "
+                        }
+
                     }else{
-                        timeRemaining = "Starting soon"
+                        if (timeRemaining.isEmpty || timeRemaining == " "){
+                            withAnimation(.easeInOut(duration: 1), {
+                                timeRemaining = "Starting soon"
+                            })
+                        }else{
+                            timeRemaining = "Starting soon"
+                        }
                     }
+
                 }
             }
         }

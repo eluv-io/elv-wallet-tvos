@@ -74,7 +74,7 @@ struct OryDeviceFlowView: View {
             VStack(alignment: .center, spacing: 30){
                 VStack(alignment: .center, spacing:20){
                     Text("Sign In")
-                        .font(.custom("Helvetica Neue", size: 62))
+                        .font(.title)
                         .fontWeight(.semibold)
                         .padding()
 

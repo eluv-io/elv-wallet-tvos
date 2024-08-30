@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SDWebImageSwiftUI
+import AVFoundation
 
 struct ViewAllButton: View {
     @FocusState var isFocused
@@ -73,6 +74,7 @@ struct MediaPropertySectionView: View {
     }
     
     @State var inlineBackgroundUrl: String? = nil
+    @State var playerItem : AVPlayerItem? = nil
     
     var heroLogoUrl: String {
         if let items = section.hero_items?.arrayValue {
@@ -109,9 +111,42 @@ struct MediaPropertySectionView: View {
 
     var body: some View {
         if isHero {
-            MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
-                .focusable()
-                .padding([.leading,.trailing],margin)
+          /*  ZStack {
+                if let item = playerItem {
+                    LoopingVideoPlayer([item], endAction: .loop)
+                        .edgesIgnoringSafeArea(.all)
+                        .ignoresSafeArea()
+                        .containerRelativeFrame(
+                                    [.horizontal, .vertical],
+                                    alignment: .topLeading
+                                )
+                }*/
+                MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
+                    .focusable()
+                    .padding([.leading,.trailing],margin)
+            //}
+            //Doesn't look good yet with the video
+            /*
+            .onAppear() {
+                debugPrint("Hero onAppear()")
+                Task{
+                    if let heros = section.hero_items?.arrayValue {
+                        debugPrint("found heros", heros[0])
+                        if !heros.isEmpty{
+                            let video = heros[0]["display"]["background_video"]
+                            debugPrint("video: ", video)
+                            if !video.isEmpty {
+                                do {
+                                    self.playerItem = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
+                                }catch{
+                                    debugPrint("Error: ", error.localizedDescription)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+             */
         }else if items.isEmpty{
             EmptyView()
         } else {
@@ -190,7 +225,6 @@ struct MediaPropertySectionView: View {
                     do {
                         inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
                     }catch{}
-                    
                 }
             }
         }
@@ -205,10 +239,45 @@ struct MediaPropertyDetailView: View {
     @State var sections : [MediaPropertySection] = []
     @FocusState var searchFocused
     @FocusState var headerFocused
+    @State var playerItem : AVPlayerItem? = nil
+    @State var backgroundImage : String = ""
+    
     
     var body: some View {
         ScrollView() {
-            ZStack() {
+            ZStack(alignment:.topLeading) {
+                if let item = playerItem {
+                    VStack{
+                        LoopingVideoPlayer([item], endAction: .loop)
+                            .frame(maxWidth:.infinity, maxHeight:  UIScreen.main.bounds.size.height)
+                            .edgesIgnoringSafeArea([.top,.leading,.trailing])
+                            .frame(alignment: .topLeading)
+                            .transition(.opacity)
+                            .id("property video \(item.hashValue)")
+                        Spacer()
+                    }
+                    //.background(.red)
+                    .frame(maxWidth:.infinity, maxHeight:  UIScreen.main.bounds.size.height)
+                }else if (backgroundImage.hasPrefix("http")){
+                    WebImage(url: URL(string: backgroundImage))
+                        .resizable()
+                        .transition(.opacity)
+                        .aspectRatio(contentMode: .fit)
+                        .edgesIgnoringSafeArea([.top,.leading,.trailing])
+                        .frame(alignment: .topLeading)
+                        .clipped()
+                        .id(backgroundImage)
+                }else if(backgroundImage != "") {
+                    Image(backgroundImage)
+                        .resizable()
+                        .transition(.opacity)
+                        .aspectRatio(contentMode: .fit)
+                        .edgesIgnoringSafeArea([.top,.leading,.trailing])
+                        .frame(alignment: .topLeading)
+                        .clipped()
+                        .id(backgroundImage)
+                }
+                
                 HStack(alignment:.top){
                     Spacer()
                     VStack{
@@ -234,7 +303,8 @@ struct MediaPropertyDetailView: View {
                 }
                 .focusSection()
                 .padding(.trailing, 40)
-                
+                .padding(.top, 10)
+
                 VStack() {
                     ForEach(sections) {section in
                         if let propertyId = property.id {
@@ -247,17 +317,15 @@ struct MediaPropertyDetailView: View {
                 .prefersDefaultFocus(in: NamespaceProperty)
                 
             }
-            .frame(maxWidth: .infinity, alignment: .center)
-            .edgesIgnoringSafeArea([.leading,.trailing])
-            .padding(.top, 10)
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .edgesIgnoringSafeArea([.top,.leading,.trailing])
         }
         .scrollClipDisabled()
-        .frame(maxWidth: .infinity, alignment: .center)
-        .edgesIgnoringSafeArea([.leading,.trailing])
+        .edgesIgnoringSafeArea(.all)
         .background(
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
-                if (property.backgroundImage.hasPrefix("http")){
+               /*if (property.backgroundImage.hasPrefix("http")){
                     WebImage(url: URL(string: property.backgroundImage))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -272,7 +340,7 @@ struct MediaPropertyDetailView: View {
                         .frame(maxWidth:.infinity, maxHeight:.infinity)
                         .frame(alignment: .topLeading)
                         .clipped()
-                }
+                }*/
             }
             .edgesIgnoringSafeArea(.all)
         )
@@ -282,9 +350,43 @@ struct MediaPropertyDetailView: View {
             Task {
                 do {
                     guard let id = property.id else {
+                        debugPrint("Couldn't get property.id")
                         return
                     }
                     self.sections = try await eluvio.fabric.getPropertySections(property: id, sections: property.sections)
+                    
+                    if !sections.isEmpty{
+                        let section = sections[0]
+                        if let heros = section.hero_items?.arrayValue {
+                            debugPrint("found heros", heros[0])
+                            if !heros.isEmpty{
+                                let video = heros[0]["display"]["background_video"]
+                                debugPrint("video: ", video)
+                                if !video.isEmpty {
+                                    do {
+                                        let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
+                                        //withAnimation(.easeInOut(duration: 1), {
+                                        await MainActor.run{
+                                            self.playerItem = item
+                                            debugPrint("playerItem set")
+                                        }
+                                        //})
+                                    }catch{
+                                        debugPrint("Error: ", error.localizedDescription)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if self.playerItem == nil {
+                        await MainActor.run{
+                            //withAnimation(.easeInOut(duration: 1), {
+                                backgroundImage = property.backgroundImage
+                            //})
+                        }
+                    }
+                    
                 }catch {
                     print("Error getting property sections ", error.localizedDescription)
                 }

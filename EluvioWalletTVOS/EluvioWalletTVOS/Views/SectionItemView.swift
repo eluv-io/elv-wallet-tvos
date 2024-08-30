@@ -304,49 +304,63 @@ struct SectionItemView: View {
                     debugPrint("MediaItemView Type ", mediaItem.media_type)
                     debugPrint("Item Type ", item.type ?? "")
                     debugPrint("Item Media Type ", item.media_type ?? "")
+                    eluvio.pathState.path.append(.black)
 
                     if ( mediaItem.media_type.lowercased() == "video") {
                         Task{
-                            var backgroundImage = ""
-                            if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
-                                backgroundImage = viewModel.backgroundImage
-                            }
-
                             if var link = item.media?.media_link?["sources"]["default"] {
+                                var backgroundImage = ""
+                                if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                                    let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
+                                    backgroundImage = viewModel.backgroundImage
+                                }
+                                
+                                var images : [String] = []
+                                if let icons = mediaItem.icons {
+                                    for link in icons {
+                                        do {
+                                            let image = try eluvio.fabric.getUrlFromLink(link: link["icon"])
+                                            images.append(image)
+                                        }catch{}
+                                    }
+                                }
+                                
+                                
+                                if mediaItem.isUpcoming {
+                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
+                                    
+                                    eluvio.pathState.videoErrorParams = videoErrorParams
+                                    _ = eluvio.pathState.path.popLast()
+                                    eluvio.pathState.path.append(.videoError)
+                                    return
+                                }
+                                
+                                
                                 if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
                                     debugPrint("permission denied! ", mediaItem.title)
                                     debugPrint("startTime! ", mediaItem.start_time)
                                     //debugPrint("icons! ", mediaItem.icons)
-                                    
-                                    var images : [String] = []
-                                    if let icons = mediaItem.icons {
-                                        for link in icons {
-                                            do {
-                                                let image = try eluvio.fabric.getUrlFromLink(link: link["icon"])
-                                                images.append(image)
-                                            }catch{}
-                                        }
-                                    }
 
-                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: mediaItem.isUpcoming ? .upcoming : .permission, backgroundImage: backgroundImage, images: images)
+                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImage, images: images)
+                                    
                                     eluvio.pathState.videoErrorParams = videoErrorParams
+                                    _ = eluvio.pathState.path.popLast()
                                     eluvio.pathState.path.append(.videoError)
                                     return
                                 }
-
-                                var hash = item.media?.media_link?["."]["source"].stringValue ?? ""
                              
                                 do {
                                     //let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
                                     let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
                                     let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
                                         eluvio.pathState.playerItem = playerItem
+                                        _ = eluvio.pathState.path.popLast()
                                         eluvio.pathState.path.append(.video)
                                 }catch{
                                     print("Error getting link url for playback ", error)
                                     let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
                                     eluvio.pathState.videoErrorParams = videoErrorParams
+                                    _ = eluvio.pathState.path.popLast()
                                     eluvio.pathState.path.append(.videoError)
                                 }
                             }

@@ -138,7 +138,7 @@ struct SignInView: View {
                     }
                 }
             }.onAppear(){
-                playerItem = AVPlayerItem(url: Bundle.main.url(forResource: "start-screen-bg", withExtension: "mp4")!)
+                //playerItem = AVPlayerItem(url: Bundle.main.url(forResource: "start-screen-bg", withExtension: "mp4")!)
             }
         } else {
             /*DeviceFlowView(showDeviceFlow:$showDeviceFlow)

@@ -34,34 +34,47 @@ struct MediaPropertyView : View {
                                 }
                                
                                 
-                                var account = eluvio.accountManager.getPropertyAccount(property: propertyId)
                                 
-                                if let account = account {
-                                    eluvio.accountManager.setCurrentAccount(account: account)
-                                }else {
-                                    if let login = property.login {
-                                        debugPrint("property: ", login)
-                                        
-                                        let provider = login["settings"]["provider"].stringValue
-                                        if !provider.isEmpty {
-                                            if provider == "auth0" {
-                                                debugPrint("Auth0 login.")
-                                                var account = eluvio.accountManager.getAccount(type: .Auth0)
-                                                if account == nil {
-                                                    eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
+                                //var account = eluvio.accountManager.getPropertyAccount(property: propertyId)
+                                var skipLogin = false
+                                
+                                if let currentAccount = eluvio.accountManager.currentAccount {
+                                    if currentAccount.type == .DEBUG {
+                                        skipLogin = true
+                                        eluvio.fabric.fabricToken = currentAccount.fabricToken
+                                    }
+                                }
+                                    
+                                
+                                if !skipLogin {
+                                    if let account = eluvio.accountManager.getPropertyAccount(property: propertyId){
+                                        eluvio.accountManager.setCurrentAccount(account: account)
+                                        eluvio.fabric.fabricToken = account.fabricToken
+                                    }else {
+                                        if let login = property.login {
+                                            debugPrint("property: ", login)
+                                            
+                                            let provider = login["settings"]["provider"].stringValue
+                                            if !provider.isEmpty {
+                                                if provider == "auth0" {
+                                                    debugPrint("Auth0 login.")
+                                                    var account = eluvio.accountManager.getAccount(type: .Auth0)
+                                                    if account == nil {
+                                                        eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
+                                                        return
+                                                    }
+                                                }else if provider == "ory" {
+                                                    debugPrint("Ory login.")
+                                                    var account = eluvio.accountManager.getAccount(type: .Ory)
+                                                    if account == nil {
+                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
+                                                        return
+                                                    }
+                                                }else {
+                                                    debugPrint("Other login type not supported yet.")
+                                                    eluvio.pathState.path.append(.errorView("Login type not supported."))
                                                     return
                                                 }
-                                            }else if provider == "ory" {
-                                                debugPrint("Ory login.")
-                                                account = eluvio.accountManager.getAccount(type: .Ory)
-                                                if account == nil {
-                                                    eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
-                                                    return
-                                                }
-                                            }else {
-                                                debugPrint("Other login type not supported yet.")
-                                                eluvio.pathState.path.append(.errorView("Login type not supported."))
-                                                return
                                             }
                                         }
                                     }

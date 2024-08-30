@@ -361,8 +361,14 @@ struct ContentView: View {
                         }else if params.type == .ory {
                             OryDeviceFlowView()
                         }
+                    case .progress:
+                        ProgressView()
+                            .edgesIgnoringSafeArea(.all)
+                    case .black:
+                        Color.black
+                            .edgesIgnoringSafeArea(.all)
+                    
                     }
-
                 }
                 .onAppear(){
                     debugPrint("ContentView onAppear")

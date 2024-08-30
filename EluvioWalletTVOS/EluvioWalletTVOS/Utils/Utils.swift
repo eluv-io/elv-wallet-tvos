@@ -578,8 +578,8 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         return AVPlayerItem(asset: urlAsset)
-    }else if options["hls-sample-aes"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-sample-aes", offering: offering)
+    }else if options["hls-aes128"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-aes128", offering: offering)
         print("Playlist URL \(hlsPlaylistUrl)")
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
@@ -602,6 +602,12 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
         ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
         return AVPlayerItem(asset: urlAsset)
         
+    }else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-sample-aes", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
     }else{
         throw RuntimeError("No available playback options \(options)")
     }
@@ -623,8 +629,8 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric, optionsJson: JSON?, offe
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         return AVPlayerItem(asset: urlAsset)
-    }else if options["hls-sample-aes"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
+    }else if options["hls-aes128"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-aes128", offering: offering)
         print("Playlist URL \(hlsPlaylistUrl)")
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
@@ -647,6 +653,12 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric, optionsJson: JSON?, offe
         ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
         return AVPlayerItem(asset: urlAsset)
         
+    }else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        return AVPlayerItem(asset: urlAsset)
     }else{
         throw RuntimeError("No available playback options \(options)")
     }

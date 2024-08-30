@@ -1927,8 +1927,30 @@ class Fabric: ObservableObject {
         var hash = hash
         
         if hash.isEmpty {
+            hash = link["."]["source"].stringValue
+        }
+        
+        if hash.isEmpty {
             hash = link["."]["container"].stringValue
         }
+        
+        if hash.isEmpty {
+            hash = link["sources"]["default"]["."]["container"].stringValue
+        }
+        
+        if hash.isEmpty {
+            throw FabricError.badInput("getUrlFromLink: Could not find hash")
+        }
+        
+        if path.isEmpty {
+            debugPrint("searching sources.default for link path")
+            path = link["sources"]["default"]["/"].stringValue
+        }
+        
+        if path.isEmpty {
+            throw FabricError.badInput("getUrlFromLink: Could not find path")
+        }
+        
         
         if (path.hasPrefix("/qfab")){
             hash = ""
