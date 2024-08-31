@@ -303,7 +303,8 @@ struct MediaPropertyDetailView: View {
                     
                     do {
                         let propertyMainPagePermissions = try await eluvio.fabric.resolvePermission(propertyId: id, pageId: "main")
-                        debugPrint("Property permissions ", propertyMainPagePermissions)
+                        debugPrint("Page permissions ", property.main_page?.permissions)
+                        debugPrint("Page resolved permissions", propertyMainPagePermissions)
                         
                         //let mainPagePermissions = try await eluvio.fabric.getPropertyPage(property: <#T##String#>, page: "main")
                     }catch{
@@ -317,7 +318,7 @@ struct MediaPropertyDetailView: View {
                     if !sections.isEmpty{
                         let section = sections[0]
                         if let heros = section.hero_items?.arrayValue {
-                            debugPrint("found heros", heros[0])
+                            //debugPrint("found heros", heros[0])
                             if !heros.isEmpty{
                                 let video = heros[0]["display"]["background_video"]
                                 debugPrint("video: ", video)

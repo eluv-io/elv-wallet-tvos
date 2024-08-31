@@ -88,7 +88,11 @@ class AccountManager : ObservableObject {
             let decoder = JSONDecoder()
             if let account = try? decoder.decode(Account.self, from: accountData) {
                 debugPrint("Retrieved "+account.id)
-                setCurrentAccount(account: account)
+                do {
+                    try addAndSetCurrentAccount(account: account, type:account.type)
+                }catch{
+                    print("Could not add account: ", error.localizedDescription)
+                }
             }
         }
     }

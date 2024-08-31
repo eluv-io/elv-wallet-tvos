@@ -21,6 +21,8 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var logoAlt: String = ""
     var position: String = ""
     var sections: [String] = []
+    var permissions : JSON? = nil
+    var main_page : MediaPropertyPage? = nil
     
     static func == (lhs: MediaPropertyViewModel, rhs: MediaPropertyViewModel) -> Bool {
         return lhs.id == rhs.id
@@ -79,7 +81,9 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
                 logo: logo,
                 logoAlt: mediaProperty.main_page?.layout?["logo_alt"].stringValue ?? "",
                 position: mediaProperty.main_page?.layout?["position"].stringValue ?? "",
-                sections: sections
+                sections: sections,
+                permissions : mediaProperty.permissions,
+                main_page: mediaProperty.main_page
             )
     }
 }
