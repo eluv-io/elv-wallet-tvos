@@ -2255,12 +2255,12 @@ class Fabric: ObservableObject {
     }
     
     func resolvePermission(propertyId:String,
-                           _pageId:String,
-                           sectionId:String,
-                           sectionItemId:String,
-                           mediaCollectionId:String,
-                           mediaListId:String,
-                           mediaItemId:String
+                           pageId:String = "",
+                           sectionId:String = "",
+                           sectionItemId:String = "",
+                           mediaCollectionId:String = "",
+                           mediaListId:String = "",
+                           mediaItemId:String = ""
     ) async throws -> ResolvedPermission {
 
         var result = ResolvedPermission()
@@ -2283,7 +2283,7 @@ class Fabric: ObservableObject {
             }catch{}
         }
         
-        var pageId = _pageId
+        var pageId = pageId
         if pageId.isEmpty {
             pageId = "main"
         }

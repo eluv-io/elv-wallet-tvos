@@ -111,42 +111,9 @@ struct MediaPropertySectionView: View {
 
     var body: some View {
         if isHero {
-          /*  ZStack {
-                if let item = playerItem {
-                    LoopingVideoPlayer([item], endAction: .loop)
-                        .edgesIgnoringSafeArea(.all)
-                        .ignoresSafeArea()
-                        .containerRelativeFrame(
-                                    [.horizontal, .vertical],
-                                    alignment: .topLeading
-                                )
-                }*/
-                MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
-                    .focusable()
-                    .padding([.leading,.trailing],margin)
-            //}
-            //Doesn't look good yet with the video
-            /*
-            .onAppear() {
-                debugPrint("Hero onAppear()")
-                Task{
-                    if let heros = section.hero_items?.arrayValue {
-                        debugPrint("found heros", heros[0])
-                        if !heros.isEmpty{
-                            let video = heros[0]["display"]["background_video"]
-                            debugPrint("video: ", video)
-                            if !video.isEmpty {
-                                do {
-                                    self.playerItem = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
-                                }catch{
-                                    debugPrint("Error: ", error.localizedDescription)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-             */
+            MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
+                .focusable()
+                .padding([.leading,.trailing],margin)
         }else if items.isEmpty{
             EmptyView()
         } else {
@@ -242,7 +209,7 @@ struct MediaPropertyDetailView: View {
     @State var playerItem : AVPlayerItem? = nil
     @State var backgroundImage : String = ""
     
-    
+    @State var permissions : ResolvedPermission? = nil
     var body: some View {
         ScrollView() {
             ZStack(alignment:.topLeading) {
@@ -256,7 +223,6 @@ struct MediaPropertyDetailView: View {
                             .id("property video \(item.hashValue)")
                         Spacer()
                     }
-                    //.background(.red)
                     .frame(maxWidth:.infinity, maxHeight:  UIScreen.main.bounds.size.height)
                 }else if (backgroundImage.hasPrefix("http")){
                     WebImage(url: URL(string: backgroundImage))
@@ -323,26 +289,7 @@ struct MediaPropertyDetailView: View {
         .scrollClipDisabled()
         .edgesIgnoringSafeArea(.all)
         .background(
-            ZStack {
-                Color.black.edgesIgnoringSafeArea(.all)
-               /*if (property.backgroundImage.hasPrefix("http")){
-                    WebImage(url: URL(string: property.backgroundImage))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(maxWidth:.infinity, maxHeight:.infinity)
-                        .frame(alignment: .topLeading)
-                        .clipped()
-                }else if(property.backgroundImage != "") {
-                    Image(property.backgroundImage)
-                        .resizable()
-                        .transition(.fade(duration: 0.5))
-                        .aspectRatio(contentMode: .fill)
-                        .frame(maxWidth:.infinity, maxHeight:.infinity)
-                        .frame(alignment: .topLeading)
-                        .clipped()
-                }*/
-            }
-            .edgesIgnoringSafeArea(.all)
+            Color.black.edgesIgnoringSafeArea(.all)
         )
         .onAppear(){
             debugPrint("MediaPropertyDetailView onAppear")
@@ -353,6 +300,10 @@ struct MediaPropertyDetailView: View {
                         debugPrint("Couldn't get property.id")
                         return
                     }
+                    
+                    do {
+                        self.permissions = try await eluvio.fabric.resolvePermission(propertyId: <#T##String#>)
+                    
                     self.sections = try await eluvio.fabric.getPropertySections(property: id, sections: property.sections)
                     debugPrint("finished getting sections. ", sections.count)
                     if !sections.isEmpty{

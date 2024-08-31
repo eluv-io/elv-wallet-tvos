@@ -32,10 +32,7 @@ struct MediaPropertyView : View {
                                 await MainActor.run {
                                     eluvio.pathState.property = property
                                 }
-                               
-                                
-                                
-                                //var account = eluvio.accountManager.getPropertyAccount(property: propertyId)
+
                                 var skipLogin = false
                                 
                                 if let currentAccount = eluvio.accountManager.currentAccount {
@@ -58,14 +55,14 @@ struct MediaPropertyView : View {
                                             if !provider.isEmpty {
                                                 if provider == "auth0" {
                                                     debugPrint("Auth0 login.")
-                                                    var account = eluvio.accountManager.getAccount(type: .Auth0)
+                                                    let account = eluvio.accountManager.getAccount(type: .Auth0)
                                                     if account == nil {
                                                         eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
                                                         return
                                                     }
                                                 }else if provider == "ory" {
                                                     debugPrint("Ory login.")
-                                                    var account = eluvio.accountManager.getAccount(type: .Ory)
+                                                    let account = eluvio.accountManager.getAccount(type: .Ory)
                                                     if account == nil {
                                                         eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
                                                         return
@@ -79,8 +76,7 @@ struct MediaPropertyView : View {
                                         }
                                     }
                                 }
-                                
-                                
+
                                 if let pageId = property.main_page?.id{
                                     if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
                                         await MainActor.run {
@@ -88,11 +84,11 @@ struct MediaPropertyView : View {
                                         }
                                     }
                                 }
-                                
+
                                 await MainActor.run {
                                     eluvio.pathState.path.append(.property)
                                 }
-                                
+
                             }
                         }
                     }catch{

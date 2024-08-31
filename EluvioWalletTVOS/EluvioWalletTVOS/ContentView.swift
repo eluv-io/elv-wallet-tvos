@@ -284,177 +284,177 @@ struct ContentView: View {
                     }
                 }
             }
-                .navigationDestination(for: NavDestination.self) { destination in
-                    switch destination {
-                    case .property:
-                        if let property = eluvio.pathState.property {
-                            MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric:eluvio.fabric))
-                                .environmentObject(self.eluvio)
-                        }else{
-                            Text("Could not load property.")
-                                .font(.title)
-                                .background(.black)
-                                .edgesIgnoringSafeArea(.all)
-                        }
-                    case .html:
-                        QRView(url: eluvio.pathState.url)
+            .navigationDestination(for: NavDestination.self) { destination in
+                switch destination {
+                case .property:
+                    if let property = eluvio.pathState.property {
+                        MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric:eluvio.fabric))
                             .environmentObject(self.eluvio)
-                    case .video:
-                        if let playerItem = eluvio.pathState.playerItem {
-                            PlayerView(playerItem: playerItem, seekTimeS: 0, finished: $playerFinsished)
-                                .environmentObject(self.eluvio)
-                        }
-                    case .videoError:
-                        if let params = eluvio.pathState.videoErrorParams {
-                            if let mediaItem = params.mediaItem {
-                                if params.type == .permission {
-                                    PlayerErrorView(backgroundImageUrl:params.backgroundImage, title:"The media is not available")
-                                }else if params.type == .upcoming {
-                                    CountDownView(backgroundImageUrl:params.backgroundImage,
-                                                  images:params.images,
-                                                  imageUrl: mediaItem.thumbnail,
-                                                  title:mediaItem.title,
-                                                  infoText:mediaItem.headerString,
-                                                  startDateTime: mediaItem.start_time)
-                                }
-                            }
-                        }
-                    case .mediaGrid:
-                        if let item = eluvio.pathState.mediaItem {
-                            if !eluvio.pathState.propertyId.isEmpty {
-                                SectionItemListView(propertyId: eluvio.pathState.propertyId, item:item)
-                                    .environmentObject(self.eluvio)
-                            }
-                        }
-                    case .gallery:
-                        GalleryView(gallery:eluvio.pathState.gallery)
-                            .environmentObject(self.eluvio)
-                    case .search:
-                        if let params = eluvio.pathState.searchParams {
-                            SearchView(searchString: params.searchTerm,
-                                       propertyId: params.propertyId,
-                                       primaryFilters: params.primaryFilters,
-                                       currentPrimaryFilter: params.currentPrimaryFilter,
-                                       currentSecondaryFilter: params.currentSecondaryFilter, 
-                                       secondaryFilters: params.secondaryFilters
-                            )
-                            .environmentObject(self.eluvio)
-                        }
-                    case .sectionViewAll:
-                        if let section = eluvio.pathState.section {
-                            ScrollView {
-                                SectionGridView(propertyId: eluvio.pathState.propertyId, section:section)
-                                    .environmentObject(self.eluvio)
-                            }
-                            .scrollClipDisabled()
-                        }
-                    case .nft:
-                        if let nft = eluvio.pathState.nft {
-                            ItemDetailView(item:nft)
-                                .environmentObject(self.eluvio)
-                        }
-                    case let .errorView(msg) :
-                        Text(msg)
+                    }else{
+                        Text("Could not load property.")
                             .font(.title)
                             .background(.black)
                             .edgesIgnoringSafeArea(.all)
-                    case let .login(params) :
-                        if params.type == .auth0 {
-                            DeviceFlowView()
-                        }else if params.type == .ory {
-                            OryDeviceFlowView()
-                        }
-                    case .progress:
-                        ProgressView()
-                            .edgesIgnoringSafeArea(.all)
-                    case .black:
-                        Color.black
-                            .edgesIgnoringSafeArea(.all)
-                    
                     }
+                case .html:
+                    QRView(url: eluvio.pathState.url)
+                        .environmentObject(self.eluvio)
+                case .video:
+                    if let playerItem = eluvio.pathState.playerItem {
+                        PlayerView(playerItem: playerItem, seekTimeS: 0, finished: $playerFinsished)
+                            .environmentObject(self.eluvio)
+                    }
+                case .videoError:
+                    if let params = eluvio.pathState.videoErrorParams {
+                        if let mediaItem = params.mediaItem {
+                            if params.type == .permission {
+                                PlayerErrorView(backgroundImageUrl:params.backgroundImage, title:"The media is not available")
+                            }else if params.type == .upcoming {
+                                CountDownView(backgroundImageUrl:params.backgroundImage,
+                                              images:params.images,
+                                              imageUrl: mediaItem.thumbnail,
+                                              title:mediaItem.title,
+                                              infoText:mediaItem.headerString,
+                                              startDateTime: mediaItem.start_time)
+                            }
+                        }
+                    }
+                case .mediaGrid:
+                    if let item = eluvio.pathState.mediaItem {
+                        if !eluvio.pathState.propertyId.isEmpty {
+                            SectionItemListView(propertyId: eluvio.pathState.propertyId, item:item)
+                                .environmentObject(self.eluvio)
+                        }
+                    }
+                case .gallery:
+                    GalleryView(gallery:eluvio.pathState.gallery)
+                        .environmentObject(self.eluvio)
+                case .search:
+                    if let params = eluvio.pathState.searchParams {
+                        SearchView(searchString: params.searchTerm,
+                                   propertyId: params.propertyId,
+                                   primaryFilters: params.primaryFilters,
+                                   currentPrimaryFilter: params.currentPrimaryFilter,
+                                   currentSecondaryFilter: params.currentSecondaryFilter,
+                                   secondaryFilters: params.secondaryFilters
+                        )
+                        .environmentObject(self.eluvio)
+                    }
+                case .sectionViewAll:
+                    if let section = eluvio.pathState.section {
+                        ScrollView {
+                            SectionGridView(propertyId: eluvio.pathState.propertyId, section:section)
+                                .environmentObject(self.eluvio)
+                        }
+                        .scrollClipDisabled()
+                    }
+                case .nft:
+                    if let nft = eluvio.pathState.nft {
+                        ItemDetailView(item:nft)
+                            .environmentObject(self.eluvio)
+                    }
+                case let .errorView(msg) :
+                    Text(msg)
+                        .font(.title)
+                        .background(.black)
+                        .edgesIgnoringSafeArea(.all)
+                case let .login(params) :
+                    if params.type == .auth0 {
+                        DeviceFlowView()
+                    }else if params.type == .ory {
+                        OryDeviceFlowView()
+                    }
+                case .progress:
+                    ProgressView()
+                        .edgesIgnoringSafeArea(.all)
+                case .black:
+                    Color.black
+                        .edgesIgnoringSafeArea(.all)
+                
                 }
-                .onAppear(){
-                    debugPrint("ContentView onAppear")
-                    self.showActivity = true
-                    
-                    self.viewStateCancellable = viewState.$op
-                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                        .sink { val in
-                            debugPrint("viewState changed.", viewState.op)
-                            debugPrint("showNFT ", showNft)
-                            if viewState.op == .none || eluvio.accountManager.isLoggedOut{
-                                self.showActivity = false
-                                return
-                            }
-                            checkViewState()
-                            showActivity = false
+            }
+            .onAppear(){
+                debugPrint("ContentView onAppear")
+                self.showActivity = true
+                
+                self.viewStateCancellable = viewState.$op
+                    .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+                    .sink { val in
+                        debugPrint("viewState changed.", viewState.op)
+                        debugPrint("showNFT ", showNft)
+                        if viewState.op == .none || eluvio.accountManager.isLoggedOut{
+                            self.showActivity = false
+                            return
                         }
-
-                    self.fabricCancellable = eluvio.fabric.$isRefreshing
-                        .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                        .sink { val in
-                            debugPrint("isRefreshing changed.", eluvio.fabric.isRefreshing)
-                            if (eluvio.fabric.isRefreshing){
-                                return
-                            }
-                            
-                            checkViewState()
-                        }
-                    
-                    if viewState.op != .none {
                         checkViewState()
-                    }else {
                         showActivity = false
                     }
-                }
-            }
-            .onChange(of: self.showActivity) {
-                debugPrint("ShowActivity ", self.showActivity)
-            }
-            /*.fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon, nft] in
-                NFTDetail(nft: nft, backLink: backLink, backLinkIcon: backLinkIcon)
-            }*/
-            .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
-                PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
-                           backLink: backLink, backLinkIcon: backLinkIcon
-                )
-            }
-            /*.fullScreenCover(isPresented: $showMinter, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-                MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
-                           backLink: backLink, backLinkIcon: backLinkIcon
-                )
-            }
-            .fullScreenCover(isPresented: $showProperty, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-                if let prop = property {
-                    let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
-                    NavigationStack {
-                        PropertyMediaView(featured: prop.featured,
-                                          library: prop.media,
-                                          albums: prop.albums,
-                                          items: items,
-                                          liveStreams: prop.live_streams,
-                                          sections: prop.sections,
-                                          heroImage: prop.heroImage ?? "",
-                                          backLink: backLink, backLinkIcon: backLinkIcon
-                        )
+
+                self.fabricCancellable = eluvio.fabric.$isRefreshing
+                    .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+                    .sink { val in
+                        debugPrint("isRefreshing changed.", eluvio.fabric.isRefreshing)
+                        if (eluvio.fabric.isRefreshing){
+                            return
+                        }
+                        
+                        checkViewState()
                     }
+                
+                if viewState.op != .none {
+                    checkViewState()
+                }else {
+                    showActivity = false
                 }
-            }*/
-            .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [mediaList] in
-                GalleryView(gallery: mediaList)
             }
-            .fullScreenCover(isPresented: $showError, onDismiss: didFullScreenCoverDismiss) {
-                HStack{
-                    Text(errorMessage).font(.description)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                .background(.black)
-            }
-            .edgesIgnoringSafeArea(.all)
         }
+        .onChange(of: self.showActivity) {
+            debugPrint("ShowActivity ", self.showActivity)
+        }
+        /*.fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon, nft] in
+            NFTDetail(nft: nft, backLink: backLink, backLinkIcon: backLinkIcon)
+        }*/
+        .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
+            PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
+                       backLink: backLink, backLinkIcon: backLinkIcon
+            )
+        }
+        /*.fullScreenCover(isPresented: $showMinter, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+            MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
+                       backLink: backLink, backLinkIcon: backLinkIcon
+            )
+        }
+        .fullScreenCover(isPresented: $showProperty, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
+            if let prop = property {
+                let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
+                NavigationStack {
+                    PropertyMediaView(featured: prop.featured,
+                                      library: prop.media,
+                                      albums: prop.albums,
+                                      items: items,
+                                      liveStreams: prop.live_streams,
+                                      sections: prop.sections,
+                                      heroImage: prop.heroImage ?? "",
+                                      backLink: backLink, backLinkIcon: backLinkIcon
+                    )
+                }
+            }
+        }*/
+        .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [mediaList] in
+            GalleryView(gallery: mediaList)
+        }
+        .fullScreenCover(isPresented: $showError, onDismiss: didFullScreenCoverDismiss) {
+            HStack{
+                Text(errorMessage).font(.description)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
+                    .padding()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+            .background(.black)
+        }
+        .edgesIgnoringSafeArea(.all)
+    }
     
     
     func didFullScreenCoverDismiss() {
