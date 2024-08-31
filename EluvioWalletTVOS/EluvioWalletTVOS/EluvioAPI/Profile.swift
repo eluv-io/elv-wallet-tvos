@@ -18,10 +18,6 @@ class Profile: ObservableObject {
     @Published
     var profileData = ProfileData()
     
-    init(){
-
-    }
-    
     func setPreferredLocation(location: String) async throws {
         profileData.preferredLocation = location
         if var locations = profileData.locations {

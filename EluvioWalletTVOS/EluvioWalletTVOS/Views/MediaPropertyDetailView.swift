@@ -302,8 +302,10 @@ struct MediaPropertyDetailView: View {
                     }
                     
                     do {
-                        self.permissions = try await eluvio.fabric.resolvePermission(propertyId: id)
-                        debugPrint("Property permissions ", permissions!)
+                        let propertyMainPagePermissions = try await eluvio.fabric.resolvePermission(propertyId: id, pageId: "main")
+                        debugPrint("Property permissions ", propertyMainPagePermissions)
+                        
+                        //let mainPagePermissions = try await eluvio.fabric.getPropertyPage(property: <#T##String#>, page: "main")
                     }catch{
                         print("Could not resolve permissions for property id", id)
                     }

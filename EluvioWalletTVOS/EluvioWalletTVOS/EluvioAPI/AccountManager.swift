@@ -8,26 +8,26 @@
 import Foundation
 import Base58Swift
 
-enum AccountType {
+enum AccountType: Codable {
     case Auth0, Ory, SSO, DEBUG
 }
 
-class Account: Identifiable {
-    var id: String? {
-        let id = getAccountId()
-        if id.isEmpty {
+class Account: Identifiable, Codable {
+    var id: String {
+        let _id = getAccountId()
+        if _id.isEmpty {
             return UUID().uuidString
         }
         
-        return id
+        return _id
     }
     var type: AccountType = .Auth0
     var fabricToken: String = ""
-    var profile: Profile = Profile()
+    var profile: ProfileData = ProfileData()
     var login :  LoginResponse? = nil
     var signInResponse: SignInResponse? = nil
     var isLoggedOut = true
-    
+
     func getAccountId() -> String {
         guard let address = self.login?.addr else
         {
@@ -69,13 +69,36 @@ class AccountManager : ObservableObject {
     var signingIn = false
     
     init(){
+        getSavedAccount()
         /*
+
        let account = Account ()
-        account.fabricToken = "acspjc7aroSEqAXGCnXEiVhsSQorDy2HgwAT1zg8LoauBNEVr7Vv813VRrYQephcLGCmS7EUyEeV3rykte3QDefM6zj8REc7VZTo1vRbqxoeasT1C4tWrW7LaVSkAhK1XJ5ARKSGfg1fuae2KBF7NFjf7pge7MMX6ababUmCNNcZHEywXs2hBxo5B5t8juaRNnMYVMBNnyo2D7XMrHr1QXqunBpMtGX9igy6LVqgfufJ1Z7QgUPdDVftPYjA9L62KhKqTirZgFjftqDM5P1ey9u4ZWUo1FK8LeYr6oRZ"
+        account.fabricToken = "acssjc7xwiJ1BkJPX8jfKcm4HJXyFArHophH4eGLkaF9VdJzPAwcUPX3b1utCeVRGwg3UNzkncu3TX42KSDRPKn22VjYNe1VtFg5oMf6esaSpAi9cBKvSS2T9HfKPTDY2XAaPm8mm1SSxQzgARDh5qCttSDksf7eM3qctUmELnPMXJ78kvqNJFu2KXnoKtaFZXYjvwqzTZKUXv3tq2geaQWaFjLNdJFT69UwwfiJcYehybhSoNc2DNHn1JHibHqdU18QUh8dqXCmSAg9TiUVtDeXs9e2jwwhwqw6q1AAt3u5UJyujkLtmp5HekzbLs3PU6f8HLyNoziHSXLNyEJp4o3U2JbMHgENkjJH5fKPXAJ4dVYXFTUW5hrPWs2wRzuiRU"
         account.type = .DEBUG
-        account.login = LoginResponse(addr:"0x3E8590e6EA1a2105fAC8c63E40Bd80987F8879AF")
+        account.login = LoginResponse(addr:"0x2cdca879563d986210c2484b7984abcab821fd8c")
         currentAccount = account
+         
          */
+
+
+    }
+    
+    func getSavedAccount() {
+        if let accountData = UserDefaults.standard.object(forKey: "current_account") as? Data {
+            let decoder = JSONDecoder()
+            if let account = try? decoder.decode(Account.self, from: accountData) {
+                debugPrint("Retrieved "+account.id)
+                setCurrentAccount(account: account)
+            }
+        }
+    }
+    
+    func saveCurrentAccount() {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(currentAccount) {
+            let defaults = UserDefaults.standard
+            defaults.set(encoded, forKey: "current_account")
+        }
     }
     
     var isLoggedOut : Bool {
@@ -89,9 +112,7 @@ class AccountManager : ObservableObject {
     func signOut() {
         currentAccount = nil
         accounts = [.Auth0:[:],.Ory:[:]]
-        UserDefaults.standard.removeObject(forKey: "access_token")
-        UserDefaults.standard.removeObject(forKey: "id_token")
-        UserDefaults.standard.removeObject(forKey: "token_type")
+        UserDefaults.standard.removeObject(forKey: "current_account")
     }
     
     func isSignedIn(type: AccountType) -> Bool {
@@ -136,6 +157,7 @@ class AccountManager : ObservableObject {
     
     func setCurrentAccount(account:Account) {
         currentAccount = account
+        saveCurrentAccount()
     }
     
     func addAndSetCurrentAccount(account:Account, type:AccountType, property: String = "") throws {

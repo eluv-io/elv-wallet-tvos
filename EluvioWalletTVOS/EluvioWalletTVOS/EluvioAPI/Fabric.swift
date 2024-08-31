@@ -1808,7 +1808,7 @@ class Fabric: ObservableObject {
             throw FabricError.invalidURL("getPlayoutFromMediaId: could not create url from components. \(components)")
         }
                                     
-        print("GET ",newUrl)
+        //print("GET ",newUrl)
 
         return try await self.getJsonRequest(url: newUrl.absoluteString)
     }
@@ -1837,7 +1837,7 @@ class Fabric: ObservableObject {
             newUrl = newUrl + "?authorization=\(self.fabricToken)"
         }
         
-        print("HLS URL: ", newUrl)
+        //print("HLS URL: ", newUrl)
         
         return newUrl
     }
@@ -1903,7 +1903,7 @@ class Fabric: ObservableObject {
         }
         
         let optionsJson = try await getJsonRequest(url: optionsUrl)
-        print("options json \(optionsJson)")
+        //print("options json \(optionsJson)")
         
         return (optionsJson, versionsHash)
     }
@@ -2147,7 +2147,7 @@ class Fabric: ObservableObject {
             newUrl = newUrl + "?authorization=\(self.fabricToken)"
         }
         
-        print("HLS URL: ", newUrl)
+        //print("HLS URL: ", newUrl)
         
         return newUrl
     }
