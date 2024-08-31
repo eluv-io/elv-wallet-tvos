@@ -17,7 +17,6 @@ struct OryDeviceFlowView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio : EluvioAPI
-    @State var marketplaceId = ""
     @State var url = ""
     @State var statusUrl: String = ""
     @State var code = ""
@@ -57,6 +56,14 @@ struct OryDeviceFlowView: View {
             do {
                 return try eluvio.fabric.getUrlFromLink(link: image)
             }catch{}
+        }
+        
+        return ""
+    }
+    
+    var propertyId : String {
+        if let id = eluvio.pathState.property?.id{
+            return id
         }
         
         return ""
@@ -151,7 +158,7 @@ struct OryDeviceFlowView: View {
                 return
             }
             
-            let url = "https://wallet.contentfabric.io/login?mid=\(self.marketplaceId)&useOry=true&action=login&mode=login&response=code&source=code"
+            let url = "https://wallet.contentfabric.io/login?pid=\(self.propertyId)&ory=true&action=login&mode=login&response=code&source=code"
             let json = try await signer.createAuthLogin(redirectUrl: url)
             
             self.response = json

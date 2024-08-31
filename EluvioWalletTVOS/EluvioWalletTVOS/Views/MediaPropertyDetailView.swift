@@ -302,10 +302,16 @@ struct MediaPropertyDetailView: View {
                     }
                     
                     do {
-                        self.permissions = try await eluvio.fabric.resolvePermission(propertyId: <#T##String#>)
+                        self.permissions = try await eluvio.fabric.resolvePermission(propertyId: id)
+                        debugPrint("Property permissions ", permissions!)
+                    }catch{
+                        print("Could not resolve permissions for property id", id)
+                    }
                     
                     self.sections = try await eluvio.fabric.getPropertySections(property: id, sections: property.sections)
                     debugPrint("finished getting sections. ", sections.count)
+                    
+                    //Finding the hero video to play
                     if !sections.isEmpty{
                         let section = sections[0]
                         if let heros = section.hero_items?.arrayValue {
