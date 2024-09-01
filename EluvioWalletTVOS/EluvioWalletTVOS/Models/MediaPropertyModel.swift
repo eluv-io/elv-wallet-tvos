@@ -31,8 +31,11 @@ struct MediaProperty: Codable, Identifiable {
     var main_page : MediaPropertyPage?
     var media_catalogs : [String]?
     var page_ids : [String]?
+    var permission_auth_state : JSON?
+    var permission_auth_state_raw : JSON?
     var permission_sets : [String]?
     var permissions : JSON?
+    var require_login : Bool?
     var slug : String?
 }
 
@@ -52,6 +55,7 @@ struct MediaPropertyPage: Codable {
     var layout : JSON?
     var permissions : JSON?
     var slug : String?
+    var sections : [String]?
 }
 
 struct MediaPropertySectionsResponse: Codable {
@@ -88,7 +92,6 @@ struct MediaPropertySection: Codable, Identifiable {
         id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
         content = try container.decodeIfPresent([MediaPropertySectionItem].self, forKey: .content) ?? []
         description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
-        authorized = try container.decodeIfPresent(Bool.self, forKey: .authorized) ?? nil
         display = try container.decodeIfPresent(JSON.self, forKey: .display) ?? nil
         label = try container.decodeIfPresent(String.self, forKey: .label) ?? ""
         permissions = try container.decodeIfPresent(JSON.self, forKey: .permissions) ?? nil
@@ -100,6 +103,7 @@ struct MediaPropertySection: Codable, Identifiable {
 
 struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     var id : String? = UUID().uuidString
+    var banner_image : JSON?
     var media_id : String? = UUID().uuidString
     var media_type : String?
     var type : String?
@@ -111,8 +115,8 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     var use_media_settings : Bool? = false
     var subproperty_id : String?
     var subproperty_page_id : String?
-    var authorized : Bool?
     var permissions : JSON?
+    var page_id : String?
     
     static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
         return lhs.id == rhs.id

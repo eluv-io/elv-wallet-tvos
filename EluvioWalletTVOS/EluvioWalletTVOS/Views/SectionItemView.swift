@@ -285,8 +285,6 @@ struct SectionMediaItemView: View {
     }
 }
 
-    
-
 struct SectionItemView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     
@@ -414,7 +412,7 @@ struct SectionItemView: View {
                                         }
                                         
                                         var page = property.main_page
-                                        if let _page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
+                                        if let _page = try await eluvio.fabric.getPropertyPage(propertyId: propertyId, pageId: pageId) {
                                             debugPrint("Found page")
                                             page = _page
                                         }else{
@@ -442,6 +440,81 @@ struct SectionItemView: View {
                     }else {
                         debugPrint("Item without type Item: ", mediaItem)
                     }
+                    
+                }){
+                    VStack(alignment: .leading, spacing: 10){
+                        MediaCard(display: mediaItem.thumb_aspect_ratio == .square ? .square :
+                                    mediaItem.thumb_aspect_ratio == .portrait ? .feature :
+                                    mediaItem.thumb_aspect_ratio == .landscape ? .video : .square,
+                                  image: mediaItem.thumbnail,
+                                  isFocused:isFocused,
+                                  title: mediaItem.title,
+                                  subtitle: mediaItem.subtitle,
+                                  timeString: mediaItem.headerString,
+                                  isLive: mediaItem.live, centerFocusedText: false,
+                                  showFocusedTitle: mediaItem.title.isEmpty ? false : true,
+                                  showBottomTitle: true
+                        )
+                    }
+                }
+                .buttonStyle(TitleButtonStyle(focused: isFocused))
+                .focused($isFocused)
+                .overlay(content: {
+                    /*
+                    if (mediaItem.mediaType == "Video"){
+                        if !isFocused  {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 80))
+                                .foregroundColor(.white)
+                                .opacity(0.7)
+                        }else{
+                            //TODO: when enabling resume again
+                            if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
+                                VStack{
+                                    Spacer()
+                                    VStack(alignment:.leading, spacing:5){
+                                        Text(progressText).foregroundColor(.white)
+                                            .font(.system(size: 12))
+                                        ProgressView(value:progressValue)
+                                            .foregroundColor(.white)
+                                            .frame(height:4)
+                                    }
+                                    .padding()
+                                }
+                            }
+                        }
+                    }
+                     */
+                    
+                })
+            }
+            
+            
+        }
+        .onAppear(){
+            viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
+        }
+    }
+}
+
+struct SectionItemPurchaseView: View {
+    @EnvironmentObject var eluvio: EluvioAPI
+    
+    var item: MediaPropertySectionItem
+    var sectionId : String
+    var propertyId: String
+    @State var viewItem : MediaPropertySectionMediaItemViewModel? = nil
+    @FocusState var isFocused
+    
+    var body: some View {
+        VStack(alignment:.leading, spacing:10){
+            if let mediaItem = viewItem {
+                Button(action: {
+                    debugPrint("Item Selected! ", mediaItem.title)
+                    debugPrint("MediaItemView Type ", mediaItem.media_type)
+                    debugPrint("Item Type ", item.type ?? "")
+                    debugPrint("Item Media Type ", item.media_type ?? "")
+
                     
                 }){
                     VStack(alignment: .leading, spacing: 10){

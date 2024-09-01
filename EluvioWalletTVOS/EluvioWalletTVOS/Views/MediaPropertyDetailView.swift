@@ -65,6 +65,27 @@ struct MediaPropertySectionView: View {
         return false
     }
     
+    var isBanner: Bool {
+        if section.display?["display_format"].stringValue == "banner"  {
+            return true
+        }
+        return false
+    }
+    
+    var bannerUrl: String {
+        if let items = section.content {
+            if !items.isEmpty {
+                do {
+                    return try eluvio.fabric.getUrlFromLink(link: items[0].banner_image)
+                }catch{
+                    return ""
+                }
+            }
+        }
+        
+        return ""
+    }
+    
     @State var logoUrl: String? = nil
     var logoText: String {
         if let display = section.display {
@@ -114,6 +135,8 @@ struct MediaPropertySectionView: View {
             MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
                 .focusable()
                 .padding([.leading,.trailing],margin)
+        }else if isBanner {
+            MediaPropertyBanner(image: bannerUrl)
         }else if items.isEmpty{
             EmptyView()
         } else {
@@ -149,19 +172,20 @@ struct MediaPropertySectionView: View {
                         HStack(alignment: .center, spacing: 20) {
                             ForEach(section.content ?? []) {item in
                                 if item.type == "item_purchase" {
-                                    //Skip for now
+                                    SectionItemPurchaseView(item: item, sectionId: section.id, propertyId: propertyId)
+                                            .environmentObject(self.eluvio)
                                 }else{
                                     SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
                                             .environmentObject(self.eluvio)
                                 }
                             }
                         }
-                        .focusSection()
                     }
                     .scrollClipDisabled()
                 }
                 .padding(.bottom,40)
             }
+            .focusSection()
             .frame(height:402)
             .padding([.leading,.trailing],margin)
             .background(
@@ -301,19 +325,32 @@ struct MediaPropertyDetailView: View {
                         return
                     }
                     
+                    
+                    var pageId = "main"
                     do {
-                        let propertyMainPagePermissions = try await eluvio.fabric.resolvePermission(propertyId: id, pageId: "main")
+
+                        debugPrint("Property permissions ", property.permissions)
                         debugPrint("Page permissions ", property.main_page?.permissions)
-                        debugPrint("Page resolved permissions", propertyMainPagePermissions)
+
                         
-                        //let mainPagePermissions = try await eluvio.fabric.getPropertyPage(property: <#T##String#>, page: "main")
+                        let pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: id, pageId: pageId)
+                        debugPrint("Main Page resolved permissions", pagePerms)
+                        
+                        if !pagePerms.authorized {
+                            if pagePerms.behavior == .showAlternativePage {
+                                pageId = pagePerms.alternatePageId
+                            }else if pagePerms.behavior == .showPurchase {
+                                //TODO: Waht to show?
+                            }
+                        }
+
                     }catch{
                         print("Could not resolve permissions for property id", id)
                     }
                     
-                    self.sections = try await eluvio.fabric.getPropertySections(property: id, sections: property.sections)
+                    self.sections = try await eluvio.fabric.getPropertyPageSections(property: id, page: pageId)
                     debugPrint("finished getting sections. ", sections.count)
-                    
+
                     //Finding the hero video to play
                     if !sections.isEmpty{
                         let section = sections[0]
@@ -391,5 +428,33 @@ struct MediaPropertyHeader: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 40)
         .padding(.bottom, 60)
+    }
+}
+
+struct MediaPropertyBanner: View {
+    @Namespace var NamespaceProperty
+    @EnvironmentObject var eluvio: EluvioAPI
+    var image: String = ""
+    var margin: CGFloat = 40
+    @FocusState var isFocused: Bool
+
+    var body: some View {
+        if !image.isEmpty {
+            Button(action:{}, label:{
+                HStack(alignment:.center){
+                    WebImage(url:URL(string:image))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth:.infinity, maxHeight:402)
+                }
+                .focusable()
+                .frame(height:402)
+                .padding([.leading,.trailing],margin)
+            })
+            .buttonStyle(BannerButtonStyle(focused:isFocused))
+            .focused($isFocused)
+        }else{
+            EmptyView()
+        }
     }
 }

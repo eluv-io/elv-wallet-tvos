@@ -75,6 +75,30 @@ struct NonSelectionButtonStyle: ButtonStyle {
     }
 }
 
+struct BannerButtonStyle: ButtonStyle {
+    let focused: Bool
+    var scale = 1.04
+    var bordered = false
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.white)
+            .background(.clear)
+            .scaleEffect(self.focused ? scale: 1, anchor: .center)
+            .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            .background(
+                RoundedRectangle(
+                    cornerRadius: 0,
+                    style: .continuous
+                )
+                .stroke(.tint, lineWidth: bordered && focused ? 4 : 0)
+                .scaleEffect(self.focused ? scale: 1, anchor: .center)
+                .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            )
+
+    }
+}
+
+
 struct TitleButtonStyle: ButtonStyle {
     let focused: Bool
     var scale = 1.04

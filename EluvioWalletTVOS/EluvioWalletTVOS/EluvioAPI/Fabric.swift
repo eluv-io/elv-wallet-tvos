@@ -1214,7 +1214,7 @@ class Fabric: ObservableObject {
         return response.contents
     }
     
-    func getPropertyPage(property: String, page: String) async throws -> MediaPropertyPage? {
+    func getPropertyPage(propertyId: String, pageId: String) async throws -> MediaPropertyPage? {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
@@ -1224,11 +1224,16 @@ class Fabric: ObservableObject {
             try await cacheMediaProperties(properties: mediaProperties)
         }
         
-        if let property = try await getProperty(property: property) {
+        if let property = try await getProperty(property: propertyId) {
             
-            //return mediaPropertiesPageCache["\(property)\(page)"]
-            //TODO: Do page caching and use other pages when ids are unique. Right now it's always "main"
-            return property.main_page
+            if pageId == "main"{
+                return property.main_page
+            }
+        
+            
+            let result =  try await signer.getPropertyPage(property:propertyId, page:pageId, accessCode: self.fabricToken)
+            return result
+            
         }
         
         return nil
@@ -1288,6 +1293,39 @@ class Fabric: ObservableObject {
                 retValue.append(section)
             }else {
                 try await cachePropertySections(property: property, sections: [id])
+                if let section = self.mediaPropertiesSectionCache[id] {
+                    retValue.append(section)
+                }
+            }
+        }
+        
+        return retValue
+    }
+    
+    func getPropertyPageSections(property: String, page: String) async throws -> [MediaPropertySection] {
+        
+        var sections: [String] = []
+        if let page = try await getPropertyPage(propertyId: property, pageId:page) {
+            debugPrint("Found page ", page)
+            if let _sec = page.layout?["sections"].arrayValue {
+                for sectionId in _sec {
+                    sections.append(sectionId.stringValue)
+                }
+            }
+        }
+        
+        
+        if mediaPropertiesSectionCache.isEmpty {
+            try await cachePropertySections(property: property, sections: sections)
+        }
+        
+        var retValue: [MediaPropertySection] = []
+        
+        for id in sections {
+            if let section = self.mediaPropertiesSectionCache[id] {
+                retValue.append(section)
+            }else {
+                try await cachePropertySections(property: property, sections: sections)
                 if let section = self.mediaPropertiesSectionCache[id] {
                     retValue.append(section)
                 }
@@ -2254,22 +2292,34 @@ class Fabric: ObservableObject {
         return ""
     }
     
-    func resolvePermission(propertyId:String,
-                           pageId:String = "",
-                           sectionId:String = "",
-                           sectionItemId:String = "",
-                           mediaCollectionId:String = "",
-                           mediaListId:String = "",
-                           mediaItemId:String = ""
+    func resolvePagePermission(propertyId:String,
+                           pageId:String = ""
     ) async throws -> ResolvedPermission {
-
+        
         var result = ResolvedPermission()
         
         let mediaProperty = try await getProperty(property: propertyId)
+        
+        var authState = mediaProperty?.permission_auth_state ?? JSON()
+    
+        
+        if let perms = mediaProperty?.permissions?["property_permissions"].arrayValue {
+            for perm in perms {
+                let p = authState[perm.stringValue]
+                if p.exists() {
+                    if p["authorized"].exists() {
+                        if !p["authorized"].boolValue {
+                            result.authorized = false
+                        }
+                    }
+                }
+            }
+        }
+        
         if let _behavior = mediaProperty?.permissions?["behavior"] {
             do{
                 result.behavior = try getBehavior(json:_behavior)
-                if let altPageId = mediaProperty?.permissions?["alternate_page_id"] {
+                if let altPageId = mediaProperty?.permissions?["property_permissions_alternate_page_id"] {
                     if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
                         result.alternatePageId = altPageId.stringValue
                     }
@@ -2288,7 +2338,81 @@ class Fabric: ObservableObject {
             pageId = "main"
         }
         
-        if let page = try await getPropertyPage(property: propertyId, page:pageId) {
+        if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
+            if let perms = page.permissions?["page_permissions"].arrayValue {
+                for perm in perms {
+                    let p = authState[perm.stringValue]
+                    if p.exists() {
+                        if p["authorized"].exists() {
+                            if !p["authorized"].boolValue {
+                                result.authorized = false
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if let _behavior = page.permissions?["behavior"] {
+                do{
+                    result.behavior = try getBehavior(json:_behavior)
+                    
+                    if let altPageId = page.permissions?["page_permissions_alternate_page_id"] {
+                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                            result.alternatePageId = altPageId.stringValue
+                        }
+                    }
+                    
+                    if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
+                        if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue {
+                            result.secondaryPurchaseOption = true
+                        }
+                    }
+                }catch{}
+            }
+        }
+
+        return result
+    }
+    
+    func resolveContentPermission(propertyId:String,
+                           pageId:String = "",
+                           sectionId:String = "",
+                           sectionItemId:String = "",
+                           mediaCollectionId:String = "",
+                           mediaListId:String = "",
+                           mediaItemId:String = ""
+    ) async throws -> ResolvedPermission {
+
+        var result = ResolvedPermission()
+        
+        let mediaProperty = try await getProperty(property: propertyId)
+        
+        var authState = mediaProperty?.permission_auth_state ?? JSON()
+
+        if let _behavior = mediaProperty?.permissions?["behavior"] {
+            do{
+                result.behavior = try getBehavior(json:_behavior)
+                if let altPageId = mediaProperty?.permissions?["alternate_page_id"] {
+                    if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                        result.alternatePageId = altPageId.stringValue
+                    }
+                }
+                
+                if let secondaryPurchaseOption = mediaProperty?.permissions?["secondary_market_purchase_option"] {
+                    if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
+                        result.secondaryPurchaseOption = true
+                    }
+                }
+            }catch{}
+        }
+        
+
+        var pageId = pageId
+        if pageId.isEmpty {
+            pageId = "main"
+        }
+        
+        if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
             if let _behavior = page.permissions?["behavior"] {
                 do{
                     result.behavior = try getBehavior(json:_behavior)
@@ -2363,9 +2487,9 @@ class Fabric: ObservableObject {
                                 }catch{}
                             }
                             
-                            if let authorized = sectionItem.authorized {
+                           /* if let authorized = sectionItem.authorized {
                                 result.authorized = authorized
-                            }
+                            }*/
                             if !result.authorized {
                                 result.cause = "Section item permissions"
                             }
@@ -2385,6 +2509,7 @@ class Fabric: ObservableObject {
         return result
         
     }
+    
     
     func getBehavior(json:JSON) throws -> PermisionBehavior {
         switch(json.stringValue.lowercased()){

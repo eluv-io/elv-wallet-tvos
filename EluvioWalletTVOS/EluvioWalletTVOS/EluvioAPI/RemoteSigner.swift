@@ -353,6 +353,37 @@ class RemoteSigner {
         })
     }
     
+    func getPropertyPage(property: String, page: String, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertyPage{
+        
+        return try await withCheckedThrowingContinuation({ continuation in
+            print("****** getPropertyPageSections ******")
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)")
+                                                                    
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
+                    .debugLog()
+                    .responseDecodable(of: MediaPropertyPage.self) { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: result)
+                         case .failure(let error):
+                            print("Get property page error: \(error)")
+                            continuation.resume(throwing: error)
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
     func getPropertyPageSections(property: String, page: String, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertySectionsResponse{
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")

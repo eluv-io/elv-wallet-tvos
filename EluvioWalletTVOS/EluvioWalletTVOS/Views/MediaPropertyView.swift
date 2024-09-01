@@ -77,12 +77,8 @@ struct MediaPropertyView : View {
                                     }
                                 }
 
-                                if let pageId = property.main_page?.id{
-                                    if let page = try await eluvio.fabric.getPropertyPage(property: propertyId, page: pageId) {
-                                        await MainActor.run {
-                                            eluvio.pathState.propertyPage = page
-                                        }
-                                    }
+                                await MainActor.run {
+                                    eluvio.pathState.propertyPage = property.main_page
                                 }
 
                                 await MainActor.run {
