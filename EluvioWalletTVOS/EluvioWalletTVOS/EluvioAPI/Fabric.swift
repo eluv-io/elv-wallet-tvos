@@ -34,6 +34,7 @@ enum FabricError: Error {
     case unexpectedResponse(String)
     case noLogin(String)
     case badInput(String)
+    case apiError(code:Int, response:JSON, error:Error)
 }
 
 struct RuntimeError: LocalizedError {
@@ -1191,6 +1192,43 @@ class Fabric: ObservableObject {
             print ("Refresh Error: \(error)")
             //signOut()
         }
+    }
+    
+    func getWalletBaseUrl() -> String {
+        if self.network == "demo" {
+            return "https://wallet.demov3.contentfabric.io"
+        }else{
+            return "https://wallet.contentfabric.io"
+        }
+    }
+    
+    func createWalletPurchaseUrl(propertyId:String, 
+                                 pageId:String,
+                                 listingId:String="",
+                                 sectionId:String="",
+                                 sectionItemId:String="",
+                                 actionId:String="",
+                                 permissionIds:[String]=[],
+                                 secondaryPurchaseOption:String="") throws -> String{
+        var json = JSON([
+            "id" : UUID().uuidString,
+            "listingId":listingId,
+            "sectionSlugOrId":sectionId,
+            "sectionItemId":sectionItemId,
+            "actionId":actionId,
+            "permissionItemIds":permissionIds,
+            "secondaryPurchaseOption":secondaryPurchaseOption,
+            //"unlessPermissions", unlessPermissions,
+            "cancelPath":"",
+            "successPath":""
+
+        ])
+        
+        debugPrint("wallet purchase params: ", json)
+        let array = [UInt8](try json.rawData())
+        
+        let params = Base58.base58Encode(array)
+        return getWalletBaseUrl() + "/" + propertyId + "/" + pageId + "?" + "p=\(params)"
     }
     
     func getNFTs(address:String, propertyId:String="", description:String="") async throws -> [NFTModel]{
@@ -2416,6 +2454,14 @@ class Fabric: ObservableObject {
             if let _behavior = page.permissions?["behavior"] {
                 do{
                     result.behavior = try getBehavior(json:_behavior)
+                    
+                    if let altPageId = page.permissions?["alternate_page_id"] {
+                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                            result.alternatePageId = altPageId.stringValue
+                        }
+                    }
+                    
+                    
                     if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
                         if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue {
                             result.secondaryPurchaseOption = true

@@ -8,11 +8,13 @@
 import SwiftUI
 import SwiftyJSON
 import AVFoundation
+import SDWebImageSwiftUI
 
 struct SectionGridView: View {
     @EnvironmentObject var eluvio: EluvioAPI
 
     var propertyId: String
+    var pageId:String
     var section: MediaPropertySection
     
     var items : [MediaPropertySectionItem] {
@@ -72,7 +74,7 @@ struct SectionGridView: View {
                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                     GridRow(alignment:.top) {
                         ForEach(groups, id: \.self) { item in
-                            SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
+                            SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
                                 .environmentObject(self.eluvio)
                         }
                         .gridColumnAlignment(.leading)
@@ -290,209 +292,189 @@ struct SectionItemView: View {
     
     var item: MediaPropertySectionItem
     var sectionId : String
+    var pageId : String
     var propertyId: String
     @State var viewItem : MediaPropertySectionMediaItemViewModel? = nil
     @FocusState var isFocused
     
     var body: some View {
-        VStack(alignment:.leading, spacing:10){
-            if let mediaItem = viewItem {
-                Button(action: {
-                    debugPrint("Item Selected! ", mediaItem.title)
-                    debugPrint("MediaItemView Type ", mediaItem.media_type)
-                    debugPrint("Item Type ", item.type ?? "")
-                    debugPrint("Item Media Type ", item.media_type ?? "")
-
-                    if ( mediaItem.media_type.lowercased() == "video") {
-                        Task{
-                            if var link = item.media?.media_link?["sources"]["default"] {
-                                eluvio.pathState.path.append(.black)
-                                var backgroundImage = ""
-                                if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                    let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
-                                    backgroundImage = viewModel.backgroundImage
-                                }
-                                
-                                var images : [String] = []
-                                if let icons = mediaItem.icons {
-                                    for link in icons {
-                                        do {
-                                            let image = try eluvio.fabric.getUrlFromLink(link: link["icon"])
-                                            images.append(image)
-                                        }catch{}
+        if item.type == "item_purchase" {
+            SectionItemPurchaseView(sectionItem:item, sectionId: sectionId, pageId:pageId, propertyId: propertyId)
+        }else {
+            VStack(alignment:.leading, spacing:10){
+                if let mediaItem = viewItem {
+                    Button(action: {
+                        debugPrint("Item Selected! ", mediaItem.title)
+                        debugPrint("MediaItemView Type ", mediaItem.media_type)
+                        debugPrint("Item Type ", item.type ?? "")
+                        debugPrint("Item Media Type ", item.media_type ?? "")
+                        
+                        if ( mediaItem.media_type.lowercased() == "video") {
+                            Task{
+                                if var link = item.media?.media_link?["sources"]["default"] {
+                                    eluvio.pathState.path.append(.black)
+                                    var backgroundImage = ""
+                                    if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                                        let viewModel = MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
+                                        backgroundImage = viewModel.backgroundImage
                                     }
-                                }
-                                
-                                
-                                if mediaItem.isUpcoming {
-                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
                                     
-                                    eluvio.pathState.videoErrorParams = videoErrorParams
-                                    _ = eluvio.pathState.path.popLast()
-                                    eluvio.pathState.path.append(.videoError)
-                                    return
-                                }
-                                
-                                
-                                if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
-                                    debugPrint("permission denied! ", mediaItem.title)
-                                    debugPrint("startTime! ", mediaItem.start_time)
-                                    //debugPrint("icons! ", mediaItem.icons)
-
-                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImage, images: images)
+                                    var images : [String] = []
+                                    if let icons = mediaItem.icons {
+                                        for link in icons {
+                                            do {
+                                                let image = try eluvio.fabric.getUrlFromLink(link: link["icon"])
+                                                images.append(image)
+                                            }catch{}
+                                        }
+                                    }
                                     
-                                    eluvio.pathState.videoErrorParams = videoErrorParams
-                                    _ = eluvio.pathState.path.popLast()
-                                    eluvio.pathState.path.append(.videoError)
-                                    return
-                                }
-                             
-                                do {
-                                    //let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
-                                    let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
-                                    let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+                                    
+                                    if mediaItem.isUpcoming {
+                                        let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
+                                        
+                                        eluvio.pathState.videoErrorParams = videoErrorParams
+                                        _ = eluvio.pathState.path.popLast()
+                                        eluvio.pathState.path.append(.videoError)
+                                        return
+                                    }
+                                    
+                                    
+                                    if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
+                                        debugPrint("permission denied! ", mediaItem.title)
+                                        debugPrint("startTime! ", mediaItem.start_time)
+                                        //debugPrint("icons! ", mediaItem.icons)
+                                        
+                                        let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImage, images: images)
+                                        
+                                        eluvio.pathState.videoErrorParams = videoErrorParams
+                                        _ = eluvio.pathState.path.popLast()
+                                        eluvio.pathState.path.append(.videoError)
+                                        return
+                                    }
+                                    
+                                    do {
+                                        //let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
+                                        let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
+                                        let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
                                         eluvio.pathState.playerItem = playerItem
                                         _ = eluvio.pathState.path.popLast()
                                         eluvio.pathState.path.append(.video)
-                                }catch{
-                                    print("Error getting link url for playback ", error)
-                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
-                                    eluvio.pathState.videoErrorParams = videoErrorParams
-                                    _ = eluvio.pathState.path.popLast()
-                                    eluvio.pathState.path.append(.videoError)
+                                    }catch{
+                                        print("Error getting link url for playback ", error)
+                                        let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
+                                        eluvio.pathState.videoErrorParams = videoErrorParams
+                                        _ = eluvio.pathState.path.popLast()
+                                        eluvio.pathState.path.append(.videoError)
+                                    }
                                 }
                             }
-                        }
-                        
-                    }else if ( mediaItem.media_type.lowercased() == "html") {
-                        
-                        debugPrint("Media Item", item)
-                        if !mediaItem.media_file_url.isEmpty {
-                            eluvio.pathState.url = mediaItem.media_file_url
-                            eluvio.pathState.path.append(.html)
-                        }else{
-                            print("MediaItem has empty file for html type")
-                        }
-                    }else if ( item.media_type?.lowercased() == "list") {
-                        
-                        debugPrint("Media Item media List type!", item.media)
-                        
-                        if let media = item.media {
-                            if let list = media.media {
-                                if !list.isEmpty {
-                                    eluvio.pathState.mediaItem = item
-                                    eluvio.pathState.propertyId = propertyId
-                                    eluvio.pathState.path.append(.mediaGrid)
-                                }
+                            
+                        }else if ( mediaItem.media_type.lowercased() == "html") {
+                            
+                            debugPrint("Media Item", item)
+                            if !mediaItem.media_file_url.isEmpty {
+                                eluvio.pathState.url = mediaItem.media_file_url
+                                eluvio.pathState.path.append(.html)
+                            }else{
+                                print("MediaItem has empty file for html type")
                             }
-                        }else{
-                            print("MediaItem has empty file for html type")
-                        }
-                        
-                    }else if (mediaItem.media_type.lowercased() == "gallery") {
-                        debugPrint("Media Item Gallery Type ", item)
-                        if let gallery = item.media?.gallery {
-                            eluvio.pathState.gallery = gallery
-                            eluvio.pathState.path.append(.gallery)
-                        }else{
-                            print("MediaItem has empty file for html type")
-                        }
-                    }else if ( mediaItem.type == "subproperty_link") {
-                        debugPrint("Media Subproperty Item", mediaItem.thumbnail)
-                        debugPrint("Media Item", item)
-                        Task {
-                            do {
-                                if let propertyId = item.subproperty_id {
-                                    if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                        debugPrint("Found Sub property", property)
-                                        
-                                        var pageId = "main"
-                                        if let _pageId = item.subproperty_page_id {
-                                            pageId = _pageId
-                                        }
-                                        
-                                        var page = property.main_page
-                                        if let _page = try await eluvio.fabric.getPropertyPage(propertyId: propertyId, pageId: pageId) {
-                                            debugPrint("Found page")
-                                            page = _page
+                        }else if ( item.media_type?.lowercased() == "list") {
+                            
+                            debugPrint("Media Item media List type!", item.media)
+                            
+                            if let media = item.media {
+                                if let list = media.media {
+                                    if !list.isEmpty {
+                                        eluvio.pathState.mediaItem = item
+                                        eluvio.pathState.propertyId = propertyId
+                                        eluvio.pathState.pageId = pageId
+                                        eluvio.pathState.path.append(.mediaGrid)
+                                    }
+                                }
+                            }else{
+                                print("MediaItem has empty file for html type")
+                            }
+                            
+                        }else if (mediaItem.media_type.lowercased() == "gallery") {
+                            debugPrint("Media Item Gallery Type ", item)
+                            if let gallery = item.media?.gallery {
+                                eluvio.pathState.gallery = gallery
+                                eluvio.pathState.path.append(.gallery)
+                            }else{
+                                print("MediaItem has empty file for html type")
+                            }
+                        }else if ( mediaItem.type == "subproperty_link") {
+                            debugPrint("Media Subproperty Item", mediaItem.thumbnail)
+                            debugPrint("Media Item", item)
+                            Task {
+                                do {
+                                    if let propertyId = item.subproperty_id {
+                                        if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                                            debugPrint("Found Sub property", property)
+                                            
+                                            var pageId = "main"
+                                            if let _pageId = item.subproperty_page_id {
+                                                pageId = _pageId
+                                            }
+                                            
+                                            var page = property.main_page
+                                            if let _page = try await eluvio.fabric.getPropertyPage(propertyId: propertyId, pageId: pageId) {
+                                                debugPrint("Found page")
+                                                page = _page
+                                            }else{
+                                                debugPrint("Could not find page for propertyId")
+                                            }
+                                            
+                                            await MainActor.run {
+                                                debugPrint("Found sub property page")
+                                                eluvio.pathState.property = property
+                                                eluvio.pathState.propertyPage = page
+                                                eluvio.pathState.path.append(.property)
+                                            }
+                                            
                                         }else{
-                                            debugPrint("Could not find page for propertyId")
+                                            debugPrint("Could not find property from propertyId ", propertyId)
                                         }
-
-                                        await MainActor.run {
-                                            debugPrint("Found sub property page")
-                                            eluvio.pathState.property = property
-                                            eluvio.pathState.propertyPage = page
-                                            eluvio.pathState.path.append(.property)
-                                        }
-                                        
                                     }else{
-                                        debugPrint("Could not find property from propertyId ", propertyId)
+                                        debugPrint("Could not find subproperty_id")
                                     }
-                                }else{
-                                    debugPrint("Could not find subproperty_id")
+                                }catch{
+                                    debugPrint("Error finding property ", item.subproperty_id)
                                 }
-                            }catch{
-                                debugPrint("Error finding property ", item.subproperty_id)
                             }
+                            
+                        }else {
+                            debugPrint("Item without type Item: ", mediaItem)
                         }
-
-                    }else {
-                        debugPrint("Item without type Item: ", mediaItem)
+                        
+                    }){
+                        VStack(alignment: .leading, spacing: 10){
+                            MediaCard(display: mediaItem.thumb_aspect_ratio == .square ? .square :
+                                        mediaItem.thumb_aspect_ratio == .portrait ? .feature :
+                                        mediaItem.thumb_aspect_ratio == .landscape ? .video : .square,
+                                      image: mediaItem.thumbnail,
+                                      isFocused:isFocused,
+                                      title: mediaItem.title,
+                                      subtitle: mediaItem.subtitle,
+                                      timeString: mediaItem.headerString,
+                                      isLive: mediaItem.live, centerFocusedText: false,
+                                      showFocusedTitle: mediaItem.title.isEmpty ? false : true,
+                                      showBottomTitle: true
+                            )
+                        }
                     }
-                    
-                }){
-                    VStack(alignment: .leading, spacing: 10){
-                        MediaCard(display: mediaItem.thumb_aspect_ratio == .square ? .square :
-                                    mediaItem.thumb_aspect_ratio == .portrait ? .feature :
-                                    mediaItem.thumb_aspect_ratio == .landscape ? .video : .square,
-                                  image: mediaItem.thumbnail,
-                                  isFocused:isFocused,
-                                  title: mediaItem.title,
-                                  subtitle: mediaItem.subtitle,
-                                  timeString: mediaItem.headerString,
-                                  isLive: mediaItem.live, centerFocusedText: false,
-                                  showFocusedTitle: mediaItem.title.isEmpty ? false : true,
-                                  showBottomTitle: true
-                        )
-                    }
+                    .buttonStyle(TitleButtonStyle(focused: isFocused))
+                    .focused($isFocused)
+                    .overlay(content: {
+                        
+                    })
                 }
-                .buttonStyle(TitleButtonStyle(focused: isFocused))
-                .focused($isFocused)
-                .overlay(content: {
-                    /*
-                    if (mediaItem.mediaType == "Video"){
-                        if !isFocused  {
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 80))
-                                .foregroundColor(.white)
-                                .opacity(0.7)
-                        }else{
-                            //TODO: when enabling resume again
-                            if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
-                                VStack{
-                                    Spacer()
-                                    VStack(alignment:.leading, spacing:5){
-                                        Text(progressText).foregroundColor(.white)
-                                            .font(.system(size: 12))
-                                        ProgressView(value:progressValue)
-                                            .foregroundColor(.white)
-                                            .frame(height:4)
-                                    }
-                                    .padding()
-                                }
-                            }
-                        }
-                    }
-                     */
-                    
-                })
+
             }
-            
-            
-        }
-        .onAppear(){
-            viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
+            .onAppear(){
+                viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
+            }
         }
     }
 }
@@ -500,74 +482,276 @@ struct SectionItemView: View {
 struct SectionItemPurchaseView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     
-    var item: MediaPropertySectionItem
+    var sectionItem: MediaPropertySectionItem
     var sectionId : String
+    var pageId : String
     var propertyId: String
-    @State var viewItem : MediaPropertySectionMediaItemViewModel? = nil
-    @FocusState var isFocused
+    
+    var title : String {
+        if let _title = sectionItem.display?["title"] {
+            if _title.exists() {
+                return _title.stringValue
+            }
+        }
+        return ""
+    }
+    
+    var description : String {
+        if let _text = sectionItem.display?["description"] {
+            if _text.exists() {
+                return _text.stringValue
+            }
+        }
+        return ""
+    }
+    
+    var subtitle : String {
+        if let _text = sectionItem.display?["subtitle"] {
+            if _text.exists() {
+                return _text.stringValue
+            }
+        }
+        return ""
+    }
+    
+    var header : String {
+        if let _text = sectionItem.display?["headers"].arrayValue {
+            if !_text.isEmpty {
+                return _text[0].stringValue
+            }
+        }
+        return ""
+    }
+    
+    var display : MediaDisplay {
+        if let image = sectionItem.display?["thumbnail_image_square"] {
+            if image.exists() && !image.isEmpty {
+                return .square
+            }
+        }
+        
+        if let image = sectionItem.display?["thumbnail_image_portrait"] {
+            if image.exists() && !image.isEmpty {
+                return .feature
+            }
+        }
+        
+        if let image = sectionItem.display?["thumbnail_image_landscape"] {
+            if image.exists() && !image.isEmpty {
+                return .video
+            }
+        }
+        
+        return .square
+    }
+
+    
+    var thumbnail : String {
+        
+        if let image = sectionItem.display?["thumbnail_image_square"] {
+            do {
+                let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: image)
+                if !thumbnailSquare.isEmpty {
+                    return thumbnailSquare
+                }
+            }catch{}
+        }
+        
+        
+        if let image = sectionItem.display?["thumbnail_image_portrait"] {
+            do {
+                let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: image)
+                if !thumbnailPortrait.isEmpty {
+                    return thumbnailPortrait
+                }
+            }catch{}
+        }
+        
+        if let image = sectionItem.display?["thumbnail_image_landscape"] {
+            do {
+                let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: image)
+                if !thumbnailLand.isEmpty {
+                    return thumbnailLand
+                }
+            }catch{}
+        }
+
+        return ""
+    }
+     
+    var body: some View {
+        ItemView(image:thumbnail, title: title, subtitle: subtitle, action:purchase, scale:0.88)
+    }
+    
+    func purchase() {
+        Task {
+            do {
+                if let sectionItemId = sectionItem.id {
+                    let perms = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
+                    let url = try eluvio.fabric.createWalletPurchaseUrl(propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: perms.permissionItemIds)
+                    debugPrint("Purchase! ", url)
+                    eluvio.pathState.propertyId = propertyId
+                    eluvio.pathState.pageId = pageId
+                    eluvio.pathState.sectionItem = sectionItem
+                    eluvio.pathState.url = url
+                    eluvio.pathState.path.append(.purchaseQRView)
+                }
+            }catch{
+                print("Could not create purchase url.", error.localizedDescription)
+            }
+        }
+        
+    }
+}
+
+struct ItemView: View {
+    @EnvironmentObject var eluvio: EluvioAPI
+    var isForsale = false
+    @State private var buttonFocus: Bool = false
+    @FocusState private var isFocused
+    var display: MediaDisplay = MediaDisplay.feature
+    var shadowRadius: CGFloat {
+        if isFocused {
+            return 10
+        }else{
+            return 3
+        }
+    }
+    
+    var titleColor: Color {
+        if isFocused {
+            return Color.black
+        }else{
+            return Color.white
+        }
+    }
+    
+    var subTitleColor: Color {
+        if isFocused {
+            return Color.black.opacity(0.5)
+        }else{
+            return Color.gray
+        }
+    }
+
+    var image : String
+    var title : String = ""
+    
+    var subtitle : String = ""
+    
+    var propertyLogo : String = ""
+    var propertyName : String = ""
+    var tokenId : String = ""
+    var action : ()->Void
+    
+    
+    var tokenDisplay : String {
+        if tokenId.isEmpty {
+            return ""
+        }
+        
+        if tokenId.hasPrefix("#") {
+            return tokenId
+        }
+        
+        return "#\(tokenId)"
+    }
+    
+    var scale: CGFloat = 1.0
+    var width :CGFloat {
+        return 480*scale
+    }
+    
+    var height :CGFloat {
+        return 660*scale
+    }
+    
+    var logoBrightness: CGFloat {
+        if isFocused {
+            return -0.5
+        }else{
+            return 0
+        }
+    }
     
     var body: some View {
-        VStack(alignment:.leading, spacing:10){
-            if let mediaItem = viewItem {
-                Button(action: {
-                    debugPrint("Item Selected! ", mediaItem.title)
-                    debugPrint("MediaItemView Type ", mediaItem.media_type)
-                    debugPrint("Item Type ", item.type ?? "")
-                    debugPrint("Item Media Type ", item.media_type ?? "")
-
-                    
-                }){
-                    VStack(alignment: .leading, spacing: 10){
-                        MediaCard(display: mediaItem.thumb_aspect_ratio == .square ? .square :
-                                    mediaItem.thumb_aspect_ratio == .portrait ? .feature :
-                                    mediaItem.thumb_aspect_ratio == .landscape ? .video : .square,
-                                  image: mediaItem.thumbnail,
-                                  isFocused:isFocused,
-                                  title: mediaItem.title,
-                                  subtitle: mediaItem.subtitle,
-                                  timeString: mediaItem.headerString,
-                                  isLive: mediaItem.live, centerFocusedText: false,
-                                  showFocusedTitle: mediaItem.title.isEmpty ? false : true,
-                                  showBottomTitle: true
-                        )
-                    }
-                }
-                .buttonStyle(TitleButtonStyle(focused: isFocused))
-                .focused($isFocused)
-                .overlay(content: {
-                    /*
-                    if (mediaItem.mediaType == "Video"){
-                        if !isFocused  {
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 80))
-                                .foregroundColor(.white)
-                                .opacity(0.7)
-                        }else{
-                            //TODO: when enabling resume again
-                            if !media.isLive && mediaProgress?.current_time_s ?? 0.0 > 0.0{
-                                VStack{
-                                    Spacer()
-                                    VStack(alignment:.leading, spacing:5){
-                                        Text(progressText).foregroundColor(.white)
-                                            .font(.system(size: 12))
-                                        ProgressView(value:progressValue)
-                                            .foregroundColor(.white)
-                                            .frame(height:4)
-                                    }
-                                    .padding()
-                                }
-                            }
+        Button(action:action) {
+            ZStack{
+                Image("dark-item-top-radial").resizable()
+                    .overlay{
+                        if isFocused{
+                            Image("item-highlight").resizable()
                         }
                     }
-                     */
+                
+                VStack() {
+                    HStack(alignment:.center, spacing:10){
+                        if(propertyLogo.hasPrefix("http")){
+                            WebImage(url: URL(string: propertyLogo))
+                                .resizable()
+                                .indicator(.activity) // Activity Indicator
+                                .transition(.fade(duration: 0.5))
+                                .scaledToFill()
+                                .cornerRadius(3)
+                                .frame(width:40, height: 40, alignment: .center)
+                                .clipped()
+                                .brightness(logoBrightness)
+                        }else if (propertyLogo != ""){
+                            Image(propertyLogo)
+                                .resizable()
+                                .scaledToFill()
+                                .cornerRadius(3)
+                                .frame(width:40, height: 40, alignment: .center)
+                                .clipped()
+                                .brightness(logoBrightness)
+                        }
+                        
+                        Text(propertyName).foregroundColor(subTitleColor).font(.itemSubtitle)
+                        Spacer()
+                        Text(tokenDisplay).foregroundColor(subTitleColor).font(.itemSubtitle)
+                    }
+                    .padding(.bottom)
+                    if (image.hasPrefix("http")){
+                        WebImage(url: URL(string: image))
+                            .resizable()
+                            .indicator(.activity) // Activity Indicator
+                            .transition(.fade(duration: 0.5))
+                            .scaledToFill()
+                            .cornerRadius(3)
+                            .frame(width: 420, height: 420, alignment: .center)
+                            .clipped()
+                    }else {
+                        Image(image)
+                            .resizable()
+                            .scaledToFill()
+                            .cornerRadius(3)
+                            .frame(width: 420, height: 420, alignment: .center)
+                            .clipped()
+                    }
                     
-                })
+                    VStack(alignment: .center, spacing: 7) {
+                        Spacer()
+                        Text(title)
+                            .foregroundColor(titleColor)
+                            .font(.itemTitle)
+                        Text(subtitle)
+                            .foregroundColor(subTitleColor)
+                            .font(.itemSubtitle)
+                            .textCase(.uppercase)
+                        
+                        Spacer()
+                    }
+                    
+                    if (isFocused){}
+                    
+                }
+                .padding(30)
             }
-            
-            
+            .shadow(radius: shadowRadius)
         }
-        .onAppear(){
-            viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
-        }
+        .scaleEffect(scale)
+        .frame(width: width, height: height)
+        .buttonStyle(TitleButtonStyle(focused: isFocused))
+        .focused($isFocused)
     }
 }

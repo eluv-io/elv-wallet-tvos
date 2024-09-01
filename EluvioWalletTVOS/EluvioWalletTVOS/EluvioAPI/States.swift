@@ -11,7 +11,7 @@ import AVKit
 
 enum NavDestination: Hashable {
     case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, 
-         videoError, login(LoginParam), errorView(String), progress, black
+         videoError, login(LoginParam), errorView(String), progress, black, purchaseQRView
 }
 
 enum LoginType : String {
@@ -51,7 +51,9 @@ class PathState: ObservableObject {
     var playerItem : AVPlayerItem? = nil
     var mediaItem : MediaPropertySectionItem? = nil
     var propertyId: String = ""
+    var pageId: String = ""
     var section: MediaPropertySection? = nil
+    var sectionItem: MediaPropertySectionItem? = nil
     
     var gallery : [GalleryItem] = []
     var searchParams : SearchParams?
@@ -63,6 +65,7 @@ class PathState: ObservableObject {
     func reset() {
         property = nil
         propertyId = ""
+        pageId = "main"
         propertyPage = nil
         url = ""
         playerItem = nil
@@ -70,6 +73,7 @@ class PathState: ObservableObject {
         gallery = []
         searchParams = nil
         section = nil
+        sectionItem = nil
         nft = nil
         videoErrorParams = nil
     }

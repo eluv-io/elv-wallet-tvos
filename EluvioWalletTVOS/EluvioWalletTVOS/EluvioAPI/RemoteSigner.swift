@@ -170,8 +170,13 @@ class RemoteSigner {
                         case .success(let result):
                             continuation.resume(returning: result)
                          case .failure(let error):
-                            print("Get properties error: \(error)")
-                            continuation.resume(throwing: error)
+                            //print("Get properties error: \(error)")
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                        continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                           response: respJSON, error: error))
                      }
                 }
             }catch{

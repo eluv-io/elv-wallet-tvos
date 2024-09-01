@@ -99,10 +99,9 @@ struct MyItemsView: View {
                     
                     self.properties = properties
                 }catch{
-                    print("Could not get properties ", error.localizedDescription)
+                    print("Could not get properties code", error)
+                    eluvio.accountManager.signOut()
                 }
-                
-                
             }
             
             Task {

@@ -299,6 +299,9 @@ struct ContentView: View {
                 case .html:
                     QRView(url: eluvio.pathState.url)
                         .environmentObject(self.eluvio)
+                case .purchaseQRView:
+                    PurchaseQRView(url: eluvio.pathState.url, sectionItem:eluvio.pathState.sectionItem)
+                        .environmentObject(self.eluvio)
                 case .video:
                     if let playerItem = eluvio.pathState.playerItem {
                         PlayerView(playerItem: playerItem, seekTimeS: 0, finished: $playerFinsished)
@@ -343,7 +346,7 @@ struct ContentView: View {
                 case .sectionViewAll:
                     if let section = eluvio.pathState.section {
                         ScrollView {
-                            SectionGridView(propertyId: eluvio.pathState.propertyId, section:section)
+                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section)
                                 .environmentObject(self.eluvio)
                         }
                         .scrollClipDisabled()

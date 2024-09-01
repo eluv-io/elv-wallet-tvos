@@ -270,7 +270,7 @@ struct SearchView: View {
                 
                 
                 if sections.count == 1 {
-                    SectionGridView(propertyId: propertyId, section: sections.first!, forceDisplay: .video)
+                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, forceDisplay: .video)
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
                         .padding(.top,20)
@@ -278,7 +278,7 @@ struct SearchView: View {
                 }else {
                     ForEach(sections) {section in
                         VStack{
-                            MediaPropertySectionView(propertyId: propertyId, section: section)
+                            MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section)
                                 .edgesIgnoringSafeArea([.leading,.trailing])
                         }
                         .frame(maxWidth:.infinity)

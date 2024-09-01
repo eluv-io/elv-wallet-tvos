@@ -67,12 +67,14 @@ struct EluvioWalletTVOSApp: App {
             }
             .onAppear(){
                 Task {
+                    /*
                     do {
-                        try await eluvio.fabric.connect(network:"")
+                
                     }catch{
                         print("Error connecting to the fabric: ", error)
                         eluvio.pathState.path.append(.errorView("Please check your network and try again."))
                     }
+                     */
                 }
             }
             .onChange(of: scenePhase) { _, newPhase in

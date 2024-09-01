@@ -22,10 +22,15 @@ struct ViewAllButton: View {
     }
 }
 
+enum SectionPosition {
+    case Left, Right, Center
+}
+
 struct MediaPropertySectionView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
     var propertyId: String
+    var pageId: String
     var section: MediaPropertySection
     let margin: CGFloat = 100
     
@@ -97,6 +102,23 @@ struct MediaPropertySectionView: View {
     @State var inlineBackgroundUrl: String? = nil
     @State var playerItem : AVPlayerItem? = nil
     
+    
+    var heroPosition: SectionPosition {
+        if let items = section.hero_items?.arrayValue {
+            if !items.isEmpty {
+                if items[0]["display"]["position"].stringValue == "Left" {
+                    return .Left
+                }else if items[0]["display"]["position"].stringValue == "Right" {
+                    return .Right
+                }else if items[0]["display"]["position"].stringValue == "Center" {
+                    return .Center
+                }
+            }
+        }
+        
+        return .Left
+    }
+    
     var heroLogoUrl: String {
         if let items = section.hero_items?.arrayValue {
             if !items.isEmpty {
@@ -128,13 +150,47 @@ struct MediaPropertySectionView: View {
         }
         return ""
     }
+    
+    var hAlignment: HorizontalAlignment {
+        if let justification = section.display?["justification"].stringValue {
+            if justification.lowercased() == "left" {
+                return .leading
+            }
+            if justification.lowercased() == "right" {
+                return .trailing
+            }
+            if justification.lowercased() == "center" {
+                return .center
+            }
+        }
+        
+        return .leading
+    }
+    
+    var alignment: Alignment {
+        if let justification = section.display?["justification"].stringValue {
+            if justification.lowercased() == "left" {
+                return .leading
+            }
+            if justification.lowercased() == "right" {
+                return .trailing
+            }
+            if justification.lowercased() == "center" {
+                return .center
+            }
+        }
+        
+        return .leading
+    }
+
 
 
     var body: some View {
         if isHero {
-            MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription)
+            MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition)
                 .focusable()
                 .padding([.leading,.trailing],margin)
+                .padding(.bottom,60)
         }else if isBanner {
             MediaPropertyBanner(image: bannerUrl)
         }else if items.isEmpty{
@@ -151,7 +207,7 @@ struct MediaPropertySectionView: View {
                             .font(.sectionLogoText)
                     }
                 }
-                VStack(alignment: .leading, spacing: 10)  {
+                VStack(alignment: hAlignment, spacing: 10)  {
                     HStack(spacing:20){
                         Text(title).font(.rowTitle).foregroundColor(Color.white)
                         if showViewAll {
@@ -159,6 +215,7 @@ struct MediaPropertySectionView: View {
                                 debugPrint("View All pressed")
                                 eluvio.pathState.section = section
                                 eluvio.pathState.propertyId = propertyId
+                                eluvio.pathState.pageId = pageId
                                 eluvio.pathState.path.append(.sectionViewAll)
                             })
                         }
@@ -167,21 +224,26 @@ struct MediaPropertySectionView: View {
                     .padding(.top, 20)
                     .padding(.bottom, 30)
 
-                    
-                    ScrollView(.horizontal) {
-                        HStack(alignment: .center, spacing: 20) {
-                            ForEach(section.content ?? []) {item in
-                                if item.type == "item_purchase" {
-                                    SectionItemPurchaseView(item: item, sectionId: section.id, propertyId: propertyId)
-                                            .environmentObject(self.eluvio)
-                                }else{
-                                    SectionItemView(item: item, sectionId: section.id, propertyId: propertyId)
-                                            .environmentObject(self.eluvio)
+                    if let content = section.content {
+                        if alignment == .center && content.count < 5 {
+                            HStack(alignment: .center, spacing: 20) {
+                                ForEach(content) {item in
+                                    SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
+                                        .environmentObject(self.eluvio)
                                 }
                             }
+                        }else{
+                            ScrollView(.horizontal) {
+                                HStack(alignment: .center, spacing: 20) {
+                                    ForEach(content) {item in
+                                        SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
+                                            .environmentObject(self.eluvio)
+                                    }
+                                }
+                            }
+                            .scrollClipDisabled()
                         }
                     }
-                    .scrollClipDisabled()
                 }
                 .padding(.bottom,40)
             }
@@ -227,6 +289,7 @@ struct MediaPropertyDetailView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
     @State var property: MediaPropertyViewModel
+    @State var pageId:String  = "main"
     @State var sections : [MediaPropertySection] = []
     @FocusState var searchFocused
     @FocusState var headerFocused
@@ -298,7 +361,7 @@ struct MediaPropertyDetailView: View {
                 VStack() {
                     ForEach(sections) {section in
                         if let propertyId = property.id {
-                            MediaPropertySectionView(propertyId: propertyId, section: section)
+                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
                                 .edgesIgnoringSafeArea([.leading,.trailing])
                         }
                     }
@@ -324,8 +387,7 @@ struct MediaPropertyDetailView: View {
                         debugPrint("Couldn't get property.id")
                         return
                     }
-                    
-                    
+
                     var pageId = "main"
                     do {
 
@@ -334,16 +396,18 @@ struct MediaPropertyDetailView: View {
 
                         
                         let pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: id, pageId: pageId)
+                        //let pagePerms = try await eluvio.fabric.resolveContentPermission(propertyId: id, pageId: pageId)
                         debugPrint("Main Page resolved permissions", pagePerms)
                         
                         if !pagePerms.authorized {
                             if pagePerms.behavior == .showAlternativePage {
+                                //pageId = "ppge2T7uwNNeJt1FEZFDyweQNh" //pagePerms.alternatePageId
                                 pageId = pagePerms.alternatePageId
                             }else if pagePerms.behavior == .showPurchase {
                                 //TODO: Waht to show?
                             }
                         }
-
+                        self.pageId = pageId
                     }catch{
                         print("Could not resolve permissions for property id", id)
                     }
@@ -399,33 +463,61 @@ struct MediaPropertyHeader: View {
     var logo: String = ""
     var title: String = ""
     var description: String = ""
-
+    var position: SectionPosition = .Left
+    var horizontalAlignment: HorizontalAlignment {
+        if position == .Left {
+            return .leading
+        }else if position == .Right {
+            return .trailing
+        }else if position == .Center {
+            return .center
+        }
+        
+        return .leading
+    }
+    
+    var alignment: Alignment {
+        if position == .Left {
+            return .leading
+        }else if position == .Right {
+            return .trailing
+        }else if position == .Center {
+            return .center
+        }
+        
+        return .leading
+    }
+    
+    
     var body: some View {
-        VStack(alignment:.leading, spacing: 10) {
-
+        VStack(alignment: horizontalAlignment, spacing: 10) {
             WebImage(url: URL(string: logo))
                 .resizable()
                 .transition(.fade(duration: 0.5))
                 .aspectRatio(contentMode: .fit)
-                .frame(width:840, height:180, alignment: .leading)
+                .frame(width:840, height:180, alignment: alignment)
                 .padding(.bottom,40)
                 .clipped()
             
-            Text(title).font(.title3)
-                .foregroundColor(Color.white)
-                .fontWeight(.bold)
-                .frame(maxWidth:1020, alignment:.leading)
-                .padding(.top, 20)
+            if !title.isEmpty {
+                Text(title).font(.title3)
+                    .foregroundColor(Color.white)
+                    .fontWeight(.bold)
+                    .frame(maxWidth:1020, alignment: alignment)
+                    .padding(.top, 20)
+            }
             
-            Text(description)
-                .foregroundColor(Color.white)
-                .font(.propertyDescription)
-                .frame(maxWidth:1020, alignment:.leading)
-                .lineLimit(3)
-                .padding(.top, 20)
+            if !description.isEmpty {
+                Text(description)
+                    .foregroundColor(Color.white)
+                    .font(.propertyDescription)
+                    .frame(maxWidth:1020, alignment: alignment)
+                    .lineLimit(3)
+                    .padding(.top, 20)
+            }
 
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, alignment: alignment)
         .padding(.top, 40)
         .padding(.bottom, 60)
     }
