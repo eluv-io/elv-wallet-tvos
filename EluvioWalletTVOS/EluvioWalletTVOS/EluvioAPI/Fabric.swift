@@ -1202,16 +1202,19 @@ class Fabric: ObservableObject {
         }
     }
     
-    func createWalletPurchaseUrl(propertyId:String, 
+    func createWalletPurchaseUrl(id:String,
+                                 propertyId:String,
                                  pageId:String,
                                  listingId:String="",
                                  sectionId:String="",
                                  sectionItemId:String="",
                                  actionId:String="",
                                  permissionIds:[String]=[],
-                                 secondaryPurchaseOption:String="") throws -> String{
+                                 secondaryPurchaseOption:Bool=false) throws -> String{
         var json = JSON([
-            "id" : UUID().uuidString,
+            "id" : id,
+            "gate" : true,
+            "type":"purchase",
             "listingId":listingId,
             "sectionSlugOrId":sectionId,
             "sectionItemId":sectionItemId,
@@ -2425,7 +2428,9 @@ class Fabric: ObservableObject {
         
         let mediaProperty = try await getProperty(property: propertyId)
         
-        var authState = mediaProperty?.permission_auth_state ?? JSON()
+        let authState = mediaProperty?.permission_auth_state ?? JSON()
+        debugPrint("resolveContentPermission authState", authState)
+        
 
         if let _behavior = mediaProperty?.permissions?["behavior"] {
             do{
@@ -2437,8 +2442,11 @@ class Fabric: ObservableObject {
                 }
                 
                 if let secondaryPurchaseOption = mediaProperty?.permissions?["secondary_market_purchase_option"] {
-                    if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
-                        result.secondaryPurchaseOption = true
+                    if result.behavior == .showPurchase {
+                        result.purchaseGate = true
+                        if secondaryPurchaseOption.boolValue{
+                            result.secondaryPurchaseOption = true
+                        }
                     }
                 }
             }catch{}
@@ -2463,8 +2471,11 @@ class Fabric: ObservableObject {
                     
                     
                     if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
-                        if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue {
-                            result.secondaryPurchaseOption = true
+                        if result.behavior == .showPurchase {
+                            result.purchaseGate = true
+                            if secondaryPurchaseOption.boolValue{
+                                result.secondaryPurchaseOption = true
+                            }
                         }
                     }
                 }catch{}
@@ -2481,69 +2492,93 @@ class Fabric: ObservableObject {
             
             if !response.isEmpty {
                 let section = response[0]
+                debugPrint("Found section permissions", section.permissions)
                 if let _behavior = section.permissions?["behavior"] {
                     do{
                         result.behavior = try getBehavior(json:_behavior)
-                        if let altPageId = section.permissions?["alternate_page_id"] {
-                            if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
-                                result.alternatePageId = altPageId.stringValue
-                            }
-                        }
-                        
-                        if let secondaryPurchaseOption = section.permissions?["secondary_market_purchase_option"] {
-                            if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
-                                result.secondaryPurchaseOption = true
-                            }
-                        }
+                        debugPrint("Section behavior ", result.behavior)
                         
                     }catch{}
+
                     
-                    if let authorized = section.authorized {
-                        result.authorized = authorized
-                    }
-                    if !result.authorized {
-                        result.cause = "Section permissions"
-                    }
-                    
-                    if let permissionItemsArr = section.permissions?["permission_item_ids"] {
-                        result.permissionItemIds = []
-                        for item in permissionItemsArr.arrayValue {
-                            result.permissionItemIds.append(item.stringValue)
+                    if let altPageId = section.permissions?["alternate_page_id"] {
+                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                            result.alternatePageId = altPageId.stringValue
+                            debugPrint("Found alternatePageId ", result.alternatePageId)
                         }
                     }
                     
+                    if let secondaryPurchaseOption = section.permissions?["secondary_market_purchase_option"] {
+                        if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
+                            result.secondaryPurchaseOption = true
+                            debugPrint("Found secondaryPurchaseOption ", result.alternatePageId)
+                        }
+                    }
+                    
+                    if !isAuthorized(permission:section.permissions, authState:authState) {
+                        result.authorized = false
+                    }
+                    
+                    if !result.authorized {
+                        debugPrint("Not Authorized! Section")
+                        result.cause = "Section permissions"
+                        if let permissionItemsArr = section.permissions?["permission_item_ids"] {
+                            result.permissionItemIds = []
+                            for item in permissionItemsArr.arrayValue {
+                                result.permissionItemIds.append(item.stringValue)
+                            }
+                        }
+                    }
+                    
+
                     if result.authorized && !sectionItemId.isEmpty {
+                        debugPrint("Finding sectionID ", sectionItemId)
+                        
+                        if let content = section.content {
+                            for section in content {
+                                if section.id == sectionItemId {
+                                    debugPrint("found!")
+                                }
+                            }
+                        }
                         if let sectionItem = section.content?.first(where: {$0.id == sectionItemId}) {
+                            debugPrint("Found sectionItem  permissions", sectionItem.permissions)
+                            
                             if let _behavior = sectionItem.permissions?["behavior"] {
                                 do{
                                     result.behavior = try getBehavior(json:_behavior)
-                                    
-                                    if let altPageId = sectionItem.permissions?["alternate_page_id"] {
-                                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
-                                            result.alternatePageId = altPageId.stringValue
-                                        }
+                                    debugPrint("sectionItem behavior: ", result.behavior)
+                                }catch{}
+                                
+                                if let altPageId = sectionItem.permissions?["alternate_page_id"] {
+                                    if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                                        result.alternatePageId = altPageId.stringValue
                                     }
-                                    
-                                    if let secondaryPurchaseOption = sectionItem.permissions?["secondary_market_purchase_option"] {
-                                        if result.behavior == .showPurchase && secondaryPurchaseOption.boolValue{
+                                }
+                                
+                                if let secondaryPurchaseOption = sectionItem.permissions?["secondary_market_purchase_option"] {
+                                    if result.behavior == .showPurchase {
+                                        result.purchaseGate = true
+                                        if secondaryPurchaseOption.boolValue{
                                             result.secondaryPurchaseOption = true
                                         }
                                     }
-                                    
-                                }catch{}
+                                }
+
                             }
                             
-                           /* if let authorized = sectionItem.authorized {
-                                result.authorized = authorized
-                            }*/
+                            if !isAuthorized(permission:sectionItem.permissions, authState:authState){
+                                result.authorized = false
+                            }
+                            
                             if !result.authorized {
+                                debugPrint("Not Authorized! Section Item")
                                 result.cause = "Section item permissions"
-                            }
-                            
-                            if let permissionItemsArr = sectionItem.permissions?["permission_item_ids"] {
-                                result.permissionItemIds = []
-                                for item in permissionItemsArr.arrayValue {
-                                    result.permissionItemIds.append(item.stringValue)
+                                if let permissionItemsArr = sectionItem.permissions?["permission_item_ids"] {
+                                    result.permissionItemIds = []
+                                    for item in permissionItemsArr.arrayValue {
+                                        result.permissionItemIds.append(item.stringValue)
+                                    }
                                 }
                             }
                         }
@@ -2573,6 +2608,34 @@ class Fabric: ObservableObject {
             throw FabricError.unexpectedResponse("no behavior defined.")
         }
     }
+    
+    func isAuthorized(permission:JSON?, authState:JSON) -> Bool {
+        if let permission = permission {
+            if permission.isEmpty{
+                return true
+            }
+            
+            if permission["permission_item_ids"].arrayValue.isEmpty{
+                return true
+            }
+        
+            
+            for id in permission["permission_item_ids"].arrayValue {
+                debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
+                if authState.isEmpty {
+                    return false
+                }else {
+                    if authState[id.stringValue]["authorized"].boolValue{
+                        return true
+                    }
+                }
+            }
+            
+            return false
+            
+        }
+        return true
+    }
 }
 
 struct ResolvedPermission {
@@ -2591,6 +2654,8 @@ struct ResolvedPermission {
 enum PermisionBehavior {
     case Hide, Disable, showPurchase, showIfUnauthorized, showAlternativePage
 }
+
+
 
 /*
  HIDE: "hide",

@@ -44,39 +44,31 @@ struct MediaPropertyView : View {
                                     
                                 
                                 if !skipLogin {
-                                    if let account = eluvio.accountManager.getPropertyAccount(property: propertyId){
-                                        eluvio.accountManager.setCurrentAccount(account: account)
-                                        eluvio.fabric.fabricToken = account.fabricToken
-                                    }else {
-                                        if let login = property.login {
-                                            debugPrint("property: ", login)
-                                            
-                                            let provider = login["settings"]["provider"].stringValue
-                                            if !provider.isEmpty {
-                                                if provider == "auth0" {
-                                                    debugPrint("Auth0 login.")
-                                                    let account = eluvio.accountManager.getAccount(type: .Auth0)
-                                                    if account == nil {
-                                                        eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
-                                                        return
-                                                    }
-                                                }else if provider == "ory" {
-                                                    debugPrint("Ory login.")
-                                                    let account = eluvio.accountManager.getAccount(type: .Ory)
-                                                    if account == nil {
-                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
-                                                        return
-                                                    }
-                                                }else {
-                                                    debugPrint("Other login type not supported yet.")
-                                                    eluvio.pathState.path.append(.errorView("Login type not supported."))
+                                    if let login = property.login {
+                                        debugPrint("property: ", login)
+                                        
+                                        let provider = login["settings"]["provider"].stringValue
+                                        if !provider.isEmpty {
+                                            if provider == "auth0" {
+                                                debugPrint("Auth0 login.")
+                                                if eluvio.accountManager.currentAccount?.type != .Auth0 {
+                                                    eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
                                                     return
                                                 }
+                                            }else if provider == "ory" {
+                                                debugPrint("Ory login.")
+                                                if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
+                                                    return
+                                                }
+                                            }else {
+                                                debugPrint("Other login type not supported yet.")
+                                                eluvio.pathState.path.append(.errorView("Login type not supported."))
+                                                return
                                             }
                                         }
                                     }
                                 }
-
+                                
                                 await MainActor.run {
                                     eluvio.pathState.propertyPage = property.main_page
                                 }

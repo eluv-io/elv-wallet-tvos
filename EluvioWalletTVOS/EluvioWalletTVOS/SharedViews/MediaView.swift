@@ -615,6 +615,7 @@ struct MediaCard: View {
                             .padding(.bottom, 50)
                             .cornerRadius(cornerRadius)
                             .background(Color.white.opacity(0.1))
+                            .scaleEffect(sizeFactor)
                             .overlay(
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .stroke(Color.gray, lineWidth: 2)
@@ -650,7 +651,7 @@ struct MediaCard: View {
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity)
                     .padding(20)
-                    //.padding(.bottom, 50)
+                    .scaleEffect(sizeFactor)
                     .cornerRadius(cornerRadius)
                     .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
                     .overlay(
@@ -670,6 +671,7 @@ struct MediaCard: View {
                     .padding(20)
                     .padding(.bottom, 25)
                     .background(Color.black.opacity( 0.8))
+                    .scaleEffect(sizeFactor)
                 }
                 
                 if (isLive && display != .feature){
@@ -689,59 +691,40 @@ struct MediaCard: View {
                     }
                     .frame( maxWidth: .infinity, maxHeight:.infinity)
                     .padding(20)
+                    .scaleEffect(sizeFactor)
                 }
             }
             if showBottomTitle {
-                Text(title).font(.system(size: 22)).lineLimit(1).frame(alignment:.leading)
+                Text(title).font(.system(size: 22*sizeFactor)).lineLimit(1).frame(alignment:.leading)
             }
         }
         .frame( width: width, height: height)
         .onAppear(){
-            /*
-            if let ratio = image_ratio {
-                if ratio == "Square"{
-                    width =  300
-                    height = 300
-                    cornerRadius = 16
-                } else if ratio == "Tall"{
-                    width = 393
-                    height = 590
-                    cornerRadius = 3
-                } else if ratio == "Wide" {
-                    width =  534
-                    height = 300
-                    cornerRadius = 16
-                }
-            }else {*/
-            //debugPrint("Media ", title)
-            //debugPrint("Media Display ", display)
-                
-                if display == MediaDisplay.feature {
-                    width = 248 * sizeFactor
-                    height = 372 * sizeFactor
-                    cornerRadius = 3 * sizeFactor
-                }else if display == MediaDisplay.video{
-                    width =  417 * sizeFactor
-                    height = 235 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }else if display == MediaDisplay.books {
-                    width =  235 * sizeFactor
-                    height = 300 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }else if display == MediaDisplay.property {
-                    width =  330 * sizeFactor
-                    height = 470 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }else if display == MediaDisplay.tile {
-                    width =  887 * sizeFactor
-                    height = 551 * sizeFactor
-                    cornerRadius = 0
-                }else {
-                    width =  225 * sizeFactor
-                    height = 225 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }
-            //}
+            if display == MediaDisplay.feature {
+                width = 248 * sizeFactor
+                height = 372 * sizeFactor
+                cornerRadius = 3 * sizeFactor
+            }else if display == MediaDisplay.video{
+                width =  417 * sizeFactor
+                height = 235 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }else if display == MediaDisplay.books {
+                width =  235 * sizeFactor
+                height = 300 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }else if display == MediaDisplay.property {
+                width =  330 * sizeFactor
+                height = 470 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }else if display == MediaDisplay.tile {
+                width =  887 * sizeFactor
+                height = 551 * sizeFactor
+                cornerRadius = 0
+            }else {
+                width =  225 * sizeFactor
+                height = 225 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }
         }
     }
 }

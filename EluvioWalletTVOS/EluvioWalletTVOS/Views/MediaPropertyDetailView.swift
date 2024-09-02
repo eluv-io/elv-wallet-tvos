@@ -182,103 +182,164 @@ struct MediaPropertySectionView: View {
         
         return .leading
     }
-
+    
+    @State var permission : ResolvedPermission? = nil
+    var hide : Bool {
+        if let permission = self.permission {
+            return !permission.authorized && permission.hide
+        }
+        return false
+    }
+    
+    var disable: Bool {
+        if let permission = self.permission {
+            return !permission.authorized && permission.disable
+        }
+        return false
+    }
 
 
     var body: some View {
-        if isHero {
-            MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition)
-                .focusable()
-                .padding([.leading,.trailing],margin)
-                .padding(.bottom,60)
-        }else if isBanner {
-            MediaPropertyBanner(image: bannerUrl)
-        }else if items.isEmpty{
-            EmptyView()
-        } else {
-            HStack(alignment:.center){
-                if let url = logoUrl {
-                    VStack(spacing:20) {
-                        WebImage(url:URL(string:url))
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 180, height:180)
-                        Text(logoText)
-                            .font(.sectionLogoText)
-                    }
-                }
-                VStack(alignment: hAlignment, spacing: 10)  {
-                    HStack(spacing:20){
-                        Text(title).font(.rowTitle).foregroundColor(Color.white)
-                        if showViewAll {
-                            ViewAllButton(action:{
-                                debugPrint("View All pressed")
-                                eluvio.pathState.section = section
-                                eluvio.pathState.propertyId = propertyId
-                                eluvio.pathState.pageId = pageId
-                                eluvio.pathState.path.append(.sectionViewAll)
-                            })
-                        }
-                    }
-                    .focusSection()
-                    .padding(.top, 20)
-                    .padding(.bottom, 30)
-
-                    if let content = section.content {
-                        if alignment == .center && content.count < 5 {
-                            HStack(alignment: .center, spacing: 20) {
-                                ForEach(content) {item in
-                                    SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
-                                        .environmentObject(self.eluvio)
-                                }
-                            }
-                        }else{
-                            ScrollView(.horizontal) {
-                                HStack(alignment: .center, spacing: 20) {
-                                    ForEach(content) {item in
-                                        SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
-                                            .environmentObject(self.eluvio)
+        Group{
+            if !hide {
+                
+                if isHero {
+                    MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition)
+                        .focusable()
+                        .padding([.leading,.trailing],margin)
+                }else if isBanner {
+                    MediaPropertyBanner(image: bannerUrl, action:{
+                        Task{
+                            do {
+                                debugPrint("Banner clicked", section)
+                                let sectionId = section.id
+                                let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId)
+                                debugPrint("Permission ", permission)
+                                
+                                if let content = section.content {
+                                    if let pageId = content[0].page_id {
+                                        if !pageId.isEmpty {
+                                            let url = try eluvio.fabric.createWalletPurchaseUrl(id:section.id, propertyId: propertyId, pageId:pageId, permissionIds: permission.permissionItemIds)
+                                            debugPrint("URL ", url)
+                                            
+                                            var backgroundImage = ""
+                                            
+                                            let property = try await eluvio.fabric.getProperty(property: propertyId)
+                                            
+                                            do {
+                                                backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.main_page?.layout?["background_image"] ?? "")
+                                            }catch{
+                                                //print("Could not create image URL \(error)")
+                                            }
+                                            
+                                            let params = HtmlParams(url:url, backgroundImage: backgroundImage)
+                                            eluvio.pathState.path.append(.html(params))
+                                        }
                                     }
                                 }
+                                
+                            }catch{
+                                print("could not fetch page url for banner ", error.localizedDescription)
                             }
-                            .scrollClipDisabled()
                         }
+                    })
+                }else if items.isEmpty{
+                    EmptyView()
+                } else {
+                    HStack(alignment:.center){
+                        if let url = logoUrl {
+                            VStack(spacing:20) {
+                                WebImage(url:URL(string:url))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width: 180, height:180)
+                                Text(logoText)
+                                    .font(.sectionLogoText)
+                            }
+                        }
+                        VStack(alignment: hAlignment, spacing: 10)  {
+                            HStack(spacing:20){
+                                Text(title).font(.rowTitle).foregroundColor(Color.white)
+                                if showViewAll {
+                                    ViewAllButton(action:{
+                                        debugPrint("View All pressed")
+                                        eluvio.pathState.section = section
+                                        eluvio.pathState.propertyId = propertyId
+                                        eluvio.pathState.pageId = pageId
+                                        eluvio.pathState.path.append(.sectionViewAll)
+                                    })
+                                }
+                            }
+                            .focusSection()
+                            .padding(.top, 20)
+                            .padding(.bottom, 30)
+                            
+                            if let content = section.content {
+                                if alignment == .center && content.count < 5 {
+                                    HStack(alignment: .center, spacing: 20) {
+                                        ForEach(content) {item in
+                                            SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
+                                                .environmentObject(self.eluvio)
+                                        }
+                                    }
+                                }else{
+                                    ScrollView(.horizontal) {
+                                        HStack(alignment: .center, spacing: 20) {
+                                            ForEach(content) {item in
+                                                SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
+                                                    .environmentObject(self.eluvio)
+                                            }
+                                        }
+                                    }
+                                    .scrollClipDisabled()
+                                }
+                            }
+                        }
+                        .padding(.bottom,40)
                     }
-                }
-                .padding(.bottom,40)
-            }
-            .focusSection()
-            .frame(height:402)
-            .padding([.leading,.trailing],margin)
-            .background(
-                Group {
-                    if let url = inlineBackgroundUrl {
-                        WebImage(url:URL(string:url))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
+                    .focusSection()
+                    .frame(height:402)
+                    .padding([.leading,.trailing],margin)
+                    .background(
+                        Group {
+                            if let url = inlineBackgroundUrl {
+                                WebImage(url:URL(string:url))
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(maxWidth: .infinity, maxHeight:402)
+                                    .frame(height:410)
+                                    .clipped()
+                                
+                            }
+                        }
                             .frame(maxWidth: .infinity, maxHeight:402)
-                            .frame(height:410)
-                            .clipped()
-                 
+                            .frame(height:402)
+                    )
+                }
+            }
+        }
+        .disabled(disable)
+        .onAppear() {
+            debugPrint("MediaPropertySectionView onAppear()")
+            if let display = section.display {
+                debugPrint("MediaPropertySectionView section ", display["title"])
+                debugPrint("Display format ", section.display?["display_format"].stringValue)
+                
+                do {
+                    logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
+                }catch{}
+                
+                do {
+                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                }catch{}
+            }
+            
+            Task{
+                do {
+                    if self.permission == nil {
+                        self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
                     }
-                }
-                .frame(maxWidth: .infinity, maxHeight:402)
-                .frame(height:402)
-            )
-            .onAppear() {
-                debugPrint("MediaPropertySectionView onAppear()")
-                if let display = section.display {
-                    debugPrint("MediaPropertySectionView section ", display["title"])
-                    debugPrint("Display format ", section.display?["display_format"].stringValue)
-                    
-                    do {
-                        logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
-                    }catch{}
-                    
-                    do {
-                        inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                    }catch{}
-                }
+                }catch{}
             }
         }
     }
@@ -396,7 +457,6 @@ struct MediaPropertyDetailView: View {
 
                         
                         let pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: id, pageId: pageId)
-                        //let pagePerms = try await eluvio.fabric.resolveContentPermission(propertyId: id, pageId: pageId)
                         debugPrint("Main Page resolved permissions", pagePerms)
                         
                         if !pagePerms.authorized {
@@ -426,12 +486,10 @@ struct MediaPropertyDetailView: View {
                                 if !video.isEmpty {
                                     do {
                                         let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
-                                        //withAnimation(.easeInOut(duration: 1), {
-                                        await MainActor.run{
+                                        withAnimation(.easeInOut(duration: 1), {
                                             self.playerItem = item
                                             debugPrint("playerItem set")
-                                        }
-                                        //})
+                                        })
                                     }catch{
                                         debugPrint("Error: ", error.localizedDescription)
                                     }
@@ -441,11 +499,9 @@ struct MediaPropertyDetailView: View {
                     }
                     
                     if self.playerItem == nil {
-                        await MainActor.run{
-                            //withAnimation(.easeInOut(duration: 1), {
-                                //backgroundImage = property.backgroundImage
-                            //})
-                        }
+                        withAnimation(.easeInOut(duration: 1), {
+                            backgroundImage = property.backgroundImage
+                        })
                     }
                     
                 }catch {
@@ -528,11 +584,12 @@ struct MediaPropertyBanner: View {
     @EnvironmentObject var eluvio: EluvioAPI
     var image: String = ""
     var margin: CGFloat = 40
+    var action: ()->Void
     @FocusState var isFocused: Bool
 
     var body: some View {
         if !image.isEmpty {
-            Button(action:{}, label:{
+            Button(action:action, label:{
                 HStack(alignment:.center){
                     WebImage(url:URL(string:image))
                         .resizable()

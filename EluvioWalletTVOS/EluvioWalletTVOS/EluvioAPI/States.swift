@@ -10,8 +10,8 @@ import Combine
 import AVKit
 
 enum NavDestination: Hashable {
-    case property, video, gallery, mediaGrid, html, search, sectionViewAll, nft, 
-         videoError, login(LoginParam), errorView(String), progress, black, purchaseQRView
+    case property, video, gallery, mediaGrid, html(HtmlParams), search, sectionViewAll, nft,
+         videoError, login(LoginParam), errorView(String), progress, black, purchaseQRView(PurchaseParams)
 }
 
 enum LoginType : String {
@@ -42,12 +42,28 @@ struct VideoErrorParams{
     var images : [String] = []
 }
 
+struct HtmlParams:Hashable{
+    var url : String = ""
+    var backgroundImage: String = ""
+}
+
+struct PurchaseParams:Hashable{
+    var url : String = ""
+    var backgroundImage: String = ""
+    var propertyId: String = ""
+    var pageId : String = ""
+    var sectionId : String = ""
+    var sectionItem: MediaPropertySectionItem? = nil
+}
+
+
 class PathState: ObservableObject {
     @Published var path : [NavDestination] = []
     
     var property : MediaProperty? = nil
     var propertyPage : MediaPropertyPage? = nil
     var url : String = ""
+    var backgroundImage : String = ""
     var playerItem : AVPlayerItem? = nil
     var mediaItem : MediaPropertySectionItem? = nil
     var propertyId: String = ""
@@ -68,6 +84,7 @@ class PathState: ObservableObject {
         pageId = "main"
         propertyPage = nil
         url = ""
+        backgroundImage = ""
         playerItem = nil
         mediaItem = nil
         gallery = []
