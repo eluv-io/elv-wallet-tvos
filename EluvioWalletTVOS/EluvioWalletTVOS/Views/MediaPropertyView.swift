@@ -52,12 +52,12 @@ struct MediaPropertyView : View {
                                             if provider == "auth0" {
                                                 debugPrint("Auth0 login.")
                                                 if eluvio.accountManager.currentAccount?.type != .Auth0 {
-                                                    eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
+                                                    eluvio.pathState.path.append(.login(LoginParam(type:.auth0, property:property)))
                                                     return
                                                 }
                                             }else if provider == "ory" {
                                                 debugPrint("Ory login.")
-                                                if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
+                                                if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
                                                     return
                                                 }
                                             }else {
@@ -74,7 +74,8 @@ struct MediaPropertyView : View {
                                 }
 
                                 await MainActor.run {
-                                    eluvio.pathState.path.append(.property)
+                                    let param = PropertyParam(property:property)
+                                    eluvio.pathState.path.append(.property(param))
                                 }
 
                             }

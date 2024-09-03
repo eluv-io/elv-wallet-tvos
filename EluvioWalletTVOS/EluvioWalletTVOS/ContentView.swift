@@ -256,12 +256,6 @@ struct ContentView: View {
         NavigationStack(path: $eluvio.pathState.path) {
             Group{
                 if eluvio.accountManager.isLoggedOut {
-                    /*
-                     SignInView()
-                     .environmentObject(self.eluvio)
-                     .preferredColorScheme(colorScheme)
-                     .background(Color.mainBackground)
-                     */
                     DiscoverView()
                         .environmentObject(self.eluvio)
                         .preferredColorScheme(colorScheme)
@@ -286,8 +280,8 @@ struct ContentView: View {
             }
             .navigationDestination(for: NavDestination.self) { destination in
                 switch destination {
-                case .property:
-                    if let property = eluvio.pathState.property {
+                case let .property(params):
+                    if let property = params.property {
                         MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric:eluvio.fabric))
                             .environmentObject(self.eluvio)
                     }else{
@@ -365,9 +359,9 @@ struct ContentView: View {
                         .edgesIgnoringSafeArea(.all)
                 case let .login(params) :
                     if params.type == .auth0 {
-                        DeviceFlowView()
+                        DeviceFlowView(property: params.property)
                     }else if params.type == .ory {
-                        OryDeviceFlowView()
+                        OryDeviceFlowView(property:params.property)
                     }
                 case .progress:
                     ProgressView()

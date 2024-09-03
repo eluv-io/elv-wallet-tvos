@@ -444,15 +444,29 @@ struct MediaPropertyDetailView: View {
             
             Task {
                 do {
+
                     guard let id = property.id else {
                         debugPrint("Couldn't get property.id")
                         return
                     }
 
+                    do {
+                        if let mediaProperty = try await eluvio.fabric.getProperty(property:id, noCache: true) {
+                            debugPrint("Fetched new property ", mediaProperty.id)
+                            await MainActor.run{
+                                self.property = MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
+                            }
+                            
+                        }
+                    }catch{
+                        debugPrint("Could not fetch new property ",error.localizedDescription)
+                    }
+                    
                     var pageId = "main"
                     do {
-
+                        debugPrint("Property title ", property.title)
                         debugPrint("Property permissions ", property.permissions)
+                        debugPrint("Property authState ", property.permission_auth_state)
                         debugPrint("Page permissions ", property.main_page?.permissions)
 
                         
@@ -467,45 +481,63 @@ struct MediaPropertyDetailView: View {
                                 //TODO: Waht to show?
                             }
                         }
-                        self.pageId = pageId
+                        await MainActor.run {
+                            self.pageId = pageId
+                        }
                     }catch{
-                        print("Could not resolve permissions for property id", id)
+                        print("Could not resolve permissions for property id \(id)", error.localizedDescription)
                     }
                     
-                    self.sections = try await eluvio.fabric.getPropertyPageSections(property: id, page: pageId)
-                    debugPrint("finished getting sections. ", sections.count)
+                    var sections : [MediaPropertySection] = []
+                    do {
+                        sections = try await eluvio.fabric.getPropertyPageSections(property: id, page: pageId)
+                        debugPrint("finished getting sections. ", sections.count)
+                    }catch{
+                        print("Error retrieving property \(id) page \(pageId) ", error.localizedDescription)
+                    }
+
 
                     //Finding the hero video to play
-                    if !sections.isEmpty{
-                        let section = sections[0]
-                        if let heros = section.hero_items?.arrayValue {
-                            //debugPrint("found heros", heros[0])
-                            if !heros.isEmpty{
-                                let video = heros[0]["display"]["background_video"]
-                                debugPrint("video: ", video)
-                                if !video.isEmpty {
-                                    do {
-                                        let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
-                                        withAnimation(.easeInOut(duration: 1), {
-                                            self.playerItem = item
-                                            debugPrint("playerItem set")
-                                        })
-                                    }catch{
-                                        debugPrint("Error: ", error.localizedDescription)
+                    if self.playerItem != nil {
+                        if !sections.isEmpty{
+                            let section = sections[0]
+                            if let heros = section.hero_items?.arrayValue {
+                                //debugPrint("found heros", heros[0])
+                                if !heros.isEmpty{
+                                    let video = heros[0]["display"]["background_video"]
+                                    //debugPrint("video: ", video)
+                                    if !video.isEmpty {
+                                        do {
+                                            let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
+                                            await MainActor.run {
+                                                withAnimation(.easeInOut(duration: 1), {
+                                                    self.playerItem = item
+                                                    debugPrint("playerItem set")
+                                                })
+                                            }
+                                        }catch{
+                                            debugPrint("Error: ", error.localizedDescription)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                     
-                    if self.playerItem == nil {
-                        withAnimation(.easeInOut(duration: 1), {
-                            backgroundImage = property.backgroundImage
-                        })
+                    await MainActor.run {
+                        self.sections = sections
+                    }
+                    
+                    await MainActor.run {
+                        if self.playerItem == nil {
+                            withAnimation(.easeInOut(duration: 1), {
+                                backgroundImage = property.backgroundImage
+                            })
+                        }
                     }
                     
                 }catch {
-                    print("Error getting property sections ", error.localizedDescription)
+                    print("Error retrieving property ", error.localizedDescription)
                 }
             }
         }

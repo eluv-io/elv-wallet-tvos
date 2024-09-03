@@ -93,7 +93,7 @@ struct ProfileView: View {
                     .frame(width:1200)
                     
                     Button("Sign Out") {
-                        eluvio.accountManager.signOut()
+                        eluvio.signOut()
                     }
                 }
                 .padding([.leading,.trailing,.bottom],80)

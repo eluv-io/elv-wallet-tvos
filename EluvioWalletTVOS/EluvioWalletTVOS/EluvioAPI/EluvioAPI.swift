@@ -28,7 +28,26 @@ class EluvioAPI : ObservableObject {
             self.pathState.objectWillChange,
             self.viewState.objectWillChange
         )
-        .sink(receiveValue: self.objectWillChange.send)
+        .sink(receiveValue: {
+                DispatchQueue.main.async {
+                    self.objectWillChange.send()
+                }
+            }
+        )
         .store(in: &self.cancellables)
+    }
+    
+    func signIn(account:Account, property:String) async throws {
+        signOut()
+        fabric.fabricToken = account.fabricToken
+        try accountManager.addAndSetCurrentAccount(account: account, type: account.type, property:property)
+        try await fabric.connect(network:"main")
+    }
+    
+    func signOut(){
+        accountManager.signOut()
+        fabric.reset()
+        pathState.reset()
+        viewState.reset()
     }
 }

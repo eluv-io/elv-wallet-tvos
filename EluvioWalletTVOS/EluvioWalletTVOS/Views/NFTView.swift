@@ -327,7 +327,6 @@ struct NFTView2: View {
                             Image("item-highlight").resizable()
                         }
                     }
-                
                 VStack() {
                     HStack(alignment:.center, spacing:10){
                         if(propertyLogo.hasPrefix("http")){

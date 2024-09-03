@@ -178,7 +178,7 @@ struct SectionItemListView: View {
 
 struct SectionMediaItemView: View {
     @EnvironmentObject var eluvio: EluvioAPI
-    
+
     var item: MediaPropertySectionMediaItem
     var display : MediaDisplay {
         if item.thumbnail_image_square != nil {
@@ -196,7 +196,7 @@ struct SectionMediaItemView: View {
         return .square
     }
 
-    
+
     var thumbnail : String {
         do {
             let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_square)
@@ -221,7 +221,7 @@ struct SectionMediaItemView: View {
         
         return ""
     }
-    
+
     @FocusState var isFocused
 
     var body: some View {
@@ -241,7 +241,6 @@ struct SectionMediaItemView: View {
                             }
                         }
                     }else if (type.lowercased() == "html") {
-                        
                         debugPrint("Media Item", item)
                         do {
                             if let file = item.media_file {
@@ -271,7 +270,6 @@ struct SectionMediaItemView: View {
                         debugPrint("Item without type Item: ", item)
                     }
                 }
-                
             }){
                 MediaCard(display: display,
                           image: thumbnail,
@@ -313,12 +311,15 @@ struct SectionItemView: View {
         }
         return false
     }
-    
+
     var body: some View {
         Group {
             if !hide {
                 if item.type == "item_purchase" {
-                    SectionItemPurchaseView(sectionItem:item, sectionId: sectionId, pageId:pageId, propertyId: propertyId)
+                    SectionItemPurchaseView(sectionItem:item,
+                                            sectionId: sectionId,
+                                            pageId:pageId,
+                                            propertyId: propertyId)
                 }else {
                     VStack(alignment:.leading, spacing:10){
                         if let mediaItem = viewItem {
@@ -328,7 +329,7 @@ struct SectionItemView: View {
                                     debugPrint("MediaItemView Type ", mediaItem.media_type)
                                     debugPrint("Item Type ", item.type ?? "")
                                     debugPrint("Item Media Type ", item.media_type ?? "")
-                                    
+
                                     if let sectionItemId = item.id {
                                         self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
                                         debugPrint("Permission ", permission)
@@ -362,7 +363,8 @@ struct SectionItemView: View {
                                                         if !newPage.isEmpty {
                                                             eluvio.pathState.pageId = newPage
                                                             eluvio.pathState.sectionItem = item
-                                                            eluvio.pathState.path.append(.property)
+                                                            let params = PropertyParam(property:property)
+                                                            eluvio.pathState.path.append(.property(params))
                                                         }
                                                     }
                                                 }
@@ -490,7 +492,8 @@ struct SectionItemView: View {
                                                             debugPrint("Found sub property page")
                                                             eluvio.pathState.property = property
                                                             eluvio.pathState.propertyPage = page
-                                                            eluvio.pathState.path.append(.property)
+                                                            let params = PropertyParam(property:property)
+                                                            eluvio.pathState.path.append(.property(params))
                                                         }
                                                         
                                                     }else{
@@ -689,7 +692,6 @@ struct SectionItemPurchaseView: View {
                 print("Could not create purchase url.", error.localizedDescription)
             }
         }
-        
     }
 }
 

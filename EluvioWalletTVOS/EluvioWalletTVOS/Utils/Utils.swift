@@ -556,15 +556,15 @@ func MakePlayerItemFromVersionHash(fabric: Fabric, versionHash: String, params: 
 }
 
 func MakePlayerItemFromLink(fabric: Fabric, link: JSON?, params: [JSON]? = [], offering: String = "default", hash: String = "") async throws -> AVPlayerItem {
-    debugPrint("MakePlayerItemFromLink ", link)
+    //debugPrint("MakePlayerItemFromLink ", link)
     let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering, hash:hash)
-    debugPrint("options finished ", options)
+    //debugPrint("options finished ", options)
     return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
 }
 
 func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHash: String, offering: String = "default") throws -> AVPlayerItem {
     
-    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
+    //debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
     
     var hlsPlaylistUrl: String = ""
     

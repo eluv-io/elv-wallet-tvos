@@ -19,7 +19,7 @@ struct ResponsePaging : Codable {
     var total : Int = 0
 }
 
-struct MediaProperty: Codable, Identifiable {
+struct MediaProperty: Codable, Identifiable, Hashable {
     var associated_marketplaces : [AssociatedMarketplaces]?
     var header_logo : JSON?
     var id : String?
@@ -37,6 +37,14 @@ struct MediaProperty: Codable, Identifiable {
     var permissions : JSON?
     var require_login : Bool?
     var slug : String?
+    
+    static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
 
 struct AssociatedMarketplaces: Codable {

@@ -361,7 +361,7 @@ class RemoteSigner {
     func getPropertyPage(property: String, page: String, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertyPage{
         
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** getPropertyPageSections ******")
+            //print("****** getPropertyPageSections ******")
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
@@ -393,7 +393,7 @@ class RemoteSigner {
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** getPropertyPageSections ******")
+            //print("****** getPropertyPageSections ******")
             do {
                 
                 var endpoint = try self.getAuthEndpoint()

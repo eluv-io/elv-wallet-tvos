@@ -23,6 +23,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var sections: [String] = []
     var permissions : JSON? = nil
     var main_page : MediaPropertyPage? = nil
+    var permission_auth_state : JSON? = nil
     
     static func == (lhs: MediaPropertyViewModel, rhs: MediaPropertyViewModel) -> Bool {
         return lhs.id == rhs.id
@@ -83,7 +84,8 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
                 position: mediaProperty.main_page?.layout?["position"].stringValue ?? "",
                 sections: sections,
                 permissions : mediaProperty.permissions,
-                main_page: mediaProperty.main_page
+                main_page: mediaProperty.main_page,
+                permission_auth_state: mediaProperty.permission_auth_state
             )
     }
 }

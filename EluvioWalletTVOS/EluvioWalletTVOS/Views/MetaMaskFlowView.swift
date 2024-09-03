@@ -33,6 +33,7 @@ struct MetaMaskFlowView: View {
     var Domain = ""
     
     @State private var response = JSON()
+    var property: MediaProperty? = nil
     
     init(show: Binding<Bool>){
         self.Domain = "prod-elv.us.auth0.com"
@@ -179,22 +180,17 @@ struct MetaMaskFlowView: View {
     func checkDeviceVerification() async{
         print("Metamask checkDeviceVerification \(self.code)");
         do {
+            var newProperty : MediaProperty? = nil
+            
             guard let result = try await eluvio.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
                 print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
             }
             
-
             let status = result["status"].intValue
             
             if(status != 200){
                 print("Check value \(result)")
-                /*
-                self.timerCancellable!.cancel()
-                print("Error \(json)")
-                self.errorMessage = json["error"].stringValue
-                showError = true
-                 */
                 return
             }
             
@@ -218,8 +214,16 @@ struct MetaMaskFlowView: View {
             account.type = .Auth0
             account.fabricToken = token
             account.login = login
-            eluvio.fabric.fabricToken = account.fabricToken
-            try eluvio.accountManager.addAndSetCurrentAccount(account:account, type:.Auth0, property: eluvio.pathState.property?.id ?? "")
+            try await eluvio.signIn(account:account, property: property?.id ?? "")
+            newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
+            
+            await MainActor.run {
+                debugPrint("Sign in finished.")
+                let last = eluvio.pathState.path.popLast()
+                debugPrint("Popped the path state.")
+                let params = PropertyParam(property:newProperty)
+                eluvio.pathState.path.append(.property(params))
+            }
             
         } catch {
             print("checkDeviceVerification error", error)

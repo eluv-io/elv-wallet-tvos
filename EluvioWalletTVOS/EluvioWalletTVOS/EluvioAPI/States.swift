@@ -10,7 +10,7 @@ import Combine
 import AVKit
 
 enum NavDestination: Hashable {
-    case property, video, gallery, mediaGrid, html(HtmlParams), search, sectionViewAll, nft,
+    case property(PropertyParam), video, gallery, mediaGrid, html(HtmlParams), search, sectionViewAll, nft,
          videoError, login(LoginParam), errorView(String), progress, black, purchaseQRView(PurchaseParams)
 }
 
@@ -18,8 +18,13 @@ enum LoginType : String {
     case auth0, ory
 }
 
+struct PropertyParam : Hashable {
+    var property : MediaProperty? = nil
+}
+
 struct LoginParam : Hashable {
     var type : LoginType
+    var property : MediaProperty? = nil
 }
 
 struct SearchParams {
@@ -55,7 +60,6 @@ struct PurchaseParams:Hashable{
     var sectionId : String = ""
     var sectionItem: MediaPropertySectionItem? = nil
 }
-
 
 class PathState: ObservableObject {
     @Published var path : [NavDestination] = []

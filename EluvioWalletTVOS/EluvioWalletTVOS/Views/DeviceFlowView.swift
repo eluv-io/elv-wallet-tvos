@@ -36,6 +36,8 @@ struct DeviceFlowView: View {
     
     @State var isChecking = false
     
+    var property : MediaProperty? = nil
+    
     var logo: String {
         if let logo = eluvio.pathState.property?.login?["styling"]["logo_tv"] {
             do {
@@ -62,11 +64,12 @@ struct DeviceFlowView: View {
         return ""
     }
     
-    init(){
+    init(property: MediaProperty?){
         //print("SignInView init()")
         self.ClientId = "O1trRaT8nCpLke9e37P98Cs9Y8NLpoar"
         self.Domain = "prod-elv.us.auth0.com"
         self.GrantType = "urn:ietf:params:oauth:grant-type:device_code"
+        self.property = property
     }
 
 
@@ -236,6 +239,8 @@ struct DeviceFlowView: View {
                                 return
                             }
                             
+                            var newProperty : MediaProperty? = nil
+                            
                             Task {
                                 do {
                                     debugPrint("verification result: ", json)
@@ -261,8 +266,8 @@ struct DeviceFlowView: View {
                                     account.fabricToken = try await eluvio.fabric.createFabricToken(login:login)
                                     account.signInResponse = signInResponse
                                     account.login = login
-                                    eluvio.fabric.fabricToken = account.fabricToken
-                                    try eluvio.accountManager.addAndSetCurrentAccount(account:account, type:.Auth0, property: eluvio.pathState.property?.id ?? "")
+                                    try await eluvio.signIn(account:account, property: property?.id ?? "")
+                                    newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")
                                 }
@@ -270,8 +275,10 @@ struct DeviceFlowView: View {
                                 await MainActor.run {
                                     debugPrint("Sign in finished.")
                                     let last = eluvio.pathState.path.popLast()
-                                    debugPrint("current Account ", eluvio.accountManager.currentAccount?.getAccountAddress())
-                                    eluvio.pathState.path.append(.property)
+                                    debugPrint("current Account ", eluvio.accountManager.currentAccount?.getAccountAddress() ?? "")
+                                    
+                                    let params = PropertyParam(property:newProperty)
+                                    eluvio.pathState.path.append(.property(params))
                                     self.isChecking = false
                                 }
                             }

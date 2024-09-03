@@ -88,20 +88,9 @@ struct DiscoverView: View {
                     }
                 }catch{
                     print("Could not get properties code: ", error)
-                    eluvio.accountManager.signOut()
+                    eluvio.signOut()
                 }
             }
-
-            /*
-            if eluvio.fabric.mediaProperties.contents.isEmpty {
-                Task{
-                    do {
-                        try await self.eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
-                        await self.eluvio.fabric.refresh()
-                    }catch{}
-                }
-            }
-             */
             
             self.fabricCancellable2 = eluvio.accountManager.$currentAccount
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet

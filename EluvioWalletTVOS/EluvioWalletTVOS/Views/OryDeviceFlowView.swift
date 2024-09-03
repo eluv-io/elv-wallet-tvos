@@ -34,6 +34,7 @@ struct OryDeviceFlowView: View {
     var GrantType = ""
     
     @State var isChecking = false
+    var property : MediaProperty? = nil
     
     var logo: String {
         if let logo = eluvio.pathState.property?.login?["styling"]["logo_tv"] {
@@ -239,34 +240,33 @@ struct OryDeviceFlowView: View {
             let eth = json["eth"].stringValue
 
 
-            Task {
-                do {
-                    //var signInResponse = SignInResponse()
-                    //signInResponse.idToken = token
-                    let login = LoginResponse(type: type, addr:addr, eth:eth, token: token)
-                    debugPrint("Ory signing in ")
+            var newProperty : MediaProperty? = nil
+            do {
+                //var signInResponse = SignInResponse()
+                //signInResponse.idToken = token
+                let login = LoginResponse(type: type, addr:addr, eth:eth, token: token)
+                debugPrint("Ory signing in ")
 
-                    let account = Account()
-                    account.type = .Ory
-                    account.fabricToken = token
-                    account.login = login
-                    eluvio.fabric.fabricToken = token
-                    try eluvio.accountManager.addAndSetCurrentAccount(account:account, type:.Ory, property: eluvio.pathState.property?.id ?? "")
-
-                    debugPrint("Ory Signing in done!")
-                }catch {
-                    print("could not sign in: \(error.localizedDescription)")
-                }
-                
-                await MainActor.run {
-                    debugPrint("Sign in finished.")
-                    let last = eluvio.pathState.path.popLast()
-                    debugPrint("Popped the path state.", last)
-                    eluvio.pathState.path.append(.property)
-                    self.isChecking = false
-                }
+                let account = Account()
+                account.type = .Ory
+                account.fabricToken = token
+                account.login = login
+                try await eluvio.signIn(account:account, property: property?.id ?? "")
+                //newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
+                debugPrint("Ory Signing in done!")
+            }catch {
+                print("could not sign in: \(error.localizedDescription)")
             }
             
+            await MainActor.run {
+                debugPrint("Sign in finished.")
+                let last = eluvio.pathState.path.popLast()
+                debugPrint("Popped the path state.")
+                let params = PropertyParam(property:property)
+                eluvio.pathState.path.append(.property(params))
+                self.isChecking = false
+            }
+
             self.timerCancellable!.cancel()
         } catch {
             print("checkDeviceVerification error", error)

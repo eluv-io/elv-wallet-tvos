@@ -178,7 +178,7 @@ class Fabric: ObservableObject {
         }
         self.signingIn = true
          */
-        
+
         var _network = network
         if(network.isEmpty) {
             guard let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
@@ -188,11 +188,11 @@ class Fabric: ObservableObject {
             }
             _network = savedNetwork
         }
-        
+
         guard let configUrl = APP_CONFIG.network[_network]?.config_url else {
             throw FabricError.configError("Error, configuration network not found \(network)")
         }
-        
+
         guard let url = URL(string: configUrl) else {
             throw FabricError.invalidURL("\(self.configUrl)")
         }
@@ -210,16 +210,16 @@ class Fabric: ObservableObject {
         guard let ethereumApi = self.configuration?.getEthereumAPI() else {
             throw FabricError.configError("Error getting ethereum apis from config: \(self.configuration)")
         }
-        
+
         guard let asApi = self.configuration?.getAuthServices() else{
             throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
         }
         self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
-        
+
         self.configUrl = configUrl
         self.network = _network
         UserDefaults.standard.set(_network, forKey: "fabric_network")
-        
+
         self.profileClient = ProfileClient(fabric: self)
         //debugPrint("Static token: ", fabricToken)
         if fabricToken == "" && token == "" {
@@ -227,7 +227,7 @@ class Fabric: ObservableObject {
         }else if !token.isEmpty{
             fabricToken = token
         }
-        
+
         if signIn {
             /*
                 if (self.isMetamask == true){
@@ -283,19 +283,19 @@ class Fabric: ObservableObject {
              */
         }
     }
-    
+
     func getContentSpaceId() throws -> String {
         guard let spaceId = self.configuration?.qspace.id else {
             throw FabricError.configError("Error getting spaceId from config: \(self.configuration)")
         }
         return spaceId
     }
-    
+
     func setConfiguration(configuration: FabricConfiguration){
         self.configuration = configuration
         print("QSPACE_ID: \(self.configuration?.qspace.id)")
     }
-    
+
     func parseNfts(_ nfts: [JSON], propertyId: String) async throws -> [NFTModel] {
         var items : [NFTModel] = []
         for nft in nfts {
@@ -333,7 +333,7 @@ class Fabric: ObservableObject {
         
         return items
     }
-    
+
     func parseNftsToLibrary(_ nfts: [JSON]) async throws -> MediaLibrary {
         
         var featured = Features()
@@ -1270,9 +1270,13 @@ class Fabric: ObservableObject {
             if pageId == "main"{
                 return property.main_page
             }
-        
             
+            if let page = mediaPropertiesPageCache[pageId] {
+                return page
+            }
+    
             let result =  try await signer.getPropertyPage(property:propertyId, page:pageId, accessCode: self.fabricToken)
+            mediaPropertiesPageCache[pageId] = result
             return result
             
         }
@@ -1292,6 +1296,8 @@ class Fabric: ObservableObject {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
+        
+        debugPrint("getProperty \(property) noCache \(noCache) token \(self.fabricToken)")
         
         if mediaPropertiesCache.isEmpty || noCache {
             let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
@@ -1347,7 +1353,7 @@ class Fabric: ObservableObject {
         
         var sections: [String] = []
         if let page = try await getPropertyPage(propertyId: property, pageId:page) {
-            debugPrint("Found page ", page)
+            //debugPrint("Found page ", page)
             if let _sec = page.layout?["sections"].arrayValue {
                 for sectionId in _sec {
                     sections.append(sectionId.stringValue)
@@ -1636,6 +1642,7 @@ class Fabric: ObservableObject {
         self.mediaPropertiesCache = [:]
         self.mediaPropertiesMediaItemCache = [:]
         self.mediaPropertiesSectionCache = [:]
+        self.mediaPropertiesPageCache = [:]
     }
     
     func reset(){
@@ -1957,7 +1964,7 @@ class Fabric: ObservableObject {
 
         var optionsUrl = newUrl.standardized.absoluteString
         
-        print("options url \(optionsUrl)")
+        //print("options url \(optionsUrl)")
         
         let optionsJson = try await getJsonRequest(url: optionsUrl)
         //print("options json \(optionsJson)")
@@ -1974,7 +1981,7 @@ class Fabric: ObservableObject {
         }
         
         //print ("Offering \(offering)")
-        print("options url \(optionsUrl)")
+        //print("options url \(optionsUrl)")
         
         
         guard let versionsHash = FindContentHash(uri: optionsUrl) else {
@@ -2341,20 +2348,11 @@ class Fabric: ObservableObject {
         
         let mediaProperty = try await getProperty(property: propertyId)
         
-        var authState = mediaProperty?.permission_auth_state ?? JSON()
+        let authState = mediaProperty?.permission_auth_state ?? JSON()
     
         
         if let perms = mediaProperty?.permissions?["property_permissions"].arrayValue {
-            for perm in perms {
-                let p = authState[perm.stringValue]
-                if p.exists() {
-                    if p["authorized"].exists() {
-                        if !p["authorized"].boolValue {
-                            result.authorized = false
-                        }
-                    }
-                }
-            }
+            result.authorized = checkPermissionIds(permissionIds: perms, authState: authState)
         }
         
         if let _behavior = mediaProperty?.permissions?["behavior"] {
@@ -2381,16 +2379,7 @@ class Fabric: ObservableObject {
         
         if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
             if let perms = page.permissions?["page_permissions"].arrayValue {
-                for perm in perms {
-                    let p = authState[perm.stringValue]
-                    if p.exists() {
-                        if p["authorized"].exists() {
-                            if !p["authorized"].boolValue {
-                                result.authorized = false
-                            }
-                        }
-                    }
-                }
+                result.authorized = checkPermissionIds(permissionIds: perms, authState: authState)
             }
             
             if let _behavior = page.permissions?["behavior"] {
@@ -2408,7 +2397,9 @@ class Fabric: ObservableObject {
                             result.secondaryPurchaseOption = true
                         }
                     }
-                }catch{}
+                }catch{
+                    debugPrint("Couldn't get page behavior ", error.localizedDescription)
+                }
             }
         }
 
@@ -2429,7 +2420,7 @@ class Fabric: ObservableObject {
         let mediaProperty = try await getProperty(property: propertyId)
         
         let authState = mediaProperty?.permission_auth_state ?? JSON()
-        debugPrint("resolveContentPermission authState", authState)
+        //debugPrint("resolveContentPermission authState", authState)
         
 
         if let _behavior = mediaProperty?.permissions?["behavior"] {
@@ -2515,9 +2506,7 @@ class Fabric: ObservableObject {
                         }
                     }
                     
-                    if !isAuthorized(permission:section.permissions, authState:authState) {
-                        result.authorized = false
-                    }
+                    result.authorized = isAuthorized(permission:section.permissions, authState:authState)
                     
                     if !result.authorized {
                         debugPrint("Not Authorized! Section")
@@ -2567,9 +2556,7 @@ class Fabric: ObservableObject {
 
                             }
                             
-                            if !isAuthorized(permission:sectionItem.permissions, authState:authState){
-                                result.authorized = false
-                            }
+                            result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
                             
                             if !result.authorized {
                                 debugPrint("Not Authorized! Section Item")
@@ -2618,23 +2605,34 @@ class Fabric: ObservableObject {
             if permission["permission_item_ids"].arrayValue.isEmpty{
                 return true
             }
-        
             
-            for id in permission["permission_item_ids"].arrayValue {
-                debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
-                if authState.isEmpty {
-                    return false
-                }else {
-                    if authState[id.stringValue]["authorized"].boolValue{
-                        return true
-                    }
-                }
-            }
-            
-            return false
+            return checkPermissionIds(permissionIds:permission["permission_item_ids"].arrayValue, authState:authState)
             
         }
         return true
+    }
+    
+    func checkPermissionIds(permissionIds:[JSON], authState:JSON) -> Bool {
+        debugPrint("checkPermissionIds")
+        
+        if authState.isEmpty {
+            debugPrint("authState is empty")
+            return false
+        }
+        
+        if permissionIds.isEmpty{
+            return true
+        }
+        
+        for id in permissionIds {
+            debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
+            if authState[id.stringValue]["authorized"].boolValue{
+                return true
+            }
+            
+        }
+        
+        return false
     }
 }
 

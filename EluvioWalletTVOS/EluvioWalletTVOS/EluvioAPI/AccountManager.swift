@@ -51,11 +51,6 @@ class Account: Identifiable, Codable {
         
         return FormatAddress(address: address)
     }
-    
-    func signOut() {
-        isLoggedOut = true
-        login = nil
-    }
 }
 
 typealias PropertyID = String

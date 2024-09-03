@@ -76,7 +76,8 @@ struct ItemDetailView: View {
                                                 debugPrint("Found sub property page")
                                                 eluvio.pathState.property = property
                                                 eluvio.pathState.propertyPage = page
-                                                eluvio.pathState.path.append(.property)
+                                                let params = PropertyParam(property:property)
+                                                eluvio.pathState.path.append(.property(params))
                                             }
                                             
                                         }else{
