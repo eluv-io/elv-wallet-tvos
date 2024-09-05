@@ -20,6 +20,7 @@ struct DiscoverView: View {
     var topId = "top"
     
     @State var backgroundImageURL = ""
+
     
     @State private var selected: MediaPropertyViewModel = MediaPropertyViewModel()
     @State private var position: Int?
@@ -48,6 +49,24 @@ struct DiscoverView: View {
                 withAnimation(.easeIn(duration: 2)){
                     backgroundImageURL = new.backgroundImage
                 }
+            }else{
+                Task {
+                    
+                    do {
+                        if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
+                            //debugPrint("Fetched new property ", mediaProperty.id)
+                            
+                            let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric,findHero: true)
+                            
+                            withAnimation(.easeIn(duration: 2)){
+                                backgroundImageURL = viewItem.backgroundImage
+                            }
+                        }
+                    }catch{
+                        debugPrint("Could not fetch new property ",error.localizedDescription)
+                    }
+                }
+                
             }
         }
         .background(
@@ -73,7 +92,7 @@ struct DiscoverView: View {
                     for property in props{
                         //debugPrint("PROPERTY: \(property.title)")
                         
-                        let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
+                        let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                         //debugPrint("\(mediaProperty.title) ---> created")
                         if mediaProperty.image.isEmpty {
                             
@@ -92,6 +111,7 @@ struct DiscoverView: View {
                 }
             }
             
+            /*
             self.fabricCancellable2 = eluvio.accountManager.$currentAccount
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
@@ -104,6 +124,7 @@ struct DiscoverView: View {
                         }
                     }
                 }
+             */
         }
     }
 }

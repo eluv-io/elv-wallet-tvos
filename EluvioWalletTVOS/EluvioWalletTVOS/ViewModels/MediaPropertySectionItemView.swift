@@ -20,7 +20,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
     var end_time : String = ""
     var start_time : String = ""
     var label : String = ""
-    var live : Bool = false
+    var live_video : Bool = false
     var media_catalog_id : String = ""
     var media_file_url : String
     var media_type : String = ""
@@ -49,6 +49,18 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         return dateFormatter.date(from:start_time)
     }
     
+    var endDate : Date? {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [
+            .withFractionalSeconds,
+            .withFullDate,
+            .withTime, // without time zone
+            .withColonSeparatorInTime,
+            .withDashSeparatorInDate
+        ]
+        return dateFormatter.date(from:end_time)
+    }
+    
     var startDateTimeString: String {
         let df = DateFormatter()
         df.dateFormat = "MMM d 'at' hh:mm a"
@@ -74,6 +86,22 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         return ""
     }
     
+    var hasStarted : Bool {
+        if let startDate = startDate {
+            return startDate < Date()
+        }
+        
+        return false
+    }
+    
+    var hasEnded : Bool {
+        if let endDate = endDate {
+            return endDate < Date()
+        }
+        
+        return false
+    }
+    
     var isUpcoming : Bool {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [
@@ -86,6 +114,10 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         guard let date = dateFormatter.date(from:start_time) else {return false}
         
         return date > Date()
+    }
+    
+    var currentlyLive : Bool {
+        return !isUpcoming && self.live_video && hasStarted && !hasEnded
     }
     
     static func create(item: MediaPropertySectionItem, fabric: Fabric) -> MediaPropertySectionMediaItemViewModel{
@@ -104,7 +136,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         var end_time = ""
         var start_time = ""
         var media_catalog_id = ""
-        var live = false
+        var live_video = false
         var icons : [JSON]? = nil
         
         if let media = item.media {
@@ -119,7 +151,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
             description_rich_text = media.description_rich_text ?? ""
             end_time = media.end_time ?? ""
             start_time = media.start_time ?? ""
-            live = media.live ?? false
+            live_video = media.live_video ?? false
             media_catalog_id = media.media_catalog_id ?? ""
             title = media.title ?? ""
             subtitle = media.subtitle ?? ""
@@ -127,12 +159,21 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         }
         
         if let type = item.type {
-            if type.contains("link") {
-                if let display = item.display {
+            if let display = item.display {
+                if display["thumbnail_image_square"].exists() {
                     thumbnailSquareLink = display["thumbnail_image_square"]
+                }
+                if display["thumbnail_image_portrait"].exists() {
                     thumbnailPortraitLink = display["thumbnail_image_portrait"]
+                }
+                
+                if display["thumbnail_image_landscape"].exists() {
                     thumbnailLandLink = display["thumbnail_image_landscape"]
+                }
+                if !display["title"].stringValue.isEmpty {
                     title = display["title"].stringValue
+                }
+                if !display["subtitle"].stringValue.isEmpty {
                     subtitle = display["subtitle"].stringValue
                 }
             }
@@ -203,7 +244,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
             end_time: end_time,
             start_time: start_time,
             label: item.label ?? "",
-            live : live,
+            live_video : live_video,
             media_catalog_id: media_catalog_id,
             media_file_url: fileUrl,
             media_type : item.media?.media_type ?? "",

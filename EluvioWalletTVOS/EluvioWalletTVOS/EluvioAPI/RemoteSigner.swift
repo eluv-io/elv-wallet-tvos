@@ -141,6 +141,49 @@ class RemoteSigner {
         })
     }
     
+    func getProperty(property:String = "", accessCode: String, parameters : [String: String] = [:]) async throws -> MediaProperty {
+
+        //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties")
+            
+                if !property.isEmpty {
+                    endpoint = endpoint.appending("/\(property)")
+                }
+                          
+                print("getProperties Request: \(endpoint)")
+                //print("Params: \(parameters)")
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+                //print("Headers: \(headers)")
+                
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
+                    .debugLog()
+                    .responseDecodable(of: MediaProperty.self) { response in
+
+                    switch (response.result) {
+                        case .success(let result):
+                            continuation.resume(returning: result)
+                         case .failure(let error):
+                            //print("Get properties error: \(error)")
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                        continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                           response: respJSON, error: error))
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
     
     func getProperties(includePublic:Bool = true, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertiesResponse {
 
@@ -149,7 +192,8 @@ class RemoteSigner {
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
-                endpoint = endpoint.appending("/mw/properties").appending("?limit=100")
+                endpoint = endpoint.appending("/mw/properties")
+                endpoint = endpoint.appending("?limit=100")
                     
                 if includePublic {
                     endpoint = endpoint.appending("&include_public=\(includePublic ? "true" : "false" )")

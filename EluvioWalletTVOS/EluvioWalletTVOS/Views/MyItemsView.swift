@@ -88,7 +88,7 @@ struct MyItemsView: View {
                     
                     for property in props {
 
-                        let mediaProperty = MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
+                        let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                         if mediaProperty.title.isEmpty {
                             debugPrint("Property without a title: \(property.slug ?? "").")
                         }else{

@@ -20,6 +20,7 @@ enum LoginType : String {
 
 struct PropertyParam : Hashable {
     var property : MediaProperty? = nil
+    var pageId : String = "main"
 }
 
 struct LoginParam : Hashable {

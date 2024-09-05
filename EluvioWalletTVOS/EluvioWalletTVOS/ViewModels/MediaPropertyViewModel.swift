@@ -34,7 +34,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     }
     
     
-    static func create(mediaProperty: MediaProperty, fabric: Fabric) -> MediaPropertyViewModel{
+    static func create(mediaProperty: MediaProperty, fabric: Fabric, findHero: Bool = false) async -> MediaPropertyViewModel{
         
         var image = ""
         
@@ -53,6 +53,44 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
         }catch{
             //print("Could not create image URL \(error)")
         }
+        
+        debugPrint("Background image from page layout ", backgroundImage)
+        debugPrint("Sections ", mediaProperty.sections ?? "")
+        
+        if backgroundImage.isEmpty && findHero{
+            var sections : [MediaPropertySection] = []
+            do {
+                sections = try await fabric.getPropertyPageSections(property: mediaProperty.id ?? "", page: "main")
+                //debugPrint("finished getting sections. ", sections.count)
+            }catch{}
+            
+            if !sections.isEmpty{
+                debugPrint("digging into sections ", sections)
+                let section = sections[0]
+                if let heros = section.hero_items{
+                    debugPrint("found heros", heros[0])
+                    if !heros.isEmpty{
+                        let background = heros[0]["display"]["background_image"]
+                        debugPrint("background ", background)
+                        if !background.isEmpty {
+                            do {
+                                backgroundImage = try fabric.getUrlFromLink(link: background)
+                            }catch{
+                                debugPrint("Error: ", error.localizedDescription)
+                            }
+                        }
+                    }
+                }else{
+                    debugPrint("No hero_items")
+                }
+            }else{
+                debugPrint("No sections")
+            }
+        }else{
+            debugPrint("backgroundImage is not empty")
+        }
+            
+
         
         var logo = ""
         do {

@@ -282,7 +282,7 @@ struct ContentView: View {
                 switch destination {
                 case let .property(params):
                     if let property = params.property {
-                        MediaPropertyDetailView(property: MediaPropertyViewModel.create(mediaProperty: property, fabric:eluvio.fabric))
+                        MediaPropertyDetailView(property: property, pageId: params.pageId)
                             .environmentObject(self.eluvio)
                     }else{
                         Text("Could not load property.")

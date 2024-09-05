@@ -78,6 +78,8 @@ struct MediaPropertyView : View {
                                     eluvio.pathState.path.append(.property(param))
                                 }
 
+                            }else{
+                                eluvio.pathState.path.append(.errorView("Error finding property."))
                             }
                         }
                     }catch{
@@ -159,7 +161,7 @@ struct MediaPropertiesView: View {
                 ForEach(propertiesGroups, id: \.self) {groups in
                     GridRow(alignment:.center) {
                         ForEach(groups, id: \.self) { property in
-                                MediaPropertyView(property: property, selected: $selected)
+                            MediaPropertyView(property: property, selected: $selected)
                                     .environmentObject(self.eluvio)
                         }
                     }

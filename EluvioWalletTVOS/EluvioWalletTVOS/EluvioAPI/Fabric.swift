@@ -1252,6 +1252,8 @@ class Fabric: ObservableObject {
         }
         
         let response = try await signer.getProperties(includePublic:includePublic, accessCode: self.fabricToken)
+        
+        try cacheMediaProperties(properties: response)
         return response.contents
     }
     
@@ -1262,7 +1264,7 @@ class Fabric: ObservableObject {
         
         if mediaPropertiesCache.isEmpty {
             let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
-            try await cacheMediaProperties(properties: mediaProperties)
+            try cacheMediaProperties(properties: mediaProperties)
         }
         
         if let property = try await getProperty(property: propertyId) {
@@ -1298,10 +1300,12 @@ class Fabric: ObservableObject {
         }
         
         debugPrint("getProperty \(property) noCache \(noCache) token \(self.fabricToken)")
+        var mediaProperty = mediaPropertiesCache[property]
         
-        if mediaPropertiesCache.isEmpty || noCache {
-            let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
-            try await cacheMediaProperties(properties: mediaProperties)
+        if mediaPropertiesCache.isEmpty || noCache || mediaProperty == nil{
+            mediaProperty = try await signer.getProperty(property:property, accessCode: self.fabricToken)
+            debugPrint("Found property ", mediaProperty?.title)
+            mediaPropertiesCache[property] = mediaProperty
         }
         
         return mediaPropertiesCache[property]
@@ -1448,9 +1452,9 @@ class Fabric: ObservableObject {
             //self.mediaPropertiesMediaItemCache = self.mediaPropertiesMediaItemCache
     }
     
-    func cacheMediaProperties(properties: MediaPropertiesResponse) async throws{
+    func cacheMediaProperties(properties: MediaPropertiesResponse) throws{
         
-        var mediaProperties : [String : MediaProperty] = [:]
+        var mediaProperties =  self.mediaPropertiesCache
         
         for property in properties.contents {
             if let id = property.id {
@@ -1458,27 +1462,12 @@ class Fabric: ObservableObject {
                     continue
                 }
                 mediaProperties[id] = property
-                
-                /*
-                var sections: [String] = []
-                
-                do {
-                    let sec = property.main_page?.layout?["sections"].arrayValue ?? []
-                    for s in sec {
-                        sections.append(s.stringValue)
-                    }
-                }
-                
-                //try await cachePropertySections(property: id, sections: sections)
-                 */
             }
         }
         
         let props = mediaProperties
-        
-        await MainActor.run {
-            self.mediaPropertiesCache = props
-        }
+
+        self.mediaPropertiesCache = props
     }
     
     func getMediaItem(mediaId:String) -> MediaPropertySectionMediaItem? {
@@ -2422,6 +2411,10 @@ class Fabric: ObservableObject {
         let authState = mediaProperty?.permission_auth_state ?? JSON()
         //debugPrint("resolveContentPermission authState", authState)
         
+        debugPrint("Property Permissions ", mediaProperty?.permissions)
+        /*if let perms = mediaProperty?.permissions {
+            result.authorized = isAuthorized(permission: perms, authState: authState)
+        }*/
 
         if let _behavior = mediaProperty?.permissions?["behavior"] {
             do{
@@ -2450,6 +2443,10 @@ class Fabric: ObservableObject {
         }
         
         if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
+            
+            //debugPrint("Page Permissions ", page.permissions)
+            //result.authorized = isAuthorized(permission: page.permissions, authState: authState)
+            
             if let _behavior = page.permissions?["behavior"] {
                 do{
                     result.behavior = try getBehavior(json:_behavior)
@@ -2556,7 +2553,21 @@ class Fabric: ObservableObject {
 
                             }
                             
-                            result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
+                            var isPublic = false
+                            if let publicField = sectionItem.media?.public {
+                                isPublic = publicField
+                            }
+                            
+                            
+                            if !isPublic {
+                                if let permissionItemsArr = sectionItem.permissions?["permission_item_ids"].arrayValue.isEmpty{
+                                    //we are totaly private
+                                    result.authorized = false
+                                }else {
+                                    result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
+                                }
+                            }
+                            
                             
                             if !result.authorized {
                                 debugPrint("Not Authorized! Section Item")
@@ -2605,7 +2616,7 @@ class Fabric: ObservableObject {
             if permission["permission_item_ids"].arrayValue.isEmpty{
                 return true
             }
-            
+        
             return checkPermissionIds(permissionIds:permission["permission_item_ids"].arrayValue, authState:authState)
             
         }
@@ -2613,7 +2624,7 @@ class Fabric: ObservableObject {
     }
     
     func checkPermissionIds(permissionIds:[JSON], authState:JSON) -> Bool {
-        debugPrint("checkPermissionIds")
+        //debugPrint("checkPermissionIds")
         
         if authState.isEmpty {
             debugPrint("authState is empty")
@@ -2625,7 +2636,7 @@ class Fabric: ObservableObject {
         }
         
         for id in permissionIds {
-            debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
+            //debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
             if authState[id.stringValue]["authorized"].boolValue{
                 return true
             }

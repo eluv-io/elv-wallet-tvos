@@ -262,7 +262,7 @@ struct OryDeviceFlowView: View {
                 debugPrint("Sign in finished.")
                 let last = eluvio.pathState.path.popLast()
                 debugPrint("Popped the path state.")
-                let params = PropertyParam(property:property)
+                let params = PropertyParam(property:property, pageId: "main")
                 eluvio.pathState.path.append(.property(params))
                 self.isChecking = false
             }

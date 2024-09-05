@@ -37,6 +37,7 @@ struct MediaProperty: Codable, Identifiable, Hashable {
     var permissions : JSON?
     var require_login : Bool?
     var slug : String?
+    var sections : JSON?
     
     static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
         return lhs.id == rhs.id
@@ -147,7 +148,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var offerings : [String]? = []
     var start_time : String? = ""
     var label : String? = ""
-    var live : Bool? = false
+    var live_video : Bool? = false
     var gallery : [GalleryItem]? = nil
     var headers : [String]? = nil
     var media : [String]? = nil
@@ -164,6 +165,94 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var subtitle : String? = ""
     var type : String? = ""
     var icons : [JSON]? = nil
+    var `public` : Bool? = nil
+    
+    var startDate : Date? {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [
+            .withFractionalSeconds,
+            .withFullDate,
+            .withTime, // without time zone
+            .withColonSeparatorInTime,
+            .withDashSeparatorInDate
+        ]
+        return dateFormatter.date(from:start_time ?? "")
+    }
+    
+    var endDate : Date? {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [
+            .withFractionalSeconds,
+            .withFullDate,
+            .withTime, // without time zone
+            .withColonSeparatorInTime,
+            .withDashSeparatorInDate
+        ]
+        return dateFormatter.date(from:end_time ?? "")
+    }
+    
+    var startDateTimeString: String {
+        let df = DateFormatter()
+        df.dateFormat = "MMM d 'at' hh:mm a"
+        df.amSymbol = "AM"
+        df.pmSymbol = "PM"
+        
+        return df.string(from: startDate ?? Date())
+    }
+    
+    var timeUntilStart: String {
+        if isUpcoming {
+            let formatter = DateComponentsFormatter()
+            formatter.unitsStyle = .positional
+            formatter.allowedUnits = [.hour, .minute, .second]
+            formatter.zeroFormattingBehavior = .pad
+            
+            if let date = startDate {
+                let remainingTime: TimeInterval = date.timeIntervalSince(Date())
+                return formatter.string(from: remainingTime) ?? ""
+            }
+        }
+        
+        return ""
+    }
+    
+    var hasStarted : Bool {
+        if let startDate = startDate {
+            return startDate < Date()
+        }
+        
+        return false
+    }
+    
+    var hasEnded : Bool {
+        if let endDate = endDate {
+            return endDate < Date()
+        }
+        
+        return false
+    }
+    
+    var isUpcoming : Bool {
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [
+            .withFractionalSeconds,
+            .withFullDate,
+            .withTime, // without time zone
+            .withColonSeparatorInTime,
+            .withDashSeparatorInDate
+        ]
+        guard let date = dateFormatter.date(from:start_time ?? "") else {return false}
+        
+        return date > Date()
+    }
+    
+    var currentlyLive : Bool {
+        if let live = live_video {
+            return !isUpcoming && live && hasStarted && !hasEnded
+        }
+        
+        return false
+    }
     
     
     static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {

@@ -298,7 +298,7 @@ struct MediaPropertySectionView: View {
                         .padding(.bottom,40)
                     }
                     .focusSection()
-                    .frame(height:402)
+                    .frame(minHeight:402)
                     .padding([.leading,.trailing],margin)
                     .background(
                         Group {
@@ -306,14 +306,14 @@ struct MediaPropertySectionView: View {
                                 WebImage(url:URL(string:url))
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
-                                    .frame(maxWidth: .infinity, maxHeight:402)
+                                    .frame(maxWidth: .infinity)
                                     .frame(height:410)
                                     .clipped()
+                                    .zIndex(-10)
                                 
                             }
                         }
-                            .frame(maxWidth: .infinity, maxHeight:402)
-                            .frame(height:402)
+                        .frame(maxWidth: .infinity, maxHeight:.infinity)
                     )
                 }
             }
@@ -349,7 +349,8 @@ struct MediaPropertyDetailView: View {
     @Namespace var NamespaceProperty
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
-    @State var property: MediaPropertyViewModel
+    @State var property: MediaProperty?
+    @State var propertyView: MediaPropertyViewModel?
     @State var pageId:String  = "main"
     @State var sections : [MediaPropertySection] = []
     @FocusState var searchFocused
@@ -397,7 +398,7 @@ struct MediaPropertyDetailView: View {
                     VStack{
                         Button(action:{
                             debugPrint("Search....")
-                            eluvio.pathState.searchParams = SearchParams(propertyId: property.id ?? "")
+                            eluvio.pathState.searchParams = SearchParams(propertyId: property?.id ?? "")
                             eluvio.pathState.path.append(.search)
                         }){
                             HStack(){
@@ -421,7 +422,7 @@ struct MediaPropertyDetailView: View {
 
                 VStack() {
                     ForEach(sections) {section in
-                        if let propertyId = property.id {
+                        if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
                                 .edgesIgnoringSafeArea([.leading,.trailing])
                         }
@@ -445,7 +446,7 @@ struct MediaPropertyDetailView: View {
             Task {
                 do {
 
-                    guard let id = property.id else {
+                    guard let id = property?.id else {
                         debugPrint("Couldn't get property.id")
                         return
                     }
@@ -453,21 +454,18 @@ struct MediaPropertyDetailView: View {
                     do {
                         if let mediaProperty = try await eluvio.fabric.getProperty(property:id, noCache: true) {
                             debugPrint("Fetched new property ", mediaProperty.id)
-                            await MainActor.run{
-                                self.property = MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
-                            }
-                            
+                            self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
                         }
                     }catch{
                         debugPrint("Could not fetch new property ",error.localizedDescription)
                     }
                     
-                    var pageId = "main"
+                    var pageId = self.pageId
                     do {
-                        debugPrint("Property title ", property.title)
-                        debugPrint("Property permissions ", property.permissions)
-                        debugPrint("Property authState ", property.permission_auth_state)
-                        debugPrint("Page permissions ", property.main_page?.permissions)
+                        debugPrint("Property title ", property?.title)
+                        debugPrint("Property permissions ", property?.permissions)
+                        debugPrint("Property authState ", property?.permission_auth_state)
+                        debugPrint("Page permissions ", property?.main_page?.permissions)
 
                         
                         let pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: id, pageId: pageId)
@@ -497,27 +495,36 @@ struct MediaPropertyDetailView: View {
                     }
 
 
+                    var backgroundImageString : String = ""
                     //Finding the hero video to play
-                    if self.playerItem != nil {
-                        if !sections.isEmpty{
-                            let section = sections[0]
-                            if let heros = section.hero_items?.arrayValue {
-                                //debugPrint("found heros", heros[0])
-                                if !heros.isEmpty{
-                                    let video = heros[0]["display"]["background_video"]
-                                    //debugPrint("video: ", video)
-                                    if !video.isEmpty {
-                                        do {
-                                            let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
-                                            await MainActor.run {
-                                                withAnimation(.easeInOut(duration: 1), {
-                                                    self.playerItem = item
-                                                    debugPrint("playerItem set")
-                                                })
-                                            }
-                                        }catch{
-                                            debugPrint("Error: ", error.localizedDescription)
+                    if !sections.isEmpty{
+                        let section = sections[0]
+                        if let heros = section.hero_items?.arrayValue {
+                            debugPrint("found heros", heros[0])
+                            if !heros.isEmpty{
+                                let video = heros[0]["display"]["background_video"]
+                                let background = heros[0]["display"]["background_image"]
+                                //debugPrint("video: ", video)
+                                if !video.isEmpty {
+                                    do {
+                                        let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
+                                        await MainActor.run {
+                                            withAnimation(.easeInOut(duration: 1), {
+                                                self.playerItem = item
+                                                debugPrint("playerItem set")
+                                            })
                                         }
+                                    }catch{
+                                        debugPrint("Error: ", error.localizedDescription)
+                                    }
+                                }
+                                
+                                if !background.isEmpty {
+                                    do {
+                                        let item = try eluvio.fabric.getUrlFromLink(link: background)
+                                        backgroundImageString = item
+                                    }catch{
+                                        debugPrint("Error: ", error.localizedDescription)
                                     }
                                 }
                             }
@@ -529,9 +536,13 @@ struct MediaPropertyDetailView: View {
                     }
                     
                     await MainActor.run {
-                        if self.playerItem == nil {
+                        if self.playerItem == nil && backgroundImageString.isEmpty {
                             withAnimation(.easeInOut(duration: 1), {
-                                backgroundImage = property.backgroundImage
+                                self.backgroundImage = propertyView?.backgroundImage ?? ""
+                            })
+                        }else if self.playerItem == nil {
+                            withAnimation(.easeInOut(duration: 1), {
+                                self.backgroundImage = backgroundImageString
                             })
                         }
                     }
