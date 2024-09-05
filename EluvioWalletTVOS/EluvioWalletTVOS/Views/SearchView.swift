@@ -161,6 +161,7 @@ struct SearchView: View {
         GridItem(.fixed(400)),
         GridItem(.fixed(400)),
         GridItem(.fixed(400)),
+        GridItem(.fixed(400)),
         GridItem(.fixed(400))
     ]
     
@@ -270,7 +271,7 @@ struct SearchView: View {
                 
                 
                 if sections.count == 1 {
-                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, forceDisplay: .video)
+                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, forceDisplay: .square)
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
                         .padding(.top,20)

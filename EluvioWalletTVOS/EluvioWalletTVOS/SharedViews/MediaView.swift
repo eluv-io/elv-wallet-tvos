@@ -721,8 +721,8 @@ struct MediaCard: View {
                 height = 551 * sizeFactor
                 cornerRadius = 0
             }else {
-                width =  225 * sizeFactor
-                height = 225 * sizeFactor
+                width =  235 * sizeFactor
+                height = 235 * sizeFactor
                 cornerRadius = 16 * sizeFactor
             }
         }

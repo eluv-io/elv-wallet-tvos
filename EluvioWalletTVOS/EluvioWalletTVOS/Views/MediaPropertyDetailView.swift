@@ -33,7 +33,7 @@ struct MediaPropertySectionView: View {
     var pageId: String
     var section: MediaPropertySection
     let margin: CGFloat = 100
-    
+
     var items: [MediaPropertySectionItem] {
         section.content ?? []
     }
@@ -197,12 +197,19 @@ struct MediaPropertySectionView: View {
         }
         return false
     }
+    
 
+    var forceAspectRatio: String {
+        if let display = self.section.display {
+            return display["aspect_ratio"].stringValue
+        }
+        
+        return ""
+    }
 
     var body: some View {
         Group{
             if !hide {
-                
                 if isHero {
                     MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition)
                         .focusable()
@@ -278,7 +285,11 @@ struct MediaPropertySectionView: View {
                                 if alignment == .center && content.count < 5 {
                                     HStack(alignment: .center, spacing: 20) {
                                         ForEach(content) {item in
-                                            SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
+                                            SectionItemView(item: item, 
+                                                            sectionId: section.id,
+                                                            pageId:pageId, 
+                                                            propertyId: propertyId,
+                                                            forceAspectRatio:forceAspectRatio)
                                                 .environmentObject(self.eluvio)
                                         }
                                     }
@@ -286,7 +297,11 @@ struct MediaPropertySectionView: View {
                                     ScrollView(.horizontal) {
                                         HStack(alignment: .center, spacing: 20) {
                                             ForEach(content) {item in
-                                                SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
+                                                SectionItemView(item: item,
+                                                                sectionId: section.id,
+                                                                pageId:pageId,
+                                                                propertyId: propertyId,
+                                                                forceAspectRatio:forceAspectRatio)
                                                     .environmentObject(self.eluvio)
                                             }
                                         }
@@ -420,7 +435,7 @@ struct MediaPropertyDetailView: View {
                 .padding(.trailing, 40)
                 .padding(.top, 40)
 
-                VStack() {
+                VStack(spacing:0) {
                     ForEach(sections) {section in
                         if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
@@ -428,7 +443,6 @@ struct MediaPropertyDetailView: View {
                         }
                     }
                 }
-                .padding(.top, 40)
                 .prefersDefaultFocus(in: NamespaceProperty)
                 
             }
@@ -589,36 +603,36 @@ struct MediaPropertyHeader: View {
     
     
     var body: some View {
-        VStack(alignment: horizontalAlignment, spacing: 10) {
+        VStack(alignment: horizontalAlignment, spacing:0) {
             WebImage(url: URL(string: logo))
                 .resizable()
                 .transition(.fade(duration: 0.5))
                 .aspectRatio(contentMode: .fit)
                 .frame(width:840, height:180, alignment: alignment)
-                .padding(.bottom,40)
+                .padding(.bottom,122)
                 .clipped()
             
             if !title.isEmpty {
                 Text(title).font(.title3)
                     .foregroundColor(Color.white)
                     .fontWeight(.bold)
-                    .frame(maxWidth:1020, alignment: alignment)
+                    .frame(maxWidth:1100, alignment: alignment)
                     .padding(.top, 20)
+                    .padding(.bottom, 50)
             }
             
             if !description.isEmpty {
                 Text(description)
                     .foregroundColor(Color.white)
                     .font(.propertyDescription)
-                    .frame(maxWidth:1020, alignment: alignment)
+                    .frame(maxWidth:1100, alignment: alignment)
                     .lineLimit(3)
-                    .padding(.top, 20)
             }
 
         }
         .frame(maxWidth: .infinity, alignment: alignment)
-        .padding(.top, 40)
-        .padding(.bottom, 60)
+        .padding(.top, 100)
+        .padding(.bottom, 20)
     }
 }
 

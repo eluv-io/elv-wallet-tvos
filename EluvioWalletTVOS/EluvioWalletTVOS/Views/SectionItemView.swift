@@ -74,7 +74,7 @@ struct SectionGridView: View {
                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                     GridRow(alignment:.top) {
                         ForEach(groups, id: \.self) { item in
-                            SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId)
+                            SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display)
                                 .environmentObject(self.eluvio)
                         }
                         .gridColumnAlignment(.leading)
@@ -297,6 +297,9 @@ struct SectionItemView: View {
     var sectionId : String
     var pageId : String
     var propertyId: String
+    var forceAspectRatio : String = ""
+    var forceDisplay : MediaDisplay?
+    
     @State var viewItem : MediaPropertySectionMediaItemViewModel? = nil
     @FocusState var isFocused
     @State var permission : ResolvedPermission? = nil
@@ -309,11 +312,37 @@ struct SectionItemView: View {
         return false
     }
     
+    
     var disable: Bool {
         if let permission = self.permission {
             return !permission.authorized && permission.disable
         }
         return false
+    }
+    
+    var display: MediaDisplay {
+        
+        if let forceDisplay = self.forceDisplay {
+            return forceDisplay
+        }
+        
+        let aspectRatio = forceAspectRatio.lowercased()
+        if aspectRatio == "landscape" {
+            return .video
+        }else if aspectRatio == "portrait" {
+            return .feature
+        }else if aspectRatio == "square" {
+            return .square
+        }
+        
+        
+        if let mediaItem = viewItem {
+            return mediaItem.thumb_aspect_ratio == .square ? .square :
+            mediaItem.thumb_aspect_ratio == .portrait ? .feature :
+            mediaItem.thumb_aspect_ratio == .landscape ? .video : .square
+        }
+        
+        return .square
     }
 
     var body: some View {
@@ -401,12 +430,6 @@ struct SectionItemView: View {
                                         eluvio.pathState.path.append(.errorView("Could not access media."))
                                         return
                                     }
-                                    
-                                    /*
-                                    if item.type == "item_purchase" {
-                                        
-                                    }
-                                     */
                                     
                                     if ( mediaItem.media_type.lowercased() == "video") {
                                         if var link = item.media?.media_link?["sources"]["default"] {
@@ -548,9 +571,7 @@ struct SectionItemView: View {
                                 }
                             }){
                                 VStack(alignment: .leading, spacing: 10){
-                                    MediaCard(display: mediaItem.thumb_aspect_ratio == .square ? .square :
-                                                mediaItem.thumb_aspect_ratio == .portrait ? .feature :
-                                                mediaItem.thumb_aspect_ratio == .landscape ? .video : .square,
+                                    MediaCard(display: display,
                                               image: mediaItem.thumbnail,
                                               isFocused:isFocused, title: mediaItem.title,
                                               subtitle: mediaItem.subtitle,
