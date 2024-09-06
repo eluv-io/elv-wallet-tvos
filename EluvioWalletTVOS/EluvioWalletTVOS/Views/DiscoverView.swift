@@ -110,20 +110,14 @@ struct DiscoverView: View {
                 }
             }
             
-            /*
+
             self.fabricCancellable2 = eluvio.accountManager.$currentAccount
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
-                    debugPrint("Discoverview on isLoggedOut ", val)
-                    if val == nil && !eluvio.fabric.isRefreshing {
-                        Task {
-                            debugPrint("Discover View refreshing fabric")
-                            try await self.eluvio.fabric.connect(network:"main", token:val?.fabricToken ?? "")
-                            await eluvio.fabric.refresh()
-                        }
+                    if val == nil {
+                        properties = []
                     }
                 }
-             */
         }
     }
 }

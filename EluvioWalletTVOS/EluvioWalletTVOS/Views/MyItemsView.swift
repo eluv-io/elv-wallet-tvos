@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftyJSON
+import Combine
 
 struct MyItemsView: View {
     @EnvironmentObject var eluvio: EluvioAPI
@@ -35,7 +36,9 @@ struct MyItemsView: View {
             }
         }
     }
-
+    
+    @State private var cancellable: AnyCancellable? = nil
+    
     var body: some View {
         ScrollView{
             VStack{
@@ -111,6 +114,14 @@ struct MyItemsView: View {
                     print("Could not get nfts ", error.localizedDescription)
                 }
             }
+            
+            self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
+                if val == nil {
+                    nfts = []
+                    properties = []
+                }
+            }
+            
         }
     }
 }
