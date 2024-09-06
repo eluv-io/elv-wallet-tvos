@@ -206,6 +206,24 @@ struct MediaPropertySectionView: View {
         
         return ""
     }
+    
+    var hasBackground : Bool {
+        if let background = inlineBackgroundUrl {
+            if !background.isEmpty {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    var minHeight : CGFloat {
+        if hasBackground{
+            return 410
+        }
+        
+        return 300
+    }
 
     var body: some View {
         Group{
@@ -295,7 +313,7 @@ struct MediaPropertySectionView: View {
                                     }
                                 }else{
                                     ScrollView(.horizontal) {
-                                        HStack(alignment: .center, spacing: 20) {
+                                        HStack(alignment: .center, spacing: 34) {
                                             ForEach(content) {item in
                                                 SectionItemView(item: item,
                                                                 sectionId: section.id,
@@ -313,7 +331,7 @@ struct MediaPropertySectionView: View {
                         .padding(.bottom,40)
                     }
                     .focusSection()
-                    .frame(minHeight:402)
+                    .frame(minHeight:minHeight)
                     .padding([.leading,.trailing],margin)
                     .background(
                         Group {
@@ -514,7 +532,7 @@ struct MediaPropertyDetailView: View {
                     if !sections.isEmpty{
                         let section = sections[0]
                         if let heros = section.hero_items?.arrayValue {
-                            debugPrint("found heros", heros[0])
+                            //debugPrint("found heros", heros[0])
                             if !heros.isEmpty{
                                 let video = heros[0]["display"]["background_video"]
                                 let background = heros[0]["display"]["background_image"]
@@ -556,6 +574,7 @@ struct MediaPropertyDetailView: View {
                             })
                         }else if self.playerItem == nil {
                             withAnimation(.easeInOut(duration: 1), {
+                                debugPrint("")
                                 self.backgroundImage = backgroundImageString
                             })
                         }
@@ -608,8 +627,8 @@ struct MediaPropertyHeader: View {
                 .resizable()
                 .transition(.fade(duration: 0.5))
                 .aspectRatio(contentMode: .fit)
-                .frame(width:840, height:180, alignment: alignment)
-                .padding(.bottom,122)
+                .frame(width:890, height:180, alignment: alignment)
+                .padding(.bottom,60)
                 .clipped()
             
             if !title.isEmpty {
@@ -618,21 +637,25 @@ struct MediaPropertyHeader: View {
                     .fontWeight(.bold)
                     .frame(maxWidth:1100, alignment: alignment)
                     .padding(.top, 20)
-                    .padding(.bottom, 50)
+                    .padding(.bottom, 30)
             }
             
             if !description.isEmpty {
                 Text(description)
                     .foregroundColor(Color.white)
                     .font(.propertyDescription)
-                    .frame(maxWidth:1100, alignment: alignment)
+                    .frame(maxWidth:1200, alignment: alignment)
+                    .frame(minHeight:100)
                     .lineLimit(3)
+                    .padding(.bottom, 20)
             }
+            //Spacer()
 
         }
         .frame(maxWidth: .infinity, alignment: alignment)
+        //.frame(minHeight: 410)
         .padding(.top, 100)
-        .padding(.bottom, 20)
+        .padding(.bottom, 40)
     }
 }
 

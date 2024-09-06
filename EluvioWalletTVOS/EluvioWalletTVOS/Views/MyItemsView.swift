@@ -29,7 +29,7 @@ struct MyItemsView: View {
     func search(){
         Task{
             do{
-                nfts = try await eluvio.fabric.getNFTs(address:address, description:searchString)
+                nfts = try await eluvio.fabric.getNFTs(address:address, name:searchString)
             }catch{
                 print("Error searching properties: ", error.localizedDescription)
             }

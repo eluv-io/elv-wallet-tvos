@@ -32,14 +32,13 @@ struct DiscoverView: View {
                     Image("start-screen-logo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width:700)
-                        .padding(.top, 80)
-                        .padding(.bottom, 40)
-                        .padding(.leading, 15)
+                        .frame(width:801, height:240, alignment:.leading)
                         .id(topId)
                     Spacer()
                 }
                 .frame(maxWidth:.infinity)
+                .padding(.top, 60)
+                .padding(.bottom, 40)
                 MediaPropertiesView(properties:properties, selected: $selected)
                     .environmentObject(self.eluvio.pathState)
             }

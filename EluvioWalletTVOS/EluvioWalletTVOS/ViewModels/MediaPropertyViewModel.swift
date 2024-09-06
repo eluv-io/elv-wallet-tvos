@@ -54,8 +54,8 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
             //print("Could not create image URL \(error)")
         }
         
-        debugPrint("Background image from page layout ", backgroundImage)
-        debugPrint("Sections ", mediaProperty.sections ?? "")
+        //debugPrint("Background image from page layout ", backgroundImage)
+        //debugPrint("Sections ", mediaProperty.sections ?? "")
         
         if backgroundImage.isEmpty && findHero{
             var sections : [MediaPropertySection] = []
@@ -68,10 +68,10 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
                 debugPrint("digging into sections ", sections)
                 let section = sections[0]
                 if let heros = section.hero_items{
-                    debugPrint("found heros", heros[0])
+                    //debugPrint("found heros", heros[0])
                     if !heros.isEmpty{
                         let background = heros[0]["display"]["background_image"]
-                        debugPrint("background ", background)
+                        //debugPrint("background ", background)
                         if !background.isEmpty {
                             do {
                                 backgroundImage = try fabric.getUrlFromLink(link: background)
@@ -81,13 +81,13 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
                         }
                     }
                 }else{
-                    debugPrint("No hero_items")
+                    //debugPrint("No hero_items")
                 }
             }else{
-                debugPrint("No sections")
+                //debugPrint("No sections")
             }
         }else{
-            debugPrint("backgroundImage is not empty")
+            //debugPrint("backgroundImage is not empty")
         }
             
 

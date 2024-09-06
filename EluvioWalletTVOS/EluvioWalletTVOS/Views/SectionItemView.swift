@@ -59,7 +59,6 @@ struct SectionGridView: View {
     
     
     var body: some View {
-        //ScrollView(.vertical) {
         VStack{
             HStack{
                 Text(title)
@@ -69,26 +68,36 @@ struct SectionGridView: View {
             .frame(maxWidth:.infinity)
             .padding(.bottom, 30)
             
-            
-            Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
-                ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
+            if items.dividedIntoGroups(of: numColumns).count <= 1 {
+                Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
                     GridRow(alignment:.top) {
-                        ForEach(groups, id: \.self) { item in
+                        ForEach(items, id: \.self) { item in
                             SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display)
                                 .environmentObject(self.eluvio)
                         }
-                        .gridColumnAlignment(.leading)
+                        Spacer()
                     }
                     .frame(maxWidth:.infinity, alignment:.leading)
                     .gridColumnAlignment(.leading)
                 }
+            }else{
+                Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
+                    ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
+                        GridRow(alignment:.top) {
+                            ForEach(groups, id: \.self) { item in
+                                SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display)
+                                    .environmentObject(self.eluvio)
+                            }
+                            .gridColumnAlignment(.leading)
+                        }
+                        .frame(maxWidth:.infinity, alignment:.leading)
+                        .gridColumnAlignment(.leading)
+                    }
+                }
+                .frame(maxWidth:.infinity)
+                .focusSection()
             }
-            .frame(maxWidth:.infinity)
-            .focusSection()
         }
-            
-        //}
-        //.scrollClipDisabled()
     }
 }
 
@@ -358,20 +367,21 @@ struct SectionItemView: View {
                         if let mediaItem = viewItem {
                             Button(action: {
                                 Task{
-                                    debugPrint("Item Selected! ", item)
+                                    //debugPrint("Item Selected! ", item)
                                     debugPrint("MediaItemView Type ", mediaItem.media_type)
                                     debugPrint("Item Type ", item.type ?? "")
                                     debugPrint("Item Media Type ", item.media_type ?? "")
                                     debugPrint("Item permission: ", item.permissions)
-                                    debugPrint("Item ", item)
+                                    debugPrint("Media permission: ", item.media?.permissions)
+                                    //debugPrint("Item ", item)
 
                                     do{
                                         if let sectionItemId = item.id {
-                                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
+                                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)
                                             debugPrint("Permission ", permission)
                                             if let permission = permission {
-                                                if !permission.authorized {
-                                                    if permission.purchaseGate {
+                                                if !permission.authorized  || item.type == "item_purchase"{
+                                                    if permission.purchaseGate || item.type == "item_purchase" {
                                                         let url = try eluvio.fabric.createWalletPurchaseUrl(id:sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
                                                         debugPrint("Purchase! ", url)
                                                         
@@ -423,6 +433,7 @@ struct SectionItemView: View {
                                                     eluvio.pathState.path.append(.errorView("Could not access media."))
                                                     return
                                                 }
+                                                
                                             }
                                         }
                                     }catch{

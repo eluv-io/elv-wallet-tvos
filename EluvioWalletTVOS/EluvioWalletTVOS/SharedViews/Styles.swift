@@ -251,6 +251,6 @@ extension Font {
     }
     
     public static var propertyDescription: Font {
-        return Font.system(size:30)
+        return Font.system(size:26)
     }
 }

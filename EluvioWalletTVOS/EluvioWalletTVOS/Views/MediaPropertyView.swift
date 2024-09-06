@@ -27,7 +27,7 @@ struct MediaPropertyView : View {
                         if let propertyId = property.id {
                             if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                 debugPrint("propertyID clicked: ", propertyId)
-                                debugPrint("property: ", property)
+                                //debugPrint("property: ", property)
                                 
                                 await MainActor.run {
                                     eluvio.pathState.property = property
@@ -45,7 +45,7 @@ struct MediaPropertyView : View {
                                 
                                 if !skipLogin {
                                     if let login = property.login {
-                                        debugPrint("property: ", login)
+                                        //debugPrint("property: ", login)
                                         
                                         let provider = login["settings"]["provider"].stringValue
                                         if !provider.isEmpty {
