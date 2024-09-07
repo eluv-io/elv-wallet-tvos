@@ -45,10 +45,6 @@ struct EluvioWalletTVOSApp: App {
     
     init(){
         print("App Init")
-        let items = [23,32,32,34,23,34,43,43,43]
-        let groups = items.dividedIntoGroups(of:7)
-        
-        print("groups: ", groups)
     }
 
     var body: some Scene {

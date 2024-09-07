@@ -55,7 +55,7 @@ struct DiscoverView: View {
                         if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
                             //debugPrint("Fetched new property ", mediaProperty.id)
                             
-                            let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric,findHero: true)
+                            let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
                             
                             withAnimation(.easeIn(duration: 2)){
                                 backgroundImageURL = viewItem.backgroundImage

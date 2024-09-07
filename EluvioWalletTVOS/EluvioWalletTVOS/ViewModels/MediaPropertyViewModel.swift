@@ -34,7 +34,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     }
     
     
-    static func create(mediaProperty: MediaProperty, fabric: Fabric, findHero: Bool = false) async -> MediaPropertyViewModel{
+    static func create(mediaProperty: MediaProperty, fabric: Fabric) async -> MediaPropertyViewModel{
         
         var image = ""
         
@@ -47,16 +47,21 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
         }
         
         var backgroundImage = ""
-        
         do {
-            backgroundImage = try fabric.getUrlFromLink(link: mediaProperty.main_page?.layout?["background_image"] ?? "")
-        }catch{
-            //print("Could not create image URL \(error)")
+            backgroundImage = try fabric.getUrlFromLink(link: mediaProperty.image_tv)
+        }catch{}
+ 
+        /*
+        if backgroundImage.isEmpty {
+            do {
+                backgroundImage = try fabric.getUrlFromLink(link: mediaProperty.main_page?.layout?["background_image"] ?? "")
+            }catch{}
         }
-        
+        */
         //debugPrint("Background image from page layout ", backgroundImage)
         //debugPrint("Sections ", mediaProperty.sections ?? "")
         
+        /*
         if backgroundImage.isEmpty && findHero{
             var sections : [MediaPropertySection] = []
             do {
@@ -89,7 +94,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
         }else{
             //debugPrint("backgroundImage is not empty")
         }
-            
+            */
 
         
         var logo = ""

@@ -51,7 +51,7 @@ struct SectionGridView: View {
         if display == .video {
             return 4
         } else if display == .square {
-            return 7
+            return 6
         } else {
             return 4
         }
@@ -128,37 +128,60 @@ struct MediaItemGridView: View {
         if display == .video {
             return 4
         } else if display == .square {
-            return 7
+            return 6
         } else {
             return 4
         }
     }
     
     var body: some View {
-        ScrollView(.vertical) {
-            HStack{
-                Text(title)
-                    .font(.rowTitle)
-                Spacer()
-            }
-            .frame(maxWidth:.infinity)
-            .padding(.bottom, 30)
-            
-            Grid(alignment:.leading, horizontalSpacing: 10, verticalSpacing: 80) {
-                ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
-                    GridRow(alignment:.center) {
-                        ForEach(groups, id: \.self) { item in
-                            SectionMediaItemView(item: item)
-                                .environmentObject(self.eluvio)
-                        }
+            ScrollView(.vertical) {
+                VStack{
+                    HStack{
+                        Text(title)
+                            .font(.rowTitle)
+                        Spacer()
                     }
-                    .frame(maxWidth:UIScreen.main.bounds.size.width)
-                    .focusSection()
+                    .frame(maxWidth:.infinity)
+                    .padding(.bottom, 30)
+                    
+                    if items.dividedIntoGroups(of: numColumns).count <= 1 {
+                        Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
+                            GridRow(alignment:.top) {
+                                ForEach(items, id: \.self) { item in
+                                    SectionMediaItemView(item: item, forceDisplay: display)
+                                        .environmentObject(self.eluvio)
+                                }
+                                Spacer()
+                            }
+                            .frame(maxWidth:.infinity, alignment:.leading)
+                            .gridColumnAlignment(.leading)
+                        }
+                        .frame(maxWidth:.infinity, alignment:.leading)
+                    }else{
+                        Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
+                            ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
+                                GridRow(alignment:.top) {
+                                    ForEach(groups, id: \.self) { item in
+                                        SectionMediaItemView(item: item, forceDisplay: display)
+                                            .environmentObject(self.eluvio)
+                                    }
+                                    .gridColumnAlignment(.leading)
+                                }
+                                .frame(maxWidth:.infinity, alignment:.leading)
+                                .gridColumnAlignment(.leading)
+                                
+                            }
+                        }
+                        .frame(maxWidth:.infinity, alignment:.leading)
+                        .focusSection()
+                    }
                 }
             }
+            .frame(maxWidth:UIScreen.main.bounds.width, alignment:.leading)
+            .padding(80)
+            .scrollClipDisabled()
         }
-        .scrollClipDisabled()
-    }
 }
 
 struct SectionItemListView: View {
@@ -171,6 +194,8 @@ struct SectionItemListView: View {
     
     var body: some View {
         MediaItemGridView(propertyId:propertyId, items:items, title: item.media?.title ?? "")
+            .frame(width:UIScreen.main.bounds.width, height: UIScreen.main.bounds.size.height)
+            .padding()
         .onAppear(){
             debugPrint("SectionItemListView onAppear item ", item)
             Task {
@@ -190,7 +215,13 @@ struct SectionMediaItemView: View {
 
     var item: MediaPropertySectionMediaItem
     @State var viewItem: MediaPropertySectionMediaItemViewModel? = nil
+    var forceDisplay : MediaDisplay? = nil
+    
     var display : MediaDisplay {
+        if let forceDisplay = forceDisplay {
+            return forceDisplay
+        }
+
         if item.thumbnail_image_square != nil {
             return .square
         }
@@ -286,8 +317,8 @@ struct SectionMediaItemView: View {
                           isFocused:isFocused,
                           title: item.title ?? "",
                           isLive: item.currentlyLive,
-                          showFocusedTitle: item.title ?? "" == "" ? false : true,
-                          sizeFactor: display == .square ? 1.3 : 1.0
+                          showFocusedTitle: item.title ?? "" == "" ? false : true
+                          //sizeFactor: display == .square ? 1.0 : 1.0
                 )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))

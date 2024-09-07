@@ -209,6 +209,7 @@ struct SearchView: View {
                                 PrimaryFilterView(
                                     filter:primaryFilters[index],
                                     action:{
+                                        //currentPrimaryFilter = primaryFilters[index]
                                         debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
                                         eluvio.pathState.searchParams = SearchParams(propertyId: propertyId,
                                                                               searchTerm: searchString,
@@ -408,10 +409,10 @@ struct SearchView: View {
                                 
                                 if foundAllPrimary {
                                     newPrimaryFilters.insert(allPrimaryFilter, at:0)
-                                    currentPrimaryFilter = allPrimaryFilter
-                                }else {
+                                    //currentPrimaryFilter = allPrimaryFilter
+                                }/*else {
                                     currentPrimaryFilter = newPrimaryFilters.first
-                                }
+                                }*/
                                 self.primaryFilters = newPrimaryFilters
                             }
                         
