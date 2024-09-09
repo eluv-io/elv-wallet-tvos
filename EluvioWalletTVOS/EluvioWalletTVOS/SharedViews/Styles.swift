@@ -77,7 +77,7 @@ struct NonSelectionButtonStyle: ButtonStyle {
 
 struct BannerButtonStyle: ButtonStyle {
     let focused: Bool
-    var scale = 1.04
+    var scale = 1.01
     var bordered = false
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label

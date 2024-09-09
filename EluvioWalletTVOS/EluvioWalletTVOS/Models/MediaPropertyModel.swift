@@ -114,6 +114,7 @@ struct MediaPropertySection: Codable, Identifiable {
 struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     var id : String? = UUID().uuidString
     var banner_image : JSON?
+    var banner_image_mobile : JSON?
     var media_id : String? = UUID().uuidString
     var media_type : String?
     var type : String?
@@ -127,6 +128,29 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     var subproperty_page_id : String?
     var permissions : JSON?
     var page_id : String?
+    var url : String?
+    
+    func getBannerUrl(fabric: Fabric) -> String {
+        let image = banner_image
+        
+        if image == nil {
+            return ""
+        }
+    
+        
+        if let image = image {
+            if image.exists() && !image.isEmpty {
+                do {
+                    return try fabric.getUrlFromLink(link: image)
+                }catch{
+                    return ""
+                }
+            }
+        }
+        
+        return ""
+    }
+    
     
     static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
         return lhs.id == rhs.id

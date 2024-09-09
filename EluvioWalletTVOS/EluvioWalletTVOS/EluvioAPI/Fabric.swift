@@ -1194,9 +1194,27 @@ class Fabric: ObservableObject {
         }
     }
     
+    func getEnvironment() -> APIEnvironment {
+        if let env = UserDefaults.standard.object(forKey: "api_environment") as? String {
+            if env == "staging"{
+                return .staging
+            }else{
+                return .prod
+            }
+        }else{
+            print("Could not get api_environment from user defaults")
+            return .prod
+        }
+    }
+    
     func getWalletBaseUrl() -> String {
+        
+        let env = getEnvironment()
+            
         if self.network == "demo" {
             return "https://wallet.demov3.contentfabric.io"
+        }else if env == .staging {
+            return "https://wallet.preview.contentfabric.io"
         }else{
             return "https://wallet.contentfabric.io"
         }
@@ -1451,9 +1469,6 @@ class Fabric: ObservableObject {
                 }
             }
         }
-            
-            //self.mediaPropertiesSectionCache = self.mediaPropertiesSectionCache
-            //self.mediaPropertiesMediaItemCache = self.mediaPropertiesMediaItemCache
     }
     
     func cacheMediaProperties(properties: MediaPropertiesResponse) throws{
@@ -1585,48 +1600,6 @@ class Fabric: ObservableObject {
 
         return try await signer.createFabricToken( address:login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
     }
-    
-/*
-    func setLogin(login:  LoginResponse, isMetamask: Bool = false, external: Bool = false) async throws {
-        debugPrint("SetLogin ", login)
-        guard let signer = self.signer else {
-            return
-        }
-
-        await MainActor.run {
-            self.login = login
-            self.isLoggedOut = false
-            self.signingIn = false
-            
-            self.isMetamask = isMetamask
-            if(isMetamask){
-                self.fabricToken = login.token
-            }
-            
-            self.loginTime = Date()
-            self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
-        }
-        
-
-        if (!self.isMetamask){
-            let result  = try await signer.createFabricToken( address: login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
-            await MainActor.run {
-                self.fabricToken = result
-            }
-            debugPrint("get Fabric Token ", self.fabricToken)
-        }
-    
-
-        if let profileClient = self.profileClient {
-            let userAddress = try self.getAccountAddress()
-            let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
-            debugPrint("USER PROFILE: ", userProfile )
-        }
-        Task{
-            await self.refresh()
-        }
-    }
-    */
     
     func resetWalletData(){
         self.library = MediaLibrary()

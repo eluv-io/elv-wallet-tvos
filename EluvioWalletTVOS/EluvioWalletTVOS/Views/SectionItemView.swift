@@ -69,17 +69,14 @@ struct SectionGridView: View {
             .padding(.bottom, 30)
             
             if items.dividedIntoGroups(of: numColumns).count <= 1 {
-                Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
-                    GridRow(alignment:.top) {
+                HStack(spacing:34) {
                         ForEach(items, id: \.self) { item in
                             SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display)
                                 .environmentObject(self.eluvio)
                         }
                         Spacer()
-                    }
-                    .frame(maxWidth:.infinity, alignment:.leading)
-                    .gridColumnAlignment(.leading)
                 }
+                .frame(maxWidth:.infinity, alignment:.leading)
             }else{
                 Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
                     ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
@@ -146,16 +143,12 @@ struct MediaItemGridView: View {
                     .padding(.bottom, 30)
                     
                     if items.dividedIntoGroups(of: numColumns).count <= 1 {
-                        Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
-                            GridRow(alignment:.top) {
+                        HStack(spacing:34) {
                                 ForEach(items, id: \.self) { item in
                                     SectionMediaItemView(item: item, forceDisplay: display)
                                         .environmentObject(self.eluvio)
                                 }
                                 Spacer()
-                            }
-                            .frame(maxWidth:.infinity, alignment:.leading)
-                            .gridColumnAlignment(.leading)
                         }
                         .frame(maxWidth:.infinity, alignment:.leading)
                     }else{

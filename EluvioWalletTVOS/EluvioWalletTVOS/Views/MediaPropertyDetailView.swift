@@ -8,6 +8,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import AVFoundation
+import SwiftyJSON
 
 struct ViewAllButton: View {
     @FocusState var isFocused
@@ -75,20 +76,6 @@ struct MediaPropertySectionView: View {
             return true
         }
         return false
-    }
-    
-    var bannerUrl: String {
-        if let items = section.content {
-            if !items.isEmpty {
-                do {
-                    return try eluvio.fabric.getUrlFromLink(link: items[0].banner_image)
-                }catch{
-                    return ""
-                }
-            }
-        }
-        
-        return ""
     }
     
     @State var logoUrl: String? = nil
@@ -233,41 +220,69 @@ struct MediaPropertySectionView: View {
                         .focusable()
                         .padding([.leading,.trailing],margin)
                 }else if isBanner {
-                    MediaPropertyBanner(image: bannerUrl, action:{
-                        Task{
-                            do {
-                                debugPrint("Banner clicked", section)
-                                let sectionId = section.id
-                                let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId)
-                                debugPrint("Permission ", permission)
+                    VStack {
+                        ForEach(items, id:\.self) { item in
+                            
+                            MediaPropertyBanner(image:item.getBannerUrl(fabric: eluvio.fabric), action:{
+                                debugPrint("Banner clicked item ", item)
                                 
-                                if let content = section.content {
-                                    if let pageId = content[0].page_id {
-                                        if !pageId.isEmpty {
-                                            let url = try eluvio.fabric.createWalletPurchaseUrl(id:section.id, propertyId: propertyId, pageId:pageId, permissionIds: permission.permissionItemIds)
-                                            debugPrint("URL ", url)
+                                if item.type == "page_link" {
+                                    Task{
+                                        do {
+                                            debugPrint("Banner clicked page link ")
+                                            let sectionId = section.id
+                                            let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId)
+                                            debugPrint("Permission ", permission)
                                             
-                                            var backgroundImage = ""
-                                            
-                                            let property = try await eluvio.fabric.getProperty(property: propertyId)
-                                            
-                                            do {
-                                                backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.main_page?.layout?["background_image"] ?? "")
-                                            }catch{
-                                                //print("Could not create image URL \(error)")
+                                            if let content = section.content {
+                                                if let pageId = content[0].page_id {
+                                                    if !pageId.isEmpty {
+                                                        let url = try eluvio.fabric.createWalletPurchaseUrl(id:section.id, propertyId: propertyId, pageId:pageId, permissionIds: permission.permissionItemIds)
+                                                        debugPrint("URL ", url)
+                                                        
+                                                        var backgroundImage = ""
+                                                        
+                                                        let property = try await eluvio.fabric.getProperty(property: propertyId)
+                                                        
+                                                        do {
+                                                            backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
+                                                        }catch{
+                                                            //print("Could not create image URL \(error)")
+                                                        }
+                                                        
+                                                        let params = HtmlParams(url:url, backgroundImage: backgroundImage)
+                                                        eluvio.pathState.path.append(.html(params))
+                                                    }
+                                                }
                                             }
                                             
+                                        }catch{
+                                            print("could not fetch page url for banner ", error.localizedDescription)
+                                        }
+                                    }
+                                }else if item.type == "external_link"{
+                                    Task{
+                                        debugPrint("Banner clicked external link")
+                                        
+                                        var backgroundImage = ""
+                                        
+                                        let property = try await eluvio.fabric.getProperty(property: propertyId)
+                                        
+                                        do {
+                                            backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
+                                        }catch{
+                                            //print("Could not create image URL \(error)")
+                                        }
+                                        if let url = item.url {
                                             let params = HtmlParams(url:url, backgroundImage: backgroundImage)
                                             eluvio.pathState.path.append(.html(params))
                                         }
                                     }
                                 }
-                                
-                            }catch{
-                                print("could not fetch page url for banner ", error.localizedDescription)
-                            }
+                            })
                         }
-                    })
+                    }
+                   
                 }else if items.isEmpty{
                     EmptyView()
                 } else {
@@ -390,6 +405,7 @@ struct MediaPropertyDetailView: View {
     @FocusState var headerFocused
     @State var playerItem : AVPlayerItem? = nil
     @State var backgroundImage : String = ""
+    @State private var opacity: Double = 0.0
     
     @State var permissions : ResolvedPermission? = nil
     var body: some View {
@@ -401,7 +417,7 @@ struct MediaPropertyDetailView: View {
                             .frame(maxWidth:.infinity, maxHeight:  UIScreen.main.bounds.size.height)
                             .edgesIgnoringSafeArea([.top,.leading,.trailing])
                             .frame(alignment: .topLeading)
-                            .transition(.opacity)
+                            //.transition(.opacity)
                             .id("property video \(item.hashValue)")
                         Spacer()
                     }
@@ -409,7 +425,7 @@ struct MediaPropertyDetailView: View {
                 }else if (backgroundImage.hasPrefix("http")){
                     WebImage(url: URL(string: backgroundImage))
                         .resizable()
-                        .transition(.opacity)
+                        //.transition(.opacity)
                         .aspectRatio(contentMode: .fit)
                         .edgesIgnoringSafeArea([.top,.leading,.trailing])
                         .frame(alignment: .topLeading)
@@ -418,7 +434,7 @@ struct MediaPropertyDetailView: View {
                 }else if(backgroundImage != "") {
                     Image(backgroundImage)
                         .resizable()
-                        .transition(.opacity)
+                        //.transition(.opacity)
                         .aspectRatio(contentMode: .fit)
                         .edgesIgnoringSafeArea([.top,.leading,.trailing])
                         .frame(alignment: .topLeading)
@@ -462,11 +478,13 @@ struct MediaPropertyDetailView: View {
                     }
                 }
                 .prefersDefaultFocus(in: NamespaceProperty)
+                .padding(.top, 100)
                 
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
             .edgesIgnoringSafeArea([.top,.leading,.trailing])
         }
+        .opacity(opacity)
         .scrollClipDisabled()
         .edgesIgnoringSafeArea(.all)
         .background(
@@ -474,6 +492,9 @@ struct MediaPropertyDetailView: View {
         )
         .onAppear(){
             debugPrint("MediaPropertyDetailView onAppear")
+            withAnimation(.easeInOut(duration: 2)) {
+              opacity = 1.0
+            }
             
             Task {
                 do {
@@ -521,7 +542,7 @@ struct MediaPropertyDetailView: View {
                     var sections : [MediaPropertySection] = []
                     do {
                         sections = try await eluvio.fabric.getPropertyPageSections(property: id, page: pageId)
-                        debugPrint("finished getting sections. ", sections.count)
+                        debugPrint("finished getting sections. ", sections)
                     }catch{
                         print("Error retrieving property \(id) page \(pageId) ", error.localizedDescription)
                     }
@@ -541,10 +562,10 @@ struct MediaPropertyDetailView: View {
                                     do {
                                         let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
                                         await MainActor.run {
-                                            withAnimation(.easeInOut(duration: 1), {
+                                            //withAnimation(.easeInOut(duration: 1), {
                                                 self.playerItem = item
                                                 debugPrint("playerItem set")
-                                            })
+                                            //})
                                         }
                                     }catch{
                                         debugPrint("Error: ", error.localizedDescription)
@@ -569,14 +590,14 @@ struct MediaPropertyDetailView: View {
                     
                     await MainActor.run {
                         if self.playerItem == nil && backgroundImageString.isEmpty {
-                            withAnimation(.easeInOut(duration: 1), {
+                            //withAnimation(.easeInOut(duration: 1), {
                                 self.backgroundImage = propertyView?.backgroundImage ?? ""
-                            })
+                            //})
                         }else if self.playerItem == nil {
-                            withAnimation(.easeInOut(duration: 1), {
+                            //withAnimation(.easeInOut(duration: 1), {
                                 debugPrint("")
                                 self.backgroundImage = backgroundImageString
-                            })
+                            //})
                         }
                     }
                     
@@ -652,9 +673,9 @@ struct MediaPropertyHeader: View {
             //Spacer()
 
         }
-        .frame(maxWidth: .infinity, alignment: alignment)
+        .frame(maxWidth: UIScreen.main.bounds.size.width,alignment: alignment)
         //.frame(minHeight: 410)
-        .padding(.top, 100)
+        //.padding(.top, 100)
         .padding(.bottom, 40)
     }
 }
@@ -674,11 +695,14 @@ struct MediaPropertyBanner: View {
                     WebImage(url:URL(string:image))
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth:.infinity, maxHeight:402)
+                        .edgesIgnoringSafeArea(.horizontal)
+                        .frame(width: UIScreen.main.bounds.size.width - margin*2)
+                        //.frame(maxHeight: height: UIScreen.main.bounds.size.height - margin*2)
+                        .padding([.leading, .trailing], margin)
+                        .transition(.opacity)
+
                 }
                 .focusable()
-                .frame(height:402)
-                .padding([.leading,.trailing],margin)
             })
             .buttonStyle(BannerButtonStyle(focused:isFocused))
             .focused($isFocused)

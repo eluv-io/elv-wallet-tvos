@@ -45,6 +45,8 @@ struct ProfileView: View {
     
     @State var initialized = false
     
+    @State var isStaging = false
+    
     var body: some View {
             VStack() {
                 VStack(alignment: .center){
@@ -87,6 +89,9 @@ struct ProfileView: View {
                             FormEntry("Fabric Node:  \(node)")
                             FormEntry("Authority Service:  \(asNode)")
                             FormEntry("Eth Service:  \(ethNode)")
+                            
+                            Toggle("Set to staging ", isOn:$isStaging)
+                        
                         }
                         .padding()
                     }
@@ -98,6 +103,13 @@ struct ProfileView: View {
                 }
                 .padding([.leading,.trailing,.bottom],80)
             }
+            .onChange(of: isStaging) {old, val in
+                if val {
+                    eluvio.setEnvironment(env:.staging)
+                }else{
+                    eluvio.setEnvironment(env:.prod)
+                }
+            }
             .onAppear(){
                 do {
                     self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
@@ -106,6 +118,8 @@ struct ProfileView: View {
                     self.node = try eluvio.fabric.getEndpoint()
                     self.asNode = try eluvio.fabric.signer?.getAuthEndpoint() ?? ""
                     self.ethNode = try eluvio.fabric.signer?.getEthEndpoint() ?? ""
+                    
+                    self.isStaging = eluvio.getEnvironment().rawValue == "staging"
                     
                     if !initialized {
                         

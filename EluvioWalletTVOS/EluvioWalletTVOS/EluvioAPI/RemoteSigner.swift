@@ -13,6 +13,10 @@ import SwiftyJSON
 import Base58Swift
 import CryptoKit
 
+enum APIEnvironment : String {
+    case prod = ""; case staging = "staging"
+}
+                            
 struct JRPCParams: Codable {
     var jsonrpc = "2.0"
     var id = 1
@@ -26,12 +30,35 @@ class RemoteSigner {
     var currentEthIndex = 0
     var currentAuthIndex = 0
     var network : String
+    var environment : APIEnvironment = .prod
 
     init(ethApi: [String], authorityApi: [String], network: String){
         self.ethApi = ethApi
         self.authorityApi = authorityApi
         self.network = network
+        
+        if let env = UserDefaults.standard.object(forKey: "api_environment")
+                as? String {
+            if env == "staging"{
+                self.environment = .staging
+            }else{
+                self.environment = .prod
+            }
+        }else{
+            print("Could not get api_environment from user defaults")
+            self.environment = .prod
+        }
+    
     }
+    
+    func setEnvironment(env:APIEnvironment){
+        environment = env
+    }
+    
+    func getEnvironment() -> APIEnvironment {
+        return environment
+    }
+    
     
     //TODO: implement fail over
     func getEthEndpoint() throws -> String{
@@ -78,6 +105,9 @@ class RemoteSigner {
                     endpoint = endpoint.appending("/apigw").appending("/nfts").appending("?limit=100")
                 //}
                 
+                if (environment != .prod){
+                    endpoint = endpoint.appending("&env=\(environment)")
+                }
                 
                 if !propertyId.isEmpty {
                     endpoint = endpoint.appending("&property_id=\(propertyId)")
@@ -123,6 +153,10 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/catalog/").appending(mediaId).appending("?limit=100")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("&env=\(environment)")
+                }
+                
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
@@ -156,6 +190,9 @@ class RemoteSigner {
             
                 if !property.isEmpty {
                     endpoint = endpoint.appending("/\(property)")
+                }
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
                 }
                           
                 print("getProperties Request: \(endpoint)")
@@ -198,6 +235,9 @@ class RemoteSigner {
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties")
                 endpoint = endpoint.appending("?limit=100")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("&env=\(environment)")
+                }
                     
                 if includePublic {
                     endpoint = endpoint.appending("&include_public=\(includePublic ? "true" : "false" )")
@@ -241,6 +281,9 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/sections")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
                                                                     
                 print("getPropertySection Request: \(endpoint)")
                 //print("Params: \(parameters)")
@@ -283,6 +326,9 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/search?limit=\(limit)")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("&env=\(environment)")
+                }
                                                                     
                 print("getPropertySection Request: \(endpoint)")
                 //print("Params: \(parameters)")
@@ -334,6 +380,10 @@ class RemoteSigner {
                 if !primaryFilter.isEmpty {
                     endpoint.append("/\(primaryFilter)")
                 }
+                
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
 
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
@@ -372,6 +422,9 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/sections")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
                                                                     
                 print("getPropertySection Request: \(endpoint)")
                 //print("Params: \(parameters)")
@@ -414,6 +467,9 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
                                                                     
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
@@ -446,6 +502,9 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)/sections")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
                                                                     
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
@@ -476,6 +535,9 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/media_items")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
                                                                     
                 print("getPropertySection Request: \(endpoint)")
                 let headers: HTTPHeaders = [
@@ -514,6 +576,9 @@ class RemoteSigner {
             print("****** createMetaMaskLogin ******")
             do {
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/login/redirect/metamask")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
 
                 guard let walletUrl = APP_CONFIG.network[self.network]?.wallet_url else {
                     continuation.resume(throwing: FabricError.configError("Could not find wallet_url in configuration."))
@@ -563,6 +628,9 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/login/redirect/metamask/")
                     .appending(id).appending("/").appending(pass)
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
 
                 let headers: HTTPHeaders = [
                      "Accept": "application/json",
@@ -592,7 +660,10 @@ class RemoteSigner {
             print("****** createMetaMaskLogin ******")
             do {
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/login/redirect/metamask")
-
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
+                
                 let headers: HTTPHeaders = [
                      "Accept": "application/json",
                      "Content-Type": "application/json" ]
@@ -635,6 +706,10 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/login/redirect/metamask/")
                     .appending(id).appending("/").appending(pass)
+                
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
 
                 let headers: HTTPHeaders = [
                      "Accept": "application/json",
@@ -663,51 +738,13 @@ class RemoteSigner {
         let message: String
     }
     
-    func fetchMessages(completion: @escaping ([Message]) -> Void) {
-        let url = URL(string: "https://hws.dev/user-messages.json")!
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data {
-                if let messages = try? JSONDecoder().decode([Message].self, from: data) {
-                    completion(messages)
-                    return
-                }
-            }
-
-            completion([])
-        }.resume()
-    }
-    
-    // An example error we can throw
-    enum FetchError: Error {
-        case noMessages
-    }
-
-    func fetchMessages() async -> [Message] {
-        do {
-            return try await withCheckedThrowingContinuation { continuation in
-                fetchMessages { messages in
-                    if messages.isEmpty {
-                        continuation.resume(throwing: FetchError.noMessages)
-                    } else {
-                        continuation.resume(returning: messages)
-                    }
-                }
-            }
-        } catch {
-            return [
-                Message(id: 1, from: "Tom", message: "Welcome to MySpace! I'm your new friend.")
-            ]
-        }
-    }
-    
     func joinSignature(signature: [String: Any]) throws -> Data? {
         guard let r = signature["r"] as? String else {
             print("joinSig couldn't get r")
             return nil
         }
 
-        guard var rData = r.data(using: .hexadecimal) else {
+        guard let rData = r.data(using: .hexadecimal) else {
             print("joinSig couldn't get rData")
             return nil
         }
@@ -717,7 +754,7 @@ class RemoteSigner {
             return nil
         }
         
-        guard var sData = s.data(using: .hexadecimal) else {
+        guard let sData = s.data(using: .hexadecimal) else {
             print("joinSig couldn't get sData")
             return nil
         }
@@ -765,7 +802,10 @@ class RemoteSigner {
             print("****** checkMetaMaskLogin ******")
             do {
 
-                let endpoint = try self.getAuthEndpoint().appending("/wlt/sign/csat")
+                var endpoint = try self.getAuthEndpoint().appending("/wlt/sign/csat")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
                 
                 let headers: HTTPHeaders = [
                      "Accept": "application/json",
@@ -872,6 +912,9 @@ class RemoteSigner {
                 }else {
                     endpoint = try self.getAuthEndpoint().appending("/wlt/sign/eth/").appending(accountId);
                 }
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
 
                 print("Request: \(endpoint)")
                 
@@ -920,14 +963,14 @@ class RemoteSigner {
         return try await withCheckedThrowingContinuation({ continuation in
             //print("****** getNftInfo ******")
             do {
-                let endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)/\(tokenId)");
-                //print("Request: \(endpoint)")
-                //print("Params: \(parameters)")
+                var endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)/\(tokenId)");
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                //print("Headers: \(headers)")
-                
+
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
 
                     switch (response.result) {
@@ -947,14 +990,19 @@ class RemoteSigner {
     func getWalletStatus(tenantId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
-                print("****** getWalletStatus ******")
-                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/status/act/\(tenantId)");
-                print("Request: \(endpoint)")
-                print("Params: \(parameters)")
+                debugPrint("****** getWalletStatus ******")
+                var endpoint: String = try self.getAuthEndpoint().appending("/wlt/status/act/\(tenantId)");
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
+                
+                
+                debugPrint("Request: \(endpoint)")
+                debugPrint("Params: \(parameters)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                print("Headers: \(headers)")
+                debugPrint("Headers: \(headers)")
                 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
                     //print("Response : \(response)")
@@ -978,7 +1026,11 @@ class RemoteSigner {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
                 debugPrint("****** postWalletStatus ******")
-                let endpoint: String = try self.getAuthEndpoint().appending("/wlt/act/\(tenantId)");
+                var endpoint: String = try self.getAuthEndpoint().appending("/wlt/act/\(tenantId)");
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
+                
                 debugPrint("Request: \(endpoint)")
                 debugPrint("Body: \(body)")
                 debugPrint("Query: \(query)")
@@ -1032,7 +1084,8 @@ class RemoteSigner {
     func createEntitlement(tenantId: String, marketplace: String, sku: String, purchaseId: String, authToken: String) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             debugPrint("****** checkAuthLogin ******")
-            let endpoint = "https://appsvc.svc.eluv.io/sample-purchase/gen-entitlement"
+            var endpoint = "https://appsvc.svc.eluv.io/sample-purchase/gen-entitlement"
+            endpoint = endpoint.appending("?env=\(environment)")
             
             let headers: HTTPHeaders = [
                  "Accept": "application/json",

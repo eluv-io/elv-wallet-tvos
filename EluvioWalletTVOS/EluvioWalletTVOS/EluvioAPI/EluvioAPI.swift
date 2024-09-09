@@ -37,6 +37,19 @@ class EluvioAPI : ObservableObject {
         .store(in: &self.cancellables)
     }
     
+
+    func setEnvironment(env:APIEnvironment){
+        UserDefaults.standard.set(env.rawValue, forKey: "api_environment")
+        if let signer = fabric.signer {
+            fabric.signer?.setEnvironment(env: env)
+        }
+    }
+    
+    func getEnvironment() -> APIEnvironment {
+        return fabric.getEnvironment()
+    }
+    
+    
     func signIn(account:Account, property:String) async throws {
         signOut()
         fabric.fabricToken = account.fabricToken
