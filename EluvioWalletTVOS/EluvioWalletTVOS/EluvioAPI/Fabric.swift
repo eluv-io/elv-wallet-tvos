@@ -1278,6 +1278,7 @@ class Fabric: ObservableObject {
         }
         
         let response = try await signer.getProperties(includePublic:includePublic, accessCode: self.fabricToken)
+        resetWalletData()
         
         try cacheMediaProperties(properties: response)
         return response.contents
