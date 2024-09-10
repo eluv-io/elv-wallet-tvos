@@ -132,13 +132,28 @@ class RemoteSigner {
                     .debugLog()
                     .responseJSON { response in
 
-                    switch (response.result) {
-                        case .success(let result):
-                        let hash = SHA256.hash(data: response.data ?? Data())
-                            continuation.resume(returning: (JSON(result), hash))
+                        
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    let hash = SHA256.hash(data: response.data ?? Data())
+                                        continuation.resume(returning: (JSON(result), hash))
+                                }
                          case .failure(let error):
-                            print("Get Wallet Data Request error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -164,13 +179,27 @@ class RemoteSigner {
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
                     .debugLog()
                     .responseJSON{ response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: JSON(result))
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: JSON(result))
                          case .failure(let error):
-                            print("Get properties error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -205,18 +234,24 @@ class RemoteSigner {
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
                     .debugLog()
                     .responseDecodable(of: MediaProperty.self) { response in
-
+                    var respJSON = JSON()
+                    do{
+                        respJSON = try JSON(data: response.data ?? Data())
+                    }catch{}
+                        
                     switch (response.result) {
                         case .success(let result):
-                            continuation.resume(returning: result)
+                            if respJSON["errors"].exists() {
+                                continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                   response: respJSON, error:FabricError.unexpectedResponse("")))
+                            }else {
+                                continuation.resume(returning: result)
+                            }
                          case .failure(let error):
-                            //print("Get properties error: \(error)")
-                        var respJSON = JSON()
-                        do{
-                            respJSON = try JSON(data: response.data ?? Data())
-                        }catch{}
-                        continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
-                                                                           response: respJSON, error: error))
+                            print("Get property error: \(error)")
+
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -253,18 +288,28 @@ class RemoteSigner {
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
                     .debugLog()
                     .responseDecodable(of: MediaPropertiesResponse.self) { response in
-
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: result)
-                         case .failure(let error):
-                            //print("Get properties error: \(error)")
                         var respJSON = JSON()
                         do{
                             respJSON = try JSON(data: response.data ?? Data())
                         }catch{}
-                        continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
-                                                                           response: respJSON, error: error))
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: result)
+                                }
+
+                         case .failure(let error):
+                            //print("Get properties error: \(error)")
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -304,13 +349,29 @@ class RemoteSigner {
                     .debugLog()
                     //.responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                     .responseJSON() { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: respJSON)
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: JSON(result))
                          case .failure(let error):
                             print("Get properties sections error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
+                        
                      }
                 }
             }catch{
@@ -355,13 +416,27 @@ class RemoteSigner {
                     .debugLog()
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                     //.responseJSON() { response in
-
-                    switch (response.result) {
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
                         case .success(let result):
-                        continuation.resume(returning: result.contents)
-                         case .failure(let error):
-                            print("Searc properties error: \(error)")
-                            continuation.resume(throwing: error)
+                            if respJSON["errors"].exists() {
+                                continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                   response: respJSON, error:FabricError.unexpectedResponse("")))
+                            }else {
+                                continuation.resume(returning: result.contents)
+                            }
+
+                        case .failure(let error):
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -399,13 +474,27 @@ class RemoteSigner {
                 AF.request(request)
                     .debugLog()
                     .responseJSON() { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: respJSON)
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: JSON(result))
                          case .failure(let error):
-                            print("Get properties sections error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -444,13 +533,27 @@ class RemoteSigner {
                 AF.request(request)
                     .debugLog()
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: result)
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: result)
                          case .failure(let error):
-                            print("Get properties sections error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -478,13 +581,27 @@ class RemoteSigner {
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
                     .debugLog()
                     .responseDecodable(of: MediaPropertyPage.self) { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: result)
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: result)
                          case .failure(let error):
-                            print("Get property page error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -513,13 +630,27 @@ class RemoteSigner {
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
                     .debugLog()
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: result)
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: result)
                          case .failure(let error):
-                            print("Get property page sections error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -555,13 +686,27 @@ class RemoteSigner {
                 AF.request(request)
                     .debugLog()
                     .responseDecodable(of: MediaPropertyItemsResponse.self) { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: result)
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: result)
                          case .failure(let error):
-                            print("Get properties sections error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -599,8 +744,12 @@ class RemoteSigner {
                         case .success(let result):
                             continuation.resume(returning: JSON(result))
                          case .failure(let error):
-                            print("createMetaMaskLogin error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -644,8 +793,12 @@ class RemoteSigner {
                         case .success(let result):
                             continuation.resume(returning: JSON(result))
                          case .failure(let error):
-                            print("Get Wallet Data Request error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -677,8 +830,12 @@ class RemoteSigner {
                         case .success(let result):
                             continuation.resume(returning: JSON(result))
                          case .failure(let error):
-                            print("createMetaMaskLogin error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -722,8 +879,12 @@ class RemoteSigner {
                         case .success(let result):
                             continuation.resume(returning: JSON(result))
                          case .failure(let error):
-                            print("Get Wallet Data Request error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -815,13 +976,27 @@ class RemoteSigner {
                 AF.request(endpoint, encoding: JSONEncoding.default, headers: headers )
                     .debugLog()
                     .responseString { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: result)
+                                }
 
-                    switch (response.result) {
-                        case .success(let result):
-                            continuation.resume(returning: result)
                          case .failure(let error):
-                            print("Get Wallet Data Request error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -977,8 +1152,12 @@ class RemoteSigner {
                         case .success(let result):
                             continuation.resume(returning: JSON(result))
                          case .failure(let error):
-                            print("Get NFT Info Request error: \(error)")
-                            continuation.resume(throwing: error)
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -1006,14 +1185,27 @@ class RemoteSigner {
                 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
                     //print("Response : \(response)")
-                    
+                    var respJSON = JSON()
+                    do{
+                        respJSON = try JSON(data: response.data ?? Data())
+                    }catch{}
+                        
                     switch (response.result) {
                         case .success(let result):
-                            continuation.resume(returning: JSON(result))
-                         case .failure(let error):
-                            print("Get Wallet Status Request error: \(error)")
+                            if respJSON["errors"].exists() {
+                                continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                   response: respJSON, error:FabricError.unexpectedResponse("")))
+                            }else {
+                                continuation.resume(returning: respJSON)
+                            }
 
-                            continuation.resume(throwing: error)
+                         case .failure(let error):
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -1070,9 +1262,13 @@ class RemoteSigner {
                             }else{
                                 continuation.resume(throwing: FabricError.unexpectedResponse("postWalletStatus: could not get value from response \(response)"))
                             }
-                        case .failure:
-                        let error = FabricError.unexpectedResponse("Post wallet request failed \(response)")
-                        continuation.resume(throwing: error)
+                    case .failure(let error):
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                        continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                           response: respJSON, error: error))
                      }
                 }
             }catch{
@@ -1100,14 +1296,27 @@ class RemoteSigner {
             
             AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers )
                 .responseJSON { response in
+                    var respJSON = JSON()
+                    do{
+                        respJSON = try JSON(data: response.data ?? Data())
+                    }catch{}
+                        
+                    switch (response.result) {
+                        case .success(let result):
+                            if respJSON["errors"].exists() {
+                                continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                   response: respJSON, error:FabricError.unexpectedResponse("")))
+                            }else {
+                                continuation.resume(returning: respJSON)
+                            }
 
-                debugPrint("response: ", response)
-                switch (response.result) {
-                    case .success(let result):
-                        continuation.resume(returning: JSON(result))
                      case .failure(let error):
-                        print("createEntitlement error: \(error)")
-                        continuation.resume(throwing: error)
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                        continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                           response: respJSON, error: error))
                  }
             }
         })

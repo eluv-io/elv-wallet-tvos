@@ -381,12 +381,6 @@ struct SectionItemView: View {
     var body: some View {
         Group {
             if !hide {
-                /*if item.type == "item_purchase" {
-                    SectionItemPurchaseView(sectionItem:item,
-                                            sectionId: sectionId,
-                                            pageId:pageId,
-                                            propertyId: propertyId)
-                }else {*/
                     VStack(alignment:.leading, spacing:10){
                         if let mediaItem = viewItem {
                             Button(action: {
@@ -400,6 +394,42 @@ struct SectionItemView: View {
                                     //debugPrint("Item ", item)
 
                                     do{
+                                    
+
+                                        //Test the token
+                                        guard let property = try await eluvio.fabric.getProperty(property: propertyId, noCache: true) else {
+                                            await MainActor.run {
+                                                _ = eluvio.pathState.path.popLast()
+                                                eluvio.pathState.path.append(.errorView("A problem occured."))
+                                            }
+                                            return
+                                        }
+                                        eluvio.pathState.path.append(.black)
+
+                                        var backgroundImage = ""
+                                        let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
+                                        backgroundImage = viewModel.backgroundImage
+                              
+                                        var images : [String] = []
+                                        if let icons = mediaItem.icons {
+                                            for link in icons {
+                                                do {
+                                                    let image = try eluvio.fabric.getUrlFromLink(link: link["icon"])
+                                                    images.append(image)
+                                                }catch{}
+                                            }
+                                        }
+            
+                                        
+                                        if mediaItem.isUpcoming {
+                                            let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
+                                            
+                                            eluvio.pathState.videoErrorParams = videoErrorParams
+                                            _ = eluvio.pathState.path.popLast()
+                                            eluvio.pathState.path.append(.videoError)
+                                            return
+                                        }
+  
                                         if let sectionItemId = item.id {
                                             self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)
                                             debugPrint("Permission ", permission)
@@ -410,10 +440,10 @@ struct SectionItemView: View {
                                                         debugPrint("Purchase! ", url)
                                                         
                                                         var backgroundImage = ""
-                                                        if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                                            let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
-                                                            backgroundImage = viewModel.backgroundImage
-                                                        }
+                                                       
+                                                        let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
+                                                        backgroundImage = viewModel.backgroundImage
+                                                        
                                                         
                                                         let params = PurchaseParams(url:url,
                                                                                     backgroundImage: backgroundImage,
@@ -421,9 +451,9 @@ struct SectionItemView: View {
                                                                                     pageId : permission.alternatePageId,
                                                                                     sectionId : sectionId,
                                                                                     sectionItem : item)
-                                                        
+                                                        _ = eluvio.pathState.path.popLast()
                                                         eluvio.pathState.path.append(.purchaseQRView(params))
-                                                        
+
                                                         return
                                                     }else if permission.showAlternatePage {
                                                         debugPrint("ShowAlternatePage ")
@@ -438,6 +468,7 @@ struct SectionItemView: View {
                                                                     eluvio.pathState.pageId = newPage
                                                                     eluvio.pathState.sectionItem = item
                                                                     let params = PropertyParam(property:property, pageId:newPage)
+                                                                    _ = eluvio.pathState.path.popLast()
                                                                     eluvio.pathState.path.append(.property(params))
                                                                     return
                                                                 }else{
@@ -447,55 +478,29 @@ struct SectionItemView: View {
                                                                 
                                                             }else{
                                                                 debugPrint("Could not get property.")
-                                                                eluvio.signOut()
+                                                                _ = eluvio.pathState.path.popLast()
+                                                                eluvio.pathState.path.append(.errorView("A problem occured."))
+                                                                return
                                                             }
                                                         }catch {
+                                                            _ = eluvio.pathState.path.popLast()
                                                             debugPrint("Could not get property.", error.localizedDescription)
-                                                            eluvio.signOut()
+                                                            eluvio.pathState.path.append(.errorView("A problem occured."))
+                                                            return
                                                         }
                                                     }
+                                                    
+                                                    _ = eluvio.pathState.path.popLast()
                                                     eluvio.pathState.path.append(.errorView("Could not access media."))
                                                     return
                                                 }
                                                 
                                             }
                                         }
-                                    }catch{
-                                        print("Error processing section Item ", error.localizedDescription)
-                                        eluvio.pathState.path.append(.errorView("Could not access media."))
-                                        return
-                                    }
+                                   
                                     
                                     if ( mediaItem.media_type.lowercased() == "video") {
                                         if var link = item.media?.media_link?["sources"]["default"] {
-                                            eluvio.pathState.path.append(.black)
-                                            var backgroundImage = ""
-                                            if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                                let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
-                                                backgroundImage = viewModel.backgroundImage
-                                            }
-                                            
-                                            var images : [String] = []
-                                            if let icons = mediaItem.icons {
-                                                for link in icons {
-                                                    do {
-                                                        let image = try eluvio.fabric.getUrlFromLink(link: link["icon"])
-                                                        images.append(image)
-                                                    }catch{}
-                                                }
-                                            }
-                                            
-                                            
-                                            if mediaItem.isUpcoming {
-                                                let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
-                                                
-                                                eluvio.pathState.videoErrorParams = videoErrorParams
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.videoError)
-                                                return
-                                            }
-                                            
-                                            
                                             if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
                                                 debugPrint("permission denied! ", mediaItem.title)
                                                 debugPrint("startTime! ", mediaItem.start_time)
@@ -504,9 +509,11 @@ struct SectionItemView: View {
                                                 let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImage, images: images)
                                                 
                                                 eluvio.pathState.videoErrorParams = videoErrorParams
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.videoError)
-                                                return
+                                                await MainActor.run {
+                                                    _ = eluvio.pathState.path.popLast()
+                                                    eluvio.pathState.path.append(.videoError)
+                                                    return
+                                                }
                                             }
                                             
                                             do {
@@ -514,14 +521,20 @@ struct SectionItemView: View {
                                                 let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
                                                 let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
                                                 eluvio.pathState.playerItem = playerItem
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.video)
+                                                await MainActor.run {
+                                                    _ = eluvio.pathState.path.popLast()
+                                                    eluvio.pathState.path.append(.video)
+                                                    return
+                                                }
                                             }catch{
                                                 print("Error getting link url for playback ", error)
                                                 let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
                                                 eluvio.pathState.videoErrorParams = videoErrorParams
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.videoError)
+                                                await MainActor.run {
+                                                    _ = eluvio.pathState.path.popLast()
+                                                    eluvio.pathState.path.append(.videoError)
+                                                    return
+                                                }
                                             }
                                         }
                                     }else if ( mediaItem.media_type.lowercased() == "html") {
@@ -530,7 +543,11 @@ struct SectionItemView: View {
                                         if !mediaItem.media_file_url.isEmpty {
                                             let url = mediaItem.media_file_url
                                             let params = HtmlParams(url:url, backgroundImage: "")
-                                            eluvio.pathState.path.append(.html(params))
+                                            await MainActor.run {
+                                                _ = eluvio.pathState.path.popLast()
+                                                eluvio.pathState.path.append(.html(params))
+                                                return
+                                            }
                                         }else{
                                             print("MediaItem has empty file for html type")
                                         }
@@ -541,10 +558,14 @@ struct SectionItemView: View {
                                         if let media = item.media {
                                             if let list = media.media {
                                                 if !list.isEmpty {
-                                                    eluvio.pathState.mediaItem = item
-                                                    eluvio.pathState.propertyId = propertyId
-                                                    eluvio.pathState.pageId = pageId
-                                                    eluvio.pathState.path.append(.mediaGrid)
+                                                    await MainActor.run {
+                                                        eluvio.pathState.mediaItem = item
+                                                        eluvio.pathState.propertyId = propertyId
+                                                        eluvio.pathState.pageId = pageId
+                                                        _ = eluvio.pathState.path.popLast()
+                                                        eluvio.pathState.path.append(.mediaGrid)
+                                                        return
+                                                    }
                                                 }
                                             }
                                         }else{
@@ -554,15 +575,19 @@ struct SectionItemView: View {
                                     }else if (mediaItem.media_type.lowercased() == "gallery") {
                                         debugPrint("Media Item Gallery Type ", item)
                                         if let gallery = item.media?.gallery {
-                                            eluvio.pathState.gallery = gallery
-                                            eluvio.pathState.path.append(.gallery)
+                                            await MainActor.run {
+                                                eluvio.pathState.gallery = gallery
+                                                _ = eluvio.pathState.path.popLast()
+                                                eluvio.pathState.path.append(.gallery)
+                                                return
+                                            }
                                         }else{
                                             print("MediaItem has empty file for html type")
                                         }
                                     }else if ( mediaItem.type == "subproperty_link") {
                                         debugPrint("Media Subproperty Item", mediaItem.thumbnail)
                                         debugPrint("Media Item", item)
-                                        Task {
+                                        //Task {
                                             do {
                                                 if let propertyId = item.subproperty_id {
                                                     if let property = try await eluvio.fabric.getProperty(property: propertyId) {
@@ -586,6 +611,7 @@ struct SectionItemView: View {
                                                             eluvio.pathState.property = property
                                                             eluvio.pathState.propertyPage = page
                                                             let params = PropertyParam(property:property, pageId: page?.id ?? "main")
+                                                            _ = eluvio.pathState.path.popLast()
                                                             eluvio.pathState.path.append(.property(params))
                                                         }
                                                         
@@ -598,12 +624,37 @@ struct SectionItemView: View {
                                             }catch{
                                                 debugPrint("Error finding property ", item.subproperty_id)
                                             }
+                                        }else {
+                                            debugPrint("Item without type Item: ", mediaItem)
                                         }
-                                        
-                                    }else {
-                                        debugPrint("Item without type Item: ", mediaItem)
+                                    }catch(FabricError.apiError(let code, let response, let error)){
+                                        await MainActor.run {
+                                            print("Could not get properties ", error.localizedDescription)
+                                            _ = eluvio.pathState.path.popLast()
+                                            let errors = response["errors"].arrayValue
+                                            if errors.isEmpty{
+                                                eluvio.pathState.path.append(.errorView("A problem occured."))
+                                                return
+                                            }else if errors[0]["cause"]["reason"].stringValue.contains("token expired") {
+                                                eluvio.pathState.path = []
+                                                eluvio.signOut()
+                                                eluvio.pathState.path.append(.errorView("Your session has expired."))
+                                                return
+                                            }else {
+                                                eluvio.pathState.path.append(.errorView("A problem occured."))
+                                                return
+                                            }
+                                        }
+                                    }catch{
+                                        print("Error processing section Item ", error.localizedDescription)
+                                        await MainActor.run {
+                                            _ = eluvio.pathState.path.popLast()
+                                            eluvio.pathState.path.append(.errorView("Could not access media."))
+                                            return
+                                        }
                                     }
                                 }
+                                    
                             }){
                                 VStack(alignment: .leading, spacing: 10){
                                     MediaCard(display: display,

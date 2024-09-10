@@ -104,9 +104,23 @@ struct DiscoverView: View {
                     await MainActor.run {
                         self.properties = properties
                     }
-                }catch{
-                    print("Could not get properties code: ", error)
-                    eluvio.signOut()
+                }catch(FabricError.apiError(let code, let response, let error)){
+                    print("Could not get properties ", error.localizedDescription)
+                    let errors = response["errors"].arrayValue
+                    if errors.isEmpty{
+                        eluvio.pathState.path.append(.errorView("A problem occured."))
+                        return
+                    }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
+                        eluvio.pathState.path = []
+                        eluvio.signOut()
+                        eluvio.pathState.path.append(.errorView("Your session has expired."))
+                        return
+                    }else {
+                        eluvio.pathState.path.append(.errorView("A problem occured."))
+                        return
+                    }
+                }catch {
+                    eluvio.pathState.path.append(.errorView("A problem occured."))
                 }
             }
             

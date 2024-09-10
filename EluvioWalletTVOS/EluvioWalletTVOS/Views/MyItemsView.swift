@@ -85,12 +85,12 @@ struct MyItemsView: View {
         .onAppear(){
             Task{
                 do {
-                    let props = try await eluvio.fabric.getProperties(includePublic:false)
+                    let props = try await eluvio.fabric.getProperties(includePublic:false, noCache:false)
                     
                     var properties: [MediaPropertyViewModel] = []
                     
                     for property in props {
-
+                        
                         let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                         if mediaProperty.title.isEmpty {
                             debugPrint("Property without a title: \(property.slug ?? "").")
@@ -101,17 +101,44 @@ struct MyItemsView: View {
                     }
                     
                     self.properties = properties
-                }catch{
-                    print("Could not get properties code", error)
-                    eluvio.signOut()
+                }catch(FabricError.apiError(let code, let response, let error)){
+                    print("Could not get properties ", error.localizedDescription)
+                    let errors = response["errors"].arrayValue
+                    if errors.isEmpty{
+                        eluvio.pathState.path.append(.errorView("A problem occured."))
+                        return
+                    }else if errors[0]["cause"]["reason"].stringValue.contains("token expired") {
+                        eluvio.pathState.path = []
+                        eluvio.signOut()
+                        eluvio.pathState.path.append(.errorView("Your session has expired."))
+                        return
+                    }else {
+                        eluvio.pathState.path.append(.errorView("A problem occured."))
+                        return
+                    }
+                }catch {
+                    eluvio.pathState.path.append(.errorView("A problem occured."))
+                    return
                 }
             }
             
             Task {
                 do {
                     nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
-                }catch{
-                    print("Could not get nfts ", error.localizedDescription)
+                }catch(FabricError.apiError(let code, let response, let error)){
+                        print("Could not get properties ", error.localizedDescription)
+                        let errors = response["errors"].arrayValue
+                        if errors.isEmpty{
+                            eluvio.pathState.path.append(.errorView("A problem occured."))
+
+                        }else if errors[0]["cause"]["reason"].stringValue.contains("token expired") {
+                            eluvio.pathState.path.append(.errorView("You session has expired."))
+                            eluvio.signOut()
+                        }else {
+                            eluvio.pathState.path.append(.errorView("A problem occured."))
+                        }
+                }catch {
+                    eluvio.pathState.path.append(.errorView("A problem occured."))
                 }
             }
             

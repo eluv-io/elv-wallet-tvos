@@ -266,13 +266,30 @@ struct MediaPropertySectionView: View {
                                         
                                         var backgroundImage = ""
                                         
-                                        let property = try await eluvio.fabric.getProperty(property: propertyId)
-                                        
                                         do {
+                                            let property = try await eluvio.fabric.getProperty(property: propertyId)
+                                        
+                                        
                                             backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
-                                        }catch{
-                                            //print("Could not create image URL \(error)")
+                                        }catch(FabricError.apiError(let code, let response, let error)){
+                                            print("Could not get properties ", error.localizedDescription)
+                                            let errors = response["errors"].arrayValue
+                                            if errors.isEmpty{
+                                                eluvio.pathState.path.append(.errorView("A problem occured."))
+                                                return
+                                            }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
+                                                eluvio.pathState.path = []
+                                                eluvio.signOut()
+                                                eluvio.pathState.path.append(.errorView("Your session has expired."))
+                                                return
+                                            }else {
+                                                eluvio.pathState.path.append(.errorView("A problem occured."))
+                                                return
+                                            }
+                                        }catch {
+                                            eluvio.pathState.path.append(.errorView("A problem occured."))
                                         }
+
                                         if let url = item.url {
                                             let params = HtmlParams(url:url, backgroundImage: backgroundImage)
                                             eluvio.pathState.path.append(.html(params))
@@ -543,8 +560,23 @@ struct MediaPropertyDetailView: View {
                     do {
                         sections = try await eluvio.fabric.getPropertyPageSections(property: id, page: pageId)
                         debugPrint("finished getting sections. ", sections)
-                    }catch{
-                        print("Error retrieving property \(id) page \(pageId) ", error.localizedDescription)
+                    }catch(FabricError.apiError(let code, let response, let error)){
+                        print("Could not get properties ", error.localizedDescription)
+                        let errors = response["errors"].arrayValue
+                        if errors.isEmpty{
+                            eluvio.pathState.path.append(.errorView("A problem occured."))
+                            return
+                        }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
+                            eluvio.pathState.path = []
+                            eluvio.signOut()
+                            eluvio.pathState.path.append(.errorView("Your session has expired."))
+                            return
+                        }else {
+                            eluvio.pathState.path.append(.errorView("A problem occured."))
+                            return
+                        }
+                    }catch {
+                        eluvio.pathState.path.append(.errorView("A problem occured."))
                     }
 
 
@@ -590,14 +622,10 @@ struct MediaPropertyDetailView: View {
                     
                     await MainActor.run {
                         if self.playerItem == nil && backgroundImageString.isEmpty {
-                            //withAnimation(.easeInOut(duration: 1), {
-                                self.backgroundImage = propertyView?.backgroundImage ?? ""
-                            //})
+                            self.backgroundImage = propertyView?.backgroundImage ?? ""
                         }else if self.playerItem == nil {
-                            //withAnimation(.easeInOut(duration: 1), {
-                                debugPrint("")
-                                self.backgroundImage = backgroundImageString
-                            //})
+                            debugPrint("")
+                            self.backgroundImage = backgroundImageString
                         }
                     }
                     

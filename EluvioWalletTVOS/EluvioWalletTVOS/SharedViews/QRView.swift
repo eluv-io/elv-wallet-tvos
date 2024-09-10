@@ -85,7 +85,7 @@ struct PurchaseQRView: View {
                 HStack{
                     if let item = sectionItem{
                         VStack{
-                            SectionItemView(item:item, sectionId:sectionId, pageId:pageId, propertyId: propertyId, scaleFactor: item.type == "purchase_item" ? 1 : 2)
+                            SectionItemView(item:item, sectionId:sectionId, pageId:pageId, propertyId: propertyId)
                                 .disabled(true)
                         }
                     }

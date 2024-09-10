@@ -1268,9 +1268,13 @@ class Fabric: ObservableObject {
         return try await parseNfts(profileData["contents"].arrayValue, propertyId:propertyId)
     }
     
-    func getProperties(includePublic: Bool) async throws -> [MediaProperty] {
+    func getProperties(includePublic: Bool, noCache:Bool = true) async throws -> [MediaProperty] {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
+        }
+        
+        if !noCache {
+            return self.mediaProperties.contents
         }
         
         let response = try await signer.getProperties(includePublic:includePublic, accessCode: self.fabricToken)
@@ -1487,6 +1491,7 @@ class Fabric: ObservableObject {
         let props = mediaProperties
 
         self.mediaPropertiesCache = props
+        self.mediaProperties = properties
     }
     
     func getMediaItem(mediaId:String) -> MediaPropertySectionMediaItem? {
