@@ -82,7 +82,7 @@ struct ItemDetailView: View {
                                             
                                         }else{
                                             debugPrint("Could not find property")
-                                            eluvio.pathState.path.append(.errorView("Could not find property."))
+                                            //eluvio.pathState.path.append(.errorView("Could not find property."))
                                         }
     
                                     }

@@ -272,22 +272,9 @@ struct MediaPropertySectionView: View {
                                         
                                             backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
                                         }catch(FabricError.apiError(let code, let response, let error)){
-                                            print("Could not get properties ", error.localizedDescription)
-                                            let errors = response["errors"].arrayValue
-                                            if errors.isEmpty{
-                                                eluvio.pathState.path.append(.errorView("A problem occured."))
-                                                return
-                                            }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
-                                                eluvio.pathState.path = []
-                                                eluvio.signOut()
-                                                eluvio.pathState.path.append(.errorView("Your session has expired."))
-                                                return
-                                            }else {
-                                                eluvio.pathState.path.append(.errorView("A problem occured."))
-                                                return
-                                            }
+                                            eluvio.handleApiError(code: code, response: response, error: error)
                                         }catch {
-                                            eluvio.pathState.path.append(.errorView("A problem occured."))
+                                            //eluvio.pathState.path.append(.errorView("A problem occured."))
                                         }
 
                                         if let url = item.url {
@@ -561,22 +548,10 @@ struct MediaPropertyDetailView: View {
                         sections = try await eluvio.fabric.getPropertyPageSections(property: id, page: pageId)
                         debugPrint("finished getting sections. ", sections)
                     }catch(FabricError.apiError(let code, let response, let error)){
-                        print("Could not get properties ", error.localizedDescription)
-                        let errors = response["errors"].arrayValue
-                        if errors.isEmpty{
-                            eluvio.pathState.path.append(.errorView("A problem occured."))
-                            return
-                        }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
-                            eluvio.pathState.path = []
-                            eluvio.signOut()
-                            eluvio.pathState.path.append(.errorView("Your session has expired."))
-                            return
-                        }else {
-                            eluvio.pathState.path.append(.errorView("A problem occured."))
-                            return
-                        }
+                        eluvio.handleApiError(code: code, response: response, error: error)
                     }catch {
-                        eluvio.pathState.path.append(.errorView("A problem occured."))
+                        //eluvio.pathState.path.append(.errorView("A problem occured."))
+                        debugPrint("Error:",error.localizedDescription)
                     }
 
 
@@ -589,7 +564,7 @@ struct MediaPropertyDetailView: View {
                             if !heros.isEmpty{
                                 let video = heros[0]["display"]["background_video"]
                                 let background = heros[0]["display"]["background_image"]
-                                //debugPrint("video: ", video)
+                                debugPrint("video: ", video)
                                 if !video.isEmpty {
                                     do {
                                         let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
@@ -600,7 +575,7 @@ struct MediaPropertyDetailView: View {
                                             //})
                                         }
                                     }catch{
-                                        debugPrint("Error: ", error.localizedDescription)
+                                        debugPrint("Error making video item: ", error.localizedDescription)
                                     }
                                 }
                                 

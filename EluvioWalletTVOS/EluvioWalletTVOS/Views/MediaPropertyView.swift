@@ -79,7 +79,7 @@ struct MediaPropertyView : View {
                                 }
 
                             }else{
-                                eluvio.pathState.path.append(.errorView("Error finding property."))
+                                //eluvio.pathState.path.append(.errorView("Error finding property."))
                             }
                         }
                     }catch{

@@ -8,6 +8,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import SwiftyJSON
 
 class EluvioAPI : ObservableObject {
     @Published var accountManager : AccountManager = AccountManager()
@@ -63,4 +64,31 @@ class EluvioAPI : ObservableObject {
         pathState.reset()
         viewState.reset()
     }
+    
+    func handleApiError(code: Int, response:JSON, error: Error){
+        print("Could not get properties ", error.localizedDescription)
+        print("Response ", response)
+        let errors = response["errors"].arrayValue
+        print("Response ", errors)
+        if errors.isEmpty{
+            print("errors field is empty")
+            //eluvio.pathState.path.append(.errorView("A problem occured."))
+            return
+        }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
+            self.pathState.path = []
+            self.signOut()
+            self.pathState.path.append(.errorView("Your session has expired."))
+            return
+        }else if errors[0]["reason"].stringValue.contains("token expired"){
+            self.pathState.path = []
+            self.signOut()
+            self.pathState.path.append(.errorView("Your session has expired."))
+            return
+        }else {
+            print("Couldn't parse errors")
+            //eluvio.pathState.path.append(.errorView("A problem occured."))
+            return
+        }
+    }
 }
+

@@ -9,7 +9,8 @@ import SwiftUI
 import Combine
 import AVKit
 import SwiftyJSON
-                            
+import SDWebImageSwiftUI
+
 struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
@@ -355,6 +356,12 @@ struct ContentView: View {
                 case let .errorView(msg) :
                     Text(msg)
                         .font(.title)
+                        .background(.black)
+                        .edgesIgnoringSafeArea(.all)
+                case let .imageView(url) :
+                    WebImage(url: URL(string:url))
+                        .resizable()
+                        .scaledToFit()
                         .background(.black)
                         .edgesIgnoringSafeArea(.all)
                 case let .login(params) :

@@ -299,6 +299,9 @@ struct SectionMediaItemView: View {
                         }catch{
                             print("Could not get gallery from item: ", error)
                         }
+                    }else if type.lowercased() == "image" {
+                        _ = eluvio.pathState.path.popLast()
+                        eluvio.pathState.path.append(.imageView(thumbnail))
                     }else {
                         debugPrint("Item media_type: ", item.media_type)
                         debugPrint("Item without type Item: ", item)
@@ -624,26 +627,18 @@ struct SectionItemView: View {
                                             }catch{
                                                 debugPrint("Error finding property ", item.subproperty_id)
                                             }
-                                        }else {
+                                    }else if mediaItem.media_type.lowercased() == "image" {
+                                        _ = eluvio.pathState.path.popLast()
+                                        eluvio.pathState.path.append(.imageView(mediaItem.thumbnail))
+                                        
+                                    }else {
                                             debugPrint("Item without type Item: ", mediaItem)
                                         }
                                     }catch(FabricError.apiError(let code, let response, let error)){
                                         await MainActor.run {
                                             print("Could not get properties ", error.localizedDescription)
                                             _ = eluvio.pathState.path.popLast()
-                                            let errors = response["errors"].arrayValue
-                                            if errors.isEmpty{
-                                                eluvio.pathState.path.append(.errorView("A problem occured."))
-                                                return
-                                            }else if errors[0]["cause"]["reason"].stringValue.contains("token expired") {
-                                                eluvio.pathState.path = []
-                                                eluvio.signOut()
-                                                eluvio.pathState.path.append(.errorView("Your session has expired."))
-                                                return
-                                            }else {
-                                                eluvio.pathState.path.append(.errorView("A problem occured."))
-                                                return
-                                            }
+                                            eluvio.handleApiError(code: code, response: response, error: error)
                                         }
                                     }catch{
                                         print("Error processing section Item ", error.localizedDescription)
