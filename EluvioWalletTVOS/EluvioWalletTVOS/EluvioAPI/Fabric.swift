@@ -1955,6 +1955,10 @@ class Fabric: ObservableObject {
         //print ("Offering \(offering)")
         //print("options url \(optionsUrl)")
         
+        if (!optionsUrl.contains("rep/playout/default/options.json")){
+            optionsUrl = optionsUrl.replaceFirst(of: "meta/public/asset_metadata", with: "rep/playout/default/options.json")
+        }
+        
         
         guard let versionsHash = FindContentHash(uri: optionsUrl) else {
             throw RuntimeError("Could not find hash from \(optionsUrl)")
@@ -2603,7 +2607,7 @@ class Fabric: ObservableObject {
         result.purchaseGate = !result.authorized && result.behavior == .showPurchase
         result.showAlternatePage = !result.authorized && result.behavior == .showAlternativePage
         
-        debugPrint("******* resolve Content Permission Finished ****** ")
+        //debugPrint("******* resolve Content Permission Finished ****** ")
         return result
         
     }

@@ -145,7 +145,7 @@ struct MediaItemGridView: View {
                     if items.dividedIntoGroups(of: numColumns).count <= 1 {
                         HStack(spacing:34) {
                                 ForEach(items, id: \.self) { item in
-                                    SectionMediaItemView(item: item, forceDisplay: display)
+                                    SectionMediaItemView(item: item, propertyId: propertyId, forceDisplay: display)
                                         .environmentObject(self.eluvio)
                                 }
                                 Spacer()
@@ -156,7 +156,7 @@ struct MediaItemGridView: View {
                             ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                                 GridRow(alignment:.top) {
                                     ForEach(groups, id: \.self) { item in
-                                        SectionMediaItemView(item: item, forceDisplay: display)
+                                        SectionMediaItemView(item: item, propertyId: propertyId, forceDisplay: display)
                                             .environmentObject(self.eluvio)
                                     }
                                     .gridColumnAlignment(.leading)
@@ -181,19 +181,36 @@ struct SectionItemListView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     
     var propertyId: String
-    var item: MediaPropertySectionItem
+    var item: MediaPropertySectionItem?
+    var list : [String]?
+    
     @State var items : [MediaPropertySectionMediaItem] = []
+    //@State var lists : [(String, MediaPropertySectionMediaItem)] = []
     @FocusState var isFocused
     
     var body: some View {
-        MediaItemGridView(propertyId:propertyId, items:items, title: item.media?.title ?? "")
+        MediaItemGridView(propertyId:propertyId, items:items, title: item?.media?.title ?? "")
             .frame(width:UIScreen.main.bounds.width, height: UIScreen.main.bounds.size.height)
             .padding()
         .onAppear(){
             debugPrint("SectionItemListView onAppear item ", item)
             Task {
-                if let mediaList = item.media?.media {
+                
+                if let ids = list {
+                    let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: ids)
+                    debugPrint("media result: ", result)
+                    await MainActor.run {
+                        items = result
+                    }
+                }else if let mediaList = item?.media?.media {
                     let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
+                    debugPrint("media result: ", result)
+                    await MainActor.run {
+                        items = result
+                    }
+                }else if let lists = item?.media?.media_lists {
+                    let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: lists)
+                    debugPrint("media_list result: ", result)
                     await MainActor.run {
                         items = result
                     }
@@ -207,6 +224,7 @@ struct SectionMediaItemView: View {
     @EnvironmentObject var eluvio: EluvioAPI
 
     var item: MediaPropertySectionMediaItem
+    var propertyId: String = ""
     @State var viewItem: MediaPropertySectionMediaItemViewModel? = nil
     var forceDisplay : MediaDisplay? = nil
     
@@ -261,6 +279,24 @@ struct SectionMediaItemView: View {
     var body: some View {
         VStack(alignment:.leading, spacing:10){
             Button(action: {
+                debugPrint("Media Item pressed: ", item.type)
+                if item.type?.lowercased() == "list" {
+                    debugPrint("list type")
+                    if let list = item.media {
+                        if !list.isEmpty {
+                            
+                           // await MainActor.run {
+                                let params = MediaGridParams(propertyId: propertyId, list: list)
+                                //_ = eluvio.pathState.path.popLast()
+                                eluvio.pathState.path.append(.mediaGrid(params))
+                                debugPrint("launching mediaGrid")
+                                return
+                           // }
+                        }
+                    }
+                    
+                }
+                
                 if let type = item.media_type {
                     if ( type.lowercased() == "video") {
                         if let link = item.media_link?["sources"]["default"] {
@@ -388,7 +424,7 @@ struct SectionItemView: View {
                         if let mediaItem = viewItem {
                             Button(action: {
                                 Task{
-                                    //debugPrint("Item Selected! ", item)
+                                    debugPrint("Item Selected! ", item)
                                     debugPrint("MediaItemView Type ", mediaItem.media_type)
                                     debugPrint("Item Type ", item.type ?? "")
                                     debugPrint("Item Media Type ", item.media_type ?? "")
@@ -554,26 +590,40 @@ struct SectionItemView: View {
                                         }else{
                                             print("MediaItem has empty file for html type")
                                         }
-                                    }else if ( item.media_type?.lowercased() == "list") {
+                                    }else if ( item.media_type?.lowercased() == "list" || item.media_type?.lowercased() == "collection") {
                                         
-                                        debugPrint("Media Item media List type!", item.media)
+                                        debugPrint("Media Item media List type!", item.media?.media_lists)
                                         
                                         if let media = item.media {
                                             if let list = media.media {
                                                 if !list.isEmpty {
                                                     await MainActor.run {
-                                                        eluvio.pathState.mediaItem = item
-                                                        eluvio.pathState.propertyId = propertyId
-                                                        eluvio.pathState.pageId = pageId
                                                         _ = eluvio.pathState.path.popLast()
-                                                        eluvio.pathState.path.append(.mediaGrid)
+                                                        let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list)
+                                                        eluvio.pathState.path.append(.mediaGrid(params))
+                                                        debugPrint("launching mediaGrid")
                                                         return
                                                     }
                                                 }
                                             }
+                                            
+                                            if let list = media.media_lists {
+                                                if !list.isEmpty {
+                                                    await MainActor.run {
+                                                        _ = eluvio.pathState.path.popLast()
+                                                        let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list)
+                                                        eluvio.pathState.path.append(.mediaGrid(params))
+                                                        debugPrint("launching mediaGrid")
+                                                        return
+                                                    }
+                                                }
+                                            }
+
+                                            
                                         }else{
                                             print("MediaItem has empty file for html type")
                                         }
+                                        
                                         
                                     }else if (mediaItem.media_type.lowercased() == "gallery") {
                                         debugPrint("Media Item Gallery Type ", item)

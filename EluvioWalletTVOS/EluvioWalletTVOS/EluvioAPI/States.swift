@@ -10,12 +10,18 @@ import Combine
 import AVKit
 
 enum NavDestination: Hashable {
-    case property(PropertyParam), video, gallery, mediaGrid, html(HtmlParams), search, sectionViewAll, nft,
+    case property(PropertyParam), video, gallery, mediaGrid(MediaGridParams), html(HtmlParams), search, sectionViewAll, nft,
          videoError, login(LoginParam), errorView(String), progress, black, purchaseQRView(PurchaseParams), imageView(String)
 }
 
 enum LoginType : String {
     case auth0, ory
+}
+
+struct MediaGridParams : Hashable {
+    var propertyId : String? = nil
+    var pageId : String = "main"
+    var list : [String] = []
 }
 
 struct PropertyParam : Hashable {

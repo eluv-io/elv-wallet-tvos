@@ -319,8 +319,11 @@ struct ContentView: View {
                             }
                         }
                     }
-                case .mediaGrid:
-                    if let item = eluvio.pathState.mediaItem {
+                case let .mediaGrid(params):
+                    if !params.list.isEmpty {
+                        SectionItemListView(propertyId: params.propertyId ?? "", list:params.list)
+                            .environmentObject(self.eluvio)
+                    }else if let item = eluvio.pathState.mediaItem {
                         if !eluvio.pathState.propertyId.isEmpty {
                             SectionItemListView(propertyId: eluvio.pathState.propertyId, item:item)
                                 .environmentObject(self.eluvio)
