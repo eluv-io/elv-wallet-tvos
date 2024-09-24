@@ -273,10 +273,8 @@ class RemoteSigner {
                 if (environment != .prod){
                     endpoint = endpoint.appending("&env=\(environment)")
                 }
-                    
-                if includePublic {
-                    endpoint = endpoint.appending("&include_public=\(includePublic ? "true" : "false" )")
-                }
+
+                endpoint = endpoint.appending("&include_public=\(includePublic ? "true" : "false" )")
                 
                 print("getProperties Request: \(endpoint)")
                 //print("Params: \(parameters)")

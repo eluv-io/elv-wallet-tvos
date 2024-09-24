@@ -460,15 +460,6 @@ struct SectionItemView: View {
                                         }
             
                                         
-                                        if mediaItem.isUpcoming {
-                                            let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
-                                            
-                                            eluvio.pathState.videoErrorParams = videoErrorParams
-                                            _ = eluvio.pathState.path.popLast()
-                                            eluvio.pathState.path.append(.videoError)
-                                            return
-                                        }
-  
                                         if let sectionItemId = item.id {
                                             self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)
                                             debugPrint("Permission ", permission)
@@ -537,8 +528,17 @@ struct SectionItemView: View {
                                             }
                                         }
                                    
+                                    if mediaItem.isUpcoming {
+                                        let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
+                                        
+                                        eluvio.pathState.videoErrorParams = videoErrorParams
+                                        _ = eluvio.pathState.path.popLast()
+                                        eluvio.pathState.path.append(.videoError)
+                                        return
+                                    }
                                     
                                     if ( mediaItem.media_type.lowercased() == "video") {
+                                                 
                                         if var link = item.media?.media_link?["sources"]["default"] {
                                             if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
                                                 debugPrint("permission denied! ", mediaItem.title)
