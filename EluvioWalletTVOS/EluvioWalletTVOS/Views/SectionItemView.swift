@@ -183,10 +183,27 @@ struct SectionItemListView: View {
     var propertyId: String
     var item: MediaPropertySectionItem?
     var list : [String]?
+    var isSearch : Bool = false
     
     @State var items : [MediaPropertySectionMediaItem] = []
     //@State var lists : [(String, MediaPropertySectionMediaItem)] = []
     @FocusState var isFocused
+    
+    func filterList(list : [MediaPropertySectionMediaItem]) async throws -> [MediaPropertySectionMediaItem] {
+        var filtered : [MediaPropertySectionMediaItem] = []
+        for var mediaItem in list {
+            if let itemId = item?.id {
+                if let mediaId = mediaItem.id {
+                    let permissions = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, sectionItemId: itemId, mediaItemId: mediaId, isSearch:isSearch)
+                    debugPrint("FilterList Permissions for \(mediaItem.title ?? "") ", permissions)
+                    if !permissions.hide {
+                        filtered.append(mediaItem)
+                    }
+                }
+            }
+        }
+        return filtered
+    }
     
     var body: some View {
         MediaItemGridView(propertyId:propertyId, items:items, title: item?.media?.title ?? "")
@@ -196,21 +213,39 @@ struct SectionItemListView: View {
             debugPrint("SectionItemListView onAppear item ", item)
             Task {
                 
+                var filtered : [MediaPropertySectionMediaItem] = []
+
                 if let ids = list {
                     let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: ids)
                     debugPrint("media result: ", result)
+                    do {
+                        filtered = try await filterList(list:result)
+                    }catch{
+                        print("Could not filter media list ", error)
+                    }
                     await MainActor.run {
-                        items = result
+                        items = filtered
                     }
                 }else if let mediaList = item?.media?.media {
                     let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
                     debugPrint("media result: ", result)
+                    do {
+                        filtered = try await filterList(list:result)
+                    }catch{
+                        print("Could not filter media list ", error)
+                    }
+                    
                     await MainActor.run {
                         items = result
                     }
                 }else if let lists = item?.media?.media_lists {
                     let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: lists)
                     debugPrint("media_list result: ", result)
+                    do {
+                        filtered = try await filterList(list:result)
+                    }catch{
+                        print("Could not filter media list ", error)
+                    }
                     await MainActor.run {
                         items = result
                     }

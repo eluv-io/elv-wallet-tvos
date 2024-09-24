@@ -294,6 +294,9 @@ struct SearchView: View {
         .ignoresSafeArea()
         .scrollClipDisabled()
         .onAppear(){
+            if !sections.isEmpty {
+                return
+            }
             Task {
                 if !propertyId.isEmpty {
                     do {

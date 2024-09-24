@@ -2383,12 +2383,13 @@ class Fabric: ObservableObject {
     }
     
     func resolveContentPermission(propertyId:String,
-                           pageId:String = "",
-                           sectionId:String = "",
-                           sectionItemId:String = "",
-                           mediaCollectionId:String = "",
-                           mediaListId:String = "",
-                           mediaItemId:String = ""
+                                    pageId:String = "",
+                                    sectionId:String = "",
+                                    sectionItemId:String = "",
+                                    mediaCollectionId:String = "",
+                                    mediaListId:String = "",
+                                    mediaItemId:String = "",
+                                    isSearch:Bool = false
     ) async throws -> ResolvedPermission {
 
         var result = ResolvedPermission()
@@ -2396,12 +2397,17 @@ class Fabric: ObservableObject {
         let mediaProperty = try await getProperty(property: propertyId)
         
         let authState = mediaProperty?.permission_auth_state ?? JSON()
-        //debugPrint("resolveContentPermission authState", authState)
         
         debugPrint("Property Permissions ", mediaProperty?.permissions)
-        /*if let perms = mediaProperty?.permissions {
-            result.authorized = isAuthorized(permission: perms, authState: authState)
-        }*/
+        
+        var searchBehavior : PermisionBehavior = .Hide
+        do {
+            searchBehavior = try getBehavior(json:mediaProperty?.permissions?["search_permission_behavior"])
+        }catch{}
+        
+        var searchAltPageId = mediaProperty?.permissions?["search_permissions_alternate_page_id"].stringValue
+        
+        var searchPurchaseOption = mediaProperty?.permissions?["search_permissions_secondary_market_purchase_option"].stringValue
 
         if let _behavior = mediaProperty?.permissions?["behavior"] {
             do{
@@ -2534,35 +2540,9 @@ class Fabric: ObservableObject {
 
                             }
                             
-                            /*
-                            
-                            if let publicField = sectionItem.media?.public {
-                                var isPublic = publicField
-                                if (publicField){
-                                    result.authorized = true
-                                    return result
-                                }else{
-                                    result.authorized = false
-                                    return result
-                                }
-                            }
-                             
-                             */
-                            
-                            //debugPrint("media public field ", sectionItem.media?.public)
-                            
-                           // if !isPublic && result.authorized{
-                                /*if let permissionItemsArr = sectionItem.permissions?["permission_item_ids"].arrayValue.isEmpty{
-                                    //we are totaly private
-                                    result.authorized = false
-                                    debugPrint("Permission item ids is empty, we are private")
-                                }else {*/
-                                    result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
-                                    debugPrint("Section Item Authorized? ", result.authorized)
-                                //}
-                            //}
-                            
-                            
+                            result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
+                            debugPrint("Section Item Authorized? ", result.authorized)
+
                             if !result.authorized {
                                 debugPrint("Not Authorized! Section Item ", sectionItem.permissions)
                                 result.cause = "Section item permissions"
@@ -2585,7 +2565,6 @@ class Fabric: ObservableObject {
                                         if (publicField){
                                             result.authorized = true
                                         }else{
-                                            //result.authorized = false
                                             result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
                                         }
                                     }else{
@@ -2596,6 +2575,25 @@ class Fabric: ObservableObject {
                         }
                     }
                 }
+            }
+        }
+        
+        if let mediaItem = getMediaItem(mediaId: mediaItemId) {
+            debugPrint("Media Item Id giving, permissions", mediaItem.permissions)
+           
+            if let publicField = mediaItem.public {
+               debugPrint("media public field ", publicField)
+               if (publicField){
+                   result.authorized = true
+               }else{
+                   result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+               }
+            }else{
+               result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+            }
+            
+            if isSearch && !result.authorized{
+                result.behavior = searchBehavior
             }
         }
         
@@ -2613,21 +2611,25 @@ class Fabric: ObservableObject {
     }
     
     
-    func getBehavior(json:JSON) throws -> PermisionBehavior {
-        switch(json.stringValue.lowercased()){
-        case "hide":
-            return .Hide
-        case "disable":
-            return .Disable
-        case "show_alternate_page":
-            return .showAlternativePage
-        case "show_if_unauthorized":
-            return .showIfUnauthorized
-        case "show_purchase":
-            return .showPurchase
-        default:
-            throw FabricError.unexpectedResponse("no behavior defined.")
+    func getBehavior(json:JSON?) throws -> PermisionBehavior {
+        if let behavior = json {
+            switch(behavior.stringValue.lowercased()){
+            case "hide":
+                return .Hide
+            case "disable":
+                return .Disable
+            case "show_alternate_page":
+                return .showAlternativePage
+            case "show_if_unauthorized":
+                return .showIfUnauthorized
+            case "show_purchase":
+                return .showPurchase
+            default:
+                throw FabricError.unexpectedResponse("no behavior defined.")
+            }
         }
+        
+        return .Hide
     }
     
     func isMediaAuthorized(permission:JSON?, authState:JSON) -> Bool {
@@ -2703,7 +2705,7 @@ class Fabric: ObservableObject {
     
 }
 
-struct ResolvedPermission {
+struct ResolvedPermission:  Codable, Hashable {
     var authorized:Bool = true
     var behavior:PermisionBehavior = .Hide
     var hide:Bool = false
@@ -2716,7 +2718,7 @@ struct ResolvedPermission {
     var cause: String = ""
 }
 
-enum PermisionBehavior {
+enum PermisionBehavior:  Codable, Hashable {
     case Hide, Disable, showPurchase, showIfUnauthorized, showAlternativePage
 }
 

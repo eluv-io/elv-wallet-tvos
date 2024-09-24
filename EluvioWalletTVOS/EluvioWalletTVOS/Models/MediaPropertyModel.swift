@@ -193,6 +193,8 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var `public` : Bool? = nil
     var permissions : JSON? = nil
     
+    var resolvedPermission : ResolvedPermission? = nil
+    
     var startDate : Date? {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [
