@@ -448,17 +448,14 @@ struct SectionMediaItemView: View {
                 }
         
             }){
-                VStack{
-                    MediaCard(display: display,
-                              image: thumbnail,
-                              isFocused:isFocused,
-                              title: item.title ?? "",
-                              isLive: item.currentlyLive,
-                              showFocusedTitle: item.title ?? "" == "" ? false : true
-                              //sizeFactor: display == .square ? 1.0 : 1.0
-                    )
-                    Text("auth: \(item.resolvedPermission?.authorized)")
-                }
+                MediaCard(display: display,
+                          image: thumbnail,
+                          isFocused:isFocused,
+                          title: item.title ?? "",
+                          isLive: item.currentlyLive,
+                          showFocusedTitle: item.title ?? "" == "" ? false : true
+                          //sizeFactor: display == .square ? 1.0 : 1.0
+                )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused))
             .focused($isFocused)
