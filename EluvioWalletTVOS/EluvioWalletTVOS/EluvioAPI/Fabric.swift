@@ -1496,6 +1496,10 @@ class Fabric: ObservableObject {
     }
     
     func getMediaItem(mediaId:String) -> MediaPropertySectionMediaItem? {
+        if mediaId.isEmpty {
+            debugPrint("getMediaItem: id is empty")
+            return nil
+        }
         if let item = self.mediaPropertiesMediaItemCache[mediaId] {
             return item
         }

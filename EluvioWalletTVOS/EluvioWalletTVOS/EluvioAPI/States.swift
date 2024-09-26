@@ -66,6 +66,7 @@ struct PurchaseParams:Hashable{
     var pageId : String = ""
     var sectionId : String = ""
     var sectionItem: MediaPropertySectionItem? = nil
+    var mediaItem: MediaPropertySectionMediaItem? = nil
 }
 
 class PathState: ObservableObject {
