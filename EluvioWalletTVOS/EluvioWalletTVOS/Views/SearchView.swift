@@ -336,22 +336,59 @@ struct SearchView: View {
                         let secondaryFilterValue = filterResult["secondary_filter"].stringValue
                         debugPrint("has primary filter ",primaryFilterValue)
                         let primaryAttribute = attributes[primaryFilterValue]
+                        let options = filterResult["filter_options"].arrayValue
+                        var newPrimaryFilters : [PrimaryFilterViewModel] = []
+                        //tags.insert("", at:0)
+                        let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
+                        var allPrimaryFilter = PrimaryFilterViewModel(id: "",
+                                                                      imageURL: "",
+                                                                      secondaryFilters: secondary,
+                                                                      attribute:primaryFilterValue,
+                                                                      secondaryAttribute: secondaryFilterValue)
+                        var foundAllPrimary = false
                         
-                        if !primaryAttribute.isEmpty {
+                        if !options.isEmpty {
+                            for option in options {
+                                var secondary : [String] = []
+                                let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
+                                
+                                for secondaryItem in secondaryJSON {
+                                    secondary.append(secondaryItem.stringValue)
+                                }
+                                
+                        
+                                debugPrint("Secondary Filters ", secondary)
+                                debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
+                                var image = ""
+                                let primaryValue = option["primary_filter_value"].stringValue
+                                
+                                if !option["primary_filter_image"].isEmpty {
+                                    do {
+                                        image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
+                                    }catch{
+                                        print("Could not create image for option \(option)", error.localizedDescription)
+                                    }
+                                }
+                                
+                                debugPrint("filter image: ", image)
+                                    
+                                let filter = PrimaryFilterViewModel(id: primaryValue,
+                                                                    imageURL: image,
+                                                                    secondaryFilters: secondary,
+                                                                    attribute:primaryFilterValue,
+                                                                    secondaryAttribute: option["secondary_filter_attribute"].stringValue)
+                                    
+                                newPrimaryFilters.append(filter)
+                            }
+                        }else if !primaryAttribute.isEmpty {
                             debugPrint("Found primary attribute ",primaryAttribute)
                             var tags = primaryAttribute["tags"].arrayValue
-                            let options = filterResult["filter_options"].arrayValue
+
+                            
+                            debugPrint("tags: ", tags)
+                            debugPrint("options: ", options)
                             
                             if !tags.isEmpty {
-                                var newPrimaryFilters : [PrimaryFilterViewModel] = []
-                                //tags.insert("", at:0)
-                                let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
-                                var allPrimaryFilter = PrimaryFilterViewModel(id: "",
-                                                                              imageURL: "",
-                                                                              secondaryFilters: secondary,
-                                                                              attribute:primaryFilterValue,
-                                                                              secondaryAttribute: secondaryFilterValue)
-                                var foundAllPrimary = false
                                 for tag in tags {
                                     debugPrint("searching tag ", tag)
                                     var foundOptions = false
@@ -378,6 +415,8 @@ struct SearchView: View {
                                                     print("Could not create image for option \(option)", error.localizedDescription)
                                                 }
                                             }
+                                            
+                                            debugPrint("filter image: ", image)
                                             
                                             let filter = PrimaryFilterViewModel(id: tag.stringValue,
                                                                                 imageURL: image,
@@ -412,15 +451,11 @@ struct SearchView: View {
                                 
                                 if foundAllPrimary {
                                     newPrimaryFilters.insert(allPrimaryFilter, at:0)
-                                    //currentPrimaryFilter = allPrimaryFilter
-                                }/*else {
-                                    currentPrimaryFilter = newPrimaryFilters.first
-                                }*/
-                                self.primaryFilters = newPrimaryFilters
+                                }
+
                             }
-                        
-                            
                         }
+                        self.primaryFilters = newPrimaryFilters
                         
                         debugPrint("Searching ALL ", propertyId)
                         self.sections = try await eluvio.fabric.searchProperty(property: propertyId)
