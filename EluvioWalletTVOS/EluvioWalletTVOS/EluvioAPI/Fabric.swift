@@ -1370,6 +1370,7 @@ class Fabric: ObservableObject {
             if let section = self.mediaPropertiesSectionCache[id] {
                 retValue.append(section)
             }else {
+                debugPrint("Couldn't find id ", id)
                 try await cachePropertySections(property: property, sections: [id])
                 if let section = self.mediaPropertiesSectionCache[id] {
                     retValue.append(section)
@@ -1452,12 +1453,12 @@ class Fabric: ObservableObject {
     }
     
     func cachePropertySections(property: String, sections: [String]) async throws{
+        debugPrint("cachePropertySections property \(property) ", sections)
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
 
         let result = try await signer.getPropertySections(property: property, sections: sections, accessCode: self.fabricToken)
-        
         
         await MainActor.run {
             for section in result.contents {
