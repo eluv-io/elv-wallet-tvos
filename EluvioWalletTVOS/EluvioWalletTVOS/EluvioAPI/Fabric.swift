@@ -2574,6 +2574,14 @@ class Fabric: ObservableObject {
                                     }else{
                                         result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
                                     }
+                                    
+                                    if !result.authorized {
+                                        if let perm = mediaItem.permissions {
+                                            for pid in perm.arrayValue {
+                                                result.permissionItemIds.append(pid["permission_item_id"].stringValue)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -2598,6 +2606,14 @@ class Fabric: ObservableObject {
             
             if isSearch && !result.authorized{
                 result.behavior = searchBehavior
+            }
+            
+            if !result.authorized {
+                if let perm = mediaItem.permissions {
+                    for pid in perm.arrayValue {
+                        result.permissionItemIds.append(pid["permission_item_id"].stringValue)
+                    }
+                }
             }
         }
         

@@ -319,7 +319,7 @@ struct SectionMediaItemView: View {
             Button(action: {
                 Task {
                     debugPrint("Media Item pressed: ", item.type)
-                    debugPrint("Section Item ", sectionItem)
+                    
                     
                     do {
                         guard let property = try await eluvio.fabric.getProperty(property: propertyId, noCache: true) else {
@@ -333,7 +333,10 @@ struct SectionMediaItemView: View {
                         if let permission = item.resolvedPermission {
                             if !permission.authorized  || item.type == "item_purchase"{
                                 if permission.purchaseGate || item.type == "item_purchase" {
-                                    let url = try eluvio.fabric.createWalletPurchaseUrl(id:item.id ?? "", propertyId: propertyId, pageId: "", sectionItemId: sectionItem?.id ?? "", permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
+                                    
+                                    debugPrint("permission ids ", permission.permissionItemIds)
+                                    
+                                    let url = try eluvio.fabric.createWalletPurchaseUrl(id:item.id ?? "", propertyId: propertyId, pageId: "", sectionItemId: item.id ?? "", permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
                                     debugPrint("Purchase! ", url)
                                     
                                     var backgroundImage = ""
