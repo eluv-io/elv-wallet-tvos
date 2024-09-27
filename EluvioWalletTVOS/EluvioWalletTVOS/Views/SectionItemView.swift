@@ -319,6 +319,7 @@ struct SectionMediaItemView: View {
             Button(action: {
                 Task {
                     debugPrint("Media Item pressed: ", item.type)
+                    debugPrint("Section Item ", sectionItem)
                     
                     do {
                         guard let property = try await eluvio.fabric.getProperty(property: propertyId, noCache: true) else {
@@ -345,8 +346,8 @@ struct SectionMediaItemView: View {
                                                                 backgroundImage: backgroundImage,
                                                                 propertyId : propertyId,
                                                                 pageId : permission.alternatePageId,
-                                                                sectionId : sectionItem?.id ?? "",
-                                                                sectionItem: sectionItem )
+                                                                sectionItem: sectionItem,
+                                                                mediaItem: item)
                                     _ = eluvio.pathState.path.popLast()
                                     eluvio.pathState.path.append(.purchaseQRView(params))
                                     
@@ -703,7 +704,7 @@ struct SectionItemView: View {
                                                 if !list.isEmpty {
                                                     await MainActor.run {
                                                         _ = eluvio.pathState.path.popLast()
-                                                        let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list)
+                                                        let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list, sectionItem: item)
                                                         eluvio.pathState.path.append(.mediaGrid(params))
                                                         debugPrint("launching mediaGrid")
                                                         return
@@ -715,7 +716,7 @@ struct SectionItemView: View {
                                                 if !list.isEmpty {
                                                     await MainActor.run {
                                                         _ = eluvio.pathState.path.popLast()
-                                                        let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list)
+                                                        let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list, sectionItem: item)
                                                         eluvio.pathState.path.append(.mediaGrid(params))
                                                         debugPrint("launching mediaGrid")
                                                         return
@@ -831,6 +832,7 @@ struct SectionItemView: View {
         .disabled(disable)
         .onAppear(){
             viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
+            debugPrint("SectionItemView thumbnail ", viewItem?.thumbnail)
             Task{
                 do {
                     if self.permission == nil {

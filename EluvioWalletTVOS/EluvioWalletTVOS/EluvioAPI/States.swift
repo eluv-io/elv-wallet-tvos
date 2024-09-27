@@ -22,6 +22,7 @@ struct MediaGridParams : Hashable {
     var propertyId : String? = nil
     var pageId : String = "main"
     var list : [String] = []
+    var sectionItem: MediaPropertySectionItem? = nil
 }
 
 struct PropertyParam : Hashable {

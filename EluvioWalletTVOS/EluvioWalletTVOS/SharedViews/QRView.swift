@@ -59,7 +59,9 @@ struct PurchaseQRView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     var url: String
     var backgroundImage: String = ""
+    var thumbnailImage: String = ""
     var sectionItem: MediaPropertySectionItem?
+    var mediaItem: MediaPropertySectionMediaItem?
     var sectionId : String = ""
     var pageId : String = ""
     var propertyId: String = ""
@@ -83,7 +85,12 @@ struct PurchaseQRView: View {
                     .frame(width:1000)
                 
                 HStack{
-                    if let item = sectionItem{
+                    if let mediaItem = mediaItem {
+                        VStack{
+                            SectionMediaItemView(item:mediaItem, propertyId: propertyId)
+                                .disabled(true)
+                        }
+                    }else if let item = sectionItem{
                         VStack{
                             SectionItemView(item:item, sectionId:sectionId, pageId:pageId, propertyId: propertyId)
                                 .disabled(true)

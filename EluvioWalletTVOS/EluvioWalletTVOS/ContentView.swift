@@ -295,8 +295,12 @@ struct ContentView: View {
                     QRView(url: params.url, backgroundImage:params.backgroundImage)
                         .environmentObject(self.eluvio)
                 case let .purchaseQRView(params):
-                    PurchaseQRView(url: params.url, backgroundImage:params.backgroundImage, sectionItem:params.sectionItem,
-                                   sectionId:params.sectionId, pageId:params.pageId, propertyId:params.propertyId
+                    PurchaseQRView(url: params.url, 
+                                   backgroundImage:params.backgroundImage,                      sectionItem:params.sectionItem,
+                                   mediaItem: params.mediaItem,
+                                   sectionId:params.sectionId, 
+                                   pageId:params.pageId,
+                                   propertyId:params.propertyId
                     )
                     .environmentObject(self.eluvio)
                 case .video:
@@ -321,7 +325,7 @@ struct ContentView: View {
                     }
                 case let .mediaGrid(params):
                     if !params.list.isEmpty {
-                        SectionItemListView(propertyId: params.propertyId ?? "", list:params.list)
+                        SectionItemListView(propertyId: params.propertyId ?? "", item: params.sectionItem, list:params.list)
                             .environmentObject(self.eluvio)
                     }else if let item = eluvio.pathState.mediaItem {
                         if !eluvio.pathState.propertyId.isEmpty {
