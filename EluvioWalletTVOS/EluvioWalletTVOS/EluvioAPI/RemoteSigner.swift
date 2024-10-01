@@ -500,6 +500,60 @@ class RemoteSigner {
             }
         })
     }
+    
+    func getPropertyPermissions(propertyId: String, accessCode: String) async throws -> JSON {
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(propertyId)/permissions")
+                
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
+
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+
+                guard let url =  URL(string:endpoint) else {
+                    throw FabricError.invalidURL("getPropertyFilters - could not create url from \(endpoint)")
+                }
+                var request = URLRequest(url: url)
+                request.httpMethod = "GET"
+                request.headers = headers
+                
+                AF.request(request)
+                    .debugLog()
+                    .responseJSON() { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: respJSON)
+                                }
+
+                         case .failure(let error):
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
 
     func getPropertySections(property: String, sections : [String] = [], accessCode: String) async throws -> MediaPropertySectionsResponse{
 

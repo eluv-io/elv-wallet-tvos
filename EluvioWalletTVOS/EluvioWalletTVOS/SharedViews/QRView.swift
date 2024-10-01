@@ -65,7 +65,8 @@ struct PurchaseQRView: View {
     var sectionId : String = ""
     var pageId : String = ""
     var propertyId: String = ""
-    
+    @State var timer = Timer.publish(every: 1, on: .main, in: .common)
+    @State var isChecking = false
     @State var title: String = "Sign In On Browser to Purchase"
     
     var body: some View {
@@ -112,6 +113,27 @@ struct PurchaseQRView: View {
         .background(.thinMaterial)
         .onAppear(){
             debugPrint("Purchase URL \(url)")
+        }
+        .onReceive(timer) { _ in
+            checkPurchase()
+        }
+    }
+    
+    func checkPurchase(){
+        Task {
+            if self.isChecking {
+                return
+            }
+            
+            self.isChecking = true
+            do {
+                let result = try await eluvio.fabric.getPropertyPermissions(propertyId:propertyId)
+                
+                debugPrint("checkPurchase ", result)
+                
+            }catch{
+                print("Check purchase error ", error)
+            }
         }
     }
 }

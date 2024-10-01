@@ -835,13 +835,13 @@ struct SectionItemView: View {
         .disabled(disable)
         .onAppear(){
             viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
-            debugPrint("SectionItemView thumbnail ", viewItem?.thumbnail)
+            //debugPrint("SectionItemView thumbnail ", viewItem?.thumbnail)
             Task{
                 do {
                     if self.permission == nil {
                         if let sectionItemId = item.id {
                             self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
-                            //debugPrint("Permissions for \(item.label) :\n", permission)
+                            debugPrint("Permissions for \(item.label) :\n", permission)
                         }
                     }
                 }catch{}

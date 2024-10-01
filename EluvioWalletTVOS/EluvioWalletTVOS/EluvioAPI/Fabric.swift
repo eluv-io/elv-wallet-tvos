@@ -1268,7 +1268,7 @@ class Fabric: ObservableObject {
         return try await parseNfts(profileData["contents"].arrayValue, propertyId:propertyId)
     }
     
-    func getProperties(includePublic: Bool, noCache:Bool = true) async throws -> [MediaProperty] {
+    func getProperties(includePublic: Bool, noCache:Bool = true, noAuth:Bool = true) async throws -> [MediaProperty] {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
@@ -1277,10 +1277,11 @@ class Fabric: ObservableObject {
             return self.mediaProperties.contents
         }
         
-        let response = try await signer.getProperties(includePublic:includePublic, accessCode: self.fabricToken)
+        let response = try await signer.getProperties(includePublic:includePublic, accessCode: noAuth ? "" : self.fabricToken)
         resetWalletData()
-        
-        try cacheMediaProperties(properties: response)
+        Task{
+            try cacheMediaProperties(properties: response)
+        }
         return response.contents
     }
     
@@ -1528,6 +1529,15 @@ class Fabric: ObservableObject {
         let result = try await signer.getPropertyFilters(property: property, primaryFilter: primaryFilter, accessCode: self.fabricToken)
         
         return result
+    }
+    
+    func getPropertyPermissions(propertyId: String) async throws -> JSON {
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+
+        return try await signer.getPropertyPermissions(propertyId: propertyId, accessCode: self.fabricToken)
     }
     
     //exchanges id token for cluster token
@@ -2397,13 +2407,14 @@ class Fabric: ObservableObject {
                                     isSearch:Bool = false
     ) async throws -> ResolvedPermission {
 
+        debugPrint("resolveContentPermission")
         var result = ResolvedPermission()
         
         let mediaProperty = try await getProperty(property: propertyId)
         
         let authState = mediaProperty?.permission_auth_state ?? JSON()
         
-        debugPrint("Property Permissions ", mediaProperty?.permissions)
+        //debugPrint("Property Permissions ", mediaProperty?.permissions)
         
         var searchBehavior : PermisionBehavior = .Hide
         do {
@@ -2440,7 +2451,7 @@ class Fabric: ObservableObject {
         
         if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
             
-            debugPrint("Page Permissions ", page.permissions)
+            //debugPrint("Page Permissions ", page.permissions)
             //result.authorized = isAuthorized(permission: page.permissions, authState: authState)
             
             if let _behavior = page.permissions?["behavior"] {
@@ -2478,7 +2489,7 @@ class Fabric: ObservableObject {
                 if let _behavior = section.permissions?["behavior"] {
                     do{
                         result.behavior = try getBehavior(json:_behavior)
-                        debugPrint("Section behavior ", result.behavior)
+                        //debugPrint("Section behavior ", result.behavior)
                         
                     }catch{}
 
@@ -2486,14 +2497,14 @@ class Fabric: ObservableObject {
                     if let altPageId = section.permissions?["alternate_page_id"] {
                         if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
                             result.alternatePageId = altPageId.stringValue
-                            debugPrint("Found alternatePageId ", result.alternatePageId)
+                            //debugPrint("Found alternatePageId ", result.alternatePageId)
                         }
                     }
                     
                     if let secondaryPurchaseOption = section.permissions?["secondary_market_purchase_option"] {
                         if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty{
                             result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                            debugPrint("Found secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                            //debugPrint("Found secondaryPurchaseOption ", result.secondaryPurchaseOption)
                         }
                     }
                     
@@ -2512,7 +2523,7 @@ class Fabric: ObservableObject {
                     
 
                     if result.authorized && !sectionItemId.isEmpty {
-                        debugPrint("Finding sectionID ", sectionItemId)
+                        //debugPrint("Finding sectionID ", sectionItemId)
                         
                         if let content = section.content {
                             for section in content {
@@ -2522,7 +2533,7 @@ class Fabric: ObservableObject {
                             }
                         }
                         if let sectionItem = section.content?.first(where: {$0.id == sectionItemId}) {
-                            debugPrint("Found sectionItem  permissions", sectionItem.permissions)
+                            //debugPrint("Found sectionItem  permissions", sectionItem.permissions)
                             
                             if let _behavior = sectionItem.permissions?["behavior"] {
                                 do{
@@ -2546,10 +2557,10 @@ class Fabric: ObservableObject {
                             }
                             
                             result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
-                            debugPrint("Section Item Authorized? ", result.authorized)
+                            //debugPrint("Section Item Authorized? ", result.authorized)
 
                             if !result.authorized {
-                                debugPrint("Not Authorized! Section Item ", sectionItem.permissions)
+                                //debugPrint("Not Authorized! Section Item ", sectionItem.permissions)
                                 result.cause = "Section item permissions"
                                 if let permissionItemsArr = sectionItem.permissions?["permission_item_ids"] {
                                     result.permissionItemIds = []
@@ -2561,9 +2572,9 @@ class Fabric: ObservableObject {
                             
                             if result.authorized {
                                 if let mediaItem = sectionItem.media {
-                                    debugPrint("checking mediaItem")
+                                    //debugPrint("checking mediaItem")
                                     // result.authorized = isMediaAuthorized(permission:mediaItem.permissions, authState:authState)
-                                     debugPrint("Media Item permissions", mediaItem.permissions)
+                                     //debugPrint("Media Item permissions", mediaItem.permissions)
                                     
                                     if let publicField = mediaItem.public {
                                         debugPrint("media public field ", publicField)
@@ -2592,10 +2603,10 @@ class Fabric: ObservableObject {
         }
         
         if let mediaItem = getMediaItem(mediaId: mediaItemId) {
-            debugPrint("Media Item Id giving, permissions", mediaItem.permissions)
+            //debugPrint("Media Item Id giving, permissions", mediaItem.permissions)
            
             if let publicField = mediaItem.public {
-               debugPrint("media public field ", publicField)
+               //debugPrint("media public field ", publicField)
                if (publicField){
                    result.authorized = true
                }else{

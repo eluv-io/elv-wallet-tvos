@@ -86,7 +86,7 @@ struct MediaPropertyRegularSectionView: View {
             return 410
         }
         
-        return 300
+        return 380
     }
     
     var hAlignment: HorizontalAlignment {
@@ -160,7 +160,7 @@ struct MediaPropertyRegularSectionView: View {
                 
                 if let content = section.content {
                     if alignment == .center && content.count < 5 {
-                        HStack(alignment: .center, spacing: 20) {
+                        LazyHStack(alignment: .center, spacing: 20) {
                             ForEach(content) {item in
                                 SectionItemView(item: item,
                                                 sectionId: section.id,
@@ -172,7 +172,7 @@ struct MediaPropertyRegularSectionView: View {
                         }
                     }else{
                         ScrollView(.horizontal) {
-                            HStack(alignment: .center, spacing: 34) {
+                            LazyHStack(alignment: .center, spacing: 34) {
                                 ForEach(content) {item in
                                     SectionItemView(item: item,
                                                     sectionId: section.id,
@@ -673,7 +673,7 @@ struct MediaPropertySectionView: View {
                             let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections)
                             await MainActor.run {
                                 self.subsections = result
-                                debugPrint("finished getting sub sections. ", subsections)
+                                debugPrint("finished getting sub sections. ")
                             }
                         }
                     }
@@ -848,6 +848,7 @@ struct MediaPropertyDetailView: View {
                     }
 
 
+                    
                     var backgroundImageString : String = ""
                     //Finding the hero video to play
                     if !sections.isEmpty{

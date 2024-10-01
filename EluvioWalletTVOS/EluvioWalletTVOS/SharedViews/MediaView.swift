@@ -581,11 +581,10 @@ struct MediaCard: View {
                     if (image.hasPrefix("http")){
                         WebImage(url: URL(string: image))
                             .resizable()
-                            .indicator(.activity) // Activity Indicator
-                            .transition(.fade(duration: 0.5))
                             .aspectRatio(contentMode: .fill)
                             .frame( width: width, height: height)
                             .cornerRadius(cornerRadius)
+                            .clipped()
                     }else if (image != ""){
                         Image(image)
                             .resizable()
