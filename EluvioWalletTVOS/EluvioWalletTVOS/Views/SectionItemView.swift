@@ -818,7 +818,8 @@ struct SectionItemView: View {
                                               isLive: mediaItem.currentlyLive, centerFocusedText: false,
                                               showFocusedTitle: mediaItem.title.isEmpty ? false : true,
                                               showBottomTitle: true,
-                                              sizeFactor: scaleFactor
+                                              sizeFactor: scaleFactor,
+                                              permission: permission
                                     )
                                 }
                             }

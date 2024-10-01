@@ -569,6 +569,7 @@ struct MediaCard: View {
     @State var cornerRadius: CGFloat = 3
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = true
+    var permission : ResolvedPermission? = nil
     
     var body: some View {
         VStack(alignment:.leading) {
@@ -625,9 +626,23 @@ struct MediaCard: View {
                 
                 if (isFocused){
                     VStack(alignment: .leading, spacing: 7) {
+
                         if ( !centerFocusedText){
                             Spacer()
                         }
+                        
+                        if let perm = permission {
+                            if perm.showAlternatePage || perm.purchaseGate {
+                                Text("View Purchase Options")
+                                .font(.system(size: 32))
+                                .foregroundColor(Color.white)
+                                .lineLimit(1)
+                                .bold()
+                                .frame(maxWidth:.infinity, alignment:.center)
+                            Spacer()
+                            }
+                        }
+                        
                         if showFocusedTitle {
                             Text(timeString)
                                 .font(.system(size: 15))
