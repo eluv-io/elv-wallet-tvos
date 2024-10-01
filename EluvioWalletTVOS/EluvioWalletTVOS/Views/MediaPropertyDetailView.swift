@@ -348,7 +348,7 @@ struct MediaPropertySectionBannerView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     var propertyId: String
     var pageId: String
-    var section: MediaPropertySection
+    @State var section: MediaPropertySection
     var items: [MediaPropertySectionItem] {
         section.content ?? []
     }
@@ -427,7 +427,7 @@ struct MediaPropertySectionView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     var propertyId: String
     var pageId: String
-    var section: MediaPropertySection
+    @State var section: MediaPropertySection
     var margin: CGFloat = 100
 
     var items: [MediaPropertySectionItem] {
@@ -646,17 +646,23 @@ struct MediaPropertySectionView: View {
                 }catch{}
             }
             
+            self.permission = section.resolvedPermission
+            
             Task{
                 do {
-                    if self.permission == nil {
+                    
+                    if section.resolvedPermission == nil {
                         self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
+                        section.resolvedPermission = self.permission
                     }
                 }catch{}
-                
+            }
+            
+            Task{
                 do {
                 
                     var sections : [String] = []
-                    if let sects = section.sections {
+                    if let sects = section.sections{
                         for sub in sects{
                             sections.append(sub)
                         }

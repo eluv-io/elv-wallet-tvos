@@ -89,6 +89,7 @@ struct MediaPropertySection: Codable, Identifiable {
     var type : String?
     var hero_items: JSON?
     var sections: [String]?
+    var resolvedPermission : ResolvedPermission? = nil
     
     var displayLimit: Int {
         display?["display_limit"].intValue ?? 0

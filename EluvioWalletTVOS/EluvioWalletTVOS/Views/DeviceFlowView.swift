@@ -250,6 +250,8 @@ struct DeviceFlowView: View {
                                         return
                                     }
                                     
+                                    eluvio.pathState.path.append(.progress)
+                                    
                                     //We do not get the refresh token with device sign in for some reason
                                     let refreshToken: String = json["refresh_token"] as? String ?? ""
                                     let accessToken: String = json["access_token"] as? String ?? ""
@@ -267,6 +269,7 @@ struct DeviceFlowView: View {
                                     account.signInResponse = signInResponse
                                     account.login = login
                                     try await eluvio.signIn(account:account, property: property?.id ?? "")
+                                    try await eluvio.fabric.getProperties(includePublic: true, noCache: true)
                                     newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")
@@ -274,7 +277,7 @@ struct DeviceFlowView: View {
                                 
                                 await MainActor.run {
                                     debugPrint("Sign in finished.")
-                                    let last = eluvio.pathState.path.popLast()
+                                    eluvio.pathState.path.removeAll()
                                     debugPrint("current Account ", eluvio.accountManager.currentAccount?.getAccountAddress() ?? "")
                                     
                                     let params = PropertyParam(property:newProperty)

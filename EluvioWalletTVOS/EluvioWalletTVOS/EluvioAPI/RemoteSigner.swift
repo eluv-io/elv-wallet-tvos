@@ -508,9 +508,9 @@ class RemoteSigner {
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
-                endpoint = endpoint.appending("/mw/properties/\(property)/sections")
+                endpoint = endpoint.appending("/mw/properties/\(property)/sections?resolve_subsections=true")
                 if (environment != .prod){
-                    endpoint = endpoint.appending("?env=\(environment)")
+                    endpoint = endpoint.appending("&env=\(environment)")
                 }
                                                                     
                 print("getPropertySection Request: \(endpoint)")
@@ -616,9 +616,9 @@ class RemoteSigner {
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
-                endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)/sections")
+                endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)/sections?resolve_subsections=true")
                 if (environment != .prod){
-                    endpoint = endpoint.appending("?env=\(environment)")
+                    endpoint = endpoint.appending("&env=\(environment)")
                 }
                                                                     
                 let headers: HTTPHeaders = [

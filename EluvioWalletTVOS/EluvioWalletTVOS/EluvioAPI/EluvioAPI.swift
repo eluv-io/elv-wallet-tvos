@@ -77,12 +77,10 @@ class EluvioAPI : ObservableObject {
         }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
             self.pathState.path = []
             self.signOut()
-            self.pathState.path.append(.errorView("Your session has expired."))
             return
         }else if errors[0]["reason"].stringValue.contains("token expired"){
             self.pathState.path = []
             self.signOut()
-            self.pathState.path.append(.errorView("Your session has expired."))
             return
         }else {
             print("Couldn't parse errors")

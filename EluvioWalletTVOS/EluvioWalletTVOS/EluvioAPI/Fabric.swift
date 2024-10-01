@@ -1273,7 +1273,7 @@ class Fabric: ObservableObject {
             throw FabricError.configError("Signer not initialized.")
         }
         
-        if !noCache {
+        if !noCache{
             return self.mediaProperties.contents
         }
         
@@ -1461,9 +1461,9 @@ class Fabric: ObservableObject {
         let result = try await signer.getPropertySections(property: property, sections: sections, accessCode: self.fabricToken)
         
         await MainActor.run {
-            for section in result.contents {
+            for var section in result.contents {
                 self.mediaPropertiesSectionCache[section.id] = section
-                if let sectionContents = section.content {
+               /* if let sectionContents = section.content {
                     for item in sectionContents {
                         if let media = item.media {
                             //debugPrint("Adding media item to cache", media.id)
@@ -1472,7 +1472,7 @@ class Fabric: ObservableObject {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
     }
@@ -1615,11 +1615,11 @@ class Fabric: ObservableObject {
     func resetWalletData(){
         self.library = MediaLibrary()
         self.properties = []
-        self.mediaProperties = MediaPropertiesResponse()
-        self.mediaPropertiesCache = [:]
-        self.mediaPropertiesMediaItemCache = [:]
-        self.mediaPropertiesSectionCache = [:]
-        self.mediaPropertiesPageCache = [:]
+        //self.mediaProperties = MediaPropertiesResponse()
+        //self.mediaPropertiesCache = [:]
+        //self.mediaPropertiesMediaItemCache = [:]
+        //self.mediaPropertiesSectionCache = [:]
+        //self.mediaPropertiesPageCache = [:]
     }
     
     func reset(){

@@ -246,13 +246,16 @@ struct OryDeviceFlowView: View {
                 //signInResponse.idToken = token
                 let login = LoginResponse(type: type, addr:addr, eth:eth, token: token)
                 debugPrint("Ory signing in ")
+                eluvio.pathState.path.append(.progress)
 
                 let account = Account()
                 account.type = .Ory
                 account.fabricToken = token
                 account.login = login
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
-                //newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
+                try await eluvio.fabric.getProperties(includePublic: true, noCache: true)
+                
+                newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
                 debugPrint("Ory Signing in done!")
             }catch {
                 print("could not sign in: \(error.localizedDescription)")
@@ -260,9 +263,9 @@ struct OryDeviceFlowView: View {
             
             await MainActor.run {
                 debugPrint("Sign in finished.")
-                let last = eluvio.pathState.path.popLast()
+                eluvio.pathState.path.removeAll()
                 debugPrint("Popped the path state.")
-                let params = PropertyParam(property:property, pageId: "main")
+                let params = PropertyParam(property:newProperty)
                 eluvio.pathState.path.append(.property(params))
                 self.isChecking = false
             }
