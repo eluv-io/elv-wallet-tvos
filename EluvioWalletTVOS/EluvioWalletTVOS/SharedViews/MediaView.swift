@@ -632,15 +632,15 @@ struct MediaCard: View {
                         }
                         
                         if let perm = permission {
-                            if perm.showAlternatePage || perm.purchaseGate {
+                            //if perm.showAlternatePage || perm.purchaseGate {
                                 Text("View Purchase Options")
-                                .font(.system(size: 32))
+                                    .font(.system(size: display == MediaDisplay.square ? 24 : 30))
                                 .foregroundColor(Color.white)
-                                .lineLimit(1)
+                                .lineLimit(display == MediaDisplay.square ? 2 : 1)
                                 .bold()
-                                .frame(maxWidth:.infinity, alignment:.center)
+                                .frame(maxWidth:.infinity, alignment:.leading)
                             Spacer()
-                            }
+                            //}
                         }
                         
                         if showFocusedTitle {

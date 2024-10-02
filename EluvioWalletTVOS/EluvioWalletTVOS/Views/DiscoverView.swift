@@ -24,6 +24,8 @@ struct DiscoverView: View {
     
     @State private var selected: MediaPropertyViewModel = MediaPropertyViewModel()
     @State private var position: Int?
+    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    @State var isRefreshing = false
     
     var body: some View {
         ScrollView() {
@@ -80,39 +82,9 @@ struct DiscoverView: View {
         )
         .scrollClipDisabled()
         .onAppear(){
-            Task{
-                do {
-                    debugPrint("DiscoverView onAppear")
-                    try await self.eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
-   
-                    let props = try await eluvio.fabric.getProperties(includePublic: true, noCache:true, noAuth:true)
-                    
-                    var properties: [MediaPropertyViewModel] = []
-                    
-                    for property in props{
-                        //debugPrint("PROPERTY: \(property.title)")
-                        
-                        let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                        //debugPrint("\(mediaProperty.title) ---> created")
-                        if mediaProperty.image.isEmpty {
-                            
-                        }else{
-                            //debugPrint("image: \(mediaProperty.image)")
-                            properties.append(mediaProperty)
-                        }
-                    }
-                    
-                    await MainActor.run {
-                        self.properties = properties
-                    }
-                }catch(FabricError.apiError(let code, let response, let error)){
-                    eluvio.handleApiError(code: code, response: response, error: error)
-                }catch {
-                    //eluvio.pathState.path.append(.errorView("A problem occured."))
-                }
-            }
-            
 
+            refresh()
+            
             self.fabricCancellable2 = eluvio.accountManager.$currentAccount
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
@@ -120,6 +92,56 @@ struct DiscoverView: View {
                         properties = []
                     }
                 }
+        }
+        .onReceive(timer) { time in
+            if properties.isEmpty {
+                refresh()
+            }
+        }
+    }
+    
+    func refresh() {
+        if isRefreshing{
+            return
+        }
+        
+        isRefreshing = true
+            
+        debugPrint("DiscoverView refresh()")
+        Task{
+            do {
+                debugPrint("DiscoverView onAppear")
+                try await self.eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
+
+                let props = try await eluvio.fabric.getProperties(includePublic: true, noCache:true, noAuth:true)
+                
+                var properties: [MediaPropertyViewModel] = []
+                
+                for property in props{
+                    //debugPrint("PROPERTY: \(property.title)")
+                    
+                    let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
+                    //debugPrint("\(mediaProperty.title) ---> created")
+                    if mediaProperty.image.isEmpty {
+                        
+                    }else{
+                        //debugPrint("image: \(mediaProperty.image)")
+                        properties.append(mediaProperty)
+                    }
+                }
+                
+                await MainActor.run {
+                    //self.properties = properties
+                }
+            }catch(FabricError.apiError(let code, let response, let error)){
+                eluvio.handleApiError(code: code, response: response, error: error)
+            }catch {
+                eluvio.pathState.path.append(.errorView("A problem occured."))
+            }
+            
+            await MainActor.run {
+                self.isRefreshing = false
+            }
         }
     }
 }
