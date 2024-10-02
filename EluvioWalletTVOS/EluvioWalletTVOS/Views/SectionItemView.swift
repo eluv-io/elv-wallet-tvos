@@ -485,6 +485,8 @@ struct SectionItemView: View {
     @State var permission : ResolvedPermission? = nil
     
     var scaleFactor = 1.0
+    @State private var refreshId = UUID().uuidString
+    
     var hide : Bool {
         if let permission = self.permission {
             return !permission.authorized && permission.hide
@@ -835,6 +837,7 @@ struct SectionItemView: View {
                                               sizeFactor: scaleFactor,
                                               permission: permission
                                     )
+                                    .id(refreshId)
                                 }
                             }
                             .buttonStyle(TitleButtonStyle(focused: isFocused))
@@ -850,18 +853,6 @@ struct SectionItemView: View {
         .disabled(disable)
         .onAppear(){
             viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
-            debugPrint("SectionItemView label ", viewItem?.label)
-            debugPrint("SectionItemView thumbnail ", viewItem?.thumbnail)
-            if let title = item.media?.title {
-                if title.contains("The Fellowship of the Ring"){
-                    debugPrint("SectionItemView ", item.media?.title)
-                    debugPrint("SectionItemView viewItem", viewItem?.title)
-                }
-                
-                if title.isEmpty {
-                    debugPrint("title is empty: ", item)
-                }
-            }
             Task{
                 do {
                     if self.item.resolvedPermission == nil {
@@ -873,6 +864,7 @@ struct SectionItemView: View {
                         self.permission = self.item.resolvedPermission
                     }
                 }catch{}
+                self.refreshId = UUID().uuidString
             }
         }
         

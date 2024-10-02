@@ -2433,9 +2433,9 @@ class Fabric: ObservableObject {
                 }
                 
                 if let secondaryPurchaseOption = mediaProperty?.permissions?["secondary_market_purchase_option"] {
-                    if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty{
+                    if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                         result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                        debugPrint("Found secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                        debugPrint("Found Property secondaryPurchaseOption ", result.secondaryPurchaseOption)
                     }
                 }
             }catch{}
@@ -2450,8 +2450,7 @@ class Fabric: ObservableObject {
         if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
             
             debugPrint("Page Permissions ", page.permissions)
-            //result.authorized = isAuthorized(permission: page.permissions, authState: authState)
-            
+
             if let _behavior = page.permissions?["behavior"] {
                 do{
                     result.behavior = try getBehavior(json:_behavior)
@@ -2464,9 +2463,9 @@ class Fabric: ObservableObject {
                     
                     
                     if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
-                        if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty{
+                        if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                             result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                            debugPrint("Found secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                            debugPrint("Found Page secondaryPurchaseOption ", result.secondaryPurchaseOption)
                         }
                     }
                 }catch{}
@@ -2487,7 +2486,6 @@ class Fabric: ObservableObject {
                 if let _behavior = section.permissions?["behavior"] {
                     do{
                         result.behavior = try getBehavior(json:_behavior)
-                        //debugPrint("Section behavior ", result.behavior)
                         
                     }catch{}
 
@@ -2500,9 +2498,9 @@ class Fabric: ObservableObject {
                     }
                     
                     if let secondaryPurchaseOption = section.permissions?["secondary_market_purchase_option"] {
-                        if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty{
+                        if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                             result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                            //debugPrint("Found secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                            debugPrint("Found section secondaryPurchaseOption ", result.secondaryPurchaseOption)
                         }
                     }
                     
@@ -2542,9 +2540,9 @@ class Fabric: ObservableObject {
                                 }
                                 
                                 if let secondaryPurchaseOption = sectionItem.permissions?["secondary_market_purchase_option"] {
-                                    if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty{
+                                    if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                                         result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                                        debugPrint("Found secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                                        debugPrint("Found Section Item secondaryPurchaseOption ", result.secondaryPurchaseOption)
                                     }
                                 }
 

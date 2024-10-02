@@ -282,8 +282,8 @@ struct ContentView: View {
             .navigationDestination(for: NavDestination.self) { destination in
                 switch destination {
                 case let .property(params):
-                    if let property = params.property {
-                        MediaPropertyDetailView(property: property, pageId: params.pageId)
+                    if let propertyId = params.property?.id {
+                        MediaPropertyDetailView(propertyId: propertyId, pageId: params.pageId)
                             .environmentObject(self.eluvio)
                     }else{
                         Text("Could not load property.")
