@@ -131,12 +131,12 @@ struct DiscoverView: View {
                 }
                 
                 await MainActor.run {
-                    //self.properties = properties
+                    self.properties = properties
                 }
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {
-                eluvio.pathState.path.append(.errorView("A problem occured."))
+                //eluvio.pathState.path.append(.errorView("A problem occured."))
             }
             
             await MainActor.run {
