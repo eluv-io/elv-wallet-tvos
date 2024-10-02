@@ -132,6 +132,7 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     var permissions : JSON?
     var page_id : String?
     var url : String?
+    var resolvedPermission : ResolvedPermission? = nil
     
     func getBannerUrl(fabric: Fabric) -> String {
         let image = banner_image

@@ -227,13 +227,13 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
     }
 
     static func create(item: MediaPropertySectionItem, fabric: Fabric) -> MediaPropertySectionMediaItemViewModel{
-
+        debugPrint("MediaPropertySectionMediaItemViewModel:create()", item.media?.title)
         var mediaFile : JSON?
         var posterImageLink : JSON?
         var thumbnailSquareLink : JSON?
         var thumbnailPortraitLink : JSON?
         var thumbnailLandLink : JSON?
-        
+        var thumb_aspect_ratio = ImageAspectRatio.square
         var title = ""
         var subtitle = ""
         var catalog_title = ""
@@ -245,12 +245,40 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         var live_video = false
         var icons : [JSON]? = nil
         
+        if let display = item.display {
+            if display["thumbnail_image_square"].exists() {
+                thumbnailSquareLink = display["thumbnail_image_square"]
+            }
+            if display["thumbnail_image_portrait"].exists() {
+                thumbnailPortraitLink = display["thumbnail_image_portrait"]
+            }
+            
+            if display["thumbnail_image_landscape"].exists() {
+                thumbnailLandLink = display["thumbnail_image_landscape"]
+            }
+            if !display["title"].stringValue.isEmpty {
+                title = display["title"].stringValue
+            }
+            if !display["subtitle"].stringValue.isEmpty {
+                subtitle = display["subtitle"].stringValue
+            }
+            
+            if let aspectRatio = item.display?["aspect_ratio"].stringValue.lowercased() {
+                if aspectRatio == "landscape" {
+                    thumb_aspect_ratio = .landscape
+                }else if aspectRatio == "portrait" {
+                    thumb_aspect_ratio = .portrait
+                }else if aspectRatio == "square" {
+                    thumb_aspect_ratio = .square
+                }
+            }
+            
+        }
+        
         if let media = item.media {
             mediaFile = media.media_file
             posterImageLink = media.poster_image
-            thumbnailSquareLink = media.thumbnail_image_square
-            thumbnailPortraitLink = media.thumbnail_image_portrait
-            thumbnailLandLink = media.thumbnail_image_landscape
+
             
             catalog_title = media.catalog_title ?? ""
             description = media.description ?? ""
@@ -259,32 +287,20 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
             start_time = media.start_time ?? ""
             live_video = media.live_video ?? false
             media_catalog_id = media.media_catalog_id ?? ""
-            title = media.title ?? ""
-            subtitle = media.subtitle ?? ""
+
             icons = media.icons
-        }
-        
-        if let type = item.type {
-            if let display = item.display {
-                if display["thumbnail_image_square"].exists() {
-                    thumbnailSquareLink = display["thumbnail_image_square"]
-                }
-                if display["thumbnail_image_portrait"].exists() {
-                    thumbnailPortraitLink = display["thumbnail_image_portrait"]
-                }
-                
-                if display["thumbnail_image_landscape"].exists() {
-                    thumbnailLandLink = display["thumbnail_image_landscape"]
-                }
-                if !display["title"].stringValue.isEmpty {
-                    title = display["title"].stringValue
-                }
-                if !display["subtitle"].stringValue.isEmpty {
-                    subtitle = display["subtitle"].stringValue
+            
+            if let mediaSettings = item.use_media_settings {
+                if mediaSettings {
+                    thumbnailSquareLink = media.thumbnail_image_square
+                    thumbnailPortraitLink = media.thumbnail_image_portrait
+                    thumbnailLandLink = media.thumbnail_image_landscape
+                    title = media.title ?? ""
+                    subtitle = media.subtitle ?? ""
                 }
             }
         }
-        
+
         var fileUrl = ""
         do {
             fileUrl = try fabric.getUrlFromLink(link: mediaFile, staticUrl: true)
@@ -311,7 +327,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         }catch{}
         
         var thumbnail = ""
-        var thumb_aspect_ratio = ImageAspectRatio.square
+
         if !thumbnailSquare.isEmpty {
             thumbnail = thumbnailSquare
             thumb_aspect_ratio = .square
@@ -323,23 +339,11 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
             thumb_aspect_ratio = .portrait
         }
         
-        if let aspectRatio = item.display?["aspect_ratio"].stringValue.lowercased() {
-            if aspectRatio == "landscape" {
-                thumb_aspect_ratio = .landscape
-            }else if aspectRatio == "portrait" {
-                thumb_aspect_ratio = .portrait
-            }else if aspectRatio == "square" {
-                thumb_aspect_ratio = .square
-            }
-        }
-        
-            
         var headerString = ""
         if let headers = item.media?.headers {
             headerString = headers.joined(separator: "   ")
         }
         
-
         return MediaPropertySectionMediaItemViewModel (
             id: item.id ?? "",
             media_id : item.media_id ?? "",

@@ -12,6 +12,21 @@ import Alamofire
 import AVKit
 import SwiftyJSON
 
+extension Encodable {
+    /// Converting object to postable JSON
+    func toJSONString(_ encoder: JSONEncoder = JSONEncoder()) -> String {
+        do {
+            let jsonData = try encoder.encode(self)
+            let json = String(data: jsonData, encoding: String.Encoding.utf8)
+            return json ?? ""
+        }catch{
+            return ""
+        }
+
+    }
+}
+
+
 func FormatAddress(address: String) -> String {
     if address.isEmpty {
         return address

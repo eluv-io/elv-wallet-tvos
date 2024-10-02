@@ -524,11 +524,24 @@ struct SectionItemView: View {
         
         return .square
     }
+    
+    var title : String {
+        if let viewItem = viewItem {
+            if viewItem.title.isEmpty {
+                return item.media?.title ?? ""
+            }else{
+                return viewItem.title
+            }
+        }
+        
+       return item.media?.title ?? ""
+    }
 
     var body: some View {
         Group {
             if !hide {
                     VStack(alignment:.leading, spacing:10){
+                        Text(item.media?.title ?? "").hidden().frame(maxHeight:0) // This is needed for some reason single items in a section didn't show
                         if let mediaItem = viewItem {
                             Button(action: {
                                 Task{
@@ -812,7 +825,8 @@ struct SectionItemView: View {
                                 VStack(alignment: .leading, spacing: 10){
                                     MediaCard(display: display,
                                               image: mediaItem.thumbnail,
-                                              isFocused:isFocused, title: mediaItem.title,
+                                              isFocused:isFocused, 
+                                              title: mediaItem.title,
                                               subtitle: mediaItem.subtitle,
                                               timeString: mediaItem.headerString,
                                               isLive: mediaItem.currentlyLive, centerFocusedText: false,
@@ -836,14 +850,27 @@ struct SectionItemView: View {
         .disabled(disable)
         .onAppear(){
             viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
-            //debugPrint("SectionItemView thumbnail ", viewItem?.thumbnail)
+            debugPrint("SectionItemView label ", viewItem?.label)
+            debugPrint("SectionItemView thumbnail ", viewItem?.thumbnail)
+            if let title = item.media?.title {
+                if title.contains("The Fellowship of the Ring"){
+                    debugPrint("SectionItemView ", item.media?.title)
+                    debugPrint("SectionItemView viewItem", viewItem?.title)
+                }
+                
+                if title.isEmpty {
+                    debugPrint("title is empty: ", item)
+                }
+            }
             Task{
                 do {
-                    if self.permission == nil {
+                    if self.item.resolvedPermission == nil {
                         if let sectionItemId = item.id {
                             self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
                             debugPrint("Permissions for \(item.label) :\n", permission)
                         }
+                    }else{
+                        self.permission = self.item.resolvedPermission
                     }
                 }catch{}
             }
@@ -956,6 +983,10 @@ struct SectionItemPurchaseView: View {
      
     var body: some View {
          ItemView(image:thumbnail, title: title, subtitle: subtitle, action:purchase, scale:scaleFactor)
+            .onAppear(){
+                debugPrint("SectionItemPurchaseView onAppear ")
+                debugPrint("title: ", title)
+            }
     }
     
     func purchase() {
