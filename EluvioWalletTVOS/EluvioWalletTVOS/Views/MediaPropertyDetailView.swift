@@ -514,8 +514,9 @@ struct MediaPropertySectionView: View {
             if !hide {
                 if isHero {
                     MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition)
+                        //.padding([.leading,.trailing],margin)
                         .focusable()
-                        .padding([.leading,.trailing],margin)
+
                 }else if isBanner {
                     MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, section:section)
                         .padding([.leading,.trailing],margin)
@@ -697,12 +698,13 @@ struct MediaPropertyDetailView: View {
         .opacity(opacity)
         .scrollClipDisabled()
         .edgesIgnoringSafeArea(.all)
+        .id(self.pageId)
         .background(
             Color.black.edgesIgnoringSafeArea(.all)
         )
         .onReceive(timer) { time in
             debugPrint("MediaPropertyDetailView onReceive Timer")
-            refresh()
+            //refresh()
             
         }
         .onAppear(){
@@ -710,14 +712,12 @@ struct MediaPropertyDetailView: View {
             withAnimation(.easeInOut(duration: 2)) {
               opacity = 1.0
             }
-            
- 
             refresh()
         }
     }
     
     func refresh(){
-        debugPrint("refresh()")
+        debugPrint("MediaPropertyDetailView refresh() ",pageId)
         if self.isRefreshing{
             debugPrint("still refreshing..exiting")
             return
@@ -736,13 +736,13 @@ struct MediaPropertyDetailView: View {
                 self.refreshId = UUID().uuidString
             }
             do {
-                if var mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:true) {
+                if let mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:true) {
                     debugPrint("Fetched new property ", mediaProperty.id)
                     self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
-                    await MainActor.run {
+                    //await MainActor.run {
                         self.property = mediaProperty
                         debugPrint("Property title inside mainactor", mediaProperty.title)
-                    }
+                    //}
                 }else{
                     debugPrint("Could not find property")
                     return
@@ -752,35 +752,44 @@ struct MediaPropertyDetailView: View {
                 return
             }
             
-            var pageId = self.pageId
+            var altPageId = self.pageId
+            //self.pageId = "main"
             do {
                 debugPrint("Property title ", property?.title)
                 debugPrint("Property permissions ", property?.permissions)
                 debugPrint("Property authState ", property?.permission_auth_state)
                 debugPrint("Page permissions ", property?.main_page?.permissions)
                 
-                
-                let pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: propertyId, pageId: pageId)
+                var pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: propertyId, pageId: altPageId)
                 debugPrint("Main Page resolved permissions", pagePerms)
                 
                 if !pagePerms.authorized {
                     if pagePerms.behavior == .showAlternativePage {
-                        //pageId = "ppge2T7uwNNeJt1FEZFDyweQNh" //pagePerms.alternatePageId
-                        pageId = pagePerms.alternatePageId
+                        self.pageId = pagePerms.alternatePageId
+                        debugPrint("Alternate pageId ", pagePerms.alternatePageId)
+                        debugPrint("Setting pageId ", pageId)
+                        altPageId = pagePerms.alternatePageId
+                        
+                        pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: propertyId, pageId: altPageId)
+                        if !pagePerms.authorized {
+                            if pagePerms.behavior == .showAlternativePage {
+                                self.pageId = pagePerms.alternatePageId
+                                altPageId = pagePerms.alternatePageId
+                            }
+                        }
+                        
                     }else if pagePerms.behavior == .showPurchase {
                         //TODO: Waht to show?
                     }
                 }
-                await MainActor.run {
-                    self.pageId = pageId
-                }
+
             }catch{
                 print("Could not resolve permissions for property id \(propertyId)", error.localizedDescription)
             }
             
-            var sections : [MediaPropertySection] = []
+            //var sections : [MediaPropertySection] = []
             do {
-                sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: pageId)
+                sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: altPageId, newFetch:true)
                 debugPrint("finished getting sections. ", sections.count)
                 for sect in sections {
                     debugPrint("section \(sect.displayTitle) type: ", sect.type)
@@ -791,9 +800,7 @@ struct MediaPropertyDetailView: View {
                 //eluvio.pathState.path.append(.errorView("A problem occured."))
                 debugPrint("Error:",error.localizedDescription)
             }
-            
-            
-            
+
             var backgroundImageString : String = ""
             //Finding the hero video to play
             if !sections.isEmpty{
@@ -804,8 +811,8 @@ struct MediaPropertyDetailView: View {
                     if !heros.isEmpty{
                         let video = heros[0]["display"]["background_video"]
                         let background = heros[0]["display"]["background_image"]
-                        debugPrint("video: ", video)
-                        if !video.isEmpty {
+                        //debugPrint("video: ", video)
+                        if !video.isEmpty && self.playerItem == nil{
                             do {
                                 let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
                                 await MainActor.run {
@@ -829,11 +836,6 @@ struct MediaPropertyDetailView: View {
                         }
                     }
                 }
-            }
-            
-            await MainActor.run {
-                self.sections = sections
-                debugPrint("Set sections")
             }
             
             await MainActor.run {
@@ -911,6 +913,7 @@ struct MediaPropertyHeader: View {
             }
         }
         .frame(maxWidth: UIScreen.main.bounds.size.width,alignment: alignment)
+        .padding(100)
         .padding(.bottom, 40)
     }
 }

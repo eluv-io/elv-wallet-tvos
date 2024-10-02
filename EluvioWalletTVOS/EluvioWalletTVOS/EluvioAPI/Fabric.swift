@@ -1247,7 +1247,7 @@ class Fabric: ObservableObject {
         }
         
         //paramDict["gate"] = false
-        var json = JSON(paramDict)
+        let json = JSON(paramDict)
     
         
         debugPrint("wallet purchase params: ", json)
@@ -1255,6 +1255,10 @@ class Fabric: ObservableObject {
         
         let params = Base58.base58Encode(array)
         return getWalletBaseUrl() + "/" + propertyId + "/" + pageId + "?" + "p=\(params)"
+    }
+    
+    func createWalletPageLink(propertyId:String,pageId:String) -> String{
+        return getWalletBaseUrl() + "/" + propertyId + "/" + pageId
     }
     
     func getNFTs(address:String, propertyId:String="", description:String="", name:String="") async throws -> [NFTModel]{
@@ -1383,11 +1387,11 @@ class Fabric: ObservableObject {
         return retValue
     }
     
-    func getPropertyPageSections(property: String, page: String, noCache: Bool = false) async throws -> [MediaPropertySection] {
+    func getPropertyPageSections(property: String, page: String, noCache: Bool = false, newFetch: Bool = false) async throws -> [MediaPropertySection] {
         
         var sections: [String] = []
         if let page = try await getPropertyPage(propertyId: property, pageId:page) {
-            //debugPrint("Found page ", page)
+            debugPrint("Found page ", page)
             if let _sec = page.layout?["sections"].arrayValue {
                 for sectionId in _sec {
                     sections.append(sectionId.stringValue)
@@ -1396,7 +1400,7 @@ class Fabric: ObservableObject {
         }
         
         
-        if mediaPropertiesSectionCache.isEmpty || noCache{
+        if mediaPropertiesSectionCache.isEmpty || noCache || newFetch{
             try await cachePropertySections(property: property, sections: sections, noCache:noCache)
         }
         
@@ -2333,6 +2337,7 @@ class Fabric: ObservableObject {
                            pageId:String = ""
     ) async throws -> ResolvedPermission {
         
+        debugPrint("resolvePagePermission")
         var result = ResolvedPermission()
         
         let mediaProperty = try await getProperty(property: propertyId)
@@ -2342,7 +2347,10 @@ class Fabric: ObservableObject {
         
         if let perms = mediaProperty?.permissions?["property_permissions"].arrayValue {
             result.authorized = checkPermissionIds(permissionIds: perms, authState: authState)
+
         }
+        
+        debugPrint("Property permissions ", mediaProperty?.permissions)
         
         if let _behavior = mediaProperty?.permissions?["behavior"] {
             do{
@@ -2350,6 +2358,7 @@ class Fabric: ObservableObject {
                 if let altPageId = mediaProperty?.permissions?["property_permissions_alternate_page_id"] {
                     if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
                         result.alternatePageId = altPageId.stringValue
+                        debugPrint("setting alternatePageId from property ", result.alternatePageId)
                     }
                 }
                 
@@ -2371,13 +2380,16 @@ class Fabric: ObservableObject {
                 result.authorized = checkPermissionIds(permissionIds: perms, authState: authState)
             }
             
-            if let _behavior = page.permissions?["behavior"] {
+            debugPrint("Page permissions ", page.permissions)
+            
+            if let _behavior = page.permissions?["page_permissions_behavior"] {
                 do{
                     result.behavior = try getBehavior(json:_behavior)
                     
                     if let altPageId = page.permissions?["page_permissions_alternate_page_id"] {
                         if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
                             result.alternatePageId = altPageId.stringValue
+                            debugPrint("setting alternatePageId from page ", result.alternatePageId)
                         }
                     }
                     
@@ -2426,6 +2438,8 @@ class Fabric: ObservableObject {
         if let _behavior = mediaProperty?.permissions?["behavior"] {
             do{
                 result.behavior = try getBehavior(json:_behavior)
+                debugPrint("Setting property behavior ", result.behavior)
+                
                 if let altPageId = mediaProperty?.permissions?["alternate_page_id"] {
                     if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
                         result.alternatePageId = altPageId.stringValue
@@ -2435,7 +2449,7 @@ class Fabric: ObservableObject {
                 if let secondaryPurchaseOption = mediaProperty?.permissions?["secondary_market_purchase_option"] {
                     if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                         result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                        debugPrint("Found Property secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                        //debugPrint("Found Property secondaryPurchaseOption ", result.secondaryPurchaseOption)
                     }
                 }
             }catch{}
@@ -2454,6 +2468,7 @@ class Fabric: ObservableObject {
             if let _behavior = page.permissions?["behavior"] {
                 do{
                     result.behavior = try getBehavior(json:_behavior)
+                    debugPrint("Setting page behavior ", result.behavior)
                     
                     if let altPageId = page.permissions?["alternate_page_id"] {
                         if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
@@ -2465,7 +2480,7 @@ class Fabric: ObservableObject {
                     if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
                         if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                             result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                            debugPrint("Found Page secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                            //debugPrint("Found Page secondaryPurchaseOption ", result.secondaryPurchaseOption)
                         }
                     }
                 }catch{}
@@ -2486,21 +2501,21 @@ class Fabric: ObservableObject {
                 if let _behavior = section.permissions?["behavior"] {
                     do{
                         result.behavior = try getBehavior(json:_behavior)
-                        
+                        debugPrint("Setting section behavior ", result.behavior)
                     }catch{}
 
                     
                     if let altPageId = section.permissions?["alternate_page_id"] {
                         if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
                             result.alternatePageId = altPageId.stringValue
-                            //debugPrint("Found alternatePageId ", result.alternatePageId)
+                            debugPrint("Found alternatePageId ", result.alternatePageId)
                         }
                     }
                     
                     if let secondaryPurchaseOption = section.permissions?["secondary_market_purchase_option"] {
                         if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                             result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                            debugPrint("Found section secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                            //debugPrint("Found section secondaryPurchaseOption ", result.secondaryPurchaseOption)
                         }
                     }
                     
@@ -2530,7 +2545,7 @@ class Fabric: ObservableObject {
                             if let _behavior = sectionItem.permissions?["behavior"] {
                                 do{
                                     result.behavior = try getBehavior(json:_behavior)
-                                    debugPrint("sectionItem behavior: ", result.behavior)
+                                    debugPrint("Setting sectionItem behavior: ", result.behavior)
                                 }catch{}
                                 
                                 if let altPageId = sectionItem.permissions?["alternate_page_id"] {
@@ -2542,7 +2557,7 @@ class Fabric: ObservableObject {
                                 if let secondaryPurchaseOption = sectionItem.permissions?["secondary_market_purchase_option"] {
                                     if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
                                         result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
-                                        debugPrint("Found Section Item secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                                        //debugPrint("Found Section Item secondaryPurchaseOption ", result.secondaryPurchaseOption)
                                     }
                                 }
 
@@ -2571,7 +2586,7 @@ class Fabric: ObservableObject {
                                      debugPrint("Media Item permissions", mediaItem.permissions)
                                     
                                     if let publicField = mediaItem.public {
-                                        debugPrint("media public field ", publicField)
+                                        //debugPrint("media public field ", publicField)
                                         if (publicField){
                                             result.authorized = true
                                         }else{

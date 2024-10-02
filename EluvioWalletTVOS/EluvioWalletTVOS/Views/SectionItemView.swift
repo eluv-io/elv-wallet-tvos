@@ -585,7 +585,7 @@ struct SectionItemView: View {
                                         
                                         if let sectionItemId = item.id {
                                             self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)
-                                            debugPrint("Permission ", permission)
+                                            //debugPrint("!!! Permission ", permission)
                                             if let permission = permission {
                                                 if !permission.authorized  || item.type == "item_purchase"{
                                                     if permission.purchaseGate || item.type == "item_purchase" {
@@ -610,6 +610,7 @@ struct SectionItemView: View {
                                                         return
                                                     }else if permission.showAlternatePage {
                                                         debugPrint("ShowAlternatePage ")
+                                                        /*
                                                         do{
                                                             if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                                                 eluvio.pathState.property = property
@@ -641,6 +642,26 @@ struct SectionItemView: View {
                                                             eluvio.pathState.path.append(.errorView("A problem occured."))
                                                             return
                                                         }
+                                                         */
+                                                        
+                                                        let url = eluvio.fabric.createWalletPageLink(propertyId: propertyId, pageId:permission.alternatePageId)
+                                                        debugPrint("SectionItemView Alternative Page Purchase! ", url)
+                                                        
+                                                        var backgroundImage = ""
+                                                       
+                                                        let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
+                                                        backgroundImage = viewModel.backgroundImage
+                                                        
+                                                        
+                                                        let params = PurchaseParams(url:url,
+                                                                                    backgroundImage: backgroundImage,
+                                                                                    propertyId : propertyId,
+                                                                                    pageId : permission.alternatePageId,
+                                                                                    sectionId : sectionId,
+                                                                                    sectionItem : item)
+                                                        _ = eluvio.pathState.path.popLast()
+                                                        eluvio.pathState.path.append(.purchaseQRView(params))
+                                                        return
                                                     }
                                                     
                                                     _ = eluvio.pathState.path.popLast()
@@ -855,6 +876,7 @@ struct SectionItemView: View {
             viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
             Task{
                 do {
+                    
                     if self.item.resolvedPermission == nil {
                         if let sectionItemId = item.id {
                             self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
