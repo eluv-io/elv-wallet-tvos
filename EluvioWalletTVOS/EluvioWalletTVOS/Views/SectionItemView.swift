@@ -541,7 +541,7 @@ struct SectionItemView: View {
         Group {
             if !hide {
                     VStack(alignment:.leading, spacing:10){
-                        Text(item.media?.title ?? "").hidden().frame(maxHeight:0) // This is needed for some reason single items in a section didn't show
+                        Text(item.media?.title ?? "").font(.system(size:1)).hidden() // This is needed for some reason single items in a section didn't show
                         if let mediaItem = viewItem {
                             Button(action: {
                                 Task{
