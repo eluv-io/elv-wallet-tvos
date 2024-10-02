@@ -253,7 +253,7 @@ struct OryDeviceFlowView: View {
                 account.fabricToken = token
                 account.login = login
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
-                try await eluvio.fabric.getProperties(includePublic: true, noCache: true)
+                try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
                 
                 newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
                 debugPrint("Ory Signing in done!")

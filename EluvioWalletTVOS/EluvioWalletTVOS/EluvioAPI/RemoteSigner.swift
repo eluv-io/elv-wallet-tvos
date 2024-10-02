@@ -208,7 +208,7 @@ class RemoteSigner {
         })
     }
     
-    func getProperty(property:String = "", accessCode: String, parameters : [String: String] = [:]) async throws -> MediaProperty {
+    func getProperty(property:String = "", noCache:Bool = false, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaProperty {
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
@@ -220,8 +220,17 @@ class RemoteSigner {
                 if !property.isEmpty {
                     endpoint = endpoint.appending("/\(property)")
                 }
+                
+                if noCache {
+                    endpoint = endpoint.appending("?no_cache=true")
+                }
+                
                 if (environment != .prod){
-                    endpoint = endpoint.appending("?env=\(environment)")
+                    if endpoint.contains("?") {
+                        endpoint = endpoint.appending("&env=\(environment)")
+                    }else{
+                        endpoint = endpoint.appending("?env=\(environment)")
+                    }
                 }
                           
                 print("getProperties Request: \(endpoint)")
@@ -261,7 +270,7 @@ class RemoteSigner {
     }
     
     
-    func getProperties(includePublic:Bool = true, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertiesResponse {
+    func getProperties(includePublic:Bool = true, noCache:Bool = false, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertiesResponse {
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
@@ -275,6 +284,10 @@ class RemoteSigner {
                 }
 
                 endpoint = endpoint.appending("&include_public=\(includePublic ? "true" : "false" )")
+                
+                if noCache {
+                    endpoint = endpoint.appending("&no_cache=true")
+                }
                 
                 print("getProperties Request: \(endpoint)")
                 //print("Params: \(parameters)")
@@ -555,7 +568,7 @@ class RemoteSigner {
         })
     }
 
-    func getPropertySections(property: String, sections : [String] = [], accessCode: String) async throws -> MediaPropertySectionsResponse{
+    func getPropertySections(property: String, noCache:Bool=false, sections : [String] = [], accessCode: String) async throws -> MediaPropertySectionsResponse{
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
@@ -565,6 +578,10 @@ class RemoteSigner {
                 endpoint = endpoint.appending("/mw/properties/\(property)/sections?resolve_subsections=true")
                 if (environment != .prod){
                     endpoint = endpoint.appending("&env=\(environment)")
+                }
+                
+                if noCache {
+                    endpoint = endpoint.appending("&no_cache=true")
                 }
                                                                     
                 print("getPropertySection Request: \(endpoint)")
@@ -662,7 +679,7 @@ class RemoteSigner {
         })
     }
     
-    func getPropertyPageSections(property: String, page: String, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertySectionsResponse{
+    func getPropertyPageSections(property: String, page: String, noCache:Bool = false, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertySectionsResponse{
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
@@ -674,7 +691,11 @@ class RemoteSigner {
                 if (environment != .prod){
                     endpoint = endpoint.appending("&env=\(environment)")
                 }
-                                                                    
+                
+                if noCache {
+                    endpoint = endpoint.appending("&no_cache=true")
+                }
+                                                              
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
@@ -711,15 +732,19 @@ class RemoteSigner {
         })
     }
     
-    func getMediaItems(property: String, mediaItems : [String] = [], accessCode: String) async throws -> MediaPropertyItemsResponse{
+    func getMediaItems(property: String, noCache:Bool=false, mediaItems : [String] = [], accessCode: String) async throws -> MediaPropertyItemsResponse{
 
         return try await withCheckedThrowingContinuation({ continuation in
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
-                endpoint = endpoint.appending("/mw/properties/\(property)/media_items")
+                endpoint = endpoint.appending("/mw/properties/\(property)/media_items?")
                 if (environment != .prod){
-                    endpoint = endpoint.appending("?env=\(environment)")
+                    endpoint = endpoint.appending("&env=\(environment)")
+                }
+                
+                if noCache {
+                    endpoint = endpoint.appending("&no_cache=true")
                 }
                                                                     
                 print("getPropertySection Request: \(endpoint)")

@@ -322,7 +322,7 @@ struct SectionMediaItemView: View {
                     
                     
                     do {
-                        guard let property = try await eluvio.fabric.getProperty(property: propertyId, noCache: true) else {
+                        guard let property = try await eluvio.fabric.getProperty(property: propertyId) else {
                             await MainActor.run {
                                 _ = eluvio.pathState.path.popLast()
                                 eluvio.pathState.path.append(.errorView("A problem occured."))
@@ -337,7 +337,7 @@ struct SectionMediaItemView: View {
                                     debugPrint("permission ids ", permission.permissionItemIds)
                                     
                                     let url = try eluvio.fabric.createWalletPurchaseUrl(id:item.id ?? "", propertyId: propertyId, pageId: "", sectionItemId: item.id ?? "", permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
-                                    debugPrint("Purchase! ", url)
+                                    debugPrint("SectionMediaItemView Purchase! ", url)
                                     
                                     var backgroundImage = ""
                                     
@@ -557,7 +557,7 @@ struct SectionItemView: View {
                                     
 
                                         //Test the token
-                                        guard let property = try await eluvio.fabric.getProperty(property: propertyId, noCache: true) else {
+                                        guard let property = try await eluvio.fabric.getProperty(property: propertyId) else {
                                             await MainActor.run {
                                                 _ = eluvio.pathState.path.popLast()
                                                 eluvio.pathState.path.append(.errorView("A problem occured."))
@@ -588,7 +588,7 @@ struct SectionItemView: View {
                                                 if !permission.authorized  || item.type == "item_purchase"{
                                                     if permission.purchaseGate || item.type == "item_purchase" {
                                                         let url = try eluvio.fabric.createWalletPurchaseUrl(id:sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
-                                                        debugPrint("Purchase! ", url)
+                                                        debugPrint("SectionItemView Purchase! ", url)
                                                         
                                                         var backgroundImage = ""
                                                        
@@ -997,7 +997,7 @@ struct SectionItemPurchaseView: View {
                     
                     if let permission = permission {
                         let url = try eluvio.fabric.createWalletPurchaseUrl(id: sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
-                        debugPrint("Purchase! ", url)
+                        debugPrint("Item Purchase! ", url)
                         eluvio.pathState.propertyId = propertyId
                         eluvio.pathState.pageId = permission.alternatePageId  
                         

@@ -310,6 +310,9 @@
 		B0E60FAA29D211040079661E /* NFTModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA729D211040079661E /* NFTModel.swift */; };
 		B0E60FAD29D223870079661E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
 		B0E60FB229D2288C0079661E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
+		B0EAAF902CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
+		B0EAAF912CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
+		B0EAAF922CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
 		B0F9DC322B4F973400499C93 /* MSPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC312B4F973400499C93 /* MSPage.swift */; };
 		B0F9DC3C2B578D9800499C93 /* SDWebImagePDFCoder in Frameworks */ = {isa = PBXBuildFile; productRef = B0F9DC3B2B578D9800499C93 /* SDWebImagePDFCoder */; };
 		B0F9DC3E2B57912700499C93 /* PDFPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3D2B57912700499C93 /* PDFPage.swift */; };
@@ -480,6 +483,7 @@
 		B0E60FA729D211040079661E /* NFTModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTModel.swift; sourceTree = "<group>"; };
 		B0E60FAC29D223870079661E /* SignInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		B0E60FB129D2288C0079661E /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseQRView.swift; sourceTree = "<group>"; };
 		B0F9DC312B4F973400499C93 /* MSPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MSPage.swift; sourceTree = "<group>"; };
 		B0F9DC3D2B57912700499C93 /* PDFPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PDFPage.swift; sourceTree = "<group>"; };
 		B0F9DC3F2B58274200499C93 /* PageGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageGesture.swift; sourceTree = "<group>"; };
@@ -865,6 +869,7 @@
 				B077BE642C6EC8B70056DDB1 /* ItemDetailView.swift */,
 				B0A830E42C74E9740037BE59 /* CountdownView.swift */,
 				B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */,
+				B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1208,6 +1213,7 @@
 				B08CB59A2B7DDFDA00E04C0D /* TestData.swift in Sources */,
 				B08CB5312B7DDB2800E04C0D /* ContentView.swift in Sources */,
 				B08CB52F2B7DDB2800E04C0D /* ShowcaseWalletApp.swift in Sources */,
+				B0EAAF922CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1273,6 +1279,7 @@
 				B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */,
 				B0F9DC402B58274200499C93 /* PageGesture.swift in Sources */,
 				B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */,
+				B0EAAF912CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
 				B07ADFBD2B6B3DC7005C5E5A /* ProgressControlView.swift in Sources */,
 				B0F9DC3E2B57912700499C93 /* PDFPage.swift in Sources */,
 				B077B8D62B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */,
@@ -1369,6 +1376,7 @@
 				B069A4832A397DA8006C9E7B /* LoopingPlayer.swift in Sources */,
 				B0D5446C2C17925800558B21 /* MediaPropertyModel.swift in Sources */,
 				B0D544762C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
+				B0EAAF902CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1619,7 +1627,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 227;
+				CURRENT_PROJECT_VERSION = 230;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1653,7 +1661,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 227;
+				CURRENT_PROJECT_VERSION = 230;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

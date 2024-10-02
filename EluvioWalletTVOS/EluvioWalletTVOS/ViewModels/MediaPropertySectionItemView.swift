@@ -245,6 +245,32 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
         var live_video = false
         var icons : [JSON]? = nil
         
+        if let media = item.media {
+            mediaFile = media.media_file
+            posterImageLink = media.poster_image
+
+            
+            catalog_title = media.catalog_title ?? ""
+            description = media.description ?? ""
+            description_rich_text = media.description_rich_text ?? ""
+            end_time = media.end_time ?? ""
+            start_time = media.start_time ?? ""
+            live_video = media.live_video ?? false
+            media_catalog_id = media.media_catalog_id ?? ""
+
+            icons = media.icons
+            
+            //if let mediaSettings = item.use_media_settings {
+            //    if mediaSettings {
+            thumbnailSquareLink = media.thumbnail_image_square
+            thumbnailPortraitLink = media.thumbnail_image_portrait
+            thumbnailLandLink = media.thumbnail_image_landscape
+            title = media.title ?? ""
+            subtitle = media.subtitle ?? ""
+            //    }
+            //}
+        }
+        
         if let display = item.display {
             if display["thumbnail_image_square"].exists() {
                 thumbnailSquareLink = display["thumbnail_image_square"]
@@ -263,42 +289,15 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
                 subtitle = display["subtitle"].stringValue
             }
             
-            if let aspectRatio = item.display?["aspect_ratio"].stringValue.lowercased() {
-                if aspectRatio == "landscape" {
-                    thumb_aspect_ratio = .landscape
-                }else if aspectRatio == "portrait" {
-                    thumb_aspect_ratio = .portrait
-                }else if aspectRatio == "square" {
-                    thumb_aspect_ratio = .square
-                }
+            let aspectRatio = display["aspect_ratio"].stringValue.lowercased()
+            if aspectRatio == "landscape" {
+                thumb_aspect_ratio = .landscape
+            }else if aspectRatio == "portrait" {
+                thumb_aspect_ratio = .portrait
+            }else if aspectRatio == "square" {
+                thumb_aspect_ratio = .square
             }
-            
-        }
-        
-        if let media = item.media {
-            mediaFile = media.media_file
-            posterImageLink = media.poster_image
 
-            
-            catalog_title = media.catalog_title ?? ""
-            description = media.description ?? ""
-            description_rich_text = media.description_rich_text ?? ""
-            end_time = media.end_time ?? ""
-            start_time = media.start_time ?? ""
-            live_video = media.live_video ?? false
-            media_catalog_id = media.media_catalog_id ?? ""
-
-            icons = media.icons
-            
-            if let mediaSettings = item.use_media_settings {
-                if mediaSettings {
-                    thumbnailSquareLink = media.thumbnail_image_square
-                    thumbnailPortraitLink = media.thumbnail_image_portrait
-                    thumbnailLandLink = media.thumbnail_image_landscape
-                    title = media.title ?? ""
-                    subtitle = media.subtitle ?? ""
-                }
-            }
         }
 
         var fileUrl = ""

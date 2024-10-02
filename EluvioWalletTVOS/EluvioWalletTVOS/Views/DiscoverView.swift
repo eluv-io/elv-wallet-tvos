@@ -111,9 +111,9 @@ struct DiscoverView: View {
         Task{
             do {
                 debugPrint("DiscoverView onAppear")
-                try await self.eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
-
-                let props = try await eluvio.fabric.getProperties(includePublic: true, noCache:true, noAuth:true)
+                try await eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
+                
+                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:true, newFetch:true)
                 
                 var properties: [MediaPropertyViewModel] = []
                 

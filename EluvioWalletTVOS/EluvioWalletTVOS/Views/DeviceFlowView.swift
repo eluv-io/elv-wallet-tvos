@@ -269,7 +269,7 @@ struct DeviceFlowView: View {
                                     account.signInResponse = signInResponse
                                     account.login = login
                                     try await eluvio.signIn(account:account, property: property?.id ?? "")
-                                    try await eluvio.fabric.getProperties(includePublic: true, noCache: true)
+                                    try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
                                     newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")

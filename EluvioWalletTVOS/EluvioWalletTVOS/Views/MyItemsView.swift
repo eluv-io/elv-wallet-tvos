@@ -86,7 +86,7 @@ struct MyItemsView: View {
             Task{
                 do {
                     debugPrint("My Items getting properties")
-                    let props = try await eluvio.fabric.getProperties(includePublic:false, noCache:true)
+                    let props = try await eluvio.fabric.getProperties(includePublic:false, newFetch:true)
                     
                     var properties: [MediaPropertyViewModel] = []
                     
