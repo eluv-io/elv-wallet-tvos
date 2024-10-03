@@ -670,7 +670,7 @@ struct MediaPropertyDetailView: View {
                     VStack{
                         Button(action:{
                             debugPrint("Search....")
-                            //XXX:
+                            
                             eluvio.pathState.searchParams = SearchParams(propertyId: property?.id ?? "")
                             eluvio.pathState.path.append(.search)
                             
@@ -682,6 +682,7 @@ struct MediaPropertyDetailView: View {
                             }
                             refresh()
                              */
+                             
                         }){
                             HStack(){
                                 Image(systemName: "magnifyingglass")
@@ -702,19 +703,33 @@ struct MediaPropertyDetailView: View {
                 .padding(.trailing, 40)
                 .padding(.top, 40)
 
+                
                 VStack(spacing:0) {
+                    
                     ForEach(sections) {section in
                         if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
-                                //.edgesIgnoringSafeArea([.leading,.trailing])
                         }
                     }
+                    
+                    
+                    //ForEach(sections) {section in
+                    /*
+                    if !sections.isEmpty {
+                        if let propertyId = property?.id {
+                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: sections[0])
+                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: sections[1])
+                            //.edgesIgnoringSafeArea([.leading,.trailing])
+                        }
+                        //}
+                    }
+                     */
                 }
                 .prefersDefaultFocus(in: NamespaceProperty)
                 .padding(.top, 100)
+                
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            //.edgesIgnoringSafeArea([.top,.leading,.trailing])
         }
         .opacity(opacity)
         .scrollClipDisabled()
@@ -807,8 +822,7 @@ struct MediaPropertyDetailView: View {
             }catch{
                 print("Could not resolve permissions for property id \(propertyId)", error.localizedDescription)
             }
-            
-            //var sections : [MediaPropertySection] = []
+
             do {
                 sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: altPageId, newFetch:true)
                 debugPrint("finished getting sections. ", sections.count)
@@ -835,9 +849,9 @@ struct MediaPropertyDetailView: View {
                         //debugPrint("video: ", video)
                         if !video.isEmpty && self.playerItem == nil{
                             do {
-                                //let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
+                                let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
                                 await MainActor.run {
-                                    //self.playerItem = item
+                                    self.playerItem = item
                                     debugPrint("playerItem set")
                                 }
                             }catch{
@@ -930,11 +944,9 @@ struct MediaPropertyHeader: View {
                     .padding(.bottom, 20)
             }
         }
-        //.frame(width: UIScreen.main.bounds.size.width - 160, alignment: alignment)
         .frame(maxWidth: .infinity, alignment:.leading)
         .padding([.leading, .trailing], 80)
         .padding(.bottom, 40)
-        //.background(.blue)
         .onAppear(){
             debugPrint("Description text : ", description)
         }
@@ -958,14 +970,13 @@ struct MediaPropertyBanner: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .edgesIgnoringSafeArea(.horizontal)
-                        .frame(width: UIScreen.main.bounds.size.width - margin*2)
-                        //.frame(maxHeight: height: UIScreen.main.bounds.size.height - margin*2)
-                        .padding([.leading, .trailing], margin)
+                        .frame(maxWidth:.infinity)
                         .transition(.opacity)
 
                 }
                 .focusable()
             })
+            .frame(maxWidth: .infinity, alignment:.leading)
             .buttonStyle(BannerButtonStyle(focused:isFocused))
             .focused($isFocused)
         }else{
