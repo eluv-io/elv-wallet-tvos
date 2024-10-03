@@ -58,7 +58,7 @@ struct PurchaseQRView: View {
                         .interpolation(.none)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 264, height: 264)
+                        .frame(width: 400, height: 400)
                     
                 }
                 

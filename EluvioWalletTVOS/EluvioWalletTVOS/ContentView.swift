@@ -284,7 +284,7 @@ struct ContentView: View {
                 case let .property(params):
                     if let propertyId = params.property?.id {
                         MediaPropertyDetailView(propertyId: propertyId, pageId: params.pageId)
-                            .environmentObject(self.eluvio)
+                        .environmentObject(self.eluvio)
                     }else{
                         Text("Could not load property.")
                             .font(.title)

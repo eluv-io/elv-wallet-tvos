@@ -845,10 +845,10 @@ struct SectionItemView: View {
                                 }
                                     
                             }){
-                                VStack(alignment: .leading, spacing: 10){
+
                                     MediaCard(display: display,
                                               image: mediaItem.thumbnail,
-                                              isFocused:isFocused, 
+                                              isFocused:isFocused,
                                               title: mediaItem.title,
                                               subtitle: mediaItem.subtitle,
                                               timeString: mediaItem.headerString,
@@ -859,7 +859,7 @@ struct SectionItemView: View {
                                               permission: permission
                                     )
                                     .id(refreshId)
-                                }
+                                
                             }
                             .buttonStyle(TitleButtonStyle(focused: isFocused))
                             .focused($isFocused)

@@ -20,6 +20,7 @@ struct ViewAllButton: View {
         })
         .buttonStyle(TextButtonStyle(focused:isFocused, bordered:true))
         .focused($isFocused)
+        .opacity(isFocused ? 1.0 : 0.3)
     }
 }
 
@@ -33,7 +34,7 @@ struct MediaPropertyRegularSectionView: View {
     var propertyId: String
     var pageId: String
     var section: MediaPropertySection
-    var margin: CGFloat = 100
+    var margin: CGFloat = 80
     
     @State var items: [MediaPropertySectionItem] = []
     
@@ -82,7 +83,7 @@ struct MediaPropertyRegularSectionView: View {
     
     var minHeight : CGFloat {
         if hasBackground{
-            return 410
+            return 400
         }
         
         return 380
@@ -142,10 +143,16 @@ struct MediaPropertyRegularSectionView: View {
                             Text(logoText)
                                 .font(.sectionLogoText)
                         }
+                        .padding(.trailing, 30)
                     }
-                    VStack(alignment: hAlignment, spacing: 10)  {
-                        HStack(spacing:20){
-                            Text(title).font(.rowTitle).foregroundColor(Color.white)
+                        
+                    VStack(alignment: hAlignment, spacing: 0)  {
+                        Spacer()
+                        HStack(alignment:.bottom, spacing:30){
+                            if !title.isEmpty {
+                                Text(title).font(.rowTitle).foregroundColor(Color.white)
+                                    .padding(0)
+                            }
                             if showViewAll {
                                 ViewAllButton(action:{
                                     debugPrint("View All pressed")
@@ -154,14 +161,15 @@ struct MediaPropertyRegularSectionView: View {
                                     eluvio.pathState.pageId = pageId
                                     eluvio.pathState.path.append(.sectionViewAll)
                                 })
+                                .padding(0)
                             }
                         }
                         .focusSection()
-                        .padding(.top, 20)
-                        .padding(.bottom, 30)
+                        //.padding([.top,.bottom], 20)
+                        //.background(.purple)
                         
                         if alignment == .center && items.count < 5 {
-                            LazyHStack(alignment: .center, spacing: 20) {
+                            LazyHStack(alignment: .top, spacing: 20) {
                                 ForEach(items) {item in
                                     SectionItemView(item: item,
                                                     sectionId: section.id,
@@ -171,6 +179,7 @@ struct MediaPropertyRegularSectionView: View {
                                     .environmentObject(self.eluvio)
                                 }
                             }
+                            .padding(.top,0)
                         }else{
                             ScrollView(.horizontal) {
                                 LazyHStack(alignment: .center, spacing: 34) {
@@ -180,19 +189,22 @@ struct MediaPropertyRegularSectionView: View {
                                                         pageId:pageId,
                                                         propertyId: propertyId,
                                                         forceAspectRatio:forceAspectRatio)
+                                        .padding(.top,0)
                                         .environmentObject(self.eluvio)
                                     }
                                 }
                             }
+                            .frame(height:300)
                             .scrollClipDisabled()
+                            //.background(.red)
                         }
                     }
-                    .padding(.bottom,40)
             }
         }
         .focusSection()
-        .frame(minHeight:minHeight)
+        .frame(height:minHeight)
         .padding([.leading,.trailing],margin)
+        .padding(.bottom,40)
         .background(
             Group {
                 if let url = inlineBackgroundUrl {
@@ -523,10 +535,10 @@ struct MediaPropertySectionView: View {
                 }else if isContainer{
                     VStack(spacing:40){
                         ForEach(subsections) { sub in
-                            MediaPropertySectionView(propertyId:propertyId, pageId: pageId, section: sub)
+                            MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub)
                         }
                     }
-                    .padding([.bottom,.top], 40)
+                    //.padding([.bottom,.top], 40)
                 }else if !items.isEmpty {
                     MediaPropertyRegularSectionView(
                         propertyId:propertyId,
@@ -629,7 +641,6 @@ struct MediaPropertyDetailView: View {
                             .frame(maxWidth:.infinity, maxHeight:  UIScreen.main.bounds.size.height)
                             .edgesIgnoringSafeArea([.top,.leading,.trailing])
                             .frame(alignment: .topLeading)
-                            //.transition(.opacity)
                             .id("property video \(item.hashValue)")
                         Spacer()
                     }
@@ -659,8 +670,18 @@ struct MediaPropertyDetailView: View {
                     VStack{
                         Button(action:{
                             debugPrint("Search....")
+                            //XXX:
                             eluvio.pathState.searchParams = SearchParams(propertyId: property?.id ?? "")
                             eluvio.pathState.path.append(.search)
+                            
+                            /*
+                            if (pageId == "main") {
+                                self.pageId = "ppgeLym6HBSnBAbnGUZDLCepNN"
+                            }else {
+                                self.pageId = "main"
+                            }
+                            refresh()
+                             */
                         }){
                             HStack(){
                                 Image(systemName: "magnifyingglass")
@@ -685,7 +706,7 @@ struct MediaPropertyDetailView: View {
                     ForEach(sections) {section in
                         if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
-                                .edgesIgnoringSafeArea([.leading,.trailing])
+                                //.edgesIgnoringSafeArea([.leading,.trailing])
                         }
                     }
                 }
@@ -693,7 +714,7 @@ struct MediaPropertyDetailView: View {
                 .padding(.top, 100)
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
-            .edgesIgnoringSafeArea([.top,.leading,.trailing])
+            //.edgesIgnoringSafeArea([.top,.leading,.trailing])
         }
         .opacity(opacity)
         .scrollClipDisabled()
@@ -814,12 +835,10 @@ struct MediaPropertyDetailView: View {
                         //debugPrint("video: ", video)
                         if !video.isEmpty && self.playerItem == nil{
                             do {
-                                let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
+                                //let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
                                 await MainActor.run {
-                                    //withAnimation(.easeInOut(duration: 1), {
-                                    self.playerItem = item
+                                    //self.playerItem = item
                                     debugPrint("playerItem set")
-                                    //})
                                 }
                             }catch{
                                 debugPrint("Error making video item: ", error.localizedDescription)
@@ -837,7 +856,6 @@ struct MediaPropertyDetailView: View {
                     }
                 }
             }
-            
             await MainActor.run {
                 if self.playerItem == nil && backgroundImageString.isEmpty {
                     self.backgroundImage = propertyView?.backgroundImage ?? ""
@@ -884,7 +902,7 @@ struct MediaPropertyHeader: View {
     
     
     var body: some View {
-        VStack(alignment: horizontalAlignment, spacing:0) {
+        VStack(alignment: .leading, spacing:0) {
             WebImage(url: URL(string: logo))
                 .resizable()
                 .transition(.fade(duration: 0.5))
@@ -907,14 +925,20 @@ struct MediaPropertyHeader: View {
                     .foregroundColor(Color.white)
                     .font(.propertyDescription)
                     .frame(maxWidth:1200, alignment: alignment)
-                    .frame(minHeight:100)
-                    .lineLimit(3)
+                    .frame(minHeight:120)
+                    .lineLimit(4)
                     .padding(.bottom, 20)
             }
         }
-        .frame(maxWidth: UIScreen.main.bounds.size.width,alignment: alignment)
-        .padding(100)
+        //.frame(width: UIScreen.main.bounds.size.width - 160, alignment: alignment)
+        .frame(maxWidth: .infinity, alignment:.leading)
+        .padding([.leading, .trailing], 80)
         .padding(.bottom, 40)
+        //.background(.blue)
+        .onAppear(){
+            debugPrint("Description text : ", description)
+        }
+
     }
 }
 
