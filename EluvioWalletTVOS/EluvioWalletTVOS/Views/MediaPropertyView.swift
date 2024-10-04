@@ -156,19 +156,17 @@ struct MediaPropertiesView: View {
     @Binding var selected : MediaPropertyViewModel
 
     var body: some View {
-        VStack(alignment:.leading) {
-            Grid(alignment:.center, horizontalSpacing: 10, verticalSpacing: 20) {
+        VStack(alignment:.leading, spacing:20) {
                 ForEach(propertiesGroups, id: \.self) {groups in
-                    GridRow(alignment:.center) {
+                    HStack(alignment:.center, spacing:20) {
                         ForEach(groups, id: \.self) { property in
                             MediaPropertyView(property: property, selected: $selected)
                                     .environmentObject(self.eluvio)
                         }
+                        
                     }
-                    .frame(maxWidth:.infinity)
+                    .frame(maxWidth:.infinity, alignment:.leading)
                 }
-            }
-            .frame(maxWidth:.infinity, maxHeight: .infinity)
         }
         .frame(maxWidth:.infinity, maxHeight: .infinity)
         .onChange(of: properties) { old, new in

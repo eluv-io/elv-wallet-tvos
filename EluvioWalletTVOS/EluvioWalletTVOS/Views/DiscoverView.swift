@@ -44,6 +44,7 @@ struct DiscoverView: View {
                 MediaPropertiesView(properties:properties, selected: $selected)
                     .environmentObject(self.eluvio.pathState)
             }
+            .padding([.leading,.trailing], 80)
         }
         .onChange(of:selected){ old, new in
             if !new.backgroundImage.isEmpty {
