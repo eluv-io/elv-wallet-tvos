@@ -43,17 +43,19 @@ struct DiscoverView: View {
                         .frame(maxWidth:.infinity)
                         .padding(.top, 60)
                         .padding(.bottom, 40)
+                        
+                        MediaPropertiesView(properties:$properties, selected: $selected)
+                            .environmentObject(self.eluvio.pathState)
+                            .transition(.opacity)
                     }
-                    MediaPropertiesView(properties:$properties, selected: $selected)
-                        .environmentObject(self.eluvio.pathState)
                 }
             }
         }
         .onChange(of:selected){ old, new in
             if !new.backgroundImage.isEmpty {
-               // withAnimation(.easeIn(duration: 2)){
+                withAnimation(.easeIn(duration: 1)){
                     backgroundImageURL = new.backgroundImage
-                //}
+                }
             }else{
                 Task {
                     
@@ -63,9 +65,9 @@ struct DiscoverView: View {
                             
                             let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
                             
-                            //withAnimation(.easeIn(duration: 2)){
+                            withAnimation(.easeIn(duration:1)){
                                 backgroundImageURL = viewItem.backgroundImage
-                            //}
+                            }
                         }
                     }catch{
                         debugPrint("Could not fetch new property ",error.localizedDescription)
@@ -81,6 +83,7 @@ struct DiscoverView: View {
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .edgesIgnoringSafeArea(.all)
+                        .frame(width:UIScreen.main.bounds.size.width, height:UIScreen.main.bounds.size.height)
                 }
             }
         )
@@ -111,6 +114,7 @@ struct DiscoverView: View {
         
         isRefreshing = true
         self.properties = []
+        self.backgroundImageURL = ""
             
         debugPrint("DiscoverView refresh()")
         Task{
@@ -134,9 +138,15 @@ struct DiscoverView: View {
                 }
                 
                 await MainActor.run {
-                    withAnimation(.easeInOut(duration: 1)) {
+                    //withAnimation(.easeInOut(duration: 1)) {
+                        if properties.count > 0 {
+                            selected = properties[0]
+                            withAnimation(.easeIn(duration: 1)){
+                                backgroundImageURL = selected.backgroundImage
+                            }
+                        }
                         self.properties = properties
-                    }
+                    //}
                 }
                 
             }catch(FabricError.apiError(let code, let response, let error)){

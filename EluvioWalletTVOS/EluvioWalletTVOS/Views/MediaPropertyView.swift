@@ -173,11 +173,11 @@ struct MediaPropertiesView: View {
                 }
         }
         .frame(maxWidth:.infinity, maxHeight: .infinity)
-        .onChange(of: properties) { old, new in
+        /*.onChange(of: properties) { old, new in
             if properties.count > 0 {
                 selected = properties[0]
             }
-        }
+        }*/
     }
 }
 
