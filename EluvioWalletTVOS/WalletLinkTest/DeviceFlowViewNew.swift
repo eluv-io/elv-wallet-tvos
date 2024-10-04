@@ -53,7 +53,7 @@ struct DeviceFlowViewNew: View {
                     .font(.custom("Helvetica Neue", size: 50))
                     .fontWeight(.semibold)
                 
-                Image(uiImage: GenerateQRCode(from: url))
+                Image(uiImage:GenerateQRCode(from: url))
                     .interpolation(.none)
                     .resizable()
                     .scaledToFit()

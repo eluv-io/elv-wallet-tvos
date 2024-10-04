@@ -11,6 +11,7 @@ import SDWebImageSwiftUI
 struct PurchaseQRView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     var url: String
+    @State var shortenedUrl: String = ""
     var backgroundImage: String = ""
     var thumbnailImage: String = ""
     var sectionItem: MediaPropertySectionItem?
@@ -54,11 +55,17 @@ struct PurchaseQRView: View {
                     }
                      */
                     
-                    Image(uiImage: GenerateQRCode(from: url))
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 400, height: 400)
+                    if !shortenedUrl.isEmpty {
+                        Image(uiImage: GenerateQRCode(from: shortenedUrl))
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 400, height: 400)
+                    }else{
+                        Rectangle()
+                            .background(.clear)
+                            .frame(width: 400, height: 400)
+                    }
                     
                 }
                 
@@ -69,6 +76,11 @@ struct PurchaseQRView: View {
         .background(.thinMaterial)
         .onAppear(){
             debugPrint("Purchase URL \(url)")
+            Task {
+                do {
+                    self.shortenedUrl = try await eluvio.fabric.signer?.shortenUrl(url: url) ?? ""
+                }catch{}
+            }
 
         }
         .onWillDisappear {

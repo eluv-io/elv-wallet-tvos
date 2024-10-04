@@ -921,6 +921,41 @@ class RemoteSigner {
         })
     }
     
+    func shortenUrl(url: String) async throws -> String {
+        return try await withCheckedThrowingContinuation({ continuation in
+            print("****** shortenUrl ******")
+            do {
+                var endpoint = "https://elv.lv/tiny/create"
+                
+                let headers: HTTPHeaders = [
+                     "Accept": "application/json",
+                     "Content-Type": "application/json" ]
+                
+                AF.request(endpoint, method: .post, parameters: [:], encoding: url, headers: headers )
+                    .debugLog()
+                    .responseJSON{ response in
+
+                    var respJSON = JSON()
+                    do{
+                        respJSON = try JSON(data: response.data ?? Data())
+                    }catch{}
+                        
+                    debugPrint("shorten response: ", respJSON)
+                        
+                    switch (response.result) {
+                        case .success:
+                        continuation.resume(returning: respJSON["url_mapping"]["shortened_url"].stringValue)
+                         case .failure(let error):
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
     //Pass in the response JSON of createMetaMaskLogin
     func checkAuthLogin(createResponse: JSON) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in

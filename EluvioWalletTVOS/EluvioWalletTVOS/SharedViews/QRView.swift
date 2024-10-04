@@ -13,6 +13,7 @@ struct QRView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     var url: String
     var backgroundImage: String = ""
+    @State var shortenedUrl: String = ""
     @State var title: String = "Point your camera to the QR Code below for content"
     @State var description: String = ""
     
@@ -36,21 +37,32 @@ struct QRView: View {
                         .padding()
                         .frame(width:1000)
                 }
-                Image(uiImage: GenerateQRCode(from: url))
-                    .interpolation(.none)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 400, height: 400)
+                if !shortenedUrl.isEmpty {
+                    Image(uiImage: GenerateQRCode(from: shortenedUrl))
+                        .interpolation(.none)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 400, height: 400)
+                }else{
+                    Rectangle()
+                        .background(.clear)
+                        .frame(width: 400, height: 400)
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .edgesIgnoringSafeArea(.all)
         .background(
-            
             .thinMaterial
         )
         .onAppear(){
-            print("Experience URL \(url)")
+            debugPrint("QRView URL \(url)")
+            Task {
+                do {
+                    self.shortenedUrl = try await eluvio.fabric.signer?.shortenUrl(url: url) ?? ""
+                }catch{}
+            }
+
         }
     }
 }

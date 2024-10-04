@@ -89,12 +89,17 @@ struct OryDeviceFlowView: View {
                     Text(code)
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)
-                    
-                    Image(uiImage: GenerateQRCode(from: url))
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 400, height: 400)
+                    if (url != ""){
+                        Image(uiImage: GenerateQRCode(from: url))
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 400, height: 400)
+                    }else{
+                        Rectangle()
+                            .fill(.clear)
+                            .frame(width: 400, height: 450)
+                    }
                 }
                 .frame(width: 700)
                 
@@ -164,17 +169,19 @@ struct OryDeviceFlowView: View {
             
             self.response = json
             
-            print("createMetaMaskLogin completed");
+            print("createAuthLogin completed");
             
             
-            debugPrint("MetaMask create response: ",json)
+            debugPrint("Create response: ",json)
 
-            self.url = json["url"].stringValue
-            if (!self.url.hasPrefix("https") && !self.url.hasPrefix("http")){
-                self.url = "https://".appending(self.url)
+            var _url = json["url"].stringValue
+            if (!_url.hasPrefix("https") && !_url.hasPrefix("http")){
+                _url = "https://".appending(_url)
             }
             
-            debugPrint("METAMASK URL: ", self.url)
+            debugPrint("URL: ", self.url)
+            self.url = try await signer.shortenUrl(url: _url)
+            debugPrint("Ory shortened URL: ", _url)
             
             self.code = json["id"].stringValue
             self.deviceCode = json["passcode"].stringValue

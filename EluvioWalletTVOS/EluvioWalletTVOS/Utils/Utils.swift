@@ -283,7 +283,18 @@ extension NSNotification {
     static let LoggedOut = Notification.Name.init("LoggedOut")
 }
 
-func GenerateQRCode(from string: String) -> UIImage {
+extension String: ParameterEncoding {
+
+    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
+        var request = try urlRequest.asURLRequest()
+        request.httpBody = data(using: .utf8, allowLossyConversion: false)
+        return request
+    }
+
+}
+
+/*
+func GenerateQRCodeUIImage(from string: String) -> UIImage {
     let context = CIContext()
     let filter = CIFilter.qrCodeGenerator()
     filter.message = Data(string.utf8)
@@ -296,6 +307,29 @@ func GenerateQRCode(from string: String) -> UIImage {
 
 
     return UIImage(systemName: "xmark.circle") ?? UIImage()
+}
+*/
+
+func GenerateQRCode(from string: String) -> UIImage {
+    let ciContext = CIContext()
+    
+    guard let data = string.data(using: .ascii, allowLossyConversion: false) else {
+        return UIImage()
+        
+    }
+    let filter = CIFilter.qrCodeGenerator()
+    filter.message = data
+    
+    if let ciImage = filter.outputImage {
+        if let cgImage = ciContext.createCGImage(
+            ciImage,
+            from: ciImage.extent) {
+            
+            return UIImage(cgImage: cgImage)
+        }
+    }
+    
+    return UIImage()
 }
 
 extension Request {

@@ -92,12 +92,17 @@ struct DeviceFlowView: View {
                         .font(.custom("Helvetica Neue", size: 50))
                         .fontWeight(.semibold)
                     
-                    Image(uiImage: GenerateQRCode(from: urlComplete))
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 400, height: 400)
-                        //.border(.white, width:20)
+                    if (urlComplete != ""){
+                        Image(uiImage: GenerateQRCode(from: urlComplete))
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 400, height: 400)
+                    }else{
+                        Rectangle()
+                            .fill(.clear)
+                            .frame(width: 400, height: 450)
+                    }
                 }
                 .frame(width: 700)
                 
@@ -170,39 +175,54 @@ struct DeviceFlowView: View {
         self.eluvio.fabric.startDeviceCodeFlow(completion: {
             json,err in
             
-            print("startDeviceCodeFlow completed");
-            
-            guard err == nil else {
-                print(err)
-                return
-                
-            }
-            guard json?["error"] == nil else {
-                
-                print((json?["error_description"] as? String)!)
-                return
-            }
-            
-            //self.url = json?["verification_uri"] as! String
-            self.url = "https://elv.lv/activate"
-            
-            self.urlComplete = json?["verification_uri_complete"] as! String
-            self.code = json?["user_code"] as! String
-            self.deviceCode = json?["device_code"] as! String
-            
-            var interval = json?["interval"] as! Double + 2.0
-            debugPrint(interval)
-            
-            if interval < 7.0 {
-                interval = 7.0
-            }
-            
-            let validFor = json?["expires_in"] as! Int
-            self.timer = Timer.publish(every: interval, on: .main, in: .common)
-            self.timerCancellable = self.timer.connect()
-            /*self.countDown = Timer.scheduledTimer(timeInterval: TimeInterval(validFor), target: self, selector: #selector(self.onTimerFires), userInfo: nil, repeats: true)*/
+            Task{
+                do {
+                    guard let signer = self.eluvio.fabric.signer else {
+                        print("MetaMaskFlowView regenerateCode() called without a signer.")
+                        return
+                    }
+                    
+                    print("startDeviceCodeFlow completed");
+                    
+                    guard err == nil else {
+                        print(err)
+                        return
+                        
+                    }
+                    guard json?["error"] == nil else {
+                        
+                        print((json?["error_description"] as? String)!)
+                        return
+                    }
+                    
+                    self.url = "https://elv.lv/activate"
+                    
+                    self.urlComplete = json?["verification_uri_complete"] as! String
 
-            //self.expired = false
+                    debugPrint("Shortened URL: ", json)
+                    
+                    self.code = json?["user_code"] as! String
+                    self.deviceCode = json?["device_code"] as! String
+                    
+                    debugPrint("Shortened URL: ", urlComplete)
+                    
+                    var interval = json?["interval"] as! Double + 2.0
+                    debugPrint(interval)
+                    
+                    if interval < 7.0 {
+                        interval = 7.0
+                    }
+                    
+                    let validFor = json?["expires_in"] as! Int
+                    self.timer = Timer.publish(every: interval, on: .main, in: .common)
+                    self.timerCancellable = self.timer.connect()
+                    /*self.countDown = Timer.scheduledTimer(timeInterval: TimeInterval(validFor), target: self, selector: #selector(self.onTimerFires), userInfo: nil, repeats: true)*/
+                    
+                    //self.expired = false
+                }catch{
+                    print("Error regenerating code for sign in: ", error)
+                }
+            }
 
         })
     }

@@ -28,29 +28,32 @@ struct DiscoverView: View {
     @State var isRefreshing = false
     
     var body: some View {
-        ScrollView() {
-            VStack(alignment: .leading, spacing: 0){
-                HStack{
-                    Image("start-screen-logo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width:801, height:240, alignment:.leading)
-                        .id(topId)
-                    Spacer()
+        VStack(alignment: .leading, spacing: 0){
+            ScrollView() {
+                VStack(alignment:.leading, spacing:0){
+                    if !properties.isEmpty {
+                        HStack(){
+                            Image("start-screen-logo")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width:801, height:240, alignment:.leading)
+                                .id(topId)
+                            Spacer()
+                        }
+                        .frame(maxWidth:.infinity)
+                        .padding(.top, 60)
+                        .padding(.bottom, 40)
+                    }
+                    MediaPropertiesView(properties:$properties, selected: $selected)
+                        .environmentObject(self.eluvio.pathState)
                 }
-                .frame(maxWidth:.infinity)
-                .padding(.top, 60)
-                .padding(.bottom, 40)
-                MediaPropertiesView(properties:properties, selected: $selected)
-                    .environmentObject(self.eluvio.pathState)
             }
-            .padding([.leading,.trailing], 80)
         }
         .onChange(of:selected){ old, new in
             if !new.backgroundImage.isEmpty {
-                withAnimation(.easeIn(duration: 2)){
+               // withAnimation(.easeIn(duration: 2)){
                     backgroundImageURL = new.backgroundImage
-                }
+                //}
             }else{
                 Task {
                     
@@ -60,9 +63,9 @@ struct DiscoverView: View {
                             
                             let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
                             
-                            withAnimation(.easeIn(duration: 2)){
+                            //withAnimation(.easeIn(duration: 2)){
                                 backgroundImageURL = viewItem.backgroundImage
-                            }
+                            //}
                         }
                     }catch{
                         debugPrint("Could not fetch new property ",error.localizedDescription)
@@ -107,6 +110,7 @@ struct DiscoverView: View {
         }
         
         isRefreshing = true
+        self.properties = []
             
         debugPrint("DiscoverView refresh()")
         Task{
@@ -119,8 +123,6 @@ struct DiscoverView: View {
                 var properties: [MediaPropertyViewModel] = []
                 
                 for property in props{
-                    //debugPrint("PROPERTY: \(property.title)")
-                    
                     let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                     //debugPrint("\(mediaProperty.title) ---> created")
                     if mediaProperty.image.isEmpty {
@@ -132,8 +134,11 @@ struct DiscoverView: View {
                 }
                 
                 await MainActor.run {
-                    self.properties = properties
+                    withAnimation(.easeInOut(duration: 1)) {
+                        self.properties = properties
+                    }
                 }
+                
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {

@@ -85,7 +85,8 @@ struct MetaMaskFlowView: View {
                             .scaledToFit()
                             .frame(width: 400, height: 400)
                     }else{
-                        ProgressView()
+                        Rectangle()
+                            .fill(.clear)
                             .frame(width: 400, height: 450)
                     }
                 }
@@ -155,6 +156,9 @@ struct MetaMaskFlowView: View {
             if (!self.url.hasPrefix("https") && !self.url.hasPrefix("http")){
                 self.url = "https://".appending(self.url)
             }
+            
+            self.url = try await signer.shortenUrl(url: self.url)
+            debugPrint("Shortened URL: ", self.url)
 
             //Tried the metamask:// prefix but doesn't work either
             //self.url = self.url.replacingOccurrences(of: "metamask.app.link", with: "metamask:/")

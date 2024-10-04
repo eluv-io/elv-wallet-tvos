@@ -18,6 +18,7 @@ struct MediaPropertyView : View {
     static var factor = 1.0
     var width : CGFloat = 330 * factor
     var height : CGFloat = 470 * factor
+    @State var disabled = true
 
     var body: some View {
         VStack(spacing:10) {
@@ -90,8 +91,9 @@ struct MediaPropertyView : View {
                 if property.image != "" {
                     WebImage(url: URL(string: property.image))
                         .resizable()
-                        .indicator(.activity) // Activity Indicator
-                        .transition(.fade(duration: 0.5))
+                        .onSuccess { image, data, cacheType in
+                            self.disabled = false
+                        }
                         .aspectRatio(contentMode: .fill)
                         .frame(width: width, height: height)
                         .cornerRadius(3)
@@ -100,8 +102,9 @@ struct MediaPropertyView : View {
                         if property.backgroundImage != "" {
                             WebImage(url: URL(string: property.backgroundImage))
                                 .resizable()
-                                .indicator(.activity) // Activity Indicator
-                                .transition(.fade(duration: 0.5))
+                                .onSuccess { image, data, cacheType in
+                                    self.disabled = false
+                                }
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: width, height: height)
                                 .cornerRadius(3)
@@ -125,6 +128,7 @@ struct MediaPropertyView : View {
                     }
                 }
             }
+            .opacity(self.disabled ? 0 : 1)
             .buttonStyle(TitleButtonStyle(focused: focused, bordered : true))
             .focused($focused)
         }
@@ -148,9 +152,9 @@ struct MediaPropertiesView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     
     var numColumns = 5
-    var properties: [MediaPropertyViewModel] = []
+    @Binding var properties: [MediaPropertyViewModel]
     var propertiesGroups : [[MediaPropertyViewModel]] {
-        return properties.dividedIntoGroups(of: numColumns)
+        properties.dividedIntoGroups(of: numColumns)
     }
     
     @Binding var selected : MediaPropertyViewModel
