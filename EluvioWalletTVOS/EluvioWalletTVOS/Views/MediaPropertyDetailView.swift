@@ -20,7 +20,7 @@ struct ViewAllButton: View {
         })
         .buttonStyle(TextButtonStyle(focused:isFocused, bordered:true))
         .focused($isFocused)
-        .opacity(isFocused ? 1.0 : 0.3)
+        .opacity(isFocused ? 1.0 : 0.6)
     }
 }
 
@@ -165,7 +165,7 @@ struct MediaPropertyRegularSectionView: View {
                             }
                         }
                         .focusSection()
-                        //.padding([.top,.bottom], 20)
+                        .padding([.top,.bottom], 20)
                         //.background(.purple)
                         
                         if alignment == .center && items.count < 5 {
@@ -194,15 +194,14 @@ struct MediaPropertyRegularSectionView: View {
                                     }
                                 }
                             }
-                            .frame(height:300)
+                            //.frame(height:300)
                             .scrollClipDisabled()
-                            //.background(.red)
                         }
                     }
             }
         }
         .focusSection()
-        .frame(height:minHeight)
+        //.frame(height:minHeight)
         .padding([.leading,.trailing],margin)
         .padding(.bottom,40)
         .background(
@@ -414,7 +413,23 @@ struct MediaPropertySectionView: View {
     
     @State var inlineBackgroundUrl: String? = nil
     @State var playerItem : AVPlayerItem? = nil
+    var hasBackground : Bool {
+        if let background = inlineBackgroundUrl {
+            if !background.isEmpty {
+                return true
+            }
+        }
+        
+        return false
+    }
     
+    var minHeight : CGFloat {
+        if hasBackground{
+            return 420
+        }
+        
+        return 400
+    }
     
     var heroPosition: SectionPosition {
         if let items = section.hero_items?.arrayValue {
@@ -532,10 +547,13 @@ struct MediaPropertySectionView: View {
                 }else if isBanner {
                     MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, section:section)
                         .padding([.leading,.trailing],margin)
+                        .padding(.top,40)
+                    
                 }else if isContainer{
                     VStack(spacing:40){
                         ForEach(subsections) { sub in
                             MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub)
+                                .frame(minHeight:minHeight)
                         }
                     }
                     //.padding([.bottom,.top], 40)
@@ -930,22 +948,21 @@ struct MediaPropertyHeader: View {
                     .foregroundColor(Color.white)
                     .fontWeight(.bold)
                     .frame(maxWidth:1100, alignment: alignment)
-                    .padding(.top, 20)
-                    .padding(.bottom, 30)
             }
             
             if !description.isEmpty {
                 Text(description)
                     .foregroundColor(Color.white)
                     .font(.propertyDescription)
-                    .frame(maxWidth:1200, alignment: alignment)
-                    .frame(minHeight:120)
+                    .frame(width:1200, alignment: alignment)
+                    .frame(minHeight:130)
                     .lineLimit(4)
-                    .padding(.bottom, 20)
+                    .padding(.top, 30)
             }
         }
         .frame(maxWidth: .infinity, alignment:.leading)
         .padding([.leading, .trailing], 80)
+        //.background(.blue)
         .padding(.bottom, 40)
         .onAppear(){
             debugPrint("Description text : ", description)
