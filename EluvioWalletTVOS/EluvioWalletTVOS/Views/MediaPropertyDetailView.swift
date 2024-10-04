@@ -962,7 +962,6 @@ struct MediaPropertyHeader: View {
         }
         .frame(maxWidth: .infinity, alignment:.leading)
         .padding([.leading, .trailing], 80)
-        //.background(.blue)
         .padding(.bottom, 40)
         .onAppear(){
             debugPrint("Description text : ", description)

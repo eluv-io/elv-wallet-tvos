@@ -108,6 +108,11 @@ struct DiscoverView: View {
     }
     
     func refresh() {
+        
+        if !properties.isEmpty {
+            return
+        }
+        
         if isRefreshing{
             return
         }
