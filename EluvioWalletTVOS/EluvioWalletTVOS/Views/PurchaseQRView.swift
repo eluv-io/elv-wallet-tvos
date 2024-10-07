@@ -12,6 +12,10 @@ struct PurchaseQRView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     var url: String
     @State var shortenedUrl: String = ""
+    var cleanUrl : String {
+        return shortenedUrl.replaceFirst(of: "https://", with: "")
+            .replaceFirst(of: "http://", with: "")
+    }
     var backgroundImage: String = ""
     var thumbnailImage: String = ""
     var sectionItem: MediaPropertySectionItem?
@@ -36,39 +40,33 @@ struct PurchaseQRView: View {
                 Text(title).font(.title)
                     .multilineTextAlignment(.center)
                     .padding()
-                    .padding(.bottom, 40)
-                    .frame(width:1000)
+                    .padding(.bottom, 20)
+                    .frame(width:1400)
                 
                 HStack{
-                    // Latest design, does not want item
-                    /*
-                    if let mediaItem = mediaItem {
-                        VStack{
-                            SectionMediaItemView(item:mediaItem, propertyId: propertyId)
-                                .disabled(true)
-                        }
-                    }else if let item = sectionItem{
-                        VStack{
-                            SectionItemView(item:item, sectionId:sectionId, pageId:pageId, propertyId: propertyId)
-                                .disabled(true)
-                        }
-                    }
-                     */
-                    
                     if !shortenedUrl.isEmpty {
-                        Image(uiImage: GenerateQRCode(from: shortenedUrl))
-                            .interpolation(.none)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 400, height: 400)
+                        VStack(alignment: .center, spacing:40) {
+                            Text("or visit \(cleanUrl)").font(.description)
+                            Image(uiImage: GenerateQRCode(from: shortenedUrl))
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 400, height: 400)
+                        }
                     }else{
                         Rectangle()
-                            .background(.clear)
+                            .foregroundColor(.clear)
                             .frame(width: 400, height: 400)
                     }
                     
                 }
+                .padding(.bottom, 40)
                 
+                Button(action:{
+                    eluvio.pathState.path.popLast()
+                },label:{
+                    Text("Back")
+                })
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)

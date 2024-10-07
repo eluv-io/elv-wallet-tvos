@@ -14,6 +14,10 @@ struct QRView: View {
     var url: String
     var backgroundImage: String = ""
     @State var shortenedUrl: String = ""
+    var cleanUrl : String {
+        return shortenedUrl.replaceFirst(of: "https://", with: "")
+            .replaceFirst(of: "http://", with: "")
+    }
     @State var title: String = "Point your camera to the QR Code below for content"
     @State var description: String = ""
     
@@ -37,17 +41,30 @@ struct QRView: View {
                         .padding()
                         .frame(width:1000)
                 }
-                if !shortenedUrl.isEmpty {
-                    Image(uiImage: GenerateQRCode(from: shortenedUrl))
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 400, height: 400)
-                }else{
-                    Rectangle()
-                        .background(.clear)
-                        .frame(width: 400, height: 400)
+                
+                HStack{
+                    if !shortenedUrl.isEmpty {
+                        VStack(alignment: .center, spacing:40)  {
+                            Text("or visit \(cleanUrl)").font(.description)
+                            Image(uiImage: GenerateQRCode(from: shortenedUrl))
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 400, height: 400)
+                        }
+                    }else{
+                        Rectangle()
+                            .foregroundColor(.clear)
+                            .frame(width: 400, height: 400)
+                    }
                 }
+                .padding(.bottom, 40)
+                
+                Button(action:{
+                    eluvio.pathState.path.popLast()
+                },label:{
+                    Text("Back")
+                })
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
