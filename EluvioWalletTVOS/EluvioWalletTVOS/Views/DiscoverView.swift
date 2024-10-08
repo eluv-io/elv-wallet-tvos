@@ -89,21 +89,26 @@ struct DiscoverView: View {
         )
         .scrollClipDisabled()
         .onAppear(){
-
             refresh()
             
             self.fabricCancellable2 = eluvio.accountManager.$currentAccount
                 .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
                 .sink { val in
+                    debugPrint("on currentAccount changed ", val)
                     if val == nil {
-                        properties = []
+                        //properties = []
                     }
                 }
         }
         .onReceive(timer) { time in
             if properties.isEmpty {
+                debugPrint("on discover timer ", properties)
                 refresh()
             }
+        }
+        .onWillDisappear(){
+            properties = []
+            refresh()
         }
     }
     

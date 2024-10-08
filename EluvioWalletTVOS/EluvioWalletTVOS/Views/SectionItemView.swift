@@ -502,6 +502,13 @@ struct SectionItemView: View {
         return false
     }
     
+    var opacity : CGFloat {
+        if let permission = self.permission {
+            return !permission.authorized ? 0.60 : 1.0
+        }
+        return 1.0
+    }
+    
     var display: MediaDisplay {
         
         if let forceDisplay = self.forceDisplay {
@@ -859,6 +866,7 @@ struct SectionItemView: View {
                                               permission: permission
                                     )
                                     .id(refreshId)
+                                    .opacity(opacity)
                                 
                             }
                             .buttonStyle(TitleButtonStyle(focused: isFocused))

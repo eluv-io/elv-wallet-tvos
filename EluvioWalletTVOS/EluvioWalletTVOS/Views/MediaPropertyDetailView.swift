@@ -147,7 +147,6 @@ struct MediaPropertyRegularSectionView: View {
                     }
                         
                     VStack(alignment: hAlignment, spacing: 0)  {
-                        Spacer()
                         HStack(alignment:.bottom, spacing:30){
                             if !title.isEmpty {
                                 Text(title).font(.rowTitle).foregroundColor(Color.white)
@@ -165,11 +164,11 @@ struct MediaPropertyRegularSectionView: View {
                             }
                         }
                         .focusSection()
-                        .padding([.top,.bottom], 20)
-                        //.background(.purple)
+                        .padding([.top,.bottom], 30)
                         
                         if alignment == .center && items.count < 5 {
-                            LazyHStack(alignment: .top, spacing: 20) {
+                            HStack(alignment: .top, spacing: 20) {
+                                //Rectangle().foregroundColor(.clear).frame(height: 1.0)
                                 ForEach(items) {item in
                                     SectionItemView(item: item,
                                                     sectionId: section.id,
@@ -182,7 +181,8 @@ struct MediaPropertyRegularSectionView: View {
                             .padding(.top,0)
                         }else{
                             ScrollView(.horizontal) {
-                                LazyHStack(alignment: .center, spacing: 34) {
+                                HStack(alignment: .center, spacing: 34) {
+                                    //Rectangle().foregroundColor(.clear).frame(height: 1.0)
                                     ForEach(items) {item in
                                         SectionItemView(item: item,
                                                         sectionId: section.id,
@@ -194,7 +194,6 @@ struct MediaPropertyRegularSectionView: View {
                                     }
                                 }
                             }
-                            //.frame(height:300)
                             .scrollClipDisabled()
                         }
                     }
@@ -233,6 +232,8 @@ struct MediaPropertyRegularSectionView: View {
             
             Task {
                 var sectionItems : [MediaPropertySectionItem] = []
+                let max = 25
+                var count = 0
                 if let content = section.content {
                     for var item in content {
                         let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "")
@@ -255,6 +256,10 @@ struct MediaPropertyRegularSectionView: View {
                         if !permission.hide && !mediaPermission.hide{
                             sectionItems.append(item)
                             debugPrint("added item")
+                        }
+                        count += 1
+                        if count == max {
+                            break
                         }
                     }
                 }
@@ -645,7 +650,6 @@ struct MediaPropertyDetailView: View {
     @State var playerItem : AVPlayerItem? = nil
     @State var backgroundImage : String = ""
     @State private var opacity: Double = 0.0
-    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     @State var isRefreshing = false
     @State var permissions : ResolvedPermission? = nil
     @State private var refreshId = UUID().uuidString
@@ -666,10 +670,10 @@ struct MediaPropertyDetailView: View {
                 }else if (backgroundImage.hasPrefix("http")){
                     WebImage(url: URL(string: backgroundImage))
                         .resizable()
-                        //.transition(.opacity)
-                        .aspectRatio(contentMode: .fit)
+                        .aspectRatio(contentMode: .fill)
                         .edgesIgnoringSafeArea([.top,.leading,.trailing])
-                        .frame(alignment: .topLeading)
+                        .frame(width:UIScreen.main.bounds.size.width,
+                               height: UIScreen.main.bounds.size.height, alignment: .topLeading)
                         .clipped()
                         .id(backgroundImage)
                 }else if(backgroundImage != "") {
@@ -691,15 +695,6 @@ struct MediaPropertyDetailView: View {
                             
                             eluvio.pathState.searchParams = SearchParams(propertyId: property?.id ?? "")
                             eluvio.pathState.path.append(.search)
-                            
-                            /*
-                            if (pageId == "main") {
-                                self.pageId = "ppgeLym6HBSnBAbnGUZDLCepNN"
-                            }else {
-                                self.pageId = "main"
-                            }
-                            refresh()
-                             */
                              
                         }){
                             HStack(){
@@ -723,44 +718,24 @@ struct MediaPropertyDetailView: View {
 
                 
                 VStack(spacing:0) {
-                    
                     ForEach(sections) {section in
                         if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
                         }
                     }
-                    
-                    
-                    //ForEach(sections) {section in
-                    /*
-                    if !sections.isEmpty {
-                        if let propertyId = property?.id {
-                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: sections[0])
-                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: sections[1])
-                            //.edgesIgnoringSafeArea([.leading,.trailing])
-                        }
-                        //}
-                    }
-                     */
                 }
                 .prefersDefaultFocus(in: NamespaceProperty)
                 .padding(.top, 100)
-                
+                .id(refreshId)
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
         .opacity(opacity)
         .scrollClipDisabled()
         .edgesIgnoringSafeArea(.all)
-        .id(self.pageId)
         .background(
             Color.black.edgesIgnoringSafeArea(.all)
         )
-        .onReceive(timer) { time in
-            debugPrint("MediaPropertyDetailView onReceive Timer")
-            //refresh()
-            
-        }
         .onAppear(){
             debugPrint("MediaPropertyDetailView onAppear")
             withAnimation(.easeInOut(duration: 2)) {
@@ -793,10 +768,11 @@ struct MediaPropertyDetailView: View {
                 if let mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:true) {
                     debugPrint("Fetched new property ", mediaProperty.id)
                     self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
-                    //await MainActor.run {
+                    await MainActor.run {
+                        self.property = nil
                         self.property = mediaProperty
                         debugPrint("Property title inside mainactor", mediaProperty.title)
-                    //}
+                    }
                 }else{
                     debugPrint("Could not find property")
                     return
@@ -807,7 +783,6 @@ struct MediaPropertyDetailView: View {
             }
             
             var altPageId = self.pageId
-            //self.pageId = "main"
             do {
                 debugPrint("Property title ", property?.title)
                 debugPrint("Property permissions ", property?.permissions)
@@ -816,7 +791,6 @@ struct MediaPropertyDetailView: View {
                 
                 var pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: propertyId, pageId: altPageId)
                 debugPrint("Main Page resolved permissions", pagePerms)
-                
                 if !pagePerms.authorized {
                     if pagePerms.behavior == .showAlternativePage {
                         self.pageId = pagePerms.alternatePageId
@@ -836,7 +810,7 @@ struct MediaPropertyDetailView: View {
                         //TODO: Waht to show?
                     }
                 }
-
+                
             }catch{
                 print("Could not resolve permissions for property id \(propertyId)", error.localizedDescription)
             }

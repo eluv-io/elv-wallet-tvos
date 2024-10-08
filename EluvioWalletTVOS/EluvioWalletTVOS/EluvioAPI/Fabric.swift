@@ -1283,7 +1283,9 @@ class Fabric: ObservableObject {
         
         if noCache || newFetch || self.mediaProperties.contents.isEmpty{
             let response = try await signer.getProperties(includePublic:includePublic, noCache:noCache, accessCode: noAuth ? "" : self.fabricToken)
-            try cacheMediaProperties(properties: response)
+            if noAuth == false && !self.fabricToken.isEmpty {
+                try cacheMediaProperties(properties: response)
+            }
             return response.contents
         }
         
@@ -1327,6 +1329,8 @@ class Fabric: ObservableObject {
         return try await signer.getMediaCatalogJSON(accessCode: self.fabricToken, mediaId: mediaId)
     }
     
+    //var TESTING = false
+    
     func getProperty(property: String, noCache:Bool=false, newFetch:Bool=false) async throws -> MediaProperty? {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
@@ -1341,7 +1345,23 @@ class Fabric: ObservableObject {
             mediaPropertiesCache[property] = mediaProperty
         }
         
-        return mediaPropertiesCache[property]
+        var property =  mediaPropertiesCache[property]
+        /*
+        if TESTING {
+            var authState = JSON([
+                "prmoSDvLi2sG2ktyUv22wHU53x" : ["authorized" : true],
+                "prmo7gpw965XPZU2dW4fziNBwf" : ["authorized" : true],
+                "prmoCW9G2JTC6EpEkU4B3UajUE" : ["authorized" : true],
+                "prmoNqE1qA8WcVs9MuSojyj7Gk" : ["authorized" : true],
+                "prmo57V6zEcBxUD8sXs2tTPEFm" : ["authorized" : true],
+                "prmo2kBuKqDeF9pZ8D7533uQ7Z" : ["authorized" : true],
+                "prmoTCTjJyhBS6DcaJ7MQSwd5s" : ["authorized" : true]
+                
+            ])
+            property?.permission_auth_state = authState
+        }
+        */
+        return property
     }
     
     func getPropertyItems(property: String, sections: [String]) async throws -> JSON {
@@ -2414,6 +2434,7 @@ class Fabric: ObservableObject {
                                     mediaCollectionId:String = "",
                                     mediaListId:String = "",
                                     mediaItemId:String = "",
+                                    permissionAuthState: JSON = JSON(),
                                     isSearch:Bool = false
     ) async throws -> ResolvedPermission {
 
@@ -2422,7 +2443,13 @@ class Fabric: ObservableObject {
         
         let mediaProperty = try await getProperty(property: propertyId)
         
-        let authState = mediaProperty?.permission_auth_state ?? JSON()
+        var authState = permissionAuthState
+        if authState.isEmpty{
+            authState = mediaProperty?.permission_auth_state ?? JSON()
+            debugPrint("using mediaAuthState")
+        }
+        
+        debugPrint("authState ", authState)
         
         debugPrint("Property Permissions ", mediaProperty?.permissions)
         

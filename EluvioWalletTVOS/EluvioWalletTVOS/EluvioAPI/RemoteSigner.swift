@@ -514,15 +514,15 @@ class RemoteSigner {
         })
     }
     
-    func getPropertyPermissions(propertyId: String, accessCode: String) async throws -> JSON {
+    func getPropertyPermissions(propertyId: String, accessCode: String, noCache:Bool = true) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
-                endpoint = endpoint.appending("/mw/properties/\(propertyId)/permissions")
-                
+                endpoint = endpoint.appending("/mw/properties/\(propertyId)/permissions?no_cache=\(noCache)")
+
                 if (environment != .prod){
-                    endpoint = endpoint.appending("?env=\(environment)")
+                    endpoint = endpoint.appending("&env=\(environment)")
                 }
 
                 let headers: HTTPHeaders = [
