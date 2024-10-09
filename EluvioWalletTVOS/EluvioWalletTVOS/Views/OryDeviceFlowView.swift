@@ -231,7 +231,7 @@ struct OryDeviceFlowView: View {
                 return
             }
             
-            debugPrint("Result ", result)
+            debugPrint("Ory Result ", result)
             
             let json = JSON.init(parseJSON:result["payload"].stringValue)
             
@@ -245,9 +245,12 @@ struct OryDeviceFlowView: View {
             let token = json["token"].stringValue
             let addr = json["addr"].stringValue
             let eth = json["eth"].stringValue
+            let email = json["email"].stringValue
+            let expiresAt = json["expiresAt"].int64Value
+            let clusterToken = json["clusterToken"].stringValue
+            debugPrint("EMAIL: ", email)
 
-
-            var newProperty : MediaProperty? = nil
+            var newProperty : MediaProperty? = property
             do {
                 //var signInResponse = SignInResponse()
                 //signInResponse.idToken = token
@@ -257,8 +260,21 @@ struct OryDeviceFlowView: View {
 
                 let account = Account()
                 account.type = .Ory
+
+                
+                account.login = login
+                
+                if expiresAt > 0 {
+                    account.expiresAt = expiresAt
+                }else {
+                    let duration: Int64 = 1 * 24 * 60 * 60 * 1000
+                    account.expiresAt = Date().now + duration
+                }
+                
+                account.email = email
                 account.fabricToken = token
                 account.login = login
+                account.clusterToken = clusterToken
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
                 try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
                 

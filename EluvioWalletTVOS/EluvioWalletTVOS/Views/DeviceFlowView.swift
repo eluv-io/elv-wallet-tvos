@@ -12,6 +12,9 @@ import CoreImage.CIFilterBuiltins
 import Alamofire
 import Combine
 import SDWebImageSwiftUI
+import SwiftyJSON
+import ExtrasBase64
+import JWTDecode
 
 struct DeviceFlowView: View {
     @Environment(\.presentationMode) var presentationMode
@@ -166,7 +169,7 @@ struct DeviceFlowView: View {
             .background(.thickMaterial)
         }
         .fullScreenCover(isPresented: $showMetaMaskFlow){
-            MetaMaskFlowView(show: $showMetaMaskFlow)
+            MetaMaskFlowView(property:property, show: $showMetaMaskFlow)
         }
         
     }
@@ -281,15 +284,29 @@ struct DeviceFlowView: View {
                                     signInResponse.refreshToken = refreshToken
                                     signInResponse.accessToken = accessToken
                                     
+                                    var email = ""
+                                    do {
+                                        let jwt = try decode(jwt: idToken)
+                                        
+                                        if let jwtEmail = jwt["email"].string {
+                                            email = jwtEmail
+                                        }
+                                    }catch{
+                                        print("Could not decode idToken ", error.localizedDescription)
+                                    }
+                                   
                                     let login = try await eluvio.fabric.login(idToken: idToken)
                                     
                                     let account = Account()
                                     account.type = .Auth0
-                                    account.fabricToken = try await eluvio.fabric.createFabricToken(login:login)
+                                    let duration: Int64 = 1 * 24 * 60 * 60 * 1000
+                                    account.fabricToken = try await eluvio.fabric.createFabricToken(login:login, duration:duration)
                                     account.signInResponse = signInResponse
                                     account.login = login
+                                    account.expiresAt = Date().now + duration
+                                    account.email = email
                                     try await eluvio.signIn(account:account, property: property?.id ?? "")
-                                    try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
+                                    _ = try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
                                     newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")

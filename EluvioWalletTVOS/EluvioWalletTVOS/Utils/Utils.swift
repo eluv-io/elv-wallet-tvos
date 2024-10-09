@@ -111,9 +111,23 @@ extension String {
         return self.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
+    var fixedBase64Format: Self {
+        let offset = count % 4
+        guard offset != 0 else { return self.trim() }
+        return padding(toLength: count + 4 - offset, withPad: "=", startingAt: 0).trim()
+      }
+    
     func base64() -> String {
         let stringData = self.data(using: .utf8)!
         return stringData.base64EncodedString()
+    }
+    
+    func fromBase64() -> String? {
+        guard let data = Data(base64Encoded: self) else {
+            return nil
+        }
+
+        return String(data: data, encoding: .utf8)
     }
     
     func jsonToDictionary() -> [String: Any]? {

@@ -15,6 +15,7 @@ class EluvioAPI : ObservableObject {
     @Published var fabric : Fabric = Fabric()
     @Published var pathState : PathState = PathState()
     @Published var viewState = ViewState()
+    @Published var refreshId = UUID().uuidString
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -38,6 +39,9 @@ class EluvioAPI : ObservableObject {
         .store(in: &self.cancellables)
     }
     
+    func needsRefresh() {
+        refreshId = UUID().uuidString
+    }
 
     func setEnvironment(env:APIEnvironment){
         UserDefaults.standard.set(env.rawValue, forKey: "api_environment")
@@ -84,9 +88,42 @@ class EluvioAPI : ObservableObject {
             return
         }else {
             print("Couldn't parse errors")
-            //eluvio.pathState.path.append(.errorView("A problem occured."))
             return
         }
+    }
+    
+    func createWalletAuthorization() -> String {
+        do {
+            if let account = accountManager.currentAccount {
+                return try createWalletAuthorizationFromAccount(account: account)
+            }
+        }catch{
+            print("Error creating wallet authorization", error.localizedDescription)
+        }
+        
+        return ""
+    }
+    
+    func createWalletAuthorizationFromAccount(account: Account) throws -> String{
+        
+        let address = account.getAccountAddress()
+        var provider = "external"
+        if account.type == .Auth0 {
+            provider = "auth0"
+        }
+        
+        if account.type == .Ory {
+            provider = "ory"
+        }
+
+        return try fabric.createWalletAuthorization(
+            address:address,
+            email: account.email,
+            expiresAt: account.expiresAt,
+            clusterToken: account.clusterToken,
+            fabricToken: account.fabricToken,
+            provider: provider
+        )
     }
 }
 

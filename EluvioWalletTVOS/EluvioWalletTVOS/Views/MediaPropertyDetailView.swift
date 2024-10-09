@@ -762,7 +762,7 @@ struct MediaPropertyDetailView: View {
         Task {
             defer {
                 self.isRefreshing = false
-                self.refreshId = UUID().uuidString
+                self.refreshId = eluvio.refreshId
             }
             do {
                 if let mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:true) {
@@ -810,7 +810,6 @@ struct MediaPropertyDetailView: View {
                         //TODO: Waht to show?
                     }
                 }
-                
             }catch{
                 print("Could not resolve permissions for property id \(propertyId)", error.localizedDescription)
             }

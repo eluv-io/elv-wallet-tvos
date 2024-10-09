@@ -12,6 +12,7 @@ import SwiftyJSON
 import SDWebImageSwiftUI
 
 struct ContentView: View {
+    @Environment(\.scenePhase) var scenePhase
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
     var viewState: ViewState {
@@ -467,6 +468,21 @@ struct ContentView: View {
             .background(.black)
         }
         .edgesIgnoringSafeArea(.all)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .inactive {
+                print("Inactive")
+            } else if newPhase == .active {
+                print("Active ")
+            } else if newPhase == .background {
+                print("Content View Going to the Background")
+                Task{
+                    do {
+                        try await eluvio.fabric.getProperties(includePublic:true, noCache: true)
+                        try await eluvio.needsRefresh()
+                    }
+                }
+            }
+        }
     }
     
     

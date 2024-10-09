@@ -1219,6 +1219,52 @@ class Fabric: ObservableObject {
             return "https://wallet.contentfabric.io"
         }
     }
+
+    func createWalletAuthorization(address:String="",
+                                   email:String="",
+                                   expiresAt:Int64=0,
+                                   walletType:String="Custodial",
+                                   walletName:String="Eluvio",
+                                   clusterToken:String="",
+                                   fabricToken:String="",
+                                   provider:String=""
+    ) throws -> String {
+        var paramDict = [String: Any]()
+
+        if !address.isEmpty {
+            paramDict["address"] = address
+        }
+        if !email.isEmpty {
+            paramDict["email"] = email
+        }
+        if expiresAt > 0 {
+            paramDict["expiresAt"] = expiresAt
+        }
+        if !walletType.isEmpty {
+            paramDict["walletType"] = walletType
+        }
+        if !walletName.isEmpty {
+            paramDict["walletName"] = walletName
+        }
+        if !clusterToken.isEmpty {
+            paramDict["clusterToken"] = clusterToken
+        }
+        if !fabricToken.isEmpty {
+            paramDict["fabricToken"] = fabricToken
+        }
+        if !provider.isEmpty {
+            paramDict["provider"] = provider
+        }
+
+        let json = JSON(paramDict)
+        
+        debugPrint("wallet authorization: ", json)
+        let array = [UInt8](try json.rawData())
+        
+        let params = Base58.base58Encode(array)
+        
+        return params
+    }
     
     func createWalletPurchaseUrl(id:String,
                                  propertyId:String,
@@ -1228,7 +1274,8 @@ class Fabric: ObservableObject {
                                  sectionItemId:String="",
                                  actionId:String="",
                                  permissionIds:[String]=[],
-                                 secondaryPurchaseOption:String="") throws -> String{
+                                 secondaryPurchaseOption:String="",
+                                 authorization:String="") throws -> String{
 
         var paramDict = [String: Any]()
         paramDict["id"] = id
@@ -1254,11 +1301,20 @@ class Fabric: ObservableObject {
         let array = [UInt8](try json.rawData())
         
         let params = Base58.base58Encode(array)
-        return getWalletBaseUrl() + "/" + propertyId + "/" + pageId + "?" + "p=\(params)"
+        var url = getWalletBaseUrl() + "/" + propertyId + "/" + pageId + "?" + "p=\(params)"
+        if authorization.isEmpty {
+            return url
+        }
+        
+        return url + "&authorization=\(authorization)"
     }
     
-    func createWalletPageLink(propertyId:String,pageId:String) -> String{
-        return getWalletBaseUrl() + "/" + propertyId + "/" + pageId
+    func createWalletPageLink(propertyId:String,pageId:String, authorization:String = "") -> String{
+        let url = getWalletBaseUrl() + "/" + propertyId + "/" + pageId
+        if authorization.isEmpty {
+            return url
+        }
+        return url + "?authorization=\(authorization)"
     }
     
     func getNFTs(address:String, propertyId:String="", description:String="", name:String="") async throws -> [NFTModel]{
@@ -1614,7 +1670,7 @@ class Fabric: ObservableObject {
     
     
     
-    func createFabricToken(idToken: String, address: String = "", external: Bool = false) async throws -> String {
+    func createFabricToken(idToken: String, duration: Int64 = 1 * 24 * 60 * 60 * 1000, address: String = "", external: Bool = false) async throws -> String {
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
@@ -1627,10 +1683,10 @@ class Fabric: ObservableObject {
         
         var response = try await login(idToken:idToken, address:address, external: external)
         var authToken = ""
-        return try await signer.createFabricToken( address:response.addr, contentSpaceId: self.getContentSpaceId(), authToken: response.token, external: external)
+        return try await signer.createFabricToken(duration:duration, address:response.addr, contentSpaceId: self.getContentSpaceId(), authToken: response.token, external: external)
     }
     
-    func createFabricToken(login:LoginResponse, external: Bool = false) async throws -> String {
+    func createFabricToken(login:LoginResponse, duration: Int64 = 1 * 24 * 60 * 60 * 1000, external: Bool = false) async throws -> String {
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
@@ -1641,7 +1697,7 @@ class Fabric: ObservableObject {
             throw FabricError.configError("Not configured.")
         }
 
-        return try await signer.createFabricToken( address:login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
+        return try await signer.createFabricToken(duration:duration, address:login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
     }
     
     func resetWalletData(){

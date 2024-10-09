@@ -24,6 +24,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var permissions : JSON? = nil
     var main_page : MediaPropertyPage? = nil
     var permission_auth_state : JSON? = nil
+    var purchaseImage : String = ""
     
     static func == (lhs: MediaPropertyViewModel, rhs: MediaPropertyViewModel) -> Bool {
         return lhs.id == rhs.id
@@ -50,52 +51,17 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
         do {
             backgroundImage = try fabric.getUrlFromLink(link: mediaProperty.image_tv)
         }catch{}
- 
-        /*
-        if backgroundImage.isEmpty {
-            do {
-                backgroundImage = try fabric.getUrlFromLink(link: mediaProperty.main_page?.layout?["background_image"] ?? "")
-            }catch{}
-        }
-        */
-        //debugPrint("Background image from page layout ", backgroundImage)
-        //debugPrint("Sections ", mediaProperty.sections ?? "")
         
-        /*
-        if backgroundImage.isEmpty && findHero{
-            var sections : [MediaPropertySection] = []
-            do {
-                sections = try await fabric.getPropertyPageSections(property: mediaProperty.id ?? "", page: "main")
-                //debugPrint("finished getting sections. ", sections.count)
-            }catch{}
-            
-            if !sections.isEmpty{
-                debugPrint("digging into sections ", sections)
-                let section = sections[0]
-                if let heros = section.hero_items{
-                    //debugPrint("found heros", heros[0])
-                    if !heros.isEmpty{
-                        let background = heros[0]["display"]["background_image"]
-                        //debugPrint("background ", background)
-                        if !background.isEmpty {
-                            do {
-                                backgroundImage = try fabric.getUrlFromLink(link: background)
-                            }catch{
-                                debugPrint("Error: ", error.localizedDescription)
-                            }
-                        }
-                    }
-                }else{
-                    //debugPrint("No hero_items")
-                }
-            }else{
-                //debugPrint("No sections")
-            }
+        var purchaseImage = ""
+        do {
+            purchaseImage = try fabric.getUrlFromLink(link: mediaProperty.purchase_settings?["background_tv"])
+        }catch{}
+ 
+        if purchaseImage.isEmpty {
+            purchaseImage = backgroundImage
         }else{
-            //debugPrint("backgroundImage is not empty")
+            debugPrint("Found purchaseImage ", purchaseImage)
         }
-            */
-
         
         var logo = ""
         do {
@@ -128,7 +94,8 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
                 sections: sections,
                 permissions : mediaProperty.permissions,
                 main_page: mediaProperty.main_page,
-                permission_auth_state: mediaProperty.permission_auth_state
+                permission_auth_state: mediaProperty.permission_auth_state,
+                purchaseImage: purchaseImage
             )
     }
 }

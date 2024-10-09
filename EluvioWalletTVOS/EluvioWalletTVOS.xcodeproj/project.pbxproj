@@ -231,6 +231,8 @@
 		B08CB5AB2B7DE8F200E04C0D /* ViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5A92B7DE8F200E04C0D /* ViewState.swift */; };
 		B08CB5AC2B7DE8F200E04C0D /* ViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5A92B7DE8F200E04C0D /* ViewState.swift */; };
 		B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5AD2B7DF2CB00E04C0D /* AudioPlayer.swift */; };
+		B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FA2CB7286900C1D590 /* ExtrasBase64 */; };
+		B09897FD2CB7288100C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FC2CB7288100C1D590 /* ExtrasBase64 */; };
 		B099A5AF2B336CAD00C779A0 /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5AE2B336CAD00C779A0 /* Auth0 */; };
 		B099A5B12B336CAD00C779A0 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B02B336CAD00C779A0 /* Alamofire */; };
 		B099A5B32B336CAD00C779A0 /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B22B336CAD00C779A0 /* Base58Swift */; };
@@ -511,6 +513,7 @@
 				B08CB5512B7DDF0E00E04C0D /* UUIDShortener in Frameworks */,
 				B08CB54B2B7DDF0E00E04C0D /* RLPSwift in Frameworks */,
 				B08CB5492B7DDF0E00E04C0D /* SwiftKeccak in Frameworks */,
+				B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */,
 				B08CB5452B7DDF0E00E04C0D /* KeccakTiny in Frameworks */,
 				B08CB5472B7DDF0E00E04C0D /* Sha3Tiny in Frameworks */,
 				B08CB53B2B7DDF0E00E04C0D /* Auth0 in Frameworks */,
@@ -549,6 +552,7 @@
 				B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */,
 				B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */,
 				B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */,
+				B09897FD2CB7288100C1D590 /* ExtrasBase64 in Frameworks */,
 				B06D52172A14657E00BD68D1 /* Introspect-Static in Frameworks */,
 				B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */,
 				B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */,
@@ -926,6 +930,7 @@
 				B08CB54C2B7DDF0E00E04C0D /* SwiftyJSON */,
 				B08CB54E2B7DDF0E00E04C0D /* SDWebImageSwiftUI */,
 				B08CB5502B7DDF0E00E04C0D /* UUIDShortener */,
+				B09897FA2CB7286900C1D590 /* ExtrasBase64 */,
 			);
 			productName = ShowcaseWallet;
 			productReference = B08CB52C2B7DDB2800E04C0D /* ShowcaseWallet.app */;
@@ -990,6 +995,7 @@
 				B06D52162A14657E00BD68D1 /* Introspect-Static */,
 				B069A48B2A5225A4006C9E7B /* UUIDShortener */,
 				B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */,
+				B09897FC2CB7288100C1D590 /* ExtrasBase64 */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -1038,6 +1044,7 @@
 				B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 				B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */,
 				B0F9DC3A2B578D9800499C93 /* XCRemoteSwiftPackageReference "SDWebImagePDFCoder" */,
+				B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */,
 			);
 			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
 			projectDirPath = "";
@@ -1627,7 +1634,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 242;
+				CURRENT_PROJECT_VERSION = 244;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1661,7 +1668,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 242;
+				CURRENT_PROJECT_VERSION = 244;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1776,6 +1783,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.3.1;
+			};
+		};
+		B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swift-extras/swift-extras-base64";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
 			};
 		};
 		B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
@@ -1963,6 +1978,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */;
 			productName = UUIDShortener;
+		};
+		B09897FA2CB7286900C1D590 /* ExtrasBase64 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */;
+			productName = ExtrasBase64;
+		};
+		B09897FC2CB7288100C1D590 /* ExtrasBase64 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */;
+			productName = ExtrasBase64;
 		};
 		B099A5AE2B336CAD00C779A0 /* Auth0 */ = {
 			isa = XCSwiftPackageProductDependency;

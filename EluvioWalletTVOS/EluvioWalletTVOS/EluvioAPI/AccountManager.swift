@@ -9,7 +9,7 @@ import Foundation
 import Base58Swift
 
 enum AccountType: Codable {
-    case Auth0, Ory, SSO, DEBUG
+    case Auth0, Ory, SSO, DEBUG, Metamask
 }
 
 class Account: Identifiable, Codable {
@@ -22,11 +22,14 @@ class Account: Identifiable, Codable {
         return _id
     }
     var type: AccountType = .Auth0
+    var clusterToken: String = ""
     var fabricToken: String = ""
     var profile: ProfileData = ProfileData()
     var login :  LoginResponse? = nil
     var signInResponse: SignInResponse? = nil
     var isLoggedOut = true
+    var expiresAt : Int64 = 0
+    var email = ""
 
     func getAccountId() -> String {
         guard let address = self.login?.addr else
@@ -51,21 +54,23 @@ class Account: Identifiable, Codable {
         
         return FormatAddress(address: address)
     }
+
 }
 
 typealias PropertyID = String
 typealias PropertyIDAccountDict = [PropertyID:Account]
 
 class AccountManager : ObservableObject {
-    var accounts: [AccountType: PropertyIDAccountDict] = [.Auth0:[:],.Ory:[:]]
+    var accounts: [AccountType: PropertyIDAccountDict] = [.Auth0:[:],.Ory:[:], .Metamask:[:], .SSO:[:], .DEBUG:[:]]
     @Published
     var currentAccount : Account? = nil
     
     var signingIn = false
     
     init(){
+        accounts = [.Auth0:[:],.Ory:[:], .Metamask:[:], .SSO:[:], .DEBUG:[:]]
         getSavedAccount()
-        
+        debugPrint("accounts ", accounts)
 /*
        let account = Account ()
         account.fabricToken = "acspjcBzzzk7wijCd6yAz21VGTr86XvtpoLmVGVNpFMDg4yrExvYd8RgNyYnGPXKkTnGiL6MYhLRZgaiC9aKCBN8HYsm2vnQVQgSc5sJyy4hbSb6AWZ3EjhfzGC8t9kNqviy7n6zFF8GWnMsMG14stsdgmurAT4uQoocHjhjkhGAsuVQi32WEcF5pnV3fZsNsxLyNaoyAoQMxXm4ykGU18KCuaBKpPCFMnheF7Um5fp2CGQXqznYBh1d7LQBeVwZnAqq1LqC3WkWbUEG8Rqig5XLpjVwi3iWWGZkaCcwz5xGFHo8gX6mTMTkjc59MDxS"
@@ -163,13 +168,16 @@ class AccountManager : ObservableObject {
     }
 
     func addAccount(account:Account, type:AccountType, property: String = "") throws {
+        debugPrint("addAccount accounts ", accounts)
+        debugPrint("addAccount \(account) type: \(type) property: \(property) typeAccounts: \(accounts[type])")
+        if accounts[type] == nil {
+            accounts[type] = [:]
+        }
+        
         if var typeAccounts = accounts[type] {
             typeAccounts[property] = account
             accounts[type] = typeAccounts
-            return
         }
-        
-        throw FabricError.configError("Could not add account, type not supported.")
     }
 
     func removeAccount(type:AccountType, property: String = "") {

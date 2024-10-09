@@ -52,6 +52,7 @@ struct PurchaseQRView: View {
                     
                     Button(action:{
                         //eluvio.fabric.TESTING = true
+                        eluvio.needsRefresh()
                         eluvio.pathState.path.popLast()
                     },label:{
                         Text("Continue to Property")

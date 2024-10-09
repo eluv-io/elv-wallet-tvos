@@ -35,8 +35,9 @@ struct MetaMaskFlowView: View {
     @State private var response = JSON()
     var property: MediaProperty? = nil
     
-    init(show: Binding<Bool>){
+    init(property: MediaProperty? = nil, show: Binding<Bool>){
         self.Domain = "prod-elv.us.auth0.com"
+        self.property = property
     }
 
 
@@ -157,7 +158,8 @@ struct MetaMaskFlowView: View {
                 self.url = "https://".appending(self.url)
             }
             
-            self.url = try await signer.shortenUrl(url: self.url)
+            //This doesn't work with tiny
+            //self.url = try await signer.shortenUrl(url: self.url)
             debugPrint("Shortened URL: ", self.url)
 
             //Tried the metamask:// prefix but doesn't work either
@@ -183,9 +185,10 @@ struct MetaMaskFlowView: View {
     
     func checkDeviceVerification() async{
         print("Metamask checkDeviceVerification \(self.code)");
+        var newProperty : MediaProperty? = property
+        
         do {
-            var newProperty : MediaProperty? = nil
-            
+
             guard let result = try await eluvio.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
                 print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
@@ -211,27 +214,33 @@ struct MetaMaskFlowView: View {
             let token = json["token"].stringValue
             let addr = json["addr"].stringValue
             let eth = json["eth"].stringValue
+            let expiresAt = json["expiresAt"].int64Value
+            let clusterToken = json["clusterToken"].stringValue
             
             let login = LoginResponse(addr:addr, eth:eth, token:token)
 
             let account = Account()
-            account.type = .Auth0
+            account.type = .Metamask
             account.fabricToken = token
+            account.expiresAt = expiresAt
+            account.clusterToken = clusterToken
             account.login = login
             try await eluvio.signIn(account:account, property: property?.id ?? "")
+            try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
             newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
-            
-            await MainActor.run {
-                debugPrint("Sign in finished.")
-                let last = eluvio.pathState.path.popLast()
-                debugPrint("Popped the path state.")
-                let params = PropertyParam(property:newProperty)
-                eluvio.pathState.path.append(.property(params))
-            }
-            
+
         } catch {
             print("checkDeviceVerification error", error)
         }
+        
+        await MainActor.run {
+            debugPrint("Sign in finished.")
+            let last = eluvio.pathState.path.popLast()
+            debugPrint("Popped the path state.")
+            let params = PropertyParam(property:newProperty)
+            eluvio.pathState.path.append(.property(params))
+        }
+        
         self.timerCancellable!.cancel()
         /*
         print("checkDeviceVerification \(self.code)");

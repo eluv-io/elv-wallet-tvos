@@ -329,24 +329,25 @@ struct SectionMediaItemView: View {
                             }
                             return
                         }
+
+                        let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
+
                         
                         if let permission = item.resolvedPermission {
                             if !permission.authorized  || item.type == "item_purchase"{
+                                
+                                var purchaseImage = viewModel.purchaseImage
+                                
                                 if permission.purchaseGate || item.type == "item_purchase" {
                                     
                                     debugPrint("permission ids ", permission.permissionItemIds)
                                     
-                                    let url = try eluvio.fabric.createWalletPurchaseUrl(id:item.id ?? "", propertyId: propertyId, pageId: "", sectionItemId: item.id ?? "", permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
+                                    let auth = eluvio.createWalletAuthorization()
+                                    let url = try eluvio.fabric.createWalletPurchaseUrl(id:item.id ?? "", propertyId: propertyId, pageId: "", sectionItemId: item.id ?? "", permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption, authorization: auth)
                                     debugPrint("SectionMediaItemView Purchase! ", url)
-                                    
-                                    var backgroundImage = ""
-                                    
-                                    let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
-                                    backgroundImage = viewModel.backgroundImage
-                                    
-                                    
+
                                     let params = PurchaseParams(url:url,
-                                                                backgroundImage: backgroundImage,
+                                                                backgroundImage: purchaseImage,
                                                                 propertyId : propertyId,
                                                                 pageId : permission.alternatePageId,
                                                                 sectionItem: sectionItem,
@@ -357,21 +358,20 @@ struct SectionMediaItemView: View {
                                     return
                                 }else if permission.showAlternatePage {
                                     debugPrint("ShowAlternatePage ")
-                                    eluvio.pathState.property = property
-                                    eluvio.pathState.propertyId = propertyId
-                                    let newPage = permission.alternatePageId
-                                    debugPrint("new page id ", newPage)
-                                    if !newPage.isEmpty {
-                                        eluvio.pathState.pageId = newPage
-                                        eluvio.pathState.sectionItem = sectionItem
-                                        let params = PropertyParam(property:property, pageId:newPage)
-                                        _ = eluvio.pathState.path.popLast()
-                                        eluvio.pathState.path.append(.property(params))
-                                        return
-                                    }else{
-                                        debugPrint("Could not get page id.")
-                                        return
-                                    }
+                                    
+                                    let auth = eluvio.createWalletAuthorization()
+                                    let url = eluvio.fabric.createWalletPageLink(propertyId: propertyId, pageId:permission.alternatePageId, authorization: auth)
+                                    debugPrint("SectionItemView Alternative Page Purchase! ", url)
+
+                                    let params = PurchaseParams(url:url,
+                                                                backgroundImage: purchaseImage,
+                                                                propertyId : propertyId,
+                                                                pageId : permission.alternatePageId,
+                                                                sectionItem : sectionItem,
+                                                                mediaItem: item)
+                                    _ = eluvio.pathState.path.popLast()
+                                    eluvio.pathState.path.append(.purchaseQRView(params))
+                                    return
                                 }
                                 
                                 //_ = eluvio.pathState.path.popLast()
@@ -595,18 +595,22 @@ struct SectionItemView: View {
                                             //debugPrint("!!! Permission ", permission)
                                             if let permission = permission {
                                                 if !permission.authorized  || item.type == "item_purchase"{
+                                                    
+                                                    let purchaseImage = viewModel.purchaseImage
+                                                    debugPrint("purchase image: ", viewModel.purchaseImage)
+                                                    debugPrint("property purchase_settings ", property.purchase_settings)
+                                                    
                                                     if permission.purchaseGate || item.type == "item_purchase" {
-                                                        let url = try eluvio.fabric.createWalletPurchaseUrl(id:sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
+                                                        
+                                                        let auth = eluvio.createWalletAuthorization()
+                                                        
+                                                        debugPrint("authorization: ", auth)
+                                                        let url = try eluvio.fabric.createWalletPurchaseUrl(id:sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption, authorization:auth)
                                                         debugPrint("SectionItemView Purchase! ", url)
-                                                        
-                                                        var backgroundImage = ""
-                                                       
-                                                        let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
-                                                        backgroundImage = viewModel.backgroundImage
-                                                        
+                                            
                                                         
                                                         let params = PurchaseParams(url:url,
-                                                                                    backgroundImage: backgroundImage,
+                                                                                    backgroundImage: purchaseImage,
                                                                                     propertyId : propertyId,
                                                                                     pageId : permission.alternatePageId,
                                                                                     sectionId : sectionId,
@@ -617,51 +621,12 @@ struct SectionItemView: View {
                                                         return
                                                     }else if permission.showAlternatePage {
                                                         debugPrint("ShowAlternatePage ")
-                                                        /*
-                                                        do{
-                                                            if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                                                eluvio.pathState.property = property
-                                                                eluvio.pathState.propertyId = propertyId
-                                                                let newPage = permission.alternatePageId
-                                                                debugPrint("new page id ", newPage)
-                                                                debugPrint("existing page id ", pageId)
-                                                                if !newPage.isEmpty {
-                                                                    eluvio.pathState.pageId = newPage
-                                                                    eluvio.pathState.sectionItem = item
-                                                                    let params = PropertyParam(property:property, pageId:newPage)
-                                                                    _ = eluvio.pathState.path.popLast()
-                                                                    eluvio.pathState.path.append(.property(params))
-                                                                    return
-                                                                }else{
-                                                                    debugPrint("Could not get page id.")
-                                                                    return
-                                                                }
-                                                                
-                                                            }else{
-                                                                debugPrint("Could not get property.")
-                                                                _ = eluvio.pathState.path.popLast()
-                                                                eluvio.pathState.path.append(.errorView("A problem occured."))
-                                                                return
-                                                            }
-                                                        }catch {
-                                                            _ = eluvio.pathState.path.popLast()
-                                                            debugPrint("Could not get property.", error.localizedDescription)
-                                                            eluvio.pathState.path.append(.errorView("A problem occured."))
-                                                            return
-                                                        }
-                                                         */
-                                                        
-                                                        let url = eluvio.fabric.createWalletPageLink(propertyId: propertyId, pageId:permission.alternatePageId)
+                                                        let auth = eluvio.createWalletAuthorization()
+                                                        let url = eluvio.fabric.createWalletPageLink(propertyId: propertyId, pageId:permission.alternatePageId, authorization: auth)
                                                         debugPrint("SectionItemView Alternative Page Purchase! ", url)
-                                                        
-                                                        var backgroundImage = ""
-                                                       
-                                                        let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
-                                                        backgroundImage = viewModel.backgroundImage
-                                                        
-                                                        
+
                                                         let params = PurchaseParams(url:url,
-                                                                                    backgroundImage: backgroundImage,
+                                                                                    backgroundImage: purchaseImage,
                                                                                     propertyId : propertyId,
                                                                                     pageId : permission.alternatePageId,
                                                                                     sectionId : sectionId,
@@ -1018,7 +983,8 @@ struct SectionItemPurchaseView: View {
                     self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
                     
                     if let permission = permission {
-                        let url = try eluvio.fabric.createWalletPurchaseUrl(id: sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption)
+                        let auth = eluvio.createWalletAuthorization()
+                        let url = try eluvio.fabric.createWalletPurchaseUrl(id: sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption, authorization: auth)
                         debugPrint("Item Purchase! ", url)
                         eluvio.pathState.propertyId = propertyId
                         eluvio.pathState.pageId = permission.alternatePageId  
