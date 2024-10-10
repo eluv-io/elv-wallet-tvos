@@ -237,7 +237,7 @@ struct MediaPropertyRegularSectionView: View {
             
             Task {
                 var sectionItems : [MediaPropertySectionItem] = []
-                let max = 20
+                let max = 25
                 var count = 0
                 if let content = section.content {
                     for var item in content {
@@ -724,7 +724,7 @@ struct MediaPropertyDetailView: View {
                 .padding(.top, 40)
 
                 
-                LazyVStack(spacing:0) {
+                VStack(spacing:0) {
                     ForEach(sections) {section in
                         if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
@@ -744,12 +744,14 @@ struct MediaPropertyDetailView: View {
         .background(
             Color.black.edgesIgnoringSafeArea(.all)
         )
-        .onAppear(){
+        .onWillAppear(){
             debugPrint("MediaPropertyDetailView onAppear")
-            withAnimation(.easeInOut(duration: 2)) {
-              opacity = 1.0
-            }
             refresh()
+        }
+        .onWillDisappear {
+            withAnimation(.easeInOut(duration: 2)) {
+              opacity = 0.0
+            }
         }
     }
     
@@ -765,6 +767,12 @@ struct MediaPropertyDetailView: View {
         if propertyId.isEmpty {
             print("Error: propertyId is empty")
             return
+        }
+        
+        Task {
+            withAnimation(.easeInOut(duration: 2)) {
+              opacity = 1.0
+            }
         }
         
         Task {

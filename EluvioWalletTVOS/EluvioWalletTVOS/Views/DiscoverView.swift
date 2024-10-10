@@ -26,6 +26,7 @@ struct DiscoverView: View {
     @State private var position: Int?
     let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     @State var isRefreshing = false
+    @State private var opacity: Double = 0.0
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0){
@@ -51,6 +52,7 @@ struct DiscoverView: View {
                 }
             }
         }
+        .opacity(opacity)
         .onChange(of:selected){ old, new in
             if !new.backgroundImage.isEmpty {
                 withAnimation(.easeIn(duration: 1)){
@@ -86,6 +88,7 @@ struct DiscoverView: View {
                         .frame(width:UIScreen.main.bounds.size.width, height:UIScreen.main.bounds.size.height)
                 }
             }
+            .opacity(opacity)
         )
         .scrollClipDisabled()
         .onWillAppear(){
@@ -109,6 +112,9 @@ struct DiscoverView: View {
         .onWillDisappear(){
             properties = []
             refresh()
+            withAnimation(.easeInOut(duration: 2)) {
+              opacity = 0.0
+            }
         }
     }
     
@@ -125,9 +131,19 @@ struct DiscoverView: View {
         isRefreshing = true
         self.properties = []
         self.backgroundImageURL = ""
+        
+        Task {
+            withAnimation(.easeInOut(duration: 2)) {
+              opacity = 1.0
+            }
+        }
             
         debugPrint("DiscoverView refresh()")
         Task{
+            defer {
+                self.isRefreshing = false
+            }
+
             do {
                 debugPrint("DiscoverView onAppear")
                 try await eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
@@ -163,10 +179,6 @@ struct DiscoverView: View {
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {
                 //eluvio.pathState.path.append(.errorView("A problem occured."))
-            }
-            
-            await MainActor.run {
-                self.isRefreshing = false
             }
         }
     }
