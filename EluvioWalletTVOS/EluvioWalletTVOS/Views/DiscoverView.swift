@@ -88,7 +88,7 @@ struct DiscoverView: View {
             }
         )
         .scrollClipDisabled()
-        .onAppear(){
+        .onWillAppear(){
             refresh()
             
             self.fabricCancellable2 = eluvio.accountManager.$currentAccount

@@ -158,26 +158,26 @@ struct MediaPropertiesView: View {
     }
     
     @Binding var selected : MediaPropertyViewModel
-
+    
+    let columns = [
+        GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible())
+    ]
+    
     var body: some View {
         VStack(alignment:.leading, spacing:20) {
-                ForEach(propertiesGroups, id: \.self) {groups in
-                    HStack(alignment:.center, spacing:20) {
-                        ForEach(groups, id: \.self) { property in
-                            MediaPropertyView(property: property, selected: $selected)
-                                    .environmentObject(self.eluvio)
-                        }
-                        
+            ForEach(propertiesGroups, id: \.self) {groups in
+                HStack(alignment:.center, spacing:20) {
+                    ForEach(groups, id: \.self) { property in
+                        MediaPropertyView(property: property, selected: $selected)
+                                .environmentObject(self.eluvio)
+                                .fixedSize()
                     }
-                    .frame(maxWidth:.infinity, alignment:.leading)
+                    
                 }
+                .frame(maxWidth:.infinity, alignment:.leading)
+            }
         }
         .frame(maxWidth:.infinity, maxHeight: .infinity)
-        /*.onChange(of: properties) { old, new in
-            if properties.count > 0 {
-                selected = properties[0]
-            }
-        }*/
     }
 }
 

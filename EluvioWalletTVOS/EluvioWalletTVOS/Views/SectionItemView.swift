@@ -461,7 +461,7 @@ struct SectionMediaItemView: View {
                           //sizeFactor: display == .square ? 1.0 : 1.0
                 )
             }
-            .buttonStyle(TitleButtonStyle(focused: isFocused))
+            .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
             .focused($isFocused)
             .onAppear(){
 
@@ -834,7 +834,7 @@ struct SectionItemView: View {
                                     .opacity(opacity)
                                 
                             }
-                            .buttonStyle(TitleButtonStyle(focused: isFocused))
+                            .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
                             .focused($isFocused)
                             .overlay(content: {
                                 
@@ -845,7 +845,7 @@ struct SectionItemView: View {
             }
         }
         .disabled(disable)
-        .onAppear(){
+        .onWillAppear(){
             viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric : eluvio.fabric)
             Task{
                 do {
@@ -1158,7 +1158,7 @@ struct ItemView: View {
         }
         .scaleEffect(scale)
         .frame(width: width, height: height)
-        .buttonStyle(TitleButtonStyle(focused: isFocused))
+        .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
         .focused($isFocused)
     }
 }

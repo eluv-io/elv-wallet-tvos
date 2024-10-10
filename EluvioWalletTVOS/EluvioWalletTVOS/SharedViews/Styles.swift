@@ -77,7 +77,7 @@ struct NonSelectionButtonStyle: ButtonStyle {
 
 struct BannerButtonStyle: ButtonStyle {
     let focused: Bool
-    var scale = 1.01
+    var scale = 1.0
     var bordered = false
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
@@ -101,7 +101,7 @@ struct BannerButtonStyle: ButtonStyle {
 
 struct TitleButtonStyle: ButtonStyle {
     let focused: Bool
-    var scale = 1.04
+    var scale = 1.00
     var bordered = false
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
@@ -124,13 +124,14 @@ struct TitleButtonStyle: ButtonStyle {
 
 struct GalleryButtonStyle: ButtonStyle {
     let focused: Bool
+    var scale = 1.00
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
             .opacity(self.focused ? 1.0 : 0.5)
             .shadow(color: self.focused ? .gray : .black, radius: self.focused ? 15 : 2, x: 1, y: 1)
             .cornerRadius(20)
-            .scaleEffect(self.focused ? 1.14: 1, anchor: .center)
+            .scaleEffect(self.focused ? scale : 1, anchor: .center)
             .animation(.easeIn(duration: 0.2), value: self.focused)
     }
 }
@@ -138,7 +139,7 @@ struct GalleryButtonStyle: ButtonStyle {
 struct ThumbnailButtonStyle: ButtonStyle {
     let focused: Bool
     let selected: Bool
-    
+    var scale = 1.00
     private var opacity: CGFloat {
         if focused {
             return 1.0
@@ -150,14 +151,14 @@ struct ThumbnailButtonStyle: ButtonStyle {
         
         return 0.6
     }
-    
+
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
             .opacity(opacity)
             .shadow(color: self.focused || self.selected ? .gray : .black, radius: self.focused || self.selected ? 15 : 2, x: 1, y: 1)
             .cornerRadius(10)
-            .scaleEffect(self.focused || self.selected ? 1.14: 1, anchor: .center)
+            .scaleEffect(self.focused || self.selected ? scale: 1, anchor: .center)
             .animation(.easeIn(duration: 0.2), value: self.focused)
     }
 }

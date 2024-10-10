@@ -143,7 +143,7 @@ struct MediaPropertyRegularSectionView: View {
                             Text(logoText)
                                 .font(.sectionLogoText)
                         }
-                        .padding(.trailing, 30)
+                        .padding(.trailing, 20)
                     }
                         
                     VStack(alignment: hAlignment, spacing: 0)  {
@@ -164,11 +164,12 @@ struct MediaPropertyRegularSectionView: View {
                             }
                         }
                         .focusSection()
-                        .padding([.top,.bottom], 30)
+                        .padding(.top, 30)
+                        .padding(.bottom, 10)
+                        .padding(.leading, 10)
                         
                         if alignment == .center && items.count < 5 {
                             HStack(alignment: .top, spacing: 20) {
-                                //Rectangle().foregroundColor(.clear).frame(height: 1.0)
                                 ForEach(items) {item in
                                     SectionItemView(item: item,
                                                     sectionId: section.id,
@@ -178,11 +179,12 @@ struct MediaPropertyRegularSectionView: View {
                                     .environmentObject(self.eluvio)
                                 }
                             }
-                            .padding(.top,0)
+                            .padding([.top,.bottom],20)
+                            .padding(.leading, 10)
+                            .padding(.trailing, 0)
                         }else{
                             ScrollView(.horizontal) {
                                 HStack(alignment: .center, spacing: 34) {
-                                    //Rectangle().foregroundColor(.clear).frame(height: 1.0)
                                     ForEach(items) {item in
                                         SectionItemView(item: item,
                                                         sectionId: section.id,
@@ -193,15 +195,18 @@ struct MediaPropertyRegularSectionView: View {
                                         .environmentObject(self.eluvio)
                                     }
                                 }
+                                .padding([.top,.bottom],20)
+                                .padding(.leading, 10)
+                                .padding(.trailing, 0)
                             }
-                            .scrollClipDisabled()
+                            .frame(maxWidth:.infinity)
+                            .edgesIgnoringSafeArea(.trailing)
                         }
                     }
             }
         }
         .focusSection()
-        //.frame(height:minHeight)
-        .padding([.leading,.trailing],margin)
+        .padding([.leading],margin)
         .padding(.bottom,40)
         .background(
             Group {
@@ -218,7 +223,7 @@ struct MediaPropertyRegularSectionView: View {
             }
             .frame(maxWidth: .infinity, maxHeight:.infinity)
         )
-        .onAppear() {
+        .onWillAppear() {
             debugPrint("MediaPropertyRegularSectionView onAppear()")
             if let display = section.display {
                 do {
@@ -232,7 +237,7 @@ struct MediaPropertyRegularSectionView: View {
             
             Task {
                 var sectionItems : [MediaPropertySectionItem] = []
-                let max = 25
+                let max = 20
                 var count = 0
                 if let content = section.content {
                     for var item in content {
@@ -575,10 +580,11 @@ struct MediaPropertySectionView: View {
             }
         }
         .disabled(disable)
-        .onAppear() {
+        .onWillAppear() {
             debugPrint("MediaPropertySectionView onAppear() type:", section.type)
             debugPrint("Subsections count ", section.sections?.count)
             
+            /*
             if let display = section.display {
                 debugPrint("MediaPropertySectionView section ", display["title"])
                 debugPrint("Display format ", section.display?["display_format"].stringValue)
@@ -592,6 +598,7 @@ struct MediaPropertySectionView: View {
                     inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
                 }catch{}
             }
+            */
             
             self.permission = section.resolvedPermission
             
@@ -717,10 +724,11 @@ struct MediaPropertyDetailView: View {
                 .padding(.top, 40)
 
                 
-                VStack(spacing:0) {
+                LazyVStack(spacing:0) {
                     ForEach(sections) {section in
                         if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                     }
                 }
