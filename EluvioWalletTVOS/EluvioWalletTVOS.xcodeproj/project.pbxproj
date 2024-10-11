@@ -233,6 +233,8 @@
 		B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5AD2B7DF2CB00E04C0D /* AudioPlayer.swift */; };
 		B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FA2CB7286900C1D590 /* ExtrasBase64 */; };
 		B09897FD2CB7288100C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FC2CB7288100C1D590 /* ExtrasBase64 */; };
+		B09897FF2CB8D11100C1D590 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09897FE2CB8D10400C1D590 /* SearchBar.swift */; };
+		B09898002CB8D11100C1D590 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09897FE2CB8D10400C1D590 /* SearchBar.swift */; };
 		B099A5AF2B336CAD00C779A0 /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5AE2B336CAD00C779A0 /* Auth0 */; };
 		B099A5B12B336CAD00C779A0 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B02B336CAD00C779A0 /* Alamofire */; };
 		B099A5B32B336CAD00C779A0 /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B22B336CAD00C779A0 /* Base58Swift */; };
@@ -430,6 +432,7 @@
 		B08CB5A02B7DE20200E04C0D /* Auth0.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
 		B08CB5A92B7DE8F200E04C0D /* ViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewState.swift; sourceTree = "<group>"; };
 		B08CB5AD2B7DF2CB00E04C0D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AudioPlayer.swift; path = EluvioWalletTVOS/SharedViews/AudioPlayer.swift; sourceTree = "<group>"; };
+		B09897FE2CB8D10400C1D590 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
@@ -841,6 +844,7 @@
 		B0E60FAB29D223760079661E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B09897FE2CB8D10400C1D590 /* SearchBar.swift */,
 				B0E60F7129CC23510079661E /* ContentViewApp.swift */,
 				B0670F3729D5427300676872 /* NFTDetail.swift */,
 				B0670F3629D5427300676872 /* NFTList.swift */,
@@ -1179,6 +1183,7 @@
 				B08CB57B2B7DDFDA00E04C0D /* ProfileView.swift in Sources */,
 				B08CB57C2B7DDFDA00E04C0D /* CachedAsyncImage.swift in Sources */,
 				B08CB57D2B7DDFDA00E04C0D /* MyItemsView.swift in Sources */,
+				B09898002CB8D11100C1D590 /* SearchBar.swift in Sources */,
 				B08CB57E2B7DDFDA00E04C0D /* SearchView.swift in Sources */,
 				B08CB57F2B7DDFDA00E04C0D /* PropertiesView.swift in Sources */,
 				B08CB5802B7DDFDA00E04C0D /* PropertyMediaView.swift in Sources */,
@@ -1342,6 +1347,7 @@
 				B0E60FAD29D223870079661E /* SignInView.swift in Sources */,
 				B0E60F8A29CD71840079661E /* Fabric.swift in Sources */,
 				B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */,
+				B09897FF2CB8D11100C1D590 /* SearchBar.swift in Sources */,
 				B0D5446F2C1B760800558B21 /* DiscoverView.swift in Sources */,
 				B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */,
 				B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */,

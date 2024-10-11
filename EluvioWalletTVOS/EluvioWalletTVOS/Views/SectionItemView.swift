@@ -67,31 +67,36 @@ struct SectionGridView: View {
             }
             .frame(maxWidth:.infinity)
             .padding(.bottom, 30)
+            .padding([.leading, .trailing], 80)
             
             if items.dividedIntoGroups(of: numColumns).count <= 1 {
-                HStack(spacing:34) {
+                HStack(spacing:0) {
                         ForEach(items, id: \.self) { item in
                             SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display)
                                 .environmentObject(self.eluvio)
+                                .padding(20)
                         }
                         Spacer()
                 }
                 .frame(maxWidth:.infinity, alignment:.leading)
+                .padding([.leading, .trailing], 80)
             }else{
-                Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
+                Grid(alignment:.leading, horizontalSpacing: 0, verticalSpacing: 0) {
                     ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                         GridRow(alignment:.top) {
                             ForEach(groups, id: \.self) { item in
                                 SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display)
                                     .environmentObject(self.eluvio)
+                                    .padding(10)
                             }
-                            .gridColumnAlignment(.leading)
                         }
-                        .frame(maxWidth:.infinity, alignment:.leading)
+                        .padding()
+                        .frame(alignment:.leading)
                         .gridColumnAlignment(.leading)
                     }
                 }
                 .frame(maxWidth:.infinity)
+                //.padding(.leading,80)
                 .focusSection()
             }
         }

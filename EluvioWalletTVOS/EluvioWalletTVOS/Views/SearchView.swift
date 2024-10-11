@@ -97,52 +97,6 @@ struct SecondaryFilterView: View {
     }
 }
 
-struct SearchBar: View {
-    @Binding var searchString : String
-    var logoUrl = ""
-    var logo = "e_logo"
-    var name = ""
-    var action: (String)->Void
-    
-    var body: some View {
-        VStack(alignment:.center){
-            HStack(alignment:.center, spacing:40){
-                if !logoUrl.isEmpty {
-                    WebImage(url:URL(string:logoUrl))
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height:100)
-                }else if !logo.isEmpty{
-                    Image(logo)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(height:100)
-                }
-                VStack{
-                    HStack (spacing:15){
-                        Image(systemName: "magnifyingglass")
-                            .resizable()
-                            .frame(width:40,height:40)
-                            .padding(10)
-                            .padding(.leading, 0)
-                        TextField("Search \(name)", text: $searchString)
-                            .frame(alignment: .leading)
-                            .font(.rowTitle)
-                            .onSubmit {
-                                print("Search submit…", searchString)
-                                action(searchString)
-                            }
-                    }
-                    Divider().overlay(Color.gray)
-                }
-            }
-        }
-        .padding(.top,20)
-        .padding([.leading,.trailing], 80)
-        .focusSection()
-    }
-}
-
 struct SearchView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
@@ -200,8 +154,10 @@ struct SearchView: View {
                 SearchBar(searchString:$searchString, logoUrl:logoUrl, name:name, action:{ searchString in
                     search()
                 })
+                .frame(height:200)
                 .padding(.top,40)
-                
+                .padding(.bottom)
+
                 if !primaryFilters.isEmpty{
                     ScrollView(.horizontal){
                         LazyHStack(spacing:10){
@@ -276,7 +232,7 @@ struct SearchView: View {
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
                         .padding(.top,20)
-                        .padding([.leading,.trailing], 80)
+                        //.padding([.leading,.trailing], 80)
                 }else {
                     ForEach(sections) {section in
                         VStack{
@@ -293,6 +249,9 @@ struct SearchView: View {
         }
         .ignoresSafeArea()
         .scrollClipDisabled()
+        .onChange(of: searchString) {
+            search()
+        }
         .onAppear(){
             if !sections.isEmpty {
                 return

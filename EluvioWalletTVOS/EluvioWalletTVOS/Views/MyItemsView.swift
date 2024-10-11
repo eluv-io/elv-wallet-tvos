@@ -42,9 +42,14 @@ struct MyItemsView: View {
     var body: some View {
         ScrollView{
             VStack{
+                /*
                 SearchBar(searchString:$searchString, logo:"", action:{_ in
                     search()
                 })
+                 
+                 */
+                //SearchBar2()
+                 
                 ScrollView(.horizontal) {
                     LazyHStack(spacing:10){
                         if !properties.isEmpty {
@@ -64,6 +69,7 @@ struct MyItemsView: View {
                                 debugPrint("Property \(property.id ) pressed.")
                                 Task {
                                     do {
+                                        searchString = ""
                                         nfts = try await eluvio.fabric.getNFTs(address: address, propertyId:property.id ?? "")
                                     }catch{
                                         print("Could not get nfts ", error.localizedDescription)
@@ -74,7 +80,8 @@ struct MyItemsView: View {
                     }
                 }
                 .scrollClipDisabled()
-                .padding(.leading, 80)
+                .padding(.leading, 0)
+
                 NFTGrid(nfts:nfts, drops:drops)
                     .edgesIgnoringSafeArea(.all)
                     .focusSection()
@@ -82,6 +89,10 @@ struct MyItemsView: View {
             }
         }
         .scrollClipDisabled()
+        .searchable(text: $searchString,prompt: "Search My Items")
+        .onChange(of: searchString) {
+            search()
+        }
         .onAppear(){
             Task{
                 do {
