@@ -14,7 +14,6 @@ struct MyItemsView: View {
     @State var searchString = ""
     @State var nfts : [NFTModel] = []
     var propertyId = ""
-    var drops : [ProjectModel] = []
     var logo = "e_logo"
     var logoUrl = ""
     var name = ""
@@ -37,19 +36,17 @@ struct MyItemsView: View {
         }
     }
     
+    func reset() {
+        searchString = ""
+        nfts = []
+        properties = []
+    }
+    
     @State private var cancellable: AnyCancellable? = nil
     
     var body: some View {
         ScrollView{
             VStack{
-                /*
-                SearchBar(searchString:$searchString, logo:"", action:{_ in
-                    search()
-                })
-                 
-                 */
-                //SearchBar2()
-                 
                 ScrollView(.horizontal) {
                     LazyHStack(spacing:10){
                         if !properties.isEmpty {
@@ -82,7 +79,7 @@ struct MyItemsView: View {
                 .scrollClipDisabled()
                 .padding(.leading, 0)
 
-                NFTGrid(nfts:nfts, drops:drops)
+                NFTGrid(nfts:nfts)
                     .edgesIgnoringSafeArea(.all)
                     .focusSection()
                     .padding(.top,40)
@@ -137,7 +134,9 @@ struct MyItemsView: View {
                     properties = []
                 }
             }
-            
+        }
+        .onDisappear(){
+            reset()
         }
     }
 }
