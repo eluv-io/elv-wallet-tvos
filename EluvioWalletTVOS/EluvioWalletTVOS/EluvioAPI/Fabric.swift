@@ -2830,7 +2830,23 @@ class Fabric: ObservableObject {
         return false
     }
     
-    
+    //Runs through the authState of the property and finds if there is a true value
+    func checkPropertyAuthState(property: MediaProperty?) -> Bool {
+        debugPrint("checkPropertyAuthState ")
+        if let prop = property {
+            if let authState = prop.permission_auth_state {
+                debugPrint("authState ", authState)
+                for (key, value) in authState {
+                    if value["authorized"].boolValue {
+                        debugPrint("Found!")
+                        return true
+                    }
+                }
+            }
+        }
+        
+        return false
+    }
     
 }
 

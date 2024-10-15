@@ -97,6 +97,36 @@ struct SecondaryFilterView: View {
     }
 }
 
+struct PropertyFilterView: View {
+    var title = ""
+    var imageUrl = ""
+    var action : ()->()
+    
+    @FocusState var isFocused
+    var selected = false
+    
+    var body: some View {
+        ZStack(alignment:.center){
+            Button(action:action)
+            {
+                HStack(spacing:10){
+                    if !imageUrl.isEmpty{
+                        WebImage(url:URL(string:imageUrl))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width:80, height:80)
+                    }
+                    Text(title)
+                        .font(.rowSubtitle)
+                }
+            }
+            .buttonStyle(propertyFilterButtonStyle(focused: isFocused, selected: selected))
+            .focused($isFocused)
+            .padding()
+        }
+    }
+}
+
 struct SearchView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
@@ -111,6 +141,10 @@ struct SearchView: View {
     @State var currentSecondaryFilter = ""
     @State var secondaryFilters : [String] = []
     
+    @State var subProperties : [MediaPropertyViewModel] = []
+    @State var currentSubpropertyId : String = ""
+    @State var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
+    
     private let squareColumns = [
         GridItem(.fixed(400)),
         GridItem(.fixed(400)),
@@ -122,9 +156,12 @@ struct SearchView: View {
     func search() {
         Task {
             if !propertyId.isEmpty {
-                
-                //if searchString.isEmpty {
                 debugPrint("Replace Search")
+                
+                var searchPropertyId = propertyId
+                if !currentSubpropertyId.isEmpty {
+                    searchPropertyId = currentSubpropertyId
+                }
                 do {
                     var attributes : [String : Any] = [:]
                     
@@ -139,7 +176,7 @@ struct SearchView: View {
                     }
                     
                     
-                    self.sections = try await eluvio.fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
+                    self.sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
                 }catch{
                     print("Could not do search ", error.localizedDescription)
                     //TODO: Send to error screen
@@ -157,6 +194,45 @@ struct SearchView: View {
                 .frame(height:200)
                 .padding(.top,40)
                 .padding(.bottom)
+                
+                if !subProperties.isEmpty {
+                    
+                    if searchString.isEmpty {
+                        ScrollView(.horizontal){
+                            LazyHStack(spacing:10){
+                                ForEach(subProperties, id: \.self) { property in
+                                    MediaPropertyView(property:property, selected:$selectedProperty, landscape:true)
+                                }
+                            }
+                            
+                        }
+                        .scrollClipDisabled()
+                        .padding([.leading,.trailing], 80)
+                    }else {
+                        ScrollView(.horizontal){
+                            LazyHStack(spacing:10){
+                                Text("Search In: ")
+                                    .font(.rowTitle)
+                                ForEach(subProperties, id: \.self) { property in
+                                    if property.hasAuth {
+                                        PropertyFilterView(
+                                            title:property.title,
+                                            imageUrl: property.logo,
+                                            action:{
+                                                self.currentSubpropertyId = property.id
+                                                search()
+                                            },
+                                            selected: currentSubpropertyId == property.id
+                                        )
+                                    }
+                                }
+                            }
+                            
+                        }
+                        .scrollClipDisabled()
+                        .padding([.leading,.trailing], 80)
+                    }
+                }
 
                 if !primaryFilters.isEmpty{
                     ScrollView(.horizontal){
@@ -231,8 +307,7 @@ struct SearchView: View {
                     SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, forceDisplay: .square)
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
-                        .padding(.top,20)
-                        //.padding([.leading,.trailing], 80)
+                        .padding(.top,40)
                 }else {
                     ForEach(sections) {section in
                         VStack{
@@ -242,6 +317,7 @@ struct SearchView: View {
                         .frame(maxWidth:.infinity)
                         .focusSection()
                     }
+                    .padding(.top,40)
                 }
                 
                 Spacer()
@@ -260,7 +336,36 @@ struct SearchView: View {
                 if !propertyId.isEmpty {
                     do {
                         debugPrint("Search onAppear()")
-                        let property = try await eluvio.fabric.getProperty(property: propertyId)
+                        
+                        var mainProperty = try await eluvio.fabric.getProperty(property: propertyId)
+                        
+                        //Retrieving sub properties to populate Search In: filters
+                        var subs : [MediaPropertyViewModel] = []
+                        if let subproperties = mainProperty?.subproperties {
+                            debugPrint("Found subproperties ", subproperties)
+                            for subpropId in subproperties {
+                                do {
+                                    if let subprop = try await eluvio.fabric.getProperty(property: subpropId) {
+                                        debugPrint("subproperty title ", subprop.title)
+                                        let view = await MediaPropertyViewModel.create(mediaProperty: subprop, fabric:eluvio.fabric)
+                                        subs.append(view)
+                                    }
+                                }catch{
+                                    print("Could not get property \(subpropId)", error)
+                                }
+                            }
+                        }
+                        
+                        subProperties = subs
+                        
+                        var searchPropertyId = propertyId
+                        
+                        if !currentSubpropertyId.isEmpty{
+                            searchPropertyId = currentSubpropertyId
+                        }
+                        
+                        var property = try await eluvio.fabric.getProperty(property: searchPropertyId)
+
                         name = property?.page_title ?? ""
                         do {
                             logoUrl = try eluvio.fabric.getUrlFromLink(link: property?.header_logo)

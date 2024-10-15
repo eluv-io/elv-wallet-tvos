@@ -103,6 +103,7 @@ struct TitleButtonStyle: ButtonStyle {
     let focused: Bool
     var scale = 1.00
     var bordered = false
+    var borderRadius=0.0
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
@@ -111,7 +112,7 @@ struct TitleButtonStyle: ButtonStyle {
             .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
             .background(
                 RoundedRectangle(
-                    cornerRadius: 0,
+                    cornerRadius: borderRadius,
                     style: .continuous
                 )
                 .stroke(.tint, lineWidth: bordered && focused ? 4 : 0)
@@ -203,6 +204,27 @@ struct secondaryFilterButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 1.16 : 1)
             .animation(.easeIn(duration: 0.2), value: self.focused)
 
+    }
+}
+
+struct propertyFilterButtonStyle: ButtonStyle {
+    let focused: Bool
+    let selected: Bool
+    var scale = 1.00
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .padding([.leading,.trailing],20)
+            .foregroundColor(focused || selected ? .black : .white)
+            .cornerRadius(10)
+            .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
+            .background(
+                RoundedRectangle(
+                    cornerRadius: 10,
+                    style: .continuous
+                )
+                .stroke(.tint, lineWidth: !focused ? 1 : 0)
+                .fill(focused || selected ? .white : .clear)
+            )
     }
 }
 

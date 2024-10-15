@@ -16,16 +16,38 @@ struct MediaPropertyView : View {
     @FocusState private var focused : Bool
     @Binding var selected : MediaPropertyViewModel
     static var factor = 1.0
-    var width : CGFloat = 330 * factor
-    var height : CGFloat = 470 * factor
+    var width : CGFloat {
+        if landscape {
+            return 417 * MediaPropertyView.factor
+        }else {
+            return 330 * MediaPropertyView.factor
+        }
+    }
+    var height : CGFloat {
+        if landscape {
+            return 235 * MediaPropertyView.factor
+        }else {
+            return 470 * MediaPropertyView.factor
+        }
+    }
+    
+    var cornerRadius : CGFloat {
+        if landscape {
+            return 16
+        }else {
+            return 3
+        }
+    }
+    
     @State var disabled = true
+    var landscape: Bool = false
 
     var body: some View {
         VStack(spacing:10) {
             Button(action: {
                 Task {
                     do {
-                        if let propertyId = property.id {
+                        let propertyId = property.id
                             if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                 debugPrint("propertyID clicked: ", propertyId)
                                 //debugPrint("property: ", property)
@@ -82,7 +104,7 @@ struct MediaPropertyView : View {
                             }else{
                                 //eluvio.pathState.path.append(.errorView("Error finding property."))
                             }
-                        }
+                        
                     }catch{
                         debugPrint("Error finding property ", error.localizedDescription)
                     }
@@ -96,7 +118,7 @@ struct MediaPropertyView : View {
                         }
                         .aspectRatio(contentMode: .fill)
                         .frame(width: width, height: height)
-                        .cornerRadius(3)
+                        .cornerRadius(cornerRadius)
                 }else{
                     ZStack{
                         if property.backgroundImage != "" {
@@ -129,7 +151,7 @@ struct MediaPropertyView : View {
                 }
             }
             .opacity(self.disabled ? 0 : 1)
-            .buttonStyle(TitleButtonStyle(focused: focused, bordered : true))
+            .buttonStyle(TitleButtonStyle(focused: focused, bordered : true, borderRadius: cornerRadius))
             .focused($focused)
         }
         .onChange(of:selected) {old, new in

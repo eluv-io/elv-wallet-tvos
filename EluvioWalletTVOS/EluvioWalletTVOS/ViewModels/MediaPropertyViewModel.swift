@@ -9,7 +9,7 @@ import Foundation
 import SwiftyJSON
 
 struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
-    var id: String? = UUID().uuidString
+    var id: String = UUID().uuidString
     var title: String = ""
     var name: String = ""
     var descriptionRichText: AttributedString = ""
@@ -25,6 +25,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var main_page : MediaPropertyPage? = nil
     var permission_auth_state : JSON? = nil
     var purchaseImage : String = ""
+    var hasAuth : Bool = false
     
     static func == (lhs: MediaPropertyViewModel, rhs: MediaPropertyViewModel) -> Bool {
         return lhs.id == rhs.id
@@ -79,23 +80,23 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
             }
         }
         
-        
         return MediaPropertyViewModel(
-                id:mediaProperty.id,
-                title: mediaProperty.title ?? mediaProperty.page_title ?? "",
-                name: mediaProperty.name ?? "",
-                descriptionRichText:  mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "", description: mediaProperty.main_page?.layout?["description_text"].stringValue ?? "",
-                image: image,
-                backgroundImage: backgroundImage,
-                login: mediaProperty.login,
-                logo: logo,
-                logoAlt: mediaProperty.main_page?.layout?["logo_alt"].stringValue ?? "",
-                position: mediaProperty.main_page?.layout?["position"].stringValue ?? "",
-                sections: sections,
-                permissions : mediaProperty.permissions,
-                main_page: mediaProperty.main_page,
-                permission_auth_state: mediaProperty.permission_auth_state,
-                purchaseImage: purchaseImage
-            )
+            id:mediaProperty.id ?? UUID().uuidString,
+            title: mediaProperty.title ?? mediaProperty.page_title ?? "",
+            name: mediaProperty.name ?? "",
+            descriptionRichText:  mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "", description: mediaProperty.main_page?.layout?["description_text"].stringValue ?? "",
+            image: image,
+            backgroundImage: backgroundImage,
+            login: mediaProperty.login,
+            logo: logo,
+            logoAlt: mediaProperty.main_page?.layout?["logo_alt"].stringValue ?? "",
+            position: mediaProperty.main_page?.layout?["position"].stringValue ?? "",
+            sections: sections,
+            permissions: mediaProperty.permissions,
+            main_page: mediaProperty.main_page,
+            permission_auth_state: mediaProperty.permission_auth_state,
+            purchaseImage: purchaseImage,
+            hasAuth: fabric.checkPropertyAuthState(property:mediaProperty)
+        )
     }
 }

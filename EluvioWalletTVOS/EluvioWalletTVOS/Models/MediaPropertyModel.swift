@@ -40,6 +40,8 @@ class MediaProperty: Codable, Identifiable, Hashable {
     var slug : String?
     var sections : JSON?
     var purchase_settings : JSON?
+    var subproperties : [String]?
+    var tenant : JSON?
     
     static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
         return lhs.id == rhs.id
