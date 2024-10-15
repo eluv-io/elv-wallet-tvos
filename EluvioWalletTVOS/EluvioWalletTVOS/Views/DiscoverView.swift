@@ -28,6 +28,8 @@ struct DiscoverView: View {
     @State var isRefreshing = false
     @State private var opacity: Double = 0.0
     
+    static var refreshId = ""
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0){
             ScrollView() {
@@ -92,16 +94,8 @@ struct DiscoverView: View {
         )
         .scrollClipDisabled()
         .onWillAppear(){
+            debugPrint("onWillAppear")
             refresh()
-            
-            self.fabricCancellable2 = eluvio.accountManager.$currentAccount
-                .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                .sink { val in
-                    debugPrint("on currentAccount changed ", val)
-                    if val == nil {
-                        //properties = []
-                    }
-                }
         }
         .onReceive(timer) { time in
             if properties.isEmpty {
@@ -109,7 +103,7 @@ struct DiscoverView: View {
                 refresh()
             }
         }
-        .onWillDisappear(){
+        .onDisappear(){
             properties = []
             refresh()
             withAnimation(.easeInOut(duration: 2)) {
@@ -119,6 +113,12 @@ struct DiscoverView: View {
     }
     
     func refresh() {
+        
+        if DiscoverView.refreshId != eluvio.refreshId {
+            properties = []
+        }/*else {
+            
+        }*/
         
         if !properties.isEmpty {
             return
@@ -148,7 +148,7 @@ struct DiscoverView: View {
                 debugPrint("DiscoverView onAppear")
                 try await eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 
-                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:true, newFetch:true)
+                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:true, newFetch:true, devMode: eluvio.getDevMode())
                 
                 var properties: [MediaPropertyViewModel] = []
                 
@@ -158,7 +158,7 @@ struct DiscoverView: View {
                     if mediaProperty.image.isEmpty {
                         
                     }else{
-                        //debugPrint("image: \(mediaProperty.image)")
+                        //debugPrint("image: \(meØdiaProperty.image)")
                         properties.append(mediaProperty)
                     }
                 }

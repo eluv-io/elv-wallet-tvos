@@ -46,6 +46,7 @@ struct ProfileView: View {
     @State var initialized = false
     
     @State var isStaging = false
+    @State var isDeveloper = false
     
     var body: some View {
             VStack() {
@@ -91,6 +92,7 @@ struct ProfileView: View {
                             FormEntry("Eth Service:  \(ethNode)")
                             
                             Toggle("Set to staging ", isOn:$isStaging)
+                            Toggle("Set to developer mode ", isOn:$isDeveloper)
                         
                         }
                         .padding()
@@ -110,6 +112,9 @@ struct ProfileView: View {
                     eluvio.setEnvironment(env:.prod)
                 }
             }
+            .onChange(of: isDeveloper) {old, val in
+                eluvio.setDevMode(devMode: val)
+            }
             .onAppear(){
                 do {
                     self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
@@ -120,6 +125,7 @@ struct ProfileView: View {
                     self.ethNode = try eluvio.fabric.signer?.getEthEndpoint() ?? ""
                     
                     self.isStaging = eluvio.getEnvironment().rawValue == "staging"
+                    self.isDeveloper = eluvio.getDevMode()
                     
                     if !initialized {
                         

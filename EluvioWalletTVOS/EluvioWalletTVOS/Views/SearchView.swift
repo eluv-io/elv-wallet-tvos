@@ -76,6 +76,44 @@ struct PrimaryFilterView: View {
     }
 }
 
+struct SearchTileView: View {
+    var imageUrl : String
+    var title: String
+    var action : ()->()
+    
+    @FocusState var isFocused
+    
+    var body: some View {
+        ZStack(alignment:.center){
+            Button(action:action)
+            {
+                
+                MediaCard(display:.video,
+                          image: imageUrl,
+                          isFocused:isFocused,
+                          title: title,
+                          showFocusedTitle: false,
+                          showBottomTitle: false
+                )
+                .background(
+                    .clear
+                )
+            }
+            .buttonStyle(TitleButtonStyle(focused: isFocused))
+            .focused($isFocused)
+            .padding()
+            
+            if imageUrl.isEmpty {
+                Text(title.uppercased()).font(.itemTitle.bold())
+                    .lineLimit(3)
+                    .frame(maxWidth: 400)
+                    .multilineTextAlignment(.center)
+                    .padding()
+            }
+        }
+    }
+}
+
 struct SecondaryFilterView: View {
     var title = ""
     var action : ()->()
@@ -100,10 +138,15 @@ struct SecondaryFilterView: View {
 struct PropertyFilterView: View {
     var title = ""
     var imageUrl = ""
+    var propertyId : String
+    @Binding var currentId : String
     var action : ()->()
+
     
     @FocusState var isFocused
-    var selected = false
+    var selected : Bool {
+        return currentId == propertyId
+    }
     
     var body: some View {
         ZStack(alignment:.center){
@@ -114,7 +157,8 @@ struct PropertyFilterView: View {
                         WebImage(url:URL(string:imageUrl))
                             .resizable()
                             .scaledToFit()
-                            .frame(width:80, height:80)
+                            .frame(width:64, height:64)
+                            .padding([.top,.bottom], 10)
                     }
                     Text(title)
                         .font(.rowSubtitle)
@@ -124,6 +168,17 @@ struct PropertyFilterView: View {
             .focused($isFocused)
             .padding()
         }
+    }
+}
+
+struct PropertySelector: Hashable {
+    var logoUrl : String = ""
+    var iconUrl : String = ""
+    var propertyId : String = ""
+    var title: String = ""
+    
+    var isEmpty: Bool {
+        return propertyId.isEmpty || (title.isEmpty && logoUrl.isEmpty && iconUrl.isEmpty)
     }
 }
 
@@ -141,7 +196,7 @@ struct SearchView: View {
     @State var currentSecondaryFilter = ""
     @State var secondaryFilters : [String] = []
     
-    @State var subProperties : [MediaPropertyViewModel] = []
+    @State var subProperties : [PropertySelector] = []
     @State var currentSubpropertyId : String = ""
     @State var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
     
@@ -196,12 +251,38 @@ struct SearchView: View {
                 .padding(.bottom)
                 
                 if !subProperties.isEmpty {
-                    
                     if searchString.isEmpty {
                         ScrollView(.horizontal){
-                            LazyHStack(spacing:10){
+                            LazyHStack(spacing:20){
                                 ForEach(subProperties, id: \.self) { property in
-                                    MediaPropertyView(property:property, selected:$selectedProperty, landscape:true)
+                                    //MediaPropertySelectorView(propertyId: property.propertyId, title: property.title, logoUrl: property.logoUrl,  landscape:true)
+                                    SearchTileView(
+                                        imageUrl: property.logoUrl,
+                                        title: property.title,
+                                        action:{
+                                            Task {
+                                                do {
+                                                    if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                                                        debugPrint("propertyID clicked: ", propertyId)
+                                                        
+                                                        await MainActor.run {
+                                                            eluvio.pathState.propertyPage = property.main_page
+                                                        }
+                                                        
+                                                        await MainActor.run {
+                                                            let param = PropertyParam(property:property)
+                                                            eluvio.pathState.path = []
+                                                            eluvio.pathState.path.append(.property(param))
+                                                        }
+                                                    }
+
+                                                }catch(FabricError.apiError(let code, let response, let error)){
+                                                    eluvio.handleApiError(code: code, response: response, error: error)
+                                                }catch{
+                                                    debugPrint("Error finding property ", error.localizedDescription)
+                                                }
+                                            }
+                                        })
                                 }
                             }
                             
@@ -214,17 +295,23 @@ struct SearchView: View {
                                 Text("Search In: ")
                                     .font(.rowTitle)
                                 ForEach(subProperties, id: \.self) { property in
-                                    if property.hasAuth {
+                                    //if property.hasAuth {
                                         PropertyFilterView(
                                             title:property.title,
-                                            imageUrl: property.logo,
+                                            imageUrl: property.iconUrl,
+                                            propertyId: property.propertyId,
+                                            currentId: $currentSubpropertyId,
                                             action:{
-                                                self.currentSubpropertyId = property.id
-                                                search()
-                                            },
-                                            selected: currentSubpropertyId == property.id
+                                                if self.currentSubpropertyId != property.propertyId {
+                                                    self.currentSubpropertyId = property.propertyId
+                                                    search()
+                                                }else {
+                                                    self.currentSubpropertyId = ""
+                                                    search()
+                                                }
+                                            }
                                         )
-                                    }
+                                    //}
                                 }
                             }
                             
@@ -241,7 +328,6 @@ struct SearchView: View {
                                 PrimaryFilterView(
                                     filter:primaryFilters[index],
                                     action:{
-                                        //currentPrimaryFilter = primaryFilters[index]
                                         debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
                                         eluvio.pathState.searchParams = SearchParams(propertyId: propertyId,
                                                                               searchTerm: searchString,
@@ -340,18 +426,34 @@ struct SearchView: View {
                         var mainProperty = try await eluvio.fabric.getProperty(property: propertyId)
                         
                         //Retrieving sub properties to populate Search In: filters
-                        var subs : [MediaPropertyViewModel] = []
-                        if let subproperties = mainProperty?.subproperties {
+                        var subs : [PropertySelector] = []
+                        if let subproperties = mainProperty?.property_selection {
                             debugPrint("Found subproperties ", subproperties)
-                            for subpropId in subproperties {
+                            for subpropSelection in subproperties.arrayValue {
+                                var logoUrl = ""
+                                debugPrint("subpropSelection : ", subpropSelection)
+                                debugPrint("logo link: ",subpropSelection["logo"])
                                 do {
-                                    if let subprop = try await eluvio.fabric.getProperty(property: subpropId) {
-                                        debugPrint("subproperty title ", subprop.title)
-                                        let view = await MediaPropertyViewModel.create(mediaProperty: subprop, fabric:eluvio.fabric)
-                                        subs.append(view)
-                                    }
+                                    logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["logo"])
                                 }catch{
-                                    print("Could not get property \(subpropId)", error)
+                                    print("Could not get logo from link ", error)
+                                }
+                                
+                                var iconUrl = ""
+                                do {
+                                    iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
+                                }catch{
+                                    print("Could not get icon from link ", error)
+                                }
+                                
+                                let selector = PropertySelector(logoUrl: logoUrl,
+                                                                iconUrl: iconUrl,
+                                                                propertyId: subpropSelection["property_id"].stringValue,
+                                                                title: subpropSelection["title"].stringValue)
+                                debugPrint("selector created: ", selector)
+                                if !selector.isEmpty {
+                                    subs.append(selector)
+                                    debugPrint("added selector")
                                 }
                             }
                         }

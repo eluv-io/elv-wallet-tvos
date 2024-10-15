@@ -41,6 +41,43 @@ struct MediaPropertyView : View {
     
     @State var disabled = true
     var landscape: Bool = false
+    
+    func login(_ _property: MediaProperty? = nil){
+        
+        var prop = _property
+        
+        if prop == nil {
+            prop = self.property.model
+        }
+        
+        guard let property = prop else {
+            return
+        }
+        
+        if let login = property.login {
+            //debugPrint("property: ", login)
+            
+            let provider = login["settings"]["provider"].stringValue
+            if !provider.isEmpty {
+                if provider == "auth0" {
+                    debugPrint("Auth0 login.")
+                    if eluvio.accountManager.currentAccount?.type != .Auth0 {
+                        eluvio.pathState.path.append(.login(LoginParam(type:.auth0, property:property)))
+                        return
+                    }
+                }else if provider == "ory" {
+                    debugPrint("Ory login.")
+                    if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
+                        return
+                    }
+                }else {
+                    debugPrint("Other login type not supported yet.")
+                    eluvio.pathState.path.append(.errorView("Login type not supported."))
+                    return
+                }
+            }
+        }
+    }
 
     var body: some View {
         VStack(spacing:10) {
@@ -67,29 +104,7 @@ struct MediaPropertyView : View {
                                     
                                 
                                 if !skipLogin {
-                                    if let login = property.login {
-                                        //debugPrint("property: ", login)
-                                        
-                                        let provider = login["settings"]["provider"].stringValue
-                                        if !provider.isEmpty {
-                                            if provider == "auth0" {
-                                                debugPrint("Auth0 login.")
-                                                if eluvio.accountManager.currentAccount?.type != .Auth0 {
-                                                    eluvio.pathState.path.append(.login(LoginParam(type:.auth0, property:property)))
-                                                    return
-                                                }
-                                            }else if provider == "ory" {
-                                                debugPrint("Ory login.")
-                                                if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
-                                                    return
-                                                }
-                                            }else {
-                                                debugPrint("Other login type not supported yet.")
-                                                eluvio.pathState.path.append(.errorView("Login type not supported."))
-                                                return
-                                            }
-                                        }
-                                    }
+                                    login(property)
                                 }
                                 
                                 await MainActor.run {
@@ -105,6 +120,9 @@ struct MediaPropertyView : View {
                                 //eluvio.pathState.path.append(.errorView("Error finding property."))
                             }
                         
+                    }catch(FabricError.apiError(let code, let response, let error)){
+                        eluvio.handleApiError(code: code, response: response, error: error)
+                        login()
                     }catch{
                         debugPrint("Error finding property ", error.localizedDescription)
                     }

@@ -65,6 +65,9 @@ class Fabric: ObservableObject {
     @Published
     var configuration : FabricConfiguration? = nil
     
+    //These will only show up on staging flag
+    var devProperties : [String] = ["iq__3dzXSEyR9EgGVPPJJboHyGmHtt6b"]
+    var environment : APIEnvironment = .prod
     /*
     @Published
     var login :  LoginResponse? = nil
@@ -1203,7 +1206,14 @@ class Fabric: ObservableObject {
             }
         }else{
             print("Could not get api_environment from user defaults")
-            return .prod
+            return environment
+        }
+    }
+    
+    func setEnvironment(env:APIEnvironment) {
+        environment = env
+        if let signer = self.signer {
+            signer.setEnvironment(env: env)
         }
     }
     
@@ -1330,7 +1340,7 @@ class Fabric: ObservableObject {
         return try await parseNfts(profileData["contents"].arrayValue, propertyId:propertyId)
     }
     
-    func getProperties(includePublic: Bool, noCache:Bool = false, noAuth:Bool = false, newFetch:Bool=true) async throws -> [MediaProperty] {
+    func getProperties(includePublic: Bool, noCache:Bool = false, noAuth:Bool = false, newFetch:Bool=true, devMode:Bool=false) async throws -> [MediaProperty] {
         debugPrint("Fabric getProperties includingPublic \(includePublic) noCache \(noCache) noAuth \(noAuth)")
         
         guard let signer = self.signer else {
@@ -1338,7 +1348,16 @@ class Fabric: ObservableObject {
         }
         
         if noCache || newFetch || self.mediaProperties.contents.isEmpty{
-            let response = try await signer.getProperties(includePublic:includePublic, noCache:noCache, accessCode: noAuth ? "" : self.fabricToken)
+            var response = try await signer.getProperties(includePublic:includePublic, noCache:noCache, accessCode: noAuth ? "" : self.fabricToken)
+            if devMode {
+                for propertyId in self.devProperties {
+                    if let prop = try await getProperty(property: propertyId) {
+                        response.contents.insert(prop, at:0)
+                        debugPrint("added dev prop ", prop.title)
+                    }
+                }
+            }
+
             if noAuth == false && !self.fabricToken.isEmpty {
                 try cacheMediaProperties(properties: response)
             }

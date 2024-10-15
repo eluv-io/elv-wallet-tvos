@@ -42,6 +42,7 @@ class MediaProperty: Codable, Identifiable, Hashable {
     var purchase_settings : JSON?
     var subproperties : [String]?
     var tenant : JSON?
+    var property_selection: JSON? 
     
     static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
         return lhs.id == rhs.id

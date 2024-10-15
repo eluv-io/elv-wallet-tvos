@@ -26,6 +26,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var permission_auth_state : JSON? = nil
     var purchaseImage : String = ""
     var hasAuth : Bool = false
+    var model : MediaProperty? = nil
     
     static func == (lhs: MediaPropertyViewModel, rhs: MediaPropertyViewModel) -> Bool {
         return lhs.id == rhs.id
@@ -96,7 +97,8 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
             main_page: mediaProperty.main_page,
             permission_auth_state: mediaProperty.permission_auth_state,
             purchaseImage: purchaseImage,
-            hasAuth: fabric.checkPropertyAuthState(property:mediaProperty)
+            hasAuth: fabric.checkPropertyAuthState(property:mediaProperty),
+            model : mediaProperty
         )
     }
 }

@@ -16,6 +16,7 @@ class EluvioAPI : ObservableObject {
     @Published var pathState : PathState = PathState()
     @Published var viewState = ViewState()
     @Published var refreshId = UUID().uuidString
+    @Published var devMode: Bool = false
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -24,6 +25,13 @@ class EluvioAPI : ObservableObject {
         fabric = .init()
         pathState = .init()
         viewState = .init()
+        
+        do {
+            devMode = UserDefaults.standard.bool(forKey: "api_devmode")
+        }catch{
+            print("Could not get api_devmode")
+        }
+        
         Publishers.MergeMany(
             self.accountManager.objectWillChange,
             self.fabric.objectWillChange,
@@ -39,37 +47,52 @@ class EluvioAPI : ObservableObject {
         .store(in: &self.cancellables)
     }
     
+    @MainActor
     func needsRefresh() {
         refreshId = UUID().uuidString
     }
 
+    @MainActor
     func setEnvironment(env:APIEnvironment){
         UserDefaults.standard.set(env.rawValue, forKey: "api_environment")
-        if let signer = fabric.signer {
-            fabric.signer?.setEnvironment(env: env)
-        }
+        fabric.setEnvironment(env: env)
+        needsRefresh()
     }
     
     func getEnvironment() -> APIEnvironment {
         return fabric.getEnvironment()
     }
     
+    @MainActor
+    func setDevMode(devMode: Bool){
+        UserDefaults.standard.set(devMode, forKey: "api_devmode")
+        self.devMode = devMode
+        needsRefresh()
+    }
+    
+    func getDevMode() -> Bool {
+        return devMode
+    }
+    
     
     func signIn(account:Account, property:String) async throws {
-        signOut()
+        await signOut()
         fabric.fabricToken = account.fabricToken
         try accountManager.addAndSetCurrentAccount(account: account, type: account.type, property:property)
         try await fabric.connect(network:"main")
+        await needsRefresh()
     }
     
+    @MainActor
     func signOut(){
         accountManager.signOut()
         fabric.reset()
         pathState.reset()
         viewState.reset()
+        needsRefresh()
     }
     
-    func handleApiError(code: Int, response:JSON, error: Error){
+    @MainActor func handleApiError(code: Int, response:JSON, error: Error){
         print("Could not get properties ", error.localizedDescription)
         print("Response ", response)
         let errors = response["errors"].arrayValue

@@ -256,7 +256,9 @@ struct OryDeviceFlowView: View {
                 //signInResponse.idToken = token
                 let login = LoginResponse(type: type, addr:addr, eth:eth, token: token)
                 debugPrint("Ory signing in ")
-                eluvio.pathState.path.append(.progress)
+                await MainActor.run {
+                    eluvio.pathState.path.append(.progress)
+                }
 
                 let account = Account()
                 account.type = .Ory
@@ -295,9 +297,11 @@ struct OryDeviceFlowView: View {
 
             self.timerCancellable!.cancel()
         } catch {
-            print("checkDeviceVerification error", error)
-            self.errorMessage =  error.localizedDescription
-            showError = true
+            await MainActor.run {
+                print("checkDeviceVerification error", error)
+                self.errorMessage =  error.localizedDescription
+                showError = true
+            }
         }
     }
 }

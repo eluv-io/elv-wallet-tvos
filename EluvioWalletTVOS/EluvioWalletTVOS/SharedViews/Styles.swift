@@ -212,19 +212,23 @@ struct propertyFilterButtonStyle: ButtonStyle {
     let selected: Bool
     var scale = 1.00
     func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .padding([.leading,.trailing],20)
-            .foregroundColor(focused || selected ? .black : .white)
-            .cornerRadius(10)
-            .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
-            .background(
-                RoundedRectangle(
-                    cornerRadius: 10,
-                    style: .continuous
-                )
-                .stroke(.tint, lineWidth: !focused ? 1 : 0)
-                .fill(focused || selected ? .white : .clear)
+        ZStack {
+            RoundedRectangle(
+                cornerRadius: 10,
+                style: .continuous
             )
+            .stroke(.tint, lineWidth:  focused ? 4 : 1 )
+            .fill(selected || focused ? Color(hex:0x3b3b3b)  : .clear)
+            //.fill(focused ? Color(hex:0x8b8b8b)  : .clear)
+            
+            configuration.label
+                .padding([.leading,.trailing],20)
+                .foregroundColor(selected ? .white : .white)
+                .cornerRadius(10)
+        }
+        .scaleEffect(configuration.isPressed ? 0.9 : 1)
+        .animation(.easeIn(duration: 0.1), value: configuration.isPressed)
+        .opacity(configuration.isPressed || selected || focused ? 1 : 0.6)
     }
 }
 
