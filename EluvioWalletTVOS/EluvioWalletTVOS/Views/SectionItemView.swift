@@ -798,12 +798,46 @@ struct SectionItemView: View {
                                             }catch{
                                                 debugPrint("Error finding property ", item.subproperty_id)
                                             }
-                                    }else if mediaItem.media_type.lowercased() == "image" {
-                                        _ = eluvio.pathState.path.popLast()
-                                        eluvio.pathState.path.append(.imageView(mediaItem.thumbnail))
-                                        
-                                    }else {
-                                            debugPrint("Item without type Item: ", mediaItem)
+                                        }else if mediaItem.media_type.lowercased() == "image" {
+                                            _ = eluvio.pathState.path.popLast()
+                                            eluvio.pathState.path.append(.imageView(mediaItem.thumbnail))
+                                            
+                                        }else if ( item.type?.lowercased() == "page_link") {
+                                            debugPrint("page_link item: ", item)
+                                            
+                                            do {
+                                                if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                                                    debugPrint("propertyID : ", propertyId)
+                                                    let pageId = item.page_id ?? ""
+                                                    
+                                                    var page = property.main_page
+                                                    if let _page = try await eluvio.fabric.getPropertyPage(propertyId: propertyId, pageId: pageId) {
+                                                        debugPrint("Found page")
+                                                        page = _page
+                                                    }else{
+                                                        debugPrint("Could not find page for propertyId")
+                                                    }
+                                                    
+                                                    await MainActor.run {
+
+                                                        if !pageId.isEmpty {
+                                                            let param = PropertyParam(property:property, pageId:pageId)
+                                                            debugPrint("property page params: ", param)
+                                                            eluvio.pathState.property = property
+                                                            eluvio.pathState.propertyPage = page
+                                                            
+                                                            _ = eluvio.pathState.path.popLast()
+                                                            eluvio.pathState.path.append(.property(param))
+                                                        }
+                                                    }
+                                                    return
+                                                }
+                                            }catch{
+                                                print("could not fetch page url for banner ", error.localizedDescription)
+                                            }
+                                            
+                                        }else {
+                                                debugPrint("Item without type Item: ", mediaItem)
                                         }
                                     }catch(FabricError.apiError(let code, let response, let error)){
                                         await MainActor.run {

@@ -744,7 +744,7 @@ struct MediaPropertyDetailView: View {
         .background(
             Color.black.edgesIgnoringSafeArea(.all)
         )
-        .onWillAppear(){
+        .onAppear(){
             debugPrint("MediaPropertyDetailView onAppear")
             refresh()
         }
@@ -755,13 +755,18 @@ struct MediaPropertyDetailView: View {
         }
     }
     
+    
+    
     func refresh(){
-        debugPrint("MediaPropertyDetailView refresh() ",pageId)
+        debugPrint("MediaPropertyDetailView refresh() propertyId: ",propertyId)
+        debugPrint("MediaPropertyDetailView refresh() page: ",pageId)
         if self.isRefreshing{
             debugPrint("still refreshing..exiting")
             return
         }
         
+        playerItem = nil
+        backgroundImage = ""
         self.isRefreshing = true
         
         if propertyId.isEmpty {

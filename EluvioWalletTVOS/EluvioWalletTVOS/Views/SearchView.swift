@@ -250,27 +250,26 @@ struct SearchView: View {
                 .padding(.top,40)
                 .padding(.bottom)
                 
-                if !subProperties.isEmpty {
+                if !subProperties.isEmpty && currentPrimaryFilter == nil{
                     if searchString.isEmpty {
                         ScrollView(.horizontal){
                             LazyHStack(spacing:20){
                                 ForEach(subProperties, id: \.self) { property in
-                                    //MediaPropertySelectorView(propertyId: property.propertyId, title: property.title, logoUrl: property.logoUrl,  landscape:true)
                                     SearchTileView(
                                         imageUrl: property.logoUrl,
                                         title: property.title,
                                         action:{
                                             Task {
                                                 do {
-                                                    if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                                        debugPrint("propertyID clicked: ", propertyId)
+                                                    if let property = try await eluvio.fabric.getProperty(property: property.propertyId) {
+                                                        debugPrint("propertyID clicked: ", property.id)
                                                         
                                                         await MainActor.run {
                                                             eluvio.pathState.propertyPage = property.main_page
                                                         }
                                                         
                                                         await MainActor.run {
-                                                            let param = PropertyParam(property:property)
+                                                            let param = PropertyParam(property:property, pageId:"main")
                                                             eluvio.pathState.path = []
                                                             eluvio.pathState.path.append(.property(param))
                                                         }
@@ -348,7 +347,7 @@ struct SearchView: View {
                 }
                 else {
                     if !secondaryFilters.isEmpty {
-                        ScrollView {
+                        ScrollView(.horizontal) {
                             LazyHStack(spacing:10){
                                 HStack(spacing:20){
                                     Image("back")
@@ -430,11 +429,15 @@ struct SearchView: View {
                         if let subproperties = mainProperty?.property_selection {
                             debugPrint("Found subproperties ", subproperties)
                             for subpropSelection in subproperties.arrayValue {
+                                var selectorId = subpropSelection["property_id"].stringValue
+                                if selectorId == propertyId {
+                                    continue
+                                }
                                 var logoUrl = ""
                                 debugPrint("subpropSelection : ", subpropSelection)
                                 debugPrint("logo link: ",subpropSelection["logo"])
                                 do {
-                                    logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["logo"])
+                                    logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
                                 }catch{
                                     print("Could not get logo from link ", error)
                                 }
@@ -448,10 +451,10 @@ struct SearchView: View {
                                 
                                 let selector = PropertySelector(logoUrl: logoUrl,
                                                                 iconUrl: iconUrl,
-                                                                propertyId: subpropSelection["property_id"].stringValue,
+                                                                propertyId: selectorId,
                                                                 title: subpropSelection["title"].stringValue)
                                 debugPrint("selector created: ", selector)
-                                if !selector.isEmpty {
+                                if !selector.isEmpty{
                                     subs.append(selector)
                                     debugPrint("added selector")
                                 }
