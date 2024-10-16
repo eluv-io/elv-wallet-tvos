@@ -1095,7 +1095,7 @@ struct MediaPropertyBanner: View {
             .opacity(opacity)
             .clipped()
             .frame(maxWidth: .infinity, alignment:.leading)
-            .buttonStyle(BannerButtonStyle(focused:isFocused))
+            .buttonStyle(BannerButtonStyle(focused:isFocused, bordered: true))
             .focused($isFocused)
             .task{
                 do{
