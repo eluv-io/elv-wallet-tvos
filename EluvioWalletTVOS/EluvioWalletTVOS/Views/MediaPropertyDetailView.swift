@@ -36,7 +36,7 @@ struct MediaPropertyRegularSectionView: View {
     var section: MediaPropertySection
     var margin: CGFloat = 80
     
-    @State var items: [MediaPropertySectionItem] = []
+    @State var items: [MediaPropertySectionMediaItemViewModel] = []
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -171,11 +171,13 @@ struct MediaPropertyRegularSectionView: View {
                         if alignment == .center && items.count < 5 {
                             HStack(alignment: .top, spacing: 20) {
                                 ForEach(items) {item in
-                                    SectionItemView(item: item,
+                                    SectionItemView(item: item.sectionItem,
                                                     sectionId: section.id,
                                                     pageId:pageId,
                                                     propertyId: propertyId,
-                                                    forceAspectRatio:forceAspectRatio)
+                                                    forceAspectRatio:forceAspectRatio,
+                                                    viewItem: item
+                                    )
                                     .environmentObject(self.eluvio)
                                 }
                             }
@@ -186,13 +188,17 @@ struct MediaPropertyRegularSectionView: View {
                             ScrollView(.horizontal) {
                                 HStack(alignment: .center, spacing: 34) {
                                     ForEach(items) {item in
-                                        SectionItemView(item: item,
+                                        SectionItemView(item: item.sectionItem,
                                                         sectionId: section.id,
                                                         pageId:pageId,
                                                         propertyId: propertyId,
-                                                        forceAspectRatio:forceAspectRatio)
+                                                        forceAspectRatio:forceAspectRatio,
+                                                        viewItem: item
+                                        )
+                                        .fixedSize()
                                         .padding(.top,0)
                                         .environmentObject(self.eluvio)
+                                        
                                     }
                                 }
                                 .padding([.top,.bottom],20)
@@ -223,7 +229,7 @@ struct MediaPropertyRegularSectionView: View {
             }
             .frame(maxWidth: .infinity, maxHeight:.infinity)
         )
-        .onWillAppear() {
+        .task() {
             debugPrint("MediaPropertyRegularSectionView onAppear()")
             if let display = section.display {
                 do {
@@ -236,7 +242,7 @@ struct MediaPropertyRegularSectionView: View {
             }
             
             Task {
-                var sectionItems : [MediaPropertySectionItem] = []
+                var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
                 let max = 25
                 var count = 0
                 if let content = section.content {
@@ -259,7 +265,8 @@ struct MediaPropertyRegularSectionView: View {
                         }
                         
                         if !permission.hide && !mediaPermission.hide{
-                            sectionItems.append(item)
+                            let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                            sectionItems.append(viewItem)
                             debugPrint("added item")
                         }
                         count += 1
@@ -547,12 +554,10 @@ struct MediaPropertySectionView: View {
 
     var body: some View {
         Group{
-            //
             if !hide {
                 if isHero {
                     MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition)
-                        //.padding([.leading,.trailing],margin)
-                        .focusable()
+                        //.focusable()
 
                 }else if isBanner {
                     MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, section:section)
@@ -560,13 +565,12 @@ struct MediaPropertySectionView: View {
                         .padding(.top,40)
                     
                 }else if isContainer{
-                    VStack(spacing:40){
+                    VStack(spacing:0){
                         ForEach(subsections) { sub in
                             MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub)
-                                .frame(minHeight:minHeight)
+                                //.frame(minHeight:minHeight)
                         }
                     }
-                    //.padding([.bottom,.top], 40)
                 }else if !items.isEmpty {
                     MediaPropertyRegularSectionView(
                         propertyId:propertyId,
@@ -580,38 +584,25 @@ struct MediaPropertySectionView: View {
             }
         }
         .disabled(disable)
-        .onWillAppear() {
+        .task() {
             debugPrint("MediaPropertySectionView onAppear() type:", section.type)
             debugPrint("Subsections count ", section.sections?.count)
-            
-            /*
-            if let display = section.display {
-                debugPrint("MediaPropertySectionView section ", display["title"])
-                debugPrint("Display format ", section.display?["display_format"].stringValue)
-                debugPrint("MediaPropertySectionView section content count ", section.content?.count)
-                
-                do {
-                    logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
-                }catch{}
-                
-                do {
-                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                }catch{}
-            }
-            */
-            
-            self.permission = section.resolvedPermission
-            
+
             Task{
                 do {
                     
                     if section.resolvedPermission == nil {
                         self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
                         section.resolvedPermission = self.permission
+                    }else {
+                        self.permission = section.resolvedPermission
                     }
-                }catch{}
+                }catch{
+                    self.permission = section.resolvedPermission
+                }
             }
             
+
             Task{
                 do {
                 
@@ -638,6 +629,7 @@ struct MediaPropertySectionView: View {
                     debugPrint("Error:",error.localizedDescription)
                 }
             }
+
         }
     }
 }
@@ -693,6 +685,18 @@ struct MediaPropertyDetailView: View {
                         .clipped()
                         .id(backgroundImage)
                 }
+                                
+                VStack(spacing:0) {
+                    ForEach(sections) {section in
+                        if let propertyId = property?.id {
+                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(0)
+                        }
+                    }
+                }
+                .prefersDefaultFocus(in: NamespaceProperty)
+                .id(refreshId)
                 
                 HStack(alignment:.top){
                     Spacer()
@@ -719,22 +723,12 @@ struct MediaPropertyDetailView: View {
                         Spacer()
                     }
                 }
+                .zIndex(20)
                 .focusSection()
                 .padding(.trailing, 40)
                 .padding(.top, 40)
-
+                .frame(maxWidth:.infinity, maxHeight:120)
                 
-                VStack(spacing:0) {
-                    ForEach(sections) {section in
-                        if let propertyId = property?.id {
-                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
-                }
-                .prefersDefaultFocus(in: NamespaceProperty)
-                .padding(.top, 100)
-                .id(refreshId)
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
@@ -744,7 +738,7 @@ struct MediaPropertyDetailView: View {
         .background(
             Color.black.edgesIgnoringSafeArea(.all)
         )
-        .onAppear(){
+        .task {
             debugPrint("MediaPropertyDetailView onAppear")
             refresh()
         }
@@ -774,16 +768,22 @@ struct MediaPropertyDetailView: View {
             return
         }
         
+        /*
         Task {
             withAnimation(.easeInOut(duration: 2)) {
               opacity = 1.0
             }
         }
+         */
         
         Task {
             defer {
                 self.isRefreshing = false
                 self.refreshId = eluvio.refreshId
+                
+                withAnimation(.easeInOut(duration: 2)) {
+                  opacity = 1.0
+                }
             }
             do {
                 if let mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:true) {
@@ -931,17 +931,17 @@ struct MediaPropertyHeader: View {
         VStack(alignment: .leading, spacing:0) {
             WebImage(url: URL(string: logo))
                 .resizable()
-                .transition(.fade(duration: 0.5))
-                .aspectRatio(contentMode: .fit)
-                .frame(width:890, height:180, alignment: alignment)
-                .padding(.bottom,60)
-                .clipped()
-            
+                .scaledToFit()
+                .frame(height:180, alignment: alignment)
+                //.frame(maxWidth:.infinity)
+                //.clipped()
+
             if !title.isEmpty {
                 Text(title).font(.title3)
                     .foregroundColor(Color.white)
                     .fontWeight(.bold)
                     .frame(maxWidth:1100, alignment: alignment)
+                    .padding(.top, 60)
             }
             
             if !description.isEmpty {
@@ -953,10 +953,11 @@ struct MediaPropertyHeader: View {
                     .lineLimit(4)
                     .padding(.top, 30)
             }
+
         }
         .frame(maxWidth: .infinity, alignment:.leading)
         .padding([.leading, .trailing], 80)
-        .padding(.bottom, 40)
+        .padding([.top, .bottom], 40)
         .onAppear(){
             debugPrint("Description text : ", description)
         }

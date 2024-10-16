@@ -10,7 +10,7 @@ import SwiftyJSON
 
 enum ImageAspectRatio : String, Codable  {case square, portrait , landscape }
 
-struct MediaPropertySectionMediaItemViewModel: Codable {
+struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable {
     var id : String
     var media_id : String
     var display : JSON
@@ -37,6 +37,9 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
     var headerString: String = ""
     
     var icons : [JSON]? = nil
+    
+    var sectionItem: MediaPropertySectionItem? = nil
+    var mediaItem: MediaPropertySectionMediaItem? = nil
     
     var startDate : Date? {
         let dateFormatter = ISO8601DateFormatter()
@@ -222,7 +225,8 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
             thumbnail : thumbnail,
             thumb_aspect_ratio: thumb_aspect_ratio,
             headerString: headerString,
-            icons: icons
+            icons: icons,
+            mediaItem: media
         )
     }
 
@@ -368,7 +372,8 @@ struct MediaPropertySectionMediaItemViewModel: Codable {
             thumbnail : thumbnail,
             thumb_aspect_ratio: thumb_aspect_ratio,
             headerString: headerString,
-            icons: item.media?.icons
+            icons: item.media?.icons,
+            sectionItem: item
         )
     }
 }
