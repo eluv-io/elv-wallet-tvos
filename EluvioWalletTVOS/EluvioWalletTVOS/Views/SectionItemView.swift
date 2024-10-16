@@ -16,12 +16,24 @@ struct SectionGridView: View {
     var propertyId: String
     var pageId:String
     var section: MediaPropertySection
+    var margin: CGFloat = 80
     
     var items : [MediaPropertySectionItem] {
         return section.content ?? []
     }
     
     var forceDisplay : MediaDisplay? = nil
+    
+    @State var inlineBackgroundUrl: String? = nil
+    var hasBackground : Bool {
+        if let background = inlineBackgroundUrl {
+            if !background.isEmpty {
+                return true
+            }
+        }
+        
+        return false
+    }
     
     var display : MediaDisplay {
         if let force = forceDisplay {
@@ -59,16 +71,18 @@ struct SectionGridView: View {
     
     
     var body: some View {
-        VStack{
-            HStack{
-                Text(title)
-                    .font(.rowTitle)
-                Spacer()
+        VStack(alignment:.leading, spacing:0){
+            if !title.isEmpty {
+                HStack{
+                    Text(title)
+                        .font(.rowTitle)
+                    Spacer()
+                }
+                .frame(maxWidth:.infinity)
+                .padding(.top, 40)
+                .padding([.leading, .trailing], margin)
             }
-            .frame(maxWidth:.infinity)
-            .padding(.bottom, 30)
-            .padding([.leading, .trailing], 80)
-            
+
             if items.dividedIntoGroups(of: numColumns).count <= 1 {
                 HStack(spacing:0) {
                         ForEach(items, id: \.self) { item in
@@ -85,7 +99,8 @@ struct SectionGridView: View {
                         Spacer()
                 }
                 .frame(maxWidth:.infinity, alignment:.leading)
-                .padding([.leading, .trailing], 80)
+                .padding([.leading, .trailing], margin)
+                .padding([.top,.bottom], 40)
             }else{
                 Grid(alignment:.leading, horizontalSpacing: 0, verticalSpacing: 0) {
                     ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
@@ -104,8 +119,30 @@ struct SectionGridView: View {
                     }
                 }
                 .frame(maxWidth:.infinity)
-                //.padding(.leading,80)
+                .padding([.top,.bottom], 40)
                 .focusSection()
+            }
+        }
+        .background(
+            Group {
+                if let url = inlineBackgroundUrl {
+                    WebImage(url:URL(string:url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .zIndex(-10)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        )
+        .clipped()
+        .task() {
+            debugPrint("MediaPropertyRegularSectionView onAppear()")
+            if let display = section.display {
+                do {
+                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                }catch{}
             }
         }
     }

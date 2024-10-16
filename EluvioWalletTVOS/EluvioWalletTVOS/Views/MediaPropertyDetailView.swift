@@ -28,6 +28,20 @@ enum SectionPosition {
     case Left, Right, Center
 }
 
+struct MediaPropertySectionGridView: View {
+    @Namespace var NamespaceProperty
+    @EnvironmentObject var eluvio: EluvioAPI
+    var propertyId: String
+    var pageId: String
+    var section: MediaPropertySection
+    var margin: CGFloat = 80
+
+    var body: some View {
+        SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
+            .frame(maxWidth:.infinity, maxHeight: .infinity)
+    }
+}
+
 struct MediaPropertyRegularSectionView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
@@ -229,6 +243,7 @@ struct MediaPropertyRegularSectionView: View {
             }
             .frame(maxWidth: .infinity, maxHeight:.infinity)
         )
+        .clipped()
         .task() {
             debugPrint("MediaPropertyRegularSectionView onAppear()")
             if let display = section.display {
@@ -419,6 +434,13 @@ struct MediaPropertySectionView: View {
         }
         return false
     }
+    
+    var isGrid: Bool {
+        if section.display?["display_format"].stringValue == "grid"  {
+            return true
+        }
+        return false
+    }
 
     @State var logoUrl: String? = nil
     var logoText: String {
@@ -561,8 +583,8 @@ struct MediaPropertySectionView: View {
 
                 }else if isBanner {
                     MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, section:section)
-                        .padding([.leading,.trailing],margin)
-                        .padding(.top,40)
+                        //.padding([.leading,.trailing],margin)
+                        //.padding(.top,40)
                     
                 }else if isContainer{
                     VStack(spacing:0){
@@ -571,6 +593,8 @@ struct MediaPropertySectionView: View {
                                 //.frame(minHeight:minHeight)
                         }
                     }
+                }else if isGrid {
+                    MediaPropertySectionGridView(propertyId:propertyId, pageId:pageId, section:section)
                 }else if !items.isEmpty {
                     MediaPropertyRegularSectionView(
                         propertyId:propertyId,
@@ -985,8 +1009,9 @@ struct MediaPropertyBanner: View {
                         .transition(.opacity)
 
                 }
-                .focusable()
+               // .focusable()
             })
+            .clipped()
             .frame(maxWidth: .infinity, alignment:.leading)
             .buttonStyle(BannerButtonStyle(focused:isFocused))
             .focused($isFocused)
