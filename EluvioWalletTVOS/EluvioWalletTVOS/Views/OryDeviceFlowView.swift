@@ -32,7 +32,7 @@ struct OryDeviceFlowView: View {
     var ClientId = ""
     var Domain = ""
     var GrantType = ""
-    
+    @State var opacity : CGFloat = 0.0
     @State var isChecking = false
     var property : MediaProperty? = nil
     
@@ -115,6 +115,7 @@ struct OryDeviceFlowView: View {
                         Text("Request New Code")
                     }
                     Button(action: {
+                        opacity = 0
                         self.presentationMode.wrappedValue.dismiss()
                     }) {
                         Text("Back")
@@ -128,6 +129,7 @@ struct OryDeviceFlowView: View {
         .frame(maxWidth:.infinity, maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
         .background(.thickMaterial)
+        .opacity(opacity)
         .onAppear(perform: {
             /*if(!eluvio.accountManager.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
@@ -139,6 +141,11 @@ struct OryDeviceFlowView: View {
             
             Task{
                 await self.regenerateCode()
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 2)) {
+                        self.opacity = 1.0
+                    }
+                }
             }
         })
         .onReceive(timer) { _ in

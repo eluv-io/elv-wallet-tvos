@@ -28,6 +28,28 @@ enum SectionPosition {
     case Left, Right, Center
 }
 
+extension View {
+    func getWidth(_ width: Binding<CGFloat>) -> some View {
+        modifier(GetWidthModifier(width: width))
+    }
+}
+
+struct GetWidthModifier: ViewModifier {
+    @Binding var width: CGFloat
+    func body(content: Content) -> some View {
+        content
+            .background(
+                GeometryReader { proxy in
+                    let proxyWidth = proxy.size.width
+                    Color.clear
+                        .task(id: proxy.size.width) {
+                            $width.wrappedValue = max(proxyWidth, 0)
+                        }
+                }
+            )
+    }
+}
+
 struct MediaPropertySectionGridView: View {
     @Namespace var NamespaceProperty
     @EnvironmentObject var eluvio: EluvioAPI
@@ -35,10 +57,64 @@ struct MediaPropertySectionGridView: View {
     var pageId: String
     var section: MediaPropertySection
     var margin: CGFloat = 80
+    @State var logoUrl: String? = nil
+    var logoText: String {
+        if let display = section.display {
+            return display["logo_text"].stringValue
+        }
+        return ""
+    }
+    @State var inlineBackgroundUrl: String? = nil
 
+    
+
+    
     var body: some View {
-        SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
-            .frame(maxWidth:.infinity, maxHeight: .infinity)
+        HStack(spacing:0){
+            if let url = logoUrl {
+                VStack(spacing:20) {
+                    WebImage(url:URL(string:url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 180, height:180)
+                    Text(logoText)
+                        .font(.sectionLogoText)
+                }
+                .padding(.leading, margin)
+            }
+            
+            SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, forceDisplay: .video)
+            
+            .padding()
+        }
+        .background(
+            Group {
+                if let url = inlineBackgroundUrl {
+                    WebImage(url:URL(string:url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .zIndex(-10)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        )
+        .clipped()
+        .frame(maxWidth:.infinity, maxHeight: .infinity)
+        .task{
+            if let display = section.display {
+                do {
+                    logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
+                    
+                }catch{}
+                
+                do {
+                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                }catch{}
+            }
+            
+        }
     }
 }
 
@@ -950,6 +1026,9 @@ struct MediaPropertyHeader: View {
         return .leading
     }
     
+    var hasOnlyImage : Bool {
+        return !logo.isEmpty && title.isEmpty && description.isEmpty
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing:0) {
@@ -981,7 +1060,8 @@ struct MediaPropertyHeader: View {
         }
         .frame(maxWidth: .infinity, alignment:.leading)
         .padding([.leading, .trailing], 80)
-        .padding([.top, .bottom], 40)
+        .padding([.bottom], 40)
+        .padding([.top], hasOnlyImage ? 40 : 100)
         .onAppear(){
             debugPrint("Description text : ", description)
         }
@@ -996,7 +1076,7 @@ struct MediaPropertyBanner: View {
     var margin: CGFloat = 40
     var action: ()->Void
     @FocusState var isFocused: Bool
-
+    @State var opacity : CGFloat = 0
     var body: some View {
         if !image.isEmpty {
             Button(action:action, label:{
@@ -1011,10 +1091,22 @@ struct MediaPropertyBanner: View {
                 }
                // .focusable()
             })
+            .opacity(opacity)
             .clipped()
             .frame(maxWidth: .infinity, alignment:.leading)
             .buttonStyle(BannerButtonStyle(focused:isFocused))
             .focused($isFocused)
+            .task{
+                do{
+                    try await Task.sleep(nanoseconds: 3_000_000_000)
+                }catch{}
+                
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 3)) {
+                        self.opacity = 1.0
+                    }
+                }
+            }
         }else{
             EmptyView()
         }

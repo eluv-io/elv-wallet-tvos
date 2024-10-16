@@ -93,7 +93,7 @@ struct DiscoverView: View {
             .opacity(opacity)
         )
         .scrollClipDisabled()
-        .onWillAppear(){
+        .task(){
             debugPrint("onWillAppear")
             refresh()
         }
@@ -103,23 +103,22 @@ struct DiscoverView: View {
                 refresh()
             }
         }
+        
         .onDisappear(){
-            properties = []
-            refresh()
-            withAnimation(.easeInOut(duration: 2)) {
+            //properties = []
+            //refresh()
+            //withAnimation(.easeInOut(duration: 2)) {
               opacity = 0.0
-            }
+            //}
         }
+         
     }
     
     func refresh() {
         
         if DiscoverView.refreshId != eluvio.refreshId {
             properties = []
-        }/*else {
-            
-        }*/
-        
+        }
         if !properties.isEmpty {
             return
         }

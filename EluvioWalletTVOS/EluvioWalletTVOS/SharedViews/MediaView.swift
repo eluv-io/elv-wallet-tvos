@@ -719,8 +719,8 @@ struct MediaCard: View {
                 height = 372 * sizeFactor
                 cornerRadius = 3 * sizeFactor
             }else if display == MediaDisplay.video{
-                width =  417 * sizeFactor
-                height = 235 * sizeFactor
+                width =  380 * sizeFactor
+                height = 215 * sizeFactor
                 cornerRadius = 16 * sizeFactor
             }else if display == MediaDisplay.books {
                 width =  235 * sizeFactor

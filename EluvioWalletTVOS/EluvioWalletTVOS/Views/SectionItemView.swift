@@ -59,92 +59,96 @@ struct SectionGridView: View {
         return ""
     }
     
-    var numColumns: Int {
-        if display == .video {
-            return 4
-        } else if display == .square {
-            return 6
-        } else {
+    var numColumns: Int{
+        if width < 1000 {
+            return 2
+        }else if width < 1700 {
+            return 3
+        }else {
             return 4
         }
     }
     
+    @State var width: CGFloat =  0
     
     var body: some View {
-        VStack(alignment:.leading, spacing:0){
-            if !title.isEmpty {
-                HStack{
-                    Text(title)
-                        .font(.rowTitle)
-                    Spacer()
+            VStack(alignment:.leading, spacing:0){
+                if !title.isEmpty {
+                    HStack{
+                        Text(title)
+                            .font(.rowTitle)
+                        //Text("\(width)")
+                        Spacer()
+                    }
+                    .frame(maxWidth:.infinity)
+                    .padding(.top, 40)
                 }
-                .frame(maxWidth:.infinity)
-                .padding(.top, 40)
-                .padding([.leading, .trailing], margin)
-            }
-
-            if items.dividedIntoGroups(of: numColumns).count <= 1 {
-                HStack(spacing:0) {
+                if items.dividedIntoGroups(of: numColumns).count <= 1 {
+                    HStack(spacing:0) {
                         ForEach(items, id: \.self) { item in
                             SectionItemView(item: item,
                                             sectionId: section.id,
                                             pageId:pageId,
                                             propertyId: propertyId,
-                                            forceDisplay:display,
+                                            forceDisplay:forceDisplay,
                                             viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
                             )
                             .environmentObject(self.eluvio)
                             .padding(20)
                         }
                         Spacer()
-                }
-                .frame(maxWidth:.infinity, alignment:.leading)
-                .padding([.leading, .trailing], margin)
-                .padding([.top,.bottom], 40)
-            }else{
-                Grid(alignment:.leading, horizontalSpacing: 0, verticalSpacing: 0) {
-                    ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
-                        GridRow(alignment:.top) {
-                            ForEach(groups, id: \.self) { item in
-                                SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
-                                                viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
-                                )
-                                .environmentObject(self.eluvio)
-                                .padding(10)
-                            }
-                        }
-                        .padding()
-                        .frame(alignment:.leading)
-                        .gridColumnAlignment(.leading)
                     }
+                    .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.leading)
+                    .padding([.top,.bottom], 40)
+                }else{
+                    
+                    LazyVStack{
+                        
+                        Grid(alignment:.leading, horizontalSpacing: 40, verticalSpacing: 40) {
+
+                                ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
+                                    GridRow(alignment:.top) {
+                                        ForEach(groups, id: \.self) { item in
+                                            SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:forceDisplay,
+                                                            viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                                            )
+                                            .gridColumnAlignment(.leading)
+                                            .environmentObject(self.eluvio)
+                                            
+                                        }
+                                    }
+                                    .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.leading)
+                                }
+                            
+                        }
+                        .frame(maxWidth:.infinity)
+                        .padding([.top,.bottom], 40)
+                        .focusSection()
+                    }
+                    
+                    
+                    //FIXME: LazyVGrid loses selection DO NOT USE
+                    /*
+                     LazyVGrid(
+                     columns: [GridItem(.adaptive(minimum: 350))],
+                     spacing: 10
+                     ){
+                     ForEach(items, id: \.self) { item in
+                     SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:forceDisplay,
+                     viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                     
+                     )
+                     .padding(.bottom,20)
+                     .environmentObject(self.eluvio)
+                     }
+                     }
+                     .padding([.leading, .trailing], margin)
+                     .padding(40)
+                     */
                 }
-                .frame(maxWidth:.infinity)
-                .padding([.top,.bottom], 40)
-                .focusSection()
-            }
         }
-        .background(
-            Group {
-                if let url = inlineBackgroundUrl {
-                    WebImage(url:URL(string:url))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
-                        .zIndex(-10)
-                }
-            }
-            .frame(maxWidth: .infinity)
-        )
-        .clipped()
-        .task() {
-            debugPrint("MediaPropertyRegularSectionView onAppear()")
-            if let display = section.display {
-                do {
-                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                }catch{}
-            }
-        }
+        .padding([.leading, .trailing], margin)
+        .getWidth($width)
     }
 }
 
@@ -922,24 +926,7 @@ struct SectionItemView: View {
             }
         }
         .disabled(disable)
-        .onWillAppear(){
-            /*
-            Task{
-                do {
-                    
-                    if self.item.resolvedPermission == nil {
-                        if let sectionItemId = item.id {
-                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId)
-                            debugPrint("Permissions for \(item.label) :\n", permission)
-                        }
-                    }else{
-                        self.permission = self.item.resolvedPermission
-                    }
-                }catch{}
-                self.refreshId = UUID().uuidString
-            }
-             */
-            
+        .task(){
             self.refreshId = eluvio.refreshId
         }
         

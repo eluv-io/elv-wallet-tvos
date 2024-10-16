@@ -172,13 +172,6 @@ struct MediaPropertyView : View {
             .buttonStyle(TitleButtonStyle(focused: focused, bordered : true, borderRadius: cornerRadius))
             .focused($focused)
         }
-        .onChange(of:selected) {old, new in
-            //debugPrint("on selected", new.title)
-            if (new.id == property.id){
-                //debugPrint("Setting focus", property.title)
-               // focused = true
-            }
-        }
         .onChange(of:focused) {old, new in
             if (new){
                 selected = property

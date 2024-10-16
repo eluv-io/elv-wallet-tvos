@@ -36,6 +36,7 @@ struct DeviceFlowView: View {
     var ClientId = ""
     var Domain = ""
     var GrantType = ""
+    @State var opacity : CGFloat = 0.0
     
     @State var isChecking = false
     
@@ -121,9 +122,9 @@ struct DeviceFlowView: View {
                             .frame(maxWidth:.infinity)
                     }
                     Button(action: {
-                        //self.fabric.isLoggedOut = false
+                        opacity = 0
                         self.presentationMode.wrappedValue.dismiss()
-                        _ = self.eluvio.pathState.path.popLast()
+                        //_ = self.eluvio.pathState.path.popLast()
                     }) {
                         Text("Back")
                     }
@@ -148,6 +149,7 @@ struct DeviceFlowView: View {
             .frame(width: 675)
             }
         }
+        .opacity(opacity)
         .onAppear(perform: {
             /*if(!self.eluvio.accountManager.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
@@ -155,6 +157,13 @@ struct DeviceFlowView: View {
                 self.regenerateCode()
             }*/
             self.regenerateCode()
+            Task{
+                await MainActor.run {
+                    withAnimation(.easeInOut(duration: 2)) {
+                        self.opacity = 1.0
+                    }
+                }
+            }
         })
         .onReceive(timer) { _ in
             checkDeviceVerification()
