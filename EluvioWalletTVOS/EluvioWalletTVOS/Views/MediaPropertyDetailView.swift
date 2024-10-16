@@ -1073,7 +1073,7 @@ struct MediaPropertyBanner: View {
     @Namespace var NamespaceProperty
     @EnvironmentObject var eluvio: EluvioAPI
     var image: String = ""
-    var margin: CGFloat = 40
+    var margin: CGFloat = 80
     var action: ()->Void
     @FocusState var isFocused: Bool
     @State var opacity : CGFloat = 0
@@ -1089,7 +1089,8 @@ struct MediaPropertyBanner: View {
                         .transition(.opacity)
 
                 }
-               // .focusable()
+                .padding([.leading, .trailing], margin)
+                .padding([.top, .bottom], 40)
             })
             .opacity(opacity)
             .clipped()

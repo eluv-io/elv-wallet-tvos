@@ -42,6 +42,7 @@ struct MediaPropertyView : View {
     @State var disabled = true
     var landscape: Bool = false
     
+    //Returns true if we can load the page
     func login(_ _property: MediaProperty? = nil){
         
         var prop = _property
@@ -55,7 +56,7 @@ struct MediaPropertyView : View {
         }
         
         if let login = property.login {
-            //debugPrint("property: ", login)
+            debugPrint("login: ", login)
             
             let provider = login["settings"]["provider"].stringValue
             if !provider.isEmpty {
@@ -75,6 +76,15 @@ struct MediaPropertyView : View {
                     eluvio.pathState.path.append(.errorView("Login type not supported."))
                     return
                 }
+                
+
+                if let currentAccount = eluvio.accountManager.currentAccount {
+                    debugPrint("Setting current account and going to page.")
+                    eluvio.fabric.fabricToken = currentAccount.fabricToken
+                    eluvio.pathState.propertyPage = property.main_page
+                    let param = PropertyParam(property:property)
+                    eluvio.pathState.path.append(.property(param))
+                }
             }
         }
     }
@@ -87,8 +97,7 @@ struct MediaPropertyView : View {
                         let propertyId = property.id
                             if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                 debugPrint("propertyID clicked: ", propertyId)
-                                //debugPrint("property: ", property)
-                                
+
                                 await MainActor.run {
                                     eluvio.pathState.property = property
                                 }
@@ -96,26 +105,17 @@ struct MediaPropertyView : View {
                                 var skipLogin = false
                                 
                                 if let currentAccount = eluvio.accountManager.currentAccount {
-                                    if currentAccount.type == .DEBUG {
+                                    if currentAccount.type == .DEBUG{
                                         skipLogin = true
                                         eluvio.fabric.fabricToken = currentAccount.fabricToken
                                     }
                                 }
-                                    
+
+                                debugPrint("skipLogin: ", property)
                                 
                                 if !skipLogin {
-                                    login(property)
+                                   login()
                                 }
-                                
-                                await MainActor.run {
-                                    eluvio.pathState.propertyPage = property.main_page
-                                }
-
-                                await MainActor.run {
-                                    let param = PropertyParam(property:property)
-                                    eluvio.pathState.path.append(.property(param))
-                                }
-
                             }else{
                                 //eluvio.pathState.path.append(.errorView("Error finding property."))
                             }

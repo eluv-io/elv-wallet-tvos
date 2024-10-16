@@ -77,7 +77,6 @@ struct DiscoverView: View {
                         debugPrint("Could not fetch new property ",error.localizedDescription)
                     }
                 }
-                
             }
         }
         .background(

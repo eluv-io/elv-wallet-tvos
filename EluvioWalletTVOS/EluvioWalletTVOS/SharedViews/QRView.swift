@@ -77,7 +77,9 @@ struct QRView: View {
             Task {
                 do {
                     self.shortenedUrl = try await eluvio.fabric.signer?.shortenUrl(url: url) ?? ""
-                }catch{}
+                }catch{
+                    self.shortenedUrl = url
+                }
             }
 
         }

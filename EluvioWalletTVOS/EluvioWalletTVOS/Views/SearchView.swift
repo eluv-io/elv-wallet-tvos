@@ -230,8 +230,10 @@ struct SearchView: View {
                         }
                     }
                     
-                    
-                    self.sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
+                    let sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
+                    await MainActor.run {
+                        self.sections = sections
+                    }
                 }catch{
                     print("Could not do search ", error.localizedDescription)
                     //TODO: Send to error screen
@@ -389,7 +391,7 @@ struct SearchView: View {
                 
                 
                 if sections.count == 1 {
-                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, forceDisplay: .square)
+                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!)
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
                         .padding(.top,40)
