@@ -18,9 +18,7 @@ struct SectionGridView: View {
     var section: MediaPropertySection
     var margin: CGFloat = 80
     
-    var items : [MediaPropertySectionItem] {
-        return section.content ?? []
-    }
+    @State var items : [MediaPropertySectionMediaItemViewModel] = []
     
     var forceDisplay : MediaDisplay? = nil
     var scale: CGFloat = 1.0
@@ -41,15 +39,14 @@ struct SectionGridView: View {
             return force
         }
         if let item = items.first {
-            if item.media?.thumbnail_image_portrait != nil {
+            if item.thumb_aspect_ratio == .portrait{
                 return .feature
-            }
-            
-            if item.media?.thumbnail_image_landscape != nil {
+            }else if item.thumb_aspect_ratio == .landscape{
                 return .video
+            }else {
+                return .square
             }
         }
-        
         return .square
     }
     
@@ -93,12 +90,12 @@ struct SectionGridView: View {
                 if items.dividedIntoGroups(of: numColumns).count <= 1 {
                     HStack(spacing:0) {
                         ForEach(items, id: \.self) { item in
-                            SectionItemView(item: item,
+                            SectionItemView(item: item.sectionItem,
                                             sectionId: section.id,
                                             pageId:pageId,
                                             propertyId: propertyId,
                                             forceDisplay:forceDisplay,
-                                            viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                                            viewItem: item
                             )
                             .environmentObject(self.eluvio)
                             .padding(20)
@@ -115,8 +112,8 @@ struct SectionGridView: View {
                                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                                     GridRow(alignment:.top) {
                                         ForEach(groups, id: \.self) { item in
-                                            SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:forceDisplay,
-                                                            viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric),
+                                            SectionItemView(item: item.sectionItem, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:forceDisplay,
+                                                            viewItem: item,
                                                             scaleFactor: scale
                                             )
                                             .gridColumnAlignment(.leading)
@@ -155,6 +152,51 @@ struct SectionGridView: View {
         }
         .padding([.leading], margin)
         .getWidth($width)
+        .task {
+            do {
+                var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
+                let max = 25
+                var count = 0
+                if let content = section.content {
+                    for var item in content {
+                        /*
+                         let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "")
+                         item.resolvedPermission = permission
+                         */
+                        
+                        let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
+                        item.media?.resolvedPermission = mediaPermission
+                        item.resolvedPermission = mediaPermission
+                        /*
+                        if content.count == 1 {
+                            //debugPrint("permission: ", permission)
+                            debugPrint("media permission: ", mediaPermission)
+                            debugPrint("SectionItemTitle ", item.media?.title)
+                            debugPrint("SectionItem Type ", item.type)
+                            debugPrint("SectionItem Media Type ", item.media_type)
+                            debugPrint("SectionItem Media Display ", item.display)
+                            debugPrint("SectionItem Id ", item.id)
+                            debugPrint("SectionItem Media Id ", item.media?.id)
+                            debugPrint("SectionItem item media", item)
+                        }
+                         */
+                        
+                        if !mediaPermission.hide {
+                            let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                            sectionItems.append(viewItem)
+                            debugPrint("added item")
+                        }
+                        count += 1
+                        if count == max {
+                            break
+                        }
+                    }
+                }
+                self.items = sectionItems
+            }catch {
+                
+            }
+        }
     }
 }
 
@@ -657,7 +699,7 @@ struct SectionItemView: View {
                                         
                                         
                                         if let sectionItemId = item.id {
-                                            /*self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)*/
+                                           //var permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)
                                             //debugPrint("!!! Permission ", permission)
                                             if let permission = permission {
                                                 if !permission.authorized  || item.type == "item_purchase"{
@@ -706,7 +748,6 @@ struct SectionItemView: View {
                                                     eluvio.pathState.path.append(.errorView("Could not access media."))
                                                     return
                                                 }
-                                                
                                             }
                                         }
                                         

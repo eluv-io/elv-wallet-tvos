@@ -10,7 +10,7 @@ import SwiftyJSON
 
 enum ImageAspectRatio : String, Codable  {case square, portrait , landscape }
 
-struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable {
+struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
     var id : String
     var media_id : String
     var display : JSON
@@ -149,6 +149,14 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable {
     
     var currentlyLive : Bool {
         return !isUpcoming && self.live_video && hasStarted && !hasEnded
+    }
+    
+    static func == (lhs: MediaPropertySectionMediaItemViewModel, rhs: MediaPropertySectionMediaItemViewModel) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
     
     static func create(media: MediaPropertySectionMediaItem, fabric: Fabric) -> MediaPropertySectionMediaItemViewModel{
