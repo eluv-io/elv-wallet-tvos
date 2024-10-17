@@ -21,8 +21,7 @@ struct SectionGridView: View {
     @State var items : [MediaPropertySectionMediaItemViewModel] = []
     
     var forceDisplay : MediaDisplay? = nil
-    var scale: CGFloat = 1.0
-    
+ 
     @State var inlineBackgroundUrl: String? = nil
     var hasBackground : Bool {
         if let background = inlineBackgroundUrl {
@@ -63,11 +62,31 @@ struct SectionGridView: View {
         }
         
         if width < 1000 {
-            return 2
+            if display == .square {
+                return 4
+            }else {
+                return 2
+            }
         }else if width < 1700 {
-            return 3
+            if display == .square {
+                return 4
+            }else {
+                return 3
+            }
         }else {
-            return 4
+            if display == .square {
+                return 6
+            }else {
+                return 4
+            }
+        }
+    }
+    
+    var scale : CGFloat {
+        if display == .square {
+            return 1.1
+        }else {
+            return 1.0
         }
     }
     
@@ -94,8 +113,9 @@ struct SectionGridView: View {
                                             sectionId: section.id,
                                             pageId:pageId,
                                             propertyId: propertyId,
-                                            forceDisplay:forceDisplay,
-                                            viewItem: item
+                                            forceDisplay:display,
+                                            viewItem: item,
+                                            scaleFactor: scale
                             )
                             .environmentObject(self.eluvio)
                             .padding(20)
@@ -112,7 +132,7 @@ struct SectionGridView: View {
                                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                                     GridRow(alignment:.top) {
                                         ForEach(groups, id: \.self) { item in
-                                            SectionItemView(item: item.sectionItem, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:forceDisplay,
+                                            SectionItemView(item: item.sectionItem, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
                                                             viewItem: item,
                                                             scaleFactor: scale
                                             )
@@ -155,7 +175,7 @@ struct SectionGridView: View {
         .task {
             do {
                 var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
-                let max = 25
+                let max = 50
                 var count = 0
                 if let content = section.content {
                     for var item in content {

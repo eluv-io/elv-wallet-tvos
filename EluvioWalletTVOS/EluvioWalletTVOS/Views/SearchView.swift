@@ -467,7 +467,7 @@ struct SearchView: View {
                 if !subProperties.isEmpty {
                     ScrollView(.horizontal){
                         LazyHStack(alignment: .center, spacing:10){
-                            Text("Switch Properties")
+                            Text("Search In ")
                                 .font(.rowTitle)
                             ForEach(subProperties, id: \.self) { property in
                                 PropertyFilterView(
@@ -600,8 +600,8 @@ struct SearchView: View {
 
                 
                 
-                if sections.count == 1 {
-                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, forceDisplay: .square, scale:1.1, forceNumColumns:6)
+                if sections.count == 1{
+                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!)
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
                         .padding(.top,40)

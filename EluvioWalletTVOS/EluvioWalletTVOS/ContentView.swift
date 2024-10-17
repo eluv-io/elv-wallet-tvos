@@ -351,7 +351,7 @@ struct ContentView: View {
                 case .sectionViewAll:
                     if let section = eluvio.pathState.section {
                         ScrollView {
-                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section, forceDisplay: .square, scale:1.1, forceNumColumns: 6)
+                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section)
                                 .edgesIgnoringSafeArea([.leading,.trailing])
                                 .environmentObject(self.eluvio)
                         }
