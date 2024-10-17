@@ -83,7 +83,7 @@ struct MediaPropertySectionGridView: View {
                 .padding(.leading, margin)
             }
             
-            SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, forceDisplay: .video)
+            SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
             
             .padding()
         }
@@ -338,13 +338,16 @@ struct MediaPropertyRegularSectionView: View {
                 var count = 0
                 if let content = section.content {
                     for var item in content {
+                        /*
                         let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "")
                         item.resolvedPermission = permission
+                         */
                         
                         let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
                         item.media?.resolvedPermission = mediaPermission
+                        item.resolvedPermission = mediaPermission
                         if content.count == 1 {
-                            debugPrint("permission: ", permission)
+                            //debugPrint("permission: ", permission)
                             debugPrint("media permission: ", mediaPermission)
                             debugPrint("SectionItemTitle ", item.media?.title)
                             debugPrint("SectionItem Type ", item.type)
@@ -355,7 +358,7 @@ struct MediaPropertyRegularSectionView: View {
                             debugPrint("SectionItem item media", item)
                         }
                         
-                        if !permission.hide && !mediaPermission.hide{
+                        if !mediaPermission.hide {
                             let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
                             sectionItems.append(viewItem)
                             debugPrint("added item")
@@ -684,6 +687,7 @@ struct MediaPropertySectionView: View {
             }
         }
         .disabled(disable)
+        .focusSection()
         .task() {
             debugPrint("MediaPropertySectionView onAppear() type:", section.type)
             debugPrint("Subsections count ", section.sections?.count)
@@ -701,7 +705,6 @@ struct MediaPropertySectionView: View {
                     self.permission = section.resolvedPermission
                 }
             }
-            
 
             Task{
                 do {
@@ -1060,8 +1063,8 @@ struct MediaPropertyHeader: View {
         }
         .frame(maxWidth: .infinity, alignment:.leading)
         .padding([.leading, .trailing], 80)
-        .padding([.bottom], 40)
-        .padding([.top], hasOnlyImage ? 40 : 100)
+        .padding([.bottom], hasOnlyImage ? 10 : 40)
+        .padding([.top], hasOnlyImage ? 10 : 100)
         .onAppear(){
             debugPrint("Description text : ", description)
         }

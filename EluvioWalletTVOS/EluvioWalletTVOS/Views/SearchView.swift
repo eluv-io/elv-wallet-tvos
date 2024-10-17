@@ -248,7 +248,6 @@ struct SearchView: View {
                 SearchBar(searchString:$searchString, logoUrl:logoUrl, name:name, action:{ searchString in
                     search()
                 })
-                .frame(height:200)
                 .padding(.top,40)
                 .padding(.bottom)
                 
@@ -296,30 +295,30 @@ struct SearchView: View {
                                 Text("Search In: ")
                                     .font(.rowTitle)
                                 ForEach(subProperties, id: \.self) { property in
-                                    //if property.hasAuth {
-                                        PropertyFilterView(
-                                            title:property.title,
-                                            imageUrl: property.iconUrl,
-                                            propertyId: property.propertyId,
-                                            currentId: $currentSubpropertyId,
-                                            action:{
-                                                if self.currentSubpropertyId != property.propertyId {
-                                                    self.currentSubpropertyId = property.propertyId
-                                                    search()
-                                                }else {
-                                                    self.currentSubpropertyId = ""
-                                                    search()
-                                                }
+                                    PropertyFilterView(
+                                        title:property.title,
+                                        imageUrl: property.iconUrl,
+                                        propertyId: property.propertyId,
+                                        currentId: $currentSubpropertyId,
+                                        action:{
+                                            if self.currentSubpropertyId != property.propertyId {
+                                                self.currentSubpropertyId = property.propertyId
+                                                search()
+                                            }else {
+                                                self.currentSubpropertyId = ""
+                                                search()
                                             }
-                                        )
-                                    //}
+                                        }
+                                    )
                                 }
                             }
                             
                         }
                         .scrollClipDisabled()
                         .padding([.leading,.trailing], 80)
+                        .padding(.top, 80)
                     }
+
                 }
 
                 if !primaryFilters.isEmpty{
@@ -391,7 +390,7 @@ struct SearchView: View {
                 
                 
                 if sections.count == 1 {
-                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!)
+                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, forceDisplay: .square, scale:1.1, forceNumColumns:6)
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
                         .padding(.top,40)

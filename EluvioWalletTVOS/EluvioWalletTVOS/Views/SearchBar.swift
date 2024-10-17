@@ -63,7 +63,8 @@ struct SearchBar: View {
             .padding([.leading],80)
             
             EmptyView()
-            .searchable(text:$searchString, prompt: "Search \(name)")
+                .searchable(text:$searchString, prompt: "Search \(name)", suggestions:{})
+            .autocorrectionDisabled(true)
             .onChange(of:searchString) {
                 action(searchString)
             }

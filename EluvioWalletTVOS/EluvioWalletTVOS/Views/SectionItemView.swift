@@ -23,6 +23,7 @@ struct SectionGridView: View {
     }
     
     var forceDisplay : MediaDisplay? = nil
+    var scale: CGFloat = 1.0
     
     @State var inlineBackgroundUrl: String? = nil
     var hasBackground : Bool {
@@ -60,6 +61,10 @@ struct SectionGridView: View {
     }
     
     var numColumns: Int{
+        if forceNumColumns > 0 {
+            return forceNumColumns
+        }
+        
         if width < 1000 {
             return 2
         }else if width < 1700 {
@@ -68,6 +73,8 @@ struct SectionGridView: View {
             return 4
         }
     }
+    
+    var forceNumColumns = 0
     
     @State var width: CGFloat =  0
     
@@ -102,29 +109,28 @@ struct SectionGridView: View {
                     .padding([.top,.bottom], 40)
                 }else{
                     
-                    LazyVStack{
+                    LazyVStack(alignment:.leading){
                         
-                        Grid(alignment:.leading, horizontalSpacing: 40, verticalSpacing: 40) {
-
+                        Grid(alignment:.leading, horizontalSpacing: 40, verticalSpacing: 60) {
                                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                                     GridRow(alignment:.top) {
                                         ForEach(groups, id: \.self) { item in
                                             SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:forceDisplay,
-                                                            viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                                                            viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric),
+                                                            scaleFactor: scale
                                             )
                                             .gridColumnAlignment(.leading)
                                             .environmentObject(self.eluvio)
                                             
                                         }
                                     }
-                                    .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.leading)
+                                    .frame(maxHeight:.infinity, alignment:.leading)
                                 }
-                            
                         }
-                        .frame(maxWidth:.infinity)
                         .padding([.top,.bottom], 40)
-                        .focusSection()
                     }
+                    .frame(maxWidth:.infinity)
+                    .focusSection()
                     
                     
                     //FIXME: LazyVGrid loses selection DO NOT USE
@@ -147,7 +153,7 @@ struct SectionGridView: View {
                      */
                 }
         }
-        .padding([.leading, .trailing], margin)
+        .padding([.leading], margin)
         .getWidth($width)
     }
 }
@@ -537,7 +543,9 @@ struct SectionItemView: View {
     var viewItem : MediaPropertySectionMediaItemViewModel
     
     @FocusState var isFocused
-    @State var permission : ResolvedPermission? = nil
+    var permission : ResolvedPermission? {
+        return viewItem.sectionItem?.media?.resolvedPermission
+    }
     
     var scaleFactor = 1.0
     @State private var refreshId = UUID().uuidString
@@ -551,10 +559,7 @@ struct SectionItemView: View {
     
     
     var disable: Bool {
-        if let permission = self.permission {
-            return !permission.authorized && permission.disable
-        }
-        return false
+        return viewItem.disabled
     }
     
     var opacity : CGFloat {
@@ -571,6 +576,9 @@ struct SectionItemView: View {
         }
         
         let aspectRatio = forceAspectRatio.lowercased()
+        
+        
+        
         if aspectRatio == "landscape" {
             return .video
         }else if aspectRatio == "portrait" {
@@ -599,6 +607,10 @@ struct SectionItemView: View {
                     VStack(alignment:.leading, spacing:10){
                         Text(item?.media?.title ?? "").font(.system(size:1)).hidden() // This is needed for some reason single items in a section didn't show
                             Button(action: {
+                                if disable {
+                                    return
+                                }
+                                
                                 Task{
                                     let mediaItem = viewItem
                                     guard let item = self.item else {
@@ -612,6 +624,10 @@ struct SectionItemView: View {
                                     debugPrint("Item Media Type ", item.media_type ?? "")
                                     debugPrint("Item permission: ", item.permissions)
                                     debugPrint("Media permission: ", item.media?.permissions)
+                                    
+                                    debugPrint("Item display ", display)
+                                    debugPrint("Item forceDisplay ", forceDisplay)
+                                    debugPrint("Item forceAspect Ratio ", forceAspectRatio)
 
                                     do{
 
@@ -641,7 +657,7 @@ struct SectionItemView: View {
                                         
                                         
                                         if let sectionItemId = item.id {
-                                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)
+                                            /*self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)*/
                                             //debugPrint("!!! Permission ", permission)
                                             if let permission = permission {
                                                 if !permission.authorized  || item.type == "item_purchase"{
@@ -920,14 +936,13 @@ struct SectionItemView: View {
                             .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
                             .focused($isFocused)
                             .overlay(content: {
-                                
                             })
                         }
             }
         }
-        .disabled(disable)
+        //.disabled(disable)
         .task(){
-            self.refreshId = eluvio.refreshId
+            self.refreshId = UUID().uuidString
         }
         
     }

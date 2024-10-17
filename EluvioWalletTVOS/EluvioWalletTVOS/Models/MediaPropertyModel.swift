@@ -42,7 +42,7 @@ class MediaProperty: Codable, Identifiable, Hashable {
     var purchase_settings : JSON?
     var subproperties : [String]?
     var tenant : JSON?
-    var property_selection: JSON? 
+    var property_selection: JSON?
     
     static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
         return lhs.id == rhs.id
@@ -127,6 +127,7 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     var type : String?
     var media : MediaPropertySectionMediaItem?
     var description : String?
+    var disabled: Bool? = false
     var display : JSON?
     var label : String?
     var expand : Bool?

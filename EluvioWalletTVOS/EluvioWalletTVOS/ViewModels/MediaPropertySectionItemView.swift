@@ -41,6 +41,33 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable {
     var sectionItem: MediaPropertySectionItem? = nil
     var mediaItem: MediaPropertySectionMediaItem? = nil
     
+    var disabled: Bool {
+        if let disable = sectionItem?.disabled {
+            return disable
+        }
+        
+        if let permission = sectionItem?.resolvedPermission {
+            if !permission.authorized {
+                return permission.disable
+            }
+        }
+        
+        if let permission = sectionItem?.media?.resolvedPermission {
+            if !permission.authorized {
+                return permission.disable
+            }
+        }
+        
+        if let permission = mediaItem?.resolvedPermission {
+            if !permission.authorized {
+                return permission.disable
+            }
+        }
+        
+        return false
+    }
+    
+    
     var startDate : Date? {
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [
@@ -248,7 +275,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable {
         var media_catalog_id = ""
         var live_video = false
         var icons : [JSON]? = nil
-        
+
         if let media = item.media {
             mediaFile = media.media_file
             posterImageLink = media.poster_image
