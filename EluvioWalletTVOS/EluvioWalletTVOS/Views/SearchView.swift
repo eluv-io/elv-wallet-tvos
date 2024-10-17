@@ -31,48 +31,25 @@ public extension FloatingPoint {
 
 struct PrimaryFilterView: View {
     var filter : PrimaryFilterViewModel
-    var imageUrl : String {
-        filter.imageURL
-    }
     var title: String {
         filter.id == "" ? "All" : filter.id
     }
     var action : ()->()
     
     @FocusState var isFocused
+    var selected = false
     
     var body: some View {
-        ZStack(alignment:.center){
+        //ZStack(alignment:.center){
             Button(action:action)
             {
-                
-                MediaCard(display:.video,
-                          image: imageUrl,
-                          isFocused:isFocused,
-                          title: title,
-                          showFocusedTitle: false,
-                          showBottomTitle: false
-                )
-                .background(
-                    //Rectangle().fill(Color(hex:UInt(Float(title.hashValue).wrapped(within: 0x3311dd..<0x7711ff))))
-                    //Rectangle().fill(Color(hex:0x0f2c56))
-                        //.brightness(-0.3)
-                    //    .opacity(0.6)
-                    Color.buttonGradient
-                )
+                Text(title)
+                    .font(.rowTitle)
             }
-            .buttonStyle(TitleButtonStyle(focused: isFocused))
+            .buttonStyle(primaryFilterButtonStyle(focused: isFocused, selected: selected))
             .focused($isFocused)
-            .padding()
-            
-            if imageUrl.isEmpty {
-                Text(title.uppercased()).font(.itemTitle.bold())
-                    .lineLimit(3)
-                    .frame(maxWidth: 400)
-                    .multilineTextAlignment(.center)
-                    .padding()
-            }
-        }
+            //.padding()
+        //}
     }
 }
 
@@ -199,6 +176,7 @@ struct SearchView: View {
     @State var subProperties : [PropertySelector] = []
     @State var currentSubpropertyId : String = ""
     @State var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
+    @State var refreshId : String = UUID().uuidString
     
     private let squareColumns = [
         GridItem(.fixed(400)),
@@ -207,6 +185,237 @@ struct SearchView: View {
         GridItem(.fixed(400)),
         GridItem(.fixed(400))
     ]
+    
+    func getPrimaryFilters(searchPropertyId: String) async throws -> [PrimaryFilterViewModel] {
+        var property = try await eluvio.fabric.getProperty(property: searchPropertyId)
+
+        let filterResult = try await eluvio.fabric.getPropertyFilters(property: propertyId)
+        debugPrint("Property Filter Response ",filterResult)
+        
+        let attributes = filterResult["attributes"]
+        let primaryFilterValue = filterResult["primary_filter"].stringValue
+        let secondaryFilterValue = filterResult["secondary_filter"].stringValue
+        debugPrint("has primary filter ",primaryFilterValue)
+        let primaryAttribute = attributes[primaryFilterValue]
+        let options = filterResult["filter_options"].arrayValue
+        var newPrimaryFilters : [PrimaryFilterViewModel] = []
+        //tags.insert("", at:0)
+        let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
+        var allPrimaryFilter = PrimaryFilterViewModel(id: "",
+                                                      imageURL: "",
+                                                      secondaryFilters: secondary,
+                                                      attribute:primaryFilterValue,
+                                                      secondaryAttribute: secondaryFilterValue)
+        var foundAllPrimary = false
+        
+        if !options.isEmpty {
+            for option in options {
+                var secondary : [String] = []
+                let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
+                
+                for secondaryItem in secondaryJSON {
+                    secondary.append(secondaryItem.stringValue)
+                }
+                
+        
+                debugPrint("Secondary Filters ", secondary)
+                debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
+                var image = ""
+                let primaryValue = option["primary_filter_value"].stringValue
+                
+                if !option["primary_filter_image"].isEmpty {
+                    do {
+                        image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
+                    }catch{
+                        print("Could not create image for option \(option)", error.localizedDescription)
+                    }
+                }
+                
+                debugPrint("filter image: ", image)
+                    
+                let filter = PrimaryFilterViewModel(id: primaryValue,
+                                                    imageURL: image,
+                                                    secondaryFilters: secondary,
+                                                    attribute:primaryFilterValue,
+                                                    secondaryAttribute: option["secondary_filter_attribute"].stringValue)
+                    
+                newPrimaryFilters.append(filter)
+            }
+        }else if !primaryAttribute.isEmpty {
+            debugPrint("Found primary attribute ",primaryAttribute)
+            var tags = primaryAttribute["tags"].arrayValue
+
+            
+            debugPrint("tags: ", tags)
+            debugPrint("options: ", options)
+            
+            if !tags.isEmpty {
+                for tag in tags {
+                    debugPrint("searching tag ", tag)
+                    var foundOptions = false
+                    for option in options {
+                        var secondary : [String] = []
+                        let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
+                        
+                        for secondaryItem in secondaryJSON {
+                            secondary.append(secondaryItem.stringValue)
+                        }
+                        
+                        
+                        if option["primary_filter_value"].stringValue == tag.stringValue {
+                            debugPrint("matched tag value for option")
+                            
+                            debugPrint("Secondary Filters ", secondary)
+                            debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
+                            var image = ""
+                            
+                            if !option["primary_filter_image"].isEmpty {
+                                do {
+                                    image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
+                                }catch{
+                                    print("Could not create image for option \(option)", error.localizedDescription)
+                                }
+                            }
+                            
+                            debugPrint("filter image: ", image)
+                            
+                            let filter = PrimaryFilterViewModel(id: tag.stringValue,
+                                                                imageURL: image,
+                                                                secondaryFilters: secondary,
+                                                                attribute:primaryFilterValue,
+                                                                secondaryAttribute: option["secondary_filter_attribute"].stringValue)
+                            
+                            if tag.stringValue == "" {
+                                allPrimaryFilter = filter
+                                foundAllPrimary = true
+                            }else{
+                                newPrimaryFilters.append(filter)
+                            }
+                            foundOptions = true
+                        }
+                    }
+                    
+                    if !foundOptions {
+                        let filter = PrimaryFilterViewModel(id: tag.stringValue,
+                                                            imageURL: "",
+                                                            secondaryFilters: secondary,
+                                                            attribute:primaryFilterValue,
+                                                            secondaryAttribute: secondaryFilterValue)
+                        if tag.stringValue == "" {
+                            allPrimaryFilter = filter
+                            foundAllPrimary = true
+                        }else{
+                            newPrimaryFilters.append(filter)
+                        }
+                    }
+                }
+                
+                if foundAllPrimary {
+                    newPrimaryFilters.insert(allPrimaryFilter, at:0)
+                }
+
+            }
+        }
+       return newPrimaryFilters
+    }
+    
+    func refresh() {
+        if !sections.isEmpty {
+            return
+        }
+        Task {
+            if !propertyId.isEmpty {
+                do {
+                    debugPrint("Search onAppear()")
+                    
+                    var mainProperty = try await eluvio.fabric.getProperty(property: propertyId)
+                    
+                    //Retrieving sub properties to populate Search In: filters
+                    var subs : [PropertySelector] = []
+                    if let subproperties = mainProperty?.property_selection {
+                        debugPrint("Found subproperties ", subproperties)
+                        for subpropSelection in subproperties.arrayValue {
+                            var selectorId = subpropSelection["property_id"].stringValue
+                            if selectorId == propertyId {
+                                continue
+                            }
+                            var logoUrl = ""
+                            debugPrint("subpropSelection : ", subpropSelection)
+                            debugPrint("logo link: ",subpropSelection["logo"])
+                            do {
+                                logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
+                            }catch{
+                                print("Could not get logo from link ", error)
+                            }
+                            
+                            var iconUrl = ""
+                            do {
+                                iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
+                            }catch{
+                                print("Could not get icon from link ", error)
+                            }
+                            
+                            let selector = PropertySelector(logoUrl: logoUrl,
+                                                            iconUrl: iconUrl,
+                                                            propertyId: selectorId,
+                                                            title: subpropSelection["title"].stringValue)
+                            debugPrint("selector created: ", selector)
+                            if !selector.isEmpty{
+                                subs.append(selector)
+                                debugPrint("added selector")
+                            }
+                        }
+                    }
+                    
+                    subProperties = subs
+                    
+                    var searchPropertyId = propertyId
+                    
+                    if !currentSubpropertyId.isEmpty{
+                        searchPropertyId = currentSubpropertyId
+                    }
+                    
+                    var property = try await eluvio.fabric.getProperty(property: searchPropertyId)
+                    
+                    name = property?.page_title ?? ""
+                    do {
+                        logoUrl = try eluvio.fabric.getUrlFromLink(link: property?.header_logo)
+                    }catch{
+                        print("Could not get logo from property \(propertyId)", error)
+                    }
+                    
+                    if !searchString.isEmpty || currentPrimaryFilter != nil{
+                        debugPrint("Search searchString \(searchString) currentPrimaryFilter \(currentPrimaryFilter)")
+                        var attributes : [String : Any] = [:]
+                        if let primary = currentPrimaryFilter {
+                            if !primary.id.isEmpty{
+                                attributes[primary.attribute] = [primary.id]
+                            }
+                            
+                            if !currentSecondaryFilter.isEmpty {
+                                attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
+                            }
+                        }
+                        
+                        debugPrint("Searching property")
+                        self.sections = try await eluvio.fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
+                        return
+                    }
+                    
+                    self.primaryFilters = try await getPrimaryFilters(searchPropertyId: searchPropertyId)
+                    
+                    debugPrint("Searching ALL ", propertyId)
+                    self.sections = try await eluvio.fabric.searchProperty(property: propertyId)
+                    debugPrint("result: ", sections.first)
+                    
+                }catch{
+                    print("Could not do search ", error.localizedDescription)
+                    //TODO: Send to error screen
+                }
+            }
+        }
+        
+    }
     
     func search() {
         Task {
@@ -231,8 +440,12 @@ struct SearchView: View {
                     }
                     
                     let sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
+                    
+                    print("search results ", sections.count)
+                    
                     await MainActor.run {
                         self.sections = sections
+                        self.refreshId = UUID().uuidString
                     }
                 }catch{
                     print("Could not do search ", error.localizedDescription)
@@ -244,149 +457,147 @@ struct SearchView: View {
     
     var body: some View {
         ScrollView(.vertical){
-            VStack(alignment:.leading) {
+            VStack(alignment:.leading, spacing:0) {
                 SearchBar(searchString:$searchString, logoUrl:logoUrl, name:name, action:{ searchString in
                     search()
                 })
                 .padding(.top,40)
-                .padding(.bottom)
+                .padding(.bottom, searchString.isEmpty ? 80 : 150)
                 
-                if !subProperties.isEmpty && currentPrimaryFilter == nil{
-                    if searchString.isEmpty {
-                        ScrollView(.horizontal){
-                            LazyHStack(spacing:20){
-                                ForEach(subProperties, id: \.self) { property in
-                                    SearchTileView(
-                                        imageUrl: property.logoUrl,
-                                        title: property.title,
-                                        action:{
-                                            Task {
-                                                do {
-                                                    if let property = try await eluvio.fabric.getProperty(property: property.propertyId) {
-                                                        debugPrint("propertyID clicked: ", property.id)
-                                                        
-                                                        await MainActor.run {
-                                                            eluvio.pathState.propertyPage = property.main_page
-                                                        }
-                                                        
-                                                        await MainActor.run {
-                                                            let param = PropertyParam(property:property, pageId:"main")
-                                                            eluvio.pathState.path = []
-                                                            eluvio.pathState.path.append(.property(param))
-                                                        }
-                                                    }
-
-                                                }catch(FabricError.apiError(let code, let response, let error)){
-                                                    eluvio.handleApiError(code: code, response: response, error: error)
-                                                }catch{
-                                                    debugPrint("Error finding property ", error.localizedDescription)
+                if !subProperties.isEmpty {
+                    ScrollView(.horizontal){
+                        LazyHStack(alignment: .center, spacing:10){
+                            Text("Switch Properties")
+                                .font(.rowTitle)
+                            ForEach(subProperties, id: \.self) { property in
+                                PropertyFilterView(
+                                    title:property.title,
+                                    imageUrl: property.iconUrl,
+                                    propertyId: property.propertyId,
+                                    currentId: $currentSubpropertyId,
+                                    action:{
+                                        Task {
+                                            do {
+                                                if self.currentSubpropertyId != property.propertyId {
+                                                    self.currentSubpropertyId = property.propertyId
+                                                    self.primaryFilters = try await getPrimaryFilters(searchPropertyId: self.currentSubpropertyId)
+                                                    
+                                                    search()
+                                                }else {
+                                                    self.currentSubpropertyId = ""
+                                                    search()
                                                 }
-                                            }
-                                        })
-                                }
-                            }
-                            
-                        }
-                        .scrollClipDisabled()
-                        .padding([.leading,.trailing], 80)
-                    }else {
-                        ScrollView(.horizontal){
-                            LazyHStack(spacing:10){
-                                Text("Search In: ")
-                                    .font(.rowTitle)
-                                ForEach(subProperties, id: \.self) { property in
-                                    PropertyFilterView(
-                                        title:property.title,
-                                        imageUrl: property.iconUrl,
-                                        propertyId: property.propertyId,
-                                        currentId: $currentSubpropertyId,
-                                        action:{
-                                            if self.currentSubpropertyId != property.propertyId {
-                                                self.currentSubpropertyId = property.propertyId
-                                                search()
-                                            }else {
-                                                self.currentSubpropertyId = ""
-                                                search()
+                                            }catch{
+                                                print("Sub property filters error ", error)
                                             }
                                         }
-                                    )
-                                }
-                            }
-                            
-                        }
-                        .scrollClipDisabled()
-                        .padding([.leading,.trailing], 80)
-                        .padding(.top, 80)
-                    }
-
-                }
-
-                if !primaryFilters.isEmpty{
-                    ScrollView(.horizontal){
-                        LazyHStack(spacing:10){
-                            ForEach(0..<primaryFilters.count, id: \.self) { index in
-                                PrimaryFilterView(
-                                    filter:primaryFilters[index],
-                                    action:{
-                                        debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
-                                        eluvio.pathState.searchParams = SearchParams(propertyId: propertyId,
-                                                                              searchTerm: searchString,
-                                                                              secondaryFilters: primaryFilters[index].secondaryFilters,
-                                                                              currentPrimaryFilter: primaryFilters[index]
-                                        )
-                                        eluvio.pathState.path.append(.search)
-                                        searchString = ""
-                                        
-                                    })
+                                    }
+                                )
                             }
                         }
                         
                     }
                     .scrollClipDisabled()
-                    .padding(.top,20)
                     .padding([.leading,.trailing], 80)
                 }
-                else {
-                    if !secondaryFilters.isEmpty {
-                        ScrollView(.horizontal) {
-                            LazyHStack(spacing:10){
-                                HStack(spacing:20){
-                                    Image("back")
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fit)
-                                        .frame(height:30)
-                                    
-                                    Button(
-                                        action:{
-                                            _ = eluvio.pathState.path.popLast()
-                                        }) {
-                                            
-                                            if let text = currentPrimaryFilter?.id {
-                                                Text("\(text == "" ? "ALL" : text.uppercased() )")
-                                            }
-                                        }
-                                        .buttonBorderShape(.capsule)
-                                }
 
-                                
-                                ForEach(0..<secondaryFilters.count, id: \.self) { index in
-                                    SecondaryFilterView(
-                                        title: secondaryFilters[index],
-                                        action:{
-                                            currentSecondaryFilter = secondaryFilters[index]
-                                            search()
-                                            
-                                        },
-                                        selected: currentSecondaryFilter == secondaryFilters[index]
-                                    )
+                HStack(alignment:.center, spacing: 20) {
+                    if ( !primaryFilters.isEmpty) {
+                        Text("Filters")
+                            .multilineTextAlignment(.center)
+                            .frame(alignment:.center)
+                    }
+                    VStack {
+                        if !primaryFilters.isEmpty {
+                            ScrollView(.horizontal){
+                                LazyHStack(alignment:.center, spacing:20){
+                                    ForEach(0..<primaryFilters.count, id: \.self) { index in
+                                        PrimaryFilterView(
+                                            filter:primaryFilters[index],
+                                            action:{
+                                                if currentPrimaryFilter?.id != primaryFilters[index].id {
+                                                    currentPrimaryFilter = primaryFilters[index]
+                                                    secondaryFilters = primaryFilters[index].secondaryFilters
+                                                }else {
+                                                    currentPrimaryFilter = nil
+                                                    secondaryFilters = []
+                                                }
+                                                search()
+                                                
+                                                /*
+                                                 debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
+                                                 eluvio.pathState.searchParams = SearchParams(propertyId: propertyId,
+                                                 searchTerm: searchString,
+                                                 secondaryFilters: primaryFilters[index].secondaryFilters,
+                                                 currentPrimaryFilter: primaryFilters[index]
+                                                 )
+                                                 eluvio.pathState.path.append(.search)
+                                                 searchString = ""
+                                                 */
+                                                
+                                                
+                                            },
+                                            selected: currentPrimaryFilter?.id == primaryFilters[index].id
+                                        )
+                                    }
                                 }
+                                .frame(maxHeight:.infinity, alignment:.center)
                             }
+                            .frame(alignment:.center)
+                            .scrollClipDisabled()
                         }
-                        .scrollClipDisabled()
-                        .padding(.top,20)
-                        .padding([.leading,.trailing], 80)
                     }
                 }
+                .padding([.leading,.trailing], 80)
+                .padding([.top], 40)
+                        
+                if !secondaryFilters.isEmpty {
+                    ScrollView(.horizontal) {
+                        LazyHStack(spacing:0){
+                            /*
+                            HStack(alignment:.center, spacing:20){
+                                Image("back")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(height:30)
+                                
+                                Button(
+                                    action:{
+                                        _ = eluvio.pathState.path.popLast()
+                                        currentPrimaryFilter = nil
+                                        secondaryFilters = []
+                                    }) {
+                                        
+                                        if let text = currentPrimaryFilter?.id {
+                                            Text("\(text == "" ? "ALL" : text.uppercased() )")
+                                        }
+                                    }
+                                    .buttonBorderShape(.capsule)
+                            }
+                            .frame(alignment:.center)
+                             */
+                            
+                            
+                            ForEach(0..<secondaryFilters.count, id: \.self) { index in
+                                SecondaryFilterView(
+                                    title: secondaryFilters[index],
+                                    action:{
+                                        currentSecondaryFilter = secondaryFilters[index]
+                                        search()
+                                        
+                                    },
+                                    selected: currentSecondaryFilter == secondaryFilters[index]
+                                )
+                                //.frame(alignment:.center)
+                            }
+                        }
+
+                    }
+                    //.scrollClipDisabled()
+                    .padding([.leading], 160)
+                    .padding([.top], 5)
+                }
+
                 
                 
                 if sections.count == 1 {
@@ -394,8 +605,9 @@ struct SearchView: View {
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
                         .padding(.top,40)
+                        .id(refreshId)
                 }else {
-                    ForEach(sections) {section in
+                    ForEach(sections, id:\.self) {section in
                         VStack{
                             MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section)
                                 .edgesIgnoringSafeArea([.leading,.trailing])
@@ -404,239 +616,20 @@ struct SearchView: View {
                         .focusSection()
                     }
                     .padding(.top,40)
+                    .id(refreshId)
                 }
                 
                 Spacer()
             }
         }
+        //.id(refreshId)
         .ignoresSafeArea()
         .scrollClipDisabled()
         .onChange(of: searchString) {
             search()
         }
         .onAppear(){
-            if !sections.isEmpty {
-                return
-            }
-            Task {
-                if !propertyId.isEmpty {
-                    do {
-                        debugPrint("Search onAppear()")
-                        
-                        var mainProperty = try await eluvio.fabric.getProperty(property: propertyId)
-                        
-                        //Retrieving sub properties to populate Search In: filters
-                        var subs : [PropertySelector] = []
-                        if let subproperties = mainProperty?.property_selection {
-                            debugPrint("Found subproperties ", subproperties)
-                            for subpropSelection in subproperties.arrayValue {
-                                var selectorId = subpropSelection["property_id"].stringValue
-                                if selectorId == propertyId {
-                                    continue
-                                }
-                                var logoUrl = ""
-                                debugPrint("subpropSelection : ", subpropSelection)
-                                debugPrint("logo link: ",subpropSelection["logo"])
-                                do {
-                                    logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
-                                }catch{
-                                    print("Could not get logo from link ", error)
-                                }
-                                
-                                var iconUrl = ""
-                                do {
-                                    iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
-                                }catch{
-                                    print("Could not get icon from link ", error)
-                                }
-                                
-                                let selector = PropertySelector(logoUrl: logoUrl,
-                                                                iconUrl: iconUrl,
-                                                                propertyId: selectorId,
-                                                                title: subpropSelection["title"].stringValue)
-                                debugPrint("selector created: ", selector)
-                                if !selector.isEmpty{
-                                    subs.append(selector)
-                                    debugPrint("added selector")
-                                }
-                            }
-                        }
-                        
-                        subProperties = subs
-                        
-                        var searchPropertyId = propertyId
-                        
-                        if !currentSubpropertyId.isEmpty{
-                            searchPropertyId = currentSubpropertyId
-                        }
-                        
-                        var property = try await eluvio.fabric.getProperty(property: searchPropertyId)
-
-                        name = property?.page_title ?? ""
-                        do {
-                            logoUrl = try eluvio.fabric.getUrlFromLink(link: property?.header_logo)
-                        }catch{
-                            print("Could not get logo from property \(propertyId)", error)
-                        }
-
-                        if !searchString.isEmpty || currentPrimaryFilter != nil{
-                            debugPrint("Search searchString \(searchString) currentPrimaryFilter \(currentPrimaryFilter)")
-                            var attributes : [String : Any] = [:]
-                            if let primary = currentPrimaryFilter {
-                                if !primary.id.isEmpty{
-                                    attributes[primary.attribute] = [primary.id]
-                                }
-                                
-                                if !currentSecondaryFilter.isEmpty {
-                                    attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
-                                }
-                            }
-                            
-                            debugPrint("Searching property")
-                            self.sections = try await eluvio.fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
-                            return
-                        }
-
-                        
-                        let filterResult = try await eluvio.fabric.getPropertyFilters(property: propertyId)
-                        debugPrint("Property Filter Response ",filterResult)
-                        
-                        let attributes = filterResult["attributes"]
-                        let primaryFilterValue = filterResult["primary_filter"].stringValue
-                        let secondaryFilterValue = filterResult["secondary_filter"].stringValue
-                        debugPrint("has primary filter ",primaryFilterValue)
-                        let primaryAttribute = attributes[primaryFilterValue]
-                        let options = filterResult["filter_options"].arrayValue
-                        var newPrimaryFilters : [PrimaryFilterViewModel] = []
-                        //tags.insert("", at:0)
-                        let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
-                        var allPrimaryFilter = PrimaryFilterViewModel(id: "",
-                                                                      imageURL: "",
-                                                                      secondaryFilters: secondary,
-                                                                      attribute:primaryFilterValue,
-                                                                      secondaryAttribute: secondaryFilterValue)
-                        var foundAllPrimary = false
-                        
-                        if !options.isEmpty {
-                            for option in options {
-                                var secondary : [String] = []
-                                let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
-                                
-                                for secondaryItem in secondaryJSON {
-                                    secondary.append(secondaryItem.stringValue)
-                                }
-                                
-                        
-                                debugPrint("Secondary Filters ", secondary)
-                                debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
-                                var image = ""
-                                let primaryValue = option["primary_filter_value"].stringValue
-                                
-                                if !option["primary_filter_image"].isEmpty {
-                                    do {
-                                        image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
-                                    }catch{
-                                        print("Could not create image for option \(option)", error.localizedDescription)
-                                    }
-                                }
-                                
-                                debugPrint("filter image: ", image)
-                                    
-                                let filter = PrimaryFilterViewModel(id: primaryValue,
-                                                                    imageURL: image,
-                                                                    secondaryFilters: secondary,
-                                                                    attribute:primaryFilterValue,
-                                                                    secondaryAttribute: option["secondary_filter_attribute"].stringValue)
-                                    
-                                newPrimaryFilters.append(filter)
-                            }
-                        }else if !primaryAttribute.isEmpty {
-                            debugPrint("Found primary attribute ",primaryAttribute)
-                            var tags = primaryAttribute["tags"].arrayValue
-
-                            
-                            debugPrint("tags: ", tags)
-                            debugPrint("options: ", options)
-                            
-                            if !tags.isEmpty {
-                                for tag in tags {
-                                    debugPrint("searching tag ", tag)
-                                    var foundOptions = false
-                                    for option in options {
-                                        var secondary : [String] = []
-                                        let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
-                                        
-                                        for secondaryItem in secondaryJSON {
-                                            secondary.append(secondaryItem.stringValue)
-                                        }
-                                        
-                                        
-                                        if option["primary_filter_value"].stringValue == tag.stringValue {
-                                            debugPrint("matched tag value for option")
-                                            
-                                            debugPrint("Secondary Filters ", secondary)
-                                            debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
-                                            var image = ""
-                                            
-                                            if !option["primary_filter_image"].isEmpty {
-                                                do {
-                                                    image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
-                                                }catch{
-                                                    print("Could not create image for option \(option)", error.localizedDescription)
-                                                }
-                                            }
-                                            
-                                            debugPrint("filter image: ", image)
-                                            
-                                            let filter = PrimaryFilterViewModel(id: tag.stringValue,
-                                                                                imageURL: image,
-                                                                                secondaryFilters: secondary,
-                                                                                attribute:primaryFilterValue,
-                                                                                secondaryAttribute: option["secondary_filter_attribute"].stringValue)
-                                            
-                                            if tag.stringValue == "" {
-                                                allPrimaryFilter = filter
-                                                foundAllPrimary = true
-                                            }else{
-                                                newPrimaryFilters.append(filter)
-                                            }
-                                            foundOptions = true
-                                        }
-                                    }
-                                    
-                                    if !foundOptions {
-                                        let filter = PrimaryFilterViewModel(id: tag.stringValue,
-                                                                            imageURL: "",
-                                                                            secondaryFilters: secondary,
-                                                                            attribute:primaryFilterValue,
-                                                                            secondaryAttribute: secondaryFilterValue)
-                                        if tag.stringValue == "" {
-                                            allPrimaryFilter = filter
-                                            foundAllPrimary = true
-                                        }else{
-                                            newPrimaryFilters.append(filter)
-                                        }
-                                    }
-                                }
-                                
-                                if foundAllPrimary {
-                                    newPrimaryFilters.insert(allPrimaryFilter, at:0)
-                                }
-
-                            }
-                        }
-                        self.primaryFilters = newPrimaryFilters
-                        
-                        debugPrint("Searching ALL ", propertyId)
-                        self.sections = try await eluvio.fabric.searchProperty(property: propertyId)
-                        debugPrint("result: ", sections.first)
-
-                    }catch{
-                        print("Could not do search ", error.localizedDescription)
-                        //TODO: Send to error screen
-                    }
-                }
-            }
+            refresh()
         }
     }
 }

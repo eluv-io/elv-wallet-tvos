@@ -1616,6 +1616,12 @@ class Fabric: ObservableObject {
 
         let result = try await signer.searchProperty(property: property, tags:tags, attributes: attributes, searchTerm: searchTerm, limit:limit, accessCode: self.fabricToken)
         
+        await MainActor.run {
+            for section in result{
+                self.mediaPropertiesSectionCache[section.id] = section
+            }
+        }
+        
         return result
     }
     

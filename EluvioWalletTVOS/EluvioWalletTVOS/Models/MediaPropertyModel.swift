@@ -82,7 +82,7 @@ struct MediaPropertyItemsResponse: Codable {
     var paging : ResponsePaging = ResponsePaging()
 }
 
-struct MediaPropertySection: Codable, Identifiable {
+struct MediaPropertySection: Codable, Identifiable, Hashable {
     var id : String = UUID().uuidString
     var content : [MediaPropertySectionItem]? = []
     var description : String?
@@ -101,6 +101,14 @@ struct MediaPropertySection: Codable, Identifiable {
     
     var displayTitle: String {
         display?["title"].stringValue ?? ""
+    }
+    
+    static func == (lhs: MediaPropertySection, rhs: MediaPropertySection) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
     }
     
     init(from decoder: Decoder) throws {
