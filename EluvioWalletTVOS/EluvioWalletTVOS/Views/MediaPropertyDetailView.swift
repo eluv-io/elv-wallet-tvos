@@ -338,30 +338,16 @@ struct MediaPropertyRegularSectionView: View {
                 var count = 0
                 if let content = section.content {
                     for var item in content {
-                        /*
-                        let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "")
-                        item.resolvedPermission = permission
-                         */
-                        
-                        let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
+                        debugPrint("item id ", item.id)
+                        var mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
+
                         item.media?.resolvedPermission = mediaPermission
                         item.resolvedPermission = mediaPermission
-                        if content.count == 1 {
-                            //debugPrint("permission: ", permission)
-                            debugPrint("media permission: ", mediaPermission)
-                            debugPrint("SectionItemTitle ", item.media?.title)
-                            debugPrint("SectionItem Type ", item.type)
-                            debugPrint("SectionItem Media Type ", item.media_type)
-                            debugPrint("SectionItem Media Display ", item.display)
-                            debugPrint("SectionItem Id ", item.id)
-                            debugPrint("SectionItem Media Id ", item.media?.id)
-                            debugPrint("SectionItem item media", item)
-                        }
-                        
+
                         if !mediaPermission.hide {
                             let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
                             sectionItems.append(viewItem)
-                            debugPrint("added item")
+                            debugPrint("item title: ", viewItem.title)
                         }
                         count += 1
                         if count == max {
@@ -708,18 +694,30 @@ struct MediaPropertySectionView: View {
 
             Task{
                 do {
-                
+
+                    print("Fetching section \(section.id)")
+                    let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
+                    if result.count == 0 {
+                        print("Could not fetch section \(section.id)")
+                        return
+                    }
+                    
+                   
+                    self.section = result[0]
+                    print("section \(section.toJSONString())")
+
                     var sections : [String] = []
                     if let sects = section.sections{
                         for sub in sects{
                             sections.append(sub)
                         }
 
-                        debugPrint("Fething subsections count ", sections.count)
+                        debugPrint("Fetching subsections count ", sections.count)
                         if !sections.isEmpty {
                             
-                            let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections)
+                            let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections, newFetch: true)
                             await MainActor.run {
+                                //self.section = section
                                 self.subsections = result
                                 debugPrint("finished getting sub sections. ")
                             }
@@ -754,7 +752,7 @@ struct MediaPropertyDetailView: View {
     @State private var opacity: Double = 0.0
     @State var isRefreshing = false
     @State var permissions : ResolvedPermission? = nil
-    @State private var refreshId = UUID().uuidString
+    @State private var refreshId = ""
     
     var body: some View {
         ScrollView() {
@@ -843,6 +841,9 @@ struct MediaPropertyDetailView: View {
         )
         .task {
             debugPrint("MediaPropertyDetailView onAppear")
+            if refreshId.isEmpty {
+                refreshId = eluvio.refreshId
+            }
             refresh()
         }
         .onWillDisappear {
@@ -871,14 +872,6 @@ struct MediaPropertyDetailView: View {
             return
         }
         
-        /*
-        Task {
-            withAnimation(.easeInOut(duration: 2)) {
-              opacity = 1.0
-            }
-        }
-         */
-        
         Task {
             defer {
                 self.isRefreshing = false
@@ -888,9 +881,17 @@ struct MediaPropertyDetailView: View {
                   opacity = 1.0
                 }
             }
+            
+            var newFetch = false
+            if self.refreshId != eluvio.refreshId {
+                newFetch = true
+            }
+            
             do {
-                if let mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:true) {
-                    debugPrint("Fetched new property ", mediaProperty.id)
+                debugPrint("Fetching property new? \(newFetch) ", propertyId)
+                
+                if let mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:newFetch) {
+                    debugPrint("Fetched property ", mediaProperty.id)
                     self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
                     await MainActor.run {
                         self.property = nil
@@ -938,12 +939,11 @@ struct MediaPropertyDetailView: View {
                 print("Could not resolve permissions for property id \(propertyId)", error.localizedDescription)
             }
 
+            
             do {
-                sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: altPageId, newFetch:true)
+                debugPrint("getting page sections")
+                sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: altPageId)
                 debugPrint("finished getting sections. ", sections.count)
-                for sect in sections {
-                    debugPrint("section \(sect.displayTitle) type: ", sect.type)
-                }
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {
@@ -1066,7 +1066,7 @@ struct MediaPropertyHeader: View {
         .padding([.bottom], hasOnlyImage ? 10 : 40)
         .padding([.top], hasOnlyImage ? 10 : 100)
         .onAppear(){
-            debugPrint("Description text : ", description)
+            debugPrint("MediaPropertyHeader Description text : ", description)
         }
 
     }

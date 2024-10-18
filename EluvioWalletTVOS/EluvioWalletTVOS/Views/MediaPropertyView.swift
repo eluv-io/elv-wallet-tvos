@@ -56,7 +56,7 @@ struct MediaPropertyView : View {
         }
         
         if let login = property.login {
-            debugPrint("login: ", login)
+            //debugPrint("login: ", login)
             
             let provider = login["settings"]["provider"].stringValue
             if !provider.isEmpty {
@@ -111,7 +111,7 @@ struct MediaPropertyView : View {
                                     }
                                 }
 
-                                debugPrint("skipLogin: ", property)
+                                //debugPrint("skipLogin: ", property)
                                 
                                 if !skipLogin {
                                    login()

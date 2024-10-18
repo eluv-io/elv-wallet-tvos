@@ -146,7 +146,12 @@ struct DiscoverView: View {
                 debugPrint("DiscoverView onAppear")
                 try await eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 
-                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:true, newFetch:true, devMode: eluvio.getDevMode())
+                var noAuth = true
+                if let account = eluvio.accountManager.currentAccount {
+                    noAuth = false
+                }
+                
+                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:noAuth, newFetch:true, devMode: eluvio.getDevMode())
                 
                 var properties: [MediaPropertyViewModel] = []
                 

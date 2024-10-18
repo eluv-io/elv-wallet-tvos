@@ -38,7 +38,7 @@ class MediaProperty: Codable, Identifiable, Hashable {
     var permissions : JSON?
     var require_login : Bool?
     var slug : String?
-    var sections : JSON?
+    var sections : [String : MediaPropertySection]?
     var purchase_settings : JSON?
     var subproperties : [String]?
     var tenant : JSON?

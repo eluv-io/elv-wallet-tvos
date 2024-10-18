@@ -179,32 +179,25 @@ struct SectionGridView: View {
                 var count = 0
                 if let content = section.content {
                     for var item in content {
-                        /*
-                         let permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "")
-                         item.resolvedPermission = permission
-                         */
+                        if let mediaId = item.media_id {
+                            if !mediaId.isEmpty && item.media == nil {
+                               let mediaItem = eluvio.fabric.getMediaItem(mediaId:mediaId)
+                                if mediaItem != nil {
+                                    item.media = mediaItem
+                                }
+                            }
+                        }
                         
                         let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
+                        
+
+                        
                         item.media?.resolvedPermission = mediaPermission
                         item.resolvedPermission = mediaPermission
-                        /*
-                        if content.count == 1 {
-                            //debugPrint("permission: ", permission)
-                            debugPrint("media permission: ", mediaPermission)
-                            debugPrint("SectionItemTitle ", item.media?.title)
-                            debugPrint("SectionItem Type ", item.type)
-                            debugPrint("SectionItem Media Type ", item.media_type)
-                            debugPrint("SectionItem Media Display ", item.display)
-                            debugPrint("SectionItem Id ", item.id)
-                            debugPrint("SectionItem Media Id ", item.media?.id)
-                            debugPrint("SectionItem item media", item)
-                        }
-                         */
-                        
+
                         if !mediaPermission.hide {
                             let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
                             sectionItems.append(viewItem)
-                            debugPrint("added item")
                         }
                         count += 1
                         if count == max {
