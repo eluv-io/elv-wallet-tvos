@@ -29,6 +29,7 @@ class MediaProperty: Codable, Identifiable, Hashable {
     var name : String?
     var title: String?
     var page_title : String?
+    var parent_id : String?
     var main_page : MediaPropertyPage?
     var media_catalogs : [String]?
     var page_ids : [String]?

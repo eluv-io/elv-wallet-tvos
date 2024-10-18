@@ -329,55 +329,24 @@ struct SearchView: View {
                     debugPrint("Search onAppear()")
                     
                     var mainProperty = try await eluvio.fabric.getProperty(property: propertyId)
-                    
-                    //Retrieving sub properties to populate Search In: filters
-                    var subs : [PropertySelector] = []
-                    if let subproperties = mainProperty?.property_selection {
-                        debugPrint("Found subproperties ", subproperties)
-                        for subpropSelection in subproperties.arrayValue {
-                            var selectorId = subpropSelection["property_id"].stringValue
-                            if selectorId == propertyId {
-                                continue
-                            }
-                            var logoUrl = ""
-                            debugPrint("subpropSelection : ", subpropSelection)
-                            debugPrint("logo link: ",subpropSelection["logo"])
-                            do {
-                                logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
-                            }catch{
-                                print("Could not get logo from link ", error)
-                            }
-                            
-                            var iconUrl = ""
-                            do {
-                                iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
-                            }catch{
-                                print("Could not get icon from link ", error)
-                            }
-                            
-                            let selector = PropertySelector(logoUrl: logoUrl,
-                                                            iconUrl: iconUrl,
-                                                            propertyId: selectorId,
-                                                            title: subpropSelection["title"].stringValue)
-                            debugPrint("selector created: ", selector)
-                            if !selector.isEmpty{
-                                subs.append(selector)
-                                debugPrint("added selector")
-                            }
-                        }
-                    }
-                    
-                    subProperties = subs
-                    
                     var searchPropertyId = propertyId
                     
                     if !currentSubpropertyId.isEmpty{
                         searchPropertyId = currentSubpropertyId
                     }
                     
-                    var property = try await eluvio.fabric.getProperty(property: searchPropertyId)
+                    let property = try await eluvio.fabric.getProperty(property: searchPropertyId)
                     
-                    name = property?.page_title ?? ""
+                    if let title = property?.title{
+                        name = title
+                    }
+                    
+                    if name.isEmpty {
+                        if let title = property?.page_title {
+                            name = title
+                        }
+                    }
+                    
                     do {
                         logoUrl = try eluvio.fabric.getUrlFromLink(link: property?.header_logo)
                     }catch{
@@ -464,6 +433,8 @@ struct SearchView: View {
                 .padding(.top,40)
                 .padding(.bottom, searchString.isEmpty ? 80 : 150)
                 
+                //We don't want property filters for now:
+                /*
                 if !subProperties.isEmpty {
                     ScrollView(.horizontal){
                         LazyHStack(alignment: .center, spacing:10){
@@ -500,6 +471,7 @@ struct SearchView: View {
                     .scrollClipDisabled()
                     .padding([.leading,.trailing], 80)
                 }
+                 */
 
                 HStack(alignment:.center, spacing: 20) {
                     if ( !primaryFilters.isEmpty) {

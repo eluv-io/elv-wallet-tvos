@@ -42,7 +42,6 @@ struct SearchBar: View {
     
     var body: some View {
         ZStack(){
-            
             HStack {
                 if !logoUrl.isEmpty {
                     WebImage(url:URL(string:logoUrl))

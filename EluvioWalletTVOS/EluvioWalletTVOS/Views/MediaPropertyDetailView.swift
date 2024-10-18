@@ -355,6 +355,8 @@ struct MediaPropertyRegularSectionView: View {
         }
     }
     
+    //This doesn't seem to be faster, actually messes up the selection since the loading is not in order
+    /*
     func process(content: [MediaPropertySectionItem]) async -> [MediaPropertySectionMediaItemViewModel] {
         let max = 25
         var count = 0
@@ -399,6 +401,7 @@ struct MediaPropertyRegularSectionView: View {
         
         return sectionItems
     }
+     */
 }
 
 struct MediaPropertySectionBannerView: View {
@@ -775,25 +778,72 @@ struct MediaPropertySectionView: View {
     }
 }
 
+extension UIImage {
+    /// - Description: returns tinted image
+    /// - Parameters:
+    ///   - qualityMultiplier: when treating SVG image we need to enlarge the image size in order to preserve quality. The smaller the original SVG is compared to desired UIImage frame, the bigger multiplier should be.
+    /// - Returns: Tinted image
+    func withTintColor(_ color: UIColor, qualityMultiplier: CGFloat = 15) -> UIImage? {
+        
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: size.width * qualityMultiplier, height: size.height * qualityMultiplier), false, scale)
+        // 1 We create a rectangle equal to the size of the image
+        let drawRect = CGRect(x: 0,y: 0,width: size.width * qualityMultiplier,height: size.height * qualityMultiplier)
+        // 2 We set a color and fill the whole space with that color
+        color.setFill()
+        UIRectFill(drawRect)
+        // 3 We draw an image over the space with a blend mode of .destinationIn, which is a mode that treats the image as an image mask
+        draw(in: drawRect, blendMode: .destinationIn, alpha: 1)
+        
+        let tintedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return tintedImage
+    }
+}
+
+struct IconButton: View {
+    @FocusState var focused
+    var action: ()->Void
+    var iconName: String
+    
+    var body: some View {
+        Button(action:action){
+            HStack(){
+                Image(uiImage: UIImage(named: iconName)?.withTintColor(focused ? .black : .gray) ?? UIImage())
+                    .resizable()
+                    .frame(width:40, height:40)
+                    .padding()
+            }
+            .background(focused ? .white : Color.black.opacity(0.5))
+            .clipShape(Circle())
+        }
+        .buttonStyle(IconButtonStyle(focused: focused, initialOpacity: 0.7, scale: 1.2))
+        .focused($focused)
+    }
+}
+
 struct MediaPropertyDetailView: View {
     @Namespace var NamespaceProperty
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
     
+    @State var propertyId:String
+    @State var pageId:String  = "main"
+    
     @State private var property: MediaProperty?
     @State private var propertyView: MediaPropertyViewModel?
-    var propertyId:String
-    @State var pageId:String  = "main"
-    @State var sections : [MediaPropertySection] = []
-    @FocusState var searchFocused
-    @FocusState var headerFocused
-    @State var playerItem : AVPlayerItem? = nil
-    @State var backgroundImage : String = ""
+    @State private var sections : [MediaPropertySection] = []
+    @FocusState private var switcherFocused
+    @FocusState private var headerFocused
+    @State private var playerItem : AVPlayerItem? = nil
+    @State private var backgroundImage : String = ""
     @State private var opacity: Double = 0.0
-    @State var isRefreshing = false
-    @State var permissions : ResolvedPermission? = nil
+    @State private var isRefreshing = false
+    @State private var permissions : ResolvedPermission? = nil
     @State private var refreshId = ""
-    
+    @State private var showSwitcherMenu = false
+    @State private var subProperties : [PropertySelector] = []
+    @State private var currentSubproperty: MediaProperty?
+    @State private var currentSubIndex: Int = 0
     var body: some View {
         ScrollView() {
             ZStack(alignment:.topLeading) {
@@ -819,7 +869,6 @@ struct MediaPropertyDetailView: View {
                 }else if(backgroundImage != "") {
                     Image(backgroundImage)
                         .resizable()
-                        //.transition(.opacity)
                         .aspectRatio(contentMode: .fit)
                         .edgesIgnoringSafeArea([.top,.leading,.trailing])
                         .frame(alignment: .topLeading)
@@ -829,7 +878,11 @@ struct MediaPropertyDetailView: View {
                                 
                 LazyVStack(spacing:0) {
                     ForEach(sections) {section in
-                        if let propertyId = property?.id {
+                        if let propertyId = currentSubproperty?.id {
+                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .padding(0)
+                        }else if let propertyId = property?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(0)
@@ -842,32 +895,85 @@ struct MediaPropertyDetailView: View {
                 HStack(alignment:.top){
                     Spacer()
                     VStack{
-                        Button(action:{
-                            debugPrint("Search....")
-                            
-                            eluvio.pathState.searchParams = SearchParams(propertyId: property?.id ?? "")
-                            eluvio.pathState.path.append(.search)
-                             
-                        }){
-                            HStack(){
-                                Image(systemName: "magnifyingglass")
-                                    .resizable()
-                                    .frame(width:40, height:40)
-                                    .padding()
+                        HStack(spacing:20){
+                            if !subProperties.isEmpty {
+                                Menu{
+                                    /*
+                                    ForEach(subProperties, id: \.self) { property in
+                                    
+                                        Button(action: {
+                                            if property.propertyId == self.currentSubproperty?.id ?? "" {
+                                                return
+                                            }
+                                            
+                                            Task{
+                                                if let subproperty = try await eluvio.fabric.getProperty(property: property.propertyId){
+                                                    self.currentSubproperty = subproperty
+                                                }
+                                                
+                                                refresh(findSubs:false)
+                                            }
+                                                          
+                                        }){
+                                            HStack{
+                                                if property.propertyId == self.currentSubproperty?.id ?? "" {
+                                                    Image(uiImage: UIImage(named: "checkmark")?.withTintColor(switcherFocused ? .black : .gray) ?? UIImage())
+                                                        .resizable()
+                                                        .frame(width:20, height:20)
+                                                        .padding()
+                                                }
+                                                Text(property.title)
+                                            }
+                                            .padding(40)
+                                        }
+                                    }
+                                         */
+                                        
+                                    Picker(selection: $currentSubIndex, label:Text("")) {
+                                        ForEach(Array(subProperties.enumerated()), id: \.offset) { index, property in
+                                            Text(property.title)
+                                            .padding(40)
+                                            .tag(index)
+                                        }
+                                    }
+                                    
+                                }label: {
+                                    HStack(){
+                                        Image(uiImage: UIImage(named: "switcher")?.withTintColor(switcherFocused ? .black : .gray) ?? UIImage())
+                                            .resizable()
+                                            .frame(width:40, height:40)
+                                            .padding()
+                                        
+                                    }
+                                    .background(switcherFocused ? .white : Color.black.opacity(0.5))
+                                    .clipShape(Circle())
+                                }
+                                .buttonStyle(IconButtonStyle(focused: switcherFocused, initialOpacity: 0.7, scale: 1.2))
+                                .focused($switcherFocused)
                             }
-                            .background(Color.black.opacity(0.5))
-                            .clipShape(Circle())
+                            
+                            IconButton(action:{
+                                debugPrint("Search....")
+                                var propId = property?.id ?? ""
+                                if let propertyId = currentSubproperty?.id {
+                                    propId = propertyId
+                                }
+                                eluvio.pathState.searchParams = SearchParams(propertyId: propId)
+                                eluvio.pathState.path.append(.search)
+                                
+                            }, iconName: "search")
+
                         }
-                        .buttonStyle(IconButtonStyle(focused: searchFocused, initialOpacity: 0.7, scale: 1.2))
-                        .focused($searchFocused)
                         
                         Spacer()
                     }
+                    
+
                 }
                 .zIndex(20)
                 .focusSection()
-                .padding(.trailing, 40)
-                .padding(.top, 40)
+                .padding(.trailing, 80)
+                .padding(.top, 80)
                 .frame(maxWidth:.infinity, maxHeight:120)
                 
             }
@@ -876,6 +982,24 @@ struct MediaPropertyDetailView: View {
         .opacity(opacity)
         .scrollClipDisabled()
         .edgesIgnoringSafeArea(.all)
+        .onChange(of:currentSubIndex){
+            if subProperties.count > currentSubIndex {
+                let sub = subProperties[currentSubIndex]
+                
+                if sub.propertyId == self.currentSubproperty?.id ?? "" {
+                    return
+                }
+                
+                Task{
+                    if let subproperty = try await eluvio.fabric.getProperty(property: sub.propertyId){
+                        self.currentSubproperty = subproperty
+                    }
+                    
+                    refresh(findSubs:false)
+                }
+                
+            }
+        }
         .background(
             Color.black.edgesIgnoringSafeArea(.all)
         )
@@ -895,7 +1019,7 @@ struct MediaPropertyDetailView: View {
     
     
     
-    func refresh(){
+    func refresh(findSubs:Bool = true){
         debugPrint("MediaPropertyDetailView refresh() propertyId: ",propertyId)
         debugPrint("MediaPropertyDetailView refresh() page: ",pageId)
         if self.isRefreshing{
@@ -911,6 +1035,8 @@ struct MediaPropertyDetailView: View {
             print("Error: propertyId is empty")
             return
         }
+        
+        debugPrint("refresh, current supbproperty  ", currentSubproperty)
         
         Task {
             defer {
@@ -938,6 +1064,67 @@ struct MediaPropertyDetailView: View {
                         self.property = mediaProperty
                         debugPrint("Property title inside mainactor", mediaProperty.title)
                     }
+                    
+                    //Important to have currentSubproperty == nil to keep state of the switcher on child properties on refresh
+                    if findSubs && currentSubproperty == nil{
+                        //Retrieving sub properties to populate Search In: filters
+                        var subs : [PropertySelector] = []
+                        var parentProperty = mediaProperty
+                        if let parentId = mediaProperty.parent_id {
+                            debugPrint("Found parent id", parentId)
+                            if !parentId.isEmpty {
+                                if let prop = try await eluvio.fabric.getProperty(property:parentId) {
+                                    parentProperty = prop
+                                }
+                            }
+                        }
+                        
+                        if var subproperties = parentProperty.property_selection {
+                            debugPrint("Found subproperties ", subproperties)
+                            
+                            for subpropSelection in subproperties.arrayValue {
+                                let selectorId = subpropSelection["property_id"].stringValue
+                                var logoUrl = ""
+                                debugPrint("subpropSelection : ", subpropSelection)
+                                debugPrint("logo link: ",subpropSelection["logo"])
+                                do {
+                                    logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
+                                }catch{
+                                    print("Could not get logo from link ", error)
+                                }
+                                
+                                var iconUrl = ""
+                                do {
+                                    iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
+                                }catch{
+                                    print("Could not get icon from link ", error)
+                                }
+                                
+                                let selector = PropertySelector(logoUrl: logoUrl,
+                                                                iconUrl: iconUrl,
+                                                                propertyId: selectorId,
+                                                                title: subpropSelection["title"].stringValue)
+                                debugPrint("selector created: ", selector)
+                                if !selector.isEmpty{
+                                    subs.append(selector)
+                                    debugPrint("added selector")
+                                }
+                            }
+                        }
+                        
+                        await MainActor.run {
+                            subProperties = subs
+                        }
+                        
+                        if !subProperties.isEmpty {
+                            if let subproperty = try await eluvio.fabric.getProperty(property: subProperties[0].propertyId){
+                                await MainActor.run {
+                                    self.currentSubproperty = subproperty
+                                }
+                            }
+                        }
+                    }
+                    
                 }else{
                     debugPrint("Could not find property")
                     return
@@ -947,14 +1134,27 @@ struct MediaPropertyDetailView: View {
                 return
             }
             
+            
+            
             var altPageId = self.pageId
+            
+            var altProperty = property
+            var altPropertyId = propertyId
+            
+            if currentSubproperty != nil && currentSubproperty?.id != propertyId {
+                if let subId = currentSubproperty?.id {
+                    altPropertyId = subId
+                    altProperty = currentSubproperty
+                }
+            }
+            
             do {
-                debugPrint("Property title ", property?.title)
-                debugPrint("Property permissions ", property?.permissions)
-                debugPrint("Property authState ", property?.permission_auth_state)
-                debugPrint("Page permissions ", property?.main_page?.permissions)
+                debugPrint("Property title ", altProperty?.title)
+                debugPrint("Property permissions ", altProperty?.permissions)
+                debugPrint("Property authState ", altProperty?.permission_auth_state)
+                debugPrint("Page permissions ", altProperty?.main_page?.permissions)
                 
-                var pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: propertyId, pageId: altPageId)
+                var pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: altPropertyId, pageId: altPageId)
                 debugPrint("Main Page resolved permissions", pagePerms)
                 if !pagePerms.authorized {
                     if pagePerms.behavior == .showAlternativePage {
@@ -963,7 +1163,7 @@ struct MediaPropertyDetailView: View {
                         debugPrint("Setting pageId ", pageId)
                         altPageId = pagePerms.alternatePageId
                         
-                        pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: propertyId, pageId: altPageId)
+                        pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: altPropertyId, pageId: altPageId)
                         if !pagePerms.authorized {
                             if pagePerms.behavior == .showAlternativePage {
                                 self.pageId = pagePerms.alternatePageId
@@ -976,13 +1176,13 @@ struct MediaPropertyDetailView: View {
                     }
                 }
             }catch{
-                print("Could not resolve permissions for property id \(propertyId)", error.localizedDescription)
+                print("Could not resolve permissions for property id \(altPropertyId)", error.localizedDescription)
             }
 
             
             do {
                 debugPrint("getting page sections")
-                sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: altPageId)
+                sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
                 debugPrint("finished getting sections. ", sections.count)
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)
@@ -1141,12 +1341,8 @@ struct MediaPropertyBanner: View {
             .buttonStyle(BannerButtonStyle(focused:isFocused, bordered: true))
             .focused($isFocused)
             .task{
-                do{
-                    try await Task.sleep(nanoseconds: 3_000_000_000)
-                }catch{}
-                
                 await MainActor.run {
-                    withAnimation(.easeInOut(duration: 3)) {
+                    withAnimation(.easeInOut(duration: 1)) {
                         self.opacity = 1.0
                     }
                 }
