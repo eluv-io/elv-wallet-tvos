@@ -1564,6 +1564,22 @@ class Fabric: ObservableObject {
         //await MainActor.run {
             for section in result.contents {
                 self.mediaPropertiesSectionCache[section.id] = section
+                
+                var sections : [String] = []
+                if let sects = section.sections{
+                    for sub in sects{
+                        sections.append(sub)
+                    }
+
+                    debugPrint("Fetching subsections count ", sections.count)
+                    if !sections.isEmpty {
+                        Task(priority: .background){
+                            try await cachePropertySections(property: property, sections: sections)
+                        }
+                    }
+                }
+                
+                
                 if let sectionContents = section.content {
                     for item in sectionContents {
                         if let media = item.media {
@@ -1572,10 +1588,12 @@ class Fabric: ObservableObject {
                             }
                         }else {
                             if let mediaId = item.media_id {
-                                do {
-                                    try await cacheMediaItems(property: property, mediaItems: [mediaId])
-                                }catch{
-                                    print("could not cache media item \(mediaId) ", error.localizedDescription)
+                                Task(priority: .background){
+                                    do {
+                                        try await cacheMediaItems(property: property, mediaItems: [mediaId])
+                                    }catch{
+                                        print("could not cache media item \(mediaId) ", error.localizedDescription)
+                                    }
                                 }
                             }
                         }

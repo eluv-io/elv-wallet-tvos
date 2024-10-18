@@ -127,7 +127,6 @@ struct SectionGridView: View {
                 }else{
                     
                     LazyVStack(alignment:.leading){
-                        
                         Grid(alignment:.leading, horizontalSpacing: 40, verticalSpacing: 60) {
                                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                                     GridRow(alignment:.top) {
@@ -148,7 +147,7 @@ struct SectionGridView: View {
                     }
                     .frame(maxWidth:.infinity)
                     .focusSection()
-                    
+           
                     
                     //FIXME: LazyVGrid loses selection DO NOT USE
                     /*
