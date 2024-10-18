@@ -844,6 +844,8 @@ struct MediaPropertyDetailView: View {
     @State private var subProperties : [PropertySelector] = []
     @State private var currentSubproperty: MediaProperty?
     @State private var currentSubIndex: Int = 0
+    @State private var menuOpen = false
+    
     var body: some View {
         ScrollView() {
             ZStack(alignment:.topLeading) {
@@ -936,7 +938,7 @@ struct MediaPropertyDetailView: View {
                                             .tag(index)
                                         }
                                     }
-                                    
+
                                 }label: {
                                     HStack(){
                                         Image(uiImage: UIImage(named: "switcher")?.withTintColor(switcherFocused ? .black : .gray) ?? UIImage())
