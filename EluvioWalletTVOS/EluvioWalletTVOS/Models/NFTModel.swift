@@ -346,7 +346,6 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var background_image: String? = "" //XXX: Demo only
     var title_image: String? = "" //XXX: Demo only
     var redeemable_offers: [Redeemable]?
-    
     var mediaCache : [String: MediaItem]? = [:]
     
     var getFirstFeature: MediaItem? {

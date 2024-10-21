@@ -167,7 +167,7 @@ struct ThumbnailButtonStyle: ButtonStyle {
 struct TextButtonStyle: ButtonStyle {
     let focused: Bool
     var scale = 1.00
-    let selected: Bool = false
+    var selected: Bool = false
     var bordered = false
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label

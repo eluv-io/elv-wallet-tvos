@@ -58,6 +58,7 @@ struct VideoErrorParams{
 struct HtmlParams:Hashable{
     var url : String = ""
     var backgroundImage: String = ""
+    var title: String = ""
 }
 
 struct PurchaseParams:Hashable{

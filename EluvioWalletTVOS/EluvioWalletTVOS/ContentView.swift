@@ -293,7 +293,7 @@ struct ContentView: View {
                             .edgesIgnoringSafeArea(.all)
                     }
                 case let .html(params):
-                    QRView(url: params.url, backgroundImage:params.backgroundImage)
+                    QRView(url: params.url, backgroundImage:params.backgroundImage, title:params.title)
                         .environmentObject(self.eluvio)
                 case let .purchaseQRView(params):
                     PurchaseQRView(url: params.url, 

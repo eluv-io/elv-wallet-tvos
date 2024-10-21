@@ -18,7 +18,7 @@ struct QRView: View {
         return shortenedUrl.replaceFirst(of: "https://", with: "")
             .replaceFirst(of: "http://", with: "")
     }
-    @State var title: String = "Point your camera to the QR Code below for content"
+    @State var title: String = ""
     @State var description: String = ""
     
     var body: some View {
@@ -34,12 +34,14 @@ struct QRView: View {
                 Text(title).font(.title)
                     .multilineTextAlignment(.center)
                     .padding()
-                    .frame(width:1000)
+                    .frame(minWidth:1000)
+                    .frame(maxWidth:1600)
                 if description != "" {
                     Text(description).font(.description)
                         .multilineTextAlignment(.center)
                         .padding()
-                        .frame(width:1000)
+                        .frame(minWidth:1000)
+                        .frame(maxWidth:1600)
                 }
                 
                 HStack{
@@ -66,6 +68,7 @@ struct QRView: View {
                     Text("Back")
                 })
             }
+            .frame(minWidth:1000)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .edgesIgnoringSafeArea(.all)
@@ -74,6 +77,9 @@ struct QRView: View {
         )
         .onAppear(){
             debugPrint("QRView URL \(url)")
+            if title.isEmpty {
+                title = "Point your camera to the QR Code below for content"
+            }
             Task {
                 do {
                     self.shortenedUrl = try await eluvio.fabric.signer?.shortenUrl(url: url) ?? ""

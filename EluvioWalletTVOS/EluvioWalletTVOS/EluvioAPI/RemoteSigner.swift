@@ -1246,11 +1246,14 @@ class RemoteSigner {
 
     }
     
-    func getNftInfo(nftAddress: String, tokenId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
+    func getNftInfo(nftAddress: String, tokenId: String = "", accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            //print("****** getNftInfo ******")
+            print("****** getNftInfo ******")
             do {
-                var endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)/\(tokenId)");
+                var endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)");
+                if !tokenId.isEmpty {
+                    endpoint = endpoint.appending("/\(tokenId)")
+                }
                 if (environment != .prod){
                     endpoint = endpoint.appending("?env=\(environment)")
                 }
@@ -1258,7 +1261,9 @@ class RemoteSigner {
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
 
-                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
+                AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
+                    .debugLog()
+                    .responseJSON { response in
 
                     switch (response.result) {
                         case .success(let result):

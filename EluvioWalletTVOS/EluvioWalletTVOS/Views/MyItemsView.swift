@@ -87,7 +87,7 @@ struct MyItemsView: View {
         }
         .scrollClipDisabled()
         .searchable(text: $searchString,prompt: "Search My Items", suggestions:{})
-        .autocorrectionDisabled(true) 
+        .autocorrectionDisabled(true)
         .onChange(of: searchString) {
             search()
         }
@@ -122,6 +122,15 @@ struct MyItemsView: View {
             Task {
                 do {
                     nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
+                    //XXX:
+                    /*
+                    for nft in nfts {
+                        if nft.contract_addr?.lowercased() == "0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5" {
+                            eluvio.pathState.nft = nft
+                            eluvio.pathState.path.append(.nft)
+                        }
+                    }
+                     */
                 }catch(FabricError.apiError(let code, let response, let error)){
                     eluvio.handleApiError(code: code, response: response, error: error)
                 }catch {
