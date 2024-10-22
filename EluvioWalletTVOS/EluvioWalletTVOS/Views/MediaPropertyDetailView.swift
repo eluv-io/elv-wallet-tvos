@@ -322,7 +322,7 @@ struct MediaPropertyRegularSectionView: View {
         )
         .clipped()
         .task() {
-            debugPrint("MediaPropertyRegularSectionView onAppear()")
+            debugPrint("MediaPropertyRegularSectionView onAppear() ", section.displayTitle)
             if let display = section.display {
                 do {
                     logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
@@ -718,37 +718,42 @@ struct MediaPropertySectionView: View {
         .disabled(disable)
         .focusSection()
         .task() {
-            debugPrint("MediaPropertySectionView onAppear() type:", section.type)
-            debugPrint("Subsections count ", section.sections?.count)
+            //debugPrint("MediaPropertySectionView onAppear() type:", section.type)
+            //debugPrint("Subsections count ", section.sections?.count)
 
-            Task(priority: .background){
-                do {
-                    
-                    if section.resolvedPermission == nil {
-                        self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
-                        section.resolvedPermission = self.permission
-                    }else {
+            
+            if section.type != "search" {
+                Task(priority: .background){
+                    do {
+                        
+                        if section.resolvedPermission == nil {
+                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
+                            section.resolvedPermission = self.permission
+                        }else {
+                            self.permission = section.resolvedPermission
+                        }
+                    }catch{
                         self.permission = section.resolvedPermission
                     }
-                }catch{
-                    self.permission = section.resolvedPermission
                 }
             }
 
             Task(priority: .background){
                 do {
-
-                    print("Fetching section \(section.id)")
-                    let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
-                    if result.count == 0 {
-                        print("Could not fetch section \(section.id)")
-                        return
-                    }
                     
-                   
-                    self.section = result[0]
-                    //debugprint("section \(section.toJSONString())")
+                    if section.type != "search" {
+                        print("Fetching section \(section.id)")
+                        let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
+                        if result.count == 0 {
+                            print("Could not fetch section \(section.id)")
+                            return
+                        }
+                        
+                        
+                        self.section = result[0]
+                    }
 
+                    //looking for subsections
                     var sections : [String] = []
                     if let sects = section.sections{
                         for sub in sects{
@@ -760,7 +765,6 @@ struct MediaPropertySectionView: View {
                             
                             let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections)
                             await MainActor.run {
-                                //self.section = section
                                 self.subsections = result
                                 debugPrint("finished getting sub sections. ")
                             }
@@ -900,37 +904,6 @@ struct MediaPropertyDetailView: View {
                         HStack(spacing:20){
                             if !subProperties.isEmpty {
                                 Menu{
-                                    /*
-                                    ForEach(subProperties, id: \.self) { property in
-                                    
-                                        Button(action: {
-                                            if property.propertyId == self.currentSubproperty?.id ?? "" {
-                                                return
-                                            }
-                                            
-                                            Task{
-                                                if let subproperty = try await eluvio.fabric.getProperty(property: property.propertyId){
-                                                    self.currentSubproperty = subproperty
-                                                }
-                                                
-                                                refresh(findSubs:false)
-                                            }
-                                                          
-                                        }){
-                                            HStack{
-                                                if property.propertyId == self.currentSubproperty?.id ?? "" {
-                                                    Image(uiImage: UIImage(named: "checkmark")?.withTintColor(switcherFocused ? .black : .gray) ?? UIImage())
-                                                        .resizable()
-                                                        .frame(width:20, height:20)
-                                                        .padding()
-                                                }
-                                                Text(property.title)
-                                            }
-                                            .padding(40)
-                                        }
-                                    }
-                                         */
-                                        
                                     Picker(selection: $currentSubIndex, label:Text("")) {
                                         ForEach(Array(subProperties.enumerated()), id: \.offset) { index, property in
                                             Text(property.title)

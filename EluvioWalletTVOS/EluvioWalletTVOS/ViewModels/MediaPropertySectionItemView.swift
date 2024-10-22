@@ -266,7 +266,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
     }
 
     static func create(item: MediaPropertySectionItem, fabric: Fabric) -> MediaPropertySectionMediaItemViewModel{
-        debugPrint("MediaPropertySectionMediaItemViewModel:create()", item.media?.title)
+        //debugPrint("MediaPropertySectionMediaItemViewModel:create()", item.media?.title)
         var mediaFile : JSON?
         var posterImageLink : JSON?
         var thumbnailSquareLink : JSON?

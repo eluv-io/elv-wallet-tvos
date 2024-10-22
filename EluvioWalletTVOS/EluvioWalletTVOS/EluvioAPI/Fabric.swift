@@ -1661,7 +1661,7 @@ class Fabric: ObservableObject {
         if let item = self.mediaPropertiesMediaItemCache[mediaId] {
             return item
         }
-        debugPrint("Couldn't find media item", mediaId)
+        //debugPrint("Couldn't find media item", mediaId)
         return nil
     }
     

@@ -412,7 +412,16 @@ struct SearchView: View {
                     
                     print("search results ", sections.count)
                     
+                    for section in sections {
+                        debugPrint("Section title: ", section.displayTitle)
+                        for item in section.content ?? []{
+                            debugPrint("   Item ", item.media?.title)
+                        }
+                    }
+                    
+                    
                     await MainActor.run {
+                        self.sections = []
                         self.sections = sections
                         self.refreshId = UUID().uuidString
                     }
@@ -518,9 +527,6 @@ struct SearchView: View {
         }
         .ignoresSafeArea()
         .scrollClipDisabled()
-        .onChange(of: searchString) {
-            search()
-        }
         .onAppear(){
             refresh()
         }
