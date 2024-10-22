@@ -93,6 +93,7 @@ struct SearchTileView: View {
 
 struct SecondaryFilterView: View {
     var title = ""
+    var imageUrl = ""
     var action : ()->()
     
     @FocusState var isFocused
@@ -102,12 +103,18 @@ struct SecondaryFilterView: View {
         ZStack(alignment:.center){
             Button(action:action)
             {
-                Text(title)
-                    .font(.rowTitle)
+                if !imageUrl.isEmpty{
+                    WebImage(url:URL(string:imageUrl))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width:80, height:80)
+                }else {
+                    Text(title)
+                        .font(.rowTitle)
+                }
             }
-            .buttonStyle(secondaryFilterButtonStyle(focused: isFocused, selected: selected))
+            .buttonStyle(secondaryFilterButtonStyle(focused: isFocused, selected: selected, isImage: !imageUrl.isEmpty))
             .focused($isFocused)
-            .padding()
         }
     }
 }
@@ -159,6 +166,7 @@ struct PropertySelector: Hashable {
     }
 }
 
+
 struct SearchView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
@@ -170,8 +178,8 @@ struct SearchView: View {
     @State var sections : [MediaPropertySection] = []
     @State var primaryFilters : [PrimaryFilterViewModel] = []
     @State var currentPrimaryFilter : PrimaryFilterViewModel? = nil
-    @State var currentSecondaryFilter = ""
-    @State var secondaryFilters : [String] = []
+    @State var currentSecondaryFilter : SecondaryFilterViewModel? = nil
+    @State var secondaryFilters : [SecondaryFilterViewModel] = []
     
     @State var subProperties : [PropertySelector] = []
     @State var currentSubpropertyId : String = ""
@@ -190,134 +198,88 @@ struct SearchView: View {
         var property = try await eluvio.fabric.getProperty(property: searchPropertyId)
 
         let filterResult = try await eluvio.fabric.getPropertyFilters(property: propertyId)
-        debugPrint("Property Filter Response ",filterResult)
+        //debugPrint("Property Filter Response ",filterResult)
         
         let attributes = filterResult["attributes"]
         let primaryFilterValue = filterResult["primary_filter"].stringValue
+        debugPrint("primaryFilterValue ",primaryFilterValue)
+        
         let secondaryFilterValue = filterResult["secondary_filter"].stringValue
-        debugPrint("has primary filter ",primaryFilterValue)
+
         let primaryAttribute = attributes[primaryFilterValue]
         let options = filterResult["filter_options"].arrayValue
         var newPrimaryFilters : [PrimaryFilterViewModel] = []
-        //tags.insert("", at:0)
-        let secondary : [String] = attributes[secondaryFilterValue]["tags"].arrayValue.map {$0.stringValue}
-        var allPrimaryFilter = PrimaryFilterViewModel(id: "",
-                                                      imageURL: "",
-                                                      secondaryFilters: secondary,
-                                                      attribute:primaryFilterValue,
-                                                      secondaryAttribute: secondaryFilterValue)
-        var foundAllPrimary = false
-        
-        if !options.isEmpty {
-            for option in options {
-                var secondary : [String] = []
-                let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
-                
-                for secondaryItem in secondaryJSON {
-                    secondary.append(secondaryItem.stringValue)
-                }
-                
-        
-                debugPrint("Secondary Filters ", secondary)
-                debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
-                var image = ""
-                let primaryValue = option["primary_filter_value"].stringValue
-                
-                if !option["primary_filter_image"].isEmpty {
-                    do {
-                        image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
-                    }catch{
-                        print("Could not create image for option \(option)", error.localizedDescription)
-                    }
-                }
-                
-                debugPrint("filter image: ", image)
-                    
-                let filter = PrimaryFilterViewModel(id: primaryValue,
-                                                    imageURL: image,
-                                                    secondaryFilters: secondary,
-                                                    attribute:primaryFilterValue,
-                                                    secondaryAttribute: option["secondary_filter_attribute"].stringValue)
-                    
-                newPrimaryFilters.append(filter)
-            }
-        }else if !primaryAttribute.isEmpty {
+
+        if !primaryAttribute.isEmpty {
             debugPrint("Found primary attribute ",primaryAttribute)
-            var tags = primaryAttribute["tags"].arrayValue
+            let primaryTags = primaryAttribute["tags"].arrayValue
 
             
-            debugPrint("tags: ", tags)
+            debugPrint("tags: ", primaryTags)
             debugPrint("options: ", options)
             
-            if !tags.isEmpty {
-                for tag in tags {
-                    debugPrint("searching tag ", tag)
-                    var foundOptions = false
-                    for option in options {
-                        var secondary : [String] = []
-                        let secondaryJSON = attributes[option["secondary_filter_attribute"].stringValue]["tags"].arrayValue
+            if !options.isEmpty {
+                for option in options {
+                    let optionPrimaryFilterValue = option["primary_filter_value"].stringValue
+                        debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
+                        var image = ""
                         
-                        for secondaryItem in secondaryJSON {
-                            secondary.append(secondaryItem.stringValue)
+                        if !option["primary_filter_image"].isEmpty {
+                            do {
+                                image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
+                            }catch{
+                                print("Could not create image for option \(option)", error.localizedDescription)
+                            }
                         }
                         
+                        debugPrint("filter image: ", image)
+
+                        //Find secondary filters
+                        var secondary : [SecondaryFilterViewModel] = []
+                        let secondaryFilterOptions = option["secondary_filter_options"].arrayValue
                         
-                        if option["primary_filter_value"].stringValue == tag.stringValue {
-                            debugPrint("matched tag value for option")
-                            
-                            debugPrint("Secondary Filters ", secondary)
-                            debugPrint("Secondary attribute ", option["secondary_filter_attribute"].stringValue)
-                            var image = ""
-                            
-                            if !option["primary_filter_image"].isEmpty {
+                        for secondaryItem in secondaryFilterOptions {
+                            var secondaryImage = ""
+                            if !secondaryItem["secondary_filter_image"].isEmpty {
                                 do {
-                                    image = try eluvio.fabric.getUrlFromLink(link: option["primary_filter_image"])
+                                    secondaryImage = try eluvio.fabric.getUrlFromLink(link: secondaryItem["secondary_filter_image"])
                                 }catch{
                                     print("Could not create image for option \(option)", error.localizedDescription)
                                 }
                             }
                             
-                            debugPrint("filter image: ", image)
+                            let secondaryValue = secondaryItem["secondary_filter_value"].stringValue
                             
-                            let filter = PrimaryFilterViewModel(id: tag.stringValue,
-                                                                imageURL: image,
-                                                                secondaryFilters: secondary,
-                                                                attribute:primaryFilterValue,
-                                                                secondaryAttribute: option["secondary_filter_attribute"].stringValue)
-                            
-                            if tag.stringValue == "" {
-                                allPrimaryFilter = filter
-                                foundAllPrimary = true
-                            }else{
-                                newPrimaryFilters.append(filter)
-                            }
-                            foundOptions = true
+                            let secondaryFilter = SecondaryFilterViewModel(id: secondaryValue,
+                                                                           imageUrl: secondaryImage)
+                            secondary.append(secondaryFilter)
                         }
-                    }
-                    
-                    if !foundOptions {
-                        let filter = PrimaryFilterViewModel(id: tag.stringValue,
-                                                            imageURL: "",
+                        
+                        let filter = PrimaryFilterViewModel(id: optionPrimaryFilterValue,
+                                                            imageUrl: image,
                                                             secondaryFilters: secondary,
                                                             attribute:primaryFilterValue,
-                                                            secondaryAttribute: secondaryFilterValue)
-                        if tag.stringValue == "" {
-                            allPrimaryFilter = filter
-                            foundAllPrimary = true
-                        }else{
-                            newPrimaryFilters.append(filter)
-                        }
-                    }
+                                                            secondaryAttribute: option["secondary_filter_attribute"].stringValue)
+                        
+                        newPrimaryFilters.append(filter)
+                }
+            }else if !primaryTags.isEmpty {
+                for tag in primaryTags {
+                    debugPrint("searching tag ", tag)
+                    let filter = PrimaryFilterViewModel(id: tag.stringValue,
+                                                        imageUrl: "",
+                                                        secondaryFilters: [],
+                                                        attribute:primaryFilterValue,
+                                                        secondaryAttribute:"")
+                    
+                    newPrimaryFilters.append(filter)
                 }
                 
-                if foundAllPrimary {
-                    newPrimaryFilters.insert(allPrimaryFilter, at:0)
-                }
-
             }
         }
        return newPrimaryFilters
     }
+    
     
     func refresh() {
         if !sections.isEmpty {
@@ -361,8 +323,8 @@ struct SearchView: View {
                                 attributes[primary.attribute] = [primary.id]
                             }
                             
-                            if !currentSecondaryFilter.isEmpty {
-                                attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
+                            if let secondary = currentSecondaryFilter{
+                                attributes[primary.secondaryAttribute] = [secondary.id]
                             }
                         }
                         
@@ -372,6 +334,11 @@ struct SearchView: View {
                     }
                     
                     self.primaryFilters = try await getPrimaryFilters(searchPropertyId: searchPropertyId)
+                    
+                    if !primaryFilters.isEmpty{
+                        currentPrimaryFilter = primaryFilters.first
+                        secondaryFilters = currentPrimaryFilter?.secondaryFilters ?? []
+                    }
                     
                     debugPrint("Searching ALL ", propertyId)
                     self.sections = try await eluvio.fabric.searchProperty(property: propertyId)
@@ -402,23 +369,28 @@ struct SearchView: View {
                         if !primary.id.isEmpty{
                             attributes[primary.attribute] = [primary.id]
                         }
-                        
-                        if !currentSecondaryFilter.isEmpty {
-                            attributes[primary.secondaryAttribute] = [currentSecondaryFilter]
+                        debugPrint("currentSecondaryFilter:", currentSecondaryFilter)
+                        if let secondary = currentSecondaryFilter{
+                            if !secondary.id.isEmpty {
+                                attributes[primary.secondaryAttribute] = [secondary.id]
+                            }
                         }
                     }
+                    
+                    debugPrint("attributes:", attributes)
                     
                     let sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
                     
                     print("search results ", sections.count)
                     
+                    /*
                     for section in sections {
                         debugPrint("Section title: ", section.displayTitle)
                         for item in section.content ?? []{
                             debugPrint("   Item ", item.media?.title)
                         }
                     }
-                    
+                    */
                     
                     await MainActor.run {
                         self.sections = []
@@ -441,12 +413,10 @@ struct SearchView: View {
                 })
                 .padding(.top,40)
                 .padding(.bottom, searchString.isEmpty ? 20 : 110)
-
+                
                 HStack(alignment:.center, spacing: 20) {
                     if ( !primaryFilters.isEmpty) {
                         Text("Filters")
-                            .multilineTextAlignment(.center)
-                            .frame(alignment:.center)
                     }
                     VStack {
                         if !primaryFilters.isEmpty {
@@ -463,6 +433,7 @@ struct SearchView: View {
                                                     currentPrimaryFilter = nil
                                                     secondaryFilters = []
                                                 }
+                                                currentSecondaryFilter = nil
                                                 search()
 
                                             },
@@ -477,34 +448,35 @@ struct SearchView: View {
                         }
                     }
                 }
-                .padding([.leading,.trailing], 80)
+                .padding([.leading,.trailing], 90)
                 .padding([.top], 40)
-                        
+
                 if !secondaryFilters.isEmpty {
                     ScrollView(.horizontal) {
-                        LazyHStack(spacing:0){
+                        LazyHStack(spacing:20){
                             ForEach(0..<secondaryFilters.count, id: \.self) { index in
                                 SecondaryFilterView(
-                                    title: secondaryFilters[index],
+                                    title: secondaryFilters[index].title,
+                                    imageUrl: secondaryFilters[index].imageUrl,
                                     action:{
                                         
                                         if currentSecondaryFilter != secondaryFilters[index] {
                                             currentSecondaryFilter = secondaryFilters[index]
                                         }else {
-                                            currentSecondaryFilter = ""
+                                            currentSecondaryFilter = nil
                                         }
 
                                         search()
                                         
                                     },
-                                    selected: currentSecondaryFilter == secondaryFilters[index]
+                                    selected: currentSecondaryFilter == secondaryFilters[index] || currentSecondaryFilter == nil && secondaryFilters[index].id.isEmpty
                                 )
                             }
                         }
-
                     }
-                    .padding([.leading], 160)
-                    .padding([.top], 5)
+                    .padding([.leading], 80)
+                    .padding([.top], 10)
+                    .scrollClipDisabled()
                 }
 
                 
@@ -513,7 +485,6 @@ struct SearchView: View {
                     SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!)
                         .edgesIgnoringSafeArea([.leading,.trailing])
                         .frame(maxWidth:.infinity)
-                        .padding(.top,40)
                         .id(refreshId)
                 }else {
                     ForEach(sections, id:\.self) {section in
@@ -524,7 +495,6 @@ struct SearchView: View {
                         .frame(maxWidth:.infinity)
                         .focusSection()
                     }
-                    .padding(.top,40)
                     .id(refreshId)
                 }
                 

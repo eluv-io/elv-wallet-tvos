@@ -193,17 +193,28 @@ struct secondaryFilterButtonStyle: ButtonStyle {
     let focused: Bool
     let selected: Bool
     var scale = 1.08
+    var isImage: Bool = true
     func makeBody(configuration: Self.Configuration) -> some View {
-        configuration.label
-            .padding([.leading,.trailing],20)
-            .padding([.top,.bottom],10)
-            .background(selected ? .white : focused ? Color(hex:0x8b8b8b) : .clear)
-            .foregroundColor(selected ? .black : .white)
-            .cornerRadius(10)
-            .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
-            .scaleEffect(self.focused ? scale : 1, anchor: .center)
-            .scaleEffect(configuration.isPressed ? 0.95 : 1)
-            .animation(.easeIn(duration: 0.2), value: self.focused)
+        if isImage {
+            configuration.label
+                .foregroundColor(selected ? .black : .white)
+                .padding(10)
+                .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
+                .scaleEffect(self.focused ? scale : 1, anchor: .center)
+                .scaleEffect(configuration.isPressed ? 0.95 : 1)
+                .animation(.easeIn(duration: 0.2), value: self.focused)
+        }else {
+            configuration.label
+                .padding([.leading,.trailing],20)
+                .padding([.top,.bottom],10)
+                .background(selected ? .white : focused ? Color(hex:0x8b8b8b) : .clear)
+                .foregroundColor(selected ? .black : .white)
+                .cornerRadius(10)
+                .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
+                .scaleEffect(self.focused ? scale : 1, anchor: .center)
+                .scaleEffect(configuration.isPressed ? 0.95 : 1)
+                .animation(.easeIn(duration: 0.2), value: self.focused)
+        }
 
     }
 }

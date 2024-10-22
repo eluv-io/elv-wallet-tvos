@@ -341,10 +341,7 @@ struct ContentView: View {
                     if let params = eluvio.pathState.searchParams {
                         SearchView(searchString: params.searchTerm,
                                    propertyId: params.propertyId,
-                                   primaryFilters: params.primaryFilters,
-                                   currentPrimaryFilter: params.currentPrimaryFilter,
-                                   currentSecondaryFilter: params.currentSecondaryFilter,
-                                   secondaryFilters: params.secondaryFilters
+                                   primaryFilters: params.primaryFilters
                         )
                         .environmentObject(self.eluvio)
                     }

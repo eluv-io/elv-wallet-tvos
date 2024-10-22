@@ -39,9 +39,9 @@ struct SearchParams {
     var propertyId : String = ""
     var searchTerm : String = ""
     var primaryFilters : [PrimaryFilterViewModel] = []
-    var secondaryFilters : [String] = []
+    var secondaryFilters : [SecondaryFilterViewModel] = []
     var currentPrimaryFilter : PrimaryFilterViewModel? = nil
-    var currentSecondaryFilter : String = ""
+    var currentSecondaryFilter : SecondaryFilterViewModel? = nil
 }
 
 enum VideoErrorType: String, Hashable {

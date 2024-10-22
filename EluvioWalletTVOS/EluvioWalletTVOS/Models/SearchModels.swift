@@ -8,10 +8,47 @@
 import Foundation
 import SwiftyJSON
 
-struct PrimaryFilterViewModel: Identifiable, Codable {
+struct PrimaryFilterViewModel: Identifiable, Codable, Equatable, Hashable  {
     var id: String = ""
-    var imageURL: String = ""
-    var secondaryFilters: [String] = []
+    var imageUrl: String = ""
+    var secondaryFilters: [SecondaryFilterViewModel] = []
     var attribute: String = ""
     var secondaryAttribute: String = ""
+    
+    var title: String {
+        if id.isEmpty {
+            return "All"
+        }
+        
+        return id
+    }
+    
+    static func == (lhs: PrimaryFilterViewModel, rhs: PrimaryFilterViewModel) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+struct SecondaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
+    var id: String = ""
+    var imageUrl: String = ""
+    
+    var title: String {
+        if id.isEmpty {
+            return "All"
+        }
+        
+        return id
+    }
+    
+    static func == (lhs: SecondaryFilterViewModel, rhs: SecondaryFilterViewModel) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 }
