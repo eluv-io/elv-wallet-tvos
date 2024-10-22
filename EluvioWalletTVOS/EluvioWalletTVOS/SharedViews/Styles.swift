@@ -192,16 +192,16 @@ struct TextButtonStyle: ButtonStyle {
 struct secondaryFilterButtonStyle: ButtonStyle {
     let focused: Bool
     let selected: Bool
-    var scale = 1.00
+    var scale = 1.08
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .padding([.leading,.trailing],20)
             .padding([.top,.bottom],10)
-            .background(focused || selected ? .white : .clear)
-            .foregroundColor(focused || selected ? .black : .white)
+            .background(selected ? .white : focused ? Color(hex:0x8b8b8b) : .clear)
+            .foregroundColor(selected ? .black : .white)
             .cornerRadius(10)
             .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
-            .scaleEffect(self.focused || self.selected ? scale : 1, anchor: .center)
+            .scaleEffect(self.focused ? scale : 1, anchor: .center)
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
             .animation(.easeIn(duration: 0.2), value: self.focused)
 
@@ -211,16 +211,16 @@ struct secondaryFilterButtonStyle: ButtonStyle {
 struct primaryFilterButtonStyle: ButtonStyle {
     let focused: Bool
     let selected: Bool
-    var scale = 1.00
+    var scale = 1.08
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .padding([.leading,.trailing],20)
             .padding([.top,.bottom],10)
-            .background(focused || selected ? .white : Color(hex:0x3b3b3b))
-            .foregroundColor(focused || selected ? .black : .white)
+            .background(selected ? .white : focused ? Color(hex:0x8b8b8b) : Color(hex:0x3b3b3b))
+            .foregroundColor(selected ? .black : .white)
             .cornerRadius(10)
             .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
-            .scaleEffect(self.focused || self.selected ? scale : 1, anchor: .center)
+            .scaleEffect(self.focused ? scale : 1, anchor: .center)
             .scaleEffect(configuration.isPressed ? 0.95 : 1)
             .animation(.easeIn(duration: 0.2), value: self.focused)
 

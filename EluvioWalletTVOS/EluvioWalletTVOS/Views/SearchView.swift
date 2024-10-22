@@ -487,7 +487,13 @@ struct SearchView: View {
                                 SecondaryFilterView(
                                     title: secondaryFilters[index],
                                     action:{
-                                        currentSecondaryFilter = secondaryFilters[index]
+                                        
+                                        if currentSecondaryFilter != secondaryFilters[index] {
+                                            currentSecondaryFilter = secondaryFilters[index]
+                                        }else {
+                                            currentSecondaryFilter = ""
+                                        }
+
                                         search()
                                         
                                     },
