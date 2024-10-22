@@ -996,7 +996,7 @@ struct MediaPropertyDetailView: View {
                     if let subproperty = try await eluvio.fabric.getProperty(property: sub.propertyId){
                         self.currentSubproperty = subproperty
                     }
-                    
+                    opacity = 0.0
                     refresh(findSubs:false)
                 }
                 

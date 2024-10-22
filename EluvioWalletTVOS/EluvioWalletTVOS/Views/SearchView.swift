@@ -431,47 +431,7 @@ struct SearchView: View {
                     search()
                 })
                 .padding(.top,40)
-                .padding(.bottom, searchString.isEmpty ? 80 : 150)
-                
-                //We don't want property filters for now:
-                /*
-                if !subProperties.isEmpty {
-                    ScrollView(.horizontal){
-                        LazyHStack(alignment: .center, spacing:10){
-                            Text("Search In ")
-                                .font(.rowTitle)
-                            ForEach(subProperties, id: \.self) { property in
-                                PropertyFilterView(
-                                    title:property.title,
-                                    imageUrl: property.iconUrl,
-                                    propertyId: property.propertyId,
-                                    currentId: $currentSubpropertyId,
-                                    action:{
-                                        Task {
-                                            do {
-                                                if self.currentSubpropertyId != property.propertyId {
-                                                    self.currentSubpropertyId = property.propertyId
-                                                    self.primaryFilters = try await getPrimaryFilters(searchPropertyId: self.currentSubpropertyId)
-                                                    
-                                                    search()
-                                                }else {
-                                                    self.currentSubpropertyId = ""
-                                                    search()
-                                                }
-                                            }catch{
-                                                print("Sub property filters error ", error)
-                                            }
-                                        }
-                                    }
-                                )
-                            }
-                        }
-                        
-                    }
-                    .scrollClipDisabled()
-                    .padding([.leading,.trailing], 80)
-                }
-                 */
+                .padding(.bottom, searchString.isEmpty ? 20 : 110)
 
                 HStack(alignment:.center, spacing: 20) {
                     if ( !primaryFilters.isEmpty) {
@@ -495,19 +455,7 @@ struct SearchView: View {
                                                     secondaryFilters = []
                                                 }
                                                 search()
-                                                
-                                                /*
-                                                 debugPrint("Secondary Filters: ", primaryFilters[index].secondaryFilters)
-                                                 eluvio.pathState.searchParams = SearchParams(propertyId: propertyId,
-                                                 searchTerm: searchString,
-                                                 secondaryFilters: primaryFilters[index].secondaryFilters,
-                                                 currentPrimaryFilter: primaryFilters[index]
-                                                 )
-                                                 eluvio.pathState.path.append(.search)
-                                                 searchString = ""
-                                                 */
-                                                
-                                                
+
                                             },
                                             selected: currentPrimaryFilter?.id == primaryFilters[index].id
                                         )
@@ -526,30 +474,6 @@ struct SearchView: View {
                 if !secondaryFilters.isEmpty {
                     ScrollView(.horizontal) {
                         LazyHStack(spacing:0){
-                            /*
-                            HStack(alignment:.center, spacing:20){
-                                Image("back")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .frame(height:30)
-                                
-                                Button(
-                                    action:{
-                                        _ = eluvio.pathState.path.popLast()
-                                        currentPrimaryFilter = nil
-                                        secondaryFilters = []
-                                    }) {
-                                        
-                                        if let text = currentPrimaryFilter?.id {
-                                            Text("\(text == "" ? "ALL" : text.uppercased() )")
-                                        }
-                                    }
-                                    .buttonBorderShape(.capsule)
-                            }
-                            .frame(alignment:.center)
-                             */
-                            
-                            
                             ForEach(0..<secondaryFilters.count, id: \.self) { index in
                                 SecondaryFilterView(
                                     title: secondaryFilters[index],
@@ -560,12 +484,10 @@ struct SearchView: View {
                                     },
                                     selected: currentSecondaryFilter == secondaryFilters[index]
                                 )
-                                //.frame(alignment:.center)
                             }
                         }
 
                     }
-                    //.scrollClipDisabled()
                     .padding([.leading], 160)
                     .padding([.top], 5)
                 }
@@ -594,7 +516,6 @@ struct SearchView: View {
                 Spacer()
             }
         }
-        //.id(refreshId)
         .ignoresSafeArea()
         .scrollClipDisabled()
         .onChange(of: searchString) {
