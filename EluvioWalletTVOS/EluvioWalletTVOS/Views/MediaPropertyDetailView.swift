@@ -1055,40 +1055,57 @@ struct MediaPropertyDetailView: View {
                         }
                         
                         if var subproperties = parentProperty.property_selection {
-                            debugPrint("Found subproperties ", subproperties)
+
                             
                             for subpropSelection in subproperties.arrayValue {
-                                let selectorId = subpropSelection["property_id"].stringValue
-                                var logoUrl = ""
-                                debugPrint("subpropSelection : ", subpropSelection)
-                                debugPrint("logo link: ",subpropSelection["logo"])
                                 do {
-                                    logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
+                                    let selectorId = subpropSelection["property_id"].stringValue
+                                    let perms = subpropSelection["permission_item_ids"].arrayValue
+                                    //debugPrint("Subproperty permission ids ", perms)
+                                    let authState = try await eluvio.fabric.getPropertyPermissions(propertyId: selectorId, noCache:false)
+                                    //debugPrint("auth state::: ", authState)
+                                    var authorized = try await eluvio.fabric.checkPermissionIds(permissionIds: perms, authState: authState["permission_auth_state"])
+                                    //debugPrint("authorized::: ", authorized)
+                                    
+                                    if !authorized {
+                                        continue
+                                    }
+                                    
+                                    var logoUrl = ""
+                                    debugPrint("subpropSelection : ", subpropSelection)
+                                    debugPrint("logo link: ",subpropSelection["logo"])
+                                    do {
+                                        logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
+                                    }catch{
+                                        print("Could not get logo from link ", error)
+                                    }
+                                    
+                                    var iconUrl = ""
+                                    do {
+                                        iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
+                                    }catch{
+                                        print("Could not get icon from link ", error)
+                                    }
+                                    
+                                    let selector = PropertySelector(logoUrl: logoUrl,
+                                                                    iconUrl: iconUrl,
+                                                                    propertyId: selectorId,
+                                                                    title: subpropSelection["title"].stringValue)
+                                    debugPrint("selector created: ", selector)
+                                    if !selector.isEmpty{
+                                        subs.append(selector)
+                                        debugPrint("added selector")
+                                    }
                                 }catch{
-                                    print("Could not get logo from link ", error)
-                                }
-                                
-                                var iconUrl = ""
-                                do {
-                                    iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
-                                }catch{
-                                    print("Could not get icon from link ", error)
-                                }
-                                
-                                let selector = PropertySelector(logoUrl: logoUrl,
-                                                                iconUrl: iconUrl,
-                                                                propertyId: selectorId,
-                                                                title: subpropSelection["title"].stringValue)
-                                debugPrint("selector created: ", selector)
-                                if !selector.isEmpty{
-                                    subs.append(selector)
-                                    debugPrint("added selector")
+                                    print("Couldn't process sub property ", subpropSelection)
                                 }
                             }
                         }
                         
                         await MainActor.run {
-                            subProperties = subs
+                            if subs.count > 1 {
+                                subProperties = subs
+                            }
                         }
                         
                         if !subProperties.isEmpty {

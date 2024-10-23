@@ -1691,12 +1691,12 @@ class Fabric: ObservableObject {
         return result
     }
     
-    func getPropertyPermissions(propertyId: String) async throws -> JSON {
+    func getPropertyPermissions(propertyId: String, noCache:Bool = true) async throws -> JSON {
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
 
-        return try await signer.getPropertyPermissions(propertyId: propertyId, accessCode: self.fabricToken)
+        return try await signer.getPropertyPermissions(propertyId: propertyId, accessCode: self.fabricToken, noCache:noCache)
     }
     
     //exchanges id token for cluster token
@@ -2901,7 +2901,8 @@ class Fabric: ObservableObject {
         }
         
         for id in permissionIds {
-            //debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
+            debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
+            debugPrint(" \(id.stringValue) : ", authState[id.stringValue])
             if authState[id.stringValue]["authorized"].boolValue{
                 return true
             }
