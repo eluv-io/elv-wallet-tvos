@@ -1018,7 +1018,7 @@ struct MediaPropertyDetailView: View {
                 self.isRefreshing = false
                 self.refreshId = eluvio.refreshId
                 
-                withAnimation(.easeInOut(duration: 2)) {
+                withAnimation(.easeInOut(duration: 1)) {
                   opacity = 1.0
                 }
             }
