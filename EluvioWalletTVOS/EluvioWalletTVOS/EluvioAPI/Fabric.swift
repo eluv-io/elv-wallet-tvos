@@ -151,6 +151,7 @@ class Fabric: ObservableObject {
         if(endpoint.isEmpty){
             throw FabricError.configError("Could not get endpoint from config")
         }
+
         return endpoint
     }
     

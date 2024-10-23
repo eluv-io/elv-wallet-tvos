@@ -87,6 +87,7 @@ class RemoteSigner {
         if(endpoint.isEmpty){
             throw FabricError.configError("getEthEndpoint: could not get endpoint")
         }
+        
         return endpoint
     }
 

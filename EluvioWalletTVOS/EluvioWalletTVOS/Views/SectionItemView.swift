@@ -709,10 +709,19 @@ struct SectionItemView: View {
                                             }
                                         }
                                         
+
                                         
                                         if let sectionItemId = item.id {
-                                           //var permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.id)
-                                            //debugPrint("!!! Permission ", permission)
+                                            //Might be a race condition where the resolved permissions
+                                            
+                                            debugPrint("sectionItemId ", sectionItemId)
+                                            debugPrint("mediaItem.id ", mediaItem.id)
+                                            
+                                            var permission = permission
+                                            if permission == nil {
+                                                permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.media_id)
+                                            }
+                                            
                                             if let permission = permission {
                                                 if !permission.authorized  || item.type == "item_purchase"{
                                                     
