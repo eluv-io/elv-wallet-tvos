@@ -242,7 +242,7 @@ struct SearchView: View {
                             var secondaryImage = ""
                             if !secondaryItem["secondary_filter_image"].isEmpty {
                                 do {
-                                    secondaryImage = try eluvio.fabric.getUrlFromLink(link: secondaryItem["secondary_filter_image"])
+                                    secondaryImage = try eluvio.fabric.getUrlFromLink(link: secondaryItem["secondary_filter_image_tv"])
                                 }catch{
                                     print("Could not create image for option \(option)", error.localizedDescription)
                                 }
@@ -254,12 +254,22 @@ struct SearchView: View {
                                                                            imageUrl: secondaryImage)
                             secondary.append(secondaryFilter)
                         }
-                        
+                    
+                        let secondaryAttribute = option["secondary_filter_attribute"].stringValue
+                        if secondary.isEmpty {
+                            for secondaryTag in attributes[secondaryAttribute]["tags"].arrayValue {
+                                secondary.append(SecondaryFilterViewModel(id: secondaryTag.stringValue))
+                            }
+                        }
+                    
+                        let filterStyle = option["secondary_filter_style"].stringValue
                         let filter = PrimaryFilterViewModel(id: optionPrimaryFilterValue,
                                                             imageUrl: image,
                                                             secondaryFilters: secondary,
                                                             attribute:primaryFilterValue,
-                                                            secondaryAttribute: option["secondary_filter_attribute"].stringValue)
+                                                            secondaryAttribute: secondaryAttribute,
+                                                            secondaryFilterStyle: PrimaryFilterViewModel.GetFilterStyle(style:filterStyle)
+                        )
                         
                         newPrimaryFilters.append(filter)
                 }
@@ -369,7 +379,7 @@ struct SearchView: View {
                         if !primary.id.isEmpty{
                             attributes[primary.attribute] = [primary.id]
                         }
-                        debugPrint("currentSecondaryFilter:", currentSecondaryFilter)
+                        //debugPrint("currentSecondaryFilter:", currentSecondaryFilter)
                         if let secondary = currentSecondaryFilter{
                             if !secondary.id.isEmpty {
                                 attributes[primary.secondaryAttribute] = [secondary.id]
@@ -377,20 +387,9 @@ struct SearchView: View {
                         }
                     }
                     
-                    debugPrint("attributes:", attributes)
+                    //debugPrint("attributes:", attributes)
                     
                     let sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
-                    
-                    print("search results ", sections.count)
-                    
-                    /*
-                    for section in sections {
-                        debugPrint("Section title: ", section.displayTitle)
-                        for item in section.content ?? []{
-                            debugPrint("   Item ", item.media?.title)
-                        }
-                    }
-                    */
                     
                     await MainActor.run {
                         self.sections = []
@@ -457,7 +456,7 @@ struct SearchView: View {
                             ForEach(0..<secondaryFilters.count, id: \.self) { index in
                                 SecondaryFilterView(
                                     title: secondaryFilters[index].title,
-                                    imageUrl: secondaryFilters[index].imageUrl,
+                                    imageUrl: currentPrimaryFilter?.secondaryFilterStyle == .image ? secondaryFilters[index].imageUrl : "",
                                     action:{
                                         
                                         if currentSecondaryFilter != secondaryFilters[index] {

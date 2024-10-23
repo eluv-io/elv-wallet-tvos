@@ -8,12 +8,25 @@
 import Foundation
 import SwiftyJSON
 
+enum FilterStyle: Codable {
+    case text, image
+}
+
 struct PrimaryFilterViewModel: Identifiable, Codable, Equatable, Hashable  {
     var id: String = ""
     var imageUrl: String = ""
     var secondaryFilters: [SecondaryFilterViewModel] = []
     var attribute: String = ""
     var secondaryAttribute: String = ""
+    var secondaryFilterStyle: FilterStyle = .text
+    
+    static func GetFilterStyle(style:String) -> FilterStyle {
+        if style == "image" {
+            return .image
+        }
+        
+        return .text
+    }
     
     var title: String {
         if id.isEmpty {
