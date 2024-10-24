@@ -265,6 +265,10 @@
 		B0A598E82C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
 		B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
 		B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
+		B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
+		B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
+		B0A5AB412CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */; };
+		B0A5AB422CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */; };
 		B0A830E22C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
 		B0A830E32C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
 		B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
@@ -453,6 +457,8 @@
 		B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "start-screen-bg.mp4"; sourceTree = "<group>"; };
 		B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewSideNav.swift; sourceTree = "<group>"; };
 		B0A598E92C3433CD00D6716F /* ContentViewBak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewBak.swift; sourceTree = "<group>"; };
+		B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionGridView.swift; sourceTree = "<group>"; };
+		B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertySectionView.swift; sourceTree = "<group>"; };
 		B0A830E12C7129120037BE59 /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
 		B0A830E42C74E9740037BE59 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
 		B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioAPI.swift; sourceTree = "<group>"; };
@@ -844,6 +850,8 @@
 		B0E60FAB29D223760079661E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */,
+				B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */,
 				B09897FE2CB8D10400C1D590 /* SearchBar.swift */,
 				B0E60F7129CC23510079661E /* ContentViewApp.swift */,
 				B0670F3729D5427300676872 /* NFTDetail.swift */,
@@ -1146,6 +1154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */,
 				B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
 				B05648C22BC7E245004540F6 /* ContentViewApp.swift in Sources */,
 				B08CB5622B7DDFDA00E04C0D /* AudioPlayer.swift in Sources */,
@@ -1199,6 +1208,7 @@
 				B077BE632C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B08CB5892B7DDFDA00E04C0D /* PackView.swift in Sources */,
 				B08CB58A2B7DDFDA00E04C0D /* MarketplaceModel.swift in Sources */,
+				B0A5AB412CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */,
 				B0A830EC2C78547B0037BE59 /* States.swift in Sources */,
 				B08CB58B2B7DDFDA00E04C0D /* NFTModel.swift in Sources */,
 				B08CB58C2B7DDFDA00E04C0D /* ProfileModel.swift in Sources */,
@@ -1310,6 +1320,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */,
 				B0A598E52C33976100D6716F /* PageGesture.swift in Sources */,
 				B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */,
 				B06D521B2A149EDC00BD68D1 /* PropertiesView.swift in Sources */,
@@ -1363,6 +1374,7 @@
 				B077BE622C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
+				B0A5AB422CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */,
 				B0A830EB2C78547B0037BE59 /* States.swift in Sources */,
 				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,
 				B0E60FA929D211040079661E /* MarketplaceModel.swift in Sources */,
@@ -1640,7 +1652,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 270;
+				CURRENT_PROJECT_VERSION = 272;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1674,7 +1686,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 270;
+				CURRENT_PROJECT_VERSION = 272;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
