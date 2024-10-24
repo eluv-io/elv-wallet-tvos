@@ -314,7 +314,7 @@ struct SearchView: View {
                     }
                     
                     if name.isEmpty {
-                        if let title = property?.page_title {
+                        if let title = property?.name {
                             name = title
                         }
                     }

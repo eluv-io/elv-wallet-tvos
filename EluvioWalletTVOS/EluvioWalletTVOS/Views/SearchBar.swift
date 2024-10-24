@@ -70,6 +70,7 @@ struct SearchBar: View {
             .scaleEffect(0.83)
             //.offset(x:40)
             .position(x:1000, y:100)
+            .id("Search in " + name)
             
            /* NativeSearchView()
                 .scaleEffect(0.8)

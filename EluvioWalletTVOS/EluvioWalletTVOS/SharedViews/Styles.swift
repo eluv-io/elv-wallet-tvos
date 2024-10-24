@@ -199,7 +199,7 @@ struct secondaryFilterButtonStyle: ButtonStyle {
             configuration.label
                 .foregroundColor(selected ? .black : .white)
                 .padding(10)
-                .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
+                .opacity(configuration.isPressed || focused || selected ? 1 : 0.3)
                 .scaleEffect(self.focused ? scale : 1, anchor: .center)
                 .scaleEffect(configuration.isPressed ? 0.95 : 1)
                 .animation(.easeIn(duration: 0.2), value: self.focused)
