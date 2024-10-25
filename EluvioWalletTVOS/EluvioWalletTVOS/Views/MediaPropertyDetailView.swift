@@ -85,10 +85,11 @@ struct MediaPropertyDetailView: View {
         ScrollView() {
             ZStack(alignment:.topLeading) {
                 if let item = playerItem {
-                    VStack{
+                    VStack(){
                         LoopingVideoPlayer([item], endAction: .loop)
-                            .frame(maxWidth:.infinity, maxHeight:  UIScreen.main.bounds.size.height)
+                            .frame(width:UIScreen.main.bounds.size.width, height:  UIScreen.main.bounds.size.height)
                             .edgesIgnoringSafeArea([.top,.leading,.trailing])
+                            .padding(0)
                             .frame(alignment: .topLeading)
                             .id("property video \(item.hashValue)")
                         Spacer()
