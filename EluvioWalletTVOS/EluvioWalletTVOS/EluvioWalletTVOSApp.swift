@@ -65,18 +65,6 @@ struct EluvioWalletTVOSApp: App {
                         .preferredColorScheme(.dark)
                 }
             }
-            .onAppear(){
-                Task {
-                    /*
-                    do {
-                
-                    }catch{
-                        print("Error connecting to the fabric: ", error)
-                        eluvio.pathState.path.append(.errorView("Please check your network and try again."))
-                    }
-                     */
-                }
-            }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .inactive {
                     print("Inactive")
