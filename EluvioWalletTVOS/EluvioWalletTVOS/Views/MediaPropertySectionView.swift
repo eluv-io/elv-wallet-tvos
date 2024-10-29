@@ -878,8 +878,8 @@ struct MediaPropertyHeader: View {
         }
         .frame(maxWidth: .infinity, alignment:.leading)
         .padding([.leading, .trailing], margin + 15)  //FIXME: there's a padding in the other sections for some reason
-        .padding([.bottom], hasOnlyImage ? 10 : 40)
-        .padding([.top], hasOnlyImage ? 10 : 100)
+        .padding([.bottom], hasOnlyImage ? 10 : 20)
+        .padding([.top], hasOnlyImage ? 10 : 95)
     }
 }
 
