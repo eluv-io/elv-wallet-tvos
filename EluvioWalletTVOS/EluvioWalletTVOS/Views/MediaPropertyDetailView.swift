@@ -11,8 +11,6 @@ import AVFoundation
 import SwiftyJSON
 import Foundation
 
-
-
 extension UIImage {
     /// - Description: returns tinted image
     /// - Parameters:
@@ -113,7 +111,7 @@ struct MediaPropertyDetailView: View {
                         .clipped()
                         .id(backgroundImage)
                 }
-                                
+
                 VStack(spacing:0) {
                     ForEach(sections) {section in
                         if let propertyId = currentSubproperty?.id {
@@ -174,15 +172,12 @@ struct MediaPropertyDetailView: View {
                         
                         Spacer()
                     }
-                    
-
                 }
                 .zIndex(20)
                 .focusSection()
                 .padding(.trailing, 80)
                 .padding(.top, 80)
                 .frame(maxWidth:.infinity, maxHeight:120)
-                
             }
             .frame(maxWidth: .infinity, alignment: .topLeading)
         }
@@ -200,11 +195,11 @@ struct MediaPropertyDetailView: View {
                 Task{
                     if let subproperty = try await eluvio.fabric.getProperty(property: sub.propertyId){
                         self.currentSubproperty = subproperty
+                        eluvio.needsRefresh()
                     }
                     opacity = 0.0
                     refresh(findSubs:false)
                 }
-                
             }
         }
         .background(
@@ -212,9 +207,6 @@ struct MediaPropertyDetailView: View {
         )
         .task {
             debugPrint("MediaPropertyDetailView onAppear")
-            if refreshId.isEmpty {
-                refreshId = eluvio.refreshId
-            }
             refresh()
         }
         .onWillDisappear {
@@ -223,14 +215,15 @@ struct MediaPropertyDetailView: View {
             }
         }
     }
-    
-    
-    
+  
     func refresh(findSubs:Bool = true){
         debugPrint("MediaPropertyDetailView refresh() propertyId: ",propertyId)
         debugPrint("MediaPropertyDetailView refresh() page: ",pageId)
-        if self.isRefreshing{
-            debugPrint("still refreshing..exiting")
+        if self.isRefreshing || self.refreshId == eluvio.refreshId{
+            debugPrint("no need for a refresh..exiting")
+            withAnimation(.easeInOut(duration: 1)) {
+              opacity = 1.0
+            }
             return
         }
         
@@ -287,8 +280,6 @@ struct MediaPropertyDetailView: View {
                         }
                         
                         if var subproperties = parentProperty.property_selection {
-
-                            
                             for subpropSelection in subproperties.arrayValue {
                                 do {
                                     let selectorId = subpropSelection["property_id"].stringValue

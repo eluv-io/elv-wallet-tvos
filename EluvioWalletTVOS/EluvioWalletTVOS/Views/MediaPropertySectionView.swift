@@ -60,6 +60,8 @@ struct MediaPropertySectionGridView: View {
     var section: MediaPropertySection
     var margin: CGFloat = 80
     @State var logoUrl: String? = nil
+    @State private var refreshId = ""
+    
     var logoText: String {
         if let display = section.display {
             return display["logo_text"].stringValue
@@ -102,6 +104,14 @@ struct MediaPropertySectionGridView: View {
         .clipped()
         .frame(maxWidth:.infinity, maxHeight: .infinity)
         .task{
+            if self.refreshId == eluvio.refreshId {
+                return
+            }
+            
+            defer {
+                self.refreshId = eluvio.refreshId
+            }
+            
             if let display = section.display {
                 do {
                     logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
@@ -124,7 +134,7 @@ struct MediaPropertyRegularSectionView: View {
     var pageId: String
     var section: MediaPropertySection
     var margin: CGFloat = 80
-    
+    @State private var refreshId = ""
     @State var items: [MediaPropertySectionMediaItemViewModel] = []
     
     var showViewAll: Bool {
@@ -324,7 +334,15 @@ struct MediaPropertyRegularSectionView: View {
         )
         .clipped()
         .task() {
+            if self.refreshId == eluvio.refreshId {
+                return
+            }
+            
+            defer {
+                self.refreshId = eluvio.refreshId
+            }
             debugPrint("MediaPropertyRegularSectionView onAppear() ", section.displayTitle)
+
             if let display = section.display {
                 do {
                     logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
@@ -338,17 +356,20 @@ struct MediaPropertyRegularSectionView: View {
             Task {
                 var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
                 if let content = section.content {
-                    
                     for var item in content {
-                            var mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
-                            
-                            item.media?.resolvedPermission = mediaPermission
-                            item.resolvedPermission = mediaPermission
-                            
-                            if !mediaPermission.hide {
-                                let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
-                                sectionItems.append(viewItem)
-                            }
+                        var mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
+                        
+                        item.media?.resolvedPermission = mediaPermission
+                        item.resolvedPermission = mediaPermission
+                        
+                        if !mediaPermission.hide {
+                            let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                            sectionItems.append(viewItem)
+                        }
+                        //Optimization so we show the first 4 first so faster loading sections don't render ahead of us as much
+                        if sectionItems.count == 4{
+                            self.items = sectionItems
+                        }
                     }
 
                 }
@@ -493,6 +514,7 @@ struct MediaPropertySectionView: View {
     var pageId: String
     @State var section: MediaPropertySection
     var margin: CGFloat = 80
+    @State private var refreshId = ""
 
     var items: [MediaPropertySectionItem] {
         section.content ?? []
@@ -724,8 +746,14 @@ struct MediaPropertySectionView: View {
         .task() {
             //debugPrint("MediaPropertySectionView onAppear() type:", section.type)
             //debugPrint("Subsections count ", section.sections?.count)
-
+            if self.refreshId == eluvio.refreshId {
+                return
+            }
             
+            defer {
+                self.refreshId = eluvio.refreshId
+            }
+
             if section.type != "search" {
                 Task(priority: .background){
                     do {
@@ -742,9 +770,8 @@ struct MediaPropertySectionView: View {
                 }
             }
 
-            Task(priority: .background){
+            Task(){
                 do {
-                    
                     if section.type != "search" {
                         print("Fetching section \(section.id)")
                         let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
@@ -752,8 +779,6 @@ struct MediaPropertySectionView: View {
                             print("Could not fetch section \(section.id)")
                             return
                         }
-                        
-                        
                         self.section = result[0]
                     }
 
@@ -855,10 +880,6 @@ struct MediaPropertyHeader: View {
         .padding([.leading, .trailing], margin + 15)  //FIXME: there's a padding in the other sections for some reason
         .padding([.bottom], hasOnlyImage ? 10 : 40)
         .padding([.top], hasOnlyImage ? 10 : 100)
-        .onAppear(){
-            debugPrint("MediaPropertyHeader Description text : ", description)
-        }
-
     }
 }
 
@@ -866,6 +887,9 @@ struct MediaPropertyBanner: View {
     @Namespace var NamespaceProperty
     @EnvironmentObject var eluvio: EluvioAPI
     var image: String = ""
+    var imageURL: String {
+        return image + "&width=600"
+    }
     var margin: CGFloat = 80
     var action: ()->Void
     @FocusState var isFocused: Bool
@@ -879,24 +903,15 @@ struct MediaPropertyBanner: View {
                         .aspectRatio(contentMode: .fit)
                         .edgesIgnoringSafeArea(.horizontal)
                         .frame(maxWidth:.infinity)
-                        .transition(.opacity)
-
                 }
-                .padding([.leading, .trailing], margin)
-                .padding([.top, .bottom], 40)
             })
-            .opacity(opacity)
             .clipped()
             .frame(maxWidth: .infinity, alignment:.leading)
-            .buttonStyle(BannerButtonStyle(focused:isFocused, bordered: true))
+            .padding([.leading, .trailing], margin)
+            .padding([.top, .bottom], 40)
+            .buttonStyle(BannerButtonStyle(focused:isFocused, scale:1.0, bordered: false))
             .focused($isFocused)
-            .task{
-                await MainActor.run {
-                    withAnimation(.easeInOut(duration: 1)) {
-                        self.opacity = 1.0
-                    }
-                }
-            }
+            .opacity(isFocused ? 1.0 : 0.6)
         }else{
             EmptyView()
         }

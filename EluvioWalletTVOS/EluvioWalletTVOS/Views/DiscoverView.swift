@@ -157,25 +157,25 @@ struct DiscoverView: View {
                 
                 for property in props{
                     let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                    //debugPrint("\(mediaProperty.title) ---> created")
                     if mediaProperty.image.isEmpty {
                         
                     }else{
-                        //debugPrint("image: \(meØdiaProperty.image)")
                         properties.append(mediaProperty)
+                    }
+                    
+                    if properties.count > 16 {
+                        self.properties = properties
                     }
                 }
                 
                 await MainActor.run {
-                    //withAnimation(.easeInOut(duration: 1)) {
-                        if properties.count > 0 {
-                            selected = properties[0]
-                            withAnimation(.easeIn(duration: 1)){
-                                backgroundImageURL = selected.backgroundImage
-                            }
+                    if properties.count > 0 {
+                        selected = properties[0]
+                        withAnimation(.easeIn(duration: 1)){
+                            backgroundImageURL = selected.backgroundImage
                         }
-                        self.properties = properties
-                    //}
+                    }
+                    self.properties = properties
                 }
                 
             }catch(FabricError.apiError(let code, let response, let error)){

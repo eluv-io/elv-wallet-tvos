@@ -807,7 +807,10 @@ struct SectionItemView: View {
         }
         //.disabled(disable)
         .task(){
-            self.refreshId = UUID().uuidString
+            if self.refreshId == viewItem.id + eluvio.refreshId {
+                return
+            }
+            self.refreshId = viewItem.id + eluvio.refreshId
         }
         
     }
