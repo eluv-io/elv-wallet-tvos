@@ -92,7 +92,8 @@ struct ProfileView: View {
                             FormEntry("Eth Service:  \(ethNode)")
                             
                             Toggle("Set to staging ", isOn:$isStaging)
-                            Toggle("Set to developer mode ", isOn:$isDeveloper)
+                            
+                            //Toggle("Set to developer mode ", isOn:$isDeveloper)
                         
                         }
                         .padding()

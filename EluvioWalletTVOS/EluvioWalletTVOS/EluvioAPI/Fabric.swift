@@ -66,7 +66,10 @@ class Fabric: ObservableObject {
     var configuration : FabricConfiguration? = nil
     
     //These will only show up on staging flag
-    var devProperties : [String] = ["iq__3dzXSEyR9EgGVPPJJboHyGmHtt6b", "iq__2uNjfaqsPGxfHtaemQuP5rL94EL9"]
+    //var devProperties : [String] = ["iq__3dzXSEyR9EgGVPPJJboHyGmHtt6b", "iq__2uNjfaqsPGxfHtaemQuP5rL94EL9"]
+    
+    var devProperties : [String] = []
+    
     var environment : APIEnvironment = .prod
     /*
     @Published

@@ -123,6 +123,8 @@ struct SectionGridView: View {
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.leading)
                     .padding([.top,.bottom], 40)
+                    .edgesIgnoringSafeArea([.leading, .trailing])
+                    .focusSection()
                 }else{
                     
                     LazyVStack(alignment:.leading){
@@ -143,10 +145,11 @@ struct SectionGridView: View {
                                 }
                         }
                         .padding([.top,.bottom], 40)
+                        .edgesIgnoringSafeArea([.leading, .trailing])
+                        .focusSection()
                     }
                     .frame(maxWidth:.infinity)
                     .focusSection()
-           
                     
                     //FIXME: LazyVGrid loses selection DO NOT USE
                     /*
@@ -169,6 +172,8 @@ struct SectionGridView: View {
                 }
         }
         .padding([.leading], margin)
+        .edgesIgnoringSafeArea([.leading, .trailing])
+        .focusSection()
         .getWidth($width)
         .task {
             do {

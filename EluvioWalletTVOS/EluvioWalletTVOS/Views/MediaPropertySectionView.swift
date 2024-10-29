@@ -273,6 +273,8 @@ struct MediaPropertyRegularSectionView: View {
                             .padding([.top,.bottom],20)
                             .padding(.leading, 10)
                             .padding(.trailing, 0)
+                            .edgesIgnoringSafeArea([.leading, .trailing])
+                            .focusSection()
                         }else{
                             ScrollView(.horizontal) {
                                 HStack(alignment: .center, spacing: 34) {
@@ -293,6 +295,8 @@ struct MediaPropertyRegularSectionView: View {
                                 .padding([.top,.bottom],20)
                                 .padding(.leading, 10)
                                 .padding(.trailing, 0)
+                                .edgesIgnoringSafeArea([.leading, .trailing])
+                                .focusSection()
                             }
                             .frame(maxWidth:.infinity)
                             .edgesIgnoringSafeArea(.trailing)
@@ -686,16 +690,21 @@ struct MediaPropertySectionView: View {
             if !hide {
                 if isHero {
                     MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition, margin:margin)
+                        .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isBanner {
                     MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, margin:margin, section:section)
+                        .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isContainer{
                     VStack(spacing:0){
                         ForEach(subsections) { sub in
                             MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin)
+                                .edgesIgnoringSafeArea([.leading, .trailing])
                         }
                     }
+                    .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isGrid {
                     MediaPropertySectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
+                        .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if !items.isEmpty {
                     MediaPropertyRegularSectionView(
                             propertyId:propertyId,
@@ -703,6 +712,7 @@ struct MediaPropertySectionView: View {
                             section:section,
                             margin:margin
                         )
+                        .edgesIgnoringSafeArea([.leading, .trailing])
                      
                 }else {
                     EmptyView()

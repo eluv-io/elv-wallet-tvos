@@ -114,7 +114,7 @@ struct MediaPropertyDetailView: View {
                         .id(backgroundImage)
                 }
                                 
-                LazyVStack(spacing:0) {
+                VStack(spacing:0) {
                     ForEach(sections) {section in
                         if let propertyId = currentSubproperty?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)

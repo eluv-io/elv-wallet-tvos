@@ -64,6 +64,8 @@ struct MediaItemGridView: View {
                                 Spacer()
                         }
                         .frame(maxWidth:.infinity, alignment:.leading)
+                        .edgesIgnoringSafeArea([.leading, .trailing])
+                        .focusSection()
                     }else{
                         Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
                             ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
@@ -83,6 +85,8 @@ struct MediaItemGridView: View {
                         .focusSection()
                     }
                 }
+                .edgesIgnoringSafeArea([.leading, .trailing])
+                .focusSection()
             }
             .frame(maxWidth:UIScreen.main.bounds.width, alignment:.leading)
             .padding(80)
@@ -124,6 +128,7 @@ struct SectionItemListView: View {
         MediaItemGridView(propertyId:propertyId, items:items, title: item?.media?.title ?? "", sectionItem:item)
             .frame(width:UIScreen.main.bounds.width, height: UIScreen.main.bounds.size.height)
             .padding()
+            .focusSection()
         .onAppear(){
             debugPrint("SectionItemListView onAppear item ", item)
             Task {
