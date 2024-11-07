@@ -1466,7 +1466,7 @@ class Fabric: ObservableObject {
     
     func getPropertySections(property: String, sections: [String], noCache:Bool = false, newFetch: Bool = false) async throws -> [MediaPropertySection] {
         if mediaPropertiesSectionCache.isEmpty || noCache || newFetch{
-            try await cachePropertySections(property: property, sections: sections)
+            try await getAndCachePropertySections(property: property, sections: sections)
         }
         
         var retValue: [MediaPropertySection] = []
@@ -1476,7 +1476,7 @@ class Fabric: ObservableObject {
                 retValue.append(section)
             }else {
                 debugPrint("Couldn't find id ", id)
-                try await cachePropertySections(property: property, sections: [id])
+                try await getAndCachePropertySections(property: property, sections: [id])
                 if let section = self.mediaPropertiesSectionCache[id] {
                     retValue.append(section)
                 }
@@ -1487,35 +1487,18 @@ class Fabric: ObservableObject {
     }
     
     func getPropertyPageSections(property: String, page: String, noCache: Bool = false, newFetch: Bool = false) async throws -> [MediaPropertySection] {
-        
-        var sections: [String] = []
-        if let page = try await getPropertyPage(propertyId: property, pageId:page) {
-            debugPrint("Found page ", page)
-            if let _sec = page.layout?["sections"].arrayValue {
-                for sectionId in _sec {
-                    sections.append(sectionId.stringValue)
-                }
-            }
-        }
-
-        if mediaPropertiesSectionCache.isEmpty || noCache || newFetch{
-            try await cachePropertySections(property: property, sections: sections, noCache:noCache)
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
         }
         
-        var retValue: [MediaPropertySection] = []
-        
-        for id in sections {
-            if let section = self.mediaPropertiesSectionCache[id] {
-                retValue.append(section)
-            }else {
-                try await cachePropertySections(property: property, sections: sections, noCache:noCache)
-                if let section = self.mediaPropertiesSectionCache[id] {
-                    retValue.append(section)
-                }
-            }
+        let result = try await signer.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
+        do {
+            try await cachePropertySections(property: property, sections: result.contents)
+        }catch{
+            print("Error caching property sections ", error.localizedDescription)
         }
+        return result.contents
         
-        return retValue
     }
     
     func getPropertyMediaItems(property: String, mediaItems: [String]) async throws -> [MediaPropertySectionMediaItem] {
@@ -1557,7 +1540,7 @@ class Fabric: ObservableObject {
         }
     }
     
-    func cachePropertySections(property: String, sections: [String], noCache:Bool=false) async throws{
+    func getAndCachePropertySections(property: String, sections: [String], noCache:Bool=false) async throws{
         debugPrint("cachePropertySections property \(property) ", sections)
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
@@ -1565,8 +1548,11 @@ class Fabric: ObservableObject {
 
         let result = try await signer.getPropertySections(property: property, noCache:noCache, sections: sections, accessCode: self.fabricToken)
         
-        //await MainActor.run {
-            for section in result.contents {
+        try await cachePropertySections(property: property, sections:result.contents)
+    }
+    
+    func cachePropertySections(property: String, sections: [MediaPropertySection]) async throws{
+            for section in sections {
                 self.mediaPropertiesSectionCache[section.id] = section
                 
                 var sections : [String] = []
@@ -1578,7 +1564,7 @@ class Fabric: ObservableObject {
                     debugPrint("Fetching subsections count ", sections.count)
                     if !sections.isEmpty {
                         Task(priority: .background){
-                            try await cachePropertySections(property: property, sections: sections)
+                            try await getAndCachePropertySections(property: property, sections: sections)
                         }
                     }
                 }
@@ -1604,7 +1590,6 @@ class Fabric: ObservableObject {
                     }
                 }
             }
-        //}
     }
     
     func cacheMediaProperties(properties: MediaPropertiesResponse) throws{
@@ -2754,7 +2739,7 @@ class Fabric: ObservableObject {
                                      //debugPrint("Media Item permissions", mediaItem.permissions)
                                     
                                     if let publicField = mediaItem.public {
-                                        debugPrint("media public field ", publicField)
+                                        //debugPrint("media public field ", publicField)
                                         if (publicField){
                                             result.authorized = true
                                         }else{
@@ -2918,13 +2903,13 @@ class Fabric: ObservableObject {
     
     //Runs through the authState of the property and finds if there is a true value
     func checkPropertyAuthState(property: MediaProperty?) -> Bool {
-        debugPrint("checkPropertyAuthState ")
+        //debugPrint("checkPropertyAuthState ")
         if let prop = property {
             if let authState = prop.permission_auth_state {
-                debugPrint("authState ", authState)
+                //debugPrint("authState ", authState)
                 for (key, value) in authState {
                     if value["authorized"].boolValue {
-                        debugPrint("Found!")
+                        //debugPrint("Found!")
                         return true
                     }
                 }

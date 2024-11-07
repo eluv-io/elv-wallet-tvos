@@ -684,13 +684,26 @@ struct MediaPropertySectionView: View {
     }
     
     @State var permission : ResolvedPermission? = nil
+    
     var hide : Bool {
         if let permission = self.permission {
-            return !permission.authorized && permission.hide
+            if !permission.authorized && permission.hide {
+                return true
+            }
         }
+        
+        if let display = section.display {
+            if let hide = display["hide_on_tv"].bool {
+                if hide {
+                    debugPrint("Hide On TV section: ", section.id)
+                }
+                return hide
+            }
+        }
+            
         return false
     }
-    
+
     var disable: Bool {
         if let permission = self.permission {
             return !permission.authorized && permission.disable
