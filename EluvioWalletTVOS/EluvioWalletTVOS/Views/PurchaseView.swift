@@ -49,7 +49,16 @@ struct PurchaseView: View {
         .edgesIgnoringSafeArea(.all)
         .background(.thinMaterial)
         .onAppear(){
-                //self.customDomain =
+            Task {
+                if let property = try await eluvio.fabric.getProperty(property: propertyId)  {
+                    
+                    if let domain = property.domain?["custom_domain"].stringValue {
+                        if !domain.isEmpty {
+                            self.customDomain = domain
+                        }
+                    }
+                }
+            }
         }
     }
 }
