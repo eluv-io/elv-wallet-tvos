@@ -279,6 +279,8 @@
 		B0A830EC2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
 		B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
 		B0A830EF2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
+		B0AF0DC82CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
+		B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -464,6 +466,7 @@
 		B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioAPI.swift; sourceTree = "<group>"; };
 		B0A830EA2C78547B0037BE59 /* States.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = States.swift; sourceTree = "<group>"; };
 		B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OryDeviceFlowView.swift; sourceTree = "<group>"; };
+		B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseView.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -850,6 +853,7 @@
 		B0E60FAB29D223760079661E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */,
 				B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */,
 				B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */,
 				B09897FE2CB8D10400C1D590 /* SearchBar.swift */,
@@ -1231,6 +1235,7 @@
 				B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
 				B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */,
+				B0AF0DC82CED1339006A87C6 /* PurchaseView.swift in Sources */,
 				B08CB5992B7DDFDA00E04C0D /* ProfileClient.swift in Sources */,
 				B08CB59A2B7DDFDA00E04C0D /* TestData.swift in Sources */,
 				B08CB5312B7DDB2800E04C0D /* ContentView.swift in Sources */,
@@ -1397,6 +1402,7 @@
 				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
 				B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,
+				B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */,
 				B0670F3B29D5427400676872 /* NFTDetail.swift in Sources */,
 				B069A4832A397DA8006C9E7B /* LoopingPlayer.swift in Sources */,
 				B0D5446C2C17925800558B21 /* MediaPropertyModel.swift in Sources */,

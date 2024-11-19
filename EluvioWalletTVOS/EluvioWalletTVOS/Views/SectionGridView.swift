@@ -84,7 +84,7 @@ struct SectionGridView: View {
     
     var scale : CGFloat {
         if display == .square {
-            return 1.1
+            return 1.0
         }else {
             return 1.0
         }

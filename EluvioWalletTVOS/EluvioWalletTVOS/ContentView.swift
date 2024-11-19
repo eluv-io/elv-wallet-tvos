@@ -296,13 +296,14 @@ struct ContentView: View {
                     QRView(url: params.url, backgroundImage:params.backgroundImage, title:params.title)
                         .environmentObject(self.eluvio)
                 case let .purchaseQRView(params):
-                    PurchaseQRView(url: params.url, 
+                    /*PurchaseQRView(url: params.url,
                                    backgroundImage:params.backgroundImage,                      sectionItem:params.sectionItem,
                                    mediaItem: params.mediaItem,
                                    sectionId:params.sectionId, 
                                    pageId:params.pageId,
                                    propertyId:params.propertyId
-                    )
+                    )                     */
+                    PurchaseView(backgroundImage:params.backgroundImage, propertyId:params.propertyId)
                     .environmentObject(self.eluvio)
                 case .video:
                     if let playerItem = eluvio.pathState.playerItem {

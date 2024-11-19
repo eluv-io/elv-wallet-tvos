@@ -443,7 +443,7 @@ struct MediaPropertySectionBannerView: View {
             ForEach(items, id:\.self) { item in
                 MediaPropertyBanner(image:item.getBannerUrl(fabric: eluvio.fabric), margin:margin, action:{
                     debugPrint("Banner clicked item ", item)
-                    
+                    /*
                     if item.type == "page_link" {
                         Task{
                             do {
@@ -500,7 +500,7 @@ struct MediaPropertySectionBannerView: View {
                                 eluvio.pathState.path.append(.html(params))
                             }
                         }
-                    }
+                    } */
                 })
             }
         }
