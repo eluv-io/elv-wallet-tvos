@@ -31,7 +31,7 @@ struct PurchaseView: View {
                     .padding()
                     .padding(.bottom, 20)
                 
-                Text("To watch this content, visit the \(customDomain)\nweb site on your mobile device or computer to\nadd the corresponding access pass.").font(.description)
+                Text("To watch this content, visit the \(customDomain)\nwebsite on your mobile device or computer to\nadd the corresponding access pass.").font(.description)
                     .multilineTextAlignment(.center)
                     .padding()
                     .padding(.bottom, 20)
@@ -51,8 +51,9 @@ struct PurchaseView: View {
         .onAppear(){
             Task {
                 if let property = try await eluvio.fabric.getProperty(property: propertyId)  {
-                    
+                    debugPrint("Domain: \(property.domain)")
                     if let domain = property.domain?["custom_domain"].stringValue {
+                        debugPrint("custom domain: \(domain)")
                         if !domain.isEmpty {
                             self.customDomain = domain
                         }
