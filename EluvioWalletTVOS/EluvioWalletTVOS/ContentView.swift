@@ -318,23 +318,29 @@ struct ContentView: View {
                             }else if params.type == .upcoming {
                                 CountDownView(backgroundImageUrl:params.backgroundImage,
                                               images:params.images,
-                                              imageUrl: mediaItem.thumbnail,
-                                              title:mediaItem.title,
-                                              infoText:mediaItem.headerString,
-                                              startDateTime: mediaItem.start_time)
+                                              title:mediaItem.title ?? "",
+                                              infoText:params.headerString,
+                                              mediaItem: mediaItem,
+                                              propertyId: params.propertyId)
                             }
                         }
                     }
                 case let .mediaGrid(params):
-                    if !params.list.isEmpty {
-                        SectionItemListView(propertyId: params.propertyId ?? "", item: params.sectionItem, list:params.list)
-                            .environmentObject(self.eluvio)
-                    }else if let item = eluvio.pathState.mediaItem {
-                        if !eluvio.pathState.propertyId.isEmpty {
-                            SectionItemListView(propertyId: eluvio.pathState.propertyId, item:item)
+                    ScrollView {
+                        if !params.list.isEmpty {
+                            SectionItemListView(propertyId: params.propertyId ?? "", item: params.sectionItem, list:params.list)
                                 .environmentObject(self.eluvio)
+                                .edgesIgnoringSafeArea(([.leading,.trailing]))
+                        }else if let item = eluvio.pathState.mediaItem {
+                            if !eluvio.pathState.propertyId.isEmpty {
+                                SectionItemListView(propertyId: eluvio.pathState.propertyId, item:item)
+                                    .environmentObject(self.eluvio)
+                                    .edgesIgnoringSafeArea([.leading,.trailing])
+                            }
                         }
                     }
+                    .scrollClipDisabled()
+                    .edgesIgnoringSafeArea([.leading,.trailing])
                 case .gallery:
                     GalleryView(gallery:eluvio.pathState.gallery)
                         .environmentObject(self.eluvio)

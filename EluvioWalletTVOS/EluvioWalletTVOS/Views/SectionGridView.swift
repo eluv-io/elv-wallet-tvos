@@ -176,6 +176,7 @@ struct SectionGridView: View {
         .focusSection()
         .getWidth($width)
         .task {
+            debugPrint("SectionGridView  ", margin)
             do {
                 var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
                 let max = 50

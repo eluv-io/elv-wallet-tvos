@@ -45,53 +45,50 @@ struct MediaItemGridView: View {
     }
     
     var body: some View {
-            ScrollView(.vertical) {
-                VStack{
-                    HStack{
-                        Text(title)
-                            .font(.rowTitle)
+        VStack{
+            HStack{
+                Text(title)
+                    .font(.rowTitle)
+                Spacer()
+            }
+            .frame(maxWidth:.infinity)
+            .padding(.bottom, 30)
+            
+            if items.dividedIntoGroups(of: numColumns).count <= 1 {
+                HStack(spacing:34) {
+                        ForEach(items, id: \.self) { item in
+                            SectionMediaItemView(item: item, sectionItem:sectionItem, propertyId: propertyId, forceDisplay: display)
+                                .environmentObject(self.eluvio)
+                        }
                         Spacer()
-                    }
-                    .frame(maxWidth:.infinity)
-                    .padding(.bottom, 30)
-                    
-                    if items.dividedIntoGroups(of: numColumns).count <= 1 {
-                        HStack(spacing:34) {
-                                ForEach(items, id: \.self) { item in
-                                    SectionMediaItemView(item: item, sectionItem:sectionItem, propertyId: propertyId, forceDisplay: display)
-                                        .environmentObject(self.eluvio)
-                                }
-                                Spacer()
-                        }
-                        .frame(maxWidth:.infinity, alignment:.leading)
-                        .edgesIgnoringSafeArea([.leading, .trailing])
-                        .focusSection()
-                    }else{
-                        Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
-                            ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
-                                GridRow(alignment:.top) {
-                                    ForEach(groups, id: \.self) { item in
-                                        SectionMediaItemView(item: item, sectionItem:sectionItem, propertyId: propertyId, forceDisplay: display)
-                                            .environmentObject(self.eluvio)
-                                    }
-                                    .gridColumnAlignment(.leading)
-                                }
-                                .frame(maxWidth:.infinity, alignment:.leading)
-                                .gridColumnAlignment(.leading)
-                                
-                            }
-                        }
-                        .frame(maxWidth:.infinity, alignment:.leading)
-                        .focusSection()
-                    }
                 }
+                .frame(maxWidth:.infinity, alignment:.leading)
                 .edgesIgnoringSafeArea([.leading, .trailing])
                 .focusSection()
+            }else{
+                Grid(alignment:.leading, horizontalSpacing: 20, verticalSpacing: 80) {
+                    ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
+                        GridRow(alignment:.top) {
+                            ForEach(groups, id: \.self) { item in
+                                SectionMediaItemView(item: item, sectionItem:sectionItem, propertyId: propertyId, forceDisplay: display)
+                                    .environmentObject(self.eluvio)
+                            }
+                            .gridColumnAlignment(.leading)
+                        }
+                        .frame(maxWidth:.infinity, alignment:.leading)
+                        .gridColumnAlignment(.leading)
+                        
+                    }
+                }
+                .frame(maxWidth:.infinity, alignment:.leading)
+                .focusSection()
             }
-            .frame(maxWidth:UIScreen.main.bounds.width, alignment:.leading)
-            .padding(80)
-            .scrollClipDisabled()
         }
+        .edgesIgnoringSafeArea([.leading, .trailing])
+        .padding([.top,.bottom], 40)
+        .padding([.leading], 80)
+        .focusSection()
+    }
 }
 
 struct SectionItemListView: View {
@@ -126,8 +123,9 @@ struct SectionItemListView: View {
     
     var body: some View {
         MediaItemGridView(propertyId:propertyId, items:items, title: item?.media?.title ?? "", sectionItem:item)
-            .frame(width:UIScreen.main.bounds.width, height: UIScreen.main.bounds.size.height)
-            .padding()
+            //.frame(width:UIScreen.main.bounds.width, height: UIScreen.main.bounds.size.height)
+            //.padding()
+            //.padding([.leading],40)
             .focusSection()
         .onAppear(){
             debugPrint("SectionItemListView onAppear item ", item)
@@ -372,6 +370,8 @@ struct SectionMediaItemView: View {
                 MediaCard(display: display,
                           image: thumbnail,
                           isFocused:isFocused,
+                          isUpcoming: item.isUpcoming,
+                          startTimeString: item.startDateTimeString,
                           title: item.title ?? "",
                           isLive: item.currentlyLive,
                           showFocusedTitle: item.title ?? "" == "" ? false : true
@@ -457,6 +457,9 @@ struct SectionItemView: View {
             return viewItem.title
         }
     }
+    
+    @State var timer:Timer?
+    @State var refresh : Bool = false
 
     var body: some View {
         Group {
@@ -475,16 +478,21 @@ struct SectionItemView: View {
                                     }
                                     
                                     
-                                    debugPrint("Item Selected! ", item)
-                                    debugPrint("MediaItemView Type ", mediaItem.media_type)
-                                    debugPrint("Item Type ", item.type ?? "")
-                                    debugPrint("Item Media Type ", item.media_type ?? "")
-                                    debugPrint("Item permission: ", item.permissions)
-                                    debugPrint("Media permission: ", item.media?.permissions)
+                                    debugPrint("Item Selected! ", item.id)
+                                   // debugPrint("MediaItemView Type ", mediaItem.media_type)
+                                    //debugPrint("Item Type ", item.type ?? "")
+                                    //debugPrint("Item Media Type ", item.media_type ?? "")
+                                    //debugPrint("Item permission: ", item.permissions)
+                                    //debugPrint("Media permission: ", item.media?.permissions)
                                     
-                                    debugPrint("Item display ", display)
-                                    debugPrint("Item forceDisplay ", forceDisplay)
-                                    debugPrint("Item forceAspect Ratio ", forceAspectRatio)
+                                    //debugPrint("Item display ", display)
+                                    //debugPrint("Item forceDisplay ", forceDisplay)
+                                    //debugPrint("Item forceAspect Ratio ", forceAspectRatio)
+                                    
+                                    debugPrint("Item start_time ", item.media?.start_time)
+                                    debugPrint("Item stream_start_time ", item.media?.stream_start_time)
+                                    debugPrint("Item isUpcoming ", item.media?.isUpcoming)
+                                    debugPrint("Item end ", item.media?.end_time)
 
                                     do{
 
@@ -575,13 +583,15 @@ struct SectionItemView: View {
                                             }
                                         }
                                         
-                                        if mediaItem.isUpcoming {
-                                            let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .upcoming, backgroundImage: backgroundImage, images: images)
-                                            
-                                            eluvio.pathState.videoErrorParams = videoErrorParams
-                                            _ = eluvio.pathState.path.popLast()
-                                            eluvio.pathState.path.append(.videoError)
-                                            return
+                                        if let isUpcoming = item.media?.isUpcoming {
+                                            if isUpcoming {
+                                                let videoErrorParams = VideoErrorParams(mediaItem:item.media, type: .upcoming, backgroundImage: backgroundImage, images: images, headerString: mediaItem.headerString, propertyId:propertyId)
+                                                
+                                                eluvio.pathState.videoErrorParams = videoErrorParams
+                                                _ = eluvio.pathState.path.popLast()
+                                                eluvio.pathState.path.append(.videoError)
+                                                return
+                                            }
                                         }
                                         
                                         if ( mediaItem.media_type.lowercased() == "video") {
@@ -592,7 +602,7 @@ struct SectionItemView: View {
                                                     debugPrint("startTime! ", mediaItem.start_time)
                                                     //debugPrint("icons! ", mediaItem.icons)
                                                     
-                                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImage, images: images)
+                                                    let videoErrorParams = VideoErrorParams(mediaItem:item.media, type: .permission, backgroundImage: backgroundImage, images: images)
                                                     
                                                     eluvio.pathState.videoErrorParams = videoErrorParams
                                                     await MainActor.run {
@@ -614,7 +624,7 @@ struct SectionItemView: View {
                                                     }
                                                 }catch{
                                                     print("Error getting link url for playback ", error)
-                                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: mediaItem.thumbnail)
+                                                    let videoErrorParams = VideoErrorParams(mediaItem:item.media, type:.permission, backgroundImage: mediaItem.thumbnail)
                                                     eluvio.pathState.videoErrorParams = videoErrorParams
                                                     await MainActor.run {
                                                         _ = eluvio.pathState.path.popLast()
@@ -785,10 +795,12 @@ struct SectionItemView: View {
                                     MediaCard(display: display,
                                               image: viewItem.thumbnail,
                                               isFocused:isFocused,
+                                              isUpcoming: item?.media?.isUpcoming ?? false,
+                                              startTimeString: item?.media?.startDateTimeString ?? "",
                                               title: viewItem.title,
                                               subtitle: viewItem.subtitle,
                                               timeString: viewItem.headerString,
-                                              isLive: viewItem.currentlyLive, centerFocusedText: false,
+                                              isLive: item?.media?.currentlyLive ?? false, centerFocusedText: false,
                                               showFocusedTitle: viewItem.title.isEmpty ? false : true,
                                               showBottomTitle: true,
                                               sizeFactor: scaleFactor,
@@ -805,14 +817,17 @@ struct SectionItemView: View {
                         }
             }
         }
-        //.disabled(disable)
-        .task(){
+        .onAppear(){
             if self.refreshId == viewItem.id + eluvio.refreshId {
                 return
             }
             self.refreshId = viewItem.id + eluvio.refreshId
+            timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { timer in
+                debugPrint("Refresh ")
+                self.refreshId = viewItem.id + eluvio.refreshId + "\(refresh)"
+                refresh.toggle()
+            }
         }
-        
     }
 }
 

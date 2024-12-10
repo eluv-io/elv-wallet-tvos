@@ -43,12 +43,14 @@ struct PlayerErrorView: View {
 }
 
 struct CountDownView: View {
+    @EnvironmentObject var eluvio: EluvioAPI
     var backgroundImageUrl : String = "https://picsum.photos/1920/1080"
     var images : [String] = []
     var imageUrl : String = "https://picsum.photos/300/200"
     var title: String = "Solvenia vs Denmark"
     var infoText: String = "16 Jun, 9:00 CET Group F Matchday 1"
-    var startDateTime : String = ""
+    var mediaItem: MediaPropertySectionMediaItem
+    var propertyId: String = ""
     @State var timeRemaining : String = " "
 
 
@@ -106,33 +108,10 @@ struct CountDownView: View {
             }
         }
         .onAppear(){
-            
             timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-                let dateFormatter = ISO8601DateFormatter()
-                dateFormatter.formatOptions = [
-                    .withFractionalSeconds,
-                    .withFullDate,
-                    .withTime, // without time zone
-                    .withColonSeparatorInTime,
-                    .withDashSeparatorInDate
-                ]
-                
-                if let startDate = dateFormatter.date(from:startDateTime) {
+                if let startDate = mediaItem.startDate{
                     if startDate > Date() {
-                        let formatter = DateComponentsFormatter()
-                        formatter.unitsStyle = .full
-                        formatter.allowedUnits = [.day, .hour, .minute, .second]
-                        formatter.zeroFormattingBehavior = .pad
-                        
-                        let remainingTime: TimeInterval = startDate.timeIntervalSince(Date())
-                        if timeRemaining.isEmpty || timeRemaining == " "{
-                            withAnimation(.easeInOut(duration: 1), {
-                                timeRemaining = formatter.string(from: remainingTime) ?? " "
-                            })
-                        }else{
-                            timeRemaining = formatter.string(from: remainingTime) ?? " "
-                        }
-
+                        timeRemaining = mediaItem.timeUntilStartLong
                     }else{
                         if (timeRemaining.isEmpty || timeRemaining == " "){
                             withAnimation(.easeInOut(duration: 1), {
@@ -141,16 +120,53 @@ struct CountDownView: View {
                         }else{
                             timeRemaining = "Starting soon"
                         }
+                        
+                        if mediaItem.hasStarted {
+                            timer.invalidate()
+                            debugPrint("Starting stream...")
+                            if ( mediaItem.media_type?.lowercased() == "video") {
+                                Task{
+                                    if var link = mediaItem.media_link?["sources"]["default"] {
+                                        if mediaItem.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
+                                            debugPrint("permission denied! ", mediaItem.title)
+                                            
+                                            let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImageUrl, images: images)
+                                            
+                                            eluvio.pathState.videoErrorParams = videoErrorParams
+                                            await MainActor.run {
+                                                _ = eluvio.pathState.path.popLast()
+                                                eluvio.pathState.path.append(.videoError)
+                                                return
+                                            }
+                                        }
+                                        
+                                        do {
+                                            let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.id ?? "")
+                                            let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+                                            eluvio.pathState.playerItem = playerItem
+                                            await MainActor.run {
+                                                _ = eluvio.pathState.path.popLast()
+                                                eluvio.pathState.path.append(.video)
+                                                return
+                                            }
+                                        }catch{
+                                            print("Error getting link url for playback ", error)
+                                            let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: backgroundImageUrl)
+                                            eluvio.pathState.videoErrorParams = videoErrorParams
+                                            await MainActor.run {
+                                                _ = eluvio.pathState.path.popLast()
+                                                eluvio.pathState.path.append(.videoError)
+                                                return
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
 
                 }
             }
         }
-    }
-}
-
-struct CountDownView_Previews: PreviewProvider {
-    static var previews: some View {
-        CountDownView()
     }
 }

@@ -67,90 +67,6 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
         return false
     }
     
-    
-    var startDate : Date? {
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [
-            .withFractionalSeconds,
-            .withFullDate,
-            .withTime, // without time zone
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate
-        ]
-        return dateFormatter.date(from:start_time)
-    }
-    
-    var endDate : Date? {
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [
-            .withFractionalSeconds,
-            .withFullDate,
-            .withTime, // without time zone
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate
-        ]
-        return dateFormatter.date(from:end_time)
-    }
-    
-    var startDateTimeString: String {
-        let df = DateFormatter()
-        df.dateFormat = "MMM d 'at' hh:mm a"
-        df.amSymbol = "AM"
-        df.pmSymbol = "PM"
-        
-        return df.string(from: startDate ?? Date())
-    }
-    
-    var timeUntilStart: String {
-        if isUpcoming {
-            let formatter = DateComponentsFormatter()
-            formatter.unitsStyle = .positional
-            formatter.allowedUnits = [.hour, .minute, .second]
-            formatter.zeroFormattingBehavior = .pad
-            
-            if let date = startDate {
-                let remainingTime: TimeInterval = date.timeIntervalSince(Date())
-                return formatter.string(from: remainingTime) ?? ""
-            }
-        }
-        
-        return ""
-    }
-    
-    var hasStarted : Bool {
-        if let startDate = startDate {
-            return startDate < Date()
-        }
-        
-        return false
-    }
-    
-    var hasEnded : Bool {
-        if let endDate = endDate {
-            return endDate < Date()
-        }
-        
-        return false
-    }
-    
-    var isUpcoming : Bool {
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [
-            .withFractionalSeconds,
-            .withFullDate,
-            .withTime, // without time zone
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate
-        ]
-        guard let date = dateFormatter.date(from:start_time) else {return false}
-        
-        return date > Date()
-    }
-    
-    var currentlyLive : Bool {
-        return !isUpcoming && self.live_video && hasStarted && !hasEnded
-    }
-    
     static func == (lhs: MediaPropertySectionMediaItemViewModel, rhs: MediaPropertySectionMediaItemViewModel) -> Bool {
         return lhs.id == rhs.id
     }
@@ -408,7 +324,8 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
             thumb_aspect_ratio: thumb_aspect_ratio,
             headerString: headerString,
             icons: item.media?.icons,
-            sectionItem: item
+            sectionItem: item,
+            mediaItem: item.media
         )
     }
 }

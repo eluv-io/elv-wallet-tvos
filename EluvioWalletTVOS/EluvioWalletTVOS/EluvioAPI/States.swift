@@ -49,10 +49,12 @@ enum VideoErrorType: String, Hashable {
 }
 
 struct VideoErrorParams{
-    var mediaItem : MediaPropertySectionMediaItemViewModel? = nil
+    var mediaItem : MediaPropertySectionMediaItem? = nil
     var type : VideoErrorType = .permission
     var backgroundImage: String = ""
     var images : [String] = []
+    var headerString : String = ""
+    var propertyId: String = ""
 }
 
 struct HtmlParams:Hashable{

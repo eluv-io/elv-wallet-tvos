@@ -191,6 +191,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var end_time : String? = ""
     var offerings : [String]? = []
     var start_time : String? = ""
+    var stream_start_time : String? = ""
     var label : String? = ""
     var live_video : Bool? = false
     var gallery : [GalleryItem]? = nil
@@ -215,6 +216,12 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var resolvedPermission : ResolvedPermission? = nil
     
     var startDate : Date? {
+        
+        var startTime = start_time
+        
+        //XXX:
+        startTime = "2024-12-10T03:12:00.575Z"
+
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [
             .withFractionalSeconds,
@@ -223,10 +230,32 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
             .withColonSeparatorInTime,
             .withDashSeparatorInDate
         ]
-        return dateFormatter.date(from:start_time ?? "")
+        return dateFormatter.date(from:startTime ?? "")
+    }
+    
+    var streamStartDate : Date? {
+        if var startTime = stream_start_time {
+            //XXX:
+            startTime = "2024-12-10T03:13:00.575Z"
+            
+            let dateFormatter = ISO8601DateFormatter()
+            dateFormatter.formatOptions = [
+                .withFractionalSeconds,
+                .withFullDate,
+                .withTime, // without time zone
+                .withColonSeparatorInTime,
+                .withDashSeparatorInDate
+            ]
+            return dateFormatter.date(from:startTime)
+        }
+        return startDate
     }
     
     var endDate : Date? {
+        var endTime = end_time
+        //XXX:
+        endTime = "2024-12-10T03:14:00.575Z"
+        
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [
             .withFractionalSeconds,
@@ -235,16 +264,25 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
             .withColonSeparatorInTime,
             .withDashSeparatorInDate
         ]
-        return dateFormatter.date(from:end_time ?? "")
+        return dateFormatter.date(from:endTime ?? "")
     }
     
     var startDateTimeString: String {
+        let df = DateFormatter()
+        df.dateFormat = "MM.d 'at' hh:mm a"
+        df.amSymbol = "AM"
+        df.pmSymbol = "PM"
+        
+        return df.string(from: startDate ?? Date())
+    }
+    
+    var streamStartDateTimeString: String {
         let df = DateFormatter()
         df.dateFormat = "MMM d 'at' hh:mm a"
         df.amSymbol = "AM"
         df.pmSymbol = "PM"
         
-        return df.string(from: startDate ?? Date())
+        return df.string(from: streamStartDate ?? Date())
     }
     
     var timeUntilStart: String {
@@ -263,11 +301,26 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
         return ""
     }
     
-    var hasStarted : Bool {
-        if let startDate = startDate {
-            return startDate < Date()
+    var timeUntilStartLong: String {
+        if isUpcoming {
+            let formatter = DateComponentsFormatter()
+            formatter.unitsStyle = .full
+            formatter.allowedUnits = [.day, .hour, .minute, .second]
+            formatter.zeroFormattingBehavior = .pad
+            
+            if let date = startDate {
+                let remainingTime: TimeInterval = date.timeIntervalSince(Date())
+                return formatter.string(from: remainingTime) ?? " "
+            }
         }
         
+        return ""
+    }
+    
+    var hasStarted : Bool {
+        if let startDate = streamStartDate {
+            return startDate < Date()
+        }
         return false
     }
     
@@ -275,27 +328,28 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
         if let endDate = endDate {
             return endDate < Date()
         }
-        
         return false
     }
     
     var isUpcoming : Bool {
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [
-            .withFractionalSeconds,
-            .withFullDate,
-            .withTime, // without time zone
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate
-        ]
-        guard let date = dateFormatter.date(from:start_time ?? "") else {return false}
+        if hasEnded {
+            debugPrint("isUpcoming, already ended")
+            return false
+        }
         
-        return date > Date()
+        if let date = streamStartDate {
+            debugPrint("isUpcoming ", date > Date())
+            return date > Date()
+        }
+        
+        return false
     }
     
     var currentlyLive : Bool {
         if let live = live_video {
-            return !isUpcoming && live && hasStarted && !hasEnded
+            if !isUpcoming && live && hasStarted && !hasEnded {
+                return true
+            }
         }
         
         return false

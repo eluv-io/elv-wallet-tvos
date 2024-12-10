@@ -186,14 +186,21 @@ class Fabric: ObservableObject {
         self.signingIn = true
          */
 
+        
+
         var _network = network
+        ///XXX: DEBUG
+        //_network = "demo"
+
+        
         if(network.isEmpty) {
-            guard let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
-                    as? String else {
-                //self.isLoggedOut = true
-                return
+            if let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
+                    as? String {
+                _network = savedNetwork
+            }else{
+                _network = "main"
             }
-            _network = savedNetwork
+            
         }
 
         guard let configUrl = APP_CONFIG.network[_network]?.config_url else {

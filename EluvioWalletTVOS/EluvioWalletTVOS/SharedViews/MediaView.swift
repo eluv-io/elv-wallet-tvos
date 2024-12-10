@@ -554,6 +554,7 @@ struct MediaCard: View {
     var playerItem : AVPlayerItem? = nil
     var isFocused: Bool = false
     var isUpcoming: Bool = false
+    var startTimeString: String = ""
     var title: String = ""
     var subtitle: String = ""
     var timeString: String = ""
@@ -672,23 +673,28 @@ struct MediaCard: View {
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .stroke(Color.highlight, lineWidth: 4)
                     )
-                }else if (isUpcoming){
+                }
+                
+                if (isUpcoming && !isFocused){
                     VStack(alignment: .trailing, spacing: 7) {
                         Spacer()
-                        Text(title)
-                            .foregroundColor(Color.white)
-                            .font(.subheadline)
-                        Text(subtitle)
-                            .foregroundColor(Color.white)
+                        VStack{
+                            Text("UPCOMING")
+                                .font(.custom("Helvetica Neue", size: 21))
+                                .foregroundColor(Color.white)
+                            Text(startTimeString)
+                                .font(.custom("Helvetica Neue", size: 21))
+                                .foregroundColor(Color.white)
+                        }
+                        .padding(3)
+                        .padding(.leading,7)
+                        .padding(.trailing,7)
+                        .background(RoundedRectangle(cornerRadius: 5).fill(Color.black.opacity(0.6)))
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
                     .padding(20)
-                    .padding(.bottom, 25)
-                    .background(Color.black.opacity( 0.8))
                     .scaleEffect(sizeFactor)
-                }
-                
-                if (isLive && display != .feature){
+                }else if (isLive && display != .feature){
                     VStack() {
                         Spacer()
                         HStack{

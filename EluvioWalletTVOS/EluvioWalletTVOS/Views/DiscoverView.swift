@@ -27,6 +27,9 @@ struct DiscoverView: View {
     let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     @State var isRefreshing = false
     @State private var opacity: Double = 0.0
+    @State private var showHiddenMenu = false
+    @State private var network = "demo"
+    let networkList = ["main", "demo"]
     
     static var refreshId = ""
     
@@ -41,6 +44,11 @@ struct DiscoverView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width:801, height:240, alignment:.leading)
                                 .id(topId)
+                                .focusable()
+                                .onLongPressGesture(minimumDuration: 5) {
+                                    print("Secret Long Press Action!")
+                                    showHiddenMenu = true
+                                }
                             Spacer()
                         }
                         .frame(maxWidth:.infinity)
@@ -55,6 +63,28 @@ struct DiscoverView: View {
             }
         }
         .opacity(opacity)
+        .sheet(isPresented: $showHiddenMenu) {
+            HStack{
+                Text("Network Selection: ")
+                
+                Button("Main") {
+                    Task{
+                        network = "main"
+                        eluvio.needsRefresh()
+                        refresh()
+                        showHiddenMenu = false
+                    }
+                }
+                Button("Demo") {
+                    Task{
+                        network = "demo"
+                        eluvio.needsRefresh()
+                        refresh()
+                        showHiddenMenu = false
+                    }
+                }
+            }
+        }
         .onChange(of:selected){ old, new in
             if !new.backgroundImage.isEmpty {
                 withAnimation(.easeIn(duration: 1)){
@@ -62,7 +92,6 @@ struct DiscoverView: View {
                 }
             }else{
                 Task {
-                    
                     do {
                         if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
                             //debugPrint("Fetched new property ", mediaProperty.id)
@@ -114,13 +143,16 @@ struct DiscoverView: View {
     }
     
     func refresh() {
-        
+        /*
         if DiscoverView.refreshId != eluvio.refreshId {
+            debugPrint("Resetting properties back to empty")
             properties = []
         }
+
         if !properties.isEmpty {
             return
         }
+         */
         
         if isRefreshing{
             return
@@ -139,49 +171,52 @@ struct DiscoverView: View {
         debugPrint("DiscoverView refresh()")
         Task{
             defer {
+                //DiscoverView.refreshId = eluvio.refreshId
                 self.isRefreshing = false
             }
 
             do {
-                debugPrint("DiscoverView onAppear")
-                try await eluvio.fabric.connect(network:"main", token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
+                try await eluvio.fabric.connect(network:network, token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 
                 var noAuth = true
-                if let account = eluvio.accountManager.currentAccount {
+                if eluvio.accountManager.currentAccount != nil {
                     noAuth = false
                 }
                 
                 let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:noAuth, newFetch:true, devMode: eluvio.getDevMode())
                 
-                var properties: [MediaPropertyViewModel] = []
+                debugPrint("Got properties ", props.count)
+                
+                var newProperties: [MediaPropertyViewModel] = []
                 
                 for property in props{
                     let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                     if mediaProperty.image.isEmpty {
                         
                     }else{
-                        properties.append(mediaProperty)
+                        newProperties.append(mediaProperty)
                     }
                     
-                    if properties.count > 16 {
-                        self.properties = properties
+                    if newProperties.count > 16 {
+                        self.properties = newProperties
                     }
                 }
                 
                 await MainActor.run {
-                    if properties.count > 0 {
-                        selected = properties[0]
+                    if newProperties.count > 0 {
+                        selected = newProperties[0]
                         withAnimation(.easeIn(duration: 1)){
                             backgroundImageURL = selected.backgroundImage
                         }
                     }
-                    self.properties = properties
+                    self.properties = newProperties
+                    debugPrint("Finished setting properties");
                 }
                 
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {
-                //eluvio.pathState.path.append(.errorView("A problem occured."))
+                print("Could not refresh properties ", error.localizedDescription)
             }
         }
     }

@@ -104,6 +104,13 @@ struct MediaPropertyView : View {
 
                                 var skipLogin = false
                                 
+                                if let requireLogin = property.require_login {
+                                    if !requireLogin {
+                                        skipLogin = true
+                                        debugPrint("require_login ", requireLogin)
+                                    }
+                                }
+                                
                                 if let currentAccount = eluvio.accountManager.currentAccount {
                                     if currentAccount.type == .DEBUG{
                                         skipLogin = true
@@ -115,6 +122,11 @@ struct MediaPropertyView : View {
                                 
                                 if !skipLogin {
                                    login()
+                                }else{
+                                    debugPrint("Going to property page ", property.id)
+                                    eluvio.pathState.propertyPage = property.main_page
+                                    let param = PropertyParam(property:property)
+                                    eluvio.pathState.path.append(.property(param))
                                 }
                             }else{
                                 //eluvio.pathState.path.append(.errorView("Error finding property."))
