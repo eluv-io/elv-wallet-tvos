@@ -107,10 +107,15 @@ struct CountDownView: View {
                 Spacer()
             }
         }
+        .onDisappear(){
+            if let timer = self.timer {
+                timer.invalidate()
+            }
+        }
         .onAppear(){
             timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
                 if let startDate = mediaItem.startDate{
-                    if startDate > Date() {
+                    if startDate > Date() && !mediaItem.hasStarted{
                         timeRemaining = mediaItem.timeUntilStartLong
                     }else{
                         if (timeRemaining.isEmpty || timeRemaining == " "){

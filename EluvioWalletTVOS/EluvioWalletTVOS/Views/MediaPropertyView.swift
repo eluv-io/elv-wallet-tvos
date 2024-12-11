@@ -141,14 +141,16 @@ struct MediaPropertyView : View {
                 }
             }){
                 if property.image != "" {
-                    WebImage(url: URL(string: property.image))
-                        .resizable()
-                        .onSuccess { image, data, cacheType in
-                            self.disabled = false
-                        }
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: width, height: height)
-                        .cornerRadius(cornerRadius)
+                    VStack{
+                        WebImage(url: URL(string: property.image))
+                            .resizable()
+                            .onSuccess { image, data, cacheType in
+                                self.disabled = false
+                            }
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: width, height: height)
+                            .cornerRadius(cornerRadius)
+                    }
                 }else{
                     ZStack{
                         if property.backgroundImage != "" {
@@ -214,8 +216,8 @@ struct MediaPropertiesView: View {
                 HStack(alignment:.center, spacing:20) {
                     ForEach(groups, id: \.self) { property in
                         MediaPropertyView(property: property, selected: $selected)
-                                .environmentObject(self.eluvio)
-                                .fixedSize()
+                            .environmentObject(self.eluvio)
+                            .fixedSize()
                     }
                     
                 }

@@ -205,7 +205,7 @@ struct MediaPropertyDetailView: View {
         .background(
             Color.black.edgesIgnoringSafeArea(.all)
         )
-        .task {
+        .onAppear{
             debugPrint("MediaPropertyDetailView onAppear")
             refresh()
         }

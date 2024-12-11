@@ -71,16 +71,17 @@ struct DiscoverView: View {
                     Task{
                         network = "main"
                         eluvio.needsRefresh()
-                        refresh()
                         showHiddenMenu = false
+                        refresh()
+
                     }
                 }
                 Button("Demo") {
                     Task{
                         network = "demo"
                         eluvio.needsRefresh()
-                        refresh()
                         showHiddenMenu = false
+                        refresh()
                     }
                 }
             }
@@ -122,7 +123,6 @@ struct DiscoverView: View {
         )
         .scrollClipDisabled()
         .task(){
-            debugPrint("onWillAppear")
             refresh()
         }
         .onReceive(timer) { time in
@@ -131,13 +131,12 @@ struct DiscoverView: View {
                 refresh()
             }
         }
-        
         .onDisappear(){
-            //properties = []
-            //refresh()
-            //withAnimation(.easeInOut(duration: 2)) {
-              opacity = 0.0
-            //}
+            debugPrint("DiscoverView onDisappear")
+            opacity = 0.0
+            Task{
+                _ = try await eluvio.fabric.getProperties(includePublic:true, noCache: true)
+            }
         }
          
     }
@@ -192,9 +191,10 @@ struct DiscoverView: View {
                 for property in props{
                     let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
                     if mediaProperty.image.isEmpty {
-                        
+                        debugPrint("image is empty")
                     }else{
                         newProperties.append(mediaProperty)
+                        debugPrint("Finished setting properties ", mediaProperty.image);
                     }
                     
                     if newProperties.count > 16 {
@@ -210,9 +210,7 @@ struct DiscoverView: View {
                         }
                     }
                     self.properties = newProperties
-                    debugPrint("Finished setting properties");
                 }
-                
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {

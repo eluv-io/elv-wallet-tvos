@@ -217,26 +217,37 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var startDate : Date? {
         
-        var startTime = start_time
+        if let startTime = start_time {
+            //startTime = "2024-12-11T00:44:00.000Z"
+            let dateFormatter = ISO8601DateFormatter()
+            dateFormatter.formatOptions = [
+                .withFractionalSeconds,
+                .withFullDate,
+                .withTime, // without time zone
+                .withColonSeparatorInTime,
+                .withDashSeparatorInDate
+            ]
+            return dateFormatter.date(from:startTime ?? "")
+        }
         
-        //XXX:
-        startTime = "2024-12-10T03:12:00.575Z"
-
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [
-            .withFractionalSeconds,
-            .withFullDate,
-            .withTime, // without time zone
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate
-        ]
-        return dateFormatter.date(from:startTime ?? "")
+        if let startTime = stream_start_time {
+            let dateFormatter = ISO8601DateFormatter()
+            dateFormatter.formatOptions = [
+                .withFractionalSeconds,
+                .withFullDate,
+                .withTime, // without time zone
+                .withColonSeparatorInTime,
+                .withDashSeparatorInDate
+            ]
+            return dateFormatter.date(from:startTime ?? "")
+        }
+        
+        return nil
     }
     
     var streamStartDate : Date? {
-        if var startTime = stream_start_time {
-            //XXX:
-            startTime = "2024-12-10T03:13:00.575Z"
+        if let startTime = stream_start_time {
+            //startTime = "2024-12-11T00:45:00.000Z"
             
             let dateFormatter = ISO8601DateFormatter()
             dateFormatter.formatOptions = [
@@ -253,8 +264,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var endDate : Date? {
         var endTime = end_time
-        //XXX:
-        endTime = "2024-12-10T03:14:00.575Z"
+        //endTime = "2024-12-11T00:55:00.000Z"
         
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [

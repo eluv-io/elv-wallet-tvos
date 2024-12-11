@@ -186,13 +186,9 @@ class Fabric: ObservableObject {
         self.signingIn = true
          */
 
-        
 
         var _network = network
-        ///XXX: DEBUG
-        //_network = "demo"
 
-        
         if(network.isEmpty) {
             if let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
                     as? String {
@@ -206,6 +202,8 @@ class Fabric: ObservableObject {
         guard let configUrl = APP_CONFIG.network[_network]?.config_url else {
             throw FabricError.configError("Error, configuration network not found \(network)")
         }
+        
+        debugPrint("Config URL: \(configUrl)")
 
         guard let url = URL(string: configUrl) else {
             throw FabricError.invalidURL("\(self.configUrl)")
@@ -228,6 +226,9 @@ class Fabric: ObservableObject {
         guard let asApi = self.configuration?.getAuthServices() else{
             throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
         }
+        
+        debugPrint("Authority API: \(asApi)")
+        
         self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
 
         self.configUrl = configUrl

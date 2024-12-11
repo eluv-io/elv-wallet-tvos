@@ -458,9 +458,15 @@ struct SectionItemView: View {
         }
     }
     
-    @State var timer:Timer?
+    @State var refreshTimer:Timer?
     @State var refresh : Bool = false
 
+    @State var subtitle : String = ""
+    @State var imageThumbnail : String = ""
+    @State var isUpcoming : Bool = false
+    @State var isLive : Bool = false
+    @State var startTimeString : String = ""
+    
     var body: some View {
         Group {
             if !hide {
@@ -793,14 +799,15 @@ struct SectionItemView: View {
                             }){
 
                                     MediaCard(display: display,
-                                              image: viewItem.thumbnail,
+                                              image: imageThumbnail,
                                               isFocused:isFocused,
-                                              isUpcoming: item?.media?.isUpcoming ?? false,
-                                              startTimeString: item?.media?.startDateTimeString ?? "",
+                                              isUpcoming: isUpcoming,
+                                              startTimeString: startTimeString,
                                               title: viewItem.title,
                                               subtitle: viewItem.subtitle,
                                               timeString: viewItem.headerString,
-                                              isLive: item?.media?.currentlyLive ?? false, centerFocusedText: false,
+                                              isLive: isLive,
+                                              centerFocusedText: false,
                                               showFocusedTitle: viewItem.title.isEmpty ? false : true,
                                               showBottomTitle: true,
                                               sizeFactor: scaleFactor,
@@ -822,10 +829,30 @@ struct SectionItemView: View {
                 return
             }
             self.refreshId = viewItem.id + eluvio.refreshId
-            timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { timer in
+            self.subtitle = viewItem.title
+            self.imageThumbnail = viewItem.thumbnail
+            self.isUpcoming = item?.media?.isUpcoming ?? false
+            self.isLive = item?.media?.currentlyLive ?? false
+            self.startTimeString = item?.media?.startDateTimeString ?? ""
+            
+            refreshTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { timer in
                 debugPrint("Refresh ")
-                self.refreshId = viewItem.id + eluvio.refreshId + "\(refresh)"
-                refresh.toggle()
+                do {
+                    self.subtitle = viewItem.title
+                    self.imageThumbnail = viewItem.thumbnail
+                    self.isUpcoming = item?.media?.isUpcoming ?? false
+                    self.isLive = item?.media?.currentlyLive ?? false
+                    self.startTimeString = item?.media?.startDateTimeString ?? ""
+                    self.refreshId = viewItem.id + eluvio.refreshId
+                    
+                }catch {
+                    print("Error getting property ", error.localizedDescription)
+                }
+            }
+        }
+        .onDisappear(){
+            if let refreshTimer = self.refreshTimer {
+                refreshTimer.invalidate()
             }
         }
     }
