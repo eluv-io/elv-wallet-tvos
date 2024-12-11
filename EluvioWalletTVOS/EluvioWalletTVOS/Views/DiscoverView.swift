@@ -28,7 +28,7 @@ struct DiscoverView: View {
     @State var isRefreshing = false
     @State private var opacity: Double = 0.0
     @State private var showHiddenMenu = false
-    @State private var network = "demo"
+    @State private var network = "main"
     let networkList = ["main", "demo"]
     
     static var refreshId = ""
