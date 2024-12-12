@@ -179,14 +179,6 @@ class Fabric: ObservableObject {
     @MainActor
     func connect(network: String, signIn: Bool = true, token:String="") async throws {
         debugPrint("Fabric connect: ", network)
-        /*defer {
-            self.signingIn = false
-            debugPrint("Fabric connect finished")
-        }
-        self.signingIn = true
-         */
-
-
         var _network = network
 
         if(network.isEmpty) {

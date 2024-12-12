@@ -688,7 +688,7 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric, optionsJson: JSON?, offe
     
     if options["hls-clear"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
-        //print("Playlist URL \(hlsPlaylistUrl)")
+        print("Playlist URL \(hlsPlaylistUrl)")
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         return AVPlayerItem(asset: urlAsset)

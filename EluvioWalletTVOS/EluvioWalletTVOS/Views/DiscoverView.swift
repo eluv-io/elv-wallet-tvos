@@ -44,10 +44,11 @@ struct DiscoverView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width:801, height:240, alignment:.leading)
                                 .id(topId)
-                                .focusable()
+                                //.focusable()
                                 .onLongPressGesture(minimumDuration: 5) {
                                     print("Secret Long Press Action!")
-                                    showHiddenMenu = true
+                                    //FIXME: This does not work
+                                    //showHiddenMenu = true
                                 }
                             Spacer()
                         }
@@ -72,6 +73,7 @@ struct DiscoverView: View {
                         network = "main"
                         eluvio.needsRefresh()
                         showHiddenMenu = false
+                        eluvio.accountManager.signOut()
                         refresh()
 
                     }
@@ -81,6 +83,7 @@ struct DiscoverView: View {
                         network = "demo"
                         eluvio.needsRefresh()
                         showHiddenMenu = false
+                        eluvio.accountManager.signOut()
                         refresh()
                     }
                 }
@@ -96,9 +99,7 @@ struct DiscoverView: View {
                     do {
                         if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
                             //debugPrint("Fetched new property ", mediaProperty.id)
-                            
                             let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
-                            
                             withAnimation(.easeIn(duration:1)){
                                 backgroundImageURL = viewItem.backgroundImage
                             }
@@ -134,31 +135,28 @@ struct DiscoverView: View {
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
             opacity = 0.0
-            Task{
-                _ = try await eluvio.fabric.getProperties(includePublic:true, noCache: true)
-            }
+            eluvio.needsRefresh()
+            refresh()
         }
          
     }
     
     func refresh() {
-        /*
         if DiscoverView.refreshId != eluvio.refreshId {
             debugPrint("Resetting properties back to empty")
             properties = []
         }
-
+        
+        
         if !properties.isEmpty {
             return
         }
-         */
-        
+    
         if isRefreshing{
             return
         }
         
         isRefreshing = true
-        self.properties = []
         self.backgroundImageURL = ""
         
         Task {

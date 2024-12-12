@@ -479,12 +479,6 @@ struct ContentView: View {
                 print("Inactive")
             } else if newPhase == .active {
                 print("Active ")
-                Task{
-                    _ = try await eluvio.fabric.getProperties(includePublic:true, noCache: true)
-                    await MainActor.run {
-                        eluvio.needsRefresh()
-                    }
-                }
             } else if newPhase == .background {
                 print("Content View Going to the Background")
                 Task{

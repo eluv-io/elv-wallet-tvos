@@ -106,7 +106,8 @@ struct MediaPropertyView : View {
                                 
                                 if let requireLogin = property.require_login {
                                     if !requireLogin {
-                                        skipLogin = true
+                                        //We ignore this on TV, always require
+                                        //skipLogin = true
                                         debugPrint("require_login ", requireLogin)
                                     }
                                 }

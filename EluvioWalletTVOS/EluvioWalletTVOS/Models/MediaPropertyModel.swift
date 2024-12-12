@@ -313,13 +313,24 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var timeUntilStartLong: String {
         if isUpcoming {
-            let formatter = DateComponentsFormatter()
-            formatter.unitsStyle = .full
-            formatter.allowedUnits = [.day, .hour, .minute, .second]
-            formatter.zeroFormattingBehavior = .pad
-            
             if let date = startDate {
                 let remainingTime: TimeInterval = date.timeIntervalSince(Date())
+                
+                let formatter = DateComponentsFormatter()
+                formatter.unitsStyle = .full
+                
+                if remainingTime >= 60*60*24 {
+                    formatter.allowedUnits = [.day, .hour, .minute, .second]
+                }else if remainingTime >= 60*60 {
+                    formatter.allowedUnits = [.hour, .minute, .second]
+                } else if remainingTime >= 60 {
+                    formatter.allowedUnits = [.second, .minute]
+                }else {
+                   formatter.allowedUnits = [.second]
+                }
+                
+                formatter.zeroFormattingBehavior = .pad
+                
                 return formatter.string(from: remainingTime) ?? " "
             }
         }
