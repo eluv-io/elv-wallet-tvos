@@ -324,7 +324,8 @@ struct SectionMediaItemView: View {
                                 Task{
                                     do {
                                         let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link)
-                                        eluvio.pathState.playerItem = playerItem
+                                        let params = VideoParams(mediaId: item.id ?? "", playerItem: playerItem)
+                                        eluvio.pathState.videoParams = params
                                         eluvio.pathState.path.append(.video)
                                     }catch{
                                         print("Error getting link url for playback ", error)
@@ -495,10 +496,11 @@ struct SectionItemView: View {
                                     //debugPrint("Item forceDisplay ", forceDisplay)
                                     //debugPrint("Item forceAspect Ratio ", forceAspectRatio)
                                     
-                                    debugPrint("Item start_time ", item.media?.start_time)
-                                    debugPrint("Item stream_start_time ", item.media?.stream_start_time)
+                                    debugPrint("Item start_time ", item.media?.startDate)
+                                    debugPrint("Item stream_start_time ", item.media?.streamStartDate)
                                     debugPrint("Item isUpcoming ", item.media?.isUpcoming)
-                                    debugPrint("Item end ", item.media?.end_time)
+                                    debugPrint("Item end ", item.media?.endDate)
+                                    debugPrint("Item is live ", item.media?.live_video)
 
                                     do{
 
@@ -622,7 +624,8 @@ struct SectionItemView: View {
                                                     //let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
                                                     let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
                                                     let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
-                                                    eluvio.pathState.playerItem = playerItem
+                                                    let params = VideoParams(mediaId:mediaItem.media_id, playerItem: playerItem)
+                                                    eluvio.pathState.videoParams = params
                                                     await MainActor.run {
                                                         _ = eluvio.pathState.path.popLast()
                                                         eluvio.pathState.path.append(.video)

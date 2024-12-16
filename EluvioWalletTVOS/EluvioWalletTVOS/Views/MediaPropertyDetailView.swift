@@ -400,6 +400,7 @@ struct MediaPropertyDetailView: View {
                 sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
                 debugPrint("finished getting sections. ", sections.count)
             }catch(FabricError.apiError(let code, let response, let error)){
+                debugPrint("Error getting page sections")
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {
                 //eluvio.pathState.path.append(.errorView("A problem occured."))

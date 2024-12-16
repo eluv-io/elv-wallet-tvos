@@ -48,6 +48,11 @@ enum VideoErrorType: String, Hashable {
     case permission, upcoming
 }
 
+struct VideoParams:Hashable{
+    var mediaId: String = ""
+    var playerItem : AVPlayerItem? = nil
+}
+
 struct VideoErrorParams{
     var mediaItem : MediaPropertySectionMediaItem? = nil
     var type : VideoErrorType = .permission
@@ -80,8 +85,7 @@ class PathState: ObservableObject {
     var propertyPage : MediaPropertyPage? = nil
     var url : String = ""
     var backgroundImage : String = ""
-    var playerItem : AVPlayerItem? = nil
-    var mediaItem : MediaPropertySectionItem? = nil
+    var mediaItem : MediaPropertySectionMediaItem? = nil
     var propertyId: String = ""
     var pageId: String = ""
     var section: MediaPropertySection? = nil
@@ -90,6 +94,7 @@ class PathState: ObservableObject {
     var gallery : [GalleryItem] = []
     var searchParams : SearchParams?
     var videoErrorParams : VideoErrorParams?
+    var videoParams : VideoParams?
     
     var nft : NFTModel? = nil
     
@@ -101,7 +106,7 @@ class PathState: ObservableObject {
         propertyPage = nil
         url = ""
         backgroundImage = ""
-        playerItem = nil
+        videoParams = nil
         mediaItem = nil
         gallery = []
         searchParams = nil

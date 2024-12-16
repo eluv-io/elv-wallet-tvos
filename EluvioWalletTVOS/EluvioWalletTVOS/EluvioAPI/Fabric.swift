@@ -1953,10 +1953,10 @@ class Fabric: ObservableObject {
     }
     
     //TODO: Retrieve from app services profile
-    func getUserViewedProgress(address:String, nftContract: String, mediaId: String) throws -> MediaProgress {
+    func getUserViewedProgress(address:String, mediaId: String) throws -> MediaProgress {
         if let container = try? getUserViewedProgressContainer(address:address) {
             //TODO: create a key maker function
-            let mediaProgress = container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] ?? MediaProgress()
+            let mediaProgress = container.media["media-viewed-\(mediaId)-progress"] ?? MediaProgress()
             debugPrint("getUserViewedProgress \(mediaProgress)")
             return mediaProgress
         }
@@ -1965,8 +1965,8 @@ class Fabric: ObservableObject {
     }
     
     //TODO: Set into the app services profile
-    func setUserViewedProgress(address: String, nftContract: String, mediaId: String, progress:MediaProgress) throws{
-        debugPrint("setUserViewedProgress contract \(nftContract) mediaId \(mediaId) progress \(progress)")
+    func setUserViewedProgress(address: String, mediaId: String, progress:MediaProgress) throws{
+        debugPrint("setUserViewedProgress mediaId \(mediaId) progress \(progress)")
         var container = MediaProgressContainer()
         do {
             container = try getUserViewedProgressContainer(address: address)
@@ -1974,7 +1974,7 @@ class Fabric: ObservableObject {
             debugPrint("No previous user progress found.")
         }
         
-        container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] = progress
+        container.media["media-viewed-\(mediaId)-progress"] = progress
         
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(container) {

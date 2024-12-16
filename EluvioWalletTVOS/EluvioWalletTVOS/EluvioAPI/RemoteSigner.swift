@@ -684,7 +684,7 @@ class RemoteSigner {
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
-            //print("****** getPropertyPageSections ******")
+            debugPrint("****** getPropertyPageSections ******")
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
@@ -711,7 +711,10 @@ class RemoteSigner {
                             
                         switch (response.result) {
                             case .success(let result):
+                            debugPrint("response success")
                                 if respJSON["errors"].exists() {
+                                    debugPrint("response errors exists ",respJSON["errors"])
+                                    debugPrint(response.response?.statusCode)
                                     continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
                                                                                        response: respJSON, error:FabricError.unexpectedResponse("")))
                                 }else {
@@ -719,6 +722,7 @@ class RemoteSigner {
                                 }
 
                          case .failure(let error):
+                            debugPrint("response failure ", error)
                             var respJSON = JSON()
                             do{
                                 respJSON = try JSON(data: response.data ?? Data())

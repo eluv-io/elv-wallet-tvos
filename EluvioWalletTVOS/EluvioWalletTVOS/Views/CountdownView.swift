@@ -148,7 +148,9 @@ struct CountDownView: View {
                                         do {
                                             let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.id ?? "")
                                             let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
-                                            eluvio.pathState.playerItem = playerItem
+                                            let params = VideoParams(mediaId:mediaItem.id ?? "", playerItem: playerItem)
+                                            eluvio.pathState.videoParams = params
+    
                                             await MainActor.run {
                                                 _ = eluvio.pathState.path.popLast()
                                                 eluvio.pathState.path.append(.video)

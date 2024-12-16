@@ -77,6 +77,7 @@ struct MediaPropertyPage: Codable {
 struct MediaPropertySectionsResponse: Codable {
     var contents : [MediaPropertySection] = []
     var paging : ResponsePaging = ResponsePaging()
+    var metadata : JSON?
 }
 
 struct MediaPropertyItemsResponse: Codable {
@@ -180,6 +181,10 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     }
 }
 
+var debugStartDate = Date() + 4 * 60
+var debugStreamStartDate = Date() + 3 * 60
+var debugEndDate = Date() + 5 * 60
+
 struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var id : String? = UUID().uuidString
     var catalog_title : String? = ""
@@ -217,8 +222,10 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var startDate : Date? {
         
+        //DEBUG:
+        //return debugStartDate
+        
         if let startTime = start_time {
-            //startTime = "2024-12-11T00:44:00.000Z"
             let dateFormatter = ISO8601DateFormatter()
             dateFormatter.formatOptions = [
                 .withFractionalSeconds,
@@ -246,9 +253,10 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     }
     
     var streamStartDate : Date? {
-        if let startTime = stream_start_time {
-            //startTime = "2024-12-11T00:45:00.000Z"
-            
+        //DEBUG:
+        //return debugStreamStartDate
+        
+        if var startTime = stream_start_time {
             let dateFormatter = ISO8601DateFormatter()
             dateFormatter.formatOptions = [
                 .withFractionalSeconds,
@@ -263,9 +271,10 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     }
     
     var endDate : Date? {
-        var endTime = end_time
-        //endTime = "2024-12-11T00:55:00.000Z"
+        //DEBUG:
+        //return debugEndDate
         
+        var endTime = end_time
         let dateFormatter = ISO8601DateFormatter()
         dateFormatter.formatOptions = [
             .withFractionalSeconds,

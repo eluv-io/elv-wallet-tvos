@@ -192,7 +192,7 @@ struct DiscoverView: View {
                         debugPrint("image is empty")
                     }else{
                         newProperties.append(mediaProperty)
-                        debugPrint("Finished setting properties ", mediaProperty.image);
+                        //debugPrint("Finished setting properties ", mediaProperty.image);
                     }
                     
                     if newProperties.count > 16 {

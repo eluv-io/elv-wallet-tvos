@@ -102,13 +102,14 @@ struct PlayerView: View {
     @Namespace var playerNamespace
     @State var player = AVPlayer()
     @State var isPlaying: Bool = false
+    var mediaId: String = ""
     var playerItem : AVPlayerItem?
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
     @State var playerImageOverlayUrl = ""
     @State var playerTextOverlay = ""
     @State var finishedObserver = PlayerFinishedObserver()
-    var seekTimeS: Double
+    var seekTimeS: Double = 0
     @State var currentTimeS: Double = -1
     @Binding var finished: Bool
     var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
@@ -124,6 +125,12 @@ struct PlayerView: View {
     
     var hasSeeked : Bool {
         return currentTimeS > seekTimeS
+    }
+    func seekS(_ s: Double){
+        debugPrint("PlayerView seeMS ", s)
+        self.player.pause()
+        self.player.seek(to: CMTime(seconds:s, preferredTimescale: 1))
+        self.player.play()
     }
 
     var body: some View {
@@ -170,10 +177,6 @@ struct PlayerView: View {
             }
             
             player.addProgressObserver { progress in
-
-                debugPrint("Player progress: ", progress)
-                debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
-                debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
                 
                 currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
                 
@@ -181,13 +184,12 @@ struct PlayerView: View {
                     return
                 }
                 
-                /*if self.player.status == .readyToPlay {
-                    debugPrint("Play")
-
-                }*/
-                
                 if let progressCallback = self.progressCallback {
                     progressCallback(progress,
+                                     player.currentItem?.currentTime().seconds ?? 0.0,
+                                     player.currentItem?.duration.seconds ?? 0.0)
+                }else {
+                    self.onPlayerProgress(progress,
                                      player.currentItem?.currentTime().seconds ?? 0.0,
                                      player.currentItem?.duration.seconds ?? 0.0)
                 }
@@ -199,8 +201,21 @@ struct PlayerView: View {
                     print(player.currentItem?.errorLog()?.events.last?.errorComment)
             }
             
+            if seekTimeS == 0 {
+                do {
+                    if let account = eluvio.accountManager.currentAccount {
+                        let progress = try eluvio.fabric.getUserViewedProgress(address:account.getAccountAddress(), mediaId: mediaId)
+                        debugPrint("Finsihed getting progress ", progress)
+                        seekS(progress.current_time_s)
+                    }
+                }catch{
+                    debugPrint(error)
+                }
+            }else {
+                seekS(seekTimeS)
+            }
+            
             player.play()
-
             print("*** PlayerView errors: ", player.error)
 
             newItem = true
@@ -230,7 +245,28 @@ struct PlayerView: View {
         print("Video Finished")
     }
     
-  
+    func onPlayerProgress(_ progress: Double,_ currentTimeS: Double,_ durationS: Double) {
+        debugPrint("progress observer mediaId ", mediaId)
+        debugPrint("onPlayerProgress progress: ", progress)
+        debugPrint("onPlayerProgress duration seconds: ", durationS)
+        debugPrint("onPlayerProgress currentTime seconds: ", currentTimeS)
+
+        if mediaId.isEmpty {
+            return
+        }
+        
+        let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)
+
+        do {
+            if let account = eluvio.accountManager.currentAccount {
+                try eluvio.fabric.setUserViewedProgress(address:account.getAccountAddress(), mediaId: mediaId, progress:mediaProgress)
+                debugPrint("Finsihed setting progress.")
+            }
+        }catch{
+            print(error)
+        }
+    }
+    
 }
 
 struct PlayerView2: View {
@@ -292,7 +328,7 @@ struct PlayerView2: View {
         .onReceive(timer) { time in
         }
         .onAppear(){
-            debugPrint("PlayerView onAppear ", playoutUrl)
+            debugPrint("PlayerView2 onAppear ", playoutUrl)
             if let url = self.playoutUrl {
                 let urlAsset = AVURLAsset(url: url)
                 self.playerItem = AVPlayerItem(asset: urlAsset)
