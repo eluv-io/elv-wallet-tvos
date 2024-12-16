@@ -467,6 +467,47 @@ struct SectionItemView: View {
     @State var isUpcoming : Bool = false
     @State var isLive : Bool = false
     @State var startTimeString : String = ""
+    @State var mediaProgress: MediaProgress?
+    var progressText: String {
+        guard let progress = mediaProgress else {
+            return ""
+        }
+        
+        let left = progress.duration_s - progress.current_time_s
+        let timeStr = left.asTimeString(style: .abbreviated)
+        return "\(timeStr) left"
+    }
+    var progressValue: Double {
+        guard let progress = mediaProgress else {
+            return 0.0
+        }
+        
+        if (progress.duration_s != 0) {
+            return progress.current_time_s / progress.duration_s
+        }
+        
+        return 0.0
+    }
+    
+    func updateProgress() {
+        Task {
+            do{
+                if let mediaId = item?.media_id {
+                    if let account = eluvio.accountManager.currentAccount {
+                        let progress = try eluvio.fabric.getUserViewedProgress(address: account.getAccountAddress(), mediaId: mediaId)
+                        if (progress.current_time_s > 0){
+                            debugPrint("Found saved progress ", progress)
+                            await MainActor.run {
+                                self.mediaProgress = progress
+                            }
+                        }
+                    }
+                }
+            }catch{
+                print("MediaView could not create MediaItemViewModel ", error)
+            }
+        }
+    }
     
     var body: some View {
         Group {
@@ -823,11 +864,42 @@ struct SectionItemView: View {
                             .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
                             .focused($isFocused)
                             .overlay(content: {
+                                if (item?.media?.media_type?.lowercased() == "video"){
+                                        if !isFocused  {
+                                            /*
+                                            Image(systemName: "play.fill")
+                                                .font(.system(size: 80))
+                                                .foregroundColor(.white)
+                                                .opacity(0.7)
+                                             */
+                                        }else{
+    
+                                            //TODO: when enabling resume again
+                                            if let live = item?.media?.live_video {
+                                                if !live && progressValue > 0.0{
+                                                    VStack{
+                                                        Spacer()
+                                                        VStack(alignment:.leading, spacing:5){
+                                                            //Text(progressText).foregroundColor(.white)
+                                                                //.font(.system(size: 12))
+                                                            ProgressView(value:progressValue)
+                                                                .foregroundColor(.white)
+                                                                .frame(height:4)
+                                                                .padding(.bottom, 20)
+                                                        }
+                                                        .padding()
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                             })
                         }
             }
         }
         .onAppear(){
+            updateProgress()
             if self.refreshId == viewItem.id + eluvio.refreshId {
                 return
             }

@@ -666,6 +666,7 @@ struct MediaCard: View {
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity)
                     .padding(20)
+                    .padding(.bottom, 10)
                     .scaleEffect(sizeFactor)
                     .cornerRadius(cornerRadius)
                     .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
