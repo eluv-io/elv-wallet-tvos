@@ -30,6 +30,7 @@ class PlayerFinishedObserver: ObservableObject {
 }
 
 //This player plays the main video of an NFTModel
+/*
 struct NFTPlayerView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     @State var player = AVPlayer()
@@ -93,7 +94,7 @@ struct NFTPlayerView: View {
         }
     }
 }
-
+*/
 struct PlayerView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme

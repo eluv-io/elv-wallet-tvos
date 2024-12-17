@@ -44,11 +44,12 @@ struct PlayerErrorView: View {
 
 struct CountDownView: View {
     @EnvironmentObject var eluvio: EluvioAPI
-    var backgroundImageUrl : String = "https://picsum.photos/1920/1080"
+    var backgroundImageUrl : String = ""
     var images : [String] = []
-    var imageUrl : String = "https://picsum.photos/300/200"
-    var title: String = "Solvenia vs Denmark"
-    var infoText: String = "16 Jun, 9:00 CET Group F Matchday 1"
+    var imageUrl : String = ""
+    var title: String = ""
+    var description: String = ""
+    var infoText: String = ""
     var mediaItem: MediaPropertySectionMediaItem
     var propertyId: String = ""
     @State var timeRemaining : String = " "
@@ -147,7 +148,13 @@ struct CountDownView: View {
                                         
                                         do {
                                             let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.id ?? "")
-                                            let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+                                            
+                                            var thumbnail = imageUrl;
+                                            if thumbnail.isEmpty {
+                                                thumbnail = images[0]
+                                            }
+                                            
+                                            let playerItem = try await  MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:title, description:description, imageThumb: thumbnail)
                                             let params = VideoParams(mediaId:mediaItem.id ?? "", playerItem: playerItem)
                                             eluvio.pathState.videoParams = params
     

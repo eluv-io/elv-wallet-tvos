@@ -323,7 +323,7 @@ struct SectionMediaItemView: View {
                             if let link = item.media_link?["sources"]["default"] {
                                 Task{
                                     do {
-                                        let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link)
+                                        let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, title:item.title ?? "", description: item.description ?? "", imageThumb: thumbnail)
                                         let params = VideoParams(mediaId: item.id ?? "", playerItem: playerItem)
                                         eluvio.pathState.videoParams = params
                                         eluvio.pathState.path.append(.video)
@@ -478,14 +478,17 @@ struct SectionItemView: View {
         return "\(timeStr) left"
     }
     var progressValue: Double {
-        guard let progress = mediaProgress else {
-            return 0.0
+        if let live = item?.media?.live_video {
+            if !live {
+                guard let progress = mediaProgress else {
+                    return 0.0
+                }
+                
+                if (progress.duration_s != 0) {
+                    return progress.current_time_s / progress.duration_s
+                }
+            }
         }
-        
-        if (progress.duration_s != 0) {
-            return progress.current_time_s / progress.duration_s
-        }
-        
         return 0.0
     }
     
@@ -662,9 +665,11 @@ struct SectionItemView: View {
                                                 }
                                                 
                                                 do {
-                                                    //let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, hash:hash)
                                                     let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
-                                                    let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+                                                    let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:mediaItem.title, description:mediaItem.description, imageThumb: mediaItem.thumbnail)
+                                                    
+                                                    //let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+                                                    
                                                     let params = VideoParams(mediaId:mediaItem.media_id, playerItem: playerItem)
                                                     eluvio.pathState.videoParams = params
                                                     await MainActor.run {
@@ -841,7 +846,6 @@ struct SectionItemView: View {
                                     }
                                 }
                             }){
-
                                     MediaCard(display: display,
                                               image: imageThumbnail,
                                               isFocused:isFocused,
@@ -854,6 +858,7 @@ struct SectionItemView: View {
                                               centerFocusedText: false,
                                               showFocusedTitle: viewItem.title.isEmpty ? false : true,
                                               showBottomTitle: true,
+                                              progressValue: progressValue,
                                               sizeFactor: scaleFactor,
                                               permission: permission
                                     )
@@ -864,6 +869,7 @@ struct SectionItemView: View {
                             .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
                             .focused($isFocused)
                             .overlay(content: {
+                                /*
                                 if (item?.media?.media_type?.lowercased() == "video"){
                                         if !isFocused  {
                                             /*
@@ -893,6 +899,7 @@ struct SectionItemView: View {
                                             }
                                         }
                                     }
+                                 */
 
                             })
                         }

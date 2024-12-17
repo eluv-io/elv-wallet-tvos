@@ -220,6 +220,31 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var resolvedPermission : ResolvedPermission? = nil
     
+    func thumbnail(eluvio: EluvioAPI) -> String {
+        do {
+            let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: self.thumbnail_image_square)
+            if !thumbnailSquare.isEmpty {
+                return thumbnailSquare
+            }
+        }catch{}
+        
+        do {
+            let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: self.thumbnail_image_portrait)
+            if !thumbnailPortrait.isEmpty {
+                return thumbnailPortrait
+            }
+        }catch{}
+        
+        do {
+            let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: self.thumbnail_image_landscape )
+            if !thumbnailLand.isEmpty {
+                return thumbnailLand
+            }
+        }catch{}
+        
+        return ""
+    }
+    
     var startDate : Date? {
         
         //DEBUG:

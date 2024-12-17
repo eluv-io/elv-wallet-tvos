@@ -563,6 +563,7 @@ struct MediaCard: View {
     var showFocusedTitle = true
     var showBottomTitle = true
     var image_ratio: String? = nil //Square, Wide, Tall or nil
+    var progressValue: Double = 0.0
 
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
@@ -645,28 +646,41 @@ struct MediaCard: View {
                         }
                         
                         if showFocusedTitle {
-                            Text(timeString)
-                                .font(.system(size: 15))
-                                .foregroundColor(Color.gray)
-                                .frame(maxWidth:.infinity, alignment:.leading)
+                            if (!timeString.isEmpty) {
+                                Text(timeString)
+                                    .font(.system(size: 15))
+                                    .foregroundColor(Color.gray)
+                                    .frame(maxWidth:.infinity, alignment:.leading)
+                            }
                             
-                            Text(title)
-                                .font(.system(size: 22))
-                                .foregroundColor(Color.white)
-                                .lineLimit(1)
-                                .bold()
-                                .frame(maxWidth:.infinity, alignment:.leading)
+                            if (!title.isEmpty) {
+                                Text(title)
+                                    .font(.system(size: 22))
+                                    .foregroundColor(Color.white)
+                                    .lineLimit(1)
+                                    .bold()
+                                    .frame(maxWidth:.infinity, alignment:.leading)
+                            }
                             
-                            Text(subtitle)
-                                .font(.system(size: 19))
-                                .foregroundColor(Color.gray)
-                                .lineLimit(1)
+                            if (!subtitle.isEmpty){
+                                Text(subtitle)
+                                    .font(.system(size: 19))
+                                    .foregroundColor(Color.gray)
+                                    .lineLimit(1)
+                                    .frame(maxWidth:.infinity, alignment:.leading)
+                            }
+                        }
+
+                        if progressValue > 0.0 {
+                            ProgressView(value:progressValue)
+                                .foregroundColor(.white)
                                 .frame(maxWidth:.infinity, alignment:.leading)
+                                .frame(height:4)
+                                .padding(.top, 15)
                         }
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity)
                     .padding(20)
-                    .padding(.bottom, 10)
                     .scaleEffect(sizeFactor)
                     .cornerRadius(cornerRadius)
                     .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))

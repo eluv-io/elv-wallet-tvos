@@ -152,16 +152,14 @@ struct ContentView: View {
                 
             }else if viewState.op == .play {
                 debugPrint("Playmedia: ", viewState.mediaId)
-            
-                
+
                 if let item = eluvio.fabric.getMediaItem(mediaId:viewState.mediaId) {
                     debugPrint("Found item: ", item.title)
 
                     do {
                         if let link = item.media_link?["sources"]["default"] {
                             debugPrint("Item link: ", link)
-                            
-                            let item  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link)
+                            let item  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, title:item.title ?? "", description: item.description ?? "", imageThumb: item.thumbnail(eluvio:eluvio))
                             await MainActor.run {
                                 self.playerItem = item
                                 self.showPlayer = true
@@ -323,6 +321,7 @@ struct ContentView: View {
                                 CountDownView(backgroundImageUrl:params.backgroundImage,
                                               images:params.images,
                                               title:mediaItem.title ?? "",
+                                              description: mediaItem.description ?? "",
                                               infoText:params.headerString,
                                               mediaItem: mediaItem,
                                               propertyId: params.propertyId)
