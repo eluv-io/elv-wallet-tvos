@@ -71,21 +71,6 @@ class Fabric: ObservableObject {
     var devProperties : [String] = []
     
     var environment : APIEnvironment = .prod
-    /*
-    @Published
-    var login :  LoginResponse? = nil
-    @Published
-    var isLoggedOut = true
-    @Published
-    var signingIn = false
-    @Published
-    var signInResponse: SignInResponse? = nil
-    var profileData: [String: Any] = [:]
-
-    var loginExpiration = Date()
-    var loginTime = Date()
-     
-     */
     
     //Move these models to the app level
     @Published
@@ -107,6 +92,9 @@ class Fabric: ObservableObject {
     var mediaPropertiesSectionCache : [String: MediaPropertySection] = [:]
     @Published
     var mediaPropertiesMediaItemCache : [String: MediaPropertySectionMediaItem] = [:]
+    @Published
+    var mediaPropertiesSectionItemCache : [String: MediaPropertySectionItem] = [:]
+    
     
     @Published
     var isRefreshing = false
@@ -1552,6 +1540,7 @@ class Fabric: ObservableObject {
     }
     
     func cachePropertySections(property: String, sections: [MediaPropertySection]) async throws{
+        debugPrint("cachePropertySections")
             for section in sections {
                 self.mediaPropertiesSectionCache[section.id] = section
                 
@@ -1572,6 +1561,15 @@ class Fabric: ObservableObject {
                 
                 if let sectionContents = section.content {
                     for item in sectionContents {
+                        
+                        if let sectionItemId = item.id {
+                            self.mediaPropertiesSectionItemCache[sectionItemId] = item
+                            if sectionItemId == "psciNYKM2FXDjRafuVrUus4tUd" {
+                                debugPrint("cached item \(item.media?.end_time)")
+                                
+                            }
+                        }
+                        
                         if let media = item.media {
                             if let id = media.id {
                                 self.mediaPropertiesMediaItemCache[id] = media
@@ -1651,6 +1649,17 @@ class Fabric: ObservableObject {
             return item
         }
         //debugPrint("Couldn't find media item", mediaId)
+        return nil
+    }
+    
+    func getSectionItem(sectionItemId:String) -> MediaPropertySectionItem? {
+        if sectionItemId.isEmpty {
+            debugPrint("getSectionItem: id is empty")
+            return nil
+        }
+        if let item = self.mediaPropertiesSectionItemCache[sectionItemId] {
+            return item
+        }
         return nil
     }
     
@@ -1957,16 +1966,16 @@ class Fabric: ObservableObject {
         if let container = try? getUserViewedProgressContainer(address:address) {
             //TODO: create a key maker function
             let mediaProgress = container.media["media-viewed-\(mediaId)-progress"] ?? MediaProgress()
-            debugPrint("getUserViewedProgress \(mediaProgress)")
+            //debugPrint("getUserViewedProgress \(mediaProgress)")
             return mediaProgress
         }
-        debugPrint("getUserViewedProgress - could not get container")
+        //debugPrint("getUserViewedProgress - could not get container")
         return MediaProgress()
     }
     
     //TODO: Set into the app services profile
     func setUserViewedProgress(address: String, mediaId: String, progress:MediaProgress) throws{
-        debugPrint("setUserViewedProgress mediaId \(mediaId) progress \(progress)")
+        //debugPrint("setUserViewedProgress mediaId \(mediaId) progress \(progress)")
         var container = MediaProgressContainer()
         do {
             container = try getUserViewedProgressContainer(address: address)
@@ -1980,7 +1989,7 @@ class Fabric: ObservableObject {
         if let encoded = try? encoder.encode(container) {
             let defaults = UserDefaults.standard
             defaults.set(encoded, forKey: try getKeyMediaProgressContainer(address:address))
-            debugPrint("Saved to defaults")
+            //debugPrint("Saved to defaults")
         }else {
             debugPrint("Could not encode progress info ", container)
         }

@@ -256,6 +256,10 @@ struct PlayerView: View {
             return
         }
         
+        if durationS.isNaN || durationS.isInfinite {
+            return
+        }
+        
         let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)
 
         do {

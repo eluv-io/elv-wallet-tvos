@@ -388,12 +388,12 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var isUpcoming : Bool {
         if hasEnded {
-            debugPrint("isUpcoming, already ended")
+            //debugPrint("isUpcoming, already ended")
             return false
         }
         
         if let date = streamStartDate {
-            debugPrint("isUpcoming ", date > Date())
+            //debugPrint("isUpcoming ", date > Date())
             return date > Date()
         }
         

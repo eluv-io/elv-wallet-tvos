@@ -684,7 +684,7 @@ class RemoteSigner {
 
         //var result : MediaPropertiesResponse = try loadJsonFile("properties.json")
         return try await withCheckedThrowingContinuation({ continuation in
-            debugPrint("****** getPropertyPageSections ******")
+            //debugPrint("****** getPropertyPageSections ******")
             do {
                 
                 var endpoint = try self.getAuthEndpoint()
@@ -702,7 +702,7 @@ class RemoteSigner {
                          "Accept": "application/json" ]
 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    //.debugLog()
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                         var respJSON = JSON()
                         do{
@@ -711,24 +711,14 @@ class RemoteSigner {
                             
                         switch (response.result) {
                             case .success(let result):
-                            debugPrint("response success")
                                 if respJSON["errors"].exists() {
-                                    debugPrint("response errors exists ",respJSON["errors"])
-                                    debugPrint(response.response?.statusCode)
-                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
-                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,response: respJSON, error:FabricError.unexpectedResponse("")))
                                 }else {
                                     continuation.resume(returning: result)
                                 }
 
                          case .failure(let error):
-                            debugPrint("response failure ", error)
-                            var respJSON = JSON()
-                            do{
-                                respJSON = try JSON(data: response.data ?? Data())
-                            }catch{}
-                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
-                                                                               response: respJSON, error: error))
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,response: respJSON, error: error))
                      }
                 }
             }catch{

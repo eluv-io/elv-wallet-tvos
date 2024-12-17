@@ -78,7 +78,8 @@ struct MediaPropertyDetailView: View {
     @State private var currentSubproperty: MediaProperty?
     @State private var currentSubIndex: Int = 0
     @State private var menuOpen = false
-    
+    let sectionRefreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+
     var body: some View {
         ScrollView() {
             ZStack(alignment:.topLeading) {
@@ -212,6 +213,18 @@ struct MediaPropertyDetailView: View {
         .onWillDisappear {
             withAnimation(.easeInOut(duration: 2)) {
               opacity = 0.0
+            }
+        }
+        .onReceive(sectionRefreshTimer) { _ in
+            debugPrint("sectionRefreshTimer")
+            var propertyId = self.propertyId
+            
+            if let subId = currentSubproperty?.id {
+                propertyId = subId
+            }
+            
+            Task{
+                _ = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: self.pageId)
             }
         }
     }

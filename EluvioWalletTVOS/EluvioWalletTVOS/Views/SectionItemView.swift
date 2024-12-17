@@ -392,13 +392,13 @@ struct SectionItemView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     
     //Remove the need for this
-    var item: MediaPropertySectionItem? = nil
+    @State var item: MediaPropertySectionItem? = nil
     var sectionId : String
     var pageId : String
     var propertyId: String
     var forceAspectRatio : String = ""
     var forceDisplay : MediaDisplay?
-    var viewItem : MediaPropertySectionMediaItemViewModel
+    @State var viewItem : MediaPropertySectionMediaItemViewModel
     
     @FocusState var isFocused
     var permission : ResolvedPermission? {
@@ -459,7 +459,7 @@ struct SectionItemView: View {
         }
     }
     
-    @State var refreshTimer:Timer?
+    @State var refreshTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
     @State var refresh : Bool = false
 
     @State var subtitle : String = ""
@@ -478,15 +478,13 @@ struct SectionItemView: View {
         return "\(timeStr) left"
     }
     var progressValue: Double {
-        if let live = item?.media?.live_video {
-            if !live {
-                guard let progress = mediaProgress else {
-                    return 0.0
-                }
-                
-                if (progress.duration_s != 0) {
-                    return progress.current_time_s / progress.duration_s
-                }
+        if !isLive{
+            guard let progress = mediaProgress else {
+                return 0.0
+            }
+            
+            if (progress.duration_s != 0) {
+                return progress.current_time_s / progress.duration_s
             }
         }
         return 0.0
@@ -499,7 +497,7 @@ struct SectionItemView: View {
                     if let account = eluvio.accountManager.currentAccount {
                         let progress = try eluvio.fabric.getUserViewedProgress(address: account.getAccountAddress(), mediaId: mediaId)
                         if (progress.current_time_s > 0){
-                            debugPrint("Found saved progress ", progress)
+                            //debugPrint("Found saved progress ", progress)
                             await MainActor.run {
                                 self.mediaProgress = progress
                             }
@@ -868,75 +866,37 @@ struct SectionItemView: View {
                             }
                             .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
                             .focused($isFocused)
-                            .overlay(content: {
-                                /*
-                                if (item?.media?.media_type?.lowercased() == "video"){
-                                        if !isFocused  {
-                                            /*
-                                            Image(systemName: "play.fill")
-                                                .font(.system(size: 80))
-                                                .foregroundColor(.white)
-                                                .opacity(0.7)
-                                             */
-                                        }else{
-    
-                                            //TODO: when enabling resume again
-                                            if let live = item?.media?.live_video {
-                                                if !live && progressValue > 0.0{
-                                                    VStack{
-                                                        Spacer()
-                                                        VStack(alignment:.leading, spacing:5){
-                                                            //Text(progressText).foregroundColor(.white)
-                                                                //.font(.system(size: 12))
-                                                            ProgressView(value:progressValue)
-                                                                .foregroundColor(.white)
-                                                                .frame(height:4)
-                                                                .padding(.bottom, 20)
-                                                        }
-                                                        .padding()
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                 */
-
-                            })
                         }
             }
         }
         .onAppear(){
+            update()
             updateProgress()
-            if self.refreshId == viewItem.id + eluvio.refreshId {
-                return
-            }
-            self.refreshId = viewItem.id + eluvio.refreshId
-            self.subtitle = viewItem.title
-            self.imageThumbnail = viewItem.thumbnail
-            self.isUpcoming = item?.media?.isUpcoming ?? false
-            self.isLive = item?.media?.currentlyLive ?? false
-            self.startTimeString = item?.media?.startDateTimeString ?? ""
-            
-            refreshTimer = Timer.scheduledTimer(withTimeInterval: 10.0, repeats: true) { timer in
-                debugPrint("Refresh ")
-                do {
-                    self.subtitle = viewItem.title
+        }
+        .onReceive(refreshTimer) { _ in
+            update()
+         }
+    }
+    
+    func update(){
+        if let sectionItemId = item?.id {
+            if let item = eluvio.fabric.getSectionItem(sectionItemId: sectionItemId) {
+                let viewItem = MediaPropertySectionMediaItemViewModel.create(item:item, fabric: eluvio.fabric)
+
+                self.isLive = item.media?.currentlyLive ?? false
+                self.startTimeString = item.media?.startDateTimeString ?? ""
+                
+                let _thumb = viewItem.thumbnail
+                if self.imageThumbnail != _thumb {
                     self.imageThumbnail = viewItem.thumbnail
-                    self.isUpcoming = item?.media?.isUpcoming ?? false
-                    self.isLive = item?.media?.currentlyLive ?? false
-                    self.startTimeString = item?.media?.startDateTimeString ?? ""
-                    self.refreshId = viewItem.id + eluvio.refreshId
-                    
-                }catch {
-                    print("Error getting property ", error.localizedDescription)
                 }
+                
+                self.isUpcoming = item.media?.isUpcoming ?? false
             }
+            
         }
-        .onDisappear(){
-            if let refreshTimer = self.refreshTimer {
-                refreshTimer.invalidate()
-            }
-        }
+        
+        self.refreshId = viewItem.id + eluvio.refreshId
     }
 }
 
