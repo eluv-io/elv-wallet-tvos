@@ -392,13 +392,13 @@ struct SectionItemView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     
     //Remove the need for this
-    @State var item: MediaPropertySectionItem? = nil
+    //@State var item: MediaPropertySectionItem? = nil
     var sectionId : String
     var pageId : String
     var propertyId: String
     var forceAspectRatio : String = ""
     var forceDisplay : MediaDisplay?
-    @State var viewItem : MediaPropertySectionMediaItemViewModel
+    /*@State */var viewItem : MediaPropertySectionMediaItemViewModel
     
     @FocusState var isFocused
     var permission : ResolvedPermission? {
@@ -453,7 +453,19 @@ struct SectionItemView: View {
     
     var title : String {
         if viewItem.title.isEmpty {
-            return item?.media?.title ?? ""
+            if let mediaTitle = viewItem.sectionItem?.media?.title {
+                if !mediaTitle.isEmpty {
+                    return mediaTitle
+                }
+            }
+            
+            if let mediaTitle = viewItem.mediaItem?.title {
+                if !mediaTitle.isEmpty {
+                    return mediaTitle
+                }
+            }
+            
+            return ""
         }else{
             return viewItem.title
         }
@@ -493,17 +505,17 @@ struct SectionItemView: View {
     func updateProgress() {
         Task {
             do{
-                if let mediaId = item?.media_id {
-                    if let account = eluvio.accountManager.currentAccount {
-                        let progress = try eluvio.fabric.getUserViewedProgress(address: account.getAccountAddress(), mediaId: mediaId)
-                        if (progress.current_time_s > 0){
-                            //debugPrint("Found saved progress ", progress)
-                            await MainActor.run {
-                                self.mediaProgress = progress
-                            }
+                let mediaId = viewItem.media_id
+                if let account = eluvio.accountManager.currentAccount {
+                    let progress = try eluvio.fabric.getUserViewedProgress(address: account.getAccountAddress(), mediaId: mediaId)
+                    if (progress.current_time_s > 0){
+                        //debugPrint("Found saved progress ", progress)
+                        await MainActor.run {
+                            self.mediaProgress = progress
                         }
                     }
                 }
+                
             }catch{
                 print("MediaView could not create MediaItemViewModel ", error)
             }
@@ -514,7 +526,7 @@ struct SectionItemView: View {
         Group {
             if !hide {
                     VStack(alignment:.leading, spacing:10){
-                        Text(item?.media?.title ?? "").font(.system(size:1)).hidden() // This is needed for some reason single items in a section didn't show
+                        Text(title).font(.system(size:1)).hidden() // This is needed for some reason single items in a section didn't show
                             Button(action: {
                                 if disable {
                                     return
@@ -522,11 +534,11 @@ struct SectionItemView: View {
                                 
                                 Task{
                                     let mediaItem = viewItem
-                                    guard let item = self.item else {
+                                    guard let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: viewItem.id)  else {
                                         return
                                     }
                                     
-                                    
+
                                     debugPrint("Item Selected! ", item.id)
                                    // debugPrint("MediaItemView Type ", mediaItem.media_type)
                                     //debugPrint("Item Type ", item.type ?? "")
@@ -537,7 +549,7 @@ struct SectionItemView: View {
                                     //debugPrint("Item display ", display)
                                     //debugPrint("Item forceDisplay ", forceDisplay)
                                     //debugPrint("Item forceAspect Ratio ", forceAspectRatio)
-                                    
+                                    debugPrint("Item currently live ", item.media?.currentlyLive)
                                     debugPrint("Item start_time ", item.media?.startDate)
                                     debugPrint("Item stream_start_time ", item.media?.streamStartDate)
                                     debugPrint("Item isUpcoming ", item.media?.isUpcoming)
@@ -879,23 +891,20 @@ struct SectionItemView: View {
     }
     
     func update(){
-        if let sectionItemId = item?.id {
-            if let item = eluvio.fabric.getSectionItem(sectionItemId: sectionItemId) {
-                let viewItem = MediaPropertySectionMediaItemViewModel.create(item:item, fabric: eluvio.fabric)
+        let sectionItemId = viewItem.id
+        if let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: sectionItemId) {
+            let viewItem = MediaPropertySectionMediaItemViewModel.create(item:item, fabric: eluvio.fabric)
 
-                self.isLive = item.media?.currentlyLive ?? false
-                self.startTimeString = item.media?.startDateTimeString ?? ""
-                
-                let _thumb = viewItem.thumbnail
-                if self.imageThumbnail != _thumb {
-                    self.imageThumbnail = viewItem.thumbnail
-                }
-                
-                self.isUpcoming = item.media?.isUpcoming ?? false
+            self.isLive = item.media?.currentlyLive ?? false
+            self.startTimeString = item.media?.startDateTimeString ?? ""
+            
+            let _thumb = viewItem.thumbnail
+            if self.imageThumbnail != _thumb {
+                self.imageThumbnail = viewItem.thumbnail
             }
             
+            self.isUpcoming = item.media?.isUpcoming ?? false
         }
-        
         self.refreshId = viewItem.id + eluvio.refreshId
     }
 }

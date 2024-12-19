@@ -109,7 +109,7 @@ struct SectionGridView: View {
                 if items.dividedIntoGroups(of: numColumns).count <= 1 {
                     HStack(spacing:20) {
                         ForEach(items, id: \.self) { item in
-                            SectionItemView(item: item.sectionItem,
+                            SectionItemView(//item: item.sectionItem,
                                             sectionId: section.id,
                                             pageId:pageId,
                                             propertyId: propertyId,
@@ -132,7 +132,7 @@ struct SectionGridView: View {
                                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                                     GridRow(alignment:.top) {
                                         ForEach(groups, id: \.self) { item in
-                                            SectionItemView(item: item.sectionItem, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
+                                            SectionItemView(/*item: item.sectionItem,*/ sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
                                                             viewItem: item,
                                                             scaleFactor: scale
                                             )
@@ -152,23 +152,6 @@ struct SectionGridView: View {
                     .focusSection()
                     
                     //FIXME: LazyVGrid loses selection DO NOT USE
-                    /*
-                     LazyVGrid(
-                     columns: [GridItem(.adaptive(minimum: 350))],
-                     spacing: 10
-                     ){
-                     ForEach(items, id: \.self) { item in
-                     SectionItemView(item: item, sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:forceDisplay,
-                     viewItem: MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
-                     
-                     )
-                     .padding(.bottom,20)
-                     .environmentObject(self.eluvio)
-                     }
-                     }
-                     .padding([.leading, .trailing], margin)
-                     .padding(40)
-                     */
                 }
         }
         .padding([.leading], margin)

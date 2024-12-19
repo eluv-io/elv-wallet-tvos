@@ -181,6 +181,7 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     }
 }
 
+var debugTimeStatus = false
 var debugStartDate = Date() + 4 * 60
 var debugStreamStartDate = Date() + 3 * 60
 var debugEndDate = Date() + 5 * 60
@@ -247,8 +248,9 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var startDate : Date? {
         
-        //DEBUG:
-        //return debugStartDate
+        if debugTimeStatus {
+            return debugStartDate
+        }
         
         if let startTime = start_time {
             let dateFormatter = ISO8601DateFormatter()
@@ -278,8 +280,10 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     }
     
     var streamStartDate : Date? {
-        //DEBUG:
-        //return debugStreamStartDate
+        
+        if debugTimeStatus {
+            return debugStreamStartDate
+        }
         
         if var startTime = stream_start_time {
             let dateFormatter = ISO8601DateFormatter()
@@ -296,8 +300,10 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     }
     
     var endDate : Date? {
-        //DEBUG:
-        //return debugEndDate
+        
+        if debugTimeStatus {
+            return debugEndDate
+        }
         
         var endTime = end_time
         let dateFormatter = ISO8601DateFormatter()

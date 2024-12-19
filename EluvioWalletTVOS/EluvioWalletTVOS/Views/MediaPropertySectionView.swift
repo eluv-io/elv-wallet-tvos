@@ -11,7 +11,6 @@ import AVFoundation
 import SwiftyJSON
 import Foundation
 
-
 struct ViewAllButton: View {
     @FocusState var isFocused
     var action: ()->Void
@@ -136,6 +135,7 @@ struct MediaPropertyRegularSectionView: View {
     var margin: CGFloat = 80
     @State private var refreshId = ""
     @State var items: [MediaPropertySectionMediaItemViewModel] = []
+    private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -270,7 +270,7 @@ struct MediaPropertyRegularSectionView: View {
                         if alignment == .center && items.count < 5 {
                             HStack(alignment: .top, spacing: 20) {
                                 ForEach(items) {item in
-                                    SectionItemView(item: item.sectionItem,
+                                    SectionItemView(//item: item.sectionItem,
                                                     sectionId: section.id,
                                                     pageId:pageId,
                                                     propertyId: propertyId,
@@ -289,7 +289,7 @@ struct MediaPropertyRegularSectionView: View {
                             ScrollView(.horizontal) {
                                 HStack(alignment: .center, spacing: 34) {
                                     ForEach(items) {item in
-                                        SectionItemView(item: item.sectionItem,
+                                        SectionItemView(//item: item.sectionItem,
                                                         sectionId: section.id,
                                                         pageId:pageId,
                                                         propertyId: propertyId,
@@ -333,48 +333,66 @@ struct MediaPropertyRegularSectionView: View {
             .frame(maxWidth: .infinity, maxHeight:.infinity)
         )
         .clipped()
+        .onReceive(refreshTimer) { _ in
+            debugPrint("MediaPropertySection refreshTimer")
+            refresh()
+        }
         .task() {
-            if self.refreshId == eluvio.refreshId {
-                return
-            }
-            
-            defer {
-                self.refreshId = eluvio.refreshId
-            }
-            debugPrint("MediaPropertyRegularSectionView onAppear() ", section.displayTitle)
+            refresh()
+        }
+    }
+    
+    func refresh() {
+        /*
+        if self.refreshId == eluvio.refreshId {
+            return
+        }
+        
+        defer {
+            self.refreshId = eluvio.refreshId
+        }
+         */
+        debugPrint("MediaPropertyRegularSectionView refresh() ", section.displayTitle)
 
-            if let display = section.display {
-                do {
-                    logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
-                }catch{}
-                
-                do {
-                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                }catch{}
-            }
+        if let display = section.display {
+            do {
+                logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
+            }catch{}
             
-            Task {
-                var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
-                if let content = section.content {
-                    for var item in content {
-                        var mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
-                        
-                        item.media?.resolvedPermission = mediaPermission
-                        item.resolvedPermission = mediaPermission
-                        
-                        if !mediaPermission.hide {
-                            let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
-                            sectionItems.append(viewItem)
-                        }
-                        //Optimization so we show the first 4 first so faster loading sections don't render ahead of us as much
-                        if sectionItems.count == 4{
-                            self.items = sectionItems
-                        }
+            do {
+                inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+            }catch{}
+        }
+        
+        Task {
+            var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
+            if let content = section.content {
+                for _item in content {
+                    
+                    guard var item = try eluvio.fabric.getSectionItem(sectionId: section.id, sectionItemId: _item.id ?? "") else {
+                        continue
                     }
+                    
+                    let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
 
+                    item.media?.resolvedPermission = mediaPermission
+                    item.resolvedPermission = mediaPermission
+                    
+                    if !mediaPermission.hide {
+                        let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                        sectionItems.append(viewItem)
+                    }else{
+                        debugPrint("hiding item section: \(item.id), media id: \(item.media_id)")
+                    }
+                    //Optimization so we show the first 4 first so faster loading sections don't render ahead of us as much
+                    if sectionItems.count == 4{
+                        self.items = sectionItems
+                    }
                 }
-                self.items = sectionItems
+
             }
+            self.items = sectionItems
+            debugPrint("MediaPropertyRegularSectionView \(section.displayTitle) finished items count: ", items.count)
         }
     }
     
@@ -514,10 +532,6 @@ struct MediaPropertySectionView: View {
     @State var section: MediaPropertySection
     var margin: CGFloat = 80
     @State private var refreshId = ""
-
-    var items: [MediaPropertySectionItem] {
-        section.content ?? []
-    }
     
     @State var subsections : [MediaPropertySection] = []
     
@@ -601,7 +615,7 @@ struct MediaPropertySectionView: View {
         
         return 400
     }
-    
+
     var heroPosition: SectionPosition {
         if let items = section.hero_items?.arrayValue {
             if !items.isEmpty {
@@ -617,7 +631,7 @@ struct MediaPropertySectionView: View {
         
         return .Left
     }
-    
+
     var heroLogoUrl: String {
         if let items = section.hero_items?.arrayValue {
             if !items.isEmpty {
@@ -631,7 +645,7 @@ struct MediaPropertySectionView: View {
         
         return ""
     }
-    
+
     var heroTitle: String {
         if let items = section.hero_items?.arrayValue {
             if !items.isEmpty {
@@ -640,7 +654,7 @@ struct MediaPropertySectionView: View {
         }
         return ""
     }
-    
+
     var heroDescription: String {
         if let items = section.hero_items?.arrayValue {
             if !items.isEmpty {
@@ -649,7 +663,7 @@ struct MediaPropertySectionView: View {
         }
         return ""
     }
-    
+
     var hAlignment: HorizontalAlignment {
         if let justification = section.display?["justification"].stringValue {
             if justification.lowercased() == "left" {
@@ -665,7 +679,7 @@ struct MediaPropertySectionView: View {
         
         return .leading
     }
-    
+
     var alignment: Alignment {
         if let justification = section.display?["justification"].stringValue {
             if justification.lowercased() == "left" {
@@ -678,19 +692,20 @@ struct MediaPropertySectionView: View {
                 return .center
             }
         }
-        
+    
         return .leading
     }
-    
+
     @State var permission : ResolvedPermission? = nil
-    
+
     var hide : Bool {
         if let permission = self.permission {
             if !permission.authorized && permission.hide {
+                debugPrint("Section \(section.id) is hidden (permission)")
                 return true
             }
         }
-        
+
         if let display = section.display {
             if let hide = display["hide_on_tv"].bool {
                 if hide {
@@ -710,7 +725,6 @@ struct MediaPropertySectionView: View {
         return false
     }
     
-
     var forceAspectRatio: String {
         if let display = self.section.display {
             return display["aspect_ratio"].stringValue
@@ -739,7 +753,7 @@ struct MediaPropertySectionView: View {
                 }else if isGrid {
                     MediaPropertySectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
                         .edgesIgnoringSafeArea([.leading, .trailing])
-                }else if !items.isEmpty {
+                }else {
                     MediaPropertyRegularSectionView(
                             propertyId:propertyId,
                             pageId: pageId,
@@ -748,81 +762,84 @@ struct MediaPropertySectionView: View {
                         )
                         .edgesIgnoringSafeArea([.leading, .trailing])
                      
-                }else {
-                    EmptyView()
                 }
             }
         }
         .disabled(disable)
         .focusSection()
         .task() {
-            //debugPrint("MediaPropertySectionView onAppear() type:", section.type)
-            //debugPrint("Subsections count ", section.sections?.count)
-            if self.refreshId == eluvio.refreshId {
-                return
-            }
-            
-            defer {
-                self.refreshId = eluvio.refreshId
-            }
-
-            if section.type != "search" {
-                Task(priority: .background){
-                    do {
-                        
-                        if section.resolvedPermission == nil {
-                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
-                            section.resolvedPermission = self.permission
-                        }else {
-                            self.permission = section.resolvedPermission
-                        }
-                    }catch{
-                        self.permission = section.resolvedPermission
-                    }
-                }
-            }
-
-            Task(){
-                do {
-                    if section.type != "search" {
-                        print("Fetching section \(section.id)")
-                        let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
-                        if result.count == 0 {
-                            print("Could not fetch section \(section.id)")
-                            return
-                        }
-                        self.section = result[0]
-                    }
-
-                    //looking for subsections
-                    var sections : [String] = []
-                    if let sects = section.sections{
-                        for sub in sects{
-                            sections.append(sub)
-                        }
-
-                        debugPrint("Fetching subsections count ", sections.count)
-                        if !sections.isEmpty {
-                            
-                            let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections)
-                            await MainActor.run {
-                                self.subsections = result
-                                debugPrint("finished getting sub sections. ")
-                            }
-                        }
-                    }
-                }catch(FabricError.apiError(let code, let response, let error)){
-                    eluvio.handleApiError(code: code, response: response, error: error)
-                }catch {
-                    //eluvio.pathState.path.append(.errorView("A problem occured."))
-                    debugPrint("Error:",error.localizedDescription)
-                }
-            }
-
+            refresh()
         }
     }
-}
 
+    func refresh() {
+        if self.refreshId == eluvio.refreshId {
+            return
+        }
+    
+        defer {
+            self.refreshId = eluvio.refreshId
+        }
+
+        debugPrint("MediaPropertySectionView refresh ", section.id)
+
+        if section.type != "search" {
+            Task(priority: .background){
+                do {
+                    
+                    if section.resolvedPermission == nil {
+                        self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
+                        section.resolvedPermission = self.permission
+                    }else {
+                        self.permission = section.resolvedPermission
+                    }
+                }catch{
+                    self.permission = section.resolvedPermission
+                }
+            }
+        }
+
+        Task(){
+            do {
+                if section.type != "search" {
+                    print("Fetching section \(section.id)")
+                    let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
+                    if result.count == 0 {
+                        print("Could not fetch section \(section.id)")
+                        return
+                    }
+                    self.section = result[0]
+                }
+
+                //looking for subsections
+                var sections : [String] = []
+                if let sects = section.sections{
+                    for sub in sects{
+                        sections.append(sub)
+                    }
+
+                    debugPrint("Fetching subsections count ", sections.count)
+                    if !sections.isEmpty {
+                        
+                        let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections)
+                        await MainActor.run {
+                            self.subsections = result
+                            debugPrint("finished getting sub sections. ")
+                        }
+                    }
+                }
+                
+                debugPrint("Finished MediaPropertySectionView refresh for \(section.id)")
+            }catch(FabricError.apiError(let code, let response, let error)){
+                eluvio.handleApiError(code: code, response: response, error: error)
+            }catch {
+                //eluvio.pathState.path.append(.errorView("A problem occured."))
+                debugPrint("Error:",error.localizedDescription)
+            }
+        }
+
+    }
+}
 
 struct MediaPropertyHeader: View {
     @Namespace var NamespaceProperty

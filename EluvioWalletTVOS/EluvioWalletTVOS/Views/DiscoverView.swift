@@ -130,7 +130,7 @@ struct DiscoverView: View {
             if properties.isEmpty {
                 debugPrint("on discover timer ", properties)
                 refresh()
-            }
+           }
         }
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
@@ -142,12 +142,12 @@ struct DiscoverView: View {
     }
     
     func refresh() {
+        
         if DiscoverView.refreshId != eluvio.refreshId {
             debugPrint("Resetting properties back to empty")
             properties = []
         }
-        
-        
+
         if !properties.isEmpty {
             return
         }
@@ -208,6 +208,7 @@ struct DiscoverView: View {
                         }
                     }
                     self.properties = newProperties
+                    debugPrint("Finished setting properties")
                 }
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)

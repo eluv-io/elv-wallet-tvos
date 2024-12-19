@@ -78,7 +78,7 @@ struct MediaPropertyDetailView: View {
     @State private var currentSubproperty: MediaProperty?
     @State private var currentSubIndex: Int = 0
     @State private var menuOpen = false
-    let sectionRefreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+    //let sectionRefreshTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ScrollView() {
@@ -215,8 +215,13 @@ struct MediaPropertyDetailView: View {
               opacity = 0.0
             }
         }
+        .onDisappear(){
+            eluvio.needsRefresh()
+            refresh()
+        }
+        /*
         .onReceive(sectionRefreshTimer) { _ in
-            debugPrint("sectionRefreshTimer")
+            debugPrint("MediaPropertyDetailView refreshTimer")
             var propertyId = self.propertyId
             
             if let subId = currentSubproperty?.id {
@@ -224,9 +229,20 @@ struct MediaPropertyDetailView: View {
             }
             
             Task{
-                _ = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: self.pageId)
+                do {
+                    /*let sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: self.pageId)*/
+                    
+                    await MainActor.run {
+                        debugPrint("MediaPropertyDetailView Sections count: ", sections.count)
+                        self.sections = sections
+                        eluvio.needsRefresh()
+                    }
+                }catch{
+                    debugPrint(error)
+                }
             }
         }
+         */
     }
   
     func refresh(findSubs:Bool = true){
@@ -273,7 +289,7 @@ struct MediaPropertyDetailView: View {
                     debugPrint("Fetched property ", mediaProperty.id)
                     self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
                     await MainActor.run {
-                        self.property = nil
+                        //self.property = nil
                         self.property = mediaProperty
                         debugPrint("Property title inside mainactor", mediaProperty.title)
                     }
@@ -407,9 +423,8 @@ struct MediaPropertyDetailView: View {
                 print("Could not resolve permissions for property id \(altPropertyId)", error.localizedDescription)
             }
 
-            
             do {
-                debugPrint("getting page sections")
+                debugPrint("MediaPropertyDetailView getting page sections")
                 sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
                 debugPrint("finished getting sections. ", sections.count)
             }catch(FabricError.apiError(let code, let response, let error)){
@@ -426,11 +441,11 @@ struct MediaPropertyDetailView: View {
                 var section = sections[0]
             
                 if let heros = section.hero_items?.arrayValue {
-                    //debugPrint("found heros", heros[0])
+                    debugPrint("found heros", heros[0])
                     if !heros.isEmpty{
                         let video = heros[0]["display"]["background_video"]
                         let background = heros[0]["display"]["background_image"]
-                        //debugPrint("video: ", video)
+                        debugPrint("video: ", video)
                         if !video.isEmpty && self.playerItem == nil{
                             do {
                                 let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
@@ -439,7 +454,7 @@ struct MediaPropertyDetailView: View {
                                     debugPrint("playerItem set")
                                 }
                             }catch{
-                                debugPrint("Error making video item: ", error.localizedDescription)
+                                debugPrint("Error making video item: ", error)
                             }
                         }
                         
@@ -448,7 +463,7 @@ struct MediaPropertyDetailView: View {
                                 let item = try eluvio.fabric.getUrlFromLink(link: background)
                                 backgroundImageString = item
                             }catch{
-                                debugPrint("Error: ", error.localizedDescription)
+                                debugPrint("Error getting background image url: ", error)
                             }
                         }
                     }

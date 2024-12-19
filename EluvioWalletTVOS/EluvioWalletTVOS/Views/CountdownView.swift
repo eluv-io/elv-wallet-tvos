@@ -150,7 +150,7 @@ struct CountDownView: View {
                                             let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.id ?? "")
                                             
                                             var thumbnail = imageUrl;
-                                            if thumbnail.isEmpty {
+                                            if thumbnail.isEmpty && !images.isEmpty{
                                                 thumbnail = images[0]
                                             }
                                             

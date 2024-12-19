@@ -702,7 +702,7 @@ class RemoteSigner {
                          "Accept": "application/json" ]
 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    //.debugLog()
+                    .debugLog()
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                         var respJSON = JSON()
                         do{

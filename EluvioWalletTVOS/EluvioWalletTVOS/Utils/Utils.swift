@@ -656,12 +656,12 @@ func MakePlayerItemFromLink(fabric: Fabric,
                             link: JSON?,
                             params: [JSON]? = [],
                             offering: String = "default",
-                            hash: String = "",
+                            //hash: String = "",
                             title: String = "",
                             description: String = "",
                             imageThumb: String = "") async throws -> AVPlayerItem {
-    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering, hash:hash)
-    return await try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: hash, offering: offering)
+    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering)
+    return try await MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
 }
 
 func MakePlayerItemFromOptionsJson(fabric: Fabric,

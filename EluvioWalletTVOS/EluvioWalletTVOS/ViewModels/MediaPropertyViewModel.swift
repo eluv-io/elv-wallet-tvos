@@ -62,7 +62,7 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
         if purchaseImage.isEmpty {
             purchaseImage = backgroundImage
         }else{
-            debugPrint("Found purchaseImage ", purchaseImage)
+            //debugPrint("Found purchaseImage ", purchaseImage)
         }
         
         var logo = ""
