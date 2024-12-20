@@ -248,7 +248,7 @@ struct MediaPropertyDetailView: View {
     func refresh(findSubs:Bool = true){
         debugPrint("MediaPropertyDetailView refresh() propertyId: ",propertyId)
         debugPrint("MediaPropertyDetailView refresh() page: ",pageId)
-        if self.isRefreshing || self.refreshId == eluvio.refreshId{
+        if self.isRefreshing /*|| self.refreshId == eluvio.refreshId*/{
             debugPrint("no need for a refresh..exiting")
             withAnimation(.easeInOut(duration: 1)) {
               opacity = 1.0
@@ -270,17 +270,21 @@ struct MediaPropertyDetailView: View {
         Task {
             defer {
                 self.isRefreshing = false
-                self.refreshId = eluvio.refreshId
+                //self.refreshId = eluvio.refreshId
+                self.refreshId = UUID().uuidString
                 
                 withAnimation(.easeInOut(duration: 1)) {
                   opacity = 1.0
                 }
             }
             
+            /*
             var newFetch = false
             if self.refreshId != eluvio.refreshId {
                 newFetch = true
             }
+             */
+            var newFetch = true
             
             do {
                 debugPrint("Fetching property new? \(newFetch) ", propertyId)
@@ -378,33 +382,30 @@ struct MediaPropertyDetailView: View {
                 return
             }
             
-            
-            
             var altPageId = self.pageId
-            
             var altProperty = property
             var altPropertyId = propertyId
-            
+
             if currentSubproperty != nil && currentSubproperty?.id != propertyId {
                 if let subId = currentSubproperty?.id {
                     altPropertyId = subId
                     altProperty = currentSubproperty
                 }
             }
-            
+
             do {
-                debugPrint("Property title ", altProperty?.title)
-                debugPrint("Property permissions ", altProperty?.permissions)
-                debugPrint("Property authState ", altProperty?.permission_auth_state)
-                debugPrint("Page permissions ", altProperty?.main_page?.permissions)
+                //debugPrint("Property title ", altProperty?.title)
+                //debugPrint("Property permissions ", altProperty?.permissions)
+                //debugPrint("Property authState ", altProperty?.permission_auth_state)
+                //debugPrint("Page permissions ", altProperty?.main_page?.permissions)
                 
                 var pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: altPropertyId, pageId: altPageId)
-                debugPrint("Main Page resolved permissions", pagePerms)
+                //debugPrint("Main Page resolved permissions", pagePerms)
                 if !pagePerms.authorized {
                     if pagePerms.behavior == .showAlternativePage {
                         self.pageId = pagePerms.alternatePageId
-                        debugPrint("Alternate pageId ", pagePerms.alternatePageId)
-                        debugPrint("Setting pageId ", pageId)
+                        //debugPrint("Alternate pageId ", pagePerms.alternatePageId)
+                        //debugPrint("Setting pageId ", pageId)
                         altPageId = pagePerms.alternatePageId
                         
                         pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: altPropertyId, pageId: altPageId)
@@ -439,19 +440,19 @@ struct MediaPropertyDetailView: View {
             //Finding the hero video to play
             if !sections.isEmpty{
                 var section = sections[0]
-            
+
                 if let heros = section.hero_items?.arrayValue {
-                    debugPrint("found heros", heros[0])
+                    //debugPrint("found heros", heros[0])
                     if !heros.isEmpty{
                         let video = heros[0]["display"]["background_video"]
                         let background = heros[0]["display"]["background_image"]
-                        debugPrint("video: ", video)
+                        //debugPrint("video: ", video)
                         if !video.isEmpty && self.playerItem == nil{
                             do {
                                 let item = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: video)
                                 await MainActor.run {
                                     self.playerItem = item
-                                    debugPrint("playerItem set")
+                                    //debugPrint("playerItem set")
                                 }
                             }catch{
                                 debugPrint("Error making video item: ", error)

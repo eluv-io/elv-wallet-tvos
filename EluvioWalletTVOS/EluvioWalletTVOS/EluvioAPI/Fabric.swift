@@ -1559,7 +1559,7 @@ class Fabric: ObservableObject {
         
         for section in sections {
             self.mediaPropertiesSectionCache[section.id] = section
-            debugPrint("Caching section ", section.id)
+            //debugPrint("Caching section ", section.id)
     
             var sections : [String] = []
             if let sects = section.sections{
@@ -1568,7 +1568,7 @@ class Fabric: ObservableObject {
                 }
 
                 if !sections.isEmpty {
-                    debugPrint("Fetching subsections count ", sections.count)
+                    //debugPrint("Fetching subsections count ", sections.count)
                     Task(priority: .background){
                         try await getAndCachePropertySections(property: property, sections: sections)
                     }
@@ -1581,13 +1581,13 @@ class Fabric: ObservableObject {
                     
                     if let sectionItemId = item.id {
                         self.mediaPropertiesSectionItemCache[sectionItemId] = item
-                        debugPrint("cached section item \(sectionItemId)")
+                        //debugPrint("cached section item \(sectionItemId)")
                     }
                     
                     if let media = item.media {
                         if let id = media.id {
                             self.mediaPropertiesMediaItemCache[id] = media
-                            debugPrint("cached section media item \(id)")
+                            //debugPrint("cached section media item \(id)")
                         }
                     }else {
                         if let mediaId = item.media_id {
@@ -1670,7 +1670,7 @@ class Fabric: ObservableObject {
     }
     
     func getSectionItem(sectionId:String, sectionItemId:String) -> MediaPropertySectionItem? {
-        debugPrint("getSectionItem sectionId \(sectionId) sectionItemId \(sectionItemId)")
+        //debugPrint("getSectionItem sectionId \(sectionId) sectionItemId \(sectionItemId)")
         if sectionItemId.isEmpty {
             debugPrint("getSectionItem: id is empty")
             return nil
@@ -1689,7 +1689,7 @@ class Fabric: ObservableObject {
                     }
                 }
             }
-            debugPrint("Found item \(item.id)")
+            //debugPrint("Found item \(item.id)")
             return item
         }
         return nil

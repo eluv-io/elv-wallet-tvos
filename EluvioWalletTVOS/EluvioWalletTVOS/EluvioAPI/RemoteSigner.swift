@@ -577,6 +577,7 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/sections?resolve_subsections=true")
+                //endpoint = endpoint.appending("/mw/properties/\(property)/sections")
                 if (environment != .prod){
                     endpoint = endpoint.appending("&env=\(environment)")
                 }
@@ -689,6 +690,7 @@ class RemoteSigner {
                 
                 var endpoint = try self.getAuthEndpoint()
                 endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)/sections?resolve_subsections=true")
+                //endpoint = endpoint.appending("/mw/properties/\(property)/pages/\(page)/sections?")
                 if (environment != .prod){
                     endpoint = endpoint.appending("&env=\(environment)")
                 }
