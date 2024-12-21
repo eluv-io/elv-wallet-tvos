@@ -216,8 +216,8 @@ struct MediaPropertyDetailView: View {
             }
         }
         .onDisappear(){
-            eluvio.needsRefresh()
-            refresh()
+            //eluvio.needsRefresh()
+            //refresh()
         }
         /*
         .onReceive(sectionRefreshTimer) { _ in

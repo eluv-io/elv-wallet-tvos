@@ -135,7 +135,7 @@ struct MediaPropertyRegularSectionView: View {
     var margin: CGFloat = 80
     @State private var refreshId = ""
     @State var items: [MediaPropertySectionMediaItemViewModel] = []
-    private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+    //private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -333,10 +333,12 @@ struct MediaPropertyRegularSectionView: View {
             .frame(maxWidth: .infinity, maxHeight:.infinity)
         )
         .clipped()
+        /*
         .onReceive(refreshTimer) { _ in
             debugPrint("MediaPropertySection refreshTimer")
             refresh()
         }
+         */
         .task() {
             refresh()
         }
@@ -369,8 +371,15 @@ struct MediaPropertyRegularSectionView: View {
             if let content = section.content {
                 for _item in content {
                     
-                    guard var item = try eluvio.fabric.getSectionItem(sectionId: section.id, sectionItemId: _item.id ?? "") else {
-                        continue
+                    var item = _item
+                    
+                    if let type = section.type {
+                        if type != "search" {
+                            guard let testItem = try eluvio.fabric.getSectionItem(sectionId: section.id, sectionItemId: _item.id ?? "") else {
+                                continue;
+                            }
+                            item = testItem
+                        }
                     }
                     
                     let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
@@ -709,7 +718,8 @@ struct MediaPropertySectionView: View {
         if let display = section.display {
             if let hide = display["hide_on_tv"].bool {
                 if hide {
-                    debugPrint("Hide On TV section: ", section.id)
+                    //debugPrint("Hide On TV section: ", section.id)
+                    //debugPrint("Section: ", section)
                 }
                 return hide
             }
@@ -834,7 +844,7 @@ struct MediaPropertySectionView: View {
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {
                 //eluvio.pathState.path.append(.errorView("A problem occured."))
-                debugPrint("Error:",error.localizedDescription)
+                debugPrint("Error getting section info:",error)
             }
         }
 

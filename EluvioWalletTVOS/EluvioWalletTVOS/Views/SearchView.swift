@@ -298,16 +298,19 @@ struct SearchView: View {
         Task {
             if !propertyId.isEmpty {
                 do {
-                    debugPrint("Search onAppear()")
+                    debugPrint("Search refresh()")
                     
                     var mainProperty = try await eluvio.fabric.getProperty(property: propertyId)
                     var searchPropertyId = propertyId
+                    
+                    debugPrint("Got property \(mainProperty?.id)")
                     
                     if !currentSubpropertyId.isEmpty{
                         searchPropertyId = currentSubpropertyId
                     }
                     
                     let property = try await eluvio.fabric.getProperty(property: searchPropertyId)
+                    debugPrint("Got search property property \(property?.id)")
                     
                     if let title = property?.title{
                         name = title
@@ -325,6 +328,8 @@ struct SearchView: View {
                         print("Could not get logo from property \(propertyId)", error)
                     }
                     
+                    debugPrint("Got logo URL \(logoUrl)")
+                    
                     if !searchString.isEmpty || currentPrimaryFilter != nil{
                         debugPrint("Search searchString \(searchString) currentPrimaryFilter \(currentPrimaryFilter)")
                         var attributes : [String : Any] = [:]
@@ -338,16 +343,18 @@ struct SearchView: View {
                             }
                         }
                         
-                        debugPrint("Searching property")
+                        debugPrint("Searching property searchString \(searchString) primaryFilter \(currentPrimaryFilter)")
                         self.sections = try await eluvio.fabric.searchProperty(property: propertyId, attributes: attributes, searchTerm: searchString)
                         return
                     }
                     
                     self.primaryFilters = try await getPrimaryFilters(searchPropertyId: searchPropertyId)
+                    debugPrint("Got PrimaryFilters: ",primaryFilters)
                     
                     if !primaryFilters.isEmpty{
                         currentPrimaryFilter = primaryFilters.first
                         secondaryFilters = currentPrimaryFilter?.secondaryFilters ?? []
+                        debugPrint("Secondary filters: ",secondaryFilters)
                     }
                     
                     debugPrint("Searching ALL ", propertyId)
@@ -387,7 +394,7 @@ struct SearchView: View {
                         }
                     }
                     
-                    //debugPrint("attributes:", attributes)
+                    debugPrint("attributes:", attributes)
                     
                     let sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
                     
@@ -395,6 +402,7 @@ struct SearchView: View {
                         self.sections = []
                         self.sections = sections
                         self.refreshId = UUID().uuidString
+                        debugPrint("Search finished sections", sections.count)
                     }
                 }catch{
                     print("Could not do search ", error.localizedDescription)

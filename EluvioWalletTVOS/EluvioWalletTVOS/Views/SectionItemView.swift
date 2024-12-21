@@ -528,16 +528,22 @@ struct SectionItemView: View {
                     VStack(alignment:.leading, spacing:10){
                         Text(title).font(.system(size:1)).hidden() // This is needed for some reason single items in a section didn't show
                             Button(action: {
+                                debugPrint("Item selected")
                                 if disable {
                                     return
                                 }
                                 
                                 Task{
                                     let mediaItem = viewItem
+                                    /*
                                     guard let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: viewItem.id)  else {
                                         return
                                     }
+                                    */
                                     
+                                    guard let item = viewItem.sectionItem else {
+                                        return
+                                    }
 
                                     debugPrint("Item Selected! ", item.id)
                                    // debugPrint("MediaItemView Type ", mediaItem.media_type)
@@ -904,6 +910,16 @@ struct SectionItemView: View {
             }
             
             self.isUpcoming = item.media?.isUpcoming ?? false
+        }else {
+            self.isLive = viewItem.mediaItem?.currentlyLive ?? false
+            self.startTimeString = viewItem.mediaItem?.startDateTimeString ?? ""
+            
+            let _thumb = viewItem.thumbnail
+            if self.imageThumbnail != _thumb {
+                self.imageThumbnail = viewItem.thumbnail
+            }
+            
+            self.isUpcoming = viewItem.mediaItem?.isUpcoming ?? false
         }
         self.refreshId = viewItem.id + eluvio.refreshId
     }
