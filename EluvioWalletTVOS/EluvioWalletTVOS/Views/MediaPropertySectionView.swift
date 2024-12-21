@@ -754,6 +754,20 @@ struct MediaPropertySectionView: View {
                         .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isContainer{
                     VStack(spacing:0){
+                        if (!section.displayTitle.isEmpty) {
+                            Text(section.displayTitle).font(.custom("Helvetica Neue", size: 43)).fontWeight(.semibold)
+                                .frame(maxWidth:.infinity, alignment:alignment)
+                                .padding([.leading, .trailing], margin+10)
+                                .padding(.top, 40)
+                        }
+                        
+                        if (!section.displaySubtitle.isEmpty) {
+                            Text(section.displaySubtitle).font(.custom("Helvetica Neue", size: 43))
+                                .frame(maxWidth:.infinity, alignment:alignment)
+                                .padding([.leading, .trailing], margin+10)
+                        }
+
+                        
                         ForEach(subsections) { sub in
                             MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin)
                                 .edgesIgnoringSafeArea([.leading, .trailing])

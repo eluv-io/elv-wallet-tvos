@@ -106,6 +106,15 @@ struct MediaPropertySection: Codable, Identifiable, Hashable {
         display?["title"].stringValue ?? ""
     }
     
+    var displaySubtitle: String {
+        display?["subtitle"].stringValue ?? ""
+    }
+    
+    var displayJustification: String {
+        display?["justification"].stringValue ?? ""
+    }
+    
+    
     static func == (lhs: MediaPropertySection, rhs: MediaPropertySection) -> Bool {
         return lhs.id == rhs.id
     }
