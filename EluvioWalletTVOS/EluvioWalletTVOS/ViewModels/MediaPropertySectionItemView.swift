@@ -150,7 +150,10 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
         }
         
         var headerString = ""
-
+        thumbnail = thumbnail + "&width=400"
+        
+        debugPrint("thumbnail: ", thumbnail)
+        
         return MediaPropertySectionMediaItemViewModel (
             id: media.id ?? "",
             media_id : media.id ?? "",

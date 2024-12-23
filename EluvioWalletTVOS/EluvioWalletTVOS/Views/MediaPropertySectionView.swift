@@ -129,6 +129,7 @@ struct MediaPropertySectionGridView: View {
 struct MediaPropertyRegularSectionView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
+    @Namespace var SectionNamespace
     var propertyId: String
     var pageId: String
     var section: MediaPropertySection
@@ -136,6 +137,8 @@ struct MediaPropertyRegularSectionView: View {
     @State private var refreshId = ""
     @State var items: [MediaPropertySectionMediaItemViewModel] = []
     //private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
+    @FocusState private var currentFocusItem: MediaPropertySectionMediaItemViewModel?
+    @State private var lastFocusItem: MediaPropertySectionMediaItemViewModel?
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -273,15 +276,15 @@ struct MediaPropertyRegularSectionView: View {
                                         }
                                         
                                         Text(section.displayTitle).font(.rowTitle)
-                                            .frame(maxWidth:.infinity, alignment:alignment)
+                                            .frame(alignment:alignment)
                                     }
-                                    .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:alignment)
+                                    .frame(alignment:alignment)
                                     .padding(.bottom, 10)
                                 }
                                 
                                 if (!section.displaySubtitle.isEmpty) {
                                     Text(section.displaySubtitle).font(.rowSubtitle)
-                                        .frame(maxWidth:.infinity, alignment:alignment)
+                                        .frame(alignment:alignment)
                                 }
                             }
                             
@@ -311,6 +314,7 @@ struct MediaPropertyRegularSectionView: View {
                                                     forceAspectRatio:forceAspectRatio,
                                                     viewItem: item
                                     )
+                                    .focused($currentFocusItem, equals: item)
                                     .environmentObject(self.eluvio)
                                 }
                             }
@@ -322,7 +326,7 @@ struct MediaPropertyRegularSectionView: View {
                         }else{
                             ScrollView(.horizontal) {
                                 HStack(alignment: .center, spacing: 34) {
-                                    ForEach(items) {item in
+                                    ForEach(Array(items.enumerated()), id: \.offset) {index, item in
                                         SectionItemView(//item: item.sectionItem,
                                                         sectionId: section.id,
                                                         pageId:pageId,
@@ -333,6 +337,7 @@ struct MediaPropertyRegularSectionView: View {
                                         .fixedSize()
                                         .padding(.top,0)
                                         .environmentObject(self.eluvio)
+                                        .focused($currentFocusItem, equals: item)
                                         
                                     }
                                 }
@@ -344,6 +349,12 @@ struct MediaPropertyRegularSectionView: View {
                             }
                             .frame(maxWidth:.infinity)
                             .edgesIgnoringSafeArea(.trailing)
+                            .defaultFocus($currentFocusItem, lastFocusItem ?? items.first, priority: .userInitiated)
+                            .onChange(of: currentFocusItem) {
+                                if currentFocusItem != nil {
+                                    lastFocusItem = currentFocusItem
+                                }
+                            }
                         }
                     }
             }

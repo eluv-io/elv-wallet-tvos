@@ -114,7 +114,7 @@ struct MediaPropertyDetailView: View {
                 }
 
                 VStack(spacing:0) {
-                    ForEach(sections) {section in
+                    ForEach(Array(sections.enumerated()), id: \.offset ) {index, section in
                         if let propertyId = currentSubproperty?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
                                 .fixedSize(horizontal: false, vertical: true)

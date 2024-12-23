@@ -206,21 +206,21 @@ struct SectionMediaItemView: View {
         do {
             let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_square)
             if !thumbnailSquare.isEmpty {
-                return thumbnailSquare
+                return thumbnailSquare + "&width=400"
             }
         }catch{}
         
         do {
             let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_portrait)
             if !thumbnailPortrait.isEmpty {
-                return thumbnailPortrait
+                return thumbnailPortrait + "&width=400"
             }
         }catch{}
         
         do {
             let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_landscape )
             if !thumbnailLand.isEmpty {
-                return thumbnailLand
+                return thumbnailLand + "&width=400"
             }
         }catch{}
         
