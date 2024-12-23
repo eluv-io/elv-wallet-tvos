@@ -154,6 +154,21 @@ struct MediaPropertyRegularSectionView: View {
         return ""
     }
     
+    var titleIcon: String {
+        if let display = section.display {
+            do {
+                
+                let icon = try eluvio.fabric.getUrlFromLink(link: display["title_icon"])
+                debugPrint("display ", icon)
+                return icon
+            }catch{
+                print("error ", error)
+                return ""
+            }
+        }
+        return ""
+    }
+    
     var isDisplayable: Bool {
         if section.display?["display_format"].stringValue == "carousel"{
             return true
@@ -247,10 +262,29 @@ struct MediaPropertyRegularSectionView: View {
                         
                     VStack(alignment: hAlignment, spacing: 0)  {
                         HStack(alignment:.bottom, spacing:30){
-                            if !title.isEmpty {
-                                Text(title).font(.rowTitle).foregroundColor(Color.white)
-                                    .padding(0)
+                            VStack {
+                                if (!section.displayTitle.isEmpty) {
+                                    HStack(alignment: .center, spacing:20) {
+                                        if !titleIcon.isEmpty {
+                                            WebImage(url:URL(string:titleIcon))
+                                                .resizable()
+                                                .aspectRatio(contentMode: .fit)
+                                                .frame(width: 60, height:60)
+                                        }
+                                        
+                                        Text(section.displayTitle).font(.rowTitle)
+                                            .frame(maxWidth:.infinity, alignment:alignment)
+                                    }
+                                    .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:alignment)
+                                    .padding(.bottom, 10)
+                                }
+                                
+                                if (!section.displaySubtitle.isEmpty) {
+                                    Text(section.displaySubtitle).font(.rowSubtitle)
+                                        .frame(maxWidth:.infinity, alignment:alignment)
+                                }
                             }
+                            
                             if showViewAll {
                                 ViewAllButton(action:{
                                     debugPrint("View All pressed")
@@ -561,6 +595,21 @@ struct MediaPropertySectionView: View {
         return ""
     }
     
+    var titleIcon: String {
+        if let display = section.display {
+            do {
+                
+                let icon = try eluvio.fabric.getUrlFromLink(link: display["title_icon"])
+                debugPrint("display ", icon)
+                return icon
+            }catch{
+                print("error ", error)
+                return ""
+            }
+        }
+        return ""
+    }
+    
     var isDisplayable: Bool {
         if section.display?["display_format"].stringValue == "carousel" || isHero {
             return true
@@ -755,14 +804,25 @@ struct MediaPropertySectionView: View {
                 }else if isContainer{
                     VStack(spacing:0){
                         if (!section.displayTitle.isEmpty) {
-                            Text(section.displayTitle).font(.custom("Helvetica Neue", size: 43)).fontWeight(.semibold)
-                                .frame(maxWidth:.infinity, alignment:alignment)
-                                .padding([.leading, .trailing], margin+10)
-                                .padding(.top, 40)
+                            HStack(alignment: .center, spacing:20) {
+                                if !titleIcon.isEmpty {
+                                    WebImage(url:URL(string:titleIcon))
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 60, height:60)
+                                }
+                                
+                                Text(section.displayTitle).font(.sectionContainerTitle)
+                                    .frame(maxWidth:.infinity, alignment:alignment)
+                            }
+                            .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:alignment)
+                            .padding([.leading, .trailing], margin+10)
+                            .padding(.top, 40)
+                            .padding(.bottom, 10)
                         }
                         
                         if (!section.displaySubtitle.isEmpty) {
-                            Text(section.displaySubtitle).font(.custom("Helvetica Neue", size: 43))
+                            Text(section.displaySubtitle).font(.sectionContainerSubtitle)
                                 .frame(maxWidth:.infinity, alignment:alignment)
                                 .padding([.leading, .trailing], margin+10)
                         }

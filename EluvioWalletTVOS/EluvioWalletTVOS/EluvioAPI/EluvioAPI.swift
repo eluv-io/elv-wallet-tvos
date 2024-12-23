@@ -93,7 +93,15 @@ class EluvioAPI : ObservableObject {
     }
     
     @MainActor func handleApiError(code: Int, response:JSON, error: Error){
-        print("Could not get properties ", error.localizedDescription)
+        print("Could not get properties ", error)
+        print("code \(code)")
+        
+        if code >= 400 && code < 500{
+            self.pathState.path = []
+            self.signOut()
+            return
+        }
+        
         print("Response ", response)
         let errors = response["errors"].arrayValue
         print("Response ", errors)

@@ -297,11 +297,11 @@ extension Font {
     }
 
     public static var rowTitle: Font {
-        return Font.system(size: 32)
+        return Font.system(size: 34, weight:.medium)
     }
     
     public static var rowSubtitle: Font {
-        return Font.system(size: 30)
+        return Font.system(size: 28)
     }
     
     public static var sectionLogoText: Font {
@@ -310,5 +310,13 @@ extension Font {
     
     public static var propertyDescription: Font {
         return Font.system(size:26)
+    }
+    
+    public static var sectionContainerTitle: Font {
+        return Font.system(size: 46, weight: .semibold)
+    }
+    
+    public static var sectionContainerSubtitle: Font {
+        return Font.system(size: 30)
     }
 }
