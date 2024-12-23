@@ -12,16 +12,10 @@ import Foundation
 struct MediaPropertyView : View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio : EluvioAPI
-    var property: MediaProperty
-    @State var title = ""
-    @State var thumbnail = ""
-    @State var backgroundImage = ""
-    
+    var property: MediaPropertyViewModel
     @FocusState private var focused : Bool
-    @Binding var selected : MediaProperty
+    @Binding var selected : MediaPropertyViewModel
     static var factor = 1.0
-    @State var isVisible : Bool = false
-    
     var width : CGFloat {
         if landscape {
             return 417 * MediaPropertyView.factor
@@ -54,7 +48,7 @@ struct MediaPropertyView : View {
         var prop = _property
         
         if prop == nil {
-            prop = self.property
+            prop = self.property.model
         }
         
         guard let property = prop else {
@@ -100,10 +94,8 @@ struct MediaPropertyView : View {
             Button(action: {
                 Task {
                     do {
-                        guard let propertyId = property.id else {
-                            return
-                        }
-                        if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                        let propertyId = property.id
+                            if let property = try await eluvio.fabric.getProperty(property: propertyId) {
                                 debugPrint("propertyID clicked: ", propertyId)
 
                                 await MainActor.run {
@@ -151,7 +143,7 @@ struct MediaPropertyView : View {
             }){
                 if property.image != "" {
                     VStack{
-                        WebImage(url: URL(string: thumbnail))
+                        WebImage(url: URL(string: property.image))
                             .resizable()
                             .onSuccess { image, data, cacheType in
                                 self.disabled = false
@@ -162,8 +154,8 @@ struct MediaPropertyView : View {
                     }
                 }else{
                     ZStack{
-                        if backgroundImage != "" {
-                            WebImage(url: URL(string: backgroundImage))
+                        if property.backgroundImage != "" {
+                            WebImage(url: URL(string: property.backgroundImage))
                                 .resizable()
                                 .onSuccess { image, data, cacheType in
                                     self.disabled = false
@@ -183,9 +175,10 @@ struct MediaPropertyView : View {
                                 .frame(width: width, height: height)
                                 .cornerRadius(3)
                         }
-                        if title.isEmpty {
+                        if property.title.isEmpty {
+                            //Text("Untitled").font(.largeTitle)
                         }else{
-                            Text(title).font(.largeTitle.bold())
+                            Text(property.title).font(.largeTitle.bold())
                         }
                     }
                 }
@@ -199,33 +192,6 @@ struct MediaPropertyView : View {
                 selected = property
             }
         }
-        .onAppear {
-            if !isVisible {
-                Task(priority:.background){
-                    let viewItem = await MediaPropertyViewModel.create(mediaProperty: property, fabric: eluvio.fabric)
-                    
-                    await MainActor.run {
-                        title = viewItem.title
-                        thumbnail = viewItem.image
-                        backgroundImage = viewItem.backgroundImage
-                    }
-                }
-            }
-        }
-        .onScrollVisibilityChange { isVisible in
-            self.isVisible = isVisible
-            if isVisible {
-                Task(priority:.background){
-                    let viewItem = await MediaPropertyViewModel.create(mediaProperty: property, fabric: eluvio.fabric)
-                    
-                    await MainActor.run {
-                        title = viewItem.title
-                        thumbnail = viewItem.image
-                        backgroundImage = viewItem.backgroundImage
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -234,12 +200,12 @@ struct MediaPropertiesView: View {
     @EnvironmentObject var eluvio: EluvioAPI
     
     var numColumns = 5
-    @Binding var properties: [MediaProperty]
-    var propertiesGroups : [[MediaProperty]] {
+    @Binding var properties: [MediaPropertyViewModel]
+    var propertiesGroups : [[MediaPropertyViewModel]] {
         properties.dividedIntoGroups(of: numColumns)
     }
     
-    @Binding var selected : MediaProperty
+    @Binding var selected : MediaPropertyViewModel
     
     let columns = [
         GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible())
