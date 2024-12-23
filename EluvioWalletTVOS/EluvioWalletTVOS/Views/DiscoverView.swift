@@ -12,7 +12,7 @@ import SDWebImageSwiftUI
 
 struct DiscoverView: View {
     @EnvironmentObject var eluvio: EluvioAPI
-    @State private var properties : [MediaPropertyViewModel] = []
+    @State private var properties : [MediaProperty] = []
     @State private var fabricCancellable: AnyCancellable? = nil
     @State private var fabricCancellable2: AnyCancellable? = nil
     
@@ -22,7 +22,7 @@ struct DiscoverView: View {
     @State var backgroundImageURL = ""
 
     
-    @State private var selected: MediaPropertyViewModel = MediaPropertyViewModel()
+    @State private var selected: MediaProperty = MediaProperty()
     @State private var position: Int?
     let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
     @State var isRefreshing = false
@@ -90,22 +90,12 @@ struct DiscoverView: View {
             }
         }
         .onChange(of:selected){ old, new in
-            if !new.backgroundImage.isEmpty {
-                withAnimation(.easeIn(duration: 1)){
-                    backgroundImageURL = new.backgroundImage
-                }
-            }else{
-                Task {
-                    do {
-                        if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
-                            //debugPrint("Fetched new property ", mediaProperty.id)
-                            let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
-                            withAnimation(.easeIn(duration:1)){
-                                backgroundImageURL = viewItem.backgroundImage
-                            }
-                        }
-                    }catch{
-                        debugPrint("Could not fetch new property ",error.localizedDescription)
+            Task(priority:.background) {
+                let viewItem = await MediaPropertyViewModel.create(mediaProperty: new, fabric: eluvio.fabric)
+                
+                if !viewItem.backgroundImage.isEmpty {
+                    withAnimation(.easeIn(duration: 1)){
+                        backgroundImageURL = viewItem.backgroundImage
                     }
                 }
             }
@@ -184,7 +174,9 @@ struct DiscoverView: View {
                 
                 debugPrint("Got properties ", props.count)
                 
-                var newProperties: [MediaPropertyViewModel] = []
+                
+                /*
+                var newProperties: [MediaPropertyModel] = []
                 
                 for property in props{
                     let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
@@ -199,15 +191,20 @@ struct DiscoverView: View {
                         self.properties = newProperties
                     }
                 }
+                 */
+                self.properties = props;
+                
+                let viewItem = await MediaPropertyViewModel.create(mediaProperty: self.properties[0], fabric: eluvio.fabric)
                 
                 await MainActor.run {
-                    if newProperties.count > 0 {
-                        selected = newProperties[0]
+
+                    if self.properties.count > 0 {
+                        selected = self.properties[0]
+
                         withAnimation(.easeIn(duration: 1)){
-                            backgroundImageURL = selected.backgroundImage
+                            backgroundImageURL = viewItem.backgroundImage
                         }
                     }
-                    self.properties = newProperties
                     debugPrint("Finished setting properties")
                 }
             }catch(FabricError.apiError(let code, let response, let error)){
