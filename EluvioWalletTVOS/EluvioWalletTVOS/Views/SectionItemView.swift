@@ -480,6 +480,8 @@ struct SectionItemView: View {
     @State var isLive : Bool = false
     @State var startTimeString : String = ""
     @State var mediaProgress: MediaProgress?
+    @State var isVisible : Bool = false
+    
     var progressText: String {
         guard let progress = mediaProgress else {
             return ""
@@ -888,16 +890,21 @@ struct SectionItemView: View {
             }
         }
         .onAppear(){
-            Task {
-                try? await Task.sleep(nanoseconds: 2000000000)
-                update()
-                updateProgress()
+            if !isVisible {
+                Task(priority:.background) {
+                    //try? await Task.sleep(nanoseconds: 2000000000)
+                    update()
+                    updateProgress()
+                }
             }
         }
         .onReceive(refreshTimer) { _ in
-            update()
+            Task(priority:.background) {
+                update()
+            }
         }
         .onScrollVisibilityChange { isVisible in
+            self.isVisible = isVisible
             if isVisible {
                 debugPrint("OnVisibility change ", viewItem.title)
                 update()
