@@ -194,7 +194,7 @@ struct SectionGridView: View {
                 }
                 self.items = sectionItems
             }catch {
-                
+                debugPrint("Error processing Section Grid Items: ", error)
             }
         }
     }

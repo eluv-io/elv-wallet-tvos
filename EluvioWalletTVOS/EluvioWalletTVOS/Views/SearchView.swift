@@ -359,7 +359,7 @@ struct SearchView: View {
                     
                     debugPrint("Searching ALL ", propertyId)
                     self.sections = try await eluvio.fabric.searchProperty(property: propertyId)
-                    debugPrint("result: ", sections.first)
+                    debugPrint("Search result count: ", sections.count)
                     
                 }catch{
                     print("Could not do search ", error.localizedDescription)
@@ -397,6 +397,8 @@ struct SearchView: View {
                     debugPrint("attributes:", attributes)
                     
                     let sections = try await eluvio.fabric.searchProperty(property: searchPropertyId, attributes: attributes, searchTerm: searchString)
+                    
+                    debugPrint("Search sections found:", sections.count)
                     
                     await MainActor.run {
                         self.sections = []

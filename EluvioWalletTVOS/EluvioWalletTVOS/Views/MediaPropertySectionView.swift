@@ -165,7 +165,7 @@ struct MediaPropertyRegularSectionView: View {
                 debugPrint("display ", icon)
                 return icon
             }catch{
-                print("error ", error)
+                //print("error ", error)
                 return ""
             }
         }
@@ -327,8 +327,7 @@ struct MediaPropertyRegularSectionView: View {
                             ScrollView(.horizontal) {
                                 HStack(alignment: .center, spacing: 34) {
                                     ForEach(Array(items.enumerated()), id: \.offset) {index, item in
-                                        SectionItemView(//item: item.sectionItem,
-                                                        sectionId: section.id,
+                                        SectionItemView(sectionId: section.id,
                                                         pageId:pageId,
                                                         propertyId: propertyId,
                                                         forceAspectRatio:forceAspectRatio,
@@ -384,6 +383,7 @@ struct MediaPropertyRegularSectionView: View {
             refresh()
         }
          */
+        
         .task() {
             refresh()
         }
@@ -401,17 +401,21 @@ struct MediaPropertyRegularSectionView: View {
          */
         debugPrint("MediaPropertyRegularSectionView refresh() ", section.displayTitle)
 
-        if let display = section.display {
-            do {
-                logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
-            }catch{}
+
+        Task(priority:.background) {
+            if let display = section.display {
+                do {
+                    logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
+                }catch{}
+                
+                do {
+                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                }catch{}
+            }
             
-            do {
-                inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-            }catch{}
-        }
-        
-        Task {
+            
+            let max = 25
+            var count = 0
             var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
             if let content = section.content {
                 for _item in content {
@@ -420,7 +424,7 @@ struct MediaPropertyRegularSectionView: View {
                     
                     if let type = section.type {
                         if type != "search" {
-                            guard let testItem = try eluvio.fabric.getSectionItem(sectionId: section.id, sectionItemId: _item.id ?? "") else {
+                            guard let testItem = eluvio.fabric.getSectionItem(sectionId: section.id, sectionItemId: _item.id ?? "") else {
                                 continue;
                             }
                             item = testItem
@@ -436,11 +440,16 @@ struct MediaPropertyRegularSectionView: View {
                         let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
                         sectionItems.append(viewItem)
                     }else{
-                        debugPrint("hiding item section: \(item.id), media id: \(item.media_id)")
+                        //debugPrint("hiding item section: \(item.id), media id: \(item.media_id)")
                     }
                     //Optimization so we show the first 4 first so faster loading sections don't render ahead of us as much
                     if sectionItems.count == 4{
                         self.items = sectionItems
+                    }
+                    
+                    count += 1
+                    if count == max {
+                        break
                     }
                 }
 
@@ -614,7 +623,7 @@ struct MediaPropertySectionView: View {
                 debugPrint("display ", icon)
                 return icon
             }catch{
-                print("error ", error)
+                //print("error ", error)
                 return ""
             }
         }
@@ -877,7 +886,7 @@ struct MediaPropertySectionView: View {
         }
 
         debugPrint("MediaPropertySectionView refresh ", section.id)
-
+/*
         if section.type != "search" {
             Task(priority: .background){
                 do {
@@ -893,17 +902,29 @@ struct MediaPropertySectionView: View {
                 }
             }
         }
-
+*/
         Task(){
             do {
                 if section.type != "search" {
                     print("Fetching section \(section.id)")
-                    let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
+                    /*let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
                     if result.count == 0 {
                         print("Could not fetch section \(section.id)")
                         return
                     }
                     self.section = result[0]
+                     */
+                    do {
+                        
+                        if section.resolvedPermission == nil {
+                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
+                            section.resolvedPermission = self.permission
+                        }else {
+                            self.permission = section.resolvedPermission
+                        }
+                    }catch{
+                        self.permission = section.resolvedPermission
+                    }
                 }
 
                 //looking for subsections

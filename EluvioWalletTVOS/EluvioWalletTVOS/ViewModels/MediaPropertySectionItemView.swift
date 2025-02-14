@@ -149,8 +149,8 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
             thumb_aspect_ratio = .portrait
         }
         
-        var headerString = ""
-        thumbnail = thumbnail + "&width=400"
+        let headerString = ""
+        thumbnail = thumbnail + "&height=400"
         
         debugPrint("thumbnail: ", thumbnail)
         
@@ -300,6 +300,8 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
         if let headers = item.media?.headers {
             headerString = headers.joined(separator: "   ")
         }
+        
+        thumbnail = thumbnail + "&height=400"
         
         return MediaPropertySectionMediaItemViewModel (
             id: item.id ?? "",

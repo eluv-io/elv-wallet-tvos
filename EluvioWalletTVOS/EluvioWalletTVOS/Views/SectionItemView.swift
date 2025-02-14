@@ -390,17 +390,16 @@ struct SectionMediaItemView: View {
 
 struct SectionItemView: View {
     @EnvironmentObject var eluvio: EluvioAPI
-    
-    //Remove the need for this
-    //@State var item: MediaPropertySectionItem? = nil
+
     var sectionId : String
     var pageId : String
     var propertyId: String
     var forceAspectRatio : String = ""
     var forceDisplay : MediaDisplay?
-    /*@State */var viewItem : MediaPropertySectionMediaItemViewModel
+    var viewItem : MediaPropertySectionMediaItemViewModel
     
     @FocusState var isFocused
+    
     var permission : ResolvedPermission? {
         return viewItem.sectionItem?.media?.resolvedPermission
     }
@@ -414,7 +413,6 @@ struct SectionItemView: View {
         }
         return false
     }
-    
     
     var disable: Bool {
         return viewItem.disabled
@@ -505,6 +503,9 @@ struct SectionItemView: View {
     }
     
     func updateProgress() {
+        if !self.isVisible {
+            return
+        }
         Task {
             do{
                 let mediaId = viewItem.media_id
@@ -537,32 +538,10 @@ struct SectionItemView: View {
                         
                         Task{
                             let mediaItem = viewItem
-                            /*
-                             guard let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: viewItem.id)  else {
-                             return
-                             }
-                             */
-                            
+
                             guard let item = viewItem.sectionItem else {
                                 return
                             }
-                            
-                            debugPrint("Item Selected! ", item.id)
-                            // debugPrint("MediaItemView Type ", mediaItem.media_type)
-                            //debugPrint("Item Type ", item.type ?? "")
-                            //debugPrint("Item Media Type ", item.media_type ?? "")
-                            //debugPrint("Item permission: ", item.permissions)
-                            //debugPrint("Media permission: ", item.media?.permissions)
-                            
-                            //debugPrint("Item display ", display)
-                            //debugPrint("Item forceDisplay ", forceDisplay)
-                            //debugPrint("Item forceAspect Ratio ", forceAspectRatio)
-                            debugPrint("Item currently live ", item.media?.currentlyLive)
-                            debugPrint("Item start_time ", item.media?.startDate)
-                            debugPrint("Item stream_start_time ", item.media?.streamStartDate)
-                            debugPrint("Item isUpcoming ", item.media?.isUpcoming)
-                            debugPrint("Item end ", item.media?.endDate)
-                            debugPrint("Item is live ", item.media?.live_video)
                             
                             do{
                                 
@@ -889,15 +868,6 @@ struct SectionItemView: View {
                 }
             }
         }
-        .onAppear(){
-            if !isVisible {
-                Task(priority:.background) {
-                    //try? await Task.sleep(nanoseconds: 2000000000)
-                    update()
-                    updateProgress()
-                }
-            }
-        }
         .onReceive(refreshTimer) { _ in
             Task(priority:.background) {
                 update()
@@ -906,21 +876,27 @@ struct SectionItemView: View {
         .onScrollVisibilityChange { isVisible in
             self.isVisible = isVisible
             if isVisible {
-                debugPrint("OnVisibility change ", viewItem.title)
-                update()
-                updateProgress()
+                Task(priority:.background){
+                    update()
+                    updateProgress()
+                }
             }
         }
     }
     
     func update(){
+        //debugPrint("SectionItemView update ", viewItem.title)
+        
+        if !isVisible {
+            return
+        }
+
         let sectionItemId = viewItem.id
         if let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: sectionItemId) {
-            let viewItem = MediaPropertySectionMediaItemViewModel.create(item:item, fabric: eluvio.fabric)
+
 
             self.isLive = item.media?.currentlyLive ?? false
             self.startTimeString = item.media?.startDateTimeString ?? ""
-            
             let _thumb = viewItem.thumbnail
             if self.imageThumbnail != _thumb {
                 self.imageThumbnail = viewItem.thumbnail

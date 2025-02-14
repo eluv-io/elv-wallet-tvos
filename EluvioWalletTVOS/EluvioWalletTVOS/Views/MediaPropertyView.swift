@@ -104,11 +104,10 @@ struct MediaPropertyView : View {
 
                                 var skipLogin = false
                                 
-                                if let requireLogin = property.require_login {
-                                    if !requireLogin {
-                                        //We ignore this on TV, always require
-                                        //skipLogin = true
-                                        debugPrint("require_login ", requireLogin)
+                                if let disableLogin = property.login?["settings"]["disable_login"].boolValue {
+                                    if disableLogin {
+                                        skipLogin = true
+                                        debugPrint("disableLogin ", disableLogin)
                                     }
                                 }
                                 
@@ -118,8 +117,6 @@ struct MediaPropertyView : View {
                                         eluvio.fabric.fabricToken = currentAccount.fabricToken
                                     }
                                 }
-
-                                //debugPrint("skipLogin: ", property)
                                 
                                 if !skipLogin {
                                    login()
@@ -226,6 +223,18 @@ struct MediaPropertiesView: View {
             }
         }
         .frame(maxWidth:.infinity, maxHeight: .infinity)
+        .task(){
+            debugPrint("Properties number: ", properties.count)
+            
+            var count = 0
+            for group in propertiesGroups {
+                for property in group {
+                    count += 1
+                }
+            }
+            
+            debugPrint("PropertyGroups number: ", count)
+        }
     }
 }
 

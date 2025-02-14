@@ -66,7 +66,7 @@ class Fabric: ObservableObject {
     var configuration : FabricConfiguration? = nil
     
     //These will only show up on staging flag
-    //var devProperties : [String] = ["iq__3dzXSEyR9EgGVPPJJboHyGmHtt6b", "iq__2uNjfaqsPGxfHtaemQuP5rL94EL9"]
+    //var devProperties : [String] = ["iq__3TKGNyZHdYGBe7mfPrHcJzzJCheA"]
     
     var devProperties : [String] = []
     
@@ -2915,11 +2915,6 @@ class Fabric: ObservableObject {
     func checkPermissionIds(permissionIds:[JSON], authState:JSON) -> Bool {
         //debugPrint("checkPermissionIds")
         
-        if authState.isEmpty {
-            debugPrint("authState is empty")
-            return false
-        }
-        
         if permissionIds.isEmpty{
             return true
         }
@@ -2927,8 +2922,10 @@ class Fabric: ObservableObject {
         for id in permissionIds {
             debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
             debugPrint(" \(id.stringValue) : ", authState[id.stringValue])
-            if authState[id.stringValue]["authorized"].boolValue{
-                return true
+            if !authState.isEmpty {
+                if authState[id.stringValue]["authorized"].boolValue{
+                    return true
+                }
             }
             
         }
