@@ -132,10 +132,12 @@ struct DiscoverView: View {
                 refresh()
            }
         }
+        .onWillDisappear {
+            eluvio.needsRefresh()
+        }
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
             opacity = 0.0
-            eluvio.needsRefresh()
             refresh()
         }
          

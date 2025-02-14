@@ -102,7 +102,7 @@ struct MediaPropertySectionGridView: View {
         )
         .clipped()
         .frame(maxWidth:.infinity, maxHeight: .infinity)
-        .task{
+        .onAppear(){
             if self.refreshId == eluvio.refreshId {
                 return
             }
@@ -384,7 +384,7 @@ struct MediaPropertyRegularSectionView: View {
         }
          */
         
-        .task() {
+        .onAppear() {
             refresh()
         }
     }
@@ -871,7 +871,7 @@ struct MediaPropertySectionView: View {
         }
         .disabled(disable)
         .focusSection()
-        .task() {
+        .onAppear() {
             refresh()
         }
     }

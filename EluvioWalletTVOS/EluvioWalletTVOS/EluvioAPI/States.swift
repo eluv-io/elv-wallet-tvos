@@ -11,7 +11,12 @@ import AVKit
 
 enum NavDestination: Hashable {
     case property(PropertyParam), video, gallery, mediaGrid(MediaGridParams), html(HtmlParams), search, sectionViewAll, nft,
-         videoError, login(LoginParam), errorView(String), progress, black, purchaseQRView(PurchaseParams), imageView(String)
+         videoError, login(LoginParam), errorView(String), progress, black, purchaseQRView(PurchaseParams), imageView(ImageParams)
+}
+
+struct ImageParams:Hashable{
+    var url: String = ""
+    var title : String = ""
 }
 
 enum LoginType : String {

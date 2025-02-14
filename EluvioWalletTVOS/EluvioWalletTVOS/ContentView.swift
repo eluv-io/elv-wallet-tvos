@@ -375,12 +375,38 @@ struct ContentView: View {
                         .font(.title)
                         .background(.black)
                         .edgesIgnoringSafeArea(.all)
-                case let .imageView(url) :
-                    WebImage(url: URL(string:url))
-                        .resizable()
-                        .scaledToFit()
-                        .background(.black)
-                        .edgesIgnoringSafeArea(.all)
+                case let .imageView(params) :
+                    ZStack{
+                        HStack(alignment:.center){
+                            Spacer()
+                            WebImage(url: URL(string:params.url))
+                                .resizable()
+                                .scaledToFill()
+                                .background(.black)
+                            Spacer()
+                        }
+                        if !params.title.isEmpty {
+                            VStack(){
+                                Spacer()
+                                VStack(alignment:.center){
+                                    Text(params.title).font(.title3)
+                                        .lineLimit(2)
+                                        .padding(.bottom,100)
+                                }
+                                .frame(maxWidth:.infinity)
+                                .edgesIgnoringSafeArea(.all)
+                                .background(.black.opacity(0.6))
+                                .padding(40)
+                                
+                                //.padding([.leading, .trailing], 20)
+                            }
+                            .frame(maxWidth:.infinity)
+                            .edgesIgnoringSafeArea(.all)
+                        }
+                    }
+                    .frame(maxWidth:.infinity)
+                    .edgesIgnoringSafeArea(.all)
+                    
                 case let .login(params) :
                     if params.type == .auth0 {
                         DeviceFlowView(property: params.property)

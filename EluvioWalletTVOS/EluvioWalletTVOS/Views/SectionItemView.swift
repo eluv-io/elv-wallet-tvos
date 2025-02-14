@@ -203,24 +203,36 @@ struct SectionMediaItemView: View {
 
 
     var thumbnail : String {
+        if thumbnailFull.isEmpty {
+            return ""
+        }
+        
+        if thumbnailFull.contains("?") {
+            return thumbnailFull + "&height=400"
+        }else {
+            return thumbnailFull + "?height=400"
+        }
+    }
+    
+    var thumbnailFull : String {
         do {
             let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_square)
             if !thumbnailSquare.isEmpty {
-                return thumbnailSquare + "&width=400"
+                return thumbnailSquare
             }
         }catch{}
         
         do {
             let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_portrait)
             if !thumbnailPortrait.isEmpty {
-                return thumbnailPortrait + "&width=400"
+                return thumbnailPortrait
             }
         }catch{}
         
         do {
             let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_landscape )
             if !thumbnailLand.isEmpty {
-                return thumbnailLand + "&width=400"
+                return thumbnailLand
             }
         }catch{}
         
@@ -359,7 +371,8 @@ struct SectionMediaItemView: View {
                             }
                         }else if type.lowercased() == "image" {
                             _ = eluvio.pathState.path.popLast()
-                            eluvio.pathState.path.append(.imageView(thumbnail))
+                            let params = ImageParams(url:thumbnailFull, title: item.title ?? "")
+                            eluvio.pathState.path.append(.imageView(params))
                         }else {
                             debugPrint("Item media_type: ", item.media_type)
                             debugPrint("Item without type Item: ", item)
@@ -788,7 +801,8 @@ struct SectionItemView: View {
                                     }
                                 }else if mediaItem.media_type.lowercased() == "image" {
                                     _ = eluvio.pathState.path.popLast()
-                                    eluvio.pathState.path.append(.imageView(mediaItem.thumbnail))
+                                    let params = ImageParams(url:mediaItem.thumbnailFull, title: viewItem.title)
+                                    eluvio.pathState.path.append(.imageView(params))
                                     
                                 }else if ( item.type?.lowercased() == "page_link") {
                                     debugPrint("page_link item: ", item)

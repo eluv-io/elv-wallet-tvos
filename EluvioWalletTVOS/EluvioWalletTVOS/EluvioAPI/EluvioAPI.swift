@@ -49,6 +49,7 @@ class EluvioAPI : ObservableObject {
     
     @MainActor
     func needsRefresh() {
+        debugPrint("EluvioAPI needs refresh")
         refreshId = UUID().uuidString
     }
 

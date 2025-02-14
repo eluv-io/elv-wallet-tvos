@@ -208,6 +208,9 @@ struct MediaPropertyDetailView: View {
         )
         .onAppear{
             debugPrint("MediaPropertyDetailView onAppear")
+            withAnimation(.easeInOut(duration: 1)) {
+              opacity = 1.0
+            }
             refresh()
         }
         .onWillDisappear {
@@ -215,34 +218,6 @@ struct MediaPropertyDetailView: View {
               opacity = 0.0
             }
         }
-        .onDisappear(){
-            //eluvio.needsRefresh()
-            //refresh()
-        }
-        /*
-        .onReceive(sectionRefreshTimer) { _ in
-            debugPrint("MediaPropertyDetailView refreshTimer")
-            var propertyId = self.propertyId
-            
-            if let subId = currentSubproperty?.id {
-                propertyId = subId
-            }
-            
-            Task{
-                do {
-                    /*let sections = try await eluvio.fabric.getPropertyPageSections(property: propertyId, page: self.pageId)*/
-                    
-                    await MainActor.run {
-                        debugPrint("MediaPropertyDetailView Sections count: ", sections.count)
-                        self.sections = sections
-                        eluvio.needsRefresh()
-                    }
-                }catch{
-                    debugPrint(error)
-                }
-            }
-        }
-         */
     }
   
     func refresh(findSubs:Bool = true){
@@ -250,9 +225,13 @@ struct MediaPropertyDetailView: View {
         debugPrint("MediaPropertyDetailView refresh() page: ",pageId)
         if self.isRefreshing {
             debugPrint("no need for a refresh..exiting")
-            withAnimation(.easeInOut(duration: 1)) {
-              opacity = 1.0
-            }
+            return
+        }
+        
+        debugPrint("MediaPropertyDetailView refreshId ",refreshId)
+        
+        if self.refreshId == eluvio.refreshId {
+            debugPrint("skipping refresh...")
             return
         }
         
@@ -270,11 +249,8 @@ struct MediaPropertyDetailView: View {
         Task {
             defer {
                 self.isRefreshing = false
-                self.refreshId = UUID().uuidString
-                
-                withAnimation(.easeInOut(duration: 1)) {
-                  opacity = 1.0
-                }
+                self.refreshId = eluvio.refreshId
+                debugPrint("MediaPropertyDetailView refresh done: setting refreshId ",refreshId)
             }
             
             let newFetch = true

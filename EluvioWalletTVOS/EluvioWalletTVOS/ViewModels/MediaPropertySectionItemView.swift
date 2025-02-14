@@ -32,7 +32,18 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
     var thumbnail_image_square : String = ""
     var thumbnail_image_portrait : String = ""
     var thumbnail_image_landscape : String = ""
-    var thumbnail : String = ""
+    var thumbnail : String {
+        if thumbnailFull.isEmpty {
+            return ""
+        }
+        
+        if thumbnailFull.contains("?") {
+            return thumbnailFull + "&height=400"
+        }else {
+            return thumbnailFull + "?height=400"
+        }
+    }
+    var thumbnailFull : String = ""
     var thumb_aspect_ratio : ImageAspectRatio = .square
     var headerString: String = ""
     
@@ -150,7 +161,6 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
         }
         
         let headerString = ""
-        thumbnail = thumbnail + "&height=400"
         
         debugPrint("thumbnail: ", thumbnail)
         
@@ -176,7 +186,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
             thumbnail_image_square : thumbnailSquare,
             thumbnail_image_portrait : thumbnailPortrait,
             thumbnail_image_landscape: thumbnailLand,
-            thumbnail : thumbnail,
+            thumbnailFull : thumbnail,
             thumb_aspect_ratio: thumb_aspect_ratio,
             headerString: headerString,
             icons: icons,
@@ -301,8 +311,6 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
             headerString = headers.joined(separator: "   ")
         }
         
-        thumbnail = thumbnail + "&height=400"
-        
         return MediaPropertySectionMediaItemViewModel (
             id: item.id ?? "",
             media_id : item.media_id ?? "",
@@ -325,7 +333,7 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
             thumbnail_image_square : thumbnailSquare,
             thumbnail_image_portrait : thumbnailPortrait,
             thumbnail_image_landscape: thumbnailLand,
-            thumbnail : thumbnail,
+            thumbnailFull : thumbnail,
             thumb_aspect_ratio: thumb_aspect_ratio,
             headerString: headerString,
             icons: item.media?.icons,
