@@ -176,9 +176,7 @@ struct SectionGridView: View {
                         }
                         
                         let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
-                        
 
-                        
                         item.media?.resolvedPermission = mediaPermission
                         item.resolvedPermission = mediaPermission
 

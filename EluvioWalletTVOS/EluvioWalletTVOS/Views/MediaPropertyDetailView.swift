@@ -208,8 +208,11 @@ struct MediaPropertyDetailView: View {
         )
         .onAppear{
             debugPrint("MediaPropertyDetailView onAppear")
-            withAnimation(.easeInOut(duration: 1)) {
-              opacity = 1.0
+            Task{
+                try? await Task.sleep(nanoseconds: 2000000000)
+                withAnimation(.easeInOut(duration: 1)) {
+                    opacity = 1.0
+                }
             }
             refresh()
         }
@@ -234,6 +237,7 @@ struct MediaPropertyDetailView: View {
             debugPrint("skipping refresh...")
             return
         }
+        self.refreshId = eluvio.refreshId
         
         playerItem = nil
         backgroundImage = ""
@@ -249,7 +253,6 @@ struct MediaPropertyDetailView: View {
         Task {
             defer {
                 self.isRefreshing = false
-                self.refreshId = eluvio.refreshId
                 debugPrint("MediaPropertyDetailView refresh done: setting refreshId ",refreshId)
             }
             
@@ -364,12 +367,12 @@ struct MediaPropertyDetailView: View {
 
             do {
                 debugPrint("Property title ", altProperty?.title)
-                debugPrint("Property permissions ", altProperty?.permissions)
-                debugPrint("Property authState ", altProperty?.permission_auth_state)
-                debugPrint("Page permissions ", altProperty?.main_page?.permissions)
+                //debugPrint("Property permissions ", altProperty?.permissions)
+                //debugPrint("Property authState ", altProperty?.permission_auth_state)
+                //debugPrint("Page permissions ", altProperty?.main_page?.permissions)
                 
                 var pagePerms = try await eluvio.fabric.resolvePagePermission(propertyId: altPropertyId, pageId: altPageId)
-                debugPrint("Main Page resolved permissions", pagePerms)
+                //debugPrint("Main Page resolved permissions", pagePerms)
                 if !pagePerms.authorized {
                     if pagePerms.behavior == .showAlternativePage {
                         self.pageId = pagePerms.alternatePageId
@@ -396,7 +399,7 @@ struct MediaPropertyDetailView: View {
             do {
                 debugPrint("MediaPropertyDetailView getting page sections")
                 sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
-                debugPrint("finished getting sections. ", sections)
+                debugPrint("finished getting sections. ", sections.count)
             }catch(FabricError.apiError(let code, let response, let error)){
                 debugPrint("Error getting page sections")
                 eluvio.handleApiError(code: code, response: response, error: error)

@@ -887,7 +887,7 @@ struct SectionItemView: View {
                 update()
             }
         }
-        .onScrollVisibilityChange { isVisible in
+        .onScrollVisibilityChange(threshold: 0.01){ isVisible in
             self.isVisible = isVisible
             if isVisible {
                 Task(priority:.background){

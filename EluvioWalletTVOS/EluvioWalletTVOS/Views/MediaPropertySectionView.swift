@@ -107,9 +107,7 @@ struct MediaPropertySectionGridView: View {
                 return
             }
             
-            defer {
-                self.refreshId = eluvio.refreshId
-            }
+            self.refreshId = eluvio.refreshId
             
             if let display = section.display {
                 do {
@@ -390,15 +388,6 @@ struct MediaPropertyRegularSectionView: View {
     }
     
     func refresh() {
-        /*
-        if self.refreshId == eluvio.refreshId {
-            return
-        }
-        
-        defer {
-            self.refreshId = eluvio.refreshId
-        }
-         */
         debugPrint("MediaPropertyRegularSectionView refresh() ", section.displayTitle)
 
 
@@ -880,40 +869,14 @@ struct MediaPropertySectionView: View {
         if self.refreshId == eluvio.refreshId {
             return
         }
-    
-        defer {
-            self.refreshId = eluvio.refreshId
-        }
+        self.refreshId = eluvio.refreshId
 
         debugPrint("MediaPropertySectionView refresh ", section.id)
-/*
-        if section.type != "search" {
-            Task(priority: .background){
-                do {
-                    
-                    if section.resolvedPermission == nil {
-                        self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
-                        section.resolvedPermission = self.permission
-                    }else {
-                        self.permission = section.resolvedPermission
-                    }
-                }catch{
-                    self.permission = section.resolvedPermission
-                }
-            }
-        }
-*/
+
         Task(){
             do {
                 if section.type != "search" {
                     print("Fetching section \(section.id)")
-                    /*let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections:[section.id], newFetch: true)
-                    if result.count == 0 {
-                        print("Could not fetch section \(section.id)")
-                        return
-                    }
-                    self.section = result[0]
-                     */
                     do {
                         
                         if section.resolvedPermission == nil {

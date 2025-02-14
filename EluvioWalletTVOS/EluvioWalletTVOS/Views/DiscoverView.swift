@@ -138,9 +138,7 @@ struct DiscoverView: View {
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
             opacity = 0.0
-            refresh()
         }
-         
     }
     
     func refresh() {
@@ -170,7 +168,6 @@ struct DiscoverView: View {
         debugPrint("DiscoverView refresh()")
         Task{
             defer {
-                //DiscoverView.refreshId = eluvio.refreshId
                 self.isRefreshing = false
             }
 

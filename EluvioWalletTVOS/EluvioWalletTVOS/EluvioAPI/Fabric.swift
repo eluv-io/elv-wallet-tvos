@@ -1561,16 +1561,16 @@ class Fabric: ObservableObject {
             self.mediaPropertiesSectionCache[section.id] = section
             //debugPrint("Caching section ", section.id)
     
-            var sections : [String] = []
+            var subs : [String] = []
             if let sects = section.sections{
                 for sub in sects{
-                    sections.append(sub)
+                    subs.append(sub)
                 }
 
-                if !sections.isEmpty {
+                if !subs.isEmpty {
                     //debugPrint("Fetching subsections count ", sections.count)
                     Task(priority: .background){
-                        try await getAndCachePropertySections(property: property, sections: sections)
+                        try await getAndCachePropertySections(property: property, sections: subs)
                     }
                 }
             }
