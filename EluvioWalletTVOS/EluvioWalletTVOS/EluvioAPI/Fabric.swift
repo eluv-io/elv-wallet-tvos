@@ -321,7 +321,7 @@ class Fabric: ObservableObject {
                     items.append(nftmodel)
                 }
             } catch {
-                print(error)
+                print("NFT Parsing problem for \(nft): \n\n", error)
                 continue
             }
         }
