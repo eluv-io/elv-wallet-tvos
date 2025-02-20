@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-05-18.
 //
-
+/*
 import SwiftUI
 import AVKit
 import SDWebImageSwiftUI
@@ -13,7 +13,7 @@ import SwiftyJSON
 struct MyMediaView2: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var searchText = ""
 
     var library = MediaLibrary()
@@ -34,7 +34,7 @@ struct MyMediaView2: View {
     @State var redeemableFeatures: [RedeemableViewModel] = []
     @State var localizedFeatures: [MediaItem] = []
     private var preferredLocation:String {
-        return fabric.profile.profileData.preferredLocation ?? ""
+        return eluvio.fabric.profile.profileData.preferredLocation ?? ""
     }
     
     @State var heroImage : String?
@@ -44,6 +44,13 @@ struct MyMediaView2: View {
     
     private var featuredListCount: Int {
         return library.features.media.count + library.features.items.count
+    }
+    
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
     }
     
     var body: some View {
@@ -194,20 +201,17 @@ struct MyMediaView2: View {
                                         //debugPrint("Redeemable: ", redeemable.name)
                                         if redeemable.location.lowercased() == preferredLocation.lowercased() || redeemable.location == ""{
                                             //debugPrint("location matched: ", redeemable.location.lowercased())
-                                            let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                            let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
 
                                             redeemableFeatures.append(redeem)
                                             //debugPrint("Appended.")
                                         }
                                     }else{
-                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                        do {
-                                            if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())) {
+                                        let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+
+                                            if (redeem.shouldDisplay(currentUserAddress: address)) {
                                                 redeemableFeatures.append(redeem)
                                             }
-                                        }catch{
-                                            print("Couldn't get accound address \(error.localizedDescription)")
-                                        }
                                     }
                                 }catch{
                                     print("Error processing redemption ", redeemable)
@@ -228,3 +232,4 @@ struct MyMediaView2_Previews: PreviewProvider {
         MyMediaView2()
     }
 }
+*/

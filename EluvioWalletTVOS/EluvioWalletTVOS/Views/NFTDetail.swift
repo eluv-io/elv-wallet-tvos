@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2021-09-27.
 //
-
+/*
 import SwiftUI
 import SwiftyJSON
 import AVKit
@@ -13,13 +13,12 @@ import Combine
 //import SwiftUIIntrospect
 
 struct NFTDetailView: View {
-    @EnvironmentObject var viewState: ViewState
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.openURL) private var openURL
     
     @Namespace var nftDetails
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     
     @State var showDetails = false
     @State var searchText = ""
@@ -61,10 +60,17 @@ struct NFTDetailView: View {
     
     private var preferredLocation:String {
         if IsDemoMode() {
-            return fabric.profile.profileData.preferredLocation ?? ""
+            return eluvio.fabric.profile.profileData.preferredLocation ?? ""
         }else{
             return ""
         }
+    }
+    
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
     }
 
     var body: some View {
@@ -226,8 +232,8 @@ struct NFTDetailView: View {
             }
             .onAppear(){
                 debugPrint("NFTDetailViewDemo onAppear", nft.contract_name)
-                self.cancellable = fabric.$library.sink { val in
-                    debugPrint("NFTDetailView library changed ", fabric.isRefreshing)
+                self.cancellable = eluvio.fabric.$library.sink { val in
+                    debugPrint("NFTDetailView library changed ", eluvio.fabric.isRefreshing)
                     //update()
                 }
                 update()
@@ -260,8 +266,8 @@ struct NFTDetailView: View {
                                 debugPrint("Redeemable Location ", redeemable.location)
                                 if redeemable.location.lowercased() == preferredLocation.lowercased(){
                                     //Expensive operation
-                                    let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                    if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                    if (redeem.shouldDisplay(currentUserAddress: address)){
                                         debugPrint("Redeemable should display!")
                                         localizedRedeemables.append(redeem)
                                     }else{
@@ -272,8 +278,8 @@ struct NFTDetailView: View {
                                 if redeemable.location == "" {
                                     debugPrint("redeemable location is empty")
                                     //Expensive operation
-                                    let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                    if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                    if (redeem.shouldDisplay(currentUserAddress: address)){
                                         debugPrint("Redeemable should display!")
                                         redeemableFeatures.append(redeem)
                                     }else{
@@ -283,14 +289,14 @@ struct NFTDetailView: View {
                             }else{
                                 debugPrint("No profile location ")
                                 //Expensive operation
-                                let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                if (redeem.shouldDisplay(currentUserAddress: address)){
                                     redeemableFeatures.append(redeem)
                                     debugPrint("Redeemable should display!")
                                 }else{
                                     debugPrint("Redeemable should NOT display")
                                 }
-                                debugPrint("Redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:try fabric.getAccountAddress()))
+                                debugPrint("Redeemable isRedeemer \(redeem.name)", redeem.isRedeemer(address:address))
                                 debugPrint(" redeemable status \(redeem.name)", redeem.status)
                                 debugPrint(" redeemable expired? \(redeem.name)", redeem.isExpired)
                                 debugPrint(" redeemable expiry time? \(redeem.name)", redeem.expiresAtFormatted)
@@ -378,7 +384,7 @@ struct NFTDetailView: View {
                 if (!localizedFeatures.isEmpty) {
                     debugPrint("local feature background Image: ", localizedFeatures[0].background_image_tv)
                     imageLink = localizedFeatures[0].background_image_tv
-                    imageUrl = try fabric.getUrlFromLink(link: imageLink)
+                    imageUrl = try eluvio.fabric.getUrlFromLink(link: imageLink)
                     
                 }
                 
@@ -387,7 +393,7 @@ struct NFTDetailView: View {
                     if let imageLink = nft.meta_full?["background_image_tv"] {
                         if !imageLink.isEmpty {
                             do {
-                                imageUrl  = try fabric.getUrlFromLink(link: imageLink)
+                                imageUrl  = try eluvio.fabric.getUrlFromLink(link: imageLink)
                                 debugPrint("NFT background Image TV: ", imageUrl )
                             }catch{}
 
@@ -400,7 +406,7 @@ struct NFTDetailView: View {
                     if let imageLink = nft.meta_full?["background_image"] {
                         if !imageLink.isEmpty {
                             do {
-                                imageUrl  = try fabric.getUrlFromLink(link: imageLink)
+                                imageUrl  = try eluvio.fabric.getUrlFromLink(link: imageLink)
                                 debugPrint("NFT background Image: ", imageUrl )
                             }catch{}
 
@@ -416,7 +422,7 @@ struct NFTDetailView: View {
                     if let featured = nft.additional_media_sections?.featured_media {
                         if !featured.isEmpty {
                             imageLink = featured[0].background_image_tv
-                            imageUrl  = try fabric.getUrlFromLink(link: imageLink)
+                            imageUrl  = try eluvio.fabric.getUrlFromLink(link: imageLink)
                             debugPrint("featured background Image: ", imageUrl )
                         }
                     }
@@ -432,8 +438,7 @@ struct NFTDetailView: View {
 }
 
 struct NFTXRayView: View {
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var nft : NFTModel
     @State var richText: AttributedString = ""
     
@@ -490,8 +495,7 @@ struct NFTXRayView: View {
 struct NFTDetail: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.isPresented) var isPresented
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.openURL) private var openURL
     var nft : NFTModel
     var backLink: String = ""
@@ -509,7 +513,7 @@ struct NFTDetail: View {
                     PackView(nft:nft,backLink: backLink, backLinkIcon: backLinkIcon)
                 }else {
                     NFTDetailView(nft:nft, backLink: backLink, backLinkIcon: backLinkIcon)
-                        .environmentObject(fabric)
+                        .environmentObject(eluvio)
                 }
             }else {
                 ZStack{
@@ -537,7 +541,7 @@ struct NFTDetail: View {
                 do{
                     //print("*** MediaView onChange")
                     if let media = nft.getFirstFeature {
-                        mediaItem = try await MediaItemViewModel.create(fabric:fabric, mediaItem:media)
+                        mediaItem = try await MediaItemViewModel.create(fabric:eluvio.fabric, mediaItem:media)
                         //print ("MediaView name ", media.name)
                         //debugPrint("MediaItem title: ", self.mediaItem?.name)
                         //debugPrint("display: ", display)
@@ -559,7 +563,7 @@ struct NFTDetail: View {
         .onChange(of:isPresented) { newValue in
             if !newValue {
                 Task {
-                   await fabric.refresh()
+                    await eluvio.fabric.refresh()
                 }
             }
         }
@@ -573,3 +577,4 @@ struct NFTDetail_Previews: PreviewProvider {
                 .listRowInsets(EdgeInsets())
     }
 }
+*/

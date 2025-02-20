@@ -62,9 +62,10 @@ class ViewState: ObservableObject {
                         try await fabric.connect(network:"main", signIn: false)
                         var signInResponse = SignInResponse()
                         signInResponse.idToken = authToken
-                        try await fabric.signIn(signInResponse: signInResponse, external: true)
+                        //try await fabric.signIn(signInResponse: signInResponse, external: true)
                         
                         debugPrint("Signed In!")
+                        
                         
                         await MainActor.run {
                             setViewState(host: host, url: url)

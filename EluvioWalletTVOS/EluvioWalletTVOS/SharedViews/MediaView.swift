@@ -12,9 +12,9 @@ import AVKit
 import SDWebImageSwiftUI
 
 enum MediaDisplay {case apps; case video; case feature; case books; case album; case property; case tile; case square}
-
+/*
 struct MediaCollectionView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var mediaCollection: MediaCollection
     var display: MediaDisplay = MediaDisplay.square
     @State var nameBelow = false
@@ -47,7 +47,8 @@ struct MediaCollectionView: View {
         .scrollClipDisabled()
     }
 }
-
+ */
+/*
 func MakePlayerItemFromVersionHash(fabric: Fabric, versionHash: String, params: [JSON]? = [], offering: String = "default") async throws -> AVPlayerItem {
     let options = try await fabric.getOptions(versionHash: versionHash, offering: offering)
     return try MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
@@ -110,9 +111,10 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric, optionsJson: JSON?, versionHa
         throw RuntimeError("No available playback options \(options)")
     }
 }
-
+*/
+/*
 struct MediaView2: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var mediaItem: MediaItem?
     @State var showSharing: Bool = false
     @State private var media = MediaItemViewModel()
@@ -194,16 +196,17 @@ struct MediaView2: View {
                                 var item : AVPlayerItem? = nil
                                 if (media.offering != "default"){
                                     debugPrint("MediaView2 Offering: ", media.offering)
-                                    item = try await MakePlayerItemFromVersionHash(fabric:fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
+                                    item = try await MakePlayerItemFromVersionHash(fabric:eluvio.fabric, versionHash:media.mediaHash, params: media.parameters, offering:media.offering)
+                       
                                 }else{
-                                    item = try await MakePlayerItemFromLink(fabric:fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
+                                    item = try await MakePlayerItemFromLink(fabric:eluvio.fabric, link: media.defaultOptionsLink, params: media.parameters, offering:media.offering)
                                 }
                                 
                                 var image : UIImage? = nil
                                 
                                 do {
                                     debugPrint("Fetching image ", media.image)
-                                    let imageData = try await fabric.httpDataRequest(url: media.image, method:.get)
+                                    let imageData = try await eluvio.fabric.httpDataRequest(url: media.image, method:.get)
                                     image = UIImage(data: imageData)
                                     debugPrint("Downloaded image ", image)
                                 }catch{
@@ -248,14 +251,14 @@ struct MediaView2: View {
                             }catch{
                                 print("Error creating MediaItemViewModel playerItem",error)
                                 do{
-                                    let meta = try await fabric.contentObjectMetadata(id:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
+                                    let meta = try await eluvio.fabric.contentObjectMetadata(id:media.mediaHash, metadataSubtree: "public/asset_metadata/permissions_message")
                                     
                                     print("permissions_message: ", meta)
                                     
                                     if meta.stringValue != "" {
                                         errorMessage = meta.stringValue
                                         showError = true
-                                        await fabric.refresh()
+                                        await eluvio.fabric.refresh()
                                         return
                                     }
                                 }catch{
@@ -264,7 +267,7 @@ struct MediaView2: View {
                                 
                                 errorMessage = "Could not access content"
                                 showError = true
-                                await fabric.refresh()
+                                await eluvio.fabric.refresh()
                             }
                         }
                     }
@@ -331,18 +334,18 @@ struct MediaView2: View {
         }
         .fullScreenCover(isPresented: $showGallery) { [gallery] in
             GalleryView(gallery: gallery)
-                .environmentObject(self.fabric)
+                .environmentObject(self.eluvio.fabric)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                 .edgesIgnoringSafeArea(.all)
                 .background(.thinMaterial)
         }
         .fullScreenCover(isPresented: $showQRView) { [qrUrl] in
             QRView(url: qrUrl)
-                .environmentObject(self.fabric)
+                .environmentObject(self.eluvio.fabric)
         }
         
-        .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) { [startTimeS] in //Need the capture list to update state https://stackoverflow.com/questions/75498944/why-is-this-swiftui-state-not-updated-when-passed-as-a-non-binding-parameter
-            PlayerView(playerItem:self.$playerItem,
+        .fullScreenCover(isPresented: $showPlayer, onDismiss: onPlayerDismiss) { [playerItem, startTimeS] in //Need the capture list to update state https://stackoverflow.com/questions/75498944/why-is-this-swiftui-state-not-updated-when-passed-as-a-non-binding-parameter
+            PlayerView(playerItem:playerItem,
                        playerImageOverlayUrl:playerImageOverlayUrl,
                        playerTextOverlay:playerTextOverlay,
                        seekTimeS: startTimeS, 
@@ -383,15 +386,17 @@ struct MediaView2: View {
         Task {
             do{
                 //print("*** MediaView onChange")
-                self.media = try await MediaItemViewModel.create(fabric:fabric, mediaItem:self.mediaItem)
+                self.media = try await MediaItemViewModel.create(fabric:eluvio.fabric, mediaItem:self.mediaItem)
                     if let contract = media.nft?.contract_addr {
                     if let mediaId = media.mediaId {
-                        let progress = try fabric.getUserViewedProgress(nftContract: contract, mediaId: mediaId)
-                        if (progress.current_time_s > 0){
-                            debugPrint("Found saved progress ", progress)
-                            await MainActor.run {
-                                self.startTimeS = progress.current_time_s
-                                self.mediaProgress = progress
+                        if let account = eluvio.accountManager.currentAccount {
+                            let progress = try eluvio.fabric.getUserViewedProgress(address: account.getAccountAddress(), nftContract: contract, mediaId: mediaId)
+                            if (progress.current_time_s > 0){
+                                debugPrint("Found saved progress ", progress)
+                                await MainActor.run {
+                                    self.startTimeS = progress.current_time_s
+                                    self.mediaProgress = progress
+                                }
                             }
                         }
                     }
@@ -429,20 +434,23 @@ struct MediaView2: View {
         let mediaProgress = MediaProgress(id: mediaId,  duration_s: durationS, current_time_s: currentTimeS)
 
         do {
-            try fabric.setUserViewedProgress(nftContract:contract, mediaId: mediaId, progress:mediaProgress)
+            if let account = eluvio.accountManager.currentAccount {
+                try eluvio.fabric.setUserViewedProgress(address:account.getAccountAddress(), nftContract:contract, mediaId: mediaId, progress:mediaProgress)
+            }
         }catch{
             print(error)
         }
     }
 
 }
+*/
 
 enum MediaFlagPosition{case bottomRight; case bottomCenter}
 
 
 //TODO: Make this generic
 struct RedeemFlag: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var redeemable: RedeemableViewModel
     @State var position: MediaFlagPosition = .bottomCenter
     
@@ -451,16 +459,11 @@ struct RedeemFlag: View {
     }
     
     private var text: String {
-        var address = ""
-        
-        do {
-            address = try fabric.getAccountAddress()
-        }catch{
-            print("Could not get account address")
-            return "REWARD"
+        if let account = eluvio.accountManager.currentAccount {
+            return redeemable.displayLabel(currentUserAddress: account.getAccountAddress())
         }
         
-        return redeemable.displayLabel(currentUserAddress: address)
+        return ""
     }
     
     private var textColor: Color {
@@ -503,7 +506,7 @@ struct RedeemFlag: View {
 }
 
 struct RedeemableCardView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     var redeemable: RedeemableViewModel
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.square
@@ -532,7 +535,7 @@ struct RedeemableCardView: View {
             Task{
                 do{
                     if (display == MediaDisplay.square){
-                        playerItem = try await MakePlayerItemFromLink(fabric: fabric, link: redeemable.animationLink)
+                        playerItem = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: redeemable.animationLink)
                     }
                 }catch{
                     print("Error creating player item", error)
@@ -551,6 +554,7 @@ struct MediaCard: View {
     var playerItem : AVPlayerItem? = nil
     var isFocused: Bool = false
     var isUpcoming: Bool = false
+    var startTimeString: String = ""
     var title: String = ""
     var subtitle: String = ""
     var timeString: String = ""
@@ -559,6 +563,7 @@ struct MediaCard: View {
     var showFocusedTitle = true
     var showBottomTitle = true
     var image_ratio: String? = nil //Square, Wide, Tall or nil
+    var progressValue: Double = 0.0
 
     @State var width: CGFloat = 300
     @State var height: CGFloat = 300
@@ -566,6 +571,7 @@ struct MediaCard: View {
     @State var cornerRadius: CGFloat = 3
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = true
+    var permission : ResolvedPermission? = nil
     
     var body: some View {
         VStack(alignment:.leading) {
@@ -578,11 +584,10 @@ struct MediaCard: View {
                     if (image.hasPrefix("http")){
                         WebImage(url: URL(string: image))
                             .resizable()
-                            .indicator(.activity) // Activity Indicator
-                            .transition(.fade(duration: 0.5))
                             .aspectRatio(contentMode: .fill)
                             .frame( width: width, height: height)
                             .cornerRadius(cornerRadius)
+                            .clipped()
                     }else if (image != ""){
                         Image(image)
                             .resizable()
@@ -612,6 +617,7 @@ struct MediaCard: View {
                             .padding(.bottom, 50)
                             .cornerRadius(cornerRadius)
                             .background(Color.white.opacity(0.1))
+                            .scaleEffect(sizeFactor)
                             .overlay(
                                 RoundedRectangle(cornerRadius: cornerRadius)
                                     .stroke(Color.gray, lineWidth: 2)
@@ -622,54 +628,88 @@ struct MediaCard: View {
                 
                 if (isFocused){
                     VStack(alignment: .leading, spacing: 7) {
+
                         if ( !centerFocusedText){
                             Spacer()
                         }
-                        if showFocusedTitle {
-                            Text(timeString)
-                                .font(.system(size: 15))
-                                .foregroundColor(Color.gray)
-                                .frame(maxWidth:.infinity, alignment:.leading)
-                            
-                            Text(title)
-                                .font(.system(size: 22))
+                        
+                        if let perm = permission {
+                            if perm.showAlternatePage || perm.purchaseGate {
+                                Text("VIEW PURCHASE OPTIONS")
+                                    .font(.system(size: display == MediaDisplay.square ? 20 : 26))
                                 .foregroundColor(Color.white)
-                                .lineLimit(1)
+                                .lineLimit(display == MediaDisplay.square ? 2 : 1)
                                 .bold()
                                 .frame(maxWidth:.infinity, alignment:.leading)
+                            Spacer()
+                            }
+                        }
+                        
+                        if showFocusedTitle {
+                            if (!timeString.isEmpty) {
+                                Text(timeString)
+                                    .font(.system(size: 15))
+                                    .foregroundColor(Color.gray)
+                                    .frame(maxWidth:.infinity, alignment:.leading)
+                            }
                             
-                            Text(subtitle)
-                                .font(.system(size: 19))
-                                .foregroundColor(Color.gray)
-                                .lineLimit(1)
+                            if (!title.isEmpty) {
+                                Text(title)
+                                    .font(.system(size: 22))
+                                    .foregroundColor(Color.white)
+                                    .lineLimit(1)
+                                    .bold()
+                                    .frame(maxWidth:.infinity, alignment:.leading)
+                            }
+                            
+                            if (!subtitle.isEmpty){
+                                Text(subtitle)
+                                    .font(.system(size: 19))
+                                    .foregroundColor(Color.gray)
+                                    .lineLimit(1)
+                                    .frame(maxWidth:.infinity, alignment:.leading)
+                            }
+                        }
+
+                        if progressValue > 0.0 {
+                            ProgressView(value:progressValue)
+                                .foregroundColor(.white)
                                 .frame(maxWidth:.infinity, alignment:.leading)
+                                .frame(height:4)
+                                .padding(.top, 15)
                         }
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity)
                     .padding(20)
-                    //.padding(.bottom, 50)
+                    .scaleEffect(sizeFactor)
                     .cornerRadius(cornerRadius)
                     .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .stroke(Color.highlight, lineWidth: 4)
                     )
-                }else if (isUpcoming){
+                }
+                
+                if (isUpcoming && !isFocused){
                     VStack(alignment: .trailing, spacing: 7) {
                         Spacer()
-                        Text(title)
-                            .foregroundColor(Color.white)
-                            .font(.subheadline)
-                        Text(subtitle)
-                            .foregroundColor(Color.white)
+                        VStack{
+                            Text("UPCOMING")
+                                .font(.custom("Helvetica Neue", size: 21))
+                                .foregroundColor(Color.white)
+                            Text(startTimeString)
+                                .font(.custom("Helvetica Neue", size: 21))
+                                .foregroundColor(Color.white)
+                        }
+                        .padding(3)
+                        .padding(.leading,7)
+                        .padding(.trailing,7)
+                        .background(RoundedRectangle(cornerRadius: 5).fill(Color.black.opacity(0.6)))
                     }
                     .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.trailing)
                     .padding(20)
-                    .padding(.bottom, 25)
-                    .background(Color.black.opacity( 0.8))
-                }
-                
-                if (isLive && display != .feature){
+                    .scaleEffect(sizeFactor)
+                }else if (isLive && display != .feature){
                     VStack() {
                         Spacer()
                         HStack{
@@ -686,59 +726,40 @@ struct MediaCard: View {
                     }
                     .frame( maxWidth: .infinity, maxHeight:.infinity)
                     .padding(20)
+                    .scaleEffect(sizeFactor)
                 }
             }
             if showBottomTitle {
-                Text(title).font(.system(size: 22)).lineLimit(1).frame(alignment:.leading)
+                Text(title).font(.system(size: 22*sizeFactor)).lineLimit(1).frame(alignment:.leading)
             }
         }
         .frame( width: width, height: height)
         .onAppear(){
-            /*
-            if let ratio = image_ratio {
-                if ratio == "Square"{
-                    width =  300
-                    height = 300
-                    cornerRadius = 16
-                } else if ratio == "Tall"{
-                    width = 393
-                    height = 590
-                    cornerRadius = 3
-                } else if ratio == "Wide" {
-                    width =  534
-                    height = 300
-                    cornerRadius = 16
-                }
-            }else {*/
-            //debugPrint("Media ", title)
-            //debugPrint("Media Display ", display)
-                
-                if display == MediaDisplay.feature {
-                    width = 248 * sizeFactor
-                    height = 372 * sizeFactor
-                    cornerRadius = 3 * sizeFactor
-                }else if display == MediaDisplay.video{
-                    width =  417 * sizeFactor
-                    height = 235 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }else if display == MediaDisplay.books {
-                    width =  235 * sizeFactor
-                    height = 300 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }else if display == MediaDisplay.property {
-                    width =  330 * sizeFactor
-                    height = 470 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }else if display == MediaDisplay.tile {
-                    width =  887 * sizeFactor
-                    height = 551 * sizeFactor
-                    cornerRadius = 0
-                }else {
-                    width =  225 * sizeFactor
-                    height = 225 * sizeFactor
-                    cornerRadius = 16 * sizeFactor
-                }
-            //}
+            if display == MediaDisplay.feature {
+                width = 248 * sizeFactor
+                height = 372 * sizeFactor
+                cornerRadius = 3 * sizeFactor
+            }else if display == MediaDisplay.video{
+                width =  400 * sizeFactor
+                height = 225 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }else if display == MediaDisplay.books {
+                width =  235 * sizeFactor
+                height = 300 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }else if display == MediaDisplay.property {
+                width =  330 * sizeFactor
+                height = 470 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }else if display == MediaDisplay.tile {
+                width =  887 * sizeFactor
+                height = 551 * sizeFactor
+                cornerRadius = 0
+            }else {
+                width =  235 * sizeFactor
+                height = 235 * sizeFactor
+                cornerRadius = 16 * sizeFactor
+            }
         }
     }
 }

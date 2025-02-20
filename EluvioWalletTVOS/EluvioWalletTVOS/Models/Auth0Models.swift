@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct SignInResponse {
+struct SignInResponse:Codable {
     var accessToken: String
     var tokenType: String
     var idToken: String

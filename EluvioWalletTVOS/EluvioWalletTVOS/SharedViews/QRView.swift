@@ -7,44 +7,88 @@
 
 import SwiftUI
 import SwiftyJSON
+import SDWebImageSwiftUI
 
 struct QRView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     var url: String
-    @State var title: String = "Point your camera to the QR Code below for content"
+    var backgroundImage: String = ""
+    @State var shortenedUrl: String = ""
+    var cleanUrl : String {
+        return shortenedUrl.replaceFirst(of: "https://", with: "")
+            .replaceFirst(of: "http://", with: "")
+    }
+    @State var title: String = ""
     @State var description: String = ""
     
     var body: some View {
+        ZStack{
+            if !backgroundImage.isEmpty{
+                WebImage(url:URL(string:backgroundImage))
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
+            }
+            
             VStack(alignment: .center, spacing:20){
                 Text(title).font(.title)
                     .multilineTextAlignment(.center)
                     .padding()
-                    .frame(width:1000)
+                    .frame(minWidth:1000)
+                    .frame(maxWidth:1600)
                 if description != "" {
                     Text(description).font(.description)
                         .multilineTextAlignment(.center)
                         .padding()
-                        .frame(width:1000)
+                        .frame(minWidth:1000)
+                        .frame(maxWidth:1600)
                 }
-                Image(uiImage: GenerateQRCode(from: url))
-                    .interpolation(.none)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 400, height: 400)
+                
+                HStack{
+                    if !shortenedUrl.isEmpty {
+                        VStack(alignment: .center, spacing:40)  {
+                            Text("or visit \(cleanUrl)").font(.description)
+                            Image(uiImage: GenerateQRCode(from: shortenedUrl))
+                                .interpolation(.none)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 400, height: 400)
+                        }
+                    }else{
+                        Rectangle()
+                            .foregroundColor(.clear)
+                            .frame(width: 400, height: 400)
+                    }
+                }
+                .padding(.bottom, 40)
+                
+                Button(action:{
+                    eluvio.pathState.path.popLast()
+                },label:{
+                    Text("Back")
+                })
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            .edgesIgnoringSafeArea(.all)
-            .background(.thinMaterial)
-            .onAppear(){
-                print("Experience URL \(url)")
+            .frame(minWidth:1000)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .edgesIgnoringSafeArea(.all)
+        .background(
+            .thinMaterial
+        )
+        .onAppear(){
+            debugPrint("QRView URL \(url)")
+            if title.isEmpty {
+                title = "Point your camera to the QR Code below for content"
             }
+            Task {
+                do {
+                    self.shortenedUrl = try await eluvio.fabric.signer?.shortenUrl(url: url) ?? ""
+                }catch{
+                    self.shortenedUrl = url
+                }
+            }
+
+        }
     }
 }
 
-struct QRView_Previews: PreviewProvider {
-    @State static var url = "https://eluv.io"
-    static var previews: some View {
-        QRView(url:url)
-            .environmentObject(Fabric())
-    }
-}

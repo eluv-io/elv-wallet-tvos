@@ -4,16 +4,15 @@
 //
 //  Created by Wayne Tran on 2023-12-14.
 //
-
+/*
 import SwiftUI
 import SDWebImageSwiftUI
 import AVFoundation
 import SwiftyJSON
 
 struct PackView: View {
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var viewState: ViewState
     @FocusState var isFocused
     var display: MediaDisplay = MediaDisplay.square
     @State var isRedeeming: Bool = false
@@ -126,10 +125,10 @@ struct PackView: View {
                                             if let result = self.result {
                                                 Task {
                                                     debugPrint("Refreshing")
-                                                    await fabric.refresh()
+                                                    await eluvio.fabric.refresh()
                                                     
                                                     debugPrint("Getting nft")
-                                                    if let _nft = fabric.getNFT(contract: result.contractAddress,
+                                                    if let _nft = eluvio.fabric.getNFT(contract: result.contractAddress,
                                                                                 token:result.tokenId) {
                                                         await MainActor.run {
                                                             debugPrint("Showing NFT")
@@ -165,11 +164,11 @@ struct PackView: View {
                                         }
                                         
                                         do {
-                                            let result = try await fabric.packOpen(nft: self.nft)
+                                            let result = try await eluvio.fabric.packOpen(nft: self.nft)
                                             debugPrint("PackOpen result", result)
                                             
                                             if result.contractAddress != "" {
-                                                await fabric.refresh()
+                                                await eluvio.fabric.refresh()
                                                 
                                                 await MainActor.run {
                                                     self.result = result
@@ -179,7 +178,7 @@ struct PackView: View {
                                                     if  (result.contractAddress == "" || result.tokenId == ""){
                                                         self.isError = true
                                                     }else{
-                                                        if let _nft = fabric.getNFT(contract: result.contractAddress,
+                                                        if let _nft = eluvio.fabric.getNFT(contract: result.contractAddress,
                                                                                     token:tokenId) {
                                                             self.mintedNft = _nft
                                                         }else{
@@ -239,3 +238,4 @@ struct PackView: View {
         }
     }
 }
+*/

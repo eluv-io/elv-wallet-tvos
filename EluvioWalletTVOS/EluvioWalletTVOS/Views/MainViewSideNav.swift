@@ -11,8 +11,7 @@ import SwiftyJSON
 
 struct MainViewSideNav: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     @Namespace var MAIN
     
 
@@ -34,7 +33,7 @@ struct MainViewSideNav: View {
                 DiscoverView().preferredColorScheme(colorScheme)
                     .prefersDefaultFocus(in: MAIN)
                     .opacity(selection == .Discover ? 1.0 : 0.0)
-                MyItemsView(nfts: fabric.library.items).preferredColorScheme(colorScheme)
+                MyItemsView(nfts: eluvio.fabric.library.items).preferredColorScheme(colorScheme)
                     .opacity(selection == .Items ? 1.0 : 0.0)
                 ProfileView().preferredColorScheme(colorScheme)
                     .opacity(selection == .Profile ? 1.0 : 0.0)
@@ -81,9 +80,9 @@ struct MainViewSideNav: View {
         }
         .onAppear(){
             debugPrint("MainView onAppear")
-            self.cancellable = fabric.$isLoggedOut.sink { val in
+            self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
                 print("MainView fabric changed, ", val)
-                if fabric.isLoggedOut == true {
+                if val == nil{
                     self.selection = MainTab.Discover
                 }
             }
@@ -94,9 +93,9 @@ struct MainViewSideNav: View {
             }
         }
         .onChange(of: selection){
-            debugPrint("onChange of selection viewState ", viewState.op)
+            debugPrint("onChange of selection viewState ", eluvio.viewState.op)
             Task {
-                await fabric.refresh()
+                await eluvio.fabric.refresh()
             }
         }
         .onChange(of: navFocused){ old,new in
@@ -130,9 +129,9 @@ struct MainViewSideNav: View {
             }
              */
         }
-        .onReceive(logOutTimer) { _ in
-            fabric.signOutIfExpired()
-        }
+        /*.onReceive(logOutTimer) { _ in
+            eluvio.fabric.signOutIfExpired()
+        }*/
     }
 }
 

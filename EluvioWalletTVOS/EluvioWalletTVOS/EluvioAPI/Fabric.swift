@@ -34,6 +34,7 @@ enum FabricError: Error {
     case unexpectedResponse(String)
     case noLogin(String)
     case badInput(String)
+    case apiError(code:Int, response:JSON, error:Error)
 }
 
 struct RuntimeError: LocalizedError {
@@ -53,9 +54,9 @@ class Fabric: ObservableObject {
     
     var configUrl = ""
     var network = ""
-    var isMetamask = false
+    //var isMetamask = false
     //Logged in using 3rdparty token through deep link
-    var isExternal = false
+    //var isExternal = false
     
     var createDemoProperties : Bool = true
     
@@ -63,18 +64,13 @@ class Fabric: ObservableObject {
     
     @Published
     var configuration : FabricConfiguration? = nil
-    @Published
-    var login :  LoginResponse? = nil
-    @Published
-    var isLoggedOut = true
-    @Published
-    var signingIn = false
-    @Published
-    var signInResponse: SignInResponse? = nil
-    var profileData: [String: Any] = [:]
-
-    var loginExpiration = Date()
-    var loginTime = Date()
+    
+    //These will only show up on staging flag
+    //var devProperties : [String] = ["iq__3TKGNyZHdYGBe7mfPrHcJzzJCheA"]
+    
+    var devProperties : [String] = []
+    
+    var environment : APIEnvironment = .prod
     
     //Move these models to the app level
     @Published
@@ -96,6 +92,9 @@ class Fabric: ObservableObject {
     var mediaPropertiesSectionCache : [String: MediaPropertySection] = [:]
     @Published
     var mediaPropertiesMediaItemCache : [String: MediaPropertySectionMediaItem] = [:]
+    @Published
+    var mediaPropertiesSectionItemCache : [String: MediaPropertySectionItem] = [:]
+    
     
     @Published
     var isRefreshing = false
@@ -115,6 +114,7 @@ class Fabric: ObservableObject {
         self.createDemoProperties = createDemoProperties
     }
     
+    /*
     func signOutIfExpired()  {
         if self.loginTime != self.loginExpiration {
             if Date() > self.loginExpiration {
@@ -122,7 +122,7 @@ class Fabric: ObservableObject {
             }
         }
     }
-    
+    */
     
     
     func getEndpoint() throws -> String{
@@ -142,6 +142,7 @@ class Fabric: ObservableObject {
         if(endpoint.isEmpty){
             throw FabricError.configError("Could not get endpoint from config")
         }
+
         return endpoint
     }
     
@@ -164,28 +165,26 @@ class Fabric: ObservableObject {
     }
     
     @MainActor
-    func connect(network: String, signIn: Bool = true) async throws {
+    func connect(network: String, signIn: Bool = true, token:String="") async throws {
         debugPrint("Fabric connect: ", network)
-        defer {
-            self.signingIn = false
-            debugPrint("Fabric connect finished")
-        }
-        self.signingIn = true
-        
         var _network = network
+
         if(network.isEmpty) {
-            guard let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
-                    as? String else {
-                self.isLoggedOut = true
-                return
+            if let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
+                    as? String {
+                _network = savedNetwork
+            }else{
+                _network = "main"
             }
-            _network = savedNetwork
+            
         }
-        
+
         guard let configUrl = APP_CONFIG.network[_network]?.config_url else {
             throw FabricError.configError("Error, configuration network not found \(network)")
         }
         
+        debugPrint("Config URL: \(configUrl)")
+
         guard let url = URL(string: configUrl) else {
             throw FabricError.invalidURL("\(self.configUrl)")
         }
@@ -203,30 +202,33 @@ class Fabric: ObservableObject {
         guard let ethereumApi = self.configuration?.getEthereumAPI() else {
             throw FabricError.configError("Error getting ethereum apis from config: \(self.configuration)")
         }
-        
+
         guard let asApi = self.configuration?.getAuthServices() else{
             throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
         }
-        self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
         
+        debugPrint("Authority API: \(asApi)")
+        
+        self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
+
         self.configUrl = configUrl
         self.network = _network
         UserDefaults.standard.set(_network, forKey: "fabric_network")
-        
+
         self.profileClient = ProfileClient(fabric: self)
-        
+        //debugPrint("Static token: ", fabricToken)
+        if fabricToken == "" && token == "" {
+            fabricToken = createStaticToken()
+        }else if !token.isEmpty{
+            fabricToken = token
+        }
+
         if signIn {
-            //self.checkToken { success in
-                //debugPrint("Check Token: ", success)
+            /*
                 if (self.isMetamask == true){
                     debugPrint("is Metamask login, skipping checkToken")
                     return
                 }
-                /*guard success == true else {
-                    self.signingIn = false
-                    self.isLoggedOut = true
-                    return
-                }*/
                 
                 guard let accessToken = UserDefaults.standard.object(forKey: "access_token") as? AnyObject else {
                     self.signingIn = false
@@ -273,22 +275,60 @@ class Fabric: ObservableObject {
                         return
                     }
                 }
-            //}
+             */
         }
     }
-    
+
     func getContentSpaceId() throws -> String {
         guard let spaceId = self.configuration?.qspace.id else {
             throw FabricError.configError("Error getting spaceId from config: \(self.configuration)")
         }
         return spaceId
     }
-    
+
     func setConfiguration(configuration: FabricConfiguration){
         self.configuration = configuration
         print("QSPACE_ID: \(self.configuration?.qspace.id)")
     }
-    
+
+    func parseNfts(_ nfts: [JSON], propertyId: String) async throws -> [NFTModel] {
+        var items : [NFTModel] = []
+        for nft in nfts {
+            do {
+                let data = try nft.rawData()
+                var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
+                
+                if (nftmodel.id == nil){
+                    if let contract = nftmodel.contract_addr {
+                        if let token = nftmodel.token_id_str {
+                            nftmodel.id = "\(contract) : \(token )"
+                        }
+                    }
+                    
+                    if nftmodel.id == nil {
+                        continue
+                    }
+                }
+
+                if !propertyId.isEmpty {
+                    if let nftTemplate = nftmodel.nft_template{
+                        debugPrint("bundled_id: ", nftTemplate["bundled_property_id"].stringValue)
+                        if nftTemplate["bundled_property_id"].stringValue == propertyId{
+                            items.append(nftmodel)
+                        }
+                    }
+                }else {
+                    items.append(nftmodel)
+                }
+            } catch {
+                print("NFT Parsing problem for \(nft): \n\n", error)
+                continue
+            }
+        }
+        
+        return items
+    }
+
     func parseNftsToLibrary(_ nfts: [JSON]) async throws -> MediaLibrary {
         
         var featured = Features()
@@ -1080,25 +1120,19 @@ class Fabric: ObservableObject {
     @MainActor
     func refresh() async {
         debugPrint("Fabric refresh")
-        if self.signingIn {
+        /*if self.signingIn {
             return
         }
-        if self.isLoggedOut {
-            return
-        }
+         */
         
         if self.isRefreshing {
             return
         }
         
         guard let signer = self.signer else {
+            print("Signer was not initialized!")
             return
         }
-        
-        guard let login = self.login else {
-            return
-        }
-        
         
         self.isRefreshing = true
         defer{
@@ -1108,11 +1142,17 @@ class Fabric: ObservableObject {
 
         do{
             try await profile.refresh()
-            
-            if (!self.isMetamask){
-                self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
+            /*
+            if (!self.isMetamask && self.login != nil){
+                if let login = self.login {
+                    self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
+                }
+            }else{
+                self.fabricToken = createStaticToken()
             }
+             */
 
+            /*
             let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
                                                           accessCode: self.fabricToken)
             let profileData = response.result
@@ -1129,8 +1169,8 @@ class Fabric: ObservableObject {
 
             let parsedLibrary = try await parseNftsToLibrary(nfts)
             self.library = parsedLibrary
-            isRefreshing = false
-            
+             */
+
             do {
                 let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
                 
@@ -1141,28 +1181,208 @@ class Fabric: ObservableObject {
             }catch {
                 print ("error getting mediaProperties: \(error)")
             }
-                
+            
+            isRefreshing = false
         }catch{
             print ("Refresh Error: \(error)")
-            signOut()
+            //signOut()
         }
     }
     
-    func getPropertyPage(property: String, page: String) async throws -> MediaPropertyPage? {
+    func getEnvironment() -> APIEnvironment {
+        if let env = UserDefaults.standard.object(forKey: "api_environment") as? String {
+            if env == "staging"{
+                return .staging
+            }else{
+                return .prod
+            }
+        }else{
+            print("Could not get api_environment from user defaults")
+            return environment
+        }
+    }
+    
+    func setEnvironment(env:APIEnvironment) {
+        environment = env
+        if let signer = self.signer {
+            signer.setEnvironment(env: env)
+        }
+    }
+    
+    func getWalletBaseUrl() -> String {
+        
+        let env = getEnvironment()
+            
+        if self.network == "demo" {
+            return "https://wallet.demov3.contentfabric.io"
+        }else if env == .staging {
+            return "https://wallet.preview.contentfabric.io"
+        }else{
+            return "https://wallet.contentfabric.io"
+        }
+    }
+
+    func createWalletAuthorization(address:String="",
+                                   email:String="",
+                                   expiresAt:Int64=0,
+                                   walletType:String="Custodial",
+                                   walletName:String="Eluvio",
+                                   clusterToken:String="",
+                                   fabricToken:String="",
+                                   provider:String=""
+    ) throws -> String {
+        var paramDict = [String: Any]()
+
+        if !address.isEmpty {
+            paramDict["address"] = address
+        }
+        if !email.isEmpty {
+            paramDict["email"] = email
+        }
+        if expiresAt > 0 {
+            paramDict["expiresAt"] = expiresAt
+        }
+        if !walletType.isEmpty {
+            paramDict["walletType"] = walletType
+        }
+        if !walletName.isEmpty {
+            paramDict["walletName"] = walletName
+        }
+        if !clusterToken.isEmpty {
+            paramDict["clusterToken"] = clusterToken
+        }
+        if !fabricToken.isEmpty {
+            paramDict["fabricToken"] = fabricToken
+        }
+        if !provider.isEmpty {
+            paramDict["provider"] = provider
+        }
+
+        let json = JSON(paramDict)
+        
+        debugPrint("wallet authorization: ", json)
+        let array = [UInt8](try json.rawData())
+        
+        let params = Base58.base58Encode(array)
+        
+        return params
+    }
+    
+    func createWalletPurchaseUrl(id:String,
+                                 propertyId:String,
+                                 pageId:String,
+                                 listingId:String="",
+                                 sectionId:String="",
+                                 sectionItemId:String="",
+                                 actionId:String="",
+                                 permissionIds:[String]=[],
+                                 secondaryPurchaseOption:String="",
+                                 authorization:String="") throws -> String{
+
+        var paramDict = [String: Any]()
+        paramDict["id"] = id
+        paramDict["type"] = "purchase"
+        if !sectionId.isEmpty {
+            paramDict["sectionSlugOrId"] = sectionId
+        }
+        if !sectionItemId.isEmpty {
+            paramDict["sectionItemId"] = sectionItemId
+        }
+        if !permissionIds.isEmpty {
+            paramDict["permissionItemIds"] = permissionIds
+        }
+        if !secondaryPurchaseOption.isEmpty {
+            paramDict["secondaryPurchaseOption"] = secondaryPurchaseOption
+        }
+        
+        //paramDict["gate"] = false
+        let json = JSON(paramDict)
+    
+        
+        debugPrint("wallet purchase params: ", json)
+        let array = [UInt8](try json.rawData())
+        
+        let params = Base58.base58Encode(array)
+        var url = getWalletBaseUrl() + "/" + propertyId + "/" + pageId + "?" + "p=\(params)"
+        if authorization.isEmpty {
+            return url
+        }
+        
+        return url + "&authorization=\(authorization)"
+    }
+    
+    func createWalletPageLink(propertyId:String,pageId:String, authorization:String = "") -> String{
+        let url = getWalletBaseUrl() + "/" + propertyId + "/" + pageId
+        if authorization.isEmpty {
+            return url
+        }
+        return url + "?authorization=\(authorization)"
+    }
+    
+    func getNFTs(address:String, propertyId:String="", description:String="", name:String="") async throws -> [NFTModel]{
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not initialized.")
+        }
+        let response = try await signer.getWalletData(accountAddress: address,
+                                                      propertyId:propertyId,
+                                                      description:description,
+                                                      name:name,
+                                                      accessCode: self.fabricToken)
+        let profileData = response.result
+        return try await parseNfts(profileData["contents"].arrayValue, propertyId:propertyId)
+    }
+    
+    func getProperties(includePublic: Bool, noCache:Bool = false, noAuth:Bool = false, newFetch:Bool=true, devMode:Bool=false) async throws -> [MediaProperty] {
+        debugPrint("Fabric getProperties includingPublic \(includePublic) noCache \(noCache) noAuth \(noAuth)")
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not initialized.")
+        }
+        
+        if noCache || newFetch || self.mediaProperties.contents.isEmpty{
+            var response = try await signer.getProperties(includePublic:includePublic, noCache:noCache, accessCode: noAuth ? "" : self.fabricToken)
+            if devMode {
+                for propertyId in self.devProperties {
+                    if let prop = try await getProperty(property: propertyId) {
+                        response.contents.insert(prop, at:0)
+                        debugPrint("added dev prop ", prop.title)
+                    }
+                }
+            }
+
+            if noAuth == false && !self.fabricToken.isEmpty {
+                try cacheMediaProperties(properties: response)
+            }
+            return response.contents
+        }
+        
+        return self.mediaProperties.contents
+    }
+    
+    func getPropertyPage(propertyId: String, pageId: String) async throws -> MediaPropertyPage? {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
         
         if mediaPropertiesCache.isEmpty {
             let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
-            try await cacheMediaProperties(properties: mediaProperties)
+            try cacheMediaProperties(properties: mediaProperties)
         }
         
-        if let property = try await getProperty(property: property) {
+        if let property = try await getProperty(property: propertyId) {
             
-            //return mediaPropertiesPageCache["\(property)\(page)"]
-            //TODO: Do page caching and use other pages when ids are unique. Right now it's always "main"
-            return property.main_page
+            if pageId == "main"{
+                return property.main_page
+            }
+            
+            if let page = mediaPropertiesPageCache[pageId] {
+                return page
+            }
+    
+            let result =  try await signer.getPropertyPage(property:propertyId, page:pageId, accessCode: self.fabricToken)
+            mediaPropertiesPageCache[pageId] = result
+            return result
+            
         }
         
         return nil
@@ -1176,17 +1396,39 @@ class Fabric: ObservableObject {
         return try await signer.getMediaCatalogJSON(accessCode: self.fabricToken, mediaId: mediaId)
     }
     
-    func getProperty(property: String) async throws -> MediaProperty? {
+    //var TESTING = false
+    
+    func getProperty(property: String, noCache:Bool=false, newFetch:Bool=false) async throws -> MediaProperty? {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
         }
         
-        if mediaPropertiesCache.isEmpty {
-            let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
-            try await cacheMediaProperties(properties: mediaProperties)
+        //debugPrint("getProperty \(property) noCache \(noCache) token \(self.fabricToken)")
+        var mediaProperty = mediaPropertiesCache[property]
+        
+        if mediaPropertiesCache.isEmpty || noCache || mediaProperty == nil || newFetch{
+            mediaProperty = try await signer.getProperty(property:property, noCache:noCache, accessCode: self.fabricToken)
+            //debugPrint("Found property ", mediaProperty?.title)
+            mediaPropertiesCache[property] = mediaProperty
         }
         
-        return mediaPropertiesCache[property]
+        var property =  mediaPropertiesCache[property]
+        /*
+        if TESTING {
+            var authState = JSON([
+                "prmoSDvLi2sG2ktyUv22wHU53x" : ["authorized" : true],
+                "prmo7gpw965XPZU2dW4fziNBwf" : ["authorized" : true],
+                "prmoCW9G2JTC6EpEkU4B3UajUE" : ["authorized" : true],
+                "prmoNqE1qA8WcVs9MuSojyj7Gk" : ["authorized" : true],
+                "prmo57V6zEcBxUD8sXs2tTPEFm" : ["authorized" : true],
+                "prmo2kBuKqDeF9pZ8D7533uQ7Z" : ["authorized" : true],
+                "prmoTCTjJyhBS6DcaJ7MQSwd5s" : ["authorized" : true]
+                
+            ])
+            property?.permission_auth_state = authState
+        }
+        */
+        return property
     }
     
     func getPropertyItems(property: String, sections: [String]) async throws -> JSON {
@@ -1209,26 +1451,49 @@ class Fabric: ObservableObject {
         return result
     }
     
-    
-    func getPropertySections(property: String, sections: [String]) async throws -> [MediaPropertySection] {
-        if mediaPropertiesSectionCache.isEmpty {
-            try await cachePropertySections(property: property, sections: sections)
+    func getPropertySections(property: String, sections: [String], noCache:Bool = false, newFetch: Bool = false) async throws -> [MediaPropertySection] {
+        if mediaPropertiesSectionCache.isEmpty || noCache || newFetch{
+            try await getAndCachePropertySections(property: property, sections: sections)
         }
         
         var retValue: [MediaPropertySection] = []
         
+        var foundAll = true
         for id in sections {
             if let section = self.mediaPropertiesSectionCache[id] {
                 retValue.append(section)
             }else {
-                try await cachePropertySections(property: property, sections: [id])
+                foundAll = false
+                debugPrint("Couldn't find section in cache: \(id)")
+            }
+        }
+        
+        if !foundAll {
+            try await getAndCachePropertySections(property: property, sections: sections)
+            retValue = []
+            for id in sections {
                 if let section = self.mediaPropertiesSectionCache[id] {
                     retValue.append(section)
                 }
             }
         }
-        
+
         return retValue
+    }
+    
+    func getPropertyPageSections(property: String, page: String, noCache: Bool = false, newFetch: Bool = false) async throws -> [MediaPropertySection] {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+        
+        let result = try await signer.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
+        do {
+            try await cachePropertySections(property: property, sections: result.contents)
+        }catch{
+            print("Error caching property sections ", error.localizedDescription)
+        }
+        return result.contents
+        
     }
     
     func getPropertyMediaItems(property: String, mediaItems: [String]) async throws -> [MediaPropertySectionMediaItem] {
@@ -1238,11 +1503,19 @@ class Fabric: ObservableObject {
         
         var retValue: [MediaPropertySectionMediaItem] = []
         
+        var foundAll = true
         for id in mediaItems {
             if let item = self.mediaPropertiesMediaItemCache[id] {
                 retValue.append(item)
             }else {
-                try await cacheMediaItems(property: property, mediaItems: [id])
+                foundAll = false
+            }
+        }
+        
+        if !foundAll {
+            try await cacheMediaItems(property: property, mediaItems: mediaItems)
+            retValue = []
+            for id in mediaItems {
                 if let item = self.mediaPropertiesMediaItemCache[id] {
                     retValue.append(item)
                 }
@@ -1259,47 +1532,84 @@ class Fabric: ObservableObject {
         }
 
         let result = try await signer.getMediaItems(property: property, mediaItems: mediaItems, accessCode: self.fabricToken)
-
+        debugPrint("getMediaItems result ", result)
         await MainActor.run {
             for item in result.contents {
                 if let id = item.id {
                     self.mediaPropertiesMediaItemCache[id] = item
+                    debugPrint("media item cached \(id)")
                 }
             }
         }
     }
-    
-    func cachePropertySections(property: String, sections: [String]) async throws{
+
+    func getAndCachePropertySections(property: String, sections: [String], noCache:Bool=false, clearCache:Bool = true) async throws{
+        debugPrint("getAndCachePropertySections property \(property) ", sections)
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
 
-        let result = try await signer.getPropertySections(property: property, sections: sections, accessCode: self.fabricToken)
+        let result = try await signer.getPropertySections(property: property, noCache:noCache, sections: sections, accessCode: self.fabricToken)
         
+        try await cachePropertySections(property: property, sections:result.contents)
+    }
+
+    func cachePropertySections(property: String, sections: [MediaPropertySection]) async throws{
+        debugPrint("cachePropertySections count \(sections.count)")
         
-        await MainActor.run {
-            for section in result.contents {
-                self.mediaPropertiesSectionCache[section.id] = section
-                if let sectionContents = section.content {
-                    for item in sectionContents {
-                        if let media = item.media {
-                            //debugPrint("Adding media item to cache", media.id)
-                            if let id = media.id {
-                                self.mediaPropertiesMediaItemCache[id] = media
+        for section in sections {
+            self.mediaPropertiesSectionCache[section.id] = section
+            //debugPrint("Caching section ", section.id)
+    
+            var subs : [String] = []
+            if let sects = section.sections{
+                for sub in sects{
+                    subs.append(sub)
+                }
+
+                if !subs.isEmpty {
+                    //debugPrint("Fetching subsections count ", sections.count)
+                    Task(priority: .background){
+                        try await getAndCachePropertySections(property: property, sections: subs)
+                    }
+                }
+            }
+            
+            
+            if let sectionContents = section.content {
+                for item in sectionContents {
+                    
+                    if let sectionItemId = item.id {
+                        self.mediaPropertiesSectionItemCache[sectionItemId] = item
+                        //debugPrint("cached section item \(sectionItemId)")
+                    }
+                    
+                    if let media = item.media {
+                        if let id = media.id {
+                            self.mediaPropertiesMediaItemCache[id] = media
+                            //debugPrint("cached section media item \(id)")
+                        }
+                    }else {
+                        if let mediaId = item.media_id {
+                            Task(priority: .background){
+                                do {
+                                    try await cacheMediaItems(property: property, mediaItems: [mediaId])
+                                }catch{
+                                    print("could not cache media item \(mediaId) ", error.localizedDescription)
+                                }
                             }
                         }
                     }
                 }
+            }else{
+                debugPrint("section has no content, skipping...")
             }
         }
-            
-            //self.mediaPropertiesSectionCache = self.mediaPropertiesSectionCache
-            //self.mediaPropertiesMediaItemCache = self.mediaPropertiesMediaItemCache
     }
     
-    func cacheMediaProperties(properties: MediaPropertiesResponse) async throws{
+    func cacheMediaProperties(properties: MediaPropertiesResponse) throws{
         
-        var mediaProperties : [String : MediaProperty] = [:]
+        var mediaProperties =  self.mediaPropertiesCache
         
         for property in properties.contents {
             if let id = property.id {
@@ -1307,50 +1617,101 @@ class Fabric: ObservableObject {
                     continue
                 }
                 mediaProperties[id] = property
-                
                 /*
-                var sections: [String] = []
-                
-                do {
-                    let sec = property.main_page?.layout?["sections"].arrayValue ?? []
-                    for s in sec {
-                        sections.append(s.stringValue)
+                if let sections = property.sections {
+                    
+                    for (key, section) in sections {
+                        debugPrint("Cached section: \(key)")
+                        self.mediaPropertiesSectionCache[key] = section
+                        if let sectionContents = section.content {
+                            Task(priority: .background){
+                                for item in sectionContents {
+                                    if let media = item.media {
+                                        if let id = media.id {
+                                            self.mediaPropertiesMediaItemCache[id] = media
+                                        }
+                                    }else {
+                                        if let mediaId = item.media_id {
+                                            if let propertyId = property.id {
+                                                do {
+                                                    try await cacheMediaItems(property: propertyId, mediaItems: [mediaId])
+                                                }catch{
+                                                    print("could not cache media item \(mediaId) ", error.localizedDescription)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
+                     
                 }
-                
-                //try await cachePropertySections(property: id, sections: sections)
                  */
             }
         }
         
         let props = mediaProperties
-        
-        await MainActor.run {
-            self.mediaPropertiesCache = props
-        }
+
+        self.mediaPropertiesCache = props
+        self.mediaProperties = properties
     }
     
     func getMediaItem(mediaId:String) -> MediaPropertySectionMediaItem? {
+        if mediaId.isEmpty {
+            debugPrint("getMediaItem: id is empty")
+            return nil
+        }
         if let item = self.mediaPropertiesMediaItemCache[mediaId] {
             return item
         }
-        debugPrint("Couldn't find media item", mediaId)
+        //debugPrint("Couldn't find media item", mediaId)
         return nil
     }
     
-    func searchProperty(property: String, tags:[String] = [], attributes: [String: Any] = [:], searchTerm: String = "") async throws -> [MediaPropertySection] {
+    func getSectionItem(sectionId:String, sectionItemId:String) -> MediaPropertySectionItem? {
+        //debugPrint("getSectionItem sectionId \(sectionId) sectionItemId \(sectionItemId)")
+        if sectionItemId.isEmpty {
+            debugPrint("getSectionItem: id is empty")
+            return nil
+        }
         
+        
+        if let item = self.mediaPropertiesSectionItemCache[sectionItemId] {
+            if !sectionId.isEmpty {
+                //Test if the sectionItem is in the section
+                if let section = self.mediaPropertiesSectionCache[sectionId] {
+                    if let content = section.content {
+                        if !content.contains(item) {
+                            debugPrint("Section does not contain item", item.id)
+                            return nil
+                        }
+                    }
+                }
+            }
+            //debugPrint("Found item \(item.id)")
+            return item
+        }
+        return nil
+    }
+    
+    func searchProperty(property: String, tags:[String] = [], attributes: [String: Any] = [:], searchTerm: String = "", limit:Int=30) async throws -> [MediaPropertySection] {
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
 
-        let result = try await signer.searchProperty(property: property, tags:tags, attributes: attributes, searchTerm: searchTerm, accessCode: self.fabricToken)
+        let result = try await signer.searchProperty(property: property, tags:tags, attributes: attributes, searchTerm: searchTerm, limit:limit, accessCode: self.fabricToken)
+        
+        await MainActor.run {
+            for section in result{
+                self.mediaPropertiesSectionCache[section.id] = section
+            }
+        }
         
         return result
     }
     
     func getPropertyFilters(property: String, primaryFilter: String = "") async throws -> JSON {
-        
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
@@ -1359,188 +1720,118 @@ class Fabric: ObservableObject {
         
         return result
     }
-
-
-    func setLogin(login:  LoginResponse, isMetamask: Bool = false, external: Bool = false) async throws {
-        debugPrint("SetLogin ", login)
+    
+    func getPropertyPermissions(propertyId: String, noCache:Bool = true) async throws -> JSON {
         guard let signer = self.signer else {
-            return
+            throw FabricError.configError("Could not get signer.")
         }
 
-        await MainActor.run {
-            self.login = login
-            self.isLoggedOut = false
-            self.signingIn = false
+        return try await signer.getPropertyPermissions(propertyId: propertyId, accessCode: self.fabricToken, noCache:noCache)
+    }
+    
+    //exchanges id token for cluster token
+    func login(idToken: String, address: String = "", external: Bool = false) async throws -> LoginResponse {
+        var login = LoginResponse()
+        if !external {
             
-            self.isMetamask = isMetamask
-            if(isMetamask){
-                self.fabricToken = login.token
+            guard let config = self.configuration else
+            {
+                print("Not configured.")
+                throw FabricError.configError("Not configured.")
             }
             
-            self.loginTime = Date()
-            self.loginExpiration = Date(timeIntervalSinceNow:24*60*60)
-        }
-        
-
-        if (!self.isMetamask){
-            let result  = try await signer.createFabricToken( address: login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
-            await MainActor.run {
-                self.fabricToken = result
+            var urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
+            
+            if external {
+                urlString = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
             }
-            debugPrint("get Fabric Token ", self.fabricToken)
-        }
-    
-
-        if let profileClient = self.profileClient {
-            let userAddress = try self.getAccountAddress()
-            let userProfile = try await profileClient.getUserProfile(userAddress: userAddress)
-            debugPrint("USER PROFILE: ", userProfile )
-        }
-        
-        await self.refresh()
-    }
-    
-    func resetWalletData(){
-        self.library = MediaLibrary()
-        self.properties = []
-        self.mediaProperties = MediaPropertiesResponse()
-    }
-    
-    func signOut(){
-        //print("Fabric: signOut()")
-        if !self.isExternal {
-            let domain = APP_CONFIG.auth0.domain
-            let clientId = APP_CONFIG.auth0.client_id
-            let oAuthEndpoint: String = "https://".appending(domain).appending("/oidc/logout");
-            if let authRequest = ["client_id":clientId,"id_token_hint": self.signInResponse?.idToken] as? Dictionary<String,String> {
-                AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
-                    .validate(statusCode: 200 ..< 299)
-                    .responseData { response in
-                        
-                        print(response)
-                        switch (response.result) {
-                        case .success( _):
-                            print("Logout Success!")
-                        case .failure(let error):
-                            print("Sign Out Request error: \(error.localizedDescription)")
-                        }
-                    }
+            
+            guard let url = URL(string: urlString) else {
+                //throw FabricError.invalidURL
+                print("Invalid URL \(urlString)")
+                throw FabricError.invalidURL("Bad auth service url \(urlString)")
             }
+            
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+            
+            let json: [String: Any] = ["ext": ["share_email":true]]
+            request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
+            
+            debugPrint("http request: ", request)
+            
+            login = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
+            debugPrint("http response: ", login)
+            
+            //UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
+            //UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
+            //UserDefaults.standard.set(signInResponse.tokenType, forKey: "token_type")
+            //UserDefaults.standard.set(external, forKey: "is_external")
+        }else {
+            login.token = idToken
+            login.addr = address
         }
-        self.login = nil
-        self.isLoggedOut = true
-        self.signInResponse = nil
-        self.signer = nil
-        self.fabricToken = ""
-        self.isMetamask = false
-
-        resetWalletData()
-
-        UserDefaults.standard.removeObject(forKey: "access_token")
-        UserDefaults.standard.removeObject(forKey: "id_token")
-        UserDefaults.standard.removeObject(forKey: "token_type")
-        UserDefaults.standard.removeObject(forKey: "fabric_network")
-        UserDefaults.standard.removeObject(forKey: "is_external")
+        
+        return login
     }
     
-    @MainActor
-    func signIn(credentials: [String: AnyObject], external: Bool = false ) async throws{
-
-        guard let idToken: String = credentials["id_token"] as? String else {
-            print("Could not retrieve id_token")
-            return
-        }
-        
-        //We do not get the refresh token with device sign in for some reason
-        let refreshToken: String = credentials["refresh_token"] as? String ?? ""
-        let accessToken: String = credentials["access_token"] as? String ?? ""
-
-        var signInResponse = SignInResponse()
-        signInResponse.idToken = idToken
-        signInResponse.refreshToken = refreshToken
-        signInResponse.accessToken = accessToken
-        
-        try await signIn(signInResponse: signInResponse, external: external)
-    }
     
-    @MainActor
-    func signIn(signInResponse: SignInResponse , external: Bool = false) async throws {
-        
-        defer{
-            self.signingIn = false
+    
+    func createFabricToken(idToken: String, duration: Int64 = 1 * 24 * 60 * 60 * 1000, address: String = "", external: Bool = false) async throws -> String {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
         }
         
-        self.isExternal = external
-        
-        //print("Fabric: signIn()")
         guard let config = self.configuration else
         {
             print("Not configured.")
             throw FabricError.configError("Not configured.")
         }
         
-        self.signInResponse = signInResponse
-        
-        var urlString = config.getAuthServices()[0] + "/wlt/login/jwt"
-        
-        if external {
-            urlString = "https://wlt.stg.svc.eluv.io/as/wlt/login/jwt"
+        var response = try await login(idToken:idToken, address:address, external: external)
+        var authToken = ""
+        return try await signer.createFabricToken(duration:duration, address:response.addr, contentSpaceId: self.getContentSpaceId(), authToken: response.token, external: external)
+    }
+    
+    func createFabricToken(login:LoginResponse, duration: Int64 = 1 * 24 * 60 * 60 * 1000, external: Bool = false) async throws -> String {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
         }
         
-        guard let url = URL(string: urlString) else {
-            //throw FabricError.invalidURL
-            print("Invalid URL \(urlString)")
-            self.signingIn = false
-            throw FabricError.invalidURL("Bad auth service url \(urlString)")
+        guard let config = self.configuration else
+        {
+            print("Not configured.")
+            throw FabricError.configError("Not configured.")
         }
-        
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(signInResponse.idToken)", forHTTPHeaderField: "Authorization")
-            
-        let json: [String: Any] = ["ext": ["share_email":true]]
-        request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
-        
-        debugPrint("http request: ", request)
-        
-        let value = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
-        debugPrint("http response: ", value)
-        
-        UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
-        UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
-        UserDefaults.standard.set(signInResponse.tokenType, forKey: "token_type")
-        UserDefaults.standard.set(external, forKey: "is_external")
-        
-        try await self.setLogin(login: value, external:external)
+        return try await signer.createFabricToken(duration:duration, address:login.addr, contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: external)
     }
     
-    
-    func getAccountId() throws -> String {
-        guard let address = self.login?.addr else
-        {
-            throw FabricError.noLogin("getAccountId")
-        }
-        
-        guard let bytes = HexToBytes(address) else {
-            throw FabricError.badInput("getAccountId error getting Bytes for address \(address)")
-        }
-        
-        let encoded = Base58.base58Encode(bytes)
-        
-        return "iusr\(encoded)"
+    func resetWalletData(){
+        self.library = MediaLibrary()
+        self.properties = []
+        //self.mediaProperties = MediaPropertiesResponse()
+        //self.mediaPropertiesCache = [:]
+        //self.mediaPropertiesMediaItemCache = [:]
+        //self.mediaPropertiesSectionCache = [:]
+        //self.mediaPropertiesPageCache = [:]
     }
     
-    func getAccountAddress() throws -> String {
-        guard let address = self.login?.addr else
-        {
-            throw FabricError.noLogin("getAccountAddress")
-        }
-        
-        return FormatAddress(address: address)
+    func reset(){
+        self.signer = nil
+        self.fabricToken = ""
+        //self.isMetamask = false
+
+        resetWalletData()
+
+        UserDefaults.standard.removeObject(forKey: "fabric_network")
+        UserDefaults.standard.removeObject(forKey: "is_external")
     }
+
     
     func getOptionsJsonFromHash(versionHash: String) async throws -> JSON {
         var path = "/q/" + versionHash + "/meta/public/asset_metadata/sources/default"
@@ -1682,14 +1973,14 @@ class Fabric: ObservableObject {
         }
     }
     
-    private func getKeyMediaProgressContainer() throws -> String {
-        return "\(try getAccountAddress()) - media_progress"
+    private func getKeyMediaProgressContainer(address:String) throws -> String {
+        return "\(address) - media_progress"
     }
     
-    func getUserViewedProgressContainer() throws -> MediaProgressContainer {
+    func getUserViewedProgressContainer(address:String) throws -> MediaProgressContainer {
         //TODO: Store these constants for user defaults somewhere
-        guard let data = UserDefaults.standard.object(forKey: try getKeyMediaProgressContainer()) as? Data else {
-            debugPrint("Couldn't find media_progress from defaults.")
+        guard let data = UserDefaults.standard.object(forKey: try getKeyMediaProgressContainer(address:address)) as? Data else {
+            //debugPrint("Couldn't find media_progress from defaults.")
             return MediaProgressContainer()
         }
         
@@ -1703,34 +1994,34 @@ class Fabric: ObservableObject {
     }
     
     //TODO: Retrieve from app services profile
-    func getUserViewedProgress(nftContract: String, mediaId: String) throws -> MediaProgress {
-        if let container = try? getUserViewedProgressContainer() {
+    func getUserViewedProgress(address:String, mediaId: String) throws -> MediaProgress {
+        if let container = try? getUserViewedProgressContainer(address:address) {
             //TODO: create a key maker function
-            let mediaProgress = container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] ?? MediaProgress()
-            debugPrint("getUserViewedProgress \(mediaProgress)")
+            let mediaProgress = container.media["media-viewed-\(mediaId)-progress"] ?? MediaProgress()
+            //debugPrint("getUserViewedProgress \(mediaProgress)")
             return mediaProgress
         }
-        debugPrint("getUserViewedProgress - could not get container")
+        //debugPrint("getUserViewedProgress - could not get container")
         return MediaProgress()
     }
     
     //TODO: Set into the app services profile
-    func setUserViewedProgress(nftContract: String, mediaId: String, progress:MediaProgress) throws{
-        debugPrint("setUserViewedProgress contract \(nftContract) mediaId \(mediaId) progress \(progress)")
+    func setUserViewedProgress(address: String, mediaId: String, progress:MediaProgress) throws{
+        //debugPrint("setUserViewedProgress mediaId \(mediaId) progress \(progress)")
         var container = MediaProgressContainer()
         do {
-            container = try getUserViewedProgressContainer()
+            container = try getUserViewedProgressContainer(address: address)
         }catch{
             debugPrint("No previous user progress found.")
         }
         
-        container.media["nft-media-viewed-\(nftContract)-\(mediaId)-progress"] = progress
+        container.media["media-viewed-\(mediaId)-progress"] = progress
         
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(container) {
             let defaults = UserDefaults.standard
-            defaults.set(encoded, forKey: try getKeyMediaProgressContainer())
-            debugPrint("Saved to defaults")
+            defaults.set(encoded, forKey: try getKeyMediaProgressContainer(address:address))
+            //debugPrint("Saved to defaults")
         }else {
             debugPrint("Could not encode progress info ", container)
         }
@@ -1757,6 +2048,60 @@ class Fabric: ObservableObject {
 
                 return
         }
+    }
+    
+    //New API for media item playout
+    func getMediaPlayoutOptions(propertyId:String, mediaId:String) async throws -> JSON {
+        let path = "/as/mw/properties/" + propertyId + "/media_items/" + mediaId + "/offerings/any/playout_options"
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("getPlayoutFromMediaId: could not get authD endpoint")
+        }
+        
+        guard let url = URL(string:try signer.getAuthEndpoint()) else {
+            throw FabricError.configError("getPlayoutFromMediaId: could not get fabric endpoint")
+        }
+        var components = URLComponents()
+        components.scheme = url.scheme
+        components.host = url.host
+        components.path = path
+
+        guard let newUrl = components.url else {
+            throw FabricError.invalidURL("getPlayoutFromMediaId: could not create url from components. \(components)")
+        }
+                                    
+        //print("GET ",newUrl)
+
+        return try await self.getJsonRequest(url: newUrl.absoluteString)
+    }
+    
+    
+    //New API for media item playout. optionsJson is from the media api, not from fabric options
+    func getHlsPlaylistFromMediaOptions(optionsJson: JSON?, drm: String = "hls-clear", offering: String = "default") throws -> String {
+        guard let link = optionsJson else{
+            throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
+        }
+        
+        debugPrint("getHlsPlaylistFromMediaOptions ", optionsJson)
+        debugPrint("drm ", drm)
+
+        let uri = link[drm]["uri"].stringValue
+        debugPrint("uri ", drm)
+        
+        guard let url = URL(string:try self.getEndpoint()) else {
+            throw FabricError.badInput("getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
+        }
+        
+        var newUrl = "\(url.absoluteString)/\(uri)"
+        if(newUrl.contains("?")){
+            newUrl = newUrl + "&authorization=\(self.fabricToken)"
+        }else{
+            newUrl = newUrl + "?authorization=\(self.fabricToken)"
+        }
+        
+        //print("HLS URL: ", newUrl)
+        
+        return newUrl
     }
     
     func getOptions(versionHash:String , params: [JSON]? = [], offering:String="default") async throws -> JSON {
@@ -1795,7 +2140,7 @@ class Fabric: ObservableObject {
 
         var optionsUrl = newUrl.standardized.absoluteString
         
-        print("options url \(optionsUrl)")
+        //print("options url \(optionsUrl)")
         
         let optionsJson = try await getJsonRequest(url: optionsUrl)
         //print("options json \(optionsJson)")
@@ -1803,6 +2148,7 @@ class Fabric: ObservableObject {
         return optionsJson
     }
     
+    //Deprectated: Doesn't work with Live
     func getOptionsFromLink(link: JSON?, params: [JSON]? = [], offering:String="default", hash:String="") async throws -> (optionsJson: JSON, versionHash:String) {
         var optionsUrl = try getUrlFromLink(link: link, params: params, hash:hash)
 
@@ -1811,7 +2157,11 @@ class Fabric: ObservableObject {
         }
         
         //print ("Offering \(offering)")
-        print("options url \(optionsUrl)")
+        //print("options url \(optionsUrl)")
+        
+        if (!optionsUrl.contains("rep/playout/default/options.json")){
+            optionsUrl = optionsUrl.replaceFirst(of: "meta/public/asset_metadata", with: "rep/playout/default/options.json")
+        }
         
         
         guard let versionsHash = FindContentHash(uri: optionsUrl) else {
@@ -1819,7 +2169,7 @@ class Fabric: ObservableObject {
         }
         
         let optionsJson = try await getJsonRequest(url: optionsUrl)
-        print("options json \(optionsJson)")
+        //print("options json \(optionsJson)")
         
         return (optionsJson, versionsHash)
     }
@@ -1848,8 +2198,30 @@ class Fabric: ObservableObject {
         var hash = hash
         
         if hash.isEmpty {
+            hash = link["."]["source"].stringValue
+        }
+        
+        if hash.isEmpty {
             hash = link["."]["container"].stringValue
         }
+        
+        if hash.isEmpty {
+            hash = link["sources"]["default"]["."]["container"].stringValue
+        }
+        
+        if hash.isEmpty {
+            throw FabricError.badInput("getUrlFromLink: Could not find hash")
+        }
+        
+        if path.isEmpty {
+            debugPrint("searching sources.default for link path")
+            path = link["sources"]["default"]["/"].stringValue
+        }
+        
+        if path.isEmpty {
+            throw FabricError.badInput("getUrlFromLink: Could not find path")
+        }
+        
         
         if (path.hasPrefix("/qfab")){
             hash = ""
@@ -1883,7 +2255,11 @@ class Fabric: ObservableObject {
         
         var queryItems : [URLQueryItem] = []
         if includeAuth! {
-            queryItems.append(URLQueryItem(name: "authorization", value: self.fabricToken))
+            var auth = self.fabricToken
+            if auth.isEmpty {
+                auth = createStaticToken()
+            }
+            queryItems.append(URLQueryItem(name: "authorization", value: auth))
         }
         
         if resolveHeaders! {
@@ -2037,7 +2413,7 @@ class Fabric: ObservableObject {
             newUrl = newUrl + "?authorization=\(self.fabricToken)"
         }
         
-        print("HLS URL: ", newUrl)
+        //print("HLS URL: ", newUrl)
         
         return newUrl
     }
@@ -2099,72 +2475,15 @@ class Fabric: ObservableObject {
     func getTenants() async throws -> JSON {
         print ("getTenants")
         let objectId = try self.getNetworkConfig().main_obj_id
-        let libraryId = try self.getNetworkConfig().main_obj_lib_id
+        //let libraryId = try self.getNetworkConfig().main_obj_lib_id
         let metadataSubtree = "public/asset_metadata/tenants"
         return try await self.contentObjectMetadata(id:objectId, metadataSubtree:metadataSubtree)
-    }
-    
-    
-    //Retrieve all wallet items sorted by tenant id
-    //TODO: Cache items
-    func getWalletTenantItems() async throws -> [JSON]{
-        print ("getWalletTenantItems")
-        let tenants = try await self.getTenants()
-        var tenantItems : [JSON] = []
-        
-        for (_, tenant) in tenants {
-            let tenantId = tenant["info"]["tenant_id"].stringValue
-            let tenantTitle = tenant["title"].stringValue
-            print("Tenant: \(tenantTitle) : \(tenantId)")
-            
-            let parameters : [String: String] = ["filter":"tenant:eq:\(tenantId)"]
-            
-            var items : JSON
-            do {
-                let response = try await self.signer!.getWalletData(accountAddress: try getAccountAddress(),
-                                                                    accessCode: self.fabricToken, parameters:parameters)
-                items = response.result
-            }catch{
-                continue
-            }
-            //print("Items: \(items)")
-            let nfts = items["contents"].arrayValue
-            if !nfts.isEmpty {
-                for (_, marketplace) in tenant["marketplaces"] {
-                    //print(marketplace)
-                    var matchedItems : [JSON] = []
-                    
-                    for (_, mItem) in marketplace["info"]["items"] {
-                        let mAddress = mItem["nft_template"]["nft"]["address"]
-                        for item in nfts {
-                            print("market item address", mAddress.stringValue)
-                            
-                            print("item address", item["contract_addr"])
-                            let address = item["contract_addr"].stringValue
-                            if (mAddress.stringValue.lowercased() == address.lowercased()){
-                                matchedItems.append(item)
-                                print("Found item ", address)
-                            }
-                            
-                        }
-                    }
-                    
-                    if (!matchedItems.isEmpty){
-                        print("Found nfts")
-                        let tenantItem : JSON = ["tenant":tenant, "marketplace": marketplace, "nfts": matchedItems]
-                        tenantItems.append(tenantItem)
-                    }
-                }
-            }
-        }
-        
-        return tenantItems
     }
     
     func createStaticToken() -> String {
         do {
             let qspaceId = try getContentSpaceId()
-            var dict : [String: Any] = [ "qspace_id": qspaceId ]
+            let dict : [String: Any] = [ "qspace_id": qspaceId ]
             let jsonData = try JSONSerialization.data(withJSONObject: dict, options: [])
             let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
             return jsonString.base64()
@@ -2184,6 +2503,8 @@ class Fabric: ObservableObject {
         return ""
     }
     
+    
+    
     //ELV-CLIENT API
     
     // id is objectId or versionHash
@@ -2198,6 +2519,601 @@ class Fabric: ObservableObject {
     func contentObjectLibraryId(_objectId: String?) async throws -> String {
         return ""
     }
+    
+    func resolvePagePermission(propertyId:String,
+                           pageId:String = ""
+    ) async throws -> ResolvedPermission {
+        
+        debugPrint("resolvePagePermission")
+        var result = ResolvedPermission()
+        
+        let mediaProperty = try await getProperty(property: propertyId)
+        
+        let authState = mediaProperty?.permission_auth_state ?? JSON()
+    
+        
+        if let perms = mediaProperty?.permissions?["property_permissions"].arrayValue {
+            result.authorized = checkPermissionIds(permissionIds: perms, authState: authState)
+
+        }
+        
+        //debugPrint("Property permissions ", mediaProperty?.permissions)
+        
+        if let _behavior = mediaProperty?.permissions?["behavior"] {
+            do{
+                result.behavior = try getBehavior(json:_behavior)
+                if let altPageId = mediaProperty?.permissions?["property_permissions_alternate_page_id"] {
+                    if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                        result.alternatePageId = altPageId.stringValue
+                        //debugPrint("setting alternatePageId from property ", result.alternatePageId)
+                    }
+                }
+                
+                if let secondaryPurchaseOption = mediaProperty?.permissions?["secondary_market_purchase_option"] {
+                    if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty{
+                        result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
+                    }
+                }
+            }catch{}
+        }
+        
+        var pageId = pageId
+        if pageId.isEmpty {
+            pageId = "main"
+        }
+        
+        if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
+            if let perms = page.permissions?["page_permissions"].arrayValue {
+                result.authorized = checkPermissionIds(permissionIds: perms, authState: authState)
+            }
+            
+            //debugPrint("Page permissions ", page.permissions)
+            
+            if let _behavior = page.permissions?["page_permissions_behavior"] {
+                do{
+                    result.behavior = try getBehavior(json:_behavior)
+                    
+                    if let altPageId = page.permissions?["page_permissions_alternate_page_id"] {
+                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                            result.alternatePageId = altPageId.stringValue
+                            //debugPrint("setting alternatePageId from page ", result.alternatePageId)
+                        }
+                    }
+                    
+                    if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
+                        if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty {
+                            result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
+                        }
+                    }
+                }catch{
+                    debugPrint("Couldn't get page behavior ", error.localizedDescription)
+                }
+            }
+        }
+
+        return result
+    }
+    
+    func resolveContentPermission(propertyId:String,
+                                    pageId:String = "",
+                                    sectionId:String = "",
+                                    sectionItemId:String = "",
+                                    mediaCollectionId:String = "",
+                                    mediaListId:String = "",
+                                    mediaItemId:String = "",
+                                    permissionAuthState: JSON = JSON(),
+                                    isSearch:Bool = false
+    ) async throws -> ResolvedPermission {
+
+        //debugPrint("resolveContentPermission")
+        var result = ResolvedPermission()
+        
+        let mediaProperty = try await getProperty(property: propertyId)
+        
+        var authState = permissionAuthState
+        if authState.isEmpty{
+            authState = mediaProperty?.permission_auth_state ?? JSON()
+            //debugPrint("using mediaAuthState")
+        }
+        
+        //debugPrint("authState ", authState)
+        
+        //debugPrint("Property Permissions ", mediaProperty?.permissions)
+        
+        var searchBehavior : PermisionBehavior = .Hide
+        do {
+            searchBehavior = try getBehavior(json:mediaProperty?.permissions?["search_permission_behavior"])
+        }catch{}
+        
+        var searchAltPageId = mediaProperty?.permissions?["search_permissions_alternate_page_id"].stringValue
+        
+        var searchPurchaseOption = mediaProperty?.permissions?["search_permissions_secondary_market_purchase_option"].stringValue
+
+        if let _behavior = mediaProperty?.permissions?["behavior"] {
+            do{
+                result.behavior = try getBehavior(json:_behavior)
+                //debugPrint("Setting property behavior ", result.behavior)
+                
+                if let altPageId = mediaProperty?.permissions?["alternate_page_id"] {
+                    if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                        result.alternatePageId = altPageId.stringValue
+                    }
+                }
+                
+                if let secondaryPurchaseOption = mediaProperty?.permissions?["secondary_market_purchase_option"] {
+                    if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
+                        result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
+                        //debugPrint("Found Property secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                    }
+                }
+            }catch{}
+        }
+        
+
+        var pageId = pageId
+        if pageId.isEmpty {
+            pageId = "main"
+        }
+        
+        if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
+            
+            //debugPrint("Page Permissions ", page.permissions)
+
+            if let _behavior = page.permissions?["behavior"] {
+                do{
+                    result.behavior = try getBehavior(json:_behavior)
+                    //debugPrint("Setting page behavior ", result.behavior)
+                    
+                    if let altPageId = page.permissions?["alternate_page_id"] {
+                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                            result.alternatePageId = altPageId.stringValue
+                        }
+                    }
+                    
+                    
+                    if let secondaryPurchaseOption = page.permissions?["secondary_market_purchase_option"] {
+                        if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
+                            result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
+                            //debugPrint("Found Page secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                        }
+                    }
+                }catch{}
+            }
+        }
+        
+        if !sectionId.isEmpty {
+            var response : [MediaPropertySection] = []
+            do {
+                response = try await getPropertySections(property: propertyId, sections: [sectionId])
+            }catch{
+                print("Could not get property sections response, ",error.localizedDescription)
+            }
+            
+            if !response.isEmpty {
+                let section = response[0]
+                //debugPrint("Found section permissions", section.permissions)
+                if let _behavior = section.permissions?["behavior"] {
+                    do{
+                        result.behavior = try getBehavior(json:_behavior)
+                        //debugPrint("Setting section behavior ", result.behavior)
+                    }catch{}
+
+                    
+                    if let altPageId = section.permissions?["alternate_page_id"] {
+                        if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                            result.alternatePageId = altPageId.stringValue
+                            //debugPrint("Found alternatePageId ", result.alternatePageId)
+                        }
+                    }
+                    
+                    if let secondaryPurchaseOption = section.permissions?["secondary_market_purchase_option"] {
+                        if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
+                            result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
+                            //debugPrint("Found section secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                        }
+                    }
+                    
+                    result.authorized = isAuthorized(permission:section.permissions, authState:authState)
+                    
+                    if !result.authorized {
+                        //debugPrint("Not Authorized! Section ", section.permissions)
+                        result.cause = "Section permissions"
+                    }
+                    
+                    if let permissionItemsArr = section.permissions?["permission_item_ids"] {
+                        if !permissionItemsArr.arrayValue.isEmpty {
+                            result.permissionItemIds = []
+                            for item in permissionItemsArr.arrayValue {
+                                result.permissionItemIds.append(item.stringValue)
+                            }
+                        }
+                    }
+                    
+
+                    if result.authorized && !sectionItemId.isEmpty {
+                        //debugPrint("Finding sectionID ", sectionItemId)
+                        
+                        if let sectionItem = section.content?.first(where: {$0.id == sectionItemId}) {
+                            //debugPrint("Found sectionItem permissions", sectionItem.permissions)
+                            
+                            if let _behavior = sectionItem.permissions?["behavior"] {
+                                do{
+                                    result.behavior = try getBehavior(json:_behavior)
+                                    //debugPrint("Setting sectionItem behavior: ", result.behavior)
+                                }catch{}
+                                
+                                if let altPageId = sectionItem.permissions?["alternate_page_id"] {
+                                    if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
+                                        result.alternatePageId = altPageId.stringValue
+                                    }
+                                }
+                                
+                                if let secondaryPurchaseOption = sectionItem.permissions?["secondary_market_purchase_option"] {
+                                    if result.behavior == .showPurchase && !secondaryPurchaseOption.stringValue.isEmpty && result.secondaryPurchaseOption.isEmpty{
+                                        result.secondaryPurchaseOption = secondaryPurchaseOption.stringValue
+                                        //debugPrint("Found Section Item secondaryPurchaseOption ", result.secondaryPurchaseOption)
+                                    }
+                                }
+
+                            }
+                            
+                            result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
+                            if let permissionItemsArr = sectionItem.permissions?["permission_item_ids"] {
+                                if !permissionItemsArr.arrayValue.isEmpty {
+                                    result.permissionItemIds = []
+                                    for item in permissionItemsArr.arrayValue {
+                                        result.permissionItemIds.append(item.stringValue)
+                                    }
+                                }
+                            }
+                            
+                            if !result.authorized {
+                                result.cause = "Section item permissions"
+                            }
+                            
+                            if result.authorized {
+                                if let mediaItem = sectionItem.media {
+
+                                    if let publicField = mediaItem.public {
+                                        if (publicField){
+                                            result.authorized = true
+                                        }else{
+                                            result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+                                        }
+                                    }else{
+                                        result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+                                    }
+                                }
+                            }
+                            
+                            if let mediaItem = sectionItem.media {
+                                if let perm = mediaItem.permissions {
+                                    if !perm.arrayValue.isEmpty {
+                                        result.permissionItemIds = []
+                                        for pid in perm.arrayValue {
+                                            result.permissionItemIds.append(pid["permission_item_id"].stringValue)
+                                        }
+                                        
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if !mediaItemId.isEmpty, let mediaItem = getMediaItem(mediaId: mediaItemId) {
+            //debugPrint("Media Item Id giving, permissions", mediaItem.permissions)
+           
+            if let publicField = mediaItem.public {
+               //debugPrint("media public field ", publicField)
+               if (publicField){
+                   result.authorized = true
+               }else{
+                   result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+               }
+            }else{
+               result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+            }
+            
+            if isSearch && !result.authorized{
+                result.behavior = searchBehavior
+            }
+            
+            if let perm = mediaItem.permissions {
+                if !perm.arrayValue.isEmpty {
+                    result.permissionItemIds = []
+                    for pid in perm.arrayValue {
+                        result.permissionItemIds.append(pid["permission_item_id"].stringValue)
+                    }
+                }
+            }
+        }
+        
+        if(result.behavior == .showIfUnauthorized) {
+            result.authorized = !result.authorized
+            result.behavior = .Hide;
+        }
+        
+        result.purchaseGate = !result.authorized && result.behavior == .showPurchase
+        result.showAlternatePage = !result.authorized && result.behavior == .showAlternativePage
+        
+        //debugPrint("******* resolve Content Permission Finished ****** ")
+        return result
+        
+    }
+    
+    
+    func getBehavior(json:JSON?) throws -> PermisionBehavior {
+        if let behavior = json {
+            switch(behavior.stringValue.lowercased()){
+            case "hide":
+                return .Hide
+            case "disable":
+                return .Disable
+            case "show_alternate_page":
+                return .showAlternativePage
+            case "show_if_unauthorized":
+                return .showIfUnauthorized
+            case "show_purchase":
+                return .showPurchase
+            default:
+                throw FabricError.unexpectedResponse("no behavior defined.")
+            }
+        }
+        
+        return .Hide
+    }
+    
+    func isMediaAuthorized(permission:JSON?, authState:JSON) -> Bool {
+        //debugPrint("isMediaAuthorized permission: \(permission) authState: \(authState)")
+        if let permission = permission {
+            if permission.isEmpty{
+                return true
+            }
+            
+            if permission.arrayValue.isEmpty{
+                return true
+            }
+            
+            for p in permission.arrayValue {
+                let pid = p["permission_item_id"].stringValue
+                
+                if pid.isEmpty {
+                    continue
+                }
+                
+                let authorized = authState[pid]["authorized"]
+                if authorized.exists() && authorized.boolValue{
+                    return true
+                }
+            }
+            
+            return false
+            
+        }
+        return true
+    }
+    
+    func isAuthorized(permission:JSON?, authState:JSON) -> Bool {
+        if let permission = permission {
+            if permission.isEmpty{
+                return true
+            }
+            
+            if permission["permission_item_ids"].arrayValue.isEmpty{
+                return true
+            }
+        
+            return checkPermissionIds(permissionIds:permission["permission_item_ids"].arrayValue, authState:authState)
+            
+        }
+        return true
+    }
+    
+    func checkPermissionIds(permissionIds:[JSON], authState:JSON) -> Bool {
+        //debugPrint("checkPermissionIds")
+        
+        if permissionIds.isEmpty{
+            return true
+        }
+        
+        for id in permissionIds {
+            debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
+            debugPrint(" \(id.stringValue) : ", authState[id.stringValue])
+            if !authState.isEmpty {
+                if authState[id.stringValue]["authorized"].boolValue{
+                    return true
+                }
+            }
+            
+        }
+        
+        return false
+    }
+    
+    //Runs through the authState of the property and finds if there is a true value
+    func checkPropertyAuthState(property: MediaProperty?) -> Bool {
+        //debugPrint("checkPropertyAuthState ")
+        if let prop = property {
+            if let authState = prop.permission_auth_state {
+                //debugPrint("authState ", authState)
+                for (key, value) in authState {
+                    if value["authorized"].boolValue {
+                        //debugPrint("Found!")
+                        return true
+                    }
+                }
+            }
+        }
+        
+        return false
+    }
+    
+}
+
+struct ResolvedPermission:  Codable, Hashable {
+    var authorized:Bool = true
+    var behavior:PermisionBehavior = .Hide
+    var hide:Bool = false
+    var disable:Bool = false
+    var purchaseGate: Bool = false
+    var secondaryPurchaseOption: String = ""
+    var showAlternatePage:Bool = true
+    var alternatePageId:String = ""
+    var permissionItemIds:[String] = []
+    var cause: String = ""
+}
+
+enum PermisionBehavior:  Codable, Hashable {
+    case Hide, Disable, showPurchase, showIfUnauthorized, showAlternativePage
 }
 
 
+
+/*
+ HIDE: "hide",
+ DISABLE: "disable",
+ SHOW_PURCHASE: "show_purchase",
+ SHOW_IF_UNAUTHORIZED: "show_if_unauthorized",
+ SHOW_ALTERNATE_PAGE: "show_alternate_page"
+ */
+
+/*
+ResolvePermission({
+  mediaPropertySlugOrId,
+  pageSlugOrId,
+  sectionSlugOrId,
+  sectionItemId,
+  mediaCollectionSlugOrId,
+  mediaListSlugOrId,
+  mediaItemSlugOrId
+}) {
+  // Resolve permissions from top down
+  let authorized = true;
+  let behavior = this.PERMISSION_BEHAVIORS.HIDE;
+  let cause;
+  let permissionItemIds;
+
+  const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
+  behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
+
+  let alternatePageId = (
+    behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+    mediaProperty?.metadata?.permissions?.alternate_page_id
+  );
+
+  let secondaryPurchaseOption = (
+    behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+    mediaProperty?.metadata?.permissions?.secondary_market_purchase_option
+  );
+
+  const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
+  behavior = page.permissions?.behavior || behavior;
+
+  alternatePageId = (
+    page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+    page?.permissions?.alternate_page_id
+  ) || alternatePageId;
+
+  secondaryPurchaseOption = (
+    page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+    page?.permissions?.permissions?.secondary_market_purchase_option
+  ) || secondaryPurchaseOption;
+
+  if(sectionSlugOrId) {
+    const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
+
+    if(section) {
+      behavior = section.permissions?.behavior || behavior;
+      authorized = section.authorized;
+      cause = !authorized && "Section permissions";
+      permissionItemIds = section.permissions?.permission_item_ids || [];
+      alternatePageId =
+        (
+          section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+          section.permissions?.alternate_page_id
+        ) || alternatePageId;
+
+      secondaryPurchaseOption =
+        (
+          section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+          section.permissions?.secondary_market_purchase_option
+        ) || secondaryPurchaseOption;
+
+      if(authorized && sectionItemId) {
+        const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
+          ?.find(sectionItem => sectionItem.id === sectionItemId);
+
+        if(sectionItem) {
+          behavior = sectionItem.permissions?.behavior || behavior;
+          permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
+          authorized = sectionItem.authorized;
+          cause = cause || !authorized && "Section item permissions";
+          alternatePageId =
+            (
+              sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
+              sectionItem.permissions?.alternate_page_id
+            ) || alternatePageId;
+
+          secondaryPurchaseOption =
+            (
+              sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
+              sectionItem.permissions?.secondary_market_purchase_option
+            ) || secondaryPurchaseOption;
+        }
+      }
+    }
+  }
+
+  if(authorized && mediaCollectionSlugOrId) {
+    const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
+    authorized = mediaCollection?.authorized || false;
+    permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
+    cause = !authorized && "Media collection permissions";
+  }
+
+  if(authorized && mediaListSlugOrId) {
+    const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
+    authorized = mediaList?.authorized || false;
+    permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
+    cause = !authorized && "Media list permissions";
+  }
+
+  if(authorized && mediaItemSlugOrId) {
+    const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
+    authorized = mediaItem?.authorized || false;
+    permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
+    cause = !authorized && "Media permissions";
+  }
+
+  if(behavior === this.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED) {
+    authorized = !authorized;
+    behavior = this.PERMISSION_BEHAVIORS.HIDE;
+  }
+
+  permissionItemIds = permissionItemIds || [];
+
+  const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
+  const showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
+
+  if(showAlternatePage) {
+    alternatePageId = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId ? alternatePageId : undefined})?.slug || alternatePageId;
+  }
+
+  return {
+    authorized,
+    behavior,
+    // Hide by default, or if behavior is hide, or if no purchasable permissions are available
+    hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
+    disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
+    purchaseGate: purchaseGate && permissionItemIds.length > 0,
+    secondaryPurchaseOption,
+    showAlternatePage,
+    alternatePageId,
+    permissionItemIds,
+    cause: cause || ""
+  };
+}
+*/

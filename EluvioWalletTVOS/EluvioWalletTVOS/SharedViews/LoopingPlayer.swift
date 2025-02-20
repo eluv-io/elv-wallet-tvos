@@ -29,9 +29,9 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
         //VideoPlayer(player: viewModel.player, videoOverlay: videoOverlay)
         AVLoopingPlayerView(player: $viewModel.player)
             .onDisappear {
-                print("ContentView disappeared!")
-                viewModel.player.pause()
-                viewModel.player.replaceCurrentItem(with: nil)
+                print("AVLoopingPlayerView disappeared!")
+                //viewModel.player.pause()
+                //viewModel.player.replaceCurrentItem(with: nil)
             }
     }
     

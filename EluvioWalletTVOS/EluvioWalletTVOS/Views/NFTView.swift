@@ -8,6 +8,7 @@
 import SwiftUI
 import SDWebImageSwiftUI
 
+/*
 struct NFTAlbumView: View {
     @State var nft = NFTModel()
     var isForsale = false
@@ -231,9 +232,10 @@ struct NFTView<DestinationType: View>: View {
         .focused($isFocused)
     }
 }
+*/
 
 struct NFTView2: View {
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio: EluvioAPI
     var nft : NFTModel = NFTModel()
     var isForsale = false
     @State private var buttonFocus: Bool = false
@@ -315,8 +317,8 @@ struct NFTView2: View {
     
     var body: some View {
         Button(action:{
-            pathState.nft = nft
-            pathState.path.append(.nft)
+            eluvio.pathState.nft = nft
+            eluvio.pathState.path.append(.nft)
         }) {
             ZStack{
                 Image("dark-item-top-radial").resizable()
@@ -325,7 +327,6 @@ struct NFTView2: View {
                             Image("item-highlight").resizable()
                         }
                     }
-                
                 VStack() {
                     HStack(alignment:.center, spacing:10){
                         if(propertyLogo.hasPrefix("http")){
@@ -397,7 +398,7 @@ struct NFTView2: View {
         .focused($isFocused)
     }
 }
-
+/*
 struct NFTView_Previews: PreviewProvider {
     static var previews: some View {
         NFTView<NFTDetail>(
@@ -411,3 +412,6 @@ struct NFTView_Previews: PreviewProvider {
             .listRowInsets(EdgeInsets())
     }
 }
+*/
+
+

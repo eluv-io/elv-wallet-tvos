@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-03-30.
 //
-
+/*
 import SwiftUI
 
 struct WalletView: View {
@@ -27,3 +27,4 @@ struct WalletView_Previews: PreviewProvider {
         WalletView(nfts: CreateTestNFTs(num: 10))
     }
 }
+*/

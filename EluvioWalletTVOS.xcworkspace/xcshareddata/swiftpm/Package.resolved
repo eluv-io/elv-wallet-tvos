@@ -1,5 +1,5 @@
 {
-  "originHash" : "0be1c735238f68cc8a6a37abf1d9dedc1f2785a70016f9f42b5584e704b7599a",
+  "originHash" : "3600fcb9dcd0fead1d2ed3b668e9f0562024e641e7e955076148d1602b524dcf",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -98,6 +98,15 @@
       "state" : {
         "revision" : "7f7be4a7dfc9164c2c66f95193cec9df9ac47d58",
         "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "swift-extras-base64",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-extras/swift-extras-base64",
+      "state" : {
+        "revision" : "dc8121fdd2b444c97d6b0534e8ad4ddecbe0d5f4",
+        "version" : "1.0.0"
       }
     },
     {

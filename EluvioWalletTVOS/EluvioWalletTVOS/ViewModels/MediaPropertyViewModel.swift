@@ -6,18 +6,27 @@
 //
 
 import Foundation
+import SwiftyJSON
 
 struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
-    var id: String? = UUID().uuidString
+    var id: String = UUID().uuidString
     var title: String = ""
+    var name: String = ""
     var descriptionRichText: AttributedString = ""
     var description: String = ""
     var image: String = ""
     var backgroundImage: String = ""
+    var login: JSON? = nil
     var logo: String = ""
     var logoAlt: String = ""
     var position: String = ""
     var sections: [String] = []
+    var permissions : JSON? = nil
+    var main_page : MediaPropertyPage? = nil
+    var permission_auth_state : JSON? = nil
+    var purchaseImage : String = ""
+    var hasAuth : Bool = false
+    var model : MediaProperty? = nil
     
     static func == (lhs: MediaPropertyViewModel, rhs: MediaPropertyViewModel) -> Bool {
         return lhs.id == rhs.id
@@ -28,29 +37,39 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     }
     
     
-    static func create(mediaProperty: MediaProperty, fabric: Fabric) -> MediaPropertyViewModel{
+    static func create(mediaProperty: MediaProperty, fabric: Fabric) async -> MediaPropertyViewModel{
         
         var image = ""
         
+        //debugPrint("Fabric: ", fabric)
+        //debugPrint("image: ", mediaProperty.image)
         do {
             image = try fabric.getUrlFromLink(link: mediaProperty.image)
         }catch{
-            print("Could not create image URL \(error)")
+            //print("Could not create image URL \(error)")
         }
         
         var backgroundImage = ""
-        
         do {
-            backgroundImage = try fabric.getUrlFromLink(link: mediaProperty.main_page?.layout?["background_image"] ?? "")
-        }catch{
-            print("Could not create image URL \(error)")
+            backgroundImage = try fabric.getUrlFromLink(link: mediaProperty.image_tv)
+        }catch{}
+        
+        var purchaseImage = ""
+        do {
+            purchaseImage = try fabric.getUrlFromLink(link: mediaProperty.purchase_settings?["background_tv"])
+        }catch{}
+ 
+        if purchaseImage.isEmpty {
+            purchaseImage = backgroundImage
+        }else{
+            //debugPrint("Found purchaseImage ", purchaseImage)
         }
         
         var logo = ""
         do {
             logo = try fabric.getUrlFromLink(link: mediaProperty.main_page?.layout?["logo"])
         }catch{
-            print("Could not create image URL \(error)")
+            //print("Could not create image URL \(error)")
         }
         
         var sections: [String] = []
@@ -62,17 +81,24 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
             }
         }
         
-        
         return MediaPropertyViewModel(
-                id:mediaProperty.id,
-                title: mediaProperty.title ?? mediaProperty.page_title ?? "",
-                descriptionRichText:  mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "", description: mediaProperty.main_page?.layout?["description_text"].stringValue ?? "",
-                image: image,
-                backgroundImage: backgroundImage,
-                logo: logo,
-                logoAlt: mediaProperty.main_page?.layout?["logo_alt"].stringValue ?? "",
-                position: mediaProperty.main_page?.layout?["position"].stringValue ?? "",
-                sections: sections
-            )
+            id:mediaProperty.id ?? UUID().uuidString,
+            title: mediaProperty.title ?? mediaProperty.page_title ?? "",
+            name: mediaProperty.name ?? "",
+            descriptionRichText:  mediaProperty.main_page?.layout?["description_rich_text"].stringValue.html2Attributed() ?? "", description: mediaProperty.main_page?.layout?["description_text"].stringValue ?? "",
+            image: image,
+            backgroundImage: backgroundImage,
+            login: mediaProperty.login,
+            logo: logo,
+            logoAlt: mediaProperty.main_page?.layout?["logo_alt"].stringValue ?? "",
+            position: mediaProperty.main_page?.layout?["position"].stringValue ?? "",
+            sections: sections,
+            permissions: mediaProperty.permissions,
+            main_page: mediaProperty.main_page,
+            permission_auth_state: mediaProperty.permission_auth_state,
+            purchaseImage: purchaseImage,
+            hasAuth: fabric.checkPropertyAuthState(property:mediaProperty),
+            model : mediaProperty
+        )
     }
 }

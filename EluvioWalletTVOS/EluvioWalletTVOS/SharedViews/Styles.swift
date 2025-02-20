@@ -75,7 +75,7 @@ struct NonSelectionButtonStyle: ButtonStyle {
     }
 }
 
-struct TitleButtonStyle: ButtonStyle {
+struct BannerButtonStyle: ButtonStyle {
     let focused: Bool
     var scale = 1.04
     var bordered = false
@@ -98,15 +98,41 @@ struct TitleButtonStyle: ButtonStyle {
     }
 }
 
+
+struct TitleButtonStyle: ButtonStyle {
+    let focused: Bool
+    var scale = 1.00
+    var bordered = false
+    var borderRadius=0.0
+    func makeBody(configuration: Self.Configuration) -> some View {
+        configuration.label
+            .foregroundColor(.white)
+            .background(.clear)
+            .scaleEffect(self.focused ? scale: 1, anchor: .center)
+            .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            .background(
+                RoundedRectangle(
+                    cornerRadius: borderRadius,
+                    style: .continuous
+                )
+                .stroke(.tint, lineWidth: bordered && focused ? 4 : 0)
+                .scaleEffect(self.focused ? scale: 1, anchor: .center)
+                .animation(self.focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: self.focused)
+            )
+
+    }
+}
+
 struct GalleryButtonStyle: ButtonStyle {
     let focused: Bool
+    var scale = 1.00
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
             .opacity(self.focused ? 1.0 : 0.5)
             .shadow(color: self.focused ? .gray : .black, radius: self.focused ? 15 : 2, x: 1, y: 1)
             .cornerRadius(20)
-            .scaleEffect(self.focused ? 1.14: 1, anchor: .center)
+            .scaleEffect(self.focused ? scale : 1, anchor: .center)
             .animation(.easeIn(duration: 0.2), value: self.focused)
     }
 }
@@ -114,7 +140,7 @@ struct GalleryButtonStyle: ButtonStyle {
 struct ThumbnailButtonStyle: ButtonStyle {
     let focused: Bool
     let selected: Bool
-    
+    var scale = 1.00
     private var opacity: CGFloat {
         if focused {
             return 1.0
@@ -126,14 +152,14 @@ struct ThumbnailButtonStyle: ButtonStyle {
         
         return 0.6
     }
-    
+
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .foregroundColor(.white)
             .opacity(opacity)
             .shadow(color: self.focused || self.selected ? .gray : .black, radius: self.focused || self.selected ? 15 : 2, x: 1, y: 1)
             .cornerRadius(10)
-            .scaleEffect(self.focused || self.selected ? 1.14: 1, anchor: .center)
+            .scaleEffect(self.focused || self.selected ? scale: 1, anchor: .center)
             .animation(.easeIn(duration: 0.2), value: self.focused)
     }
 }
@@ -141,6 +167,7 @@ struct ThumbnailButtonStyle: ButtonStyle {
 struct TextButtonStyle: ButtonStyle {
     let focused: Bool
     var scale = 1.00
+    var selected: Bool = false
     var bordered = false
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
@@ -149,7 +176,7 @@ struct TextButtonStyle: ButtonStyle {
             .background(focused ? .white : .clear)
             .foregroundColor(focused ? .black : .white)
             .cornerRadius(10)
-            .opacity(configuration.isPressed ? 0.5 : 1)
+            .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
             .background(
                 RoundedRectangle(
                     cornerRadius: 10,
@@ -165,19 +192,74 @@ struct TextButtonStyle: ButtonStyle {
 struct secondaryFilterButtonStyle: ButtonStyle {
     let focused: Bool
     let selected: Bool
-    var scale = 1.00
+    var scale = 1.08
+    var isImage: Bool = true
+    func makeBody(configuration: Self.Configuration) -> some View {
+        if isImage {
+            configuration.label
+                .foregroundColor(selected ? .black : .white)
+                .padding(10)
+                .opacity(configuration.isPressed || focused || selected ? 1 : 0.3)
+                .scaleEffect(self.focused ? scale : 1, anchor: .center)
+                .scaleEffect(configuration.isPressed ? 0.95 : 1)
+                .animation(.easeIn(duration: 0.2), value: self.focused)
+        }else {
+            configuration.label
+                .padding([.leading,.trailing],20)
+                .padding([.top,.bottom],10)
+                .background(selected ? .white : focused ? Color(hex:0x8b8b8b) : .clear)
+                .foregroundColor(selected ? .black : .white)
+                .cornerRadius(10)
+                .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
+                .scaleEffect(self.focused ? scale : 1, anchor: .center)
+                .scaleEffect(configuration.isPressed ? 0.95 : 1)
+                .animation(.easeIn(duration: 0.2), value: self.focused)
+        }
+
+    }
+}
+
+struct primaryFilterButtonStyle: ButtonStyle {
+    let focused: Bool
+    let selected: Bool
+    var scale = 1.08
     func makeBody(configuration: Self.Configuration) -> some View {
         configuration.label
             .padding([.leading,.trailing],20)
             .padding([.top,.bottom],10)
-            .background(focused || selected ? .white : Color(hex:0x3b3b3b))
-            .foregroundColor(focused || selected ? .black : .white)
+            .background(selected ? .white : focused ? Color(hex:0x8b8b8b) : Color(hex:0x3b3b3b))
+            .foregroundColor(selected ? .black : .white)
             .cornerRadius(10)
             .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
-            .scaleEffect(self.focused || self.selected ? 1.14: 1, anchor: .center)
-            .scaleEffect(configuration.isPressed ? 1.16 : 1)
+            .scaleEffect(self.focused ? scale : 1, anchor: .center)
+            .scaleEffect(configuration.isPressed ? 0.95 : 1)
             .animation(.easeIn(duration: 0.2), value: self.focused)
 
+    }
+}
+
+struct propertyFilterButtonStyle: ButtonStyle {
+    let focused: Bool
+    let selected: Bool
+    var scale = 1.00
+    func makeBody(configuration: Self.Configuration) -> some View {
+        ZStack {
+            RoundedRectangle(
+                cornerRadius: 10,
+                style: .continuous
+            )
+            .stroke(.tint, lineWidth:  focused ? 4 : 1 )
+            .fill(selected || focused ? Color(hex:0x3b3b3b)  : .clear)
+            //.fill(focused ? Color(hex:0x8b8b8b)  : .clear)
+            
+            configuration.label
+                .padding([.leading,.trailing],20)
+                .foregroundColor(selected ? .white : .white)
+                .cornerRadius(10)
+        }
+        .scaleEffect(configuration.isPressed ? 0.95 : 1)
+        .animation(.easeIn(duration: 0.1), value: configuration.isPressed)
+        .opacity(configuration.isPressed || selected || focused ? 1 : 0.6)
     }
 }
 
@@ -215,11 +297,11 @@ extension Font {
     }
 
     public static var rowTitle: Font {
-        return Font.system(size: 32)
+        return Font.system(size: 34, weight:.medium)
     }
     
     public static var rowSubtitle: Font {
-        return Font.system(size: 30)
+        return Font.system(size: 28)
     }
     
     public static var sectionLogoText: Font {
@@ -227,6 +309,14 @@ extension Font {
     }
     
     public static var propertyDescription: Font {
-        return Font.system(size:30)
+        return Font.system(size:26)
+    }
+    
+    public static var sectionContainerTitle: Font {
+        return Font.system(size: 46, weight: .semibold)
+    }
+    
+    public static var sectionContainerSubtitle: Font {
+        return Font.system(size: 30)
     }
 }

@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-05-17.
 //
-
+/*
 import SwiftUI
 
 struct PropertyView : View {
@@ -53,7 +53,7 @@ struct PropertyView : View {
 
 struct PropertiesView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     var properties: [PropertyModel] = []
     
     let columns = [
@@ -86,3 +86,4 @@ struct PropertiesView_Previews: PreviewProvider {
             .environmentObject(Fabric())
     }
 }
+*/

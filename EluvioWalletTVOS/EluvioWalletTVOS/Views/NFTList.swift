@@ -16,9 +16,10 @@ struct NFTGrid: View {
     
     @State private var editMode = EditMode.inactive
     let columns = [
-        GridItem(.fixed(520),spacing: 0),
-        GridItem(.fixed(520),spacing: 0),
-        GridItem(.fixed(520),spacing: 0)
+        GridItem(.fixed(420),spacing: 0),
+        GridItem(.fixed(420),spacing: 0),
+        GridItem(.fixed(420),spacing: 0),
+        GridItem(.fixed(420),spacing: 0)
     ]
     
     let column = [GridItem(.flexible())]
@@ -44,11 +45,12 @@ struct NFTGrid: View {
                  */
                 
                 NFTView2(
-                    nft:nft
+                    nft:nft,
+                    scale: 0.75
                 )
                 .padding(.bottom,70)
             }
-            
+            /*
             ForEach(drops) { drop in
                 NFTView<DropDetail>(
                     image: drop.image ?? "",
@@ -59,11 +61,12 @@ struct NFTGrid: View {
                 )
                 .padding(.bottom,70)
             }
+             */
         }
     }
 }
 
-
+/*
 struct NFTList: View {
 
     var title: String = ""
@@ -113,3 +116,4 @@ struct NFTList_Previews: PreviewProvider {
         NFTList(title:"Wallet", nfts: CreateTestNFTs(num: 10))
     }
 }
+*/

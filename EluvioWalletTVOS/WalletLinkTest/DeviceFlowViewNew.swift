@@ -53,7 +53,7 @@ struct DeviceFlowViewNew: View {
                     .font(.custom("Helvetica Neue", size: 50))
                     .fontWeight(.semibold)
                 
-                Image(uiImage: GenerateQRCode(from: url))
+                Image(uiImage:GenerateQRCode(from: url))
                     .interpolation(.none)
                     .resizable()
                     .scaledToFit()
@@ -115,14 +115,16 @@ struct DeviceFlowViewNew: View {
                 return
             }
             
-            let url = "https://wallet.preview.contentfabric.io/login?mid=\(self.marketplaceId)&useOry=true&action=login&mode=login&response=code&source=code"
+            //let url = "https://wallet.preview.contentfabric.io/login?mid=\(self.marketplaceId)&useOry=true&action=login&mode=login&response=code&source=code"
+            
+            var url = self.fabric.getWalletBaseUrl() +  "/login?mid=\(self.marketplaceId)&useOry=true&action=login&mode=login&response=code&source=code"
+            
             let json = try await signer.createAuthLogin(redirectUrl: url)
             
             self.response = json
             
             print("createMetaMaskLogin completed");
-            
-            
+
             debugPrint("MetaMask create response: ",json)
 
             self.url = json["url"].stringValue

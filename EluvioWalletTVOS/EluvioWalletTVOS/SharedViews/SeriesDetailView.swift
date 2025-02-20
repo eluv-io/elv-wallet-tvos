@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-06-26.
 //
-
+/*
 import SwiftUI
 import SwiftyJSON
 import AVKit
@@ -14,7 +14,7 @@ struct SeriesDetailView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @Namespace var SeriesDetailView
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var seriesMediaItem = MediaItemViewModel()
     var subtitle : String {
         return seriesMediaItem.subtitle1
@@ -36,7 +36,7 @@ struct SeriesDetailView: View {
     }
     
     private var preferredLocation:String {
-        fabric.profile.profileData.preferredLocation ?? ""
+        eluvio.fabric.profile.profileData.preferredLocation ?? ""
     }
     
     private var section: MediaSection {
@@ -82,6 +82,13 @@ struct SeriesDetailView: View {
         }
         
         return info
+    }
+    
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
     }
     
     var body: some View {
@@ -207,7 +214,7 @@ struct SeriesDetailView: View {
                                 do{
                                     //Expensive operation
                                     if redeemable.contentTag.isEmpty || redeemable.contentTag == seriesMediaItem.contentTag {
-                                        let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
+                                        let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
                                         redeemableFeatures.append(redeem)
                                     }
                                         
@@ -235,3 +242,4 @@ struct SeriesDetailView_Previews: PreviewProvider {
                 .listRowInsets(EdgeInsets())
     }
 }
+*/

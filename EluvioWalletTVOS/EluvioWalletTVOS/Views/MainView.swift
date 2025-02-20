@@ -10,7 +10,7 @@ import Combine
 import SwiftyJSON
 
 struct HeaderView: View {
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     var logo = "e_logo"
     var logoUrl = ""
     var name = APP_CONFIG.app.name
@@ -18,7 +18,7 @@ struct HeaderView: View {
     var body: some View {
         VStack {
             HStack(spacing:20) {
-                if !viewState.isBranded {
+                if !eluvio.viewState.isBranded {
                     Image(logo)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -43,9 +43,7 @@ enum MainTab { case Discover, Items, Profile}
 
 struct MainView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
-    @EnvironmentObject var pathState: PathState
+    @EnvironmentObject var eluvio : EluvioAPI
     @Namespace var MAIN
     
 
@@ -65,20 +63,20 @@ struct MainView: View {
         ZStack{
             TabView(selection:$selection){
                 DiscoverView().preferredColorScheme(colorScheme)
-                    .environmentObject(self.pathState)
+                    .environmentObject(self.eluvio)
                     .prefersDefaultFocus(in: MAIN)
                     .opacity(selection == .Discover ? 1.0 : 0.0)
                     .tabItem{Text("Home")}
                     .tag(MainTab.Discover)
                 
-                MyItemsView(nfts: fabric.library.items).preferredColorScheme(colorScheme)
-                    .environmentObject(self.pathState)
+                MyItemsView(nfts: eluvio.fabric.library.items).preferredColorScheme(colorScheme)
+                    .environmentObject(self.eluvio)
                     .opacity(selection == .Items ? 1.0 : 0.0)
                     .tabItem{Text("My Items")}
                     .tag(MainTab.Items)
                 
                 ProfileView().preferredColorScheme(colorScheme)
-                    .environmentObject(self.pathState)
+                    .environmentObject(self.eluvio)
                     .opacity(selection == .Profile ? 1.0 : 0.0)
                     .preferredColorScheme(.dark)
                     .tabItem{Text("Profile")}
@@ -88,9 +86,9 @@ struct MainView: View {
         .edgesIgnoringSafeArea(.all)
         .onAppear(){
             debugPrint("MainView onAppear")
-            self.cancellable = fabric.$isLoggedOut.sink { val in
+            self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
                 print("MainView fabric changed, ", val)
-                if fabric.isLoggedOut == true {
+                if val == nil {
                     self.selection = MainTab.Discover
                 }
             }
@@ -101,10 +99,10 @@ struct MainView: View {
             }
         }
         .onChange(of: selection){
-            debugPrint("onChange of selection viewState ", viewState.op)
-            Task {
-                await fabric.refresh()
-            }
+            //debugPrint("onChange of selection viewState ",eluvio.viewState.op)
+           // Task {
+                //await eluvio.fabric.refresh()
+           // }
         }
         .onChange(of: navFocused){ old,new in
             debugPrint("on Nav Focused ", new)
@@ -137,9 +135,9 @@ struct MainView: View {
             }
              */
         }
-        .onReceive(logOutTimer) { _ in
-            fabric.signOutIfExpired()
-        }
+        /*.onReceive(logOutTimer) { _ in
+            eluvio.fabric.signOutIfExpired()
+        }*/
     }
 }
 

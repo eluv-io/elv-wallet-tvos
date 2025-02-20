@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-10-04.
 //
-
+/*
 import SwiftUI
 import SwiftyJSON
 import AVKit
@@ -15,7 +15,7 @@ struct NFTDetailMovieView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @Namespace var SeriesDetailView
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @Environment(\.openURL) private var openURL
 
     var seriesMediaItem : MediaItemViewModel
@@ -55,6 +55,13 @@ struct NFTDetailMovieView: View {
         }
         
         return []
+    }
+    
+    var address : String {
+        if let account = eluvio.accountManager.currentAccount {
+            return account.getAccountAddress()
+        }
+        return ""
     }
     
     private var seriesInfo: [(String,String)]{
@@ -278,8 +285,8 @@ struct NFTDetailMovieView: View {
                             var redeemableFeatures: [RedeemableViewModel] = []
                             for redeemable in redeemableOffers {
                                 do{
-                                    let redeem = try await RedeemableViewModel.create(fabric:fabric, redeemable:redeemable, nft:nft)
-                                    if (redeem.shouldDisplay(currentUserAddress: try fabric.getAccountAddress())){
+                                    let redeem = try await RedeemableViewModel.create(fabric:eluvio.fabric, redeemable:redeemable, nft:nft, address:address)
+                                    if (redeem.shouldDisplay(currentUserAddress: address)){
                                         redeemableFeatures.append(redeem)
                                         //debugPrint("Redeemable should display!")
                                     }else{
@@ -302,3 +309,4 @@ struct NFTDetailMovieView: View {
         }
     }
 }
+*/

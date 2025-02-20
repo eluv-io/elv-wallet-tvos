@@ -24,7 +24,7 @@ struct FormEntry : View {
 
 struct ProfileView: View {
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var address : String = ""
     @State var userId : String = ""
     @State var network : String = ""
@@ -37,7 +37,7 @@ struct ProfileView: View {
     var name = ""
     
     var locations : [String] {
-        return fabric.profile.profileData.locations ?? []
+        return eluvio.fabric.profile.profileData.locations ?? []
     }
     
     @State
@@ -45,14 +45,11 @@ struct ProfileView: View {
     
     @State var initialized = false
     
+    @State var isStaging = false
+    @State var isDeveloper = false
+    
     var body: some View {
-    //    NavigationStack {
             VStack() {
-                /*HeaderView(logo:logo, logoUrl: logoUrl)
-                    .padding(.top,50)
-                    .padding(.leading,80)
-                    .padding(.bottom,80)*/
-                
                 VStack(alignment: .center){
                     Form {
                         Section(header:Text("Profile").foregroundColor(.white.opacity(0.6)))
@@ -76,7 +73,7 @@ struct ProfileView: View {
                                     print("Selected location: ", selected)
                                     Task{
                                         do{
-                                            try await fabric.profile.setPreferredLocation(location: selected)
+                                            try await eluvio.fabric.profile.setPreferredLocation(location: selected)
                                         }catch{
                                             print("Error setting preferred location", error)
                                         }
@@ -93,29 +90,47 @@ struct ProfileView: View {
                             FormEntry("Fabric Node:  \(node)")
                             FormEntry("Authority Service:  \(asNode)")
                             FormEntry("Eth Service:  \(ethNode)")
+                            
+                            Toggle("Set to staging ", isOn:$isStaging)
+                            
+                            //Toggle("Set to developer mode ", isOn:$isDeveloper)
+                        
                         }
                         .padding()
                     }
                     .frame(width:1200)
                     
                     Button("Sign Out") {
-                        fabric.signOut()
+                        eluvio.signOut()
                     }
                 }
                 .padding([.leading,.trailing,.bottom],80)
             }
+            .onChange(of: isStaging) {old, val in
+                if val {
+                    eluvio.setEnvironment(env:.staging)
+                }else{
+                    eluvio.setEnvironment(env:.prod)
+                }
+            }
+            .onChange(of: isDeveloper) {old, val in
+                eluvio.setDevMode(devMode: val)
+            }
             .onAppear(){
                 do {
-                    self.address = try fabric.getAccountAddress()
-                    self.userId = try fabric.getAccountId()
-                    self.network = fabric.network
-                    self.node = try fabric.getEndpoint()
-                    self.asNode = try fabric.signer?.getAuthEndpoint() ?? ""
-                    self.ethNode = try fabric.signer?.getEthEndpoint() ?? ""
+                    self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
+                    self.userId =  eluvio.accountManager.currentAccount?.getAccountId() ?? ""
+                    self.network = eluvio.fabric.network
+                    self.node = try eluvio.fabric.getEndpoint()
+                    self.asNode = try eluvio.fabric.signer?.getAuthEndpoint() ?? ""
+                    self.ethNode = try eluvio.fabric.signer?.getEthEndpoint() ?? ""
+                    
+                    self.isStaging = eluvio.getEnvironment().rawValue == "staging"
+                    self.isDeveloper = eluvio.getDevMode()
                     
                     if !initialized {
                         
-                        self.selectedLocation = fabric.profile.profileData.preferredLocation ?? ""
+                        self.selectedLocation = eluvio.fabric.profile.profileData.preferredLocation ?? ""
                         
                         debugPrint("ProfileView OnAppear - locations", self.locations)
                         debugPrint("ProfileView OnAppear - selectedLocation", self.selectedLocation)
@@ -126,7 +141,6 @@ struct ProfileView: View {
                 }
             }
         }
-  //  }
 }
 
 struct Profile_Previews: PreviewProvider {

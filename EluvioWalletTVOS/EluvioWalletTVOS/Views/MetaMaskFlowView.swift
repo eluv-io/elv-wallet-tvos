@@ -16,7 +16,7 @@ import SwiftyJSON
 struct MetaMaskFlowView: View {
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
+    @EnvironmentObject var eluvio: EluvioAPI
 
     @State var url = ""
     @State var code = ""
@@ -33,9 +33,11 @@ struct MetaMaskFlowView: View {
     var Domain = ""
     
     @State private var response = JSON()
+    var property: MediaProperty? = nil
     
-    init(show: Binding<Bool>){
+    init(property: MediaProperty? = nil, show: Binding<Bool>){
         self.Domain = "prod-elv.us.auth0.com"
+        self.property = property
     }
 
 
@@ -84,7 +86,8 @@ struct MetaMaskFlowView: View {
                             .scaledToFit()
                             .frame(width: 400, height: 400)
                     }else{
-                        ProgressView()
+                        Rectangle()
+                            .fill(.clear)
                             .frame(width: 400, height: 450)
                     }
                 }
@@ -105,12 +108,15 @@ struct MetaMaskFlowView: View {
             }
         }
         .onAppear(perform: {
-            if(!self.fabric.isLoggedOut){
+          /*  if(!self.eluvio.accountManager.isLoggedOut){
                 self.presentationMode.wrappedValue.dismiss()
             }else{
                 Task{
                     await self.regenerateCode()
                 }
+            }*/
+            Task{
+                await self.regenerateCode()
             }
         })
         .onReceive(timer) { _ in
@@ -133,7 +139,7 @@ struct MetaMaskFlowView: View {
         self.errorMessage = ""
         
         do {
-            guard let signer = self.fabric.signer else {
+            guard let signer = self.eluvio.fabric.signer else {
                 print("MetaMaskFlowView regenerateCode() called without a signer.")
                 return
             }
@@ -151,6 +157,10 @@ struct MetaMaskFlowView: View {
             if (!self.url.hasPrefix("https") && !self.url.hasPrefix("http")){
                 self.url = "https://".appending(self.url)
             }
+            
+            //This doesn't work with tiny
+            //self.url = try await signer.shortenUrl(url: self.url)
+            debugPrint("Shortened URL: ", self.url)
 
             //Tried the metamask:// prefix but doesn't work either
             //self.url = self.url.replacingOccurrences(of: "metamask.app.link", with: "metamask:/")
@@ -175,23 +185,19 @@ struct MetaMaskFlowView: View {
     
     func checkDeviceVerification() async{
         print("Metamask checkDeviceVerification \(self.code)");
+        var newProperty : MediaProperty? = property
+        
         do {
-            guard let result = try await self.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
+
+            guard let result = try await eluvio.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
                 print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
             }
             
-
             let status = result["status"].intValue
             
             if(status != 200){
                 print("Check value \(result)")
-                /*
-                self.timerCancellable!.cancel()
-                print("Error \(json)")
-                self.errorMessage = json["error"].stringValue
-                showError = true
-                 */
                 return
             }
             
@@ -208,16 +214,33 @@ struct MetaMaskFlowView: View {
             let token = json["token"].stringValue
             let addr = json["addr"].stringValue
             let eth = json["eth"].stringValue
+            let expiresAt = json["expiresAt"].int64Value
+            let clusterToken = json["clusterToken"].stringValue
             
             let login = LoginResponse(addr:addr, eth:eth, token:token)
 
-            try await fabric.setLogin(login: login, isMetamask: true)
-            
+            let account = Account()
+            account.type = .Metamask
+            account.fabricToken = token
+            account.expiresAt = expiresAt
+            account.clusterToken = clusterToken
+            account.login = login
+            try await eluvio.signIn(account:account, property: property?.id ?? "")
+            try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
+            newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
 
-            
         } catch {
             print("checkDeviceVerification error", error)
         }
+        
+        await MainActor.run {
+            debugPrint("Sign in finished.")
+            let last = eluvio.pathState.path.popLast()
+            debugPrint("Popped the path state.")
+            let params = PropertyParam(property:newProperty)
+            eluvio.pathState.path.append(.property(params))
+        }
+        
         self.timerCancellable!.cancel()
         /*
         print("checkDeviceVerification \(self.code)");

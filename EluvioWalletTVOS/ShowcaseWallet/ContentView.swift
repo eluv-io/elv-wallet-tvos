@@ -165,7 +165,7 @@ struct ContentView: View {
     }
     
     var body: some View {
-        if fabric.isLoggedOut {
+        if true {
             SignInView()
                 .environmentObject(self.fabric)
                 .preferredColorScheme(colorScheme)

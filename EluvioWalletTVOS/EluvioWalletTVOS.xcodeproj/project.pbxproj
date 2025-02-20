@@ -20,6 +20,8 @@
 		B00FA9E72AD905D500CFBFF7 /* KTPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9E62AD905D500CFBFF7 /* KTPage.swift */; };
 		B00FA9E92AD905FD00CFBFF7 /* UNextPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */; };
 		B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */; };
+		B01500E62D5FED5200F9B826 /* MediaImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01500E52D5FED3E00F9B826 /* MediaImageView.swift */; };
+		B01500E72D5FED5200F9B826 /* MediaImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01500E52D5FED3E00F9B826 /* MediaImageView.swift */; };
 		B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02CE2032AF4C08700F5F495 /* BackButton.swift */; };
 		B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04586F42AF4993B00F1FF25 /* FandangoPage.swift */; };
 		B05648C22BC7E245004540F6 /* ContentViewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentViewApp.swift */; };
@@ -198,7 +200,6 @@
 		B08CB57F2B7DDFDA00E04C0D /* PropertiesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */; };
 		B08CB5802B7DDFDA00E04C0D /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
 		B08CB5812B7DDFDA00E04C0D /* MyMediaView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C4A2A58858D003C414A /* MyMediaView2.swift */; };
-		B08CB5822B7DDFDA00E04C0D /* MediaDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF952A250E3500F1E358 /* MediaDetail.swift */; };
 		B08CB5832B7DDFDA00E04C0D /* DropDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C92BE2A3060370001CF4E /* DropDetail.swift */; };
 		B08CB5842B7DDFDA00E04C0D /* MetaMaskFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C522A5F35D5003C414A /* MetaMaskFlowView.swift */; };
 		B08CB5852B7DDFDA00E04C0D /* MyMediaViewDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C562A8C7B0A003C414A /* MyMediaViewDemo.swift */; };
@@ -231,6 +232,10 @@
 		B08CB5AB2B7DE8F200E04C0D /* ViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5A92B7DE8F200E04C0D /* ViewState.swift */; };
 		B08CB5AC2B7DE8F200E04C0D /* ViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5A92B7DE8F200E04C0D /* ViewState.swift */; };
 		B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5AD2B7DF2CB00E04C0D /* AudioPlayer.swift */; };
+		B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FA2CB7286900C1D590 /* ExtrasBase64 */; };
+		B09897FD2CB7288100C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FC2CB7288100C1D590 /* ExtrasBase64 */; };
+		B09897FF2CB8D11100C1D590 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09897FE2CB8D10400C1D590 /* SearchBar.swift */; };
+		B09898002CB8D11100C1D590 /* SearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09897FE2CB8D10400C1D590 /* SearchBar.swift */; };
 		B099A5AF2B336CAD00C779A0 /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5AE2B336CAD00C779A0 /* Auth0 */; };
 		B099A5B12B336CAD00C779A0 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B02B336CAD00C779A0 /* Alamofire */; };
 		B099A5B32B336CAD00C779A0 /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B22B336CAD00C779A0 /* Base58Swift */; };
@@ -261,8 +266,22 @@
 		B0A598E82C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
 		B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
 		B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
+		B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
+		B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
+		B0A5AB412CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */; };
+		B0A5AB422CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */; };
 		B0A830E22C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
 		B0A830E32C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
+		B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
+		B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
+		B0A830E82C784DEB0037BE59 /* EluvioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */; };
+		B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */; };
+		B0A830EB2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
+		B0A830EC2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
+		B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
+		B0A830EF2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
+		B0AF0DC82CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
+		B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -280,7 +299,6 @@
 		B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */; };
 		B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
-		B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF952A250E3500F1E358 /* MediaDetail.swift */; };
 		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
 		B0E60F7229CC23510079661E /* ContentViewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentViewApp.swift */; };
 		B0E60F7429CC23530079661E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7329CC23530079661E /* Assets.xcassets */; };
@@ -302,6 +320,9 @@
 		B0E60FAA29D211040079661E /* NFTModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA729D211040079661E /* NFTModel.swift */; };
 		B0E60FAD29D223870079661E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
 		B0E60FB229D2288C0079661E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
+		B0EAAF902CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
+		B0EAAF912CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
+		B0EAAF922CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
 		B0F9DC322B4F973400499C93 /* MSPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC312B4F973400499C93 /* MSPage.swift */; };
 		B0F9DC3C2B578D9800499C93 /* SDWebImagePDFCoder in Frameworks */ = {isa = PBXBuildFile; productRef = B0F9DC3B2B578D9800499C93 /* SDWebImagePDFCoder */; };
 		B0F9DC3E2B57912700499C93 /* PDFPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3D2B57912700499C93 /* PDFPage.swift */; };
@@ -334,6 +355,7 @@
 		B00FA9E62AD905D500CFBFF7 /* KTPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KTPage.swift; sourceTree = "<group>"; };
 		B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UNextPage.swift; sourceTree = "<group>"; };
 		B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchButton.swift; sourceTree = "<group>"; };
+		B01500E52D5FED3E00F9B826 /* MediaImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaImageView.swift; sourceTree = "<group>"; };
 		B02CE2032AF4C08700F5F495 /* BackButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackButton.swift; sourceTree = "<group>"; };
 		B02CE2052AF4C89500F5F495 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B04586F42AF4993B00F1FF25 /* FandangoPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FandangoPage.swift; sourceTree = "<group>"; };
@@ -417,6 +439,7 @@
 		B08CB5A02B7DE20200E04C0D /* Auth0.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Auth0.plist; sourceTree = "<group>"; };
 		B08CB5A92B7DE8F200E04C0D /* ViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewState.swift; sourceTree = "<group>"; };
 		B08CB5AD2B7DF2CB00E04C0D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AudioPlayer.swift; path = EluvioWalletTVOS/SharedViews/AudioPlayer.swift; sourceTree = "<group>"; };
+		B09897FE2CB8D10400C1D590 /* SearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchBar.swift; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
@@ -437,7 +460,14 @@
 		B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "start-screen-bg.mp4"; sourceTree = "<group>"; };
 		B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewSideNav.swift; sourceTree = "<group>"; };
 		B0A598E92C3433CD00D6716F /* ContentViewBak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewBak.swift; sourceTree = "<group>"; };
+		B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionGridView.swift; sourceTree = "<group>"; };
+		B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertySectionView.swift; sourceTree = "<group>"; };
 		B0A830E12C7129120037BE59 /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
+		B0A830E42C74E9740037BE59 /* CountdownView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountdownView.swift; sourceTree = "<group>"; };
+		B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioAPI.swift; sourceTree = "<group>"; };
+		B0A830EA2C78547B0037BE59 /* States.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = States.swift; sourceTree = "<group>"; };
+		B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OryDeviceFlowView.swift; sourceTree = "<group>"; };
+		B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseView.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -449,7 +479,6 @@
 		B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertyDetailView.swift; sourceTree = "<group>"; };
 		B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyMediaView.swift; sourceTree = "<group>"; };
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
-		B0DFFF952A250E3500F1E358 /* MediaDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaDetail.swift; sourceTree = "<group>"; };
 		B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioWalletTVOSApp.swift; sourceTree = "<group>"; };
 		B0E60F7129CC23510079661E /* ContentViewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewApp.swift; sourceTree = "<group>"; };
@@ -468,6 +497,7 @@
 		B0E60FA729D211040079661E /* NFTModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NFTModel.swift; sourceTree = "<group>"; };
 		B0E60FAC29D223870079661E /* SignInView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		B0E60FB129D2288C0079661E /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
+		B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseQRView.swift; sourceTree = "<group>"; };
 		B0F9DC312B4F973400499C93 /* MSPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MSPage.swift; sourceTree = "<group>"; };
 		B0F9DC3D2B57912700499C93 /* PDFPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PDFPage.swift; sourceTree = "<group>"; };
 		B0F9DC3F2B58274200499C93 /* PageGesture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageGesture.swift; sourceTree = "<group>"; };
@@ -495,6 +525,7 @@
 				B08CB5512B7DDF0E00E04C0D /* UUIDShortener in Frameworks */,
 				B08CB54B2B7DDF0E00E04C0D /* RLPSwift in Frameworks */,
 				B08CB5492B7DDF0E00E04C0D /* SwiftKeccak in Frameworks */,
+				B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */,
 				B08CB5452B7DDF0E00E04C0D /* KeccakTiny in Frameworks */,
 				B08CB5472B7DDF0E00E04C0D /* Sha3Tiny in Frameworks */,
 				B08CB53B2B7DDF0E00E04C0D /* Auth0 in Frameworks */,
@@ -533,6 +564,7 @@
 				B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */,
 				B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */,
 				B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */,
+				B09897FD2CB7288100C1D590 /* ExtrasBase64 in Frameworks */,
 				B06D52172A14657E00BD68D1 /* Introspect-Static in Frameworks */,
 				B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */,
 				B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */,
@@ -760,7 +792,7 @@
 				B0670F6C29E3DF6F00676872 /* Managers */,
 				B0E60FAB29D223760079661E /* Views */,
 				B0E60FA429D210E50079661E /* Models */,
-				B0E60F8329CD70AF0079661E /* Fabric */,
+				B0E60F8329CD70AF0079661E /* EluvioAPI */,
 				B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */,
 				B05648C32BC9CCBB004540F6 /* ContentView.swift */,
 				B00945A729EA478D00B00FC3 /* Test */,
@@ -781,7 +813,7 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		B0E60F8329CD70AF0079661E /* Fabric */ = {
+		B0E60F8329CD70AF0079661E /* EluvioAPI */ = {
 			isa = PBXGroup;
 			children = (
 				B0E60F8529CD71840079661E /* Fabric.swift */,
@@ -793,8 +825,10 @@
 				B06C4C502A5F0872003C414A /* AppConfiguration.swift */,
 				B06C4C542A7B2C2A003C414A /* ProfileClient.swift */,
 				B0A830E12C7129120037BE59 /* AccountManager.swift */,
+				B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */,
+				B0A830EA2C78547B0037BE59 /* States.swift */,
 			);
-			path = Fabric;
+			path = EluvioAPI;
 			sourceTree = "<group>";
 		};
 		B0E60FA429D210E50079661E /* Models */ = {
@@ -819,6 +853,11 @@
 		B0E60FAB29D223760079661E /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B01500E52D5FED3E00F9B826 /* MediaImageView.swift */,
+				B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */,
+				B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */,
+				B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */,
+				B09897FE2CB8D10400C1D590 /* SearchBar.swift */,
 				B0E60F7129CC23510079661E /* ContentViewApp.swift */,
 				B0670F3729D5427300676872 /* NFTDetail.swift */,
 				B0670F3629D5427300676872 /* NFTList.swift */,
@@ -835,7 +874,6 @@
 				B06D521A2A149EDC00BD68D1 /* PropertiesView.swift */,
 				B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */,
 				B06C4C4A2A58858D003C414A /* MyMediaView2.swift */,
-				B0DFFF952A250E3500F1E358 /* MediaDetail.swift */,
 				B06C92BE2A3060370001CF4E /* DropDetail.swift */,
 				B06C4C522A5F35D5003C414A /* MetaMaskFlowView.swift */,
 				B06C4C562A8C7B0A003C414A /* MyMediaViewDemo.swift */,
@@ -849,6 +887,9 @@
 				B0A598D62C22967100D6716F /* SectionItemView.swift */,
 				B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */,
 				B077BE642C6EC8B70056DDB1 /* ItemDetailView.swift */,
+				B0A830E42C74E9740037BE59 /* CountdownView.swift */,
+				B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */,
+				B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -905,6 +946,7 @@
 				B08CB54C2B7DDF0E00E04C0D /* SwiftyJSON */,
 				B08CB54E2B7DDF0E00E04C0D /* SDWebImageSwiftUI */,
 				B08CB5502B7DDF0E00E04C0D /* UUIDShortener */,
+				B09897FA2CB7286900C1D590 /* ExtrasBase64 */,
 			);
 			productName = ShowcaseWallet;
 			productReference = B08CB52C2B7DDB2800E04C0D /* ShowcaseWallet.app */;
@@ -969,6 +1011,7 @@
 				B06D52162A14657E00BD68D1 /* Introspect-Static */,
 				B069A48B2A5225A4006C9E7B /* UUIDShortener */,
 				B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */,
+				B09897FC2CB7288100C1D590 /* ExtrasBase64 */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -1017,6 +1060,7 @@
 				B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 				B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */,
 				B0F9DC3A2B578D9800499C93 /* XCRemoteSwiftPackageReference "SDWebImagePDFCoder" */,
+				B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */,
 			);
 			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
 			projectDirPath = "";
@@ -1114,6 +1158,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */,
 				B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
 				B05648C22BC7E245004540F6 /* ContentViewApp.swift in Sources */,
 				B08CB5622B7DDFDA00E04C0D /* AudioPlayer.swift in Sources */,
@@ -1141,6 +1186,7 @@
 				B077BE662C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */,
 				B08CB5742B7DDFDA00E04C0D /* NFTList.swift in Sources */,
 				B08CB5752B7DDFDA00E04C0D /* NFTView.swift in Sources */,
+				B0A830EF2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */,
 				B08CB5762B7DDFDA00E04C0D /* MainView.swift in Sources */,
 				B08CB5772B7DDFDA00E04C0D /* SignInView.swift in Sources */,
 				B08CB5782B7DDFDA00E04C0D /* DeviceFlowView.swift in Sources */,
@@ -1150,11 +1196,11 @@
 				B08CB57B2B7DDFDA00E04C0D /* ProfileView.swift in Sources */,
 				B08CB57C2B7DDFDA00E04C0D /* CachedAsyncImage.swift in Sources */,
 				B08CB57D2B7DDFDA00E04C0D /* MyItemsView.swift in Sources */,
+				B09898002CB8D11100C1D590 /* SearchBar.swift in Sources */,
 				B08CB57E2B7DDFDA00E04C0D /* SearchView.swift in Sources */,
 				B08CB57F2B7DDFDA00E04C0D /* PropertiesView.swift in Sources */,
 				B08CB5802B7DDFDA00E04C0D /* PropertyMediaView.swift in Sources */,
 				B08CB5812B7DDFDA00E04C0D /* MyMediaView2.swift in Sources */,
-				B08CB5822B7DDFDA00E04C0D /* MediaDetail.swift in Sources */,
 				B08CB5832B7DDFDA00E04C0D /* DropDetail.swift in Sources */,
 				B08CB5842B7DDFDA00E04C0D /* MetaMaskFlowView.swift in Sources */,
 				B08CB5852B7DDFDA00E04C0D /* MyMediaViewDemo.swift in Sources */,
@@ -1165,6 +1211,8 @@
 				B077BE632C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B08CB5892B7DDFDA00E04C0D /* PackView.swift in Sources */,
 				B08CB58A2B7DDFDA00E04C0D /* MarketplaceModel.swift in Sources */,
+				B0A5AB412CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */,
+				B0A830EC2C78547B0037BE59 /* States.swift in Sources */,
 				B08CB58B2B7DDFDA00E04C0D /* NFTModel.swift in Sources */,
 				B08CB58C2B7DDFDA00E04C0D /* ProfileModel.swift in Sources */,
 				B08CB58D2B7DDFDA00E04C0D /* Auth0Models.swift in Sources */,
@@ -1179,15 +1227,20 @@
 				B08CB5932B7DDFDA00E04C0D /* FabricConfiguration.swift in Sources */,
 				B08CB5942B7DDFDA00E04C0D /* FabricModels.swift in Sources */,
 				B08CB5952B7DDFDA00E04C0D /* NFTMetaResponse.swift in Sources */,
+				B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */,
 				B08CB5962B7DDFDA00E04C0D /* RemoteSigner.swift in Sources */,
 				B08CB5972B7DDFDA00E04C0D /* Profile.swift in Sources */,
+				B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
 				B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
 				B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */,
+				B0AF0DC82CED1339006A87C6 /* PurchaseView.swift in Sources */,
 				B08CB5992B7DDFDA00E04C0D /* ProfileClient.swift in Sources */,
 				B08CB59A2B7DDFDA00E04C0D /* TestData.swift in Sources */,
 				B08CB5312B7DDB2800E04C0D /* ContentView.swift in Sources */,
+				B01500E62D5FED5200F9B826 /* MediaImageView.swift in Sources */,
 				B08CB52F2B7DDB2800E04C0D /* ShowcaseWalletApp.swift in Sources */,
+				B0EAAF922CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1253,6 +1306,7 @@
 				B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */,
 				B0F9DC402B58274200499C93 /* PageGesture.swift in Sources */,
 				B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */,
+				B0EAAF912CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
 				B07ADFBD2B6B3DC7005C5E5A /* ProgressControlView.swift in Sources */,
 				B0F9DC3E2B57912700499C93 /* PDFPage.swift in Sources */,
 				B077B8D62B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */,
@@ -1271,6 +1325,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */,
 				B0A598E52C33976100D6716F /* PageGesture.swift in Sources */,
 				B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */,
 				B06D521B2A149EDC00BD68D1 /* PropertiesView.swift in Sources */,
@@ -1298,6 +1353,7 @@
 				B077BE652C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */,
 				B0E60F7229CC23510079661E /* ContentViewApp.swift in Sources */,
 				B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */,
+				B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
 				B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */,
 				B0E60F8929CD71840079661E /* FabricModels.swift in Sources */,
@@ -1307,8 +1363,8 @@
 				B0E60FAD29D223870079661E /* SignInView.swift in Sources */,
 				B0E60F8A29CD71840079661E /* Fabric.swift in Sources */,
 				B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */,
+				B09897FF2CB8D11100C1D590 /* SearchBar.swift in Sources */,
 				B0D5446F2C1B760800558B21 /* DiscoverView.swift in Sources */,
-				B0DFFF962A250E3500F1E358 /* MediaDetail.swift in Sources */,
 				B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */,
 				B05648C42BC9CCBB004540F6 /* ContentView.swift in Sources */,
 				B0670F3C29D5427400676872 /* NFTView.swift in Sources */,
@@ -1322,6 +1378,8 @@
 				B077BE622C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
 				B0670F3529D5421300676872 /* WalletView.swift in Sources */,
+				B0A5AB422CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */,
+				B0A830EB2C78547B0037BE59 /* States.swift in Sources */,
 				B0670F3A29D5427400676872 /* NFTList.swift in Sources */,
 				B0E60FA929D211040079661E /* MarketplaceModel.swift in Sources */,
 				B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */,
@@ -1336,15 +1394,20 @@
 				B0670F7029E3DFD800676872 /* ContentKeyDelegate.swift in Sources */,
 				B06C4C512A5F0872003C414A /* AppConfiguration.swift in Sources */,
 				B00945A429E9514B00B00FC3 /* CachedAsyncImage.swift in Sources */,
+				B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */,
 				B0670F6E29E3DFD100676872 /* ContentKeyManager.swift in Sources */,
 				B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */,
+				B0A830E82C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
 				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
 				B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,
+				B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */,
 				B0670F3B29D5427400676872 /* NFTDetail.swift in Sources */,
 				B069A4832A397DA8006C9E7B /* LoopingPlayer.swift in Sources */,
 				B0D5446C2C17925800558B21 /* MediaPropertyModel.swift in Sources */,
+				B01500E72D5FED5200F9B826 /* MediaImageView.swift in Sources */,
 				B0D544762C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
+				B0EAAF902CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1595,7 +1658,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 171;
+				CURRENT_PROJECT_VERSION = 314;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1609,7 +1672,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.0.19;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1618,7 +1681,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "3,7";
-				TVOS_DEPLOYMENT_TARGET = 17.0;
+				TVOS_DEPLOYMENT_TARGET = 18.0;
 			};
 			name = Debug;
 		};
@@ -1629,7 +1692,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 171;
+				CURRENT_PROJECT_VERSION = 314;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1643,7 +1706,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.9;
+				MARKETING_VERSION = 1.0.19;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1652,7 +1715,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "3,7";
-				TVOS_DEPLOYMENT_TARGET = 17.0;
+				TVOS_DEPLOYMENT_TARGET = 18.0;
 			};
 			name = Release;
 		};
@@ -1744,6 +1807,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.3.1;
+			};
+		};
+		B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swift-extras/swift-extras-base64";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
 			};
 		};
 		B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
@@ -1931,6 +2002,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */;
 			productName = UUIDShortener;
+		};
+		B09897FA2CB7286900C1D590 /* ExtrasBase64 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */;
+			productName = ExtrasBase64;
+		};
+		B09897FC2CB7288100C1D590 /* ExtrasBase64 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */;
+			productName = ExtrasBase64;
 		};
 		B099A5AE2B336CAD00C779A0 /* Auth0 */ = {
 			isa = XCSwiftPackageProductDependency;

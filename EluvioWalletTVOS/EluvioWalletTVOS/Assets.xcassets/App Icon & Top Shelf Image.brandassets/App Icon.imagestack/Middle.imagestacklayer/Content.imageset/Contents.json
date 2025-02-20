@@ -1,12 +1,10 @@
 {
   "images" : [
     {
-      "filename" : "Media Wallet BG (400 x 240).png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "Media Wallet BG (800 x 480).png",
       "idiom" : "tv",
       "scale" : "2x"
     },

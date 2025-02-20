@@ -4,7 +4,7 @@
 //
 //  Created by Wayne Tran on 2023-06-07.
 //
-
+/*
 import SwiftUI
 import SwiftyJSON
 import AVKit
@@ -13,8 +13,7 @@ import SDWebImageSwiftUI
 struct DropDetail: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var fabric: Fabric
-    @EnvironmentObject var viewState: ViewState
+    @EnvironmentObject var eluvio: EluvioAPI
     @State var drop : ProjectModel
     @State var backgroundImageUrl : String = ""
     @FocusState var isFocused
@@ -97,8 +96,8 @@ struct DropDetail: View {
                 .focusSection()
             }
             .scrollClipDisabled()
-            .fullScreenCover(isPresented: $showPlayer) {
-                PlayerView(playerItem:self.$playerItem,
+            .fullScreenCover(isPresented: $showPlayer) { [playerItem] in
+                PlayerView(playerItem:playerItem,
                            playerImageOverlayUrl:playerImageOverlayUrl,
                            playerTextOverlay:playerTextOverlay,
                            seekTimeS: 0,
@@ -137,10 +136,4 @@ struct DropDetail: View {
     }
     
 }
-
-struct DropDetail_Previews: PreviewProvider {
-    static var previews: some View {
-        NFTDetail(nft: test_NFTs[0])
-                .listRowInsets(EdgeInsets())
-    }
-}
+*/

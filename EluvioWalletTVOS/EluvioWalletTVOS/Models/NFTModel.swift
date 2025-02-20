@@ -189,7 +189,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
 
     }
 
-    static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel) async throws -> RedeemableViewModel {
+    static func create(fabric:Fabric, redeemable: Redeemable, nft:NFTModel, address:String) async throws -> RedeemableViewModel {
 
         let animationLink = redeemable.animation?["sources"]["default"]
 
@@ -234,7 +234,6 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
         
         var isClaimed = false
         do {
-            let address = try fabric.getAccountAddress()
             isClaimed = isRedeemed && redeemStatus.redeemer != address
         }catch{}
         
@@ -347,7 +346,6 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     var background_image: String? = "" //XXX: Demo only
     var title_image: String? = "" //XXX: Demo only
     var redeemable_offers: [Redeemable]?
-    
     var mediaCache : [String: MediaItem]? = [:]
     
     var getFirstFeature: MediaItem? {
@@ -467,6 +465,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
         has_playable_feature = false
         additional_media_sections = nil
         mediaCache = [:]
+        id = contract_addr
     }
     
     //TODO: Find a good id for this
