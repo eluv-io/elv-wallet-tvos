@@ -2803,29 +2803,31 @@ class Fabric: ObservableObject {
             }
         }
         
-        if !mediaItemId.isEmpty, let mediaItem = getMediaItem(mediaId: mediaItemId) {
-            //debugPrint("Media Item Id giving, permissions", mediaItem.permissions)
-           
-            if let publicField = mediaItem.public {
-               //debugPrint("media public field ", publicField)
-               if (publicField){
-                   result.authorized = true
-               }else{
-                   result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
-               }
-            }else{
-               result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
-            }
-            
-            if isSearch && !result.authorized{
-                result.behavior = searchBehavior
-            }
-            
-            if let perm = mediaItem.permissions {
-                if !perm.arrayValue.isEmpty {
-                    result.permissionItemIds = []
-                    for pid in perm.arrayValue {
-                        result.permissionItemIds.append(pid["permission_item_id"].stringValue)
+        if (result.authorized) {
+            if !mediaItemId.isEmpty, let mediaItem = getMediaItem(mediaId: mediaItemId) {
+                //debugPrint("Media Item Id giving, permissions", mediaItem.permissions)
+                
+                if let publicField = mediaItem.public {
+                    //debugPrint("media public field ", publicField)
+                    if (publicField){
+                        result.authorized = true
+                    }else{
+                        result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+                    }
+                }else{
+                    result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
+                }
+                
+                if isSearch && !result.authorized{
+                    result.behavior = searchBehavior
+                }
+                
+                if let perm = mediaItem.permissions {
+                    if !perm.arrayValue.isEmpty {
+                        result.permissionItemIds = []
+                        for pid in perm.arrayValue {
+                            result.permissionItemIds.append(pid["permission_item_id"].stringValue)
+                        }
                     }
                 }
             }
@@ -2835,9 +2837,6 @@ class Fabric: ObservableObject {
             result.authorized = !result.authorized
             result.behavior = .Hide;
         }
-        
-        result.purchaseGate = !result.authorized && result.behavior == .showPurchase
-        result.showAlternatePage = !result.authorized && result.behavior == .showAlternativePage
         
         //debugPrint("******* resolve Content Permission Finished ****** ")
         return result
@@ -2956,11 +2955,19 @@ class Fabric: ObservableObject {
 struct ResolvedPermission:  Codable, Hashable {
     var authorized:Bool = true
     var behavior:PermisionBehavior = .Hide
-    var hide:Bool = false
-    var disable:Bool = false
-    var purchaseGate: Bool = false
+    var hide:Bool {
+        return !authorized && behavior == .Hide;
+    }
+    var disable:Bool {
+        return !authorized && behavior == .Disable
+    }
+    var purchaseGate: Bool {
+        return !authorized && behavior == .showPurchase
+    }
     var secondaryPurchaseOption: String = ""
-    var showAlternatePage:Bool = true
+    var showAlternatePage: Bool {
+        return !authorized && behavior == .showAlternativePage
+    }
     var alternatePageId:String = ""
     var permissionItemIds:[String] = []
     var cause: String = ""

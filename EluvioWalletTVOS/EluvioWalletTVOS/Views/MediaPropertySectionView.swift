@@ -381,7 +381,7 @@ struct MediaPropertyRegularSectionView: View {
     func refresh() {
         debugPrint("MediaPropertyRegularSectionView refresh() ", section.displayTitle)
 
-        Task(priority:.background) {
+        Task {
             if let display = section.display {
                 do {
                     logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
@@ -409,7 +409,7 @@ struct MediaPropertyRegularSectionView: View {
                             item = testItem
                         }
                     }
-                    
+
                     let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
 
                     item.media?.resolvedPermission = mediaPermission
@@ -418,9 +418,8 @@ struct MediaPropertyRegularSectionView: View {
                     if !mediaPermission.hide {
                         let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
                         sectionItems.append(viewItem)
-                    }else{
-                        //debugPrint("hiding item section: \(item.id), media id: \(item.media_id)")
                     }
+                    
                     //Optimization so we show the first 4 first so faster loading sections don't render ahead of us as much
                     if sectionItems.count == 4{
                         self.items = sectionItems
@@ -434,7 +433,6 @@ struct MediaPropertyRegularSectionView: View {
 
             }
             self.items = sectionItems
-            debugPrint("MediaPropertyRegularSectionView \(section.displayTitle) finished items count: ", items.count)
         }
     }
 
