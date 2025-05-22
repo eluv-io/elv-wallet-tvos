@@ -12,6 +12,7 @@ import RLPSwift
 import SwiftyJSON
 import Base58Swift
 import CryptoKit
+import JsonRPC
 
 enum APIEnvironment : String {
     case prod = ""; case staging = "staging"
@@ -89,6 +90,13 @@ class RemoteSigner {
         }
         
         return endpoint
+    }
+    
+    func makeElvMasterCall(methodName: String, params:[AnyEncodable]) async throws -> String {
+        let rpc = JsonRpc(.http(url: URL(string: try getEthEndpoint())!), queue: .main)
+
+        let res = try await rpc.call(method: methodName, params: params, String.self, String.self)
+        return res
     }
 
     //TODO: Convert this to responseDecodable

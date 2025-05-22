@@ -11,7 +11,12 @@
           "public_token":"",
           "state_store_urls": ["https://appsvc.svc.eluv.io"],
           "badger_address": "0x39e9d567137217e8f7dae73bf168db28d242bb31",
-          "wallet_url": "https://wallet.demov3.contentfabric.io?action=login&mode=login&response=code&source=code#/login"
+          "wallet_url": "https://wallet.demov3.contentfabric.io?action=login&mode=login&response=code&source=code#/login",
+          "overrides":{
+          },
+          "mux": {
+              "env_key" : "2i5480sms8vdgj0sv9bv6lpk5"
+          }
       },
       "main": {
           "config_url":"https://main.net955305.contentfabric.io/config",
@@ -22,6 +27,9 @@
           "wallet_url": "https://wallet.contentfabric.io?action=login&mode=login&response=code&source=code#/login",
           "badger_address": "0xa042a585bbbac4419ba39c397f35ab749fc470f0",
           "overrides":{
+          },
+          "mux": {
+              "env_key" : "aq4mdjn7qo5sbkf89pkvfv93j"
           }
       }
     },

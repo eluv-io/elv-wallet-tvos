@@ -1,5 +1,5 @@
 {
-  "originHash" : "3600fcb9dcd0fead1d2ed3b668e9f0562024e641e7e955076148d1602b524dcf",
+  "originHash" : "de67c00213258253589e1bd52a54f3dc1298e6cd8e4b3b2024cac7313db8e128",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -38,12 +38,39 @@
       }
     },
     {
+      "identity" : "contextcodable.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tesseract-one/ContextCodable.swift.git",
+      "state" : {
+        "revision" : "e12448acef4c7be091d3a5f2784ebfa52140aef6",
+        "version" : "0.1.1"
+      }
+    },
+    {
+      "identity" : "jsonrpc.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tesseract-one/JsonRPC.swift.git",
+      "state" : {
+        "revision" : "d9df3ff3afaefa82cc7d8ca813a1795755197079",
+        "version" : "0.2.3"
+      }
+    },
+    {
       "identity" : "jwtdecode.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/auth0/JWTDecode.swift.git",
       "state" : {
         "revision" : "7918a343e674c7707e0be120bb4e21d679be014c",
         "version" : "3.0.1"
+      }
+    },
+    {
+      "identity" : "mux-stats-sdk-avplayer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/muxinc/mux-stats-sdk-avplayer.git",
+      "state" : {
+        "branch" : "master",
+        "revision" : "5eae8626cf974bd3987f6e5afd83598d86855ec0"
       }
     },
     {
@@ -101,12 +128,30 @@
       }
     },
     {
+      "identity" : "stats-sdk-objc",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/muxinc/stats-sdk-objc.git",
+      "state" : {
+        "revision" : "1d2c51af433eadb5f904904554422d7bc476c167",
+        "version" : "5.4.0"
+      }
+    },
+    {
       "identity" : "swift-extras-base64",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-extras/swift-extras-base64",
       "state" : {
         "revision" : "dc8121fdd2b444c97d6b0534e8ad4ddecbe0d5f4",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "swift-varint",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/swift-libp2p/swift-varint.git",
+      "state" : {
+        "revision" : "1ea4cd2ea5f1c74527600de659f0805d2e12fa6b",
+        "version" : "0.0.2"
       }
     },
     {
@@ -143,6 +188,15 @@
       "state" : {
         "revision" : "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
         "version" : "5.0.1"
+      }
+    },
+    {
+      "identity" : "tuples.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tesseract-one/Tuples.swift.git",
+      "state" : {
+        "revision" : "4d2cf7c64443cdf4df833d0bedd767bf9dbc49d9",
+        "version" : "0.1.3"
       }
     },
     {

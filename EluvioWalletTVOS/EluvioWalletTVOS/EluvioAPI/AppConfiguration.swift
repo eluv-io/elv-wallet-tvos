@@ -36,10 +36,16 @@ struct NetworkConfig: Codable {
     var wallet_url: String
     var overrides: NetworkOverrides?
     var badger_address: String
+    var mux : MuxConfig
 }
 
 struct Auth0Config: Codable {
     var domain: String
     var client_id: String
     var grant_type : String
+}
+
+struct MuxConfig: Codable {
+    var env_key: String
+
 }

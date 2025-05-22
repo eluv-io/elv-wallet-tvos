@@ -336,7 +336,9 @@ struct SectionMediaItemView: View {
                                 Task{
                                     do {
                                         let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, title:item.title ?? "", description: item.description ?? "", imageThumb: thumbnail)
-                                        let params = VideoParams(mediaId: item.id ?? "", playerItem: playerItem)
+                                        let params = VideoParams(mediaId: item.id ?? "",
+                                                                 title: item.title ?? "",
+                                                                 playerItem: playerItem)
                                         eluvio.pathState.videoParams = params
                                         eluvio.pathState.path.append(.video)
                                     }catch{
@@ -680,7 +682,9 @@ struct SectionItemView: View {
                                             
                                             //let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
                                             
-                                            let params = VideoParams(mediaId:mediaItem.media_id, playerItem: playerItem)
+                                            let params = VideoParams(mediaId:mediaItem.media_id,
+                                                                     title: mediaItem.title,
+                                                                     playerItem: playerItem)
                                             eluvio.pathState.videoParams = params
                                             await MainActor.run {
                                                 _ = eluvio.pathState.path.popLast()

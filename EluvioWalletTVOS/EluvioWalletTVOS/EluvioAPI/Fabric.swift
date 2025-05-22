@@ -13,6 +13,7 @@ import Alamofire
 import SwiftyJSON
 import UUIDShortener
 import CryptoKit
+import JsonRPC
 
 var APP_CONFIG : AppConfiguration = loadJsonFileFatal("configuration.json")
 let POLLSECONDS = 300
@@ -289,6 +290,19 @@ class Fabric: ObservableObject {
     func setConfiguration(configuration: FabricConfiguration){
         self.configuration = configuration
         print("QSPACE_ID: \(self.configuration?.qspace.id)")
+    }
+
+    func getTenantId(objectId: String) async throws -> String {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not available")
+        }
+        
+        let params: [AnyEncodable] = [
+            AnyEncodable(try self.getContentSpaceId()),
+            AnyEncodable(objectId)
+        ]
+        return try await signer.makeElvMasterCall(methodName: "elv_getTenantById",
+                                        params:params)
     }
 
     func parseNfts(_ nfts: [JSON], propertyId: String) async throws -> [NFTModel] {
@@ -649,11 +663,10 @@ class Fabric: ObservableObject {
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
-        var tenantId = ""
 
         let nftInfo = try await signer.getNftInfo(nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
         
-        print ("NFT INFO", nftInfo)
+        //print ("NFT INFO", nftInfo)
 
         if let offers = nftInfo["offers"].array{
             for offer in offers {
@@ -2919,8 +2932,6 @@ class Fabric: ObservableObject {
         }
         
         for id in permissionIds {
-            debugPrint("testing value \(id.stringValue) ", authState[id.stringValue]["authorized"].boolValue)
-            debugPrint(" \(id.stringValue) : ", authState[id.stringValue])
             if !authState.isEmpty {
                 if authState[id.stringValue]["authorized"].boolValue{
                     return true
@@ -2934,13 +2945,10 @@ class Fabric: ObservableObject {
     
     //Runs through the authState of the property and finds if there is a true value
     func checkPropertyAuthState(property: MediaProperty?) -> Bool {
-        //debugPrint("checkPropertyAuthState ")
         if let prop = property {
             if let authState = prop.permission_auth_state {
-                //debugPrint("authState ", authState)
                 for (key, value) in authState {
                     if value["authorized"].boolValue {
-                        //debugPrint("Found!")
                         return true
                     }
                 }

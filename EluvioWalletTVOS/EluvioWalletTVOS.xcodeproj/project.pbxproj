@@ -297,6 +297,11 @@
 		B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544752C1B7B0F00558B21 /* MediaPropertyView.swift */; };
 		B0D544792C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */; };
 		B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */; };
+		B0D839572DDBE88300CDC7BB /* MUXSDKStats in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839562DDBE88300CDC7BB /* MUXSDKStats */; };
+		B0D8395A2DDE4CDC00CDC7BB /* VarInt in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839592DDE4CDC00CDC7BB /* VarInt */; };
+		B0D8395C2DDE4CE800CDC7BB /* VarInt in Frameworks */ = {isa = PBXBuildFile; productRef = B0D8395B2DDE4CE800CDC7BB /* VarInt */; };
+		B0D8395E2DDE4CF000CDC7BB /* VarInt in Frameworks */ = {isa = PBXBuildFile; productRef = B0D8395D2DDE4CF000CDC7BB /* VarInt */; };
+		B0D839642DDF2C8700CDC7BB /* JsonRPC in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839632DDF2C8700CDC7BB /* JsonRPC */; };
 		B0DFFF922A15E72200F1E358 /* PropertyMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF912A15E72200F1E358 /* PropertyMediaView.swift */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
 		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
@@ -524,6 +529,7 @@
 				B08CB5412B7DDF0E00E04C0D /* Base58Swift in Frameworks */,
 				B08CB5512B7DDF0E00E04C0D /* UUIDShortener in Frameworks */,
 				B08CB54B2B7DDF0E00E04C0D /* RLPSwift in Frameworks */,
+				B0D8395E2DDE4CF000CDC7BB /* VarInt in Frameworks */,
 				B08CB5492B7DDF0E00E04C0D /* SwiftKeccak in Frameworks */,
 				B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */,
 				B08CB5452B7DDF0E00E04C0D /* KeccakTiny in Frameworks */,
@@ -540,6 +546,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0D8395C2DDE4CE800CDC7BB /* VarInt in Frameworks */,
 				B07ADFE12B6D5235005C5E5A /* KeccakTiny in Frameworks */,
 				B099A5B72B336CAD00C779A0 /* SDWebImageSwiftUI in Frameworks */,
 				B07ADFE52B6D5235005C5E5A /* SwiftKeccak in Frameworks */,
@@ -560,11 +567,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0670F5329D55FBE00676872 /* QGrid in Frameworks */,
+				B0D839642DDF2C8700CDC7BB /* JsonRPC in Frameworks */,
 				B0E60F9B29CD84AF0079661E /* Base58Swift in Frameworks */,
 				B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */,
+				B0D8395A2DDE4CDC00CDC7BB /* VarInt in Frameworks */,
 				B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */,
 				B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */,
 				B09897FD2CB7288100C1D590 /* ExtrasBase64 in Frameworks */,
+				B0D839572DDBE88300CDC7BB /* MUXSDKStats in Frameworks */,
 				B06D52172A14657E00BD68D1 /* Introspect-Static in Frameworks */,
 				B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */,
 				B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */,
@@ -947,6 +957,7 @@
 				B08CB54E2B7DDF0E00E04C0D /* SDWebImageSwiftUI */,
 				B08CB5502B7DDF0E00E04C0D /* UUIDShortener */,
 				B09897FA2CB7286900C1D590 /* ExtrasBase64 */,
+				B0D8395D2DDE4CF000CDC7BB /* VarInt */,
 			);
 			productName = ShowcaseWallet;
 			productReference = B08CB52C2B7DDB2800E04C0D /* ShowcaseWallet.app */;
@@ -978,6 +989,7 @@
 				B07ADFE42B6D5235005C5E5A /* SwiftKeccak */,
 				B07ADFE62B6D5247005C5E5A /* UUIDShortener */,
 				B07ADFE82B6D5267005C5E5A /* RLPSwift */,
+				B0D8395B2DDE4CE800CDC7BB /* VarInt */,
 			);
 			productName = WalletLinkTest;
 			productReference = B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */;
@@ -1012,6 +1024,9 @@
 				B069A48B2A5225A4006C9E7B /* UUIDShortener */,
 				B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */,
 				B09897FC2CB7288100C1D590 /* ExtrasBase64 */,
+				B0D839562DDBE88300CDC7BB /* MUXSDKStats */,
+				B0D839592DDE4CDC00CDC7BB /* VarInt */,
+				B0D839632DDF2C8700CDC7BB /* JsonRPC */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -1061,6 +1076,9 @@
 				B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */,
 				B0F9DC3A2B578D9800499C93 /* XCRemoteSwiftPackageReference "SDWebImagePDFCoder" */,
 				B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */,
+				B0D839552DDBE88300CDC7BB /* XCRemoteSwiftPackageReference "mux-stats-sdk-avplayer" */,
+				B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */,
+				B0D839622DDF2C8700CDC7BB /* XCRemoteSwiftPackageReference "JsonRPC.swift" */,
 			);
 			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
 			projectDirPath = "";
@@ -1658,7 +1676,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 316;
+				CURRENT_PROJECT_VERSION = 317;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1672,7 +1690,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.20;
+				MARKETING_VERSION = 1.0.21;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1692,7 +1710,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 316;
+				CURRENT_PROJECT_VERSION = 317;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1706,7 +1724,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.20;
+				MARKETING_VERSION = 1.0.21;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1823,6 +1841,30 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.0.0;
+			};
+		};
+		B0D839552DDBE88300CDC7BB /* XCRemoteSwiftPackageReference "mux-stats-sdk-avplayer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/muxinc/mux-stats-sdk-avplayer.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/swift-libp2p/swift-varint.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.2;
+			};
+		};
+		B0D839622DDF2C8700CDC7BB /* XCRemoteSwiftPackageReference "JsonRPC.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tesseract-one/JsonRPC.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.3;
 			};
 		};
 		B0E60F9029CD84160079661E /* XCRemoteSwiftPackageReference "Auth0" */ = {
@@ -2042,6 +2084,31 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
+		};
+		B0D839562DDBE88300CDC7BB /* MUXSDKStats */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0D839552DDBE88300CDC7BB /* XCRemoteSwiftPackageReference "mux-stats-sdk-avplayer" */;
+			productName = MUXSDKStats;
+		};
+		B0D839592DDE4CDC00CDC7BB /* VarInt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */;
+			productName = VarInt;
+		};
+		B0D8395B2DDE4CE800CDC7BB /* VarInt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */;
+			productName = VarInt;
+		};
+		B0D8395D2DDE4CF000CDC7BB /* VarInt */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */;
+			productName = VarInt;
+		};
+		B0D839632DDF2C8700CDC7BB /* JsonRPC */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0D839622DDF2C8700CDC7BB /* XCRemoteSwiftPackageReference "JsonRPC.swift" */;
+			productName = JsonRPC;
 		};
 		B0E60F9129CD84160079661E /* Auth0 */ = {
 			isa = XCSwiftPackageProductDependency;

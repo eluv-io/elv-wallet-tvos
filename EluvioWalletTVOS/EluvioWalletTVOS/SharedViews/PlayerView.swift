@@ -10,6 +10,8 @@ import SwiftUI
 import AVKit
 import SDWebImageSwiftUI
 import Combine
+import MUXSDKStats
+import MuxCore
 
 class PlayerFinishedObserver: ObservableObject {
 
@@ -102,9 +104,11 @@ struct PlayerView: View {
     @Environment(\.openURL) private var openURL
     @Namespace var playerNamespace
     @State var player = AVPlayer()
+    @State var playerViewController = AVPlayerViewController()
     @State var isPlaying: Bool = false
     var mediaId: String = ""
     var playerItem : AVPlayerItem?
+    var title: String = ""
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
     @State var playerImageOverlayUrl = ""
@@ -136,9 +140,8 @@ struct PlayerView: View {
 
     var body: some View {
         ZStack{
-            AVPlayerView(player: $player)
+            AVPlayerView(player: $player, playerViewController: $playerViewController)
             .ignoresSafeArea()
-            
         }
         .onReceive(finishedObserver.publisher) {
             print("Finished!")
@@ -166,61 +169,152 @@ struct PlayerView: View {
             }
         }
         .onAppear(){
-            print("*** PlayerView onAppear() ", self.playerItem)
-            //print("PlayerItem",self.playerItem)
-            if self.playerItem == nil {
-                print("playerItem == nil")
-                return
-            }
-            if (self.playerItem != self.player.currentItem){
-                self.player.replaceCurrentItem(with: self.playerItem)
-                print("player.replaceCurrentItem()")
-            }
-            
-            player.addProgressObserver { progress in
-                
-                currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
-                
-                if currentTimeS == -1.0 {
+            Task{
+                let initTime = ((Date().now) as NSNumber)
+                debugPrint("*** PlayerView onAppear() ", self.playerItem)
+                //print("PlayerItem",self.playerItem)
+                if self.playerItem == nil {
+                    print("playerItem == nil")
                     return
                 }
-                
-                if let progressCallback = self.progressCallback {
-                    progressCallback(progress,
-                                     player.currentItem?.currentTime().seconds ?? 0.0,
-                                     player.currentItem?.duration.seconds ?? 0.0)
-                }else {
-                    self.onPlayerProgress(progress,
-                                     player.currentItem?.currentTime().seconds ?? 0.0,
-                                     player.currentItem?.duration.seconds ?? 0.0)
+                if (self.playerItem != self.player.currentItem){
+                    self.player.replaceCurrentItem(with: self.playerItem)
+                    print("player.replaceCurrentItem()")
                 }
                 
                 
-            }
-            
-            NotificationCenter.default.addObserver(forName: .AVPlayerItemNewErrorLogEntry, object: player.currentItem, queue: .main) { [self] _ in
-                    print(player.currentItem?.errorLog()?.events.last?.errorComment)
-            }
-            
-            if seekTimeS == 0 {
-                do {
-                    if let account = eluvio.accountManager.currentAccount {
-                        let progress = try eluvio.fabric.getUserViewedProgress(address:account.getAccountAddress(), mediaId: mediaId)
-                        debugPrint("Finsihed getting progress ", progress)
-                        seekS(progress.current_time_s)
+                var objectId: String = ""
+                var versionHash: String = ""
+                var videoHostname: String = ""
+                var userId: String = ""
+                var tenantId: String = ""
+                var sessionId: String = ""
+                var offering: String = ""
+                
+                if let account = eluvio.accountManager.currentAccount {
+                    let address = account.getAccountAddress()
+                    debugPrint("Address ", address)
+                    
+                    //FIXME: Can't find viewer_user_id to store userId
+                    userId = Hash(account.getAccountAddress());
+                    debugPrint("UserID: ", userId)
+                }
+                
+                if let urlAsset = self.playerItem?.asset as? AVURLAsset {
+                    debugPrint("Playout URL: ", urlAsset.url)
+                    videoHostname = urlAsset.url.host() ?? ""
+                    
+                    let pathComponents = urlAsset.url.pathComponents
+                    if pathComponents.count > 2 {
+                        debugPrint("PATH: ", pathComponents[2])
+                        if pathComponents[2].hasPrefix("hq_") {
+                            versionHash = pathComponents[2]
+                            debugPrint("HASH: ", versionHash)
+                        }
                     }
-                }catch{
-                    debugPrint(error)
+                    
+                    sessionId = urlAsset.url.queryParameters?["sid"] ?? ""
+                    debugPrint("sessionId ", sessionId)
+                    
+                    let reg = /\/rep\/(playout|channel)\/([^\/]+)/
+                    
+                    if let match = urlAsset.url.absoluteString.firstMatch(of:reg) {
+                        debugPrint("match 1", match.1)
+                        debugPrint("match 2", match.2)
+                        offering = String(match.2)
+                        debugPrint("offering", offering)
+                    }
+                    
+                    if !versionHash.isEmpty {
+                        let dec = DecodeVersionHash(versionHash: versionHash)
+                        debugPrint("Decoded VersionHash ", dec)
+                        if !dec.objectId.isEmpty {
+                            objectId = dec.objectId
+                            debugPrint("objectId ", objectId)
+                            
+                            do {
+                                tenantId = try await eluvio.fabric.getTenantId(objectId: objectId)
+                                debugPrint("tenantID: ", tenantId)
+                            }catch {
+                                print("Could not get tenantId from object \(objectId).", error);
+                            }
+                            
+                        }
+                    }
+                    
                 }
-            }else {
-                seekS(seekTimeS)
+                
+                //debugPrint("AVPlayerView makeUIViewController()")
+                let playerData = MUXSDKCustomerPlayerData(environmentKey: APP_CONFIG.network[eluvio.fabric.network]?.mux.env_key ?? "");
+                // insert player metadata
+                playerData?.playerName = "AVPlayer"
+                playerData?.subPropertyId = tenantId
+                playerData?.viewerUserId = userId
+                playerData?.playerInitTime = initTime
+                
+                let videoData = MUXSDKCustomerVideoData()
+                // insert videoData metadata
+                videoData.videoId = objectId
+                videoData.videoVariantId = versionHash
+                videoData.videoVariantName = offering
+                videoData.videoTitle = self.title
+                videoData.videoCdn = videoHostname
+                
+                let viewData = MUXSDKCustomerViewData()
+                viewData.viewSessionId = sessionId
+                
+                
+                if let customerData = MUXSDKCustomerData(customerPlayerData: playerData, videoData: videoData, viewData: viewData, customData: nil, viewerData: nil){
+                    let playerBinding = MUXSDKStats.monitorAVPlayerViewController(self.playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
+                    debugPrint("MUX initialized.")
+                }
+                
+                
+                player.addProgressObserver { progress in
+                    
+                    currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
+                    
+                    if currentTimeS == -1.0 {
+                        return
+                    }
+                    
+                    if let progressCallback = self.progressCallback {
+                        progressCallback(progress,
+                                         player.currentItem?.currentTime().seconds ?? 0.0,
+                                         player.currentItem?.duration.seconds ?? 0.0)
+                    }else {
+                        self.onPlayerProgress(progress,
+                                              player.currentItem?.currentTime().seconds ?? 0.0,
+                                              player.currentItem?.duration.seconds ?? 0.0)
+                    }
+                    
+                    
+                }
+                
+                NotificationCenter.default.addObserver(forName: .AVPlayerItemNewErrorLogEntry, object: player.currentItem, queue: .main) { [self] _ in
+                    print(player.currentItem?.errorLog()?.events.last?.errorComment)
+                }
+                
+                if seekTimeS == 0 {
+                    do {
+                        if let account = eluvio.accountManager.currentAccount {
+                            let progress = try eluvio.fabric.getUserViewedProgress(address:account.getAccountAddress(), mediaId: mediaId)
+                            debugPrint("Finsihed getting progress ", progress)
+                            seekS(progress.current_time_s)
+                        }
+                    }catch{
+                        debugPrint(error)
+                    }
+                }else {
+                    seekS(seekTimeS)
+                }
+                
+                player.play()
+                print("*** PlayerView errors: ", player.error)
+                
+                newItem = true
+                self.finishedObserver = PlayerFinishedObserver(player: player)
             }
-            
-            player.play()
-            print("*** PlayerView errors: ", player.error)
-
-            newItem = true
-            self.finishedObserver = PlayerFinishedObserver(player: player)
 
         }
         .onWillDisappear {

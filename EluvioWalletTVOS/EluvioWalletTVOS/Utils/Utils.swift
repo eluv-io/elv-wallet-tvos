@@ -12,6 +12,31 @@ import Alamofire
 import AVKit
 import SwiftyJSON
 import AVFoundation
+import VarInt
+import CryptoKit
+
+extension UnsignedInteger where Self: CVarArg {
+    var hexa: String { .init(format: "%ll*0x", bitWidth / 4, self) }
+}
+
+extension DataProtocol {
+    var sha256Digest: SHA256Digest { SHA256.hash(data: self) }
+    var sha256Data: Data { .init(sha256Digest) }
+    var sha256Hexa: String { sha256Digest.map(\.hexa).joined() }
+}
+
+extension SHA256Digest {
+    var data: Data { .init(self) }
+    var hexa: String { map(\.hexa).joined() }
+}
+
+extension StringProtocol {
+    var data: Data { .init(utf8) }
+    var sha256Digest: SHA256Digest { data.sha256Digest }
+    var sha256Data: Data { data.sha256Data }
+    var sha256Hexa: String { data.sha256Hexa }
+}
+
 
 extension Encodable {
     /// Converting object to postable JSON
@@ -24,6 +49,17 @@ extension Encodable {
             return ""
         }
 
+    }
+}
+
+extension URL {
+    public var queryParameters: [String: String]? {
+        guard
+            let components = URLComponents(url: self, resolvingAgainstBaseURL: true),
+            let queryItems = components.queryItems else { return nil }
+        return queryItems.reduce(into: [String: String]()) { (result, item) in
+            result[item.name] = item.value
+        }
     }
 }
 
@@ -84,6 +120,10 @@ func HexToBytes(_ string: String) -> [UInt8]? {
     }
     
     return str.hexaBytes
+}
+
+func Hash(_ string: String) -> String {
+    SHA256.hash(data: string.data(using: .utf8)!).hexa
 }
 
 extension StringProtocol {
@@ -550,9 +590,60 @@ extension TimeInterval {
    };
  }
  */
-func DecodeVersionHash(versionHash: String) -> (digest:String, size:String, objectId:String, partHash:String){
+func DecodeVersionHash(versionHash: String) -> (digest:String, size:UInt64, objectId:String, partHash:String){
+    var digest = ""
+    var size: UInt64 = 0
+    var objectId = ""
+    var partHash = ""
+    
+    if(!versionHash.hasPrefix("hq__") && !versionHash.hasPrefix("tq__")) {
+        return ("",0,"", "")
+    }
+    
+    var hash = versionHash.replaceFirst(of: "hq__",
+                                        with: "")
+    
+    debugPrint("HASH ", hash)
+    
+    if var bytes = Base58.base58Decode(hash) {
+        let digestBytes = bytes[0...31]
+        
+        debugPrint("Digest Bytes ", digestBytes)
+        
+        digest = digestBytes.map { String(format: "%02hhx", $0) }.joined()
+        debugPrint("Digest", digest)
+        
+        bytes = Array(bytes[32...])
+        debugPrint("Bytes", bytes)
+        
+        // Determine size of varint content size
+        var sizeLength = 0
+        while(bytes[sizeLength] >= 128) {
+            sizeLength += 1
+        }
+        sizeLength += 1
+        
+        debugPrint("sizeLength", sizeLength)
+        
+        // Remove size
+        let sizeBytes = bytes[0...sizeLength-1]
+        
+        debugPrint("sizeBytes", sizeBytes)
+        
+        size = uVarInt(Array(sizeBytes)).value
+        debugPrint("size", size)
+        
+        bytes = Array(bytes[sizeLength...])
+        
+        // Remaining bytes is object ID
+        objectId = "iq__" + Base58.base58Encode(bytes);
+        
+        // Part hash is B58 encoded version hash without the ID
+        partHash = "hqp_" + Base58.base58Encode(Array(digestBytes) + Array(sizeBytes))
+    }
+    
     //TODO:
-    return ("","","", "")
+    return (digest,size,objectId,partHash)
 }
 
 extension Array {

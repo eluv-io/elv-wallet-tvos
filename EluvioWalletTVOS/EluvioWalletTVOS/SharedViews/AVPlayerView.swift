@@ -8,7 +8,7 @@
 import SwiftUI
 import UIKit
 import AVKit
-
+import MUXSDKStats
 
 struct AVPlayerView: UIViewControllerRepresentable {
 
@@ -19,6 +19,7 @@ struct AVPlayerView: UIViewControllerRepresentable {
     }
 */
     @Binding var player: AVPlayer
+    @Binding var playerViewController : AVPlayerViewController
     
     func updateUIViewController(_ playerController: AVPlayerViewController, context: Context) {
         playerController.modalPresentationStyle = .fullScreen
@@ -33,8 +34,7 @@ struct AVPlayerView: UIViewControllerRepresentable {
     }
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
-        //debugPrint("AVPlayerView makeUIViewController()")
-        return AVPlayerViewController()
+        return playerViewController
     }
 }
 
