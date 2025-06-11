@@ -162,7 +162,7 @@ struct SectionGridView: View {
             debugPrint("SectionGridView  ", margin)
             do {
                 var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
-                let max = 50
+                let max = 100
                 var count = 0
                 if let content = section.content {
                     for var item in content {
