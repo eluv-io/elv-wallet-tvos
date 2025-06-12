@@ -72,9 +72,11 @@ struct MediaPropertyView : View {
                         return
                     }
                 }else {
-                    debugPrint("Other login type not supported yet.")
-                    eluvio.pathState.path.append(.errorView("Login type not supported."))
-                    return
+                    //Default to Ory:
+                    if eluvio.accountManager.currentAccount?.type != .Ory {
+                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
+                        return
+                    }
                 }
                 
 

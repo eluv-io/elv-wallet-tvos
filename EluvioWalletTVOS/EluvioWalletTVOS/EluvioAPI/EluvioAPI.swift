@@ -14,7 +14,7 @@ class EluvioAPI : ObservableObject {
     @Published var accountManager : AccountManager = AccountManager()
     @Published var fabric : Fabric = Fabric()
     @Published var pathState : PathState = PathState()
-    @Published var viewState = ViewState()
+    @Published var viewState : ViewState
     @Published var refreshId = UUID().uuidString
     @Published var devMode: Bool = false
     
@@ -74,8 +74,7 @@ class EluvioAPI : ObservableObject {
     func getDevMode() -> Bool {
         return devMode
     }
-    
-    
+
     func signIn(account:Account, property:String) async throws {
         await signOut()
         fabric.fabricToken = account.fabricToken

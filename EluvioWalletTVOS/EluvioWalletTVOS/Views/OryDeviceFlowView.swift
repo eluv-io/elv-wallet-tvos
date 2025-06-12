@@ -279,15 +279,17 @@ struct OryDeviceFlowView: View {
                     let duration: Int64 = 1 * 24 * 60 * 60 * 1000
                     account.expiresAt = Date().now + duration
                 }
-                
+         
                 account.email = email
                 account.fabricToken = token
                 account.login = login
                 account.clusterToken = clusterToken
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
-                try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
+                _ = try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
                 
-                newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
+                if property != nil {
+                    newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
+                }
                 debugPrint("Ory Signing in done!")
             }catch {
                 print("could not sign in: \(error.localizedDescription)")
@@ -295,10 +297,16 @@ struct OryDeviceFlowView: View {
             
             await MainActor.run {
                 debugPrint("Sign in finished.")
-                eluvio.pathState.path.removeAll()
-                debugPrint("Popped the path state.")
-                let params = PropertyParam(property:newProperty)
-                eluvio.pathState.path.append(.property(params))
+                if newProperty != nil {
+                    eluvio.pathState.path.removeAll()
+                    debugPrint("Popped the path state.")
+                    let params = PropertyParam(property:newProperty)
+                    eluvio.pathState.path.append(.property(params))
+                }else{
+                    //This handles a sign in without going into a property (from video player before token expires)
+                    _ = eluvio.pathState.path.popLast();
+                    _ = eluvio.pathState.path.popLast();
+                }
                 self.isChecking = false
             }
 

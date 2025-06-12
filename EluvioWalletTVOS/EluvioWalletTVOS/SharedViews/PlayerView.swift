@@ -101,6 +101,7 @@ struct PlayerView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var eluvio: EluvioAPI
+    @EnvironmentObject var viewState: ViewState
     @Environment(\.openURL) private var openURL
     @Namespace var playerNamespace
     @State var player = AVPlayer()
@@ -108,6 +109,7 @@ struct PlayerView: View {
     @State var isPlaying: Bool = false
     var mediaId: String = ""
     var playerItem : AVPlayerItem?
+    var property: MediaProperty?
     var title: String = ""
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = false
@@ -181,8 +183,7 @@ struct PlayerView: View {
                     self.player.replaceCurrentItem(with: self.playerItem)
                     print("player.replaceCurrentItem()")
                 }
-                
-                
+                    
                 var objectId: String = ""
                 var versionHash: String = ""
                 var videoHostname: String = ""
@@ -192,6 +193,13 @@ struct PlayerView: View {
                 var offering: String = ""
                 
                 if let account = eluvio.accountManager.currentAccount {
+                    //If our token expires in 4 hours we force a sign in.
+                    if (account.isTokenExpiredIn(seconds: 60*60*4)){
+                        _ = eluvio.pathState.path.popLast()
+                        eluvio.viewState.login(eluvio: eluvio)
+                        return;
+                    }
+                    
                     let address = account.getAccountAddress()
                     debugPrint("Address ", address)
                     

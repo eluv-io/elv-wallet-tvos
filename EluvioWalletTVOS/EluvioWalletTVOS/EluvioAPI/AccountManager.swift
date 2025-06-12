@@ -54,6 +54,28 @@ class Account: Identifiable, Codable {
         
         return FormatAddress(address: address)
     }
+    
+    func isTokenExpired() -> Bool {
+        return isTokenExpiredIn(seconds: 0)
+    }
+    
+    func isTokenExpiredIn(seconds: Int) -> Bool {
+        if (expiresAt == 0) {
+            return false
+        }
+        let now = Int64(Date().timeIntervalSince1970)
+        
+        debugPrint("NOW DATE \(Date(timeIntervalSince1970: Double(now)))")
+        let tokenIn = Int64(expiresAt/1000) - Int64(seconds)
+        debugPrint("tokenIn DATE \(Date(timeIntervalSince1970: Double(tokenIn)))")
+        
+        debugPrint("Now \(now), tokenIn \(tokenIn)")
+        return now > tokenIn
+    }
+    
+    var expiresAtDate: Date {
+        return Date(timeIntervalSince1970: Double(expiresAt) / 1000)
+    }
 
 }
 
@@ -86,6 +108,13 @@ class AccountManager : ObservableObject {
             let decoder = JSONDecoder()
             if let account = try? decoder.decode(Account.self, from: accountData) {
                 debugPrint("Retrieved "+account.id)
+                
+                //Testing expiration in 3 hours from now
+                //account.expiresAt = Int64((Date().timeIntervalSince1970 + 60*60*3) * 1000)
+                debugPrint("Now Date \(Date())")
+                debugPrint("ExpiresAt Date \(account.expiresAtDate)")
+                debugPrint("isTokenExpiredIn \(account.isTokenExpiredIn(seconds: 60*60*4))")
+                
                 do {
                     try addAndSetCurrentAccount(account: account, type:account.type)
                 }catch{

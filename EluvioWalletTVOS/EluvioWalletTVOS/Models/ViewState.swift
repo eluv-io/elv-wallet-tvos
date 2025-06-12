@@ -123,4 +123,55 @@ class ViewState: ObservableObject {
         self.mediaId = state.mediaId
         self.op = state.op
     }
+    
+    //Returns true if we can load the page
+    func login(_ _property: MediaProperty? = nil, eluvio: EluvioAPI){
+        
+        var prop = _property
+        
+        guard let property = prop else {
+            if eluvio.accountManager.currentAccount?.type == .Auth0 {
+                eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
+                return
+            }else {
+                eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
+            }
+            return
+        }
+        
+        if let login = property.login {
+            //debugPrint("login: ", login)
+            
+            let provider = login["settings"]["provider"].stringValue
+            if !provider.isEmpty {
+                if provider == "auth0" {
+                    debugPrint("Auth0 login.")
+                    if eluvio.accountManager.currentAccount?.type != .Auth0 {
+                        eluvio.pathState.path.append(.login(LoginParam(type:.auth0, property:property)))
+                        return
+                    }
+                }else if provider == "ory" {
+                    debugPrint("Ory login.")
+                    if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
+                        return
+                    }
+                }else {
+                    //Default to Ory:
+                    if eluvio.accountManager.currentAccount?.type != .Ory {
+                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
+                        return
+                    }
+                }
+                
+
+                if let currentAccount = eluvio.accountManager.currentAccount {
+                    debugPrint("Setting current account and going to page.")
+                    eluvio.fabric.fabricToken = currentAccount.fabricToken
+                    eluvio.pathState.propertyPage = property.main_page
+                    let param = PropertyParam(property:property)
+                    eluvio.pathState.path.append(.property(param))
+                }
+            }
+        }
+    }
 }
