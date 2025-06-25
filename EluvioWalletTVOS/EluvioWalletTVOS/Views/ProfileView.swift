@@ -31,6 +31,7 @@ struct ProfileView: View {
     @State var node : String = ""
     @State var asNode : String = ""
     @State var ethNode : String = ""
+    @State var tokenExpiresAt : String = ""
     
     var logo = "e_logo"
     var logoUrl = ""
@@ -83,13 +84,13 @@ struct ProfileView: View {
                             }
                             .padding()
                         }
-
                     
                         Section(header: Text("Fabric").foregroundColor(.white.opacity(0.6))) {
                             FormEntry("Network:  \(network.localizedUppercase)")
                             FormEntry("Fabric Node:  \(node)")
                             FormEntry("Authority Service:  \(asNode)")
                             FormEntry("Eth Service:  \(ethNode)")
+                            FormEntry("Session Expiration:  \(tokenExpiresAt)")
                             
                             Toggle("Set to staging ", isOn:$isStaging)
                             
@@ -127,6 +128,7 @@ struct ProfileView: View {
                     
                     self.isStaging = eluvio.getEnvironment().rawValue == "staging"
                     self.isDeveloper = eluvio.getDevMode()
+                    self.tokenExpiresAt = eluvio.accountManager.currentAccount?.expiresAtDateString ?? ""
                     
                     if !initialized {
                         

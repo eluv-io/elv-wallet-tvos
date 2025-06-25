@@ -391,7 +391,6 @@ struct SectionMediaItemView: View {
                           title: item.title ?? "",
                           isLive: item.currentlyLive,
                           showFocusedTitle: item.title ?? "" == "" ? false : true
-                          //sizeFactor: display == .square ? 1.0 : 1.0
                 )
             }
             .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))

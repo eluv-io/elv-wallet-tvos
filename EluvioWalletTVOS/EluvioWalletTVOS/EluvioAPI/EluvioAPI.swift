@@ -17,6 +17,8 @@ class EluvioAPI : ObservableObject {
     @Published var viewState : ViewState
     @Published var refreshId = UUID().uuidString
     @Published var devMode: Bool = false
+    //Requested token expiration during for login. 0.0 for default.
+    @Published var ttlHours: Double = 0.0
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -74,22 +76,26 @@ class EluvioAPI : ObservableObject {
     func getDevMode() -> Bool {
         return devMode
     }
+    
+    func setTtlHours(_ hours:Double){
+        self.ttlHours = hours
+    }
+    
+    func getTtlHours() -> Double{
+        return self.ttlHours
+    }
 
     func signIn(account:Account, property:String) async throws {
         await signOut()
         fabric.fabricToken = account.fabricToken
         try accountManager.addAndSetCurrentAccount(account: account, type: account.type, property:property)
         try await fabric.connect(network:"main")
-        await needsRefresh()
     }
     
     @MainActor
     func signOut(){
         accountManager.signOut()
         fabric.reset()
-        pathState.reset()
-        viewState.reset()
-        needsRefresh()
     }
     
     @MainActor func handleApiError(code: Int, response:JSON, error: Error){

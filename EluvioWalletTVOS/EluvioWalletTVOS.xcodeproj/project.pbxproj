@@ -135,6 +135,7 @@
 		B07AE0182B707D3D005C5E5A /* flash_page_1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0152B707D3B005C5E5A /* flash_page_1.mp4 */; };
 		B07AE0192B707D3D005C5E5A /* Flash-comic.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0162B707D3D005C5E5A /* Flash-comic.pdf */; };
 		B07AE01B2B707FE8005C5E5A /* AQP-audio-pages.json in Resources */ = {isa = PBXBuildFile; fileRef = B07AE01A2B707FE8005C5E5A /* AQP-audio-pages.json */; };
+		B0811CEE2E08E55B00F76FA2 /* playlist.m3u8 in Resources */ = {isa = PBXBuildFile; fileRef = B0811CED2E08E55A00F76FA2 /* playlist.m3u8 */; };
 		B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */; };
 		B08CB4E02B70A30D00E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4DF2B70A30D00E04C0D /* AudioPlayer.swift */; };
 		B08CB4E22B7143EB00E04C0D /* AudioPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */; };
@@ -417,6 +418,7 @@
 		B07AE0152B707D3B005C5E5A /* flash_page_1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = flash_page_1.mp4; sourceTree = "<group>"; };
 		B07AE0162B707D3D005C5E5A /* Flash-comic.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Flash-comic.pdf"; sourceTree = "<group>"; };
 		B07AE01A2B707FE8005C5E5A /* AQP-audio-pages.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "AQP-audio-pages.json"; sourceTree = "<group>"; };
+		B0811CED2E08E55A00F76FA2 /* playlist.m3u8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = playlist.m3u8; sourceTree = "<group>"; };
 		B08CB4DF2B70A30D00E04C0D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPlayer.swift; sourceTree = "<group>"; };
 		B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPageModel.swift; sourceTree = "<group>"; };
 		B08CB4E42B72895800E04C0D /* AQP-audio-sync.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "AQP-audio-sync.json"; sourceTree = "<group>"; };
@@ -791,6 +793,7 @@
 		B0E60F6E29CC23510079661E /* EluvioWalletTVOS */ = {
 			isa = PBXGroup;
 			children = (
+				B0811CED2E08E55A00F76FA2 /* playlist.m3u8 */,
 				B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */,
 				B0D544712C1B7AA900558B21 /* ViewModels */,
 				B07ADFF72B6D5AD7005C5E5A /* SharedViews */,
@@ -1162,6 +1165,7 @@
 				B00945B129EA478D00B00FC3 /* profile.json in Resources */,
 				B0E60F7429CC23530079661E /* Assets.xcassets in Resources */,
 				B0E60F9F29D1B1DF0079661E /* Auth0.plist in Resources */,
+				B0811CEE2E08E55B00F76FA2 /* playlist.m3u8 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1670,7 +1674,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 318;
+				CURRENT_PROJECT_VERSION = 323;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1704,7 +1708,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 318;
+				CURRENT_PROJECT_VERSION = 323;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

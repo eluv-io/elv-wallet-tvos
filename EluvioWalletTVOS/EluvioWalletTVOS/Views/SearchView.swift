@@ -292,6 +292,7 @@ struct SearchView: View {
     
     
     func refresh() {
+        debugPrint("SearchView refresh propertyId \(propertyId)")
         if !sections.isEmpty {
             return
         }
@@ -513,7 +514,11 @@ struct SearchView: View {
         .ignoresSafeArea()
         .scrollClipDisabled()
         .onAppear(){
+            debugPrint("Search View onAppear")
             refresh()
+        }
+        .onDisappear(){
+            debugPrint("Search View onDisappear")
         }
     }
 }

@@ -76,6 +76,15 @@ class Account: Identifiable, Codable {
     var expiresAtDate: Date {
         return Date(timeIntervalSince1970: Double(expiresAt) / 1000)
     }
+    
+    var expiresAtDateString: String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .short
+        dateFormatter.timeStyle = .short
+        dateFormatter.timeZone = TimeZone.current
+        
+        return dateFormatter.string(from: expiresAtDate)
+    }
 
 }
 

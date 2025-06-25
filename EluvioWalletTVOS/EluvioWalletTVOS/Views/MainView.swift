@@ -98,12 +98,6 @@ struct MainView: View {
                 }
             }
         }
-        .onChange(of: selection){
-            //debugPrint("onChange of selection viewState ",eluvio.viewState.op)
-           // Task {
-                //await eluvio.fabric.refresh()
-           // }
-        }
         .onChange(of: navFocused){ old,new in
             debugPrint("on Nav Focused ", new)
             debugPrint("justDismissed ", justDismissed)
@@ -114,7 +108,6 @@ struct MainView: View {
                     navDisabled = true
                     showNav = true
                 }else{
-                    //navFocused = false
                     justDismissed = false
                 }
             }
@@ -122,22 +115,7 @@ struct MainView: View {
         }
         .onChange(of: navDisabled){ old,new in
             debugPrint("on Nav navDisabled ", new)
-            /*
-            if (new) {
-                Task {
-                    do {
-                        try await Task.sleep(nanoseconds: UInt64(3 * Double(NSEC_PER_SEC)))
-                        await MainActor.run {
-                            //navDisabled = false
-                        }
-                    }catch{}
-                }
-            }
-             */
         }
-        /*.onReceive(logOutTimer) { _ in
-            eluvio.fabric.signOutIfExpired()
-        }*/
     }
 }
 

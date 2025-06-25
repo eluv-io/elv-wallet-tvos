@@ -11,7 +11,6 @@ import AVKit
 import SDWebImageSwiftUI
 import Combine
 import MUXSDKStats
-import MuxCore
 
 class PlayerFinishedObserver: ObservableObject {
 
@@ -31,72 +30,6 @@ class PlayerFinishedObserver: ObservableObject {
     }
 }
 
-//This player plays the main video of an NFTModel
-/*
-struct NFTPlayerView: View {
-    @EnvironmentObject var eluvio: EluvioAPI
-    @State var player = AVPlayer()
-    @State var isPlaying: Bool = false
-    @State var playerItem : AVPlayerItem?
-    @State var nft: NFTModel
-    
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State private var newItem : Bool = false
-    var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
-
-    var body: some View {
-        VideoPlayer(player: player)
-        .ignoresSafeArea()
-        .onReceive(timer) { time in
-            //print("Item Status \(self.playerItem?.status.rawValue)")
-            if (newItem && self.playerItem?.status == .readyToPlay){
-                self.player.play()
-                newItem = false
-                //print("Play!!")
-            }
-        }
-        .onDisappear {
-            print("ContentView disappeared!")
-            self.player.pause()
-            self.player.replaceCurrentItem(with: nil)
-        }
-        .onAppear(){
-            player.addProgressObserver { progress in
-                if let progressCallback = self.progressCallback {
-                    progressCallback(progress,
-                                     player.currentItem?.currentTime().seconds ?? 0.0,
-                                     player.currentItem?.duration.seconds ?? 0.0)
-                }
-                
-            }
-            
-            Task{
-                if let mediaType = nft.meta_full?["media_type"].stringValue {
-                    if mediaType == "Video" {
-                        if let embedUrl = nft.meta_full?["embed_url"].stringValue {
-                            print("EMBED URL: ", embedUrl)
-                            if let versionHash = FindContentHash(uri: embedUrl) {
-                                print("Content Hash: ", versionHash)
-                                do {
-                                    let optionsJson = try await eluvio.fabric.getOptionsJsonFromHash(versionHash: versionHash)
-                                    print("Options: ",optionsJson)
-                                    let playListUrl = try await eluvio.fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash)
-                                    print("PlaylistUrl: ",playListUrl)
-                                    self.playerItem = try MakePlayerItemFromOptionsJson(fabric: eluvio.fabric,
-                                                                                    optionsJson: optionsJson,
-                                                                                    versionHash: versionHash)
-                                }catch{
-                                    print("NFTPlayerView: ", error)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-*/
 struct PlayerView: View {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @Environment(\.colorScheme) var colorScheme
@@ -125,6 +58,7 @@ struct PlayerView: View {
 
     var backLink: String = ""
     var backLinkIcon: String = ""
+    @State var audioLoaded = false
 
     enum Field: Hashable {
         case startFromBeginningField
@@ -180,7 +114,7 @@ struct PlayerView: View {
                     return
                 }
                 if (self.playerItem != self.player.currentItem){
-                    self.player.replaceCurrentItem(with: self.playerItem)
+                    self.player.replaceCurrentItem(with: playerItem)
                     print("player.replaceCurrentItem()")
                 }
                     
@@ -296,6 +230,20 @@ struct PlayerView: View {
                                               player.currentItem?.duration.seconds ?? 0.0)
                     }
                     
+                    if player.status == .readyToPlay {
+                        if !audioLoaded {
+                            if let group = playerItem?.asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
+                                debugPrint("group options ", group.options)
+                                debugPrint("group default option", group.defaultOption)
+                                if let defaultOption = group.defaultOption {
+                                    playerItem?.select(defaultOption, in: group)
+                                }else {
+                                    playerItem?.select(group.options.first, in: group)
+                                }
+                            }
+                            audioLoaded = true
+                        }
+                    }
                     
                 }
                 
@@ -316,10 +264,11 @@ struct PlayerView: View {
                 }else {
                     seekS(seekTimeS)
                 }
-                
+
                 player.play()
                 print("*** PlayerView errors: ", player.error)
                 
+
                 newItem = true
                 self.finishedObserver = PlayerFinishedObserver(player: player)
             }

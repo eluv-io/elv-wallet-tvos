@@ -382,9 +382,8 @@ struct ContentView: View {
                     ProgressView()
                         .edgesIgnoringSafeArea(.all)
                 case .black:
-                    Color.black
+                   Color.black
                         .edgesIgnoringSafeArea(.all)
-                
                 }
             }
             .onAppear(){
@@ -425,35 +424,11 @@ struct ContentView: View {
         .onChange(of: self.showActivity) {
             debugPrint("ShowActivity ", self.showActivity)
         }
-        /*.fullScreenCover(isPresented: $showNft, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon, nft] in
-            NFTDetail(nft: nft, backLink: backLink, backLinkIcon: backLinkIcon)
-        }*/
         .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
             PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
                        backLink: backLink, backLinkIcon: backLinkIcon
             )
         }
-        /*.fullScreenCover(isPresented: $showMinter, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-            MinterView(marketItem: $mintItem, mintInfo:$mintInfo,
-                       backLink: backLink, backLinkIcon: backLinkIcon
-            )
-        }
-        .fullScreenCover(isPresented: $showProperty, onDismiss: didFullScreenCoverDismiss) { [backLink, backLinkIcon] in
-            if let prop = property {
-                let items : [NFTModel] = !prop.contents.isEmpty ? prop.contents[0].contents : []
-                NavigationStack {
-                    PropertyMediaView(featured: prop.featured,
-                                      library: prop.media,
-                                      albums: prop.albums,
-                                      items: items,
-                                      liveStreams: prop.live_streams,
-                                      sections: prop.sections,
-                                      heroImage: prop.heroImage ?? "",
-                                      backLink: backLink, backLinkIcon: backLinkIcon
-                    )
-                }
-            }
-        }*/
         .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [mediaList] in
             GalleryView(gallery: mediaList)
         }

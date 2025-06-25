@@ -131,14 +131,7 @@ struct OryDeviceFlowView: View {
         .background(.thickMaterial)
         .opacity(opacity)
         .onAppear(perform: {
-            /*if(!eluvio.accountManager.isLoggedOut){
-                self.presentationMode.wrappedValue.dismiss()
-            }else{
-                Task{
-                    await self.regenerateCode()
-                }
-            }*/
-            
+            debugPrint("OryDeviceFlowView pathState ", eluvio.pathState.path)
             Task{
                 await self.regenerateCode()
                 await MainActor.run {
@@ -171,7 +164,7 @@ struct OryDeviceFlowView: View {
                 return
             }
             
-            let url = "https://wallet.contentfabric.io/login?pid=\(self.propertyId)&ory=true&action=login&mode=login&response=code&source=code"
+            let url = "https://wallet.contentfabric.io/login?pid=\(self.propertyId)&ory=true&action=login&mode=login&response=code&source=code&refresh=true"
             let json = try await signer.createAuthLogin(redirectUrl: url)
             
             self.response = json
@@ -196,9 +189,6 @@ struct OryDeviceFlowView: View {
             let interval = 5.0
             self.timer = Timer.publish(every: interval, on: .main, in: .common)
             self.timerCancellable = self.timer.connect()
-            /*self.countDown = Timer.scheduledTimer(timeInterval: TimeInterval(validFor), target: self, selector: #selector(self.onTimerFires), userInfo: nil, repeats: true)*/
-            
-            //self.expired = false
             
         }catch{
             print("Could not get code for MetaMask login", error)
@@ -223,31 +213,23 @@ struct OryDeviceFlowView: View {
                 print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
             }
-            
 
             let status = result["status"].intValue
             
             if(status != 200){
                 print("Check value \(result)")
-                /*
-                self.timerCancellable!.cancel()
-                print("Error \(json)")
-                self.errorMessage = json["error"].stringValue
-                showError = true
-                 */
                 return
             }
-            
             debugPrint("Ory Result ", result)
             
             let json = JSON.init(parseJSON:result["payload"].stringValue)
-            
+
             if json.isEmpty {
                 print("MetaMaskFlowView checkDeviceVerification() json payload is empty.")
                 showError = true
                 return
             }
-            
+
             let type = json["type"].stringValue
             let token = json["token"].stringValue
             let addr = json["addr"].stringValue
@@ -259,8 +241,6 @@ struct OryDeviceFlowView: View {
 
             var newProperty : MediaProperty? = property
             do {
-                //var signInResponse = SignInResponse()
-                //signInResponse.idToken = token
                 let login = LoginResponse(type: type, addr:addr, eth:eth, token: token)
                 debugPrint("Ory signing in ")
                 await MainActor.run {
@@ -269,8 +249,6 @@ struct OryDeviceFlowView: View {
 
                 let account = Account()
                 account.type = .Ory
-
-                
                 account.login = login
                 
                 if expiresAt > 0 {
@@ -279,11 +257,12 @@ struct OryDeviceFlowView: View {
                     let duration: Int64 = 1 * 24 * 60 * 60 * 1000
                     account.expiresAt = Date().now + duration
                 }
-         
+
                 account.email = email
                 account.fabricToken = token
                 account.login = login
                 account.clusterToken = clusterToken
+                
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
                 _ = try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
                 
@@ -306,6 +285,7 @@ struct OryDeviceFlowView: View {
                     //This handles a sign in without going into a property (from video player before token expires)
                     _ = eluvio.pathState.path.popLast();
                     _ = eluvio.pathState.path.popLast();
+                    debugPrint("Path State ", eluvio.pathState.path);
                 }
                 self.isChecking = false
             }
