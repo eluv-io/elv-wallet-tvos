@@ -54,7 +54,7 @@ struct Features: Codable{
 protocol ViewModel: Identifiable, Codable, Equatable, Hashable {
     var id: String? { get set }
     
-    static func == (lhs:any ViewModel, rhs:any ViewModel)
+    static func ==(lhs: Self, rhs: Self) -> Bool
     
     func hash(into hasher: inout Hasher)
 }
