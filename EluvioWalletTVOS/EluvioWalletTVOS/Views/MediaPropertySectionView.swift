@@ -713,17 +713,28 @@ struct MediaPropertySectionView: View {
                 return true
             }
         }
+        
+        if let content = section.content {
+            if section.displayTitle == "LIVE NOW & UPCOMING" {
+                debugPrint("empty content");
+            }
+            if !isHero && subsections.isEmpty && content.count == 0 {
+                return true;
+            }
+        }else {
+            if !isHero && subsections.isEmpty{
+                return true;
+            }
+        }
 
         if let display = section.display {
             if let hide = display["hide_on_tv"].bool {
                 if hide {
-                    //debugPrint("Hide On TV section: ", section.id)
-                    //debugPrint("Section: ", section)
+                    return true
                 }
-                return hide
             }
         }
-            
+                    
         return false
     }
 
@@ -815,7 +826,10 @@ struct MediaPropertySectionView: View {
         }
         self.refreshId = eluvio.refreshId
 
-        debugPrint("MediaPropertySectionView refresh ", hAlignment)
+        debugPrint("MediaPropertySectionView section ", section.displayTitle)
+        debugPrint("section isHero ", isHero)
+        debugPrint("section isBanner ", isBanner)
+        debugPrint("number of contents: ", section.content?.count)
 
         Task(){
             do {

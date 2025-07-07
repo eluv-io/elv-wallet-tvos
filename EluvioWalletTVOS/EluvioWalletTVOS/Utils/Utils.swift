@@ -739,7 +739,9 @@ func MakePlayerItemFromVersionHash(fabric: Fabric,
                                    title: String = "",
                                    description: String = "",
                                    imageThumb: String = "") async throws -> AVPlayerItem {
+    debugPrint("MakePlayerItemFromVersionHash ", versionHash)
     let options = try await fabric.getOptions(versionHash: versionHash, offering: offering)
+    debugPrint("getOptions ", options)
     return try await MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
 }
 
@@ -751,7 +753,9 @@ func MakePlayerItemFromLink(fabric: Fabric,
                             title: String = "",
                             description: String = "",
                             imageThumb: String = "") async throws -> AVPlayerItem {
+    debugPrint("MakePlayerItemFromLink ", link)
     let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering)
+    debugPrint("getOptionsFromLink ", options)
     return try await MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
 }
 

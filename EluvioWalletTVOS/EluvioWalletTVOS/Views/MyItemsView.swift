@@ -85,8 +85,7 @@ struct MyItemsView: View {
                     .padding(.top,40)
             }
         }
-        .scrollClipDisabled()
-        .searchable(text: $searchString,prompt: "Search My Items", suggestions:{})
+        .searchable(text: $searchString, prompt: "Search My Items", suggestions:{})
         .autocorrectionDisabled(true)
         .onChange(of: searchString) {
             search()
