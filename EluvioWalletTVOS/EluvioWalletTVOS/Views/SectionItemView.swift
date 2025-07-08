@@ -335,12 +335,15 @@ struct SectionMediaItemView: View {
                             if let link = item.media_link?["sources"]["default"] {
                                 Task{
                                     do {
-                                        let playerItem  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, title:item.title ?? "", description: item.description ?? "", imageThumb: thumbnail)
+                                        let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: item.id ?? "")
+                                        let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:item.title ?? "", description:item.description ?? "", imageThumb: thumbnail)
+                                        
                                         let params = VideoParams(mediaId: item.id ?? "",
                                                                  title: item.title ?? "",
                                                                  playerItem: playerItem)
                                         eluvio.pathState.videoParams = params
                                         eluvio.pathState.path.append(.video)
+
                                     }catch{
                                         print("Error getting link url for playback ", error)
                                     }
@@ -677,10 +680,9 @@ struct SectionItemView: View {
                                         
                                         do {
                                             let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
+                                            debugPrint("optionsJson ", optionsJson)
                                             let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:mediaItem.title, description:mediaItem.description, imageThumb: mediaItem.thumbnail)
-                                            
-                                            //let playerItem = try MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
-                                            
+                                                                                        
                                             let params = VideoParams(mediaId:mediaItem.media_id,
                                                                      title: mediaItem.title,
                                                                      playerItem: playerItem)

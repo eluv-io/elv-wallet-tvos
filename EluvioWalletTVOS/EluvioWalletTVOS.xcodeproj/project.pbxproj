@@ -24,7 +24,6 @@
 		B01500E72D5FED5200F9B826 /* MediaImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01500E52D5FED3E00F9B826 /* MediaImageView.swift */; };
 		B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02CE2032AF4C08700F5F495 /* BackButton.swift */; };
 		B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04586F42AF4993B00F1FF25 /* FandangoPage.swift */; };
-		B05648C22BC7E245004540F6 /* ContentViewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentViewApp.swift */; };
 		B05648C42BC9CCBB004540F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05648C32BC9CCBB004540F6 /* ContentView.swift */; };
 		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
 		B06404CB2B2B8BA500945E98 /* DeviceFlowViewNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CA2B2B8BA500945E98 /* DeviceFlowViewNew.swift */; };
@@ -259,8 +258,6 @@
 		B0A598E52C33976100D6716F /* PageGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3F2B58274200499C93 /* PageGesture.swift */; };
 		B0A598E72C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
 		B0A598E82C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
-		B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
-		B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E92C3433CD00D6716F /* ContentViewBak.swift */; };
 		B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
 		B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
 		B0A5AB412CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */; };
@@ -299,7 +296,6 @@
 		B0D839642DDF2C8700CDC7BB /* JsonRPC in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839632DDF2C8700CDC7BB /* JsonRPC */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
 		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
-		B0E60F7229CC23510079661E /* ContentViewApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7129CC23510079661E /* ContentViewApp.swift */; };
 		B0E60F7429CC23530079661E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7329CC23530079661E /* Assets.xcassets */; };
 		B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7629CC23530079661E /* Preview Assets.xcassets */; };
 		B0E60F7E29CD63B60079661E /* configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7D29CD63B50079661E /* configuration.json */; };
@@ -456,7 +452,6 @@
 		B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertySectionItemView.swift; sourceTree = "<group>"; };
 		B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "start-screen-bg.mp4"; sourceTree = "<group>"; };
 		B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewSideNav.swift; sourceTree = "<group>"; };
-		B0A598E92C3433CD00D6716F /* ContentViewBak.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewBak.swift; sourceTree = "<group>"; };
 		B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionGridView.swift; sourceTree = "<group>"; };
 		B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertySectionView.swift; sourceTree = "<group>"; };
 		B0A830E12C7129120037BE59 /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
@@ -477,7 +472,6 @@
 		B0DFFF932A17129200F1E358 /* MediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaView.swift; sourceTree = "<group>"; };
 		B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EluvioWalletTVOSApp.swift; sourceTree = "<group>"; };
-		B0E60F7129CC23510079661E /* ContentViewApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewApp.swift; sourceTree = "<group>"; };
 		B0E60F7329CC23530079661E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B0E60F7629CC23530079661E /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B0E60F7D29CD63B50079661E /* configuration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = configuration.json; sourceTree = "<group>"; };
@@ -801,7 +795,6 @@
 				B0E60F7529CC23530079661E /* Preview Content */,
 				B06C4C4E2A5D09A9003C414A /* configuration_bak.json */,
 				B0E60F9E29D1B1DE0079661E /* Auth0.plist */,
-				B0A598E92C3433CD00D6716F /* ContentViewBak.swift */,
 			);
 			path = EluvioWalletTVOS;
 			sourceTree = "<group>";
@@ -859,7 +852,6 @@
 				B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */,
 				B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */,
 				B09897FE2CB8D10400C1D590 /* SearchBar.swift */,
-				B0E60F7129CC23510079661E /* ContentViewApp.swift */,
 				B0670F3729D5427300676872 /* NFTDetail.swift */,
 				B0670F3629D5427300676872 /* NFTList.swift */,
 				B0670F3829D5427300676872 /* NFTView.swift */,
@@ -1166,7 +1158,6 @@
 			files = (
 				B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */,
 				B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
-				B05648C22BC7E245004540F6 /* ContentViewApp.swift in Sources */,
 				B08CB5622B7DDFDA00E04C0D /* AudioPlayer.swift in Sources */,
 				B08CB59D2B7DE12800E04C0D /* configuration.json in Sources */,
 				B08CB5AC2B7DE8F200E04C0D /* ViewState.swift in Sources */,
@@ -1235,7 +1226,6 @@
 				B08CB5972B7DDFDA00E04C0D /* Profile.swift in Sources */,
 				B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
 				B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
-				B0A598EB2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */,
 				B0AF0DC82CED1339006A87C6 /* PurchaseView.swift in Sources */,
 				B08CB5992B7DDFDA00E04C0D /* ProfileClient.swift in Sources */,
@@ -1352,7 +1342,6 @@
 				B0D544792C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
 				B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */,
 				B077BE652C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */,
-				B0E60F7229CC23510079661E /* ContentViewApp.swift in Sources */,
 				B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */,
 				B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
@@ -1399,7 +1388,6 @@
 				B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */,
 				B0A830E82C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
 				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
-				B0A598EA2C3433CD00D6716F /* ContentViewBak.swift in Sources */,
 				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,
 				B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */,
 				B0670F3B29D5427400676872 /* NFTDetail.swift in Sources */,
@@ -1658,7 +1646,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 324;
+				CURRENT_PROJECT_VERSION = 325;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1692,7 +1680,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 324;
+				CURRENT_PROJECT_VERSION = 325;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
