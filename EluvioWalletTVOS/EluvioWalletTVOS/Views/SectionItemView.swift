@@ -667,6 +667,7 @@ struct SectionItemView: View {
                                             debugPrint("permission denied! ", mediaItem.title)
                                             debugPrint("startTime! ", mediaItem.start_time)
                                             //debugPrint("icons! ", mediaItem.icons)
+                                            debugPrint("media_link ", item.media?.media_link)
                                             
                                             let videoErrorParams = VideoErrorParams(mediaItem:item.media, type: .permission, backgroundImage: backgroundImage, images: images)
                                             

@@ -115,16 +115,6 @@ class Fabric: ObservableObject {
         self.createDemoProperties = createDemoProperties
     }
     
-    /*
-    func signOutIfExpired()  {
-        if self.loginTime != self.loginExpiration {
-            if Date() > self.loginExpiration {
-                self.signOut()
-            }
-        }
-    }
-    */
-    
     
     func getEndpoint() throws -> String{
         
@@ -223,61 +213,6 @@ class Fabric: ObservableObject {
         }else if !token.isEmpty{
             fabricToken = token
         }
-
-        if signIn {
-            /*
-                if (self.isMetamask == true){
-                    debugPrint("is Metamask login, skipping checkToken")
-                    return
-                }
-                
-                guard let accessToken = UserDefaults.standard.object(forKey: "access_token") as? AnyObject else {
-                    self.signingIn = false
-                    self.isLoggedOut = true
-                    return
-                }
-                
-                guard let tokenType = UserDefaults.standard.object(forKey: "token_type") as? AnyObject else {
-                    self.signingIn = false
-                    self.isLoggedOut = true
-                    return
-                }
-                
-                guard let idToken = UserDefaults.standard.object(forKey: "id_token")
-                        as? AnyObject else {
-                    self.signingIn = false
-                    self.isLoggedOut = true
-                    return
-                }
-                
-                var isExternal = false
-                
-                if let external = UserDefaults.standard.object(forKey: "is_external")
-                    as? Bool {
-                    isExternal = external
-                    debugPrint("Found is_external in userDefaults: ", isExternal)
-                }
-                
-                var credentials : [String: AnyObject] = [:]
-                
-                credentials["token_type"] = tokenType
-                credentials["access_token"] = accessToken
-                credentials["id_token"] = idToken
-                
-                debugPrint("Credentials: ", credentials)
-                
-                Task {
-                    do {
-                        try await self.signIn(credentials: credentials, external: isExternal)
-                    }catch {
-                        print("Could not sign In \(error.localizedDescription)")
-                        self.signingIn = false
-                        self.isLoggedOut = true
-                        return
-                    }
-                }
-             */
-        }
     }
 
     func getContentSpaceId() throws -> String {
@@ -348,10 +283,8 @@ class Fabric: ObservableObject {
         var featured = Features()
         
         var items : [NFTModel] = []
-        //var mediaRows: [MediaRowViewModel] = []
         for nft in nfts {
-            //var mediaRow = MediaRowViewModel()
-            
+
             do {
                 let data = try nft.rawData()
                 let nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
@@ -361,30 +294,9 @@ class Fabric: ObservableObject {
                     print("Error parsing nft: \(nft)")
                     continue
                 }
-                /*
-                if(model.has_album ?? false){
-                    mediaRow.albums.append(model)
-                }
-                 */
+
                 items.append(model)
-                /*
-                if(!parsedModels.featured.isEmpty){
-                    featured.append(contentsOf: parsedModels.featured)
-                }
-                
-                mediaRow.features = parsedModels.featured
-                mediaRow.images = parsedModels.images
-                mediaRow.videos = parsedModels.videos
-                mediaRow.books  = parsedModels.books
-                mediaRow.liveStreams = parsedModels.liveStreams
-                mediaRow.galleries = parsedModels.galleries
-                mediaRow.apps = parsedModels.html
-                mediaRow.item = model
-                mediaRow.name = model.meta.displayName ?? model.meta.name ?? model.contract_name ?? ""
-                
-                mediaRows.append(mediaRow)
-                 */
-                
+
             } catch {
                 print(error)
                 continue
@@ -412,40 +324,6 @@ class Fabric: ObservableObject {
                 let data = try nft.rawData()
                 var nftmodel = try JSONDecoder().decode(NFTModel.self, from: data)
                 items.append(nftmodel)
-/*
-                let parsedModels = try await self.parseNft(nftmodel)
-                guard let model = parsedModels.nftModel else {
-                    print("Error parsing nft: \(nft)")
-                    continue
-                }
-                
-                if(model.has_album ?? false){
-                    albums.append(model)
-                }
-                items.append(model)
-                
-                if(!parsedModels.featured.isEmpty){
-                    featured.append(contentsOf: parsedModels.featured)
-                }
-                if(!parsedModels.galleries.isEmpty){
-                    galleries.append(contentsOf: parsedModels.galleries)
-                }
-                if(!parsedModels.images.isEmpty){
-                    books.append(contentsOf: parsedModels.images)
-                }
-                if(!parsedModels.videos.isEmpty){
-                    videos.append(contentsOf: parsedModels.videos)
-                }
-                if(!parsedModels.html.isEmpty){
-                    html.append(contentsOf: parsedModels.html)
-                }
-                if(!parsedModels.books.isEmpty){
-                    books.append(contentsOf: parsedModels.books)
-                }
-                if(!parsedModels.liveStreams.isEmpty){
-                    liveStreams.append(contentsOf: parsedModels.liveStreams)
-                }
- */
                 
             } catch {
                 print(error)
@@ -467,8 +345,7 @@ class Fabric: ObservableObject {
         var html: [MediaItem] = []
         var books: [MediaItem] = []
         var liveStreams: [MediaItem] = []
-        var redeemables: [Redeemable]
-        
+
         var nftmodel = _nftmodel
         nftmodel.mediaCache = [:]
         
@@ -495,30 +372,14 @@ class Fabric: ObservableObject {
         }
         
         let nftData = try await self.getNFTData(tokenUri: tokenUri)
-        //TODO: use the template
-        /*
-        var nftData = JSON()
-        if let template = nftmodel.nft_template  {
-            nftData = template
-            debugPrint("Found template ", template)
-        }else {
-            nftData = try await self.getNFTData(tokenUri: tokenUri)
-        }
-         */
+
         
         nftmodel.meta_full = nftData
-        //print("******")
-        //print(nftData)
-        //print("******")
-        
+
         if nftData["redeemable_offers"].exists() {
-            //print("redeemable_offers exists for \(nftData["display_name"].stringValue)")
-            //debugPrint(nftData["redeemable_offers"])
             do {
                 nftmodel.redeemable_offers = try JSONDecoder().decode([Redeemable].self, from: nftData["redeemable_offers"].rawData())
-                
-                //print("DECODED: \(nftmodel.additional_media_sections)")
-                //print("FOR JSON: \(try nftData["additional_media_sections"].rawData().prettyPrintedJSONString ?? "")")
+            
             }catch{
                 print("Error decoding redeemable_offers for \(nftmodel.contract_name ?? ""): \(error)")
             }
@@ -1133,11 +994,7 @@ class Fabric: ObservableObject {
     @MainActor
     func refresh() async {
         debugPrint("Fabric refresh")
-        /*if self.signingIn {
-            return
-        }
-         */
-        
+
         if self.isRefreshing {
             return
         }
@@ -1155,34 +1012,6 @@ class Fabric: ObservableObject {
 
         do{
             try await profile.refresh()
-            /*
-            if (!self.isMetamask && self.login != nil){
-                if let login = self.login {
-                    self.fabricToken = try await signer.createFabricToken( address: self.getAccountAddress(), contentSpaceId: self.getContentSpaceId(), authToken: login.token, external: self.isExternal)
-                }
-            }else{
-                self.fabricToken = createStaticToken()
-            }
-             */
-
-            /*
-            let response = try await signer.getWalletData(accountAddress: try self.getAccountAddress(),
-                                                          accessCode: self.fabricToken)
-            let profileData = response.result
-
-            debugPrint("Previous Hash ", previousRefreshHash.description)
-            debugPrint("New Hash ", response.hash.description)
-            // Same data, exit so we don't affect UI
-            if !self.library.isEmpty && response.hash == self.previousRefreshHash {
-                debugPrint("exiting refresh...same data.")
-                return
-            }
-            
-            let nfts = profileData["contents"].arrayValue
-
-            let parsedLibrary = try await parseNftsToLibrary(nfts)
-            self.library = parsedLibrary
-             */
 
             do {
                 let mediaProperties = try await signer.getProperties(accessCode: self.fabricToken)
@@ -1198,7 +1027,6 @@ class Fabric: ObservableObject {
             isRefreshing = false
         }catch{
             print ("Refresh Error: \(error)")
-            //signOut()
         }
     }
     
@@ -1630,37 +1458,6 @@ class Fabric: ObservableObject {
                     continue
                 }
                 mediaProperties[id] = property
-                /*
-                if let sections = property.sections {
-                    
-                    for (key, section) in sections {
-                        debugPrint("Cached section: \(key)")
-                        self.mediaPropertiesSectionCache[key] = section
-                        if let sectionContents = section.content {
-                            Task(priority: .background){
-                                for item in sectionContents {
-                                    if let media = item.media {
-                                        if let id = media.id {
-                                            self.mediaPropertiesMediaItemCache[id] = media
-                                        }
-                                    }else {
-                                        if let mediaId = item.media_id {
-                                            if let propertyId = property.id {
-                                                do {
-                                                    try await cacheMediaItems(property: propertyId, mediaItems: [mediaId])
-                                                }catch{
-                                                    print("could not cache media item \(mediaId) ", error.localizedDescription)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                     
-                }
-                 */
             }
         }
         
@@ -1827,18 +1624,17 @@ class Fabric: ObservableObject {
     func resetWalletData(){
         self.library = MediaLibrary()
         self.properties = []
+        //Not resetting so we speed up displaying the existing properties while the new set refreshes in the background.
         //self.mediaProperties = MediaPropertiesResponse()
         //self.mediaPropertiesCache = [:]
-        //self.mediaPropertiesMediaItemCache = [:]
-        //self.mediaPropertiesSectionCache = [:]
-        //self.mediaPropertiesPageCache = [:]
+        self.mediaPropertiesMediaItemCache = [:]
+        self.mediaPropertiesSectionCache = [:]
+        self.mediaPropertiesPageCache = [:]
     }
     
     func reset(){
         self.signer = nil
         self.fabricToken = ""
-        //self.isMetamask = false
-
         resetWalletData()
 
         UserDefaults.standard.removeObject(forKey: "fabric_network")
@@ -2984,151 +2780,3 @@ struct ResolvedPermission:  Codable, Hashable {
 enum PermisionBehavior:  Codable, Hashable {
     case Hide, Disable, showPurchase, showIfUnauthorized, showAlternativePage
 }
-
-
-
-/*
- HIDE: "hide",
- DISABLE: "disable",
- SHOW_PURCHASE: "show_purchase",
- SHOW_IF_UNAUTHORIZED: "show_if_unauthorized",
- SHOW_ALTERNATE_PAGE: "show_alternate_page"
- */
-
-/*
-ResolvePermission({
-  mediaPropertySlugOrId,
-  pageSlugOrId,
-  sectionSlugOrId,
-  sectionItemId,
-  mediaCollectionSlugOrId,
-  mediaListSlugOrId,
-  mediaItemSlugOrId
-}) {
-  // Resolve permissions from top down
-  let authorized = true;
-  let behavior = this.PERMISSION_BEHAVIORS.HIDE;
-  let cause;
-  let permissionItemIds;
-
-  const mediaProperty = this.MediaProperty({mediaPropertySlugOrId});
-  behavior = mediaProperty?.metadata?.permissions?.behavior || behavior;
-
-  let alternatePageId = (
-    behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
-    mediaProperty?.metadata?.permissions?.alternate_page_id
-  );
-
-  let secondaryPurchaseOption = (
-    behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
-    mediaProperty?.metadata?.permissions?.secondary_market_purchase_option
-  );
-
-  const page = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: pageSlugOrId || "main"});
-  behavior = page.permissions?.behavior || behavior;
-
-  alternatePageId = (
-    page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
-    page?.permissions?.alternate_page_id
-  ) || alternatePageId;
-
-  secondaryPurchaseOption = (
-    page?.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
-    page?.permissions?.permissions?.secondary_market_purchase_option
-  ) || secondaryPurchaseOption;
-
-  if(sectionSlugOrId) {
-    const section = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId});
-
-    if(section) {
-      behavior = section.permissions?.behavior || behavior;
-      authorized = section.authorized;
-      cause = !authorized && "Section permissions";
-      permissionItemIds = section.permissions?.permission_item_ids || [];
-      alternatePageId =
-        (
-          section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
-          section.permissions?.alternate_page_id
-        ) || alternatePageId;
-
-      secondaryPurchaseOption =
-        (
-          section.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
-          section.permissions?.secondary_market_purchase_option
-        ) || secondaryPurchaseOption;
-
-      if(authorized && sectionItemId) {
-        const sectionItem = this.MediaPropertySection({mediaPropertySlugOrId, sectionSlugOrId})?.content
-          ?.find(sectionItem => sectionItem.id === sectionItemId);
-
-        if(sectionItem) {
-          behavior = sectionItem.permissions?.behavior || behavior;
-          permissionItemIds = sectionItem.permissions?.permission_item_ids || [];
-          authorized = sectionItem.authorized;
-          cause = cause || !authorized && "Section item permissions";
-          alternatePageId =
-            (
-              sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE &&
-              sectionItem.permissions?.alternate_page_id
-            ) || alternatePageId;
-
-          secondaryPurchaseOption =
-            (
-              sectionItem.permissions?.behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE &&
-              sectionItem.permissions?.secondary_market_purchase_option
-            ) || secondaryPurchaseOption;
-        }
-      }
-    }
-  }
-
-  if(authorized && mediaCollectionSlugOrId) {
-    const mediaCollection = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaCollectionSlugOrId});
-    authorized = mediaCollection?.authorized || false;
-    permissionItemIds = mediaCollection.permissions?.map(permission => permission.permission_item_id) || [];
-    cause = !authorized && "Media collection permissions";
-  }
-
-  if(authorized && mediaListSlugOrId) {
-    const mediaList = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId: mediaListSlugOrId});
-    authorized = mediaList?.authorized || false;
-    permissionItemIds = mediaList.permissions?.map(permission => permission.permission_item_id) || [];
-    cause = !authorized && "Media list permissions";
-  }
-
-  if(authorized && mediaItemSlugOrId) {
-    const mediaItem = this.MediaPropertyMediaItem({mediaPropertySlugOrId, mediaItemSlugOrId});
-    authorized = mediaItem?.authorized || false;
-    permissionItemIds = mediaItem.permissions?.map(permission => permission.permission_item_id) || [];
-    cause = !authorized && "Media permissions";
-  }
-
-  if(behavior === this.PERMISSION_BEHAVIORS.SHOW_IF_UNAUTHORIZED) {
-    authorized = !authorized;
-    behavior = this.PERMISSION_BEHAVIORS.HIDE;
-  }
-
-  permissionItemIds = permissionItemIds || [];
-
-  const purchaseGate = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_PURCHASE;
-  const showAlternatePage = !authorized && behavior === this.PERMISSION_BEHAVIORS.SHOW_ALTERNATE_PAGE;
-
-  if(showAlternatePage) {
-    alternatePageId = this.MediaPropertyPage({mediaPropertySlugOrId, pageSlugOrId: alternatePageId ? alternatePageId : undefined})?.slug || alternatePageId;
-  }
-
-  return {
-    authorized,
-    behavior,
-    // Hide by default, or if behavior is hide, or if no purchasable permissions are available
-    hide: !authorized && (!behavior || behavior === this.PERMISSION_BEHAVIORS.HIDE || (purchaseGate && permissionItemIds.length === 0)),
-    disable: !authorized && behavior === this.PERMISSION_BEHAVIORS.DISABLE,
-    purchaseGate: purchaseGate && permissionItemIds.length > 0,
-    secondaryPurchaseOption,
-    showAlternatePage,
-    alternatePageId,
-    permissionItemIds,
-    cause: cause || ""
-  };
-}
-*/
