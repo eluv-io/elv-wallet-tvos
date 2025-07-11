@@ -1861,7 +1861,7 @@ class Fabric: ObservableObject {
     
     //New API for media item playout
     func getMediaPlayoutOptions(propertyId:String, mediaId:String) async throws -> JSON {
-        let path = "/as/mw/properties/" + propertyId + "/media_items/" + mediaId + "/offerings/any/playout_options"
+        var path = "/as/mw/properties/" + propertyId + "/media_items/" + mediaId + "/offerings/any/playout_options"
         
         guard let signer = self.signer else {
             throw FabricError.configError("getPlayoutFromMediaId: could not get authD endpoint")
@@ -1874,6 +1874,12 @@ class Fabric: ObservableObject {
         components.scheme = url.scheme
         components.host = url.host
         components.path = path
+        
+        var queryItems : [URLQueryItem] = []
+        if getEnvironment() == .staging {
+            queryItems.append(URLQueryItem(name:"env", value: "staging"))
+        }
+        components.queryItems = queryItems
 
         guard let newUrl = components.url else {
             throw FabricError.invalidURL("getPlayoutFromMediaId: could not create url from components. \(components)")
