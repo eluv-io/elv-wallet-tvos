@@ -110,6 +110,9 @@ class Fabric: ObservableObject {
     var profile = Profile()
     var profileClient : ProfileClient? = nil
     
+    var debugNode = "https://host-76-74-91-2.contentfabric.io"
+    var isDebugNode = false
+    
     init(createDemoProperties: Bool = true){
         print("Fabric init config_url \(self.configUrl)");
         self.createDemoProperties = createDemoProperties
@@ -117,6 +120,10 @@ class Fabric: ObservableObject {
     
     
     func getEndpoint() throws -> String{
+        
+        if isDebugNode {
+            return debugNode
+        }
         
         if let node = APP_CONFIG.network[network]?.overrides?.fabric_url {
             if node != "" {

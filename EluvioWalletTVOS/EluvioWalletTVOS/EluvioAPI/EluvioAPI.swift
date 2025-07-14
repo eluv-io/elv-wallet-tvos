@@ -77,6 +77,14 @@ class EluvioAPI : ObservableObject {
         return devMode
     }
     
+    func isDebugNode() -> Bool {
+        return fabric.isDebugNode
+    }
+    
+    func setIsDebugNode(debugNode: Bool) {
+        fabric.isDebugNode = debugNode
+    }
+    
     func setTtlHours(_ hours:Double){
         self.ttlHours = hours
     }

@@ -48,6 +48,7 @@ struct ProfileView: View {
     
     @State var isStaging = false
     @State var isDeveloper = false
+    @State var isDebugNode = false
     
     var body: some View {
             VStack() {
@@ -93,6 +94,7 @@ struct ProfileView: View {
                             FormEntry("Session Expiration:  \(tokenExpiresAt)")
                             
                             Toggle("Set to staging ", isOn:$isStaging)
+                            Toggle("Use debug node ", isOn:$isDebugNode)
                             
                             //Toggle("Set to developer mode ", isOn:$isDeveloper)
                         
@@ -117,6 +119,14 @@ struct ProfileView: View {
             .onChange(of: isDeveloper) {old, val in
                 eluvio.setDevMode(devMode: val)
             }
+            .onChange(of: isDebugNode) {old, val in
+                eluvio.setIsDebugNode(debugNode: val)
+                do {
+                    self.network = try eluvio.fabric.getEndpoint()
+                }catch{
+                    print("Could not get fabric endpoint. ", error)
+                }
+            }
             .onAppear(){
                 do {
                     self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
@@ -129,6 +139,7 @@ struct ProfileView: View {
                     self.isStaging = eluvio.getEnvironment().rawValue == "staging"
                     self.isDeveloper = eluvio.getDevMode()
                     self.tokenExpiresAt = eluvio.accountManager.currentAccount?.expiresAtDateString ?? ""
+                    self.isDebugNode = eluvio.isDebugNode()
                     
                     if !initialized {
                         
