@@ -41,7 +41,8 @@ struct SearchBar: View {
     var action: (String)->Void
     
     var body: some View {
-        ZStack(){
+        //ZStack(){
+        /*
             HStack {
                 if !logoUrl.isEmpty {
                     WebImage(url:URL(string:logoUrl))
@@ -57,26 +58,22 @@ struct SearchBar: View {
                 }
 
             }
-            .position(x:60,y:80)
-            .padding([.trailing],20)
-            .padding([.leading],80)
-            
-            EmptyView()
-                .searchable(text:$searchString, prompt: "Search \(name)", suggestions:{})
+         */
+            //.position(x:60,y:80)
+            //.padding([.trailing],20)
+            //.padding([.leading],80)
+        HStack{}
+            .searchable(text:$searchString, prompt: "Search \(name)", suggestions:{})
             .autocorrectionDisabled(true)
-            .onChange(of:searchString) {
-                action(searchString)
-            }
-            .scaleEffect(0.83)
-            //.offset(x:40)
-            .position(x:1000, y:100)
+            //.scaleEffect(0.83)
+            //.position(x:1000, y:100)
             .id("Search in " + name)
-            
-           /* NativeSearchView()
-                .scaleEffect(0.8)
-                .padding(60)*/
-        }
+
+        //}
         .focusSection()
+        .onChange(of:searchString) {
+            action(searchString)
+        }
     }
 }
 

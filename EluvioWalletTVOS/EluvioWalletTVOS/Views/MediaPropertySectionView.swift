@@ -45,6 +45,7 @@ struct GetWidthModifier: ViewModifier {
                     Color.clear
                         .task(id: proxy.size.width) {
                             $width.wrappedValue = max(proxyWidth, 0)
+                            debugPrint("Width: ", proxyWidth)
                         }
                 }
             )
@@ -84,7 +85,6 @@ struct MediaPropertySectionGridView: View {
             }
             
             SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
-            
             .padding()
         }
         .background(
@@ -758,10 +758,10 @@ struct MediaPropertySectionView: View {
             if !hide {
                 if isHero {
                     MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition, margin:margin)
-                        .edgesIgnoringSafeArea([.leading, .trailing])
+                        //.edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isBanner {
                     MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, margin:margin, section:section)
-                        .edgesIgnoringSafeArea([.leading, .trailing])
+                        //.edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isContainer{
                     VStack(alignment:.leading, spacing:0){
                         VStack(alignment:hAlignment, spacing:5) {
@@ -794,13 +794,13 @@ struct MediaPropertySectionView: View {
                         
                         ForEach(subsections) { sub in
                             MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin)
-                                .edgesIgnoringSafeArea([.leading, .trailing])
+                                //.edgesIgnoringSafeArea([.leading, .trailing])
                         }
                     }
-                    .edgesIgnoringSafeArea([.leading, .trailing])
+                    //.edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isGrid {
                     MediaPropertySectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
-                        .edgesIgnoringSafeArea([.leading, .trailing])
+                        //.edgesIgnoringSafeArea([.leading, .trailing])
                 }else {
                     MediaPropertyRegularSectionView(
                             propertyId:propertyId,
@@ -808,7 +808,7 @@ struct MediaPropertySectionView: View {
                             section:section,
                             margin:margin
                         )
-                        .edgesIgnoringSafeArea([.leading, .trailing])
+                        //.edgesIgnoringSafeArea([.leading, .trailing])
                      
                 }
             }

@@ -61,32 +61,32 @@ struct SectionGridView: View {
             return forceNumColumns
         }
         
-        if width < 1000 {
-            if display == .square {
-                return 4
-            }else {
-                return 2
-            }
-        }else if width < 1700 {
+        if width < 600 {
             if display == .square {
                 return 4
             }else {
                 return 3
             }
-        }else {
+        } else if width < 1000 {
             if display == .square {
                 return 6
             }else {
                 return 4
+            }
+        }else {
+            if display == .square {
+                return 7
+            }else {
+                return 5
             }
         }
     }
     
     var scale : CGFloat {
         if display == .square {
-            return 1.0
+            return 0.8
         }else {
-            return 1.0
+            return 0.75
         }
     }
     
@@ -100,17 +100,14 @@ struct SectionGridView: View {
                     HStack{
                         Text(title)
                             .font(.rowTitle)
-                        //Text("\(width)")
                         Spacer()
                     }
-                    .frame(maxWidth:.infinity)
-                    .padding(.top, 40)
+                    .padding(.top, 20)
                 }
                 if items.dividedIntoGroups(of: numColumns).count <= 1 {
                     HStack(spacing:20) {
                         ForEach(items, id: \.self) { item in
-                            SectionItemView(//item: item.sectionItem,
-                                            sectionId: section.id,
+                            SectionItemView(sectionId: section.id,
                                             pageId:pageId,
                                             propertyId: propertyId,
                                             forceDisplay:display,
@@ -121,10 +118,9 @@ struct SectionGridView: View {
                         }
                         Spacer()
                     }
-                    .frame(maxWidth:.infinity, maxHeight:.infinity, alignment:.leading)
                     .padding([.top,.bottom], 40)
-                    .edgesIgnoringSafeArea([.leading, .trailing])
                     .focusSection()
+                    .getWidth($width)
                 }else{
                     
                     LazyVStack(alignment:.leading){
@@ -132,7 +128,7 @@ struct SectionGridView: View {
                                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
                                     GridRow(alignment:.top) {
                                         ForEach(groups, id: \.self) { item in
-                                            SectionItemView(/*item: item.sectionItem,*/ sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
+                                            SectionItemView(sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
                                                             viewItem: item,
                                                             scaleFactor: scale
                                             )
@@ -141,23 +137,20 @@ struct SectionGridView: View {
                                             
                                         }
                                     }
-                                    .frame(maxHeight:.infinity, alignment:.leading)
                                 }
                         }
                         .padding([.top,.bottom], 40)
-                        .edgesIgnoringSafeArea([.leading, .trailing])
                         .focusSection()
                     }
-                    .frame(maxWidth:.infinity)
                     .focusSection()
+                    .getWidth($width)
                     
                     //FIXME: LazyVGrid loses selection DO NOT USE
                 }
         }
         .padding([.leading], margin)
-        .edgesIgnoringSafeArea([.leading, .trailing])
         .focusSection()
-        .getWidth($width)
+        
         .task {
             debugPrint("SectionGridView  ", margin)
             do {

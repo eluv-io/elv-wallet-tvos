@@ -416,103 +416,100 @@ struct SearchView: View {
     }
     
     var body: some View {
-        ScrollView(.vertical){
-            VStack(alignment:.leading, spacing:0) {
-                SearchBar(searchString:$searchString, logoUrl:logoUrl, name:name, action:{ searchString in
-                    search()
-                })
-                .padding(.top,40)
-                .padding(.bottom, searchString.isEmpty ? 20 : 110)
-                
-                HStack(alignment:.center, spacing: 20) {
-                    if ( !primaryFilters.isEmpty) {
-                        Text("Filters")
-                    }
-                    VStack {
-                        if !primaryFilters.isEmpty {
-                            ScrollView(.horizontal){
-                                LazyHStack(alignment:.center, spacing:20){
-                                    ForEach(0..<primaryFilters.count, id: \.self) { index in
-                                        PrimaryFilterView(
-                                            filter:primaryFilters[index],
-                                            action:{
-                                                if currentPrimaryFilter?.id != primaryFilters[index].id {
-                                                    currentPrimaryFilter = primaryFilters[index]
-                                                    secondaryFilters = primaryFilters[index].secondaryFilters
-                                                }else {
-                                                    currentPrimaryFilter = nil
-                                                    secondaryFilters = []
-                                                }
-                                                currentSecondaryFilter = nil
-                                                search()
-
-                                            },
-                                            selected: currentPrimaryFilter?.id == primaryFilters[index].id
-                                        )
-                                    }
-                                }
-                                .frame(maxHeight:.infinity, alignment:.center)
-                            }
-                            .frame(alignment:.center)
-                            .scrollClipDisabled()
+        VStack{
+            ScrollView(.vertical){
+                VStack(alignment:.leading, spacing:0) {
+                    HStack(alignment:.center, spacing: 20) {
+                        if ( !primaryFilters.isEmpty) {
+                            Text("Filters")
                         }
-                    }
-                }
-                .padding([.leading,.trailing], 90)
-                .padding([.top], 40)
-
-                if !secondaryFilters.isEmpty {
-                    ScrollView(.horizontal) {
-                        LazyHStack(spacing:20){
-                            ForEach(0..<secondaryFilters.count, id: \.self) { index in
-                                SecondaryFilterView(
-                                    title: secondaryFilters[index].title,
-                                    imageUrl: currentPrimaryFilter?.secondaryFilterStyle == .image ? secondaryFilters[index].imageUrl : "",
-                                    action:{
-                                        
-                                        if currentSecondaryFilter != secondaryFilters[index] {
-                                            currentSecondaryFilter = secondaryFilters[index]
-                                        }else {
-                                            currentSecondaryFilter = nil
+                        VStack {
+                            if !primaryFilters.isEmpty {
+                                ScrollView(.horizontal){
+                                    LazyHStack(alignment:.center, spacing:20){
+                                        ForEach(0..<primaryFilters.count, id: \.self) { index in
+                                            PrimaryFilterView(
+                                                filter:primaryFilters[index],
+                                                action:{
+                                                    if currentPrimaryFilter?.id != primaryFilters[index].id {
+                                                        currentPrimaryFilter = primaryFilters[index]
+                                                        secondaryFilters = primaryFilters[index].secondaryFilters
+                                                    }else {
+                                                        currentPrimaryFilter = nil
+                                                        secondaryFilters = []
+                                                    }
+                                                    currentSecondaryFilter = nil
+                                                    search()
+                                                    
+                                                },
+                                                selected: currentPrimaryFilter?.id == primaryFilters[index].id
+                                            )
                                         }
-
-                                        search()
-                                        
-                                    },
-                                    selected: currentSecondaryFilter == secondaryFilters[index] || currentSecondaryFilter == nil && secondaryFilters[index].id.isEmpty
-                                )
+                                    }
+                                    .frame(maxHeight:.infinity, alignment:.center)
+                                }
+                                .frame(alignment:.center)
+                                .scrollClipDisabled()
                             }
                         }
                     }
-                    .padding([.leading], 80)
-                    .padding([.top], 10)
-                    .scrollClipDisabled()
-                }
-
-                
-                
-                if sections.count == 1{
-                    SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!)
-                        .edgesIgnoringSafeArea([.leading,.trailing])
-                        .frame(maxWidth:.infinity)
-                        .id(refreshId)
-                }else {
-                    ForEach(sections, id:\.self) {section in
-                        VStack{
-                            MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section)
-                                .edgesIgnoringSafeArea([.leading,.trailing])
+                    .padding([.leading,.trailing], 90)
+                    .padding([.top], primaryFilters.count > 0 ? 40 : 0)
+                    .focusSection()
+                    
+                    if !secondaryFilters.isEmpty {
+                        ScrollView(.horizontal) {
+                            LazyHStack(spacing:20){
+                                ForEach(0..<secondaryFilters.count, id: \.self) { index in
+                                    SecondaryFilterView(
+                                        title: secondaryFilters[index].title,
+                                        imageUrl: currentPrimaryFilter?.secondaryFilterStyle == .image ? secondaryFilters[index].imageUrl : "",
+                                        action:{
+                                            
+                                            if currentSecondaryFilter != secondaryFilters[index] {
+                                                currentSecondaryFilter = secondaryFilters[index]
+                                            }else {
+                                                currentSecondaryFilter = nil
+                                            }
+                                            
+                                            search()
+                                            
+                                        },
+                                        selected: currentSecondaryFilter == secondaryFilters[index] || currentSecondaryFilter == nil && secondaryFilters[index].id.isEmpty
+                                    )
+                                }
+                            }
                         }
-                        .frame(maxWidth:.infinity)
+                        .padding([.leading], 80)
+                        .padding([.top], secondaryFilters.count > 0 ? 10 : 0)
+                        .scrollClipDisabled()
                         .focusSection()
                     }
-                    .id(refreshId)
+                    
+                    if sections.count == 1{
+                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!)
+                            .id(refreshId)
+                            .focusSection()
+                    }else {
+                        ForEach(sections, id:\.self) {section in
+                            VStack{
+                                MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section)
+                            }
+                            .focusSection()
+                        }
+                        .id(refreshId)
+                    }
+                    
+                    Spacer()
                 }
-                
-                Spacer()
             }
         }
-        .ignoresSafeArea()
-        .scrollClipDisabled()
+        .searchable(text:$searchString, prompt: "Search \(name)", suggestions:{})
+        .autocorrectionDisabled(true)
+        .scrollTargetBehavior(.custom)
+        .onChange(of:searchString) {
+            search()
+        }
         .onAppear(){
             debugPrint("Search View onAppear")
             refresh()
@@ -521,6 +518,26 @@ struct SearchView: View {
             debugPrint("Search View onDisappear")
         }
     }
+}
+
+struct CustomScrollTargetBehavior: ScrollTargetBehavior {
+    func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
+             let scrollViewHeight = context.containerSize.height
+             let distance = context.originalTarget.rect.minY - target.rect.minY
+             if abs(distance) > scrollViewHeight / 5 {
+                 if distance > 0 {
+                     target.rect.origin.y = context.originalTarget.rect.minY - scrollViewHeight
+                 } else {
+                     target.rect.origin.y = context.originalTarget.rect.minY + scrollViewHeight
+                 }
+             } else {
+                 target.rect.origin.y = context.originalTarget.rect.minY
+             }
+    }
+}
+
+extension ScrollTargetBehavior where Self == CustomScrollTargetBehavior {
+    static var custom: CustomScrollTargetBehavior { .init() }
 }
 
 struct SearchView_Previews: PreviewProvider {
