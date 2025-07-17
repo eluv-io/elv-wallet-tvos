@@ -80,7 +80,6 @@ struct MyItemsView: View {
                 .padding(.leading, 0)
 
                 NFTGrid(nfts:nfts)
-                    .edgesIgnoringSafeArea(.all)
                     .focusSection()
                     .padding(.top,40)
             }
@@ -121,15 +120,6 @@ struct MyItemsView: View {
             Task {
                 do {
                     nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
-                    //XXX:
-                    /*
-                    for nft in nfts {
-                        if nft.contract_addr?.lowercased() == "0xb97c464a16d7f3c2d64f9009da39cc76178c7fd5" {
-                            eluvio.pathState.nft = nft
-                            eluvio.pathState.path.append(.nft)
-                        }
-                    }
-                     */
                 }catch(FabricError.apiError(let code, let response, let error)){
                     eluvio.handleApiError(code: code, response: response, error: error)
                 }catch {

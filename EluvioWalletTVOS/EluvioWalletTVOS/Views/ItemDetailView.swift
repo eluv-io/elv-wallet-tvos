@@ -73,7 +73,7 @@ struct ItemDetailView: View {
                 VStack(){
                     HStack(alignment:.top, spacing:80){
                         VStack{
-                            NFTView2(nft:item)
+                            NFTView(nft:item)
                                 .disabled(true)
                             
                             if !propertyId.isEmpty {

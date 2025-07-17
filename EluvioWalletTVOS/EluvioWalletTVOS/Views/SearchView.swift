@@ -449,7 +449,7 @@ struct SearchView: View {
                                     .frame(maxHeight:.infinity, alignment:.center)
                                 }
                                 .frame(alignment:.center)
-                                .scrollClipDisabled()
+                                //.scrollClipDisabled()
                             }
                         }
                     }
@@ -482,18 +482,18 @@ struct SearchView: View {
                         }
                         .padding([.leading], 80)
                         .padding([.top], secondaryFilters.count > 0 ? 10 : 0)
-                        .scrollClipDisabled()
+                        //.scrollClipDisabled()
                         .focusSection()
                     }
                     
                     if sections.count == 1{
-                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!)
+                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, useScale: true)
                             .id(refreshId)
                             .focusSection()
                     }else {
                         ForEach(sections, id:\.self) {section in
                             VStack{
-                                MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section)
+                                MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section, useScale: true)
                             }
                             .focusSection()
                         }

@@ -17,6 +17,7 @@ struct SectionGridView: View {
     var pageId:String
     var section: MediaPropertySection
     var margin: CGFloat = 80
+    var useScale = false
     
     @State var items : [MediaPropertySectionMediaItemViewModel] = []
     
@@ -61,13 +62,35 @@ struct SectionGridView: View {
             return forceNumColumns
         }
         
+        if (!useScale) {
+            if width < 600 {
+                if display == .square {
+                    return 3
+                }else {
+                    return 2
+                }
+            } else if width < 1400 {
+                if display == .square {
+                    return 4
+                }else {
+                    return 3
+                }
+            }else {
+                if display == .square {
+                    return 5
+                }else {
+                    return 4
+                }
+            }
+        }
+        
         if width < 600 {
             if display == .square {
                 return 4
             }else {
                 return 3
             }
-        } else if width < 1000 {
+        } else if width < 1400 {
             if display == .square {
                 return 6
             }else {
@@ -83,10 +106,14 @@ struct SectionGridView: View {
     }
     
     var scale : CGFloat {
+        if (!useScale) {
+            return 1.0
+        }
+        
         if display == .square {
             return 0.8
         }else {
-            return 0.75
+            return 0.7
         }
     }
     

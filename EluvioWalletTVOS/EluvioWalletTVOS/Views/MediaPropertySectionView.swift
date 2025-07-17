@@ -61,6 +61,7 @@ struct MediaPropertySectionGridView: View {
     var margin: CGFloat = 80
     @State var logoUrl: String? = nil
     @State private var refreshId = ""
+    var useScale = false
     
     var logoText: String {
         if let display = section.display {
@@ -84,7 +85,7 @@ struct MediaPropertySectionGridView: View {
                 .padding(.leading, margin)
             }
             
-            SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
+            SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, useScale: useScale)
             .padding()
         }
         .background(
@@ -137,6 +138,8 @@ struct MediaPropertyRegularSectionView: View {
     //private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     @FocusState private var currentFocusItem: MediaPropertySectionMediaItemViewModel?
     @State private var lastFocusItem: MediaPropertySectionMediaItemViewModel?
+    var useScale = false
+    var scaleFactor: CGFloat = 0.7
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -320,7 +323,7 @@ struct MediaPropertyRegularSectionView: View {
                             .focusSection()
                         }else{
                             ScrollView(.horizontal) {
-                                HStack(alignment: .center, spacing: 34) {
+                                HStack(alignment: .center, spacing: 20) {
                                     ForEach(Array(items.enumerated()), id: \.offset) {index, item in
                                         SectionItemView(sectionId: section.id,
                                                         pageId:pageId,
@@ -328,21 +331,17 @@ struct MediaPropertyRegularSectionView: View {
                                                         forceAspectRatio:forceAspectRatio,
                                                         viewItem: item
                                         )
-                                        .fixedSize()
                                         .padding(.top,0)
                                         .environmentObject(self.eluvio)
                                         .focused($currentFocusItem, equals: item)
                                         
                                     }
                                 }
+                                .frame(maxWidth:.infinity)
                                 .padding([.top,.bottom],20)
                                 .padding(.leading, 10)
-                                .padding(.trailing, 0)
-                                .edgesIgnoringSafeArea([.leading, .trailing])
                                 .focusSection()
                             }
-                            .frame(maxWidth:.infinity)
-                            .edgesIgnoringSafeArea(.trailing)
                             .defaultFocus($currentFocusItem, lastFocusItem ?? items.first, priority: .userInitiated)
                             .onChange(of: currentFocusItem) {
                                 if currentFocusItem != nil {
@@ -358,6 +357,8 @@ struct MediaPropertyRegularSectionView: View {
             .padding(.top,40)
             .padding([.leading],margin)
             .padding(.bottom,20)
+            .padding(.trailing, 0)
+            .edgesIgnoringSafeArea([.trailing])
             
             Group {
                 if let url = inlineBackgroundUrl {
@@ -373,6 +374,8 @@ struct MediaPropertyRegularSectionView: View {
             .frame(maxWidth: .infinity, maxHeight:.infinity)
         }
         .clipped()
+        .edgesIgnoringSafeArea([.trailing])
+        .frame(maxWidth: .infinity, maxHeight:.infinity)
         .onAppear() {
             refresh()
         }
@@ -527,6 +530,8 @@ struct MediaPropertySectionView: View {
     @State private var refreshId = ""
     
     @State var subsections : [MediaPropertySection] = []
+    
+    var useScale = false
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -758,10 +763,10 @@ struct MediaPropertySectionView: View {
             if !hide {
                 if isHero {
                     MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition, margin:margin)
-                        //.edgesIgnoringSafeArea([.leading, .trailing])
+                        .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isBanner {
                     MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, margin:margin, section:section)
-                        //.edgesIgnoringSafeArea([.leading, .trailing])
+                        .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isContainer{
                     VStack(alignment:.leading, spacing:0){
                         VStack(alignment:hAlignment, spacing:5) {
@@ -793,23 +798,19 @@ struct MediaPropertySectionView: View {
 
                         
                         ForEach(subsections) { sub in
-                            MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin)
-                                //.edgesIgnoringSafeArea([.leading, .trailing])
+                            MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin, useScale: useScale)
                         }
                     }
-                    //.edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isGrid {
-                    MediaPropertySectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin)
-                        //.edgesIgnoringSafeArea([.leading, .trailing])
+                    MediaPropertySectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, useScale:useScale)
                 }else {
                     MediaPropertyRegularSectionView(
                             propertyId:propertyId,
                             pageId: pageId,
                             section:section,
-                            margin:margin
+                            margin:margin,
+                            useScale: useScale
                         )
-                        //.edgesIgnoringSafeArea([.leading, .trailing])
-                     
                 }
             }
         }
