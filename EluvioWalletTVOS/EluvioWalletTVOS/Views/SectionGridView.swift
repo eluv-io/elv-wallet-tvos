@@ -35,8 +35,6 @@ struct SectionGridView: View {
     }
     
     var display : MediaDisplay {
-        return .square
-        
         if let force = forceDisplay {
             return force
         }
