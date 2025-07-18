@@ -35,6 +35,8 @@ struct SectionGridView: View {
     }
     
     var display : MediaDisplay {
+        return .square
+        
         if let force = forceDisplay {
             return force
         }
@@ -92,7 +94,7 @@ struct SectionGridView: View {
             }
         } else if width < 1400 {
             if display == .square {
-                return 6
+                return 5
             }else {
                 return 4
             }

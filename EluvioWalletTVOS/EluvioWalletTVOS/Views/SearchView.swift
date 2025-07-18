@@ -506,7 +506,7 @@ struct SearchView: View {
         }
         .searchable(text:$searchString, prompt: "Search \(name)", suggestions:{})
         .autocorrectionDisabled(true)
-        .scrollTargetBehavior(.custom)
+        //.scrollTargetBehavior(.custom)
         .onChange(of:searchString) {
             search()
         }
@@ -522,17 +522,18 @@ struct SearchView: View {
 
 struct CustomScrollTargetBehavior: ScrollTargetBehavior {
     func updateTarget(_ target: inout ScrollTarget, context: TargetContext) {
-             let scrollViewHeight = context.containerSize.height
-             let distance = context.originalTarget.rect.minY - target.rect.minY
-             if abs(distance) > scrollViewHeight / 5 {
-                 if distance > 0 {
-                     target.rect.origin.y = context.originalTarget.rect.minY - scrollViewHeight
-                 } else {
-                     target.rect.origin.y = context.originalTarget.rect.minY + scrollViewHeight
-                 }
-             } else {
-                 target.rect.origin.y = context.originalTarget.rect.minY
-             }
+        let scrollViewHeight = context.containerSize.height
+        let distance = context.originalTarget.rect.minY - target.rect.minY
+
+        if abs(distance) > scrollViewHeight / 6{
+            if distance > 0 {
+                target.rect.origin.y = context.originalTarget.rect.minY - scrollViewHeight * 0.8
+            } else {
+                target.rect.origin.y = context.originalTarget.rect.minY + scrollViewHeight * 0.8
+            }
+        } else {
+            target.rect.origin.y = context.originalTarget.rect.minY
+        }
     }
 }
 
