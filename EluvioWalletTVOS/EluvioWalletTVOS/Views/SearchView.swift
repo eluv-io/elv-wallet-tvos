@@ -186,6 +186,8 @@ struct SearchView: View {
     @State var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
     @State var refreshId : String = UUID().uuidString
     
+    var margin : CGFloat = 0
+    
     private let squareColumns = [
         GridItem(.fixed(400)),
         GridItem(.fixed(400)),
@@ -453,8 +455,8 @@ struct SearchView: View {
                             }
                         }
                     }
-                    .padding([.leading,.trailing], 90)
-                    .padding([.top], primaryFilters.count > 0 ? 40 : 0)
+                    .padding([.leading,.trailing], margin)
+                    .padding([.top], primaryFilters.count > 0 ? 20 : 0)
                     .focusSection()
                     
                     if !secondaryFilters.isEmpty {
@@ -480,20 +482,20 @@ struct SearchView: View {
                                 }
                             }
                         }
-                        .padding([.leading], 80)
+                        .padding([.leading], margin)
                         .padding([.top], secondaryFilters.count > 0 ? 10 : 0)
                         //.scrollClipDisabled()
                         .focusSection()
                     }
                     
                     if sections.count == 1{
-                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, useScale: true)
+                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, margin: margin, useScale: true)
                             .id(refreshId)
                             .focusSection()
                     }else {
                         ForEach(sections, id:\.self) {section in
                             VStack{
-                                MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section, useScale: true)
+                                MediaPropertySectionView(propertyId: propertyId, pageId:"main", section: section, margin: margin, useScale: true)
                             }
                             .focusSection()
                         }
@@ -506,6 +508,7 @@ struct SearchView: View {
         }
         .searchable(text:$searchString, prompt: "Search \(name)", suggestions:{})
         .autocorrectionDisabled(true)
+        .edgesIgnoringSafeArea([.top])
         //.scrollTargetBehavior(.custom)
         .onChange(of:searchString) {
             search()

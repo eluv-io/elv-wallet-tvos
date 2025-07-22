@@ -121,16 +121,25 @@ struct SectionGridView: View {
     
     @State var width: CGFloat =  0
     
+    private var columns: [GridItem] {
+        return [
+            .init(.adaptive(minimum: 260, maximum: 280))
+        ]
+    }
+    
     var body: some View {
-            VStack(alignment:.leading, spacing:0){
-                if !title.isEmpty {
-                    HStack{
-                        Text(title)
-                            .font(.rowTitle)
-                        Spacer()
-                    }
-                    .padding(.top, 20)
+        VStack(alignment:.leading, spacing:0){
+            if !title.isEmpty {
+                HStack{
+                    Text(title)
+                        .font(.rowTitle)
+                    Spacer()
                 }
+                .padding(.top, 10)
+                .padding(.bottom, 20)
+            }
+                
+                /*
                 if items.dividedIntoGroups(of: numColumns).count <= 1 {
                     HStack(spacing:20) {
                         ForEach(items, id: \.self) { item in
@@ -148,8 +157,9 @@ struct SectionGridView: View {
                     .padding([.top,.bottom], 40)
                     .focusSection()
                     .getWidth($width)
+
                 }else{
-                    
+                 
                     LazyVStack(alignment:.leading){
                         Grid(alignment:.leading, horizontalSpacing: 40, verticalSpacing: 60) {
                                 ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
@@ -171,9 +181,21 @@ struct SectionGridView: View {
                     }
                     .focusSection()
                     .getWidth($width)
-                    
-                    //FIXME: LazyVGrid loses selection DO NOT USE
+        
+                } */
+                
+            LazyVGrid(columns:columns, alignment: .leading, spacing:20){
+                ForEach(items, id: \.self) { item in
+                    SectionItemView(sectionId: section.id,
+                                    pageId:pageId,
+                                    propertyId: propertyId,
+                                    forceDisplay:display,
+                                    viewItem: item,
+                                    scaleFactor: scale
+                    )
+                    .environmentObject(self.eluvio)
                 }
+            }
         }
         .padding([.leading], margin)
         .focusSection()

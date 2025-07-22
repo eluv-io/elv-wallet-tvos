@@ -164,7 +164,7 @@ struct OryDeviceFlowView: View {
                 return
             }
             
-            let url = "https://wallet.contentfabric.io/login?pid=\(self.propertyId)&ory=true&action=login&mode=login&response=code&source=code&refresh=true"
+            let url = "https://wallet.contentfabric.io/login?pid=\(self.propertyId)&ory=true&action=login&mode=login&response=code&source=code&refresh=true&ttl=336"
             let json = try await signer.createAuthLogin(redirectUrl: url)
             
             self.response = json
