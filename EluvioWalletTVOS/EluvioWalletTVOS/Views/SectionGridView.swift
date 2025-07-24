@@ -122,9 +122,27 @@ struct SectionGridView: View {
     @State var width: CGFloat =  0
     
     private var columns: [GridItem] {
-        return [
-            .init(.adaptive(minimum: 260, maximum: 280))
-        ]
+        if (!useScale) {
+            if display == .square {
+                return [
+                    .init(.adaptive(minimum: 280, maximum: 300))
+                ]
+            }else {
+                return [
+                    .init(.adaptive(minimum: 400, maximum: 420))
+                ]
+            }
+        }
+        
+        if display == .square {
+            return [
+                .init(.adaptive(minimum: 200, maximum: 240))
+            ]
+        }else {
+            return [
+                .init(.adaptive(minimum: 260, maximum: 280))
+            ]
+        }
     }
     
     var body: some View {
@@ -193,6 +211,7 @@ struct SectionGridView: View {
                                     viewItem: item,
                                     scaleFactor: scale
                     )
+                    .padding(.bottom, 40)
                     .environmentObject(self.eluvio)
                 }
             }
