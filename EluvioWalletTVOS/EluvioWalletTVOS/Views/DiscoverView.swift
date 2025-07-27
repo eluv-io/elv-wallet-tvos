@@ -179,7 +179,7 @@ struct DiscoverView: View {
                     noAuth = false
                 }
                 
-                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:noAuth, newFetch:true, devMode: eluvio.getDevMode())
+                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:noAuth, newFetch:true, devMode: eluvio.getDevMode(), properties: APP_CONFIG.allowed_properties)
                 
                 debugPrint("Got properties ", props.count)
                 

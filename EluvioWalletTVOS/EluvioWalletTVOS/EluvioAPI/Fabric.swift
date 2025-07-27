@@ -1180,7 +1180,13 @@ class Fabric: ObservableObject {
         return try await parseNfts(profileData["contents"].arrayValue, propertyId:propertyId)
     }
     
-    func getProperties(includePublic: Bool, noCache:Bool = false, noAuth:Bool = false, newFetch:Bool=true, devMode:Bool=false) async throws -> [MediaProperty] {
+    func getProperties(includePublic: Bool,
+                       noCache:Bool = false,
+                       noAuth:Bool = false,
+                       newFetch:Bool=true,
+                       devMode:Bool=false,
+                       properties:[String]? = nil
+    ) async throws -> [MediaProperty] {
         debugPrint("Fabric getProperties includingPublic \(includePublic) noCache \(noCache) noAuth \(noAuth)")
         
         guard let signer = self.signer else {
@@ -1188,7 +1194,24 @@ class Fabric: ObservableObject {
         }
         
         if noCache || newFetch || self.mediaProperties.contents.isEmpty{
-            var response = try await signer.getProperties(includePublic:includePublic, noCache:noCache, accessCode: noAuth ? "" : self.fabricToken)
+            var response = MediaPropertiesResponse()
+            if let allowedProperties = properties {
+                
+                if !allowedProperties.isEmpty {
+                    for propertyId in allowedProperties {
+                        if let prop = try await getProperty(property: propertyId) {
+                            response.contents.insert(prop, at:0)
+                            debugPrint("added allowed prop ", prop.title)
+                        }
+                    }
+                    
+                    return response.contents
+                }
+            }
+                
+            response = try await signer.getProperties(includePublic:includePublic,
+                                                      noCache:noCache,
+                                                      accessCode: noAuth ? "" : self.fabricToken)
             if devMode {
                 for propertyId in self.devProperties {
                     if let prop = try await getProperty(property: propertyId) {
@@ -1197,6 +1220,7 @@ class Fabric: ObservableObject {
                     }
                 }
             }
+            
 
             if noAuth == false && !self.fabricToken.isEmpty {
                 try cacheMediaProperties(properties: response)
