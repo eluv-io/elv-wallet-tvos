@@ -39,6 +39,5 @@
         "grant_type" : "urn:ietf:params:oauth:grant-type:device_code"
     },
     "allowed_properties" : [
-        "iq__2cVYHaxca78dWPAj6qgZ2oks4pF8"
     ]
 }
