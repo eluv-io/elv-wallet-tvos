@@ -17,6 +17,7 @@ struct MyItemsView: View {
     var logo = "e_logo"
     var logoUrl = ""
     var name = ""
+    @State var isFiltered = false
     @State var properties : [MediaPropertyViewModel] = []
     var address: String {
         if let account = eluvio.accountManager.currentAccount {
@@ -46,38 +47,40 @@ struct MyItemsView: View {
     
     var body: some View {
         ScrollView{
-            VStack{
-                ScrollView(.horizontal) {
-                    LazyHStack(spacing:10){
-                        if !properties.isEmpty {
-                            SecondaryFilterView(title:"All", action:{
-                                Task {
-                                    do {
-                                        searchString = ""
-                                        nfts = try await eluvio.fabric.getNFTs(address:address)
-                                    }catch{
-                                        print("Could not get nfts ", error.localizedDescription)
+            if !isFiltered {
+                VStack{
+                    ScrollView(.horizontal) {
+                        LazyHStack(spacing:10){
+                            if !properties.isEmpty {
+                                SecondaryFilterView(title:"All", action:{
+                                    Task {
+                                        do {
+                                            searchString = ""
+                                            nfts = try await eluvio.fabric.getNFTs(address:address)
+                                        }catch{
+                                            print("Could not get nfts ", error.localizedDescription)
+                                        }
                                     }
-                                }
-                            })
-                        }
-                        ForEach(properties) { property in
-                            SecondaryFilterView(title:property.title, action:{
-                                debugPrint("Property \(property.id ) pressed.")
-                                Task {
-                                    do {
-                                        searchString = ""
-                                        nfts = try await eluvio.fabric.getNFTs(address: address, propertyId:property.id ?? "")
-                                    }catch{
-                                        print("Could not get nfts ", error.localizedDescription)
+                                })
+                            }
+                            ForEach(properties) { property in
+                                SecondaryFilterView(title:property.title, action:{
+                                    debugPrint("Property \(property.id ) pressed.")
+                                    Task {
+                                        do {
+                                            searchString = ""
+                                            nfts = try await eluvio.fabric.getNFTs(address: address, propertyId:property.id ?? "")
+                                        }catch{
+                                            print("Could not get nfts ", error.localizedDescription)
+                                        }
                                     }
-                                }
-                            })
+                                })
+                            }
                         }
                     }
+                    .scrollClipDisabled()
+                    .padding(.leading, 0)
                 }
-                .scrollClipDisabled()
-                .padding(.leading, 0)
 
                 NFTGrid(nfts:nfts)
                     .focusSection()
@@ -119,7 +122,22 @@ struct MyItemsView: View {
             
             Task {
                 do {
-                    nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
+                    var allowedNFTs : [NFTModel] = []
+                    isFiltered = false
+                    if let allowedProperties = APP_CONFIG.allowed_properties {
+                        if !allowedProperties.isEmpty {
+                            for propertyId in allowedProperties {
+                                let resp = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
+                                allowedNFTs.append(contentsOf: resp)
+                            }
+                            
+                            nfts = allowedNFTs;
+                            isFiltered = true
+                        }
+                    }
+                    if !isFiltered {
+                        nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
+                    }
                 }catch(FabricError.apiError(let code, let response, let error)){
                     eluvio.handleApiError(code: code, response: response, error: error)
                 }catch {

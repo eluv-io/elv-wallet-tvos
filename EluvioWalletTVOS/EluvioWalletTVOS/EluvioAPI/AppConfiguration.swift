@@ -11,6 +11,7 @@ struct AppConfiguration: Codable {
     var app: AppConfig
     var network: [String: NetworkConfig]
     var auth0 : Auth0Config
+    var allowed_properties : [String]?
 }
 
 enum AppMode: String, Codable{
@@ -47,5 +48,5 @@ struct Auth0Config: Codable {
 
 struct MuxConfig: Codable {
     var env_key: String
-
 }
+
