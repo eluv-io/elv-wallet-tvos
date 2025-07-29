@@ -265,32 +265,31 @@ struct MediaPropertyRegularSectionView: View {
                     
                     VStack(alignment: hAlignment, spacing: 0)  {
                         VStack(alignment:hAlignment, spacing:5) {
-                            if (!section.displayTitle.isEmpty) {
-                                HStack(alignment: .center, spacing:20) {
-                                    if !titleIcon.isEmpty {
-                                        WebImage(url:URL(string:titleIcon))
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fit)
-                                            .frame(width: 60, height:60)
-                                    }
-                                    
+                            HStack(alignment: .center, spacing:20) {
+                                if !titleIcon.isEmpty {
+                                    WebImage(url:URL(string:titleIcon))
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fit)
+                                        .frame(width: 60, height:60)
+                                }
+                                if (!section.displayTitle.isEmpty) {
                                     Text(section.displayTitle).font(.rowTitle)
                                         .frame(alignment:alignment)
-                                    
-                                    if showViewAll {
-                                        ViewAllButton(action:{
-                                            debugPrint("View All pressed")
-                                            eluvio.pathState.section = section
-                                            eluvio.pathState.propertyId = propertyId
-                                            eluvio.pathState.pageId = pageId
-                                            eluvio.pathState.path.append(.sectionViewAll)
-                                        })
-                                        .padding(0)
-                                    }
                                 }
-                                .frame(alignment:alignment)
+                                
+                                if showViewAll {
+                                    ViewAllButton(action:{
+                                        debugPrint("View All pressed")
+                                        eluvio.pathState.section = section
+                                        eluvio.pathState.propertyId = propertyId
+                                        eluvio.pathState.pageId = pageId
+                                        eluvio.pathState.path.append(.sectionViewAll)
+                                    })
+                                    .padding(0)
+                                }
                             }
-                            
+                            .frame(alignment:alignment)
+
                             if (!section.displaySubtitle.isEmpty) {
                                 Text(section.displaySubtitle).font(.rowSubtitle)
                                     .frame(alignment:alignment)
