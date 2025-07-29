@@ -33,32 +33,60 @@ struct DiscoverView: View {
     
     static var refreshId = ""
     
+    func goToProperty(){
+        
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0){
-            ScrollView() {
-                VStack(alignment:.leading, spacing:0){
-                    if !properties.isEmpty {
-                        HStack(){
-                            Image("start-screen-logo")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width:801, height:240, alignment:.leading)
-                                .id(topId)
-                                //.focusable()
-                                .onLongPressGesture(minimumDuration: 5) {
-                                    print("Secret Long Press Action!")
-                                    //FIXME: This does not work
-                                    //showHiddenMenu = true
-                                }
-                            Spacer()
-                        }
-                        .frame(maxWidth:.infinity)
-                        .padding(.top, 60)
-                        .padding(.bottom, 40)
+            if eluvio.isCustomApp() {
+                VStack(alignment:.center, spacing:80){
+                    Spacer()
+                    if properties.count == 1 {
+                        Image("start-screen-logo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width:1000, height:400, alignment:.leading)
+                            .id(topId)
+                            .onLongPressGesture(minimumDuration: 5) {
+                                print("Secret Long Press Action!")
+                                //FIXME: This does not work
+                                //showHiddenMenu = true
+                            }
                         
-                        MediaPropertiesView(properties:$properties, selected: $selected)
+                        .frame(maxWidth:.infinity)
+                        
+                        MediaPropertyView(property:properties[0], selected: $selected, isSimple: true)
                             .environmentObject(self.eluvio.pathState)
-                            .transition(.opacity)
+
+                    }
+                    Spacer()
+                }
+            }else {
+                ScrollView() {
+                    VStack(alignment:.leading, spacing:0){
+                        if !properties.isEmpty {
+                            HStack(){
+                                Image("start-screen-logo")
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .frame(width:801, height:240, alignment:.leading)
+                                    .id(topId)
+                                    .onLongPressGesture(minimumDuration: 5) {
+                                        print("Secret Long Press Action!")
+                                        //FIXME: This does not work
+                                        //showHiddenMenu = true
+                                    }
+                                Spacer()
+                            }
+                            .frame(maxWidth:.infinity)
+                            .padding(.top, 60)
+                            .padding(.bottom, 40)
+                            
+                            MediaPropertiesView(properties:$properties, selected: $selected)
+                                .environmentObject(self.eluvio.pathState)
+                                .transition(.opacity)
+                        }
                     }
                 }
             }
@@ -112,15 +140,24 @@ struct DiscoverView: View {
         }
         .background(
             Group{
-                if (!backgroundImageURL.isEmpty){
-                    WebImage(url: URL(string:backgroundImageURL))
+                if eluvio.isCustomApp() {
+                    Image("start-screen-background")
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .edgesIgnoringSafeArea(.all)
                         .frame(width:UIScreen.main.bounds.size.width, height:UIScreen.main.bounds.size.height)
+                }else {
+                    if (!backgroundImageURL.isEmpty){
+                        WebImage(url: URL(string:backgroundImageURL))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .edgesIgnoringSafeArea(.all)
+                            .frame(width:UIScreen.main.bounds.size.width, height:UIScreen.main.bounds.size.height)
+                    }
                 }
             }
             .opacity(opacity)
+            
         )
         .scrollClipDisabled()
         .task(){

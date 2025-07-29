@@ -49,6 +49,16 @@ class EluvioAPI : ObservableObject {
         .store(in: &self.cancellables)
     }
     
+    func isCustomApp() -> Bool {
+        if let props = APP_CONFIG.allowed_properties {
+            if !props.isEmpty {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
     @MainActor
     func needsRefresh() {
         debugPrint("EluvioAPI needs refresh")

@@ -16,6 +16,9 @@ struct MediaPropertyView : View {
     @FocusState private var focused : Bool
     @Binding var selected : MediaPropertyViewModel
     static var factor = 1.0
+    var isSimple = false
+    var simpleText = "Start Streaming"
+    
     var width : CGFloat {
         if landscape {
             return 417 * MediaPropertyView.factor
@@ -90,101 +93,111 @@ struct MediaPropertyView : View {
             }
         }
     }
+    
+    func buttonPressed() {
+        Task {
+            do {
+                let propertyId = property.id
+                    if let property = try await eluvio.fabric.getProperty(property: propertyId) {
+                        debugPrint("propertyID clicked: ", propertyId)
+
+                        await MainActor.run {
+                            eluvio.pathState.property = property
+                        }
+
+                        var skipLogin = false
+                        
+                        if let disableLogin = property.login?["settings"]["disable_login"].boolValue {
+                            if disableLogin {
+                                skipLogin = true
+                                debugPrint("disableLogin ", disableLogin)
+                            }
+                        }
+                        
+                        if let currentAccount = eluvio.accountManager.currentAccount {
+                            if currentAccount.type == .DEBUG{
+                                skipLogin = true
+                                eluvio.fabric.fabricToken = currentAccount.fabricToken
+                            }
+                        }
+                        
+                        if !skipLogin {
+                           login()
+                        }else{
+                            debugPrint("Going to property page ", property.id)
+                            eluvio.pathState.propertyPage = property.main_page
+                            let param = PropertyParam(property:property)
+                            eluvio.pathState.path.append(.property(param))
+                        }
+                    }else{
+                        //eluvio.pathState.path.append(.errorView("Error finding property."))
+                    }
+                
+            }catch(FabricError.apiError(let code, let response, let error)){
+                eluvio.handleApiError(code: code, response: response, error: error)
+                login()
+            }catch{
+                debugPrint("Error finding property ", error.localizedDescription)
+            }
+        }
+    }
 
     var body: some View {
         VStack(spacing:10) {
-            Button(action: {
-                Task {
-                    do {
-                        let propertyId = property.id
-                            if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                debugPrint("propertyID clicked: ", propertyId)
-
-                                await MainActor.run {
-                                    eluvio.pathState.property = property
-                                }
-
-                                var skipLogin = false
-                                
-                                if let disableLogin = property.login?["settings"]["disable_login"].boolValue {
-                                    if disableLogin {
-                                        skipLogin = true
-                                        debugPrint("disableLogin ", disableLogin)
-                                    }
-                                }
-                                
-                                if let currentAccount = eluvio.accountManager.currentAccount {
-                                    if currentAccount.type == .DEBUG{
-                                        skipLogin = true
-                                        eluvio.fabric.fabricToken = currentAccount.fabricToken
-                                    }
-                                }
-                                
-                                if !skipLogin {
-                                   login()
-                                }else{
-                                    debugPrint("Going to property page ", property.id)
-                                    eluvio.pathState.propertyPage = property.main_page
-                                    let param = PropertyParam(property:property)
-                                    eluvio.pathState.path.append(.property(param))
-                                }
-                            }else{
-                                //eluvio.pathState.path.append(.errorView("Error finding property."))
-                            }
-                        
-                    }catch(FabricError.apiError(let code, let response, let error)){
-                        eluvio.handleApiError(code: code, response: response, error: error)
-                        login()
-                    }catch{
-                        debugPrint("Error finding property ", error.localizedDescription)
-                    }
+            if isSimple {
+                Button(action: buttonPressed){
+                    Text(simpleText)
                 }
-            }){
-                if property.image != "" {
-                    VStack{
-                        WebImage(url: URL(string: property.image))
-                            .resizable()
-                            .onSuccess { image, data, cacheType in
-                                self.disabled = false
-                            }
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: width, height: height)
-                            .cornerRadius(cornerRadius)
-                    }
-                }else{
-                    ZStack{
-                        if property.backgroundImage != "" {
-                            WebImage(url: URL(string: property.backgroundImage))
+                .focused($focused)
+            }else {
+                Button(action: buttonPressed){
+                    if property.image != "" {
+                        VStack{
+                            WebImage(url: URL(string: property.image))
                                 .resizable()
                                 .onSuccess { image, data, cacheType in
                                     self.disabled = false
                                 }
                                 .aspectRatio(contentMode: .fill)
                                 .frame(width: width, height: height)
-                                .cornerRadius(3)
-                            
-                            Rectangle()
-                                .fill(Color.black)
-                                .opacity(focused ? 0.7 : 0.5)
-                                .frame(width: width, height: height)
-                                .cornerRadius(3)
-                        }else{
-                            Rectangle()
-                                .fill(Color.secondaryBackground)
-                                .frame(width: width, height: height)
-                                .cornerRadius(3)
+                                .cornerRadius(cornerRadius)
                         }
-                        if property.title.isEmpty {
-                            //Text("Untitled").font(.largeTitle)
-                        }else{
-                            Text(property.title).font(.largeTitle.bold())
+                    }else{
+                        ZStack{
+                            if property.backgroundImage != "" {
+                                WebImage(url: URL(string: property.backgroundImage))
+                                    .resizable()
+                                    .onSuccess { image, data, cacheType in
+                                        self.disabled = false
+                                    }
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: width, height: height)
+                                    .cornerRadius(3)
+                                
+                                Rectangle()
+                                    .fill(Color.black)
+                                    .opacity(focused ? 0.7 : 0.5)
+                                    .frame(width: width, height: height)
+                                    .cornerRadius(3)
+                            }else{
+                                Rectangle()
+                                    .fill(Color.secondaryBackground)
+                                    .frame(width: width, height: height)
+                                    .cornerRadius(3)
+                            }
+                            if property.title.isEmpty {
+                                //Text("Untitled").font(.largeTitle)
+                            }else{
+                                Text(property.title).font(.largeTitle.bold())
+                            }
                         }
                     }
                 }
+                .opacity(self.disabled ? 0 : 1)
+                .buttonStyle(TitleButtonStyle(focused: focused, bordered : true, borderRadius: cornerRadius))
+                .focused($focused)
             }
-            .opacity(self.disabled ? 0 : 1)
-            .buttonStyle(TitleButtonStyle(focused: focused, bordered : true, borderRadius: cornerRadius))
-            .focused($focused)
+
         }
         .onChange(of:focused) {old, new in
             if (new){
@@ -205,6 +218,8 @@ struct MediaPropertiesView: View {
     }
     
     @Binding var selected : MediaPropertyViewModel
+    
+    var isSimple = false
     
     let columns = [
         GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible())
