@@ -22,6 +22,8 @@ struct SectionGridView: View {
     @State var items : [MediaPropertySectionMediaItemViewModel] = []
     
     var forceDisplay : MediaDisplay? = nil
+    var showBackground = true
+    var topPadding: CGFloat = 10
  
     @State var inlineBackgroundUrl: String? = nil
     var hasBackground : Bool {
@@ -153,55 +155,10 @@ struct SectionGridView: View {
                         .font(.rowTitle)
                     Spacer()
                 }
-                .padding(.top, 10)
+                .padding(.top, topPadding)
                 .padding(.bottom, 20)
             }
-                
-                /*
-                if items.dividedIntoGroups(of: numColumns).count <= 1 {
-                    HStack(spacing:20) {
-                        ForEach(items, id: \.self) { item in
-                            SectionItemView(sectionId: section.id,
-                                            pageId:pageId,
-                                            propertyId: propertyId,
-                                            forceDisplay:display,
-                                            viewItem: item,
-                                            scaleFactor: scale
-                            )
-                            .environmentObject(self.eluvio)
-                        }
-                        Spacer()
-                    }
-                    .padding([.top,.bottom], 40)
-                    .focusSection()
-                    .getWidth($width)
-
-                }else{
-                 
-                    LazyVStack(alignment:.leading){
-                        Grid(alignment:.leading, horizontalSpacing: 40, verticalSpacing: 60) {
-                                ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
-                                    GridRow(alignment:.top) {
-                                        ForEach(groups, id: \.self) { item in
-                                            SectionItemView(sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
-                                                            viewItem: item,
-                                                            scaleFactor: scale
-                                            )
-                                            .gridColumnAlignment(.leading)
-                                            .environmentObject(self.eluvio)
-                                            
-                                        }
-                                    }
-                                }
-                        }
-                        .padding([.top,.bottom], 40)
-                        .focusSection()
-                    }
-                    .focusSection()
-                    .getWidth($width)
-        
-                } */
-                
+  
             LazyVGrid(columns:columns, alignment: .leading, spacing:20){
                 ForEach(items, id: \.self) { item in
                     SectionItemView(sectionId: section.id,
@@ -216,9 +173,22 @@ struct SectionGridView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            Group {
+                if let url = inlineBackgroundUrl {
+                    WebImage(url:URL(string:url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .zIndex(-10)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        )
         .padding([.leading], margin)
         .focusSection()
-        
         .task {
             debugPrint("SectionGridView  ", margin)
             do {
@@ -254,6 +224,12 @@ struct SectionGridView: View {
                 self.items = sectionItems
             }catch {
                 debugPrint("Error processing Section Grid Items: ", error)
+            }
+            
+            if let display = section.display {
+                do {
+                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                }catch{}
             }
         }
     }

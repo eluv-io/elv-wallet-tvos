@@ -85,7 +85,7 @@ struct MediaPropertySectionGridView: View {
                 .padding(.leading, margin)
             }
             
-            SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, useScale: useScale)
+            SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, useScale: useScale, showBackground: false)
         }
         .background(
             Group {

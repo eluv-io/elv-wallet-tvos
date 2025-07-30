@@ -352,12 +352,11 @@ struct ContentView: View {
                 case .sectionViewAll:
                     if let section = eluvio.pathState.section {
                         ScrollView {
-                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section)
+                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section, margin: 80, topPadding: 40)
                                 .environmentObject(self.eluvio)
-                                .padding([.leading],20)
                         }
                         .scrollClipDisabled()
-                        .edgesIgnoringSafeArea([.leading,.trailing])
+                        .edgesIgnoringSafeArea(.all)
                     }
                 case .nft:
                     if let nft = eluvio.pathState.nft {
