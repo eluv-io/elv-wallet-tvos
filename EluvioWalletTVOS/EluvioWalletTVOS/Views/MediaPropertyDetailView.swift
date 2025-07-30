@@ -443,10 +443,7 @@ struct MediaPropertyDetailView: View {
                 }
             }
             await MainActor.run {
-                if self.playerItem == nil && backgroundImageString.isEmpty {
-                    self.backgroundImage = propertyView?.backgroundImage ?? ""
-                }else if self.playerItem == nil {
-                    debugPrint("")
+                if self.playerItem == nil && !backgroundImageString.isEmpty {
                     self.backgroundImage = backgroundImageString
                 }
             }
