@@ -69,7 +69,7 @@ struct MediaPropertySectionGridView: View {
         }
         return ""
     }
-    @State var inlineBackgroundUrl: String? = nil
+    //@State var inlineBackgroundUrl: String? = nil
 
     var body: some View {
         HStack(spacing:0){
@@ -87,6 +87,7 @@ struct MediaPropertySectionGridView: View {
             
             SectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, useScale: useScale, showBackground: false)
         }
+        /*
         .background(
             Group {
                 if let url = inlineBackgroundUrl {
@@ -100,6 +101,7 @@ struct MediaPropertySectionGridView: View {
             }
             .frame(maxWidth: .infinity)
         )
+         */
         .clipped()
         .frame(maxWidth:.infinity, maxHeight: .infinity)
         .onAppear(){
@@ -115,9 +117,11 @@ struct MediaPropertySectionGridView: View {
                     
                 }catch{}
                 
+                /*
                 do {
                     inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
                 }catch{}
+                 */
             }
             
         }
@@ -139,6 +143,7 @@ struct MediaPropertyRegularSectionView: View {
     @State private var lastFocusItem: MediaPropertySectionMediaItemViewModel?
     var useScale = false
     var scaleFactor: CGFloat = 0.7
+    var hasBackground = false
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -187,6 +192,8 @@ struct MediaPropertyRegularSectionView: View {
         }
         return ""
     }
+    
+    /*
     @State var inlineBackgroundUrl: String? = nil
     var hasBackground : Bool {
         if let background = inlineBackgroundUrl {
@@ -197,6 +204,7 @@ struct MediaPropertyRegularSectionView: View {
         
         return false
     }
+     */
     
     var minHeight : CGFloat {
         if hasBackground{
@@ -358,6 +366,7 @@ struct MediaPropertyRegularSectionView: View {
             .padding(.trailing, 0)
             .edgesIgnoringSafeArea([.trailing])
             
+            /*
             Group {
                 if let url = inlineBackgroundUrl {
                     WebImage(url:URL(string:url))
@@ -370,6 +379,7 @@ struct MediaPropertyRegularSectionView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight:.infinity)
+             */
         }
         .clipped()
         .edgesIgnoringSafeArea([.trailing])
@@ -388,9 +398,11 @@ struct MediaPropertyRegularSectionView: View {
                     logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
                 }catch{}
                 
+                /*
                 do {
                     inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
                 }catch{}
+                 */
             }
             
             
@@ -445,6 +457,8 @@ struct MediaPropertySectionBannerView: View {
     var propertyId: String
     var pageId: String
     var margin: CGFloat = 80
+    var isFullBleed = false
+    var isFocusable = true
     @State var section: MediaPropertySection
     var items: [MediaPropertySectionItem] {
         section.content ?? []
@@ -453,7 +467,11 @@ struct MediaPropertySectionBannerView: View {
     var body: some View {
         VStack {
             ForEach(items, id:\.self) { item in
-                MediaPropertyBanner(image:item.getBannerUrl(fabric: eluvio.fabric), margin:margin, action:{
+                MediaPropertyBanner(image:item.getBannerUrl(fabric: eluvio.fabric),
+                                    margin:margin,
+                                    isFullBleed: isFullBleed,
+                                    isFocusable: isFocusable,
+                                    action:{
                     debugPrint("Banner clicked item ", item)
                     if item.type == "page_link" {
                         Task{
@@ -530,6 +548,18 @@ struct MediaPropertySectionView: View {
     @State var subsections : [MediaPropertySection] = []
     
     var useScale = false
+    var isFirstSection  = false
+    
+    @State var inlineBackgroundUrl: String? = nil
+    var hasBackground : Bool {
+        if let background = inlineBackgroundUrl {
+            if !background.isEmpty {
+                return true
+            }
+        }
+        
+        return false
+    }
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -598,6 +628,13 @@ struct MediaPropertySectionView: View {
         }
         return false
     }
+    
+    var isFullBleed: Bool {
+        if section.display?["full_bleed"].boolValue == true {
+            return true
+        }
+        return false
+    }
 
     @State var logoUrl: String? = nil
     var logoText: String {
@@ -607,18 +644,8 @@ struct MediaPropertySectionView: View {
         return ""
     }
     
-    @State var inlineBackgroundUrl: String? = nil
     @State var playerItem : AVPlayerItem? = nil
-    var hasBackground : Bool {
-        if let background = inlineBackgroundUrl {
-            if !background.isEmpty {
-                return true
-            }
-        }
-        
-        return false
-    }
-    
+
     var minHeight : CGFloat {
         if hasBackground{
             return 420
@@ -760,11 +787,19 @@ struct MediaPropertySectionView: View {
         Group{
             if !hide {
                 if isHero {
-                    MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle, description: heroDescription, position:heroPosition, margin:margin)
-                        .edgesIgnoringSafeArea([.leading, .trailing])
+                    MediaPropertyHeader(logo: heroLogoUrl, title: heroTitle,
+                                        description: heroDescription,
+                                        position:heroPosition,
+                                        margin:margin)
+                    .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isBanner {
-                    MediaPropertySectionBannerView(propertyId:propertyId, pageId:pageId, margin:margin, section:section)
-                        .edgesIgnoringSafeArea([.leading, .trailing])
+                    MediaPropertySectionBannerView(propertyId:propertyId,
+                                                   pageId:pageId,
+                                                   margin:margin,
+                                                   isFullBleed: isFullBleed,
+                                                   isFocusable: !isFirstSection,
+                                                   section:section)
+                    .edgesIgnoringSafeArea([.leading, .trailing])
                 }else if isContainer{
                     VStack(alignment:.leading, spacing:0){
                         VStack(alignment:hAlignment, spacing:5) {
@@ -781,19 +816,19 @@ struct MediaPropertySectionView: View {
                                         .frame(maxWidth:.infinity, alignment:alignment)
                                 }
                                 .frame(maxWidth:.infinity, maxHeight:.infinity)
-
+                                
                             }
-
+                            
                             if (!section.displaySubtitle.isEmpty) {
                                 Text(section.displaySubtitle).font(.sectionContainerSubtitle)
                                     .frame(maxWidth:.infinity, alignment:alignment)
                             }
-
+                            
                         }
                         .padding([.leading, .trailing], margin+10)
                         .padding(.top, 40)
                         .padding(.bottom, 10)
-
+                        
                         
                         ForEach(subsections) { sub in
                             MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin, useScale: useScale)
@@ -803,15 +838,30 @@ struct MediaPropertySectionView: View {
                     MediaPropertySectionGridView(propertyId:propertyId, pageId:pageId, section:section, margin:margin, useScale:useScale)
                 }else {
                     MediaPropertyRegularSectionView(
-                            propertyId:propertyId,
-                            pageId: pageId,
-                            section:section,
-                            margin:margin,
-                            useScale: useScale
-                        )
+                        propertyId:propertyId,
+                        pageId: pageId,
+                        section:section,
+                        margin:margin,
+                        useScale: useScale
+                    )
                 }
             }
         }
+        .clipped()
+        .background(
+            Group {
+                if let url = inlineBackgroundUrl {
+                    WebImage(url:URL(string:url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .zIndex(-10)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .clipped()
+        )
         .disabled(disable)
         .focusSection()
         .onAppear() {
@@ -871,6 +921,12 @@ struct MediaPropertySectionView: View {
             }catch {
                 //eluvio.pathState.path.append(.errorView("A problem occured."))
                 debugPrint("Error getting section info:",error)
+            }
+            
+            if let display = section.display {
+                do {
+                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                }catch{}
             }
         }
 
@@ -956,27 +1012,42 @@ struct MediaPropertyBanner: View {
         return image + "&width=600"
     }
     var margin: CGFloat = 80
+    var isFullBleed = false
+    var isFocusable = true
     var action: ()->Void
     @FocusState var isFocused: Bool
     @State var opacity : CGFloat = 0
+    
     var body: some View {
         if !image.isEmpty {
-            Button(action:action, label:{
+            if isFocusable {
+                Button(action:action, label:{
+                    HStack(alignment:.center){
+                        WebImage(url:URL(string:image))
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .edgesIgnoringSafeArea(.horizontal)
+                            .frame(maxWidth:.infinity)
+                    }
+                })
+                .clipped()
+                .frame(maxWidth: .infinity, alignment:.leading)
+                .padding([.leading, .trailing], isFullBleed ? 0 : margin)
+                .padding([.top, .bottom], isFullBleed ? 0 : 40)
+                .buttonStyle(BannerButtonStyle(focused:isFocused, scale:1.0, bordered: false))
+                .focused($isFocused)
+                .opacity(isFocused ? 1.0 : 0.6)
+            }else {
                 HStack(alignment:.center){
                     WebImage(url:URL(string:image))
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
+                        .aspectRatio(contentMode: isFullBleed ? .fill : .fit)
                         .edgesIgnoringSafeArea(.horizontal)
                         .frame(maxWidth:.infinity)
+                        .padding([.leading, .trailing], isFullBleed ? 0 : margin)
+                        .padding([.top, .bottom], isFullBleed ? 0 : 40)
                 }
-            })
-            .clipped()
-            .frame(maxWidth: .infinity, alignment:.leading)
-            .padding([.leading, .trailing], margin)
-            .padding([.top, .bottom], 40)
-            .buttonStyle(BannerButtonStyle(focused:isFocused, scale:1.0, bordered: false))
-            .focused($isFocused)
-            .opacity(isFocused ? 1.0 : 0.6)
+            }
         }else{
             EmptyView()
         }

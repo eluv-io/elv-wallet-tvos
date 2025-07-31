@@ -116,11 +116,13 @@ struct MediaPropertyDetailView: View {
                 VStack(spacing:0) {
                     ForEach(Array(sections.enumerated()), id: \.offset ) {index, section in
                         if let propertyId = currentSubproperty?.id {
-                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
+                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section,
+                                                     isFirstSection: index == 0)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(0)
                         }else if let propertyId = property?.id {
-                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section)
+                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section,
+                                                     isFirstSection: index == 0)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(0)
                         }
@@ -168,6 +170,8 @@ struct MediaPropertyDetailView: View {
                                 eluvio.pathState.path.append(.search)
                                 
                             }, iconName: "search")
+                            .padding(.trailing, 20)
+                            .padding(.top, 20)
 
                         }
                         

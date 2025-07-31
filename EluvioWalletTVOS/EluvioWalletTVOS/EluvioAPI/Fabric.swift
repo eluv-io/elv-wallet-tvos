@@ -2619,6 +2619,11 @@ class Fabric: ObservableObject {
                             
                             if result.authorized {
                                 if let mediaItem = sectionItem.media {
+                                    
+                                    if sectionId == "psciGDGxkktcSMcJJ6aeGhURyi" {
+                                        debugPrint("Found ", sectionId)
+                                        debugPrint("Permissions: ", )
+                                    }
 
                                     if let publicField = mediaItem.public {
                                         if (publicField){
