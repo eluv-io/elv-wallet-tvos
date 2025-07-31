@@ -164,20 +164,8 @@ struct SectionGridView: View {
                             }
                         }
                         
-                        debugPrint("SectionItem Label:   ", item.label)
-                        debugPrint("SectionItem ID:   ", item.id)
-                        
-                        if item.id == "psciGDGxkktcSMcJJ6aeGhURyi" {
-                            debugPrint("Found: ", item.id)
-                        }
-
-                        
                         let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
                         
-                        if item.id == "psciGDGxkktcSMcJJ6aeGhURyi" {
-                            debugPrint("Permissions: ", mediaPermission)
-                        }
-
                         item.media?.resolvedPermission = mediaPermission
                         item.resolvedPermission = mediaPermission
 
