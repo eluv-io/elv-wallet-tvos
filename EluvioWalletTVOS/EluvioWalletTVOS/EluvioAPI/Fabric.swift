@@ -2450,7 +2450,7 @@ class Fabric: ObservableObject {
                                     permissionAuthState: JSON = JSON(),
                                     isSearch:Bool = false
     ) async throws -> ResolvedPermission {
-
+        
         //debugPrint("resolveContentPermission")
         var result = ResolvedPermission()
         
@@ -2474,7 +2474,7 @@ class Fabric: ObservableObject {
         var searchAltPageId = mediaProperty?.permissions?["search_permissions_alternate_page_id"].stringValue
         
         var searchPurchaseOption = mediaProperty?.permissions?["search_permissions_secondary_market_purchase_option"].stringValue
-
+        
         if let _behavior = mediaProperty?.permissions?["behavior"] {
             do{
                 result.behavior = try getBehavior(json:_behavior)
@@ -2495,7 +2495,7 @@ class Fabric: ObservableObject {
             }catch{}
         }
         
-
+        
         var pageId = pageId
         if pageId.isEmpty {
             pageId = "main"
@@ -2504,7 +2504,7 @@ class Fabric: ObservableObject {
         if let page = try await getPropertyPage(propertyId: propertyId, pageId:pageId) {
             
             //debugPrint("Page Permissions ", page.permissions)
-
+            
             if let _behavior = page.permissions?["behavior"] {
                 do{
                     result.behavior = try getBehavior(json:_behavior)
@@ -2543,7 +2543,7 @@ class Fabric: ObservableObject {
                         result.behavior = try getBehavior(json:_behavior)
                         //debugPrint("Setting section behavior ", result.behavior)
                     }catch{}
-
+                    
                     
                     if let altPageId = section.permissions?["alternate_page_id"] {
                         if result.behavior == .showAlternativePage && !altPageId.stringValue.isEmpty{
@@ -2575,7 +2575,7 @@ class Fabric: ObservableObject {
                         }
                     }
                     
-
+                    
                     if result.authorized && !sectionItemId.isEmpty {
                         //debugPrint("Finding sectionID ", sectionItemId)
                         
@@ -2600,7 +2600,7 @@ class Fabric: ObservableObject {
                                         //debugPrint("Found Section Item secondaryPurchaseOption ", result.secondaryPurchaseOption)
                                     }
                                 }
-
+                                
                             }
                             
                             result.authorized = isAuthorized(permission:sectionItem.permissions, authState:authState)
@@ -2619,7 +2619,6 @@ class Fabric: ObservableObject {
                             
                             if result.authorized {
                                 if let mediaItem = sectionItem.media {
-
                                     if let publicField = mediaItem.public {
                                         if (publicField){
                                             result.authorized = true
@@ -2652,11 +2651,12 @@ class Fabric: ObservableObject {
         if (result.authorized) {
             if !mediaItemId.isEmpty, let mediaItem = getMediaItem(mediaId: mediaItemId) {
                 //debugPrint("Media Item Id giving, permissions", mediaItem.permissions)
-                
+                var isPublic = false
                 if let publicField = mediaItem.public {
                     //debugPrint("media public field ", publicField)
                     if (publicField){
                         result.authorized = true
+                        isPublic = true
                     }else{
                         result.authorized = isMediaAuthorized(permission: mediaItem.permissions, authState: authState)
                     }
@@ -2673,6 +2673,11 @@ class Fabric: ObservableObject {
                         result.permissionItemIds = []
                         for pid in perm.arrayValue {
                             result.permissionItemIds.append(pid["permission_item_id"].stringValue)
+                        }
+                    }else {
+                        if !isPublic && result.behavior == .showPurchase{
+                            result.authorized = false
+                            result.behavior = .Hide
                         }
                     }
                 }

@@ -489,7 +489,7 @@ struct SearchView: View {
                     }
                     
                     if sections.count == 1{
-                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, margin: margin, useScale: true)
+                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, margin: margin, useScale: true, showBackground: false)
                             .id(refreshId)
                             .focusSection()
                     }else {

@@ -22,6 +22,8 @@ struct SectionGridView: View {
     @State var items : [MediaPropertySectionMediaItemViewModel] = []
     
     var forceDisplay : MediaDisplay? = nil
+    var showBackground = true
+    var topPadding: CGFloat = 10
  
     @State var inlineBackgroundUrl: String? = nil
     var hasBackground : Bool {
@@ -57,54 +59,6 @@ struct SectionGridView: View {
         return ""
     }
     
-    var numColumns: Int{
-        if forceNumColumns > 0 {
-            return forceNumColumns
-        }
-        
-        if (!useScale) {
-            if width < 600 {
-                if display == .square {
-                    return 3
-                }else {
-                    return 2
-                }
-            } else if width < 1400 {
-                if display == .square {
-                    return 4
-                }else {
-                    return 3
-                }
-            }else {
-                if display == .square {
-                    return 5
-                }else {
-                    return 4
-                }
-            }
-        }
-        
-        if width < 600 {
-            if display == .square {
-                return 4
-            }else {
-                return 3
-            }
-        } else if width < 1400 {
-            if display == .square {
-                return 5
-            }else {
-                return 4
-            }
-        }else {
-            if display == .square {
-                return 7
-            }else {
-                return 5
-            }
-        }
-    }
-    
     var scale : CGFloat {
         if (!useScale) {
             return 1.0
@@ -116,9 +70,7 @@ struct SectionGridView: View {
             return 0.7
         }
     }
-    
-    var forceNumColumns = 0
-    
+
     @State var width: CGFloat =  0
     
     private var columns: [GridItem] {
@@ -126,6 +78,10 @@ struct SectionGridView: View {
             if display == .square {
                 return [
                     .init(.adaptive(minimum: 280, maximum: 300))
+                ]
+            }else if display == .feature {
+                return [
+                    .init(.adaptive(minimum: 300, maximum: 320))
                 ]
             }else {
                 return [
@@ -138,6 +94,10 @@ struct SectionGridView: View {
             return [
                 .init(.adaptive(minimum: 200, maximum: 240))
             ]
+        }else if display == .feature {
+            return [
+                .init(.adaptive(minimum: 240, maximum: 260))
+            ]
         }else {
             return [
                 .init(.adaptive(minimum: 260, maximum: 280))
@@ -147,61 +107,16 @@ struct SectionGridView: View {
     
     var body: some View {
         VStack(alignment:.leading, spacing:0){
-            if !title.isEmpty {
-                HStack{
+            HStack{
+                if !title.isEmpty {
                     Text(title)
                         .font(.rowTitle)
                     Spacer()
                 }
-                .padding(.top, 10)
-                .padding(.bottom, 20)
             }
-                
-                /*
-                if items.dividedIntoGroups(of: numColumns).count <= 1 {
-                    HStack(spacing:20) {
-                        ForEach(items, id: \.self) { item in
-                            SectionItemView(sectionId: section.id,
-                                            pageId:pageId,
-                                            propertyId: propertyId,
-                                            forceDisplay:display,
-                                            viewItem: item,
-                                            scaleFactor: scale
-                            )
-                            .environmentObject(self.eluvio)
-                        }
-                        Spacer()
-                    }
-                    .padding([.top,.bottom], 40)
-                    .focusSection()
-                    .getWidth($width)
+            .padding(.top, topPadding)
+            .padding(.bottom, 20)
 
-                }else{
-                 
-                    LazyVStack(alignment:.leading){
-                        Grid(alignment:.leading, horizontalSpacing: 40, verticalSpacing: 60) {
-                                ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) {groups in
-                                    GridRow(alignment:.top) {
-                                        ForEach(groups, id: \.self) { item in
-                                            SectionItemView(sectionId: section.id, pageId:pageId, propertyId: propertyId, forceDisplay:display,
-                                                            viewItem: item,
-                                                            scaleFactor: scale
-                                            )
-                                            .gridColumnAlignment(.leading)
-                                            .environmentObject(self.eluvio)
-                                            
-                                        }
-                                    }
-                                }
-                        }
-                        .padding([.top,.bottom], 40)
-                        .focusSection()
-                    }
-                    .focusSection()
-                    .getWidth($width)
-        
-                } */
-                
             LazyVGrid(columns:columns, alignment: .leading, spacing:20){
                 ForEach(items, id: \.self) { item in
                     SectionItemView(sectionId: section.id,
@@ -216,9 +131,22 @@ struct SectionGridView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            Group {
+                if let url = inlineBackgroundUrl {
+                    WebImage(url:URL(string:url))
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(maxWidth: .infinity)
+                        .clipped()
+                        .zIndex(-10)
+                }
+            }
+            .frame(maxWidth: .infinity)
+        )
         .padding([.leading], margin)
-        .focusSection()
-        
+        //.focusSection()
         .task {
             debugPrint("SectionGridView  ", margin)
             do {
@@ -237,7 +165,7 @@ struct SectionGridView: View {
                         }
                         
                         let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
-
+                        
                         item.media?.resolvedPermission = mediaPermission
                         item.resolvedPermission = mediaPermission
 
@@ -254,6 +182,12 @@ struct SectionGridView: View {
                 self.items = sectionItems
             }catch {
                 debugPrint("Error processing Section Grid Items: ", error)
+            }
+            
+            if let display = section.display {
+                do {
+                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                }catch{}
             }
         }
     }
