@@ -16,18 +16,10 @@
 		B00945AF29EA478D00B00FC3 /* nfts_marketplace.json in Resources */ = {isa = PBXBuildFile; fileRef = B00945AA29EA478D00B00FC3 /* nfts_marketplace.json */; };
 		B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */ = {isa = PBXBuildFile; fileRef = B00945AB29EA478D00B00FC3 /* marketplaces.json */; };
 		B00945B129EA478D00B00FC3 /* profile.json in Resources */ = {isa = PBXBuildFile; fileRef = B00945AC29EA478D00B00FC3 /* profile.json */; };
-		B00FA9E52AD904F400CFBFF7 /* FetchPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9E42AD904F400CFBFF7 /* FetchPage.swift */; };
-		B00FA9E72AD905D500CFBFF7 /* KTPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9E62AD905D500CFBFF7 /* KTPage.swift */; };
-		B00FA9E92AD905FD00CFBFF7 /* UNextPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9E82AD905FD00CFBFF7 /* UNextPage.swift */; };
-		B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00FA9EA2AD9170100CFBFF7 /* LaunchButton.swift */; };
-		B01500E62D5FED5200F9B826 /* MediaImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01500E52D5FED3E00F9B826 /* MediaImageView.swift */; };
 		B01500E72D5FED5200F9B826 /* MediaImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01500E52D5FED3E00F9B826 /* MediaImageView.swift */; };
 		B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02CE2032AF4C08700F5F495 /* BackButton.swift */; };
-		B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04586F42AF4993B00F1FF25 /* FandangoPage.swift */; };
 		B05648C42BC9CCBB004540F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05648C32BC9CCBB004540F6 /* ContentView.swift */; };
 		B05DD74A29E5220E001E12AF /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
-		B06404CB2B2B8BA500945E98 /* DeviceFlowViewNew.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CA2B2B8BA500945E98 /* DeviceFlowViewNew.swift */; };
-		B06404CF2B2B8DF700945E98 /* AuthService_bak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06404CD2B2B8DF700945E98 /* AuthService_bak.swift */; };
 		B0670F3329D4211700676872 /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3229D4211700676872 /* DeviceFlowView.swift */; };
 		B0670F3529D5421300676872 /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3429D5421300676872 /* WalletView.swift */; };
 		B0670F3A29D5427400676872 /* NFTGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3629D5427300676872 /* NFTGrid.swift */; };
@@ -66,229 +58,39 @@
 		B06D52192A14882200BD68D1 /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52182A14882200BD68D1 /* SearchView.swift */; };
 		B06D521E2A152BBF00BD68D1 /* PropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521C2A14A21100BD68D1 /* PropertyModel.swift */; };
 		B077B8D52B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */; };
-		B077B8D62B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */; };
-		B077B8D72B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077B8D42B8FA8FD009E3B6B /* AuthServicesModels.swift */; };
 		B077BE622C5209F00056DDB1 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077BE612C5209F00056DDB1 /* SearchModels.swift */; };
-		B077BE632C5209F00056DDB1 /* SearchModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077BE612C5209F00056DDB1 /* SearchModels.swift */; };
 		B077BE652C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077BE642C6EC8B70056DDB1 /* ItemDetailView.swift */; };
-		B077BE662C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B077BE642C6EC8B70056DDB1 /* ItemDetailView.swift */; };
-		B07ADFBD2B6B3DC7005C5E5A /* ProgressControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07ADFBC2B6B3DC7005C5E5A /* ProgressControlView.swift */; };
-		B07ADFBF2B6C1E1A005C5E5A /* ThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07ADFBE2B6C1E1A005C5E5A /* ThumbnailView.swift */; };
-		B07ADFC12B6C1E39005C5E5A /* InfoTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07ADFC02B6C1E39005C5E5A /* InfoTab.swift */; };
-		B07ADFC32B6C1E91005C5E5A /* InteractiveTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07ADFC22B6C1E91005C5E5A /* InteractiveTab.swift */; };
-		B07ADFC82B6C2119005C5E5A /* MarketplaceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA629D211040079661E /* MarketplaceModel.swift */; };
-		B07ADFC92B6C2119005C5E5A /* NFTModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA729D211040079661E /* NFTModel.swift */; };
-		B07ADFCA2B6C2119005C5E5A /* ProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA529D211040079661E /* ProfileModel.swift */; };
-		B07ADFCB2B6C2119005C5E5A /* Auth0Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F5429D6C48F00676872 /* Auth0Models.swift */; };
-		B07ADFCC2B6C2119005C5E5A /* AdditionalMediaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6829DEA0C600676872 /* AdditionalMediaModel.swift */; };
-		B07ADFCD2B6C2119005C5E5A /* PropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521C2A14A21100BD68D1 /* PropertyModel.swift */; };
-		B07ADFCE2B6C2119005C5E5A /* MediaRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C4C2A589CB6003C414A /* MediaRowViewModel.swift */; };
-		B07ADFD02B6C22C8005C5E5A /* Models in Resources */ = {isa = PBXBuildFile; fileRef = B07ADFCF2B6C22C8005C5E5A /* Models */; };
-		B07ADFD22B6D50DB005C5E5A /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F9C29CD85130079661E /* Utils.swift */; };
-		B07ADFD42B6D50EE005C5E5A /* Utils in Resources */ = {isa = PBXBuildFile; fileRef = B07ADFD32B6D50EE005C5E5A /* Utils */; };
-		B07ADFD52B6D5117005C5E5A /* Fabric.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8529CD71840079661E /* Fabric.swift */; };
-		B07ADFD62B6D5117005C5E5A /* FabricModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8429CD71840079661E /* FabricModels.swift */; };
-		B07ADFD72B6D5117005C5E5A /* NFTMetaResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8729CD71840079661E /* NFTMetaResponse.swift */; };
-		B07ADFD82B6D5117005C5E5A /* RemoteSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8829CD71840079661E /* RemoteSigner.swift */; };
-		B07ADFD92B6D5117005C5E5A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4842A428672006C9E7B /* Profile.swift */; };
-		B07ADFDA2B6D5117005C5E5A /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C502A5F0872003C414A /* AppConfiguration.swift */; };
-		B07ADFDB2B6D5117005C5E5A /* ProfileClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C542A7B2C2A003C414A /* ProfileClient.swift */; };
-		B07ADFDD2B6D5124005C5E5A /* Fabric in Resources */ = {isa = PBXBuildFile; fileRef = B07ADFDC2B6D5124005C5E5A /* Fabric */; };
-		B07ADFDF2B6D5222005C5E5A /* SwiftEventBus in Frameworks */ = {isa = PBXBuildFile; productRef = B07ADFDE2B6D5222005C5E5A /* SwiftEventBus */; };
-		B07ADFE12B6D5235005C5E5A /* KeccakTiny in Frameworks */ = {isa = PBXBuildFile; productRef = B07ADFE02B6D5235005C5E5A /* KeccakTiny */; };
-		B07ADFE32B6D5235005C5E5A /* Sha3Tiny in Frameworks */ = {isa = PBXBuildFile; productRef = B07ADFE22B6D5235005C5E5A /* Sha3Tiny */; };
-		B07ADFE52B6D5235005C5E5A /* SwiftKeccak in Frameworks */ = {isa = PBXBuildFile; productRef = B07ADFE42B6D5235005C5E5A /* SwiftKeccak */; };
-		B07ADFE72B6D5247005C5E5A /* UUIDShortener in Frameworks */ = {isa = PBXBuildFile; productRef = B07ADFE62B6D5247005C5E5A /* UUIDShortener */; };
-		B07ADFE92B6D5267005C5E5A /* RLPSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B07ADFE82B6D5267005C5E5A /* RLPSwift */; };
-		B07ADFEC2B6D54C8005C5E5A /* Managers in Resources */ = {isa = PBXBuildFile; fileRef = B07ADFEA2B6D54C8005C5E5A /* Managers */; };
-		B07ADFED2B6D54C8005C5E5A /* Test in Resources */ = {isa = PBXBuildFile; fileRef = B07ADFEB2B6D54C8005C5E5A /* Test */; };
-		B07ADFEE2B6D54DA005C5E5A /* ContentKeyDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */; };
-		B07ADFEF2B6D54DA005C5E5A /* ContentKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6D29E3DFD100676872 /* ContentKeyManager.swift */; };
-		B07ADFF02B6D54E4005C5E5A /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A829EA478D00B00FC3 /* TestData.swift */; };
-		B07ADFF12B6D54E4005C5E5A /* nfts.json in Sources */ = {isa = PBXBuildFile; fileRef = B00945A929EA478D00B00FC3 /* nfts.json */; };
-		B07ADFF22B6D54E4005C5E5A /* nfts_marketplace.json in Sources */ = {isa = PBXBuildFile; fileRef = B00945AA29EA478D00B00FC3 /* nfts_marketplace.json */; };
-		B07ADFF32B6D54E4005C5E5A /* marketplaces.json in Sources */ = {isa = PBXBuildFile; fileRef = B00945AB29EA478D00B00FC3 /* marketplaces.json */; };
-		B07ADFF42B6D54E4005C5E5A /* profile.json in Sources */ = {isa = PBXBuildFile; fileRef = B00945AC29EA478D00B00FC3 /* profile.json */; };
-		B07ADFF52B6D54E4005C5E5A /* tenant.json in Sources */ = {isa = PBXBuildFile; fileRef = B06D520D2A0C0BBF00BD68D1 /* tenant.json */; };
-		B07ADFF62B6D54E4005C5E5A /* property.json in Sources */ = {isa = PBXBuildFile; fileRef = B06D52102A12F83500BD68D1 /* property.json */; };
-		B07ADFF92B6D5B04005C5E5A /* SharedViews in Resources */ = {isa = PBXBuildFile; fileRef = B07ADFF82B6D5B04005C5E5A /* SharedViews */; };
-		B07ADFFA2B6D5B11005C5E5A /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
-		B07ADFFB2B6D5B5A005C5E5A /* LoopingPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4822A397DA8006C9E7B /* LoopingPlayer.swift */; };
-		B07ADFFC2B6D5BF5005C5E5A /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A529E9C45F00B00FC3 /* QRView.swift */; };
-		B07ADFFD2B6D5C04005C5E5A /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A129E937C500B00FC3 /* Styles.swift */; };
-		B07ADFFE2B6D5C7C005C5E5A /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3F29D542A100676872 /* Color.swift */; };
-		B07ADFFF2B6D67B3005C5E5A /* OfferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4862A448C8A006C9E7B /* OfferView.swift */; };
-		B07AE0002B6D67B3005C5E5A /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B009459F29E91DE000B00FC3 /* GalleryView.swift */; };
-		B07AE0012B6D67B3005C5E5A /* SeriesDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4882A4A0784006C9E7B /* SeriesDetailView.swift */; };
-		B07AE0022B6D67B3005C5E5A /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
-		B07AE0032B6D67B3005C5E5A /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
-		B07AE0042B6D6A2D005C5E5A /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6A29E3D68900676872 /* PlayerView.swift */; };
-		B07AE0052B6D6B53005C5E5A /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
-		B07AE0082B6D6BF2005C5E5A /* Configuration in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0072B6D6BF2005C5E5A /* Configuration */; };
-		B07AE0092B6D6C43005C5E5A /* configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7D29CD63B50079661E /* configuration.json */; };
-		B07AE0112B707A42005C5E5A /* AQP-audio.wav in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0102B707A42005C5E5A /* AQP-audio.wav */; };
-		B07AE0132B707A66005C5E5A /* AQP-IME.png in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0122B707A66005C5E5A /* AQP-IME.png */; };
-		B07AE0172B707D3D005C5E5A /* flash_page_5.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0142B707D3B005C5E5A /* flash_page_5.mp4 */; };
-		B07AE0182B707D3D005C5E5A /* flash_page_1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0152B707D3B005C5E5A /* flash_page_1.mp4 */; };
-		B07AE0192B707D3D005C5E5A /* Flash-comic.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B07AE0162B707D3D005C5E5A /* Flash-comic.pdf */; };
-		B07AE01B2B707FE8005C5E5A /* AQP-audio-pages.json in Resources */ = {isa = PBXBuildFile; fileRef = B07AE01A2B707FE8005C5E5A /* AQP-audio-pages.json */; };
 		B08AEB8D2AD4D1CE002E3D2A /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */; };
-		B08CB4E02B70A30D00E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4DF2B70A30D00E04C0D /* AudioPlayer.swift */; };
 		B08CB4E22B7143EB00E04C0D /* AudioPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */; };
-		B08CB4E32B7143EB00E04C0D /* AudioPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */; };
-		B08CB4E52B72895900E04C0D /* AQP-audio-sync.json in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E42B72895800E04C0D /* AQP-audio-sync.json */; };
-		B08CB4E72B72D8F500E04C0D /* AQP-Script.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E62B72D8F500E04C0D /* AQP-Script.png */; };
-		B08CB4E92B72D96200E04C0D /* AQP-InteractiveVideo.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4E82B72D96200E04C0D /* AQP-InteractiveVideo.png */; };
-		B08CB4EB2B72E27C00E04C0D /* AQP-Dictation.png in Resources */ = {isa = PBXBuildFile; fileRef = B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */; };
-		B08CB5072B7D586C00E04C0D /* ShowcasePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5062B7D586C00E04C0D /* ShowcasePage.swift */; };
-		B08CB52F2B7DDB2800E04C0D /* ShowcaseWalletApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB52E2B7DDB2800E04C0D /* ShowcaseWalletApp.swift */; };
-		B08CB5312B7DDB2800E04C0D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5302B7DDB2800E04C0D /* ContentView.swift */; };
-		B08CB5332B7DDB2900E04C0D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5322B7DDB2900E04C0D /* Assets.xcassets */; };
-		B08CB5362B7DDB2900E04C0D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5352B7DDB2900E04C0D /* Preview Assets.xcassets */; };
-		B08CB53B2B7DDF0E00E04C0D /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB53A2B7DDF0E00E04C0D /* Auth0 */; };
-		B08CB53D2B7DDF0E00E04C0D /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB53C2B7DDF0E00E04C0D /* Alamofire */; };
-		B08CB53F2B7DDF0E00E04C0D /* SwiftEventBus in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB53E2B7DDF0E00E04C0D /* SwiftEventBus */; };
-		B08CB5412B7DDF0E00E04C0D /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB5402B7DDF0E00E04C0D /* Base58Swift */; };
-		B08CB5432B7DDF0E00E04C0D /* QGrid in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB5422B7DDF0E00E04C0D /* QGrid */; };
-		B08CB5452B7DDF0E00E04C0D /* KeccakTiny in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB5442B7DDF0E00E04C0D /* KeccakTiny */; };
-		B08CB5472B7DDF0E00E04C0D /* Sha3Tiny in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB5462B7DDF0E00E04C0D /* Sha3Tiny */; };
-		B08CB5492B7DDF0E00E04C0D /* SwiftKeccak in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB5482B7DDF0E00E04C0D /* SwiftKeccak */; };
-		B08CB54B2B7DDF0E00E04C0D /* RLPSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB54A2B7DDF0E00E04C0D /* RLPSwift */; };
-		B08CB54D2B7DDF0E00E04C0D /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB54C2B7DDF0E00E04C0D /* SwiftyJSON */; };
-		B08CB54F2B7DDF0E00E04C0D /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB54E2B7DDF0E00E04C0D /* SDWebImageSwiftUI */; };
-		B08CB5512B7DDF0E00E04C0D /* UUIDShortener in Frameworks */ = {isa = PBXBuildFile; productRef = B08CB5502B7DDF0E00E04C0D /* UUIDShortener */; };
-		B08CB55A2B7DDF6900E04C0D /* Utils in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5522B7DDF6900E04C0D /* Utils */; };
-		B08CB55B2B7DDF6900E04C0D /* Views in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5532B7DDF6900E04C0D /* Views */; };
-		B08CB55C2B7DDF6900E04C0D /* Fabric in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5542B7DDF6900E04C0D /* Fabric */; };
-		B08CB55D2B7DDF6900E04C0D /* Preview Content in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5552B7DDF6900E04C0D /* Preview Content */; };
-		B08CB55E2B7DDF6900E04C0D /* Managers in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5562B7DDF6900E04C0D /* Managers */; };
-		B08CB55F2B7DDF6900E04C0D /* Models in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5572B7DDF6900E04C0D /* Models */; };
-		B08CB5602B7DDF6900E04C0D /* Test in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5582B7DDF6900E04C0D /* Test */; };
-		B08CB5612B7DDF6900E04C0D /* SharedViews in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5592B7DDF6900E04C0D /* SharedViews */; };
-		B08CB5622B7DDFDA00E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4DF2B70A30D00E04C0D /* AudioPlayer.swift */; };
-		B08CB5632B7DDFDA00E04C0D /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
-		B08CB5642B7DDFDA00E04C0D /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6A29E3D68900676872 /* PlayerView.swift */; };
-		B08CB5652B7DDFDA00E04C0D /* OfferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4862A448C8A006C9E7B /* OfferView.swift */; };
-		B08CB5662B7DDFDA00E04C0D /* GalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B009459F29E91DE000B00FC3 /* GalleryView.swift */; };
-		B08CB5672B7DDFDA00E04C0D /* SeriesDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4882A4A0784006C9E7B /* SeriesDetailView.swift */; };
-		B08CB5682B7DDFDA00E04C0D /* HTMLText.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05DD74929E5220E001E12AF /* HTMLText.swift */; };
-		B08CB5692B7DDFDA00E04C0D /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
-		B08CB56A2B7DDFDA00E04C0D /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3F29D542A100676872 /* Color.swift */; };
-		B08CB56B2B7DDFDA00E04C0D /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A129E937C500B00FC3 /* Styles.swift */; };
-		B08CB56C2B7DDFDA00E04C0D /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A529E9C45F00B00FC3 /* QRView.swift */; };
-		B08CB56D2B7DDFDA00E04C0D /* LoopingPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4822A397DA8006C9E7B /* LoopingPlayer.swift */; };
-		B08CB56E2B7DDFDA00E04C0D /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
-		B08CB56F2B7DDFDA00E04C0D /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F9C29CD85130079661E /* Utils.swift */; };
-		B08CB5702B7DDFDA00E04C0D /* ContentKeyDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6F29E3DFD800676872 /* ContentKeyDelegate.swift */; };
-		B08CB5712B7DDFDA00E04C0D /* ContentKeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6D29E3DFD100676872 /* ContentKeyManager.swift */; };
-		B08CB5742B7DDFDA00E04C0D /* NFTGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3629D5427300676872 /* NFTGrid.swift */; };
-		B08CB5752B7DDFDA00E04C0D /* NFTView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3829D5427300676872 /* NFTView.swift */; };
-		B08CB5762B7DDFDA00E04C0D /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
-		B08CB5772B7DDFDA00E04C0D /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
-		B08CB5782B7DDFDA00E04C0D /* DeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3229D4211700676872 /* DeviceFlowView.swift */; };
-		B08CB5792B7DDFDA00E04C0D /* WalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F3429D5421300676872 /* WalletView.swift */; };
-		B08CB57A2B7DDFDA00E04C0D /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F4F29D55D7C00676872 /* CollectionView.swift */; };
-		B08CB57B2B7DDFDA00E04C0D /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F5629D79F9300676872 /* ProfileView.swift */; };
-		B08CB57C2B7DDFDA00E04C0D /* CachedAsyncImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A329E9514B00B00FC3 /* CachedAsyncImage.swift */; };
-		B08CB57D2B7DDFDA00E04C0D /* MyItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D520E2A12875D00BD68D1 /* MyItemsView.swift */; };
-		B08CB57E2B7DDFDA00E04C0D /* SearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D52182A14882200BD68D1 /* SearchView.swift */; };
-		B08CB5832B7DDFDA00E04C0D /* DropDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C92BE2A3060370001CF4E /* DropDetail.swift */; };
-		B08CB5842B7DDFDA00E04C0D /* MetaMaskFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C522A5F35D5003C414A /* MetaMaskFlowView.swift */; };
-		B08CB5852B7DDFDA00E04C0D /* MyMediaViewDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C562A8C7B0A003C414A /* MyMediaViewDemo.swift */; };
-		B08CB5862B7DDFDA00E04C0D /* NFTDetailMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */; };
-		B08CB5872B7DDFDA00E04C0D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
-		B08CB5882B7DDFDA00E04C0D /* BackButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02CE2032AF4C08700F5F495 /* BackButton.swift */; };
-		B08CB5892B7DDFDA00E04C0D /* PackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C6EB12B2BDFF700EBACEA /* PackView.swift */; };
-		B08CB58A2B7DDFDA00E04C0D /* MarketplaceModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA629D211040079661E /* MarketplaceModel.swift */; };
-		B08CB58B2B7DDFDA00E04C0D /* NFTModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA729D211040079661E /* NFTModel.swift */; };
-		B08CB58C2B7DDFDA00E04C0D /* ProfileModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FA529D211040079661E /* ProfileModel.swift */; };
-		B08CB58D2B7DDFDA00E04C0D /* Auth0Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F5429D6C48F00676872 /* Auth0Models.swift */; };
-		B08CB58E2B7DDFDA00E04C0D /* AdditionalMediaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6829DEA0C600676872 /* AdditionalMediaModel.swift */; };
-		B08CB58F2B7DDFDA00E04C0D /* PropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06D521C2A14A21100BD68D1 /* PropertyModel.swift */; };
-		B08CB5902B7DDFDA00E04C0D /* MediaRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C4C2A589CB6003C414A /* MediaRowViewModel.swift */; };
-		B08CB5912B7DDFDA00E04C0D /* AudioPageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB4E12B7143EB00E04C0D /* AudioPageModel.swift */; };
-		B08CB5922B7DDFDA00E04C0D /* Fabric.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8529CD71840079661E /* Fabric.swift */; };
-		B08CB5932B7DDFDA00E04C0D /* FabricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8629CD71840079661E /* FabricConfiguration.swift */; };
-		B08CB5942B7DDFDA00E04C0D /* FabricModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8429CD71840079661E /* FabricModels.swift */; };
-		B08CB5952B7DDFDA00E04C0D /* NFTMetaResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8729CD71840079661E /* NFTMetaResponse.swift */; };
-		B08CB5962B7DDFDA00E04C0D /* RemoteSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8829CD71840079661E /* RemoteSigner.swift */; };
-		B08CB5972B7DDFDA00E04C0D /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069A4842A428672006C9E7B /* Profile.swift */; };
-		B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C502A5F0872003C414A /* AppConfiguration.swift */; };
-		B08CB5992B7DDFDA00E04C0D /* ProfileClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B06C4C542A7B2C2A003C414A /* ProfileClient.swift */; };
-		B08CB59A2B7DDFDA00E04C0D /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00945A829EA478D00B00FC3 /* TestData.swift */; };
-		B08CB59C2B7DE0FD00E04C0D /* Configuration in Resources */ = {isa = PBXBuildFile; fileRef = B08CB59B2B7DE0FD00E04C0D /* Configuration */; };
-		B08CB59D2B7DE12800E04C0D /* configuration.json in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F7D29CD63B50079661E /* configuration.json */; };
-		B08CB5A12B7DE20200E04C0D /* Auth0.plist in Resources */ = {isa = PBXBuildFile; fileRef = B08CB5A02B7DE20200E04C0D /* Auth0.plist */; };
-		B08CB5A22B7DE34000E04C0D /* configuration.json in Resources */ = {isa = PBXBuildFile; fileRef = B0E60F7D29CD63B50079661E /* configuration.json */; };
 		B08CB5AA2B7DE8F200E04C0D /* ViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5A92B7DE8F200E04C0D /* ViewState.swift */; };
-		B08CB5AB2B7DE8F200E04C0D /* ViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5A92B7DE8F200E04C0D /* ViewState.swift */; };
-		B08CB5AC2B7DE8F200E04C0D /* ViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5A92B7DE8F200E04C0D /* ViewState.swift */; };
 		B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08CB5AD2B7DF2CB00E04C0D /* AudioPlayer.swift */; };
-		B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FA2CB7286900C1D590 /* ExtrasBase64 */; };
 		B09897FD2CB7288100C1D590 /* ExtrasBase64 in Frameworks */ = {isa = PBXBuildFile; productRef = B09897FC2CB7288100C1D590 /* ExtrasBase64 */; };
-		B099A5AF2B336CAD00C779A0 /* Auth0 in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5AE2B336CAD00C779A0 /* Auth0 */; };
-		B099A5B12B336CAD00C779A0 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B02B336CAD00C779A0 /* Alamofire */; };
-		B099A5B32B336CAD00C779A0 /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B22B336CAD00C779A0 /* Base58Swift */; };
-		B099A5B52B336CAD00C779A0 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B42B336CAD00C779A0 /* SwiftyJSON */; };
-		B099A5B72B336CAD00C779A0 /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B099A5B62B336CAD00C779A0 /* SDWebImageSwiftUI */; };
-		B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */; };
-		B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCEA2AC8940E00AC825D /* ContentView.swift */; };
-		B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */; };
-		B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0A2FCEF2AC8940F00AC825D /* Preview Assets.xcassets */; };
-		B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF42AC894EB00AC825D /* LaunchPage.swift */; };
-		B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF52AC894EB00AC825D /* TubiPage.swift */; };
-		B0A2FCF92ACA8DE400AC825D /* BluePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCF82ACA8DE400AC825D /* BluePage.swift */; };
-		B0A2FCFB2ACA96EC00AC825D /* MaxPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCFA2ACA96EC00AC825D /* MaxPage.swift */; };
-		B0A2FCFD2ACAA3CA00AC825D /* UEFAPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCFC2ACAA3CA00AC825D /* UEFAPage.swift */; };
-		B0A2FCFF2ACB658E00AC825D /* PlayerView2.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FCFE2ACB658E00AC825D /* PlayerView2.swift */; };
-		B0A2FD012ACC98B500AC825D /* Fabric_bak.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD002ACC98B500AC825D /* Fabric_bak.swift */; };
-		B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F8629CD71840079661E /* FabricConfiguration.swift */; };
 		B0A2FD042ACD557100AC825D /* NFTDetailMovieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD032ACD557100AC825D /* NFTDetailMovieView.swift */; };
 		B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
 		B0A598D72C22967100D6716F /* SectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D62C22967100D6716F /* SectionItemView.swift */; };
-		B0A598D82C22967100D6716F /* SectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D62C22967100D6716F /* SectionItemView.swift */; };
 		B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */; };
-		B0A598DB2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */; };
 		B0A598E02C33090800D6716F /* start-screen-bg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */; };
-		B0A598E12C33090800D6716F /* start-screen-bg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */; };
 		B0A598E52C33976100D6716F /* PageGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3F2B58274200499C93 /* PageGesture.swift */; };
 		B0A598E72C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
-		B0A598E82C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
-		B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
 		B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
-		B0A5AB412CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */; };
 		B0A5AB422CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */; };
 		B0A830E22C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
-		B0A830E32C7129120037BE59 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E12C7129120037BE59 /* AccountManager.swift */; };
 		B0A830E52C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
-		B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E42C74E9740037BE59 /* CountdownView.swift */; };
 		B0A830E82C784DEB0037BE59 /* EluvioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */; };
-		B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830E72C784DEB0037BE59 /* EluvioAPI.swift */; };
 		B0A830EB2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
-		B0A830EC2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
 		B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
-		B0A830EF2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
-		B0AF0DC82CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
 		B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
-		B0D53D702AE754E900E0A82E /* VuduPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D53D6F2AE754E900E0A82E /* VuduPage.swift */; };
 		B0D5446A2C176EC200558B21 /* properties.json in Resources */ = {isa = PBXBuildFile; fileRef = B0D544692C176EC200558B21 /* properties.json */; };
 		B0D5446C2C17925800558B21 /* MediaPropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446B2C17925800558B21 /* MediaPropertyModel.swift */; };
-		B0D5446D2C17925800558B21 /* MediaPropertyModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446B2C17925800558B21 /* MediaPropertyModel.swift */; };
 		B0D5446F2C1B760800558B21 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446E2C1B760800558B21 /* DiscoverView.swift */; };
-		B0D544702C1B760800558B21 /* DiscoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D5446E2C1B760800558B21 /* DiscoverView.swift */; };
 		B0D544732C1B7AEE00558B21 /* MediaPropertyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544722C1B7AEE00558B21 /* MediaPropertyViewModel.swift */; };
-		B0D544742C1B7AEE00558B21 /* MediaPropertyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544722C1B7AEE00558B21 /* MediaPropertyViewModel.swift */; };
 		B0D544762C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544752C1B7B0F00558B21 /* MediaPropertyView.swift */; };
-		B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544752C1B7B0F00558B21 /* MediaPropertyView.swift */; };
 		B0D544792C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */; };
-		B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D544782C1C0BC200558B21 /* MediaPropertyDetailView.swift */; };
 		B0D839572DDBE88300CDC7BB /* MUXSDKStats in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839562DDBE88300CDC7BB /* MUXSDKStats */; };
 		B0D8395A2DDE4CDC00CDC7BB /* VarInt in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839592DDE4CDC00CDC7BB /* VarInt */; };
-		B0D8395C2DDE4CE800CDC7BB /* VarInt in Frameworks */ = {isa = PBXBuildFile; productRef = B0D8395B2DDE4CE800CDC7BB /* VarInt */; };
-		B0D8395E2DDE4CF000CDC7BB /* VarInt in Frameworks */ = {isa = PBXBuildFile; productRef = B0D8395D2DDE4CF000CDC7BB /* VarInt */; };
 		B0D839642DDF2C8700CDC7BB /* JsonRPC in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839632DDF2C8700CDC7BB /* JsonRPC */; };
 		B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0DFFF932A17129200F1E358 /* MediaView.swift */; };
 		B0E60F7029CC23510079661E /* EluvioWalletTVOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60F6F29CC23510079661E /* EluvioWalletTVOSApp.swift */; };
@@ -312,24 +114,6 @@
 		B0E60FAD29D223870079661E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
 		B0E60FB229D2288C0079661E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
 		B0EAAF902CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
-		B0EAAF912CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
-		B0EAAF922CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
-		B0F9DC322B4F973400499C93 /* MSPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC312B4F973400499C93 /* MSPage.swift */; };
-		B0F9DC3C2B578D9800499C93 /* SDWebImagePDFCoder in Frameworks */ = {isa = PBXBuildFile; productRef = B0F9DC3B2B578D9800499C93 /* SDWebImagePDFCoder */; };
-		B0F9DC3E2B57912700499C93 /* PDFPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3D2B57912700499C93 /* PDFPage.swift */; };
-		B0F9DC402B58274200499C93 /* PageGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3F2B58274200499C93 /* PageGesture.swift */; };
-		B0F9DC422B5B4E5500499C93 /* ProgressSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC412B5B4E5500499C93 /* ProgressSlider.swift */; };
-		B0F9DC442B5E216C00499C93 /* BooksGallery.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC432B5E216C00499C93 /* BooksGallery.swift */; };
-		B0F9DC492B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC462B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf */; };
-		B0F9DC4B2B5E30F900499C93 /* a-quiet-place-2018.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC482B5E30F900499C93 /* a-quiet-place-2018.pdf */; };
-		B0F9DC4E2B5E311600499C93 /* the-war-of-the-worlds.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC4C2B5E311600499C93 /* the-war-of-the-worlds.pdf */; };
-		B0F9DC4F2B5E311600499C93 /* the-book-of-five-rings.epub in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC4D2B5E311600499C93 /* the-book-of-five-rings.epub */; };
-		B0F9DC512B65FA4400499C93 /* A Quiet Place - Opening.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC502B65FA4400499C93 /* A Quiet Place - Opening.mp4 */; };
-		B0F9DC532B66FE1C00499C93 /* AQP-video-transcript.json in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC522B66FE1C00499C93 /* AQP-video-transcript.json */; };
-		B0F9DC552B673E1100499C93 /* AQP - opening.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC542B673E1100499C93 /* AQP - opening.pdf */; };
-		B0F9DC572B67529E00499C93 /* AQP-Opening-Image.png in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC562B67529E00499C93 /* AQP-Opening-Image.png */; };
-		B0F9DC592B68302400499C93 /* InteractiveMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC582B68302400499C93 /* InteractiveMediaView.swift */; };
-		B0F9DC5B2B688D2D00499C93 /* A-Quiet-Place-Poster.jpg in Resources */ = {isa = PBXBuildFile; fileRef = B0F9DC5A2B688D2D00499C93 /* A-Quiet-Place-Poster.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -410,7 +194,6 @@
 		B08CB4E82B72D96200E04C0D /* AQP-InteractiveVideo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-InteractiveVideo.png"; sourceTree = "<group>"; };
 		B08CB4EA2B72E27C00E04C0D /* AQP-Dictation.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-Dictation.png"; sourceTree = "<group>"; };
 		B08CB5062B7D586C00E04C0D /* ShowcasePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowcasePage.swift; sourceTree = "<group>"; };
-		B08CB52C2B7DDB2800E04C0D /* ShowcaseWallet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShowcaseWallet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B08CB52E2B7DDB2800E04C0D /* ShowcaseWalletApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowcaseWalletApp.swift; sourceTree = "<group>"; };
 		B08CB5302B7DDB2800E04C0D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B08CB5322B7DDB2900E04C0D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -428,7 +211,6 @@
 		B08CB5A92B7DE8F200E04C0D /* ViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewState.swift; sourceTree = "<group>"; };
 		B08CB5AD2B7DF2CB00E04C0D /* AudioPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AudioPlayer.swift; path = EluvioWalletTVOS/SharedViews/AudioPlayer.swift; sourceTree = "<group>"; };
 		B0A2FC922AB28CB000AC825D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WalletLinkTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B0A2FCE82AC8940E00AC825D /* WalletLinkTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletLinkTestApp.swift; sourceTree = "<group>"; };
 		B0A2FCEA2AC8940E00AC825D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		B0A2FCEC2AC8940F00AC825D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -500,47 +282,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		B08CB5292B7DDB2800E04C0D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B08CB5432B7DDF0E00E04C0D /* QGrid in Frameworks */,
-				B08CB5412B7DDF0E00E04C0D /* Base58Swift in Frameworks */,
-				B08CB5512B7DDF0E00E04C0D /* UUIDShortener in Frameworks */,
-				B08CB54B2B7DDF0E00E04C0D /* RLPSwift in Frameworks */,
-				B0D8395E2DDE4CF000CDC7BB /* VarInt in Frameworks */,
-				B08CB5492B7DDF0E00E04C0D /* SwiftKeccak in Frameworks */,
-				B09897FB2CB7286900C1D590 /* ExtrasBase64 in Frameworks */,
-				B08CB5452B7DDF0E00E04C0D /* KeccakTiny in Frameworks */,
-				B08CB5472B7DDF0E00E04C0D /* Sha3Tiny in Frameworks */,
-				B08CB53B2B7DDF0E00E04C0D /* Auth0 in Frameworks */,
-				B08CB53D2B7DDF0E00E04C0D /* Alamofire in Frameworks */,
-				B08CB54F2B7DDF0E00E04C0D /* SDWebImageSwiftUI in Frameworks */,
-				B08CB54D2B7DDF0E00E04C0D /* SwiftyJSON in Frameworks */,
-				B08CB53F2B7DDF0E00E04C0D /* SwiftEventBus in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B0A2FCE32AC8940E00AC825D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B0D8395C2DDE4CE800CDC7BB /* VarInt in Frameworks */,
-				B07ADFE12B6D5235005C5E5A /* KeccakTiny in Frameworks */,
-				B099A5B72B336CAD00C779A0 /* SDWebImageSwiftUI in Frameworks */,
-				B07ADFE52B6D5235005C5E5A /* SwiftKeccak in Frameworks */,
-				B0F9DC3C2B578D9800499C93 /* SDWebImagePDFCoder in Frameworks */,
-				B099A5AF2B336CAD00C779A0 /* Auth0 in Frameworks */,
-				B099A5B32B336CAD00C779A0 /* Base58Swift in Frameworks */,
-				B07ADFDF2B6D5222005C5E5A /* SwiftEventBus in Frameworks */,
-				B07ADFE72B6D5247005C5E5A /* UUIDShortener in Frameworks */,
-				B07ADFE32B6D5235005C5E5A /* Sha3Tiny in Frameworks */,
-				B099A5B52B336CAD00C779A0 /* SwiftyJSON in Frameworks */,
-				B099A5B12B336CAD00C779A0 /* Alamofire in Frameworks */,
-				B07ADFE92B6D5267005C5E5A /* RLPSwift in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		B0E60F6929CC23510079661E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -764,8 +505,6 @@
 			isa = PBXGroup;
 			children = (
 				B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */,
-				B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */,
-				B08CB52C2B7DDB2800E04C0D /* ShowcaseWallet.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -902,71 +641,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B08CB52B2B7DDB2800E04C0D /* ShowcaseWallet */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B08CB5392B7DDB2900E04C0D /* Build configuration list for PBXNativeTarget "ShowcaseWallet" */;
-			buildPhases = (
-				B08CB5282B7DDB2800E04C0D /* Sources */,
-				B08CB5292B7DDB2800E04C0D /* Frameworks */,
-				B08CB52A2B7DDB2800E04C0D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = ShowcaseWallet;
-			packageProductDependencies = (
-				B08CB53A2B7DDF0E00E04C0D /* Auth0 */,
-				B08CB53C2B7DDF0E00E04C0D /* Alamofire */,
-				B08CB53E2B7DDF0E00E04C0D /* SwiftEventBus */,
-				B08CB5402B7DDF0E00E04C0D /* Base58Swift */,
-				B08CB5422B7DDF0E00E04C0D /* QGrid */,
-				B08CB5442B7DDF0E00E04C0D /* KeccakTiny */,
-				B08CB5462B7DDF0E00E04C0D /* Sha3Tiny */,
-				B08CB5482B7DDF0E00E04C0D /* SwiftKeccak */,
-				B08CB54A2B7DDF0E00E04C0D /* RLPSwift */,
-				B08CB54C2B7DDF0E00E04C0D /* SwiftyJSON */,
-				B08CB54E2B7DDF0E00E04C0D /* SDWebImageSwiftUI */,
-				B08CB5502B7DDF0E00E04C0D /* UUIDShortener */,
-				B09897FA2CB7286900C1D590 /* ExtrasBase64 */,
-				B0D8395D2DDE4CF000CDC7BB /* VarInt */,
-			);
-			productName = ShowcaseWallet;
-			productReference = B08CB52C2B7DDB2800E04C0D /* ShowcaseWallet.app */;
-			productType = "com.apple.product-type.application";
-		};
-		B0A2FCE52AC8940E00AC825D /* WalletLinkTest */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = B0A2FCF12AC8940F00AC825D /* Build configuration list for PBXNativeTarget "WalletLinkTest" */;
-			buildPhases = (
-				B0A2FCE22AC8940E00AC825D /* Sources */,
-				B0A2FCE32AC8940E00AC825D /* Frameworks */,
-				B0A2FCE42AC8940E00AC825D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = WalletLinkTest;
-			packageProductDependencies = (
-				B099A5AE2B336CAD00C779A0 /* Auth0 */,
-				B099A5B02B336CAD00C779A0 /* Alamofire */,
-				B099A5B22B336CAD00C779A0 /* Base58Swift */,
-				B099A5B42B336CAD00C779A0 /* SwiftyJSON */,
-				B099A5B62B336CAD00C779A0 /* SDWebImageSwiftUI */,
-				B0F9DC3B2B578D9800499C93 /* SDWebImagePDFCoder */,
-				B07ADFDE2B6D5222005C5E5A /* SwiftEventBus */,
-				B07ADFE02B6D5235005C5E5A /* KeccakTiny */,
-				B07ADFE22B6D5235005C5E5A /* Sha3Tiny */,
-				B07ADFE42B6D5235005C5E5A /* SwiftKeccak */,
-				B07ADFE62B6D5247005C5E5A /* UUIDShortener */,
-				B07ADFE82B6D5267005C5E5A /* RLPSwift */,
-				B0D8395B2DDE4CE800CDC7BB /* VarInt */,
-			);
-			productName = WalletLinkTest;
-			productReference = B0A2FCE62AC8940E00AC825D /* WalletLinkTest.app */;
-			productType = "com.apple.product-type.application";
-		};
 		B0E60F6B29CC23510079661E /* EluvioWalletTVOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = B0E60F7A29CC23530079661E /* Build configuration list for PBXNativeTarget "EluvioWalletTVOS" */;
@@ -1014,12 +688,6 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					B08CB52B2B7DDB2800E04C0D = {
-						CreatedOnToolsVersion = 15.0;
-					};
-					B0A2FCE52AC8940E00AC825D = {
-						CreatedOnToolsVersion = 14.3.1;
-					};
 					B0E60F6B29CC23510079661E = {
 						CreatedOnToolsVersion = 14.2;
 					};
@@ -1057,70 +725,11 @@
 			projectRoot = "";
 			targets = (
 				B0E60F6B29CC23510079661E /* EluvioWalletTVOS */,
-				B0A2FCE52AC8940E00AC825D /* WalletLinkTest */,
-				B08CB52B2B7DDB2800E04C0D /* ShowcaseWallet */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		B08CB52A2B7DDB2800E04C0D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B08CB5A22B7DE34000E04C0D /* configuration.json in Resources */,
-				B08CB5602B7DDF6900E04C0D /* Test in Resources */,
-				B08CB55D2B7DDF6900E04C0D /* Preview Content in Resources */,
-				B0A598E12C33090800D6716F /* start-screen-bg.mp4 in Resources */,
-				B08CB55C2B7DDF6900E04C0D /* Fabric in Resources */,
-				B08CB55F2B7DDF6900E04C0D /* Models in Resources */,
-				B08CB55E2B7DDF6900E04C0D /* Managers in Resources */,
-				B08CB59C2B7DE0FD00E04C0D /* Configuration in Resources */,
-				B08CB55A2B7DDF6900E04C0D /* Utils in Resources */,
-				B08CB5612B7DDF6900E04C0D /* SharedViews in Resources */,
-				B08CB5362B7DDB2900E04C0D /* Preview Assets.xcassets in Resources */,
-				B08CB5332B7DDB2900E04C0D /* Assets.xcassets in Resources */,
-				B08CB5A12B7DE20200E04C0D /* Auth0.plist in Resources */,
-				B08CB55B2B7DDF6900E04C0D /* Views in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B0A2FCE42AC8940E00AC825D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B07AE0092B6D6C43005C5E5A /* configuration.json in Resources */,
-				B07ADFED2B6D54C8005C5E5A /* Test in Resources */,
-				B07AE0172B707D3D005C5E5A /* flash_page_5.mp4 in Resources */,
-				B08CB4E92B72D96200E04C0D /* AQP-InteractiveVideo.png in Resources */,
-				B08CB4E72B72D8F500E04C0D /* AQP-Script.png in Resources */,
-				B07ADFD02B6C22C8005C5E5A /* Models in Resources */,
-				B08CB4E52B72895900E04C0D /* AQP-audio-sync.json in Resources */,
-				B0F9DC4E2B5E311600499C93 /* the-war-of-the-worlds.pdf in Resources */,
-				B0F9DC492B5E30F900499C93 /* Entertainment Weekly - 05 July 2015.pdf in Resources */,
-				B07AE01B2B707FE8005C5E5A /* AQP-audio-pages.json in Resources */,
-				B0F9DC4B2B5E30F900499C93 /* a-quiet-place-2018.pdf in Resources */,
-				B07AE0082B6D6BF2005C5E5A /* Configuration in Resources */,
-				B07ADFDD2B6D5124005C5E5A /* Fabric in Resources */,
-				B07AE0182B707D3D005C5E5A /* flash_page_1.mp4 in Resources */,
-				B07ADFEC2B6D54C8005C5E5A /* Managers in Resources */,
-				B07AE0132B707A66005C5E5A /* AQP-IME.png in Resources */,
-				B0F9DC552B673E1100499C93 /* AQP - opening.pdf in Resources */,
-				B0F9DC572B67529E00499C93 /* AQP-Opening-Image.png in Resources */,
-				B0F9DC532B66FE1C00499C93 /* AQP-video-transcript.json in Resources */,
-				B0F9DC512B65FA4400499C93 /* A Quiet Place - Opening.mp4 in Resources */,
-				B0A2FCF02AC8940F00AC825D /* Preview Assets.xcassets in Resources */,
-				B0F9DC5B2B688D2D00499C93 /* A-Quiet-Place-Poster.jpg in Resources */,
-				B0F9DC4F2B5E311600499C93 /* the-book-of-five-rings.epub in Resources */,
-				B08CB4EB2B72E27C00E04C0D /* AQP-Dictation.png in Resources */,
-				B07AE0192B707D3D005C5E5A /* Flash-comic.pdf in Resources */,
-				B07AE0112B707A42005C5E5A /* AQP-audio.wav in Resources */,
-				B07ADFD42B6D50EE005C5E5A /* Utils in Resources */,
-				B07ADFF92B6D5B04005C5E5A /* SharedViews in Resources */,
-				B0A2FCED2AC8940F00AC825D /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		B0E60F6A29CC23510079661E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1144,166 +753,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B08CB5282B7DDB2800E04C0D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B0A5AB3E2CCAC2B800335D84 /* SectionGridView.swift in Sources */,
-				B0D544772C1B7B0F00558B21 /* MediaPropertyView.swift in Sources */,
-				B08CB5622B7DDFDA00E04C0D /* AudioPlayer.swift in Sources */,
-				B08CB59D2B7DE12800E04C0D /* configuration.json in Sources */,
-				B08CB5AC2B7DE8F200E04C0D /* ViewState.swift in Sources */,
-				B08CB5632B7DDFDA00E04C0D /* AVPlayerView.swift in Sources */,
-				B08CB5642B7DDFDA00E04C0D /* PlayerView.swift in Sources */,
-				B08CB5652B7DDFDA00E04C0D /* OfferView.swift in Sources */,
-				B0D544702C1B760800558B21 /* DiscoverView.swift in Sources */,
-				B08CB5662B7DDFDA00E04C0D /* GalleryView.swift in Sources */,
-				B08CB5672B7DDFDA00E04C0D /* SeriesDetailView.swift in Sources */,
-				B08CB5682B7DDFDA00E04C0D /* HTMLText.swift in Sources */,
-				B08CB5692B7DDFDA00E04C0D /* onWillDisappear+View.swift in Sources */,
-				B08CB56A2B7DDFDA00E04C0D /* Color.swift in Sources */,
-				B08CB56B2B7DDFDA00E04C0D /* Styles.swift in Sources */,
-				B08CB56C2B7DDFDA00E04C0D /* QRView.swift in Sources */,
-				B08CB56D2B7DDFDA00E04C0D /* LoopingPlayer.swift in Sources */,
-				B08CB56E2B7DDFDA00E04C0D /* MediaView.swift in Sources */,
-				B08CB56F2B7DDFDA00E04C0D /* Utils.swift in Sources */,
-				B0A598D82C22967100D6716F /* SectionItemView.swift in Sources */,
-				B077B8D72B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */,
-				B08CB5702B7DDFDA00E04C0D /* ContentKeyDelegate.swift in Sources */,
-				B08CB5712B7DDFDA00E04C0D /* ContentKeyManager.swift in Sources */,
-				B077BE662C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */,
-				B08CB5742B7DDFDA00E04C0D /* NFTGrid.swift in Sources */,
-				B08CB5752B7DDFDA00E04C0D /* NFTView.swift in Sources */,
-				B0A830EF2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */,
-				B08CB5762B7DDFDA00E04C0D /* MainView.swift in Sources */,
-				B08CB5772B7DDFDA00E04C0D /* SignInView.swift in Sources */,
-				B08CB5782B7DDFDA00E04C0D /* DeviceFlowView.swift in Sources */,
-				B08CB5792B7DDFDA00E04C0D /* WalletView.swift in Sources */,
-				B0A598DB2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */,
-				B08CB57A2B7DDFDA00E04C0D /* CollectionView.swift in Sources */,
-				B08CB57B2B7DDFDA00E04C0D /* ProfileView.swift in Sources */,
-				B08CB57C2B7DDFDA00E04C0D /* CachedAsyncImage.swift in Sources */,
-				B08CB57D2B7DDFDA00E04C0D /* MyItemsView.swift in Sources */,
-				B08CB57E2B7DDFDA00E04C0D /* SearchView.swift in Sources */,
-				B08CB5832B7DDFDA00E04C0D /* DropDetail.swift in Sources */,
-				B08CB5842B7DDFDA00E04C0D /* MetaMaskFlowView.swift in Sources */,
-				B08CB5852B7DDFDA00E04C0D /* MyMediaViewDemo.swift in Sources */,
-				B08CB5862B7DDFDA00E04C0D /* NFTDetailMovieView.swift in Sources */,
-				B0D5446D2C17925800558B21 /* MediaPropertyModel.swift in Sources */,
-				B08CB5872B7DDFDA00E04C0D /* MinterView.swift in Sources */,
-				B08CB5882B7DDFDA00E04C0D /* BackButton.swift in Sources */,
-				B077BE632C5209F00056DDB1 /* SearchModels.swift in Sources */,
-				B08CB5892B7DDFDA00E04C0D /* PackView.swift in Sources */,
-				B08CB58A2B7DDFDA00E04C0D /* MarketplaceModel.swift in Sources */,
-				B0A5AB412CCAC53A00335D84 /* MediaPropertySectionView.swift in Sources */,
-				B0A830EC2C78547B0037BE59 /* States.swift in Sources */,
-				B08CB58B2B7DDFDA00E04C0D /* NFTModel.swift in Sources */,
-				B08CB58C2B7DDFDA00E04C0D /* ProfileModel.swift in Sources */,
-				B08CB58D2B7DDFDA00E04C0D /* Auth0Models.swift in Sources */,
-				B08CB58E2B7DDFDA00E04C0D /* AdditionalMediaModel.swift in Sources */,
-				B08CB58F2B7DDFDA00E04C0D /* PropertyModel.swift in Sources */,
-				B08CB5902B7DDFDA00E04C0D /* MediaRowViewModel.swift in Sources */,
-				B08CB5912B7DDFDA00E04C0D /* AudioPageModel.swift in Sources */,
-				B0D544742C1B7AEE00558B21 /* MediaPropertyViewModel.swift in Sources */,
-				B08CB5922B7DDFDA00E04C0D /* Fabric.swift in Sources */,
-				B0A598E82C33B0E000D6716F /* MainViewSideNav.swift in Sources */,
-				B0A830E32C7129120037BE59 /* AccountManager.swift in Sources */,
-				B08CB5932B7DDFDA00E04C0D /* FabricConfiguration.swift in Sources */,
-				B08CB5942B7DDFDA00E04C0D /* FabricModels.swift in Sources */,
-				B08CB5952B7DDFDA00E04C0D /* NFTMetaResponse.swift in Sources */,
-				B0A830E62C74E9740037BE59 /* CountdownView.swift in Sources */,
-				B08CB5962B7DDFDA00E04C0D /* RemoteSigner.swift in Sources */,
-				B08CB5972B7DDFDA00E04C0D /* Profile.swift in Sources */,
-				B0A830E92C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
-				B0D5447A2C1C0BC200558B21 /* MediaPropertyDetailView.swift in Sources */,
-				B08CB5982B7DDFDA00E04C0D /* AppConfiguration.swift in Sources */,
-				B0AF0DC82CED1339006A87C6 /* PurchaseView.swift in Sources */,
-				B08CB5992B7DDFDA00E04C0D /* ProfileClient.swift in Sources */,
-				B08CB59A2B7DDFDA00E04C0D /* TestData.swift in Sources */,
-				B08CB5312B7DDB2800E04C0D /* ContentView.swift in Sources */,
-				B01500E62D5FED5200F9B826 /* MediaImageView.swift in Sources */,
-				B08CB52F2B7DDB2800E04C0D /* ShowcaseWalletApp.swift in Sources */,
-				B0EAAF922CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B0A2FCE22AC8940E00AC825D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B08CB4E02B70A30D00E04C0D /* AudioPlayer.swift in Sources */,
-				B08CB4E32B7143EB00E04C0D /* AudioPageModel.swift in Sources */,
-				B07AE0052B6D6B53005C5E5A /* AVPlayerView.swift in Sources */,
-				B07AE0042B6D6A2D005C5E5A /* PlayerView.swift in Sources */,
-				B07ADFFF2B6D67B3005C5E5A /* OfferView.swift in Sources */,
-				B07AE0002B6D67B3005C5E5A /* GalleryView.swift in Sources */,
-				B07AE0012B6D67B3005C5E5A /* SeriesDetailView.swift in Sources */,
-				B07AE0022B6D67B3005C5E5A /* HTMLText.swift in Sources */,
-				B07AE0032B6D67B3005C5E5A /* onWillDisappear+View.swift in Sources */,
-				B07ADFFA2B6D5B11005C5E5A /* MediaView.swift in Sources */,
-				B08CB5072B7D586C00E04C0D /* ShowcasePage.swift in Sources */,
-				B07ADFF02B6D54E4005C5E5A /* TestData.swift in Sources */,
-				B07ADFF12B6D54E4005C5E5A /* nfts.json in Sources */,
-				B07ADFF22B6D54E4005C5E5A /* nfts_marketplace.json in Sources */,
-				B07ADFF32B6D54E4005C5E5A /* marketplaces.json in Sources */,
-				B07ADFF42B6D54E4005C5E5A /* profile.json in Sources */,
-				B07ADFF52B6D54E4005C5E5A /* tenant.json in Sources */,
-				B07ADFF62B6D54E4005C5E5A /* property.json in Sources */,
-				B07ADFEE2B6D54DA005C5E5A /* ContentKeyDelegate.swift in Sources */,
-				B07ADFEF2B6D54DA005C5E5A /* ContentKeyManager.swift in Sources */,
-				B07ADFD52B6D5117005C5E5A /* Fabric.swift in Sources */,
-				B07ADFFE2B6D5C7C005C5E5A /* Color.swift in Sources */,
-				B07ADFD62B6D5117005C5E5A /* FabricModels.swift in Sources */,
-				B07ADFD72B6D5117005C5E5A /* NFTMetaResponse.swift in Sources */,
-				B07ADFD82B6D5117005C5E5A /* RemoteSigner.swift in Sources */,
-				B07ADFD92B6D5117005C5E5A /* Profile.swift in Sources */,
-				B07ADFDA2B6D5117005C5E5A /* AppConfiguration.swift in Sources */,
-				B07ADFDB2B6D5117005C5E5A /* ProfileClient.swift in Sources */,
-				B07ADFFB2B6D5B5A005C5E5A /* LoopingPlayer.swift in Sources */,
-				B07ADFFC2B6D5BF5005C5E5A /* QRView.swift in Sources */,
-				B07ADFD22B6D50DB005C5E5A /* Utils.swift in Sources */,
-				B07ADFC82B6C2119005C5E5A /* MarketplaceModel.swift in Sources */,
-				B07ADFC92B6C2119005C5E5A /* NFTModel.swift in Sources */,
-				B07ADFCA2B6C2119005C5E5A /* ProfileModel.swift in Sources */,
-				B07ADFCB2B6C2119005C5E5A /* Auth0Models.swift in Sources */,
-				B07ADFCC2B6C2119005C5E5A /* AdditionalMediaModel.swift in Sources */,
-				B07ADFCD2B6C2119005C5E5A /* PropertyModel.swift in Sources */,
-				B07ADFCE2B6C2119005C5E5A /* MediaRowViewModel.swift in Sources */,
-				B00FA9E92AD905FD00CFBFF7 /* UNextPage.swift in Sources */,
-				B0A2FD022ACC9C1000AC825D /* FabricConfiguration.swift in Sources */,
-				B06404CB2B2B8BA500945E98 /* DeviceFlowViewNew.swift in Sources */,
-				B0F9DC442B5E216C00499C93 /* BooksGallery.swift in Sources */,
-				B0A2FCEB2AC8940E00AC825D /* ContentView.swift in Sources */,
-				B0F9DC422B5B4E5500499C93 /* ProgressSlider.swift in Sources */,
-				B0A2FCFB2ACA96EC00AC825D /* MaxPage.swift in Sources */,
-				B00FA9EB2AD9170100CFBFF7 /* LaunchButton.swift in Sources */,
-				B06404CF2B2B8DF700945E98 /* AuthService_bak.swift in Sources */,
-				B0A2FCF92ACA8DE400AC825D /* BluePage.swift in Sources */,
-				B0F9DC322B4F973400499C93 /* MSPage.swift in Sources */,
-				B07ADFC12B6C1E39005C5E5A /* InfoTab.swift in Sources */,
-				B0A2FCFF2ACB658E00AC825D /* PlayerView2.swift in Sources */,
-				B07ADFC32B6C1E91005C5E5A /* InteractiveTab.swift in Sources */,
-				B07ADFBF2B6C1E1A005C5E5A /* ThumbnailView.swift in Sources */,
-				B0A2FD012ACC98B500AC825D /* Fabric_bak.swift in Sources */,
-				B07ADFFD2B6D5C04005C5E5A /* Styles.swift in Sources */,
-				B04586F52AF4993B00F1FF25 /* FandangoPage.swift in Sources */,
-				B0F9DC402B58274200499C93 /* PageGesture.swift in Sources */,
-				B0A2FCE92AC8940E00AC825D /* WalletLinkTestApp.swift in Sources */,
-				B0EAAF912CADA004000F1BAD /* PurchaseQRView.swift in Sources */,
-				B07ADFBD2B6B3DC7005C5E5A /* ProgressControlView.swift in Sources */,
-				B0F9DC3E2B57912700499C93 /* PDFPage.swift in Sources */,
-				B077B8D62B8FA8FD009E3B6B /* AuthServicesModels.swift in Sources */,
-				B0F9DC592B68302400499C93 /* InteractiveMediaView.swift in Sources */,
-				B00FA9E72AD905D500CFBFF7 /* KTPage.swift in Sources */,
-				B0A2FCF72AC894EB00AC825D /* TubiPage.swift in Sources */,
-				B00FA9E52AD904F400CFBFF7 /* FetchPage.swift in Sources */,
-				B0D53D702AE754E900E0A82E /* VuduPage.swift in Sources */,
-				B0A2FCFD2ACAA3CA00AC825D /* UEFAPage.swift in Sources */,
-				B08CB5AB2B7DE8F200E04C0D /* ViewState.swift in Sources */,
-				B0A2FCF62AC894EB00AC825D /* LaunchPage.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		B0E60F6829CC23510079661E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1390,125 +839,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		B08CB5372B7DDB2900E04C0D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
-				DEVELOPMENT_ASSET_PATHS = "\"ShowcaseWallet/Preview Content\"";
-				DEVELOPMENT_TEAM = 2KH8KC3MMX;
-				ENABLE_PREVIEWS = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShowcaseWallet/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Showcase Media Wallet";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.ShowcaseWallet;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
-			};
-			name = Debug;
-		};
-		B08CB5382B7DDB2900E04C0D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 4;
-				DEVELOPMENT_ASSET_PATHS = "\"ShowcaseWallet/Preview Content\"";
-				DEVELOPMENT_TEAM = 2KH8KC3MMX;
-				ENABLE_PREVIEWS = YES;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = ShowcaseWallet/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Showcase Media Wallet";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.ShowcaseWallet;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
-			};
-			name = Release;
-		};
-		B0A2FCF22AC8940F00AC825D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 50;
-				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
-				DEVELOPMENT_TEAM = 2KH8KC3MMX;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = WalletLinkTest/Info.plist;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.WalletLinkTest;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 17.0;
-			};
-			name = Debug;
-		};
-		B0A2FCF32AC8940F00AC825D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = "App Icon & Top Shelf Image";
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 50;
-				DEVELOPMENT_ASSET_PATHS = "\"WalletLinkTest/Preview Content\"";
-				DEVELOPMENT_TEAM = 2KH8KC3MMX;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = WalletLinkTest/Info.plist;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UIUserInterfaceStyle = Automatic;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.WalletLinkTest;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 17.0;
-			};
-			name = Release;
-		};
 		B0E60F7829CC23530079661E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1698,24 +1028,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B08CB5392B7DDB2900E04C0D /* Build configuration list for PBXNativeTarget "ShowcaseWallet" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B08CB5372B7DDB2900E04C0D /* Debug */,
-				B08CB5382B7DDB2900E04C0D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		B0A2FCF12AC8940F00AC825D /* Build configuration list for PBXNativeTarget "WalletLinkTest" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B0A2FCF22AC8940F00AC825D /* Debug */,
-				B0A2FCF32AC8940F00AC825D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		B0E60F6729CC23510079661E /* Build configuration list for PBXProject "EluvioWalletTVOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1908,135 +1220,15 @@
 			package = B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = "Introspect-Static";
 		};
-		B07ADFDE2B6D5222005C5E5A /* SwiftEventBus */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */;
-			productName = SwiftEventBus;
-		};
-		B07ADFE02B6D5235005C5E5A /* KeccakTiny */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
-			productName = KeccakTiny;
-		};
-		B07ADFE22B6D5235005C5E5A /* Sha3Tiny */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
-			productName = Sha3Tiny;
-		};
-		B07ADFE42B6D5235005C5E5A /* SwiftKeccak */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
-			productName = SwiftKeccak;
-		};
-		B07ADFE62B6D5247005C5E5A /* UUIDShortener */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */;
-			productName = UUIDShortener;
-		};
-		B07ADFE82B6D5267005C5E5A /* RLPSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */;
-			productName = RLPSwift;
-		};
 		B08AEB8C2AD4D1CE002E3D2A /* SwiftUIIntrospect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
 			productName = SwiftUIIntrospect;
 		};
-		B08CB53A2B7DDF0E00E04C0D /* Auth0 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9029CD84160079661E /* XCRemoteSwiftPackageReference "Auth0" */;
-			productName = Auth0;
-		};
-		B08CB53C2B7DDF0E00E04C0D /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
-		};
-		B08CB53E2B7DDF0E00E04C0D /* SwiftEventBus */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */;
-			productName = SwiftEventBus;
-		};
-		B08CB5402B7DDF0E00E04C0D /* Base58Swift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */;
-			productName = Base58Swift;
-		};
-		B08CB5422B7DDF0E00E04C0D /* QGrid */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */;
-			productName = QGrid;
-		};
-		B08CB5442B7DDF0E00E04C0D /* KeccakTiny */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
-			productName = KeccakTiny;
-		};
-		B08CB5462B7DDF0E00E04C0D /* Sha3Tiny */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
-			productName = Sha3Tiny;
-		};
-		B08CB5482B7DDF0E00E04C0D /* SwiftKeccak */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
-			productName = SwiftKeccak;
-		};
-		B08CB54A2B7DDF0E00E04C0D /* RLPSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */;
-			productName = RLPSwift;
-		};
-		B08CB54C2B7DDF0E00E04C0D /* SwiftyJSON */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
-			productName = SwiftyJSON;
-		};
-		B08CB54E2B7DDF0E00E04C0D /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
-		};
-		B08CB5502B7DDF0E00E04C0D /* UUIDShortener */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */;
-			productName = UUIDShortener;
-		};
-		B09897FA2CB7286900C1D590 /* ExtrasBase64 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */;
-			productName = ExtrasBase64;
-		};
 		B09897FC2CB7288100C1D590 /* ExtrasBase64 */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B09897F92CB7282C00C1D590 /* XCRemoteSwiftPackageReference "swift-extras-base64" */;
 			productName = ExtrasBase64;
-		};
-		B099A5AE2B336CAD00C779A0 /* Auth0 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9029CD84160079661E /* XCRemoteSwiftPackageReference "Auth0" */;
-			productName = Auth0;
-		};
-		B099A5B02B336CAD00C779A0 /* Alamofire */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */;
-			productName = Alamofire;
-		};
-		B099A5B22B336CAD00C779A0 /* Base58Swift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */;
-			productName = Base58Swift;
-		};
-		B099A5B42B336CAD00C779A0 /* SwiftyJSON */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
-			productName = SwiftyJSON;
-		};
-		B099A5B62B336CAD00C779A0 /* SDWebImageSwiftUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
-			productName = SDWebImageSwiftUI;
 		};
 		B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -2049,16 +1241,6 @@
 			productName = MUXSDKStats;
 		};
 		B0D839592DDE4CDC00CDC7BB /* VarInt */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */;
-			productName = VarInt;
-		};
-		B0D8395B2DDE4CE800CDC7BB /* VarInt */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */;
-			productName = VarInt;
-		};
-		B0D8395D2DDE4CF000CDC7BB /* VarInt */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */;
 			productName = VarInt;
@@ -2087,11 +1269,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */;
 			productName = Base58Swift;
-		};
-		B0F9DC3B2B578D9800499C93 /* SDWebImagePDFCoder */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0F9DC3A2B578D9800499C93 /* XCRemoteSwiftPackageReference "SDWebImagePDFCoder" */;
-			productName = SDWebImagePDFCoder;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,12 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "WPA - Media Wallet Logo (1280 x 768) 1.png",
+      "filename" : "WPA - Media Wallet Text (1280 x 768).png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "WPA - Media Wallet Logo (1280 x 768).png",
       "idiom" : "tv",
       "scale" : "2x"
     }
