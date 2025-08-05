@@ -40,13 +40,13 @@ struct DiscoverView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0){
             if eluvio.isCustomApp() {
-                VStack(alignment:.center, spacing:80){
+                VStack(alignment:.center, spacing:40){
                     Spacer()
                     if properties.count == 1 {
                         WebImage(url: URL(string: properties[0].startScreenImage))
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width:1000, height:400, alignment:.leading)
+                            .frame(width:900, height:400, alignment:.leading)
                             .id(topId)
 
                         MediaPropertyView(property:properties[0], selected: $selected, isSimple: true)

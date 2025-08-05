@@ -17,7 +17,9 @@ struct MediaPropertyView : View {
     @Binding var selected : MediaPropertyViewModel
     static var factor = 1.0
     var isSimple = false
-    var simpleText = "Start Streaming"
+    var simpleText : String  {
+        return eluvio.accountManager.isLoggedOut ? "Sign In" : "Welcome Back"
+    }
     
     var width : CGFloat {
         if landscape {
