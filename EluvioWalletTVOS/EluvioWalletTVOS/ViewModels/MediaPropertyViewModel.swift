@@ -28,6 +28,9 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
     var hasAuth : Bool = false
     var model : MediaProperty? = nil
     
+    var startScreenImage: String = ""
+    var startScreenBackground: String = ""
+    
     static func == (lhs: MediaPropertyViewModel, rhs: MediaPropertyViewModel) -> Bool {
         return lhs.id == rhs.id
     }
@@ -48,6 +51,16 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
         }catch{
             //print("Could not create image URL \(error)")
         }
+        
+        var startScreenImage = ""
+        do {
+            startScreenImage = try fabric.getUrlFromLink(link: mediaProperty.start_screen_logo)
+        }catch{}
+        
+        var startScreenBackground = ""
+        do {
+            startScreenBackground = try fabric.getUrlFromLink(link: mediaProperty.start_screen_background)
+        }catch{}
         
         var backgroundImage = ""
         do {
@@ -98,7 +111,9 @@ struct MediaPropertyViewModel: Identifiable, Codable, Equatable, Hashable  {
             permission_auth_state: mediaProperty.permission_auth_state,
             purchaseImage: purchaseImage,
             hasAuth: fabric.checkPropertyAuthState(property:mediaProperty),
-            model : mediaProperty
+            model : mediaProperty,
+            startScreenImage: startScreenImage,
+            startScreenBackground: startScreenBackground
         )
     }
 }

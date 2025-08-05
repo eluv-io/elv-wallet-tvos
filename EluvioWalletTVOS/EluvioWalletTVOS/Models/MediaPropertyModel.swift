@@ -25,6 +25,8 @@ class MediaProperty: Codable, Identifiable, Hashable {
     var id : String?
     var image : JSON?
     var image_tv : JSON?
+    var start_screen_logo: JSON?
+    var start_screen_background: JSON?
     var login: JSON?
     var name : String?
     var title: String?

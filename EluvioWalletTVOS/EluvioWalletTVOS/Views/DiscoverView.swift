@@ -43,19 +43,12 @@ struct DiscoverView: View {
                 VStack(alignment:.center, spacing:80){
                     Spacer()
                     if properties.count == 1 {
-                        Image("start-screen-logo")
+                        WebImage(url: URL(string: properties[0].startScreenImage))
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width:1000, height:400, alignment:.leading)
                             .id(topId)
-                            .onLongPressGesture(minimumDuration: 5) {
-                                print("Secret Long Press Action!")
-                                //FIXME: This does not work
-                                //showHiddenMenu = true
-                            }
-                        
-                        .frame(maxWidth:.infinity)
-                        
+
                         MediaPropertyView(property:properties[0], selected: $selected, isSimple: true)
                             .environmentObject(self.eluvio.pathState)
 
@@ -118,42 +111,32 @@ struct DiscoverView: View {
             }
         }
         .onChange(of:selected){ old, new in
-            if !new.backgroundImage.isEmpty {
-                withAnimation(.easeIn(duration: 1)){
-                    backgroundImageURL = new.backgroundImage
-                }
-            }else{
-                Task {
-                    do {
-                        if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
-                            //debugPrint("Fetched new property ", mediaProperty.id)
-                            let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
-                            withAnimation(.easeIn(duration:1)){
-                                backgroundImageURL = viewItem.backgroundImage
+            Task {
+                do {
+                    if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
+                        //debugPrint("Fetched new property ", mediaProperty.id)
+                        let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
+                        withAnimation(.easeIn(duration:1)){
+                            if eluvio.isCustomApp() {
+                                backgroundImageURL = new.startScreenBackground
+                            }else {
+                                backgroundImageURL = new.backgroundImage
                             }
                         }
-                    }catch{
-                        debugPrint("Could not fetch new property ",error.localizedDescription)
                     }
+                }catch{
+                    debugPrint("Could not fetch new property ",error.localizedDescription)
                 }
             }
         }
         .background(
             Group{
-                if eluvio.isCustomApp() {
-                    Image("start-screen-background")
+                if (!backgroundImageURL.isEmpty){
+                    WebImage(url: URL(string:backgroundImageURL))
                         .resizable()
                         .aspectRatio(contentMode: .fill)
                         .edgesIgnoringSafeArea(.all)
                         .frame(width:UIScreen.main.bounds.size.width, height:UIScreen.main.bounds.size.height)
-                }else {
-                    if (!backgroundImageURL.isEmpty){
-                        WebImage(url: URL(string:backgroundImageURL))
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .edgesIgnoringSafeArea(.all)
-                            .frame(width:UIScreen.main.bounds.size.width, height:UIScreen.main.bounds.size.height)
-                    }
                 }
             }
             .opacity(opacity)
@@ -224,7 +207,7 @@ struct DiscoverView: View {
                 
                 for property in props{
                     let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                    if mediaProperty.image.isEmpty {
+                    if mediaProperty.image.isEmpty && !eluvio.isCustomApp(){
                         debugPrint("image is empty")
                     }else{
                         newProperties.append(mediaProperty)
@@ -237,7 +220,12 @@ struct DiscoverView: View {
                 }
                 
                 await MainActor.run {
-                    if newProperties.count > 0 {
+                    if eluvio.isCustomApp() && newProperties.count == 1 {
+                        selected = newProperties[0]
+                        withAnimation(.easeIn(duration: 1)){
+                            backgroundImageURL = selected.startScreenBackground
+                        }
+                    }else if newProperties.count > 1 {
                         selected = newProperties[0]
                         withAnimation(.easeIn(duration: 1)){
                             backgroundImageURL = selected.backgroundImage
