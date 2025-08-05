@@ -113,14 +113,14 @@ struct DiscoverView: View {
         .onChange(of:selected){ old, new in
             Task {
                 do {
-                    if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "") {
-                        //debugPrint("Fetched new property ", mediaProperty.id)
+                    if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "", newFetch: DiscoverView.refreshId != eluvio.refreshId) {
+                        debugPrint("Fetched new property ", mediaProperty.id)
                         let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
                         withAnimation(.easeIn(duration:1)){
                             if eluvio.isCustomApp() {
-                                backgroundImageURL = new.startScreenBackground
+                                backgroundImageURL = viewItem.startScreenBackground
                             }else {
-                                backgroundImageURL = new.backgroundImage
+                                backgroundImageURL = viewItem.backgroundImage
                             }
                         }
                     }
@@ -211,7 +211,7 @@ struct DiscoverView: View {
                         debugPrint("image is empty")
                     }else{
                         newProperties.append(mediaProperty)
-                        //debugPrint("Finished setting properties ", mediaProperty.image);
+                        debugPrint("Added property ", mediaProperty.id)
                     }
                     
                     if newProperties.count > 16 {
@@ -219,21 +219,20 @@ struct DiscoverView: View {
                     }
                 }
                 
-                await MainActor.run {
-                    if eluvio.isCustomApp() && newProperties.count == 1 {
-                        selected = newProperties[0]
-                        withAnimation(.easeIn(duration: 1)){
-                            backgroundImageURL = selected.startScreenBackground
-                        }
-                    }else if newProperties.count > 1 {
-                        selected = newProperties[0]
-                        withAnimation(.easeIn(duration: 1)){
-                            backgroundImageURL = selected.backgroundImage
-                        }
+                if eluvio.isCustomApp() && newProperties.count == 1 {
+                    selected = newProperties[0]
+                    withAnimation(.easeIn(duration: 1)){
+                        backgroundImageURL = newProperties[0].startScreenBackground
+                        debugPrint("Setting backgroundImageURL ", backgroundImageURL)
                     }
-                    self.properties = newProperties
-                    debugPrint("Finished setting properties")
+                }else if newProperties.count > 1 {
+                    selected = newProperties[0]
+                    withAnimation(.easeIn(duration: 1)){
+                        backgroundImageURL = newProperties[0].backgroundImage
+                    }
                 }
+                self.properties = newProperties
+                debugPrint("Finished setting properties")
             }catch(FabricError.apiError(let code, let response, let error)){
                 eluvio.handleApiError(code: code, response: response, error: error)
             }catch {

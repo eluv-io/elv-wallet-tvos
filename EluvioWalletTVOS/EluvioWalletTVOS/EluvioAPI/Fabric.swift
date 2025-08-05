@@ -1187,7 +1187,7 @@ class Fabric: ObservableObject {
                        devMode:Bool=false,
                        properties:[String]? = nil
     ) async throws -> [MediaProperty] {
-        debugPrint("Fabric getProperties includingPublic \(includePublic) noCache \(noCache) noAuth \(noAuth)")
+        debugPrint("Fabric getProperties includingPublic \(includePublic) noCache \(noCache) noAuth \(noAuth) newFetch \(newFetch)")
         
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
@@ -1199,7 +1199,7 @@ class Fabric: ObservableObject {
                 
                 if !allowedProperties.isEmpty {
                     for propertyId in allowedProperties {
-                        if let prop = try await getProperty(property: propertyId) {
+                        if let prop = try await getProperty(property: propertyId, noCache: true, newFetch: true) {
                             response.contents.insert(prop, at:0)
                             debugPrint("added allowed prop ", prop.title)
                         }
