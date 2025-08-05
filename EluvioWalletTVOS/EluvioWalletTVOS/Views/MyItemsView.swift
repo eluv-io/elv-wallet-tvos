@@ -95,23 +95,25 @@ struct MyItemsView: View {
         .onAppear(){
             Task{
                 do {
-                    debugPrint("My Items getting properties")
-                    let props = try await eluvio.fabric.getProperties(includePublic:false, newFetch:true)
                     
-                    var properties: [MediaPropertyViewModel] = []
-                    
-                    for property in props {
+                    if !eluvio.isCustomApp() {
+                        let props = try await eluvio.fabric.getProperties(includePublic:false, newFetch:true)
                         
-                        let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                        if mediaProperty.title.isEmpty {
-                            debugPrint("Property without a title: \(property.slug ?? "").")
-                        }else{
-                            properties.append(mediaProperty)
+                        var properties: [MediaPropertyViewModel] = []
+                        
+                        for property in props {
+                            
+                            let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
+                            if mediaProperty.title.isEmpty {
+                                debugPrint("Property without a title: \(property.slug ?? "").")
+                            }else{
+                                properties.append(mediaProperty)
+                            }
+                            
                         }
                         
+                        self.properties = properties
                     }
-                    
-                    self.properties = properties
                 }catch(FabricError.apiError(let code, let response, let error)){
                     eluvio.handleApiError(code: code, response: response, error: error)
                 }catch {
