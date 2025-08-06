@@ -21,21 +21,27 @@ A Physical Apple TV is recommended for development since simulators do not allow
 4. In Xcode, go to project settings by clicking the top ELuvioWalletTVOS -> TARGETS / EluvioWalletTVOS and under "General", change:
    - Display Name, Bundle Identifier, Version, Build
 5. Switch to the "Signing & Capabilities" and make sure "Automatically manage signing" is on and the correct Team and Bundle Identifier is set in the previous step.
-6. Pair your apple tv to XCode or run your app in a Simulator
+6. If you get missing Packages errors, go to File->Packages/Resolve Package Versions.
+7. Pair your apple tv to XCode or run your app in a Simulator
    - https://developer.apple.com/documentation/xcode/running-your-app-in-simulator-or-on-a-device
-7. Once the Eluvio TVOS Media Wallet is able to build and run, you can start customizing for your own property.
+8. Once the Eluvio TVOS Media Wallet is able to build and run, you can start customizing for your own property.
 
 ## Customization
-1. Find your property's ID (starts with "iq__") from either Creator Studio or from https://wallet.contentfabric.io/
-2. Go to Configuration/configuration.json and add the property ID into the "allowed_properties" array:
+1. Find your property's ID (starts with "iq__") from either Creator Studio -> Media Properties -> Property Page
+2. Go to Xcode's Project browser and find Configuration/configuration.json and add the property ID into the "allowed_properties" array:
 
 ```
     "allowed_properties" : [
       "iq_xxxxx"
     ]
 ```
-3. You can change the App Icon and Top Shelf Images. Inside XCode, open ElvioWalletTVOS/Assets and drag and drop your custom Icon images into each slot. ie. Front / Middle/ Back.
+3. You can change the App Icon and Top Shelf Images. Inside XCode, open ElvioWalletTVOS/Assets, Click on "App Icon" and drag and drop your custom Icon images into each slot for 1x and 2x for Front/Middle/Back. Make sure to use a "png" for the Front and Middle, and "jpg" for the Back. Repeat for App Icon - App Store, Top Shelf Image and Top Shelf Image Wide.
    - https://developer.apple.com/documentation/xcode/configuring-your-app-icon
+   - Images sizes for 1x (2x is twice the size):
+   - App Icon: 1x - 400x240, 2x - 800x480 
+   - App Icon: App Store 1x - 1280x768, 2x - 2560x1536
+   - Top Shelf Image: 1x - 1920x720, 2x - 3840x1440
+   - Top Shelf Image Wide: 1x - 2320x720, 2x - 4640x1440
 4. In Creator Studio, make sure the property has a start_screen_background and start_screen_logo set.
 4. You can now run your app to see the single property mode with customizations.
 
