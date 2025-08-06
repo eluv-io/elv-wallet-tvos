@@ -69,7 +69,6 @@
 		B0A2FD062ACF3E6A00AC825D /* MinterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A2FD052ACF3E6A00AC825D /* MinterView.swift */; };
 		B0A598D72C22967100D6716F /* SectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D62C22967100D6716F /* SectionItemView.swift */; };
 		B0A598DA2C229AD200D6716F /* MediaPropertySectionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */; };
-		B0A598E02C33090800D6716F /* start-screen-bg.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */; };
 		B0A598E52C33976100D6716F /* PageGesture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F9DC3F2B58274200499C93 /* PageGesture.swift */; };
 		B0A598E72C33B0E000D6716F /* MainViewSideNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */; };
 		B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */; };
@@ -226,7 +225,6 @@
 		B0A2FD052ACF3E6A00AC825D /* MinterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinterView.swift; sourceTree = "<group>"; };
 		B0A598D62C22967100D6716F /* SectionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionItemView.swift; sourceTree = "<group>"; };
 		B0A598D92C229AD200D6716F /* MediaPropertySectionItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertySectionItemView.swift; sourceTree = "<group>"; };
-		B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "start-screen-bg.mp4"; sourceTree = "<group>"; };
 		B0A598E62C33B0E000D6716F /* MainViewSideNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewSideNav.swift; sourceTree = "<group>"; };
 		B0A5AB3D2CCAC2B100335D84 /* SectionGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionGridView.swift; sourceTree = "<group>"; };
 		B0A5AB402CCAC53400335D84 /* MediaPropertySectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaPropertySectionView.swift; sourceTree = "<group>"; };
@@ -512,7 +510,6 @@
 		B0E60F6E29CC23510079661E /* EluvioWalletTVOS */ = {
 			isa = PBXGroup;
 			children = (
-				B0A598DF2C33090700D6716F /* start-screen-bg.mp4 */,
 				B0D544712C1B7AA900558B21 /* ViewModels */,
 				B07ADFF72B6D5AD7005C5E5A /* SharedViews */,
 				B07ADFD12B6D50BF005C5E5A /* Utils */,
@@ -741,7 +738,6 @@
 				B0D5446A2C176EC200558B21 /* properties.json in Resources */,
 				B00945AE29EA478D00B00FC3 /* nfts.json in Resources */,
 				B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */,
-				B0A598E02C33090800D6716F /* start-screen-bg.mp4 in Resources */,
 				B06C4C4F2A5D09A9003C414A /* configuration_bak.json in Resources */,
 				B0E60F7E29CD63B60079661E /* configuration.json in Resources */,
 				B00945B129EA478D00B00FC3 /* profile.json in Resources */,
