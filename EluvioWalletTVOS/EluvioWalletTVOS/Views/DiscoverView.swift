@@ -12,6 +12,7 @@ import SDWebImageSwiftUI
 
 struct DiscoverView: View {
     @EnvironmentObject var eluvio: EluvioAPI
+    @Namespace private var DiscoverViewNamespace
     @State private var properties : [MediaPropertyViewModel] = []
     @State private var fabricCancellable: AnyCancellable? = nil
     @State private var fabricCancellable2: AnyCancellable? = nil
@@ -51,6 +52,7 @@ struct DiscoverView: View {
 
                         MediaPropertyView(property:properties[0], selected: $selected, isSimple: true)
                             .environmentObject(self.eluvio.pathState)
+                            .prefersDefaultFocus(in: DiscoverViewNamespace)
 
                     }
                     Spacer()

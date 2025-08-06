@@ -151,6 +151,9 @@ struct MediaPropertyView : View {
                     Text(simpleText)
                 }
                 .focused($focused)
+                .onAppear() {
+                    focused = true
+                }
             }else {
                 Button(action: buttonPressed){
                     if property.image != "" {
