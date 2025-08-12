@@ -601,6 +601,10 @@ struct MediaPropertySectionView: View {
         return false
     }
     
+    var isRegular: Bool {
+        return !isHero && !isBanner && !isContainer
+    }
+    
     var isHero: Bool {
         if section.display?["display_format"].stringValue == "hero"  {
             return true
@@ -745,18 +749,34 @@ struct MediaPropertySectionView: View {
         }
         
         if let content = section.content {
-            if section.displayTitle == "LIVE NOW & UPCOMING" {
-                debugPrint("empty content");
+            if section.displayTitle == "Match Replays - 2024/25 EPCR Challenge Cup" {
+                debugPrint("EMPTY CONTENT");
+                debugPrint("subsections ", subsections);
+                debugPrint("isHero ", isHero);
+                debugPrint("content ", content.count);
+                debugPrint("type ", section.type);
             }
-            if !isHero && subsections.isEmpty && content.count == 0 {
-                return true;
-            }
-        }else {
-            if !isHero && subsections.isEmpty{
+            if (isRegular || isGrid) && content.count == 0 {
                 return true;
             }
         }
-
+        if isContainer && subsections.isEmpty{
+            return true;
+        }else {
+            if isContainer {
+                var hasContent = false;
+                for section in subsections {
+                    if section.content?.count ?? 0 > 0 {
+                        hasContent = true;
+                    }
+                }
+                
+                if !hasContent {
+                    return true
+                }
+            }
+        }
+        
         if let display = section.display {
             if let hide = display["hide_on_tv"].bool {
                 if hide {
