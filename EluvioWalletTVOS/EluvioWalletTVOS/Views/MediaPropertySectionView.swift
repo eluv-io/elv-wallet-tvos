@@ -143,7 +143,7 @@ struct MediaPropertyRegularSectionView: View {
     @State private var lastFocusItem: MediaPropertySectionMediaItemViewModel?
     var useScale = false
     var scaleFactor: CGFloat = 0.7
-    var hasBackground = false
+    var lookForBackground = false
     
     var showViewAll: Bool {
         if let sectionItems = section.content {
@@ -193,7 +193,7 @@ struct MediaPropertyRegularSectionView: View {
         return ""
     }
     
-    /*
+    
     @State var inlineBackgroundUrl: String? = nil
     var hasBackground : Bool {
         if let background = inlineBackgroundUrl {
@@ -204,8 +204,8 @@ struct MediaPropertyRegularSectionView: View {
         
         return false
     }
-     */
     
+
     var minHeight : CGFloat {
         if hasBackground{
             return 420
@@ -366,20 +366,21 @@ struct MediaPropertyRegularSectionView: View {
             .padding(.trailing, 0)
             .edgesIgnoringSafeArea([.trailing])
             
-            /*
-            Group {
-                if let url = inlineBackgroundUrl {
-                    WebImage(url:URL(string:url))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(maxWidth: .infinity, maxHeight:.infinity)
-                        .clipped()
-                        .zIndex(-10)
-                    
+            if lookForBackground {
+                Group {
+                    if let url = inlineBackgroundUrl {
+                        WebImage(url:URL(string:url))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity, maxHeight:.infinity)
+                            .clipped()
+                            .zIndex(-10)
+                        
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight:.infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight:.infinity)
-             */
+             
         }
         .clipped()
         .edgesIgnoringSafeArea([.trailing])
@@ -398,11 +399,12 @@ struct MediaPropertyRegularSectionView: View {
                     logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
                 }catch{}
                 
-                /*
-                do {
-                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                }catch{}
-                 */
+                if lookForBackground {
+                    do {
+                        inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                    }catch{}
+                }
+                 
             }
             
             
@@ -851,7 +853,7 @@ struct MediaPropertySectionView: View {
                         
                         
                         ForEach(subsections) { sub in
-                            MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin, useScale: useScale)
+                            MediaPropertyRegularSectionView(propertyId:propertyId, pageId: pageId, section: sub, margin:margin, useScale: useScale, lookForBackground: true)
                         }
                     }
                 }else if isGrid {

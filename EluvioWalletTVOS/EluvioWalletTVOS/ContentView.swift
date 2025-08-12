@@ -352,7 +352,7 @@ struct ContentView: View {
                 case .sectionViewAll:
                     if let section = eluvio.pathState.section {
                         ScrollView {
-                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section, margin: 80, topPadding: 40)
+                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section, margin: 80, showBackground:false, topPadding: 40)
                                 .environmentObject(self.eluvio)
                         }
                         .scrollClipDisabled()

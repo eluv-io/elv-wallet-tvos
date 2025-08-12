@@ -134,13 +134,15 @@ struct SectionGridView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(
             Group {
-                if let url = inlineBackgroundUrl {
-                    WebImage(url:URL(string:url))
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(maxWidth: .infinity)
-                        .clipped()
-                        .zIndex(-10)
+                if (showBackground) {
+                    if let url = inlineBackgroundUrl {
+                        WebImage(url:URL(string:url))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity)
+                            .clipped()
+                            .zIndex(-10)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
@@ -183,11 +185,12 @@ struct SectionGridView: View {
             }catch {
                 debugPrint("Error processing Section Grid Items: ", error)
             }
-            
-            if let display = section.display {
-                do {
-                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                }catch{}
+            if (showBackground) {
+                if let display = section.display {
+                    do {
+                        inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                    }catch{}
+                }
             }
         }
     }
