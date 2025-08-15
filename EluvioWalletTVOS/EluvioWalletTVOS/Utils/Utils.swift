@@ -936,3 +936,26 @@ func AVMetaArtwork(value: Any) -> AVMetadataItem {
     item.extendedLanguageTag = "und"
     return item.copy() as! AVMetadataItem
 }
+
+func parseDateString(_ dateString: String) -> Date? {
+    let dateFormatter = ISO8601DateFormatter()
+    dateFormatter.formatOptions = [
+        .withFractionalSeconds,
+        .withFullDate,
+        .withTime, // without time zone
+        .withColonSeparatorInTime,
+        .withDashSeparatorInDate
+    ]
+    var date = dateFormatter.date(from:dateString)
+    
+    if date == nil {
+        dateFormatter.formatOptions = [
+            .withFullDate,
+            .withTime,
+            .withColonSeparatorInTime,
+            .withDashSeparatorInDate
+        ]
+        date = dateFormatter.date(from:dateString)
+    }
+    return date
+}

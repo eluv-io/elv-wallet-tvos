@@ -264,27 +264,11 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
         }
         
         if let startTime = start_time {
-            let dateFormatter = ISO8601DateFormatter()
-            dateFormatter.formatOptions = [
-                .withFractionalSeconds,
-                .withFullDate,
-                .withTime, // without time zone
-                .withColonSeparatorInTime,
-                .withDashSeparatorInDate
-            ]
-            return dateFormatter.date(from:startTime ?? "")
+            return parseDateString(startTime)
         }
         
         if let startTime = stream_start_time {
-            let dateFormatter = ISO8601DateFormatter()
-            dateFormatter.formatOptions = [
-                .withFractionalSeconds,
-                .withFullDate,
-                .withTime, // without time zone
-                .withColonSeparatorInTime,
-                .withDashSeparatorInDate
-            ]
-            return dateFormatter.date(from:startTime ?? "")
+            return parseDateString(startTime)
         }
         
         return nil
@@ -297,15 +281,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
         }
         
         if var startTime = stream_start_time {
-            let dateFormatter = ISO8601DateFormatter()
-            dateFormatter.formatOptions = [
-                .withFractionalSeconds,
-                .withFullDate,
-                .withTime, // without time zone
-                .withColonSeparatorInTime,
-                .withDashSeparatorInDate
-            ]
-            return dateFormatter.date(from:startTime)
+            return parseDateString(startTime)
         }
         return startDate
     }
@@ -316,16 +292,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
             return debugEndDate
         }
         
-        var endTime = end_time
-        let dateFormatter = ISO8601DateFormatter()
-        dateFormatter.formatOptions = [
-            .withFractionalSeconds,
-            .withFullDate,
-            .withTime, // without time zone
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate
-        ]
-        return dateFormatter.date(from:endTime ?? "")
+        return parseDateString(end_time ?? "")
     }
     
     var startDateTimeString: String {
@@ -401,6 +368,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     }
     
     var isUpcoming : Bool {
+        
         if hasEnded {
             //debugPrint("isUpcoming, already ended")
             return false

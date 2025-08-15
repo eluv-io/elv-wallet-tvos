@@ -245,8 +245,11 @@ struct SectionMediaItemView: View {
         VStack(alignment:.leading, spacing:10){
             Button(action: {
                 Task {
-                    debugPrint("Media Item pressed: ", item.type)
+                    debugPrint("Media Item pressed: ", item.id)
                     
+                    debugPrint("streamStartDate ", item.streamStartDate)
+                    debugPrint("startDate ", item.startDate)
+                    debugPrint("isUpcoming ", item.isUpcoming)
                     
                     do {
                         guard let property = try await eluvio.fabric.getProperty(property: propertyId) else {
@@ -548,7 +551,12 @@ struct SectionItemView: View {
                 VStack(alignment:.leading, spacing:10){
                     Text(title).font(.system(size:1)).hidden() // This is needed for some reason single items in a section didn't show
                     Button(action: {
-                        debugPrint("Item selected")
+                        debugPrint("Media Item pressed: ", viewItem.mediaItem?.id)
+                        
+                        debugPrint("streamStartDate ", viewItem.mediaItem?.streamStartDate)
+                        debugPrint("startDate ", viewItem.mediaItem?.startDate)
+                        debugPrint("isUpcoming ", viewItem.mediaItem?.isUpcoming)
+                        
                         if disable {
                             return
                         }
