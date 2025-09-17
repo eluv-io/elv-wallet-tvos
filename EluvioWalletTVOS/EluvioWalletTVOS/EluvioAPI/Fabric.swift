@@ -1791,12 +1791,24 @@ class Fabric: ObservableObject {
             })
     }
     
-    func startDeviceCodeFlow(completion: @escaping ([String: AnyObject]?, String?) -> Void){
-        print("startDeviceCodeFlow")
-        let domain = APP_CONFIG.auth0.domain
-        let clientId = APP_CONFIG.auth0.client_id
-        let oAuthEndpoint: String = "https://".appending(domain).appending("/oauth/device/code");
-        let authRequest = ["client_id":clientId,"scope": "openid profile email"] as! Dictionary<String,String>
+    func startDeviceCodeFlow(domain: String?, clientId: String?, completion: @escaping ([String: AnyObject]?, String?) -> Void){
+        print("startDeviceCodeFlow domain \(domain) clientId \(clientId)")
+        var _domain = "https://".appending(APP_CONFIG.auth0.domain) 
+        if let d = domain {
+            if !d.isEmpty {
+                _domain = d
+            }
+        }
+        
+        var _clientId = APP_CONFIG.auth0.client_id
+        if let c = clientId {
+            if !c.isEmpty {
+                _clientId = c
+            }
+        }
+        
+        let oAuthEndpoint: String = _domain.appending("/oauth/device/code");
+        let authRequest = ["client_id":_clientId,"scope": "openid profile email"] as! Dictionary<String,String>
         AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
             .responseJSON { response in
                 switch (response.result) {

@@ -36,6 +36,10 @@ struct DeviceFlowView: View {
     var ClientId = ""
     var Domain = ""
     var GrantType = ""
+    
+    @State var useThirdParty = false
+    @State var thirdPartyClientId = ""
+    @State var thirdPartyDomain = ""
     @State var opacity : CGFloat = 0.0
     
     @State var isChecking = false
@@ -184,56 +188,76 @@ struct DeviceFlowView: View {
     }
     
     func regenerateCode() {
-        self.eluvio.fabric.startDeviceCodeFlow(completion: {
+        debugPrint("DeviceFlowView Auth0 regenerate Code ", property?.login?["settings"])
+        var clientId = self.ClientId
+        var domain = self.Domain
+        var useAuth0 = property?.login?["settings"]["use_auth0"].boolValue ?? false
+        var disableThirdParty = property?.login?["settings"]["disable_third_party_login"].boolValue ?? false
+        
+        if useAuth0 && disableThirdParty == false {
+            clientId = property?.login?["settings"]["auth0_native_client_id"].stringValue ?? self.ClientId
+            domain = property?.login?["settings"]["auth0_domain"].stringValue ?? self.Domain
+            self.useThirdParty = true
+        }
+
+        self.eluvio.fabric.startDeviceCodeFlow(domain: domain, clientId: clientId, completion: {
             json,err in
             
             Task{
-                do {
-                    guard let signer = self.eluvio.fabric.signer else {
-                        print("MetaMaskFlowView regenerateCode() called without a signer.")
-                        return
-                    }
-                    
-                    print("startDeviceCodeFlow completed");
-                    
-                    guard err == nil else {
-                        print(err)
-                        return
-                        
-                    }
-                    guard json?["error"] == nil else {
-                        
-                        print((json?["error_description"] as? String)!)
-                        return
-                    }
-                    
-                    self.url = "https://elv.lv/activate"
-                    
-                    self.urlComplete = json?["verification_uri_complete"] as! String
-
-                    debugPrint("Shortened URL: ", json)
-                    
-                    self.code = json?["user_code"] as! String
-                    self.deviceCode = json?["device_code"] as! String
-                    
-                    debugPrint("Shortened URL: ", urlComplete)
-                    
-                    var interval = json?["interval"] as! Double + 2.0
-                    debugPrint(interval)
-                    
-                    if interval < 7.0 {
-                        interval = 7.0
-                    }
-                    
-                    let validFor = json?["expires_in"] as! Int
-                    self.timer = Timer.publish(every: interval, on: .main, in: .common)
-                    self.timerCancellable = self.timer.connect()
-                    /*self.countDown = Timer.scheduledTimer(timeInterval: TimeInterval(validFor), target: self, selector: #selector(self.onTimerFires), userInfo: nil, repeats: true)*/
-                    
-                    //self.expired = false
-                }catch{
-                    print("Error regenerating code for sign in: ", error)
+                guard let signer = self.eluvio.fabric.signer else {
+                    print("MetaMaskFlowView regenerateCode() called without a signer.")
+                    return
                 }
+                
+                print("startDeviceCodeFlow completed");
+                
+                if !clientId.isEmpty {
+                    if useThirdParty {
+                        self.thirdPartyClientId = clientId
+                    }
+                }
+
+                guard err == nil else {
+                    print(err)
+                    return
+                    
+                }
+                guard json?["error"] == nil else {
+                    
+                    print((json?["error_description"] as? String)!)
+                    return
+                }
+                
+                self.url = "https://elv.lv/activate"
+                
+                self.urlComplete = json?["verification_uri_complete"] as! String
+                if !domain.isEmpty {
+                    self.url = urlComplete
+                    if useThirdParty {
+                        self.thirdPartyDomain = domain
+                    }
+                }
+            
+                debugPrint("Shortened URL: ", json)
+                
+                self.code = json?["user_code"] as! String
+                self.deviceCode = json?["device_code"] as! String
+                
+                debugPrint("Shortened URL: ", urlComplete)
+                
+                var interval = json?["interval"] as! Double + 2.0
+                debugPrint(interval)
+                
+                if interval < 7.0 {
+                    interval = 7.0
+                }
+                
+                let validFor = json?["expires_in"] as! Int
+                self.timer = Timer.publish(every: interval, on: .main, in: .common)
+                self.timerCancellable = self.timer.connect()
+                /*self.countDown = Timer.scheduledTimer(timeInterval: TimeInterval(validFor), target: self, selector: #selector(self.onTimerFires), userInfo: nil, repeats: true)*/
+                
+                //self.expired = false
             }
 
         })
@@ -247,10 +271,20 @@ struct DeviceFlowView: View {
         
         self.isChecking = true
         print("checkDeviceVerification \(self.code)");
-        let oAuthEndpoint: String = "https://".appending(self.Domain).appending("/oauth/token");
+        var oAuthEndpoint: String = "https://".appending(self.Domain).appending("/oauth/token");
+        var clientId = self.ClientId;
         
-        let authRequest = ["grant_type":self.GrantType,"device_code": self.deviceCode, "client_id":self.ClientId] as! Dictionary<String,String>
+        if useThirdParty  && !self.thirdPartyDomain.isEmpty {
+            oAuthEndpoint = self.thirdPartyDomain.appending("/oauth/token");
+        }
+        
+        if useThirdParty  && !self.ClientId.isEmpty {
+            clientId = self.thirdPartyClientId;
+        }
+        
+        let authRequest = ["grant_type":self.GrantType,"device_code": self.deviceCode, "client_id":clientId] as! Dictionary<String,String>
         AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
+            .debugLog()
             .responseJSON { response in
                 debugPrint("Response: \(response)")
                 
