@@ -305,8 +305,6 @@ struct DeviceFlowView: View {
                                 return
                             }
                             
-                            var newProperty : MediaProperty? = nil
-                            
                             Task {
                                 do {
                                     debugPrint("verification result: ", json)
@@ -349,8 +347,8 @@ struct DeviceFlowView: View {
                                     account.expiresAt = Date().now + duration
                                     account.email = email
                                     try await eluvio.signIn(account:account, property: property?.id ?? "")
-                                    _ = try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
-                                    newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
+                                    eluvio.needsRefresh()
+                                    
                                 }catch {
                                     print("could not sign in: \(error.localizedDescription)")
                                 }
@@ -360,7 +358,7 @@ struct DeviceFlowView: View {
                                     eluvio.pathState.path.removeAll()
                                     debugPrint("current Account ", eluvio.accountManager.currentAccount?.getAccountAddress() ?? "")
                                     
-                                    let params = PropertyParam(property:newProperty)
+                                    let params = PropertyParam(property:property)
                                     eluvio.pathState.path.append(.property(params))
                                     self.isChecking = false
                                 }

@@ -25,7 +25,7 @@ struct DiscoverView: View {
     
     @State private var selected: MediaPropertyViewModel = MediaPropertyViewModel()
     @State private var position: Int?
-    let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+    let timer = Timer.publish(every: 3*60, on: .main, in: .common).autoconnect()
     @State var isRefreshing = false
     @State private var opacity: Double = 0.0
     @State private var showHiddenMenu = false
@@ -149,13 +149,8 @@ struct DiscoverView: View {
             refresh()
         }
         .onReceive(timer) { time in
-            if properties.isEmpty {
-                debugPrint("on discover timer ", properties)
-                refresh()
-           }
-        }
-        .onWillDisappear {
             eluvio.needsRefresh()
+            refresh()
         }
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
@@ -169,7 +164,12 @@ struct DiscoverView: View {
             debugPrint("Resetting properties back to empty")
             properties = []
         }
-
+        Task {
+            withAnimation(.easeInOut(duration: 1)) {
+              opacity = 1.0
+            }
+        }
+        
         if !properties.isEmpty {
             return
         }
@@ -181,16 +181,13 @@ struct DiscoverView: View {
         isRefreshing = true
         self.backgroundImageURL = ""
         
-        Task {
-            withAnimation(.easeInOut(duration: 2)) {
-              opacity = 1.0
-            }
-        }
+
             
         debugPrint("DiscoverView refresh()")
         Task{
             defer {
                 self.isRefreshing = false
+                DiscoverView.refreshId = eluvio.refreshId
             }
 
             do {

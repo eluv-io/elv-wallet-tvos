@@ -239,7 +239,6 @@ struct OryDeviceFlowView: View {
             let clusterToken = json["clusterToken"].stringValue
             debugPrint("EMAIL: ", email)
 
-            var newProperty : MediaProperty? = property
             do {
                 let login = LoginResponse(type: type, addr:addr, eth:eth, token: token)
                 debugPrint("Ory signing in ")
@@ -264,11 +263,7 @@ struct OryDeviceFlowView: View {
                 account.clusterToken = clusterToken
                 
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
-                _ = try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
-                
-                if property != nil {
-                    newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
-                }
+                eluvio.needsRefresh()
                 debugPrint("Ory Signing in done!")
             }catch {
                 print("could not sign in: \(error.localizedDescription)")
@@ -276,17 +271,12 @@ struct OryDeviceFlowView: View {
             
             await MainActor.run {
                 debugPrint("Sign in finished.")
-                if newProperty != nil {
-                    eluvio.pathState.path.removeAll()
-                    debugPrint("Popped the path state.")
-                    let params = PropertyParam(property:newProperty)
-                    eluvio.pathState.path.append(.property(params))
-                }else{
-                    //This handles a sign in without going into a property (from video player before token expires)
-                    _ = eluvio.pathState.path.popLast();
-                    _ = eluvio.pathState.path.popLast();
-                    debugPrint("Path State ", eluvio.pathState.path);
-                }
+
+                eluvio.pathState.path.removeAll()
+                debugPrint("Popped the path state.")
+                let params = PropertyParam(property:property)
+                eluvio.pathState.path.append(.property(params))
+
                 self.isChecking = false
             }
 
