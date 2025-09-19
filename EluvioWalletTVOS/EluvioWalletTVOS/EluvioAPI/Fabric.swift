@@ -1461,21 +1461,12 @@ class Fabric: ObservableObject {
                             self.mediaPropertiesMediaItemCache[id] = media
                             //debugPrint("cached section media item \(id)")
                         }
-                    }else {
-                        if let mediaId = item.media_id {
-                            Task(priority: .background){
-                                do {
-                                    try await cacheMediaItems(property: property, mediaItems: [mediaId])
-                                }catch{
-                                    print("could not cache media item \(mediaId) ", error.localizedDescription)
-                                }
-                            }
-                        }
                     }
                 }
             }else{
                 debugPrint("section has no content, skipping...")
             }
+            
         }
     }
     
