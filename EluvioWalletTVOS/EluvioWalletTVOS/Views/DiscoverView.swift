@@ -146,43 +146,32 @@ struct DiscoverView: View {
         )
         .scrollClipDisabled()
         .task(){
-            refresh()
-        }
-        .onReceive(timer) { time in
-            eluvio.needsRefresh()
-            refresh()
+            if properties.count == 0{
+                refresh()
+            }
         }
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
             opacity = 0.0
+            refresh()
         }
     }
     
     func refresh() {
-        
-        if DiscoverView.refreshId != eluvio.refreshId {
-            debugPrint("Resetting properties back to empty")
-            properties = []
-        }
+
         Task {
             withAnimation(.easeInOut(duration: 1)) {
               opacity = 1.0
             }
         }
-        
-        if !properties.isEmpty {
-            return
-        }
-    
+
         if isRefreshing{
             return
         }
         
         isRefreshing = true
         self.backgroundImageURL = ""
-        
 
-            
         debugPrint("DiscoverView refresh()")
         Task{
             defer {
