@@ -1801,6 +1801,7 @@ class Fabric: ObservableObject {
         let oAuthEndpoint: String = _domain.appending("/oauth/device/code");
         let authRequest = ["client_id":_clientId,"scope": "openid profile email"] as! Dictionary<String,String>
         AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
+            .debugLog()
             .responseJSON { response in
                 switch (response.result) {
                     case .success( _):

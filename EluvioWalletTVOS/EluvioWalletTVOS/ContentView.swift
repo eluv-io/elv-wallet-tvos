@@ -301,6 +301,7 @@ struct ContentView: View {
                         if let playerItem = params.playerItem {
                             PlayerView(mediaId: params.mediaId,
                                        playerItem: playerItem,
+                                       property: params.property,
                                        title: params.title,
                                        finished:$playerFinished)
                             .environmentObject(self.eluvio)

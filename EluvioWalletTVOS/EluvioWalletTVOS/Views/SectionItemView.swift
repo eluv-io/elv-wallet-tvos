@@ -250,16 +250,15 @@ struct SectionMediaItemView: View {
                     debugPrint("streamStartDate ", item.streamStartDate)
                     debugPrint("startDate ", item.startDate)
                     debugPrint("isUpcoming ", item.isUpcoming)
+                    guard let property = try await eluvio.fabric.getProperty(property: propertyId) else {
+                        await MainActor.run {
+                            _ = eluvio.pathState.path.popLast()
+                            eluvio.pathState.path.append(.errorView("A problem occured."))
+                        }
+                        return
+                    }
                     
                     do {
-                        guard let property = try await eluvio.fabric.getProperty(property: propertyId) else {
-                            await MainActor.run {
-                                _ = eluvio.pathState.path.popLast()
-                                eluvio.pathState.path.append(.errorView("A problem occured."))
-                            }
-                            return
-                        }
-
                         let viewModel = await MediaPropertyViewModel.create(mediaProperty:property, fabric:eluvio.fabric)
 
                         
@@ -341,9 +340,11 @@ struct SectionMediaItemView: View {
                                         let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: item.id ?? "")
                                         let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:item.title ?? "", description:item.description ?? "", imageThumb: thumbnail)
                                         
+                                        debugPrint("SectionMediaItemView play video property ", property)
                                         let params = VideoParams(mediaId: item.id ?? "",
                                                                  title: item.title ?? "",
-                                                                 playerItem: playerItem)
+                                                                 playerItem: playerItem,
+                                                                 property: property)
                                         eluvio.pathState.videoParams = params
                                         eluvio.pathState.path.append(.video)
 
@@ -694,7 +695,9 @@ struct SectionItemView: View {
                                                                                         
                                             let params = VideoParams(mediaId:mediaItem.media_id,
                                                                      title: mediaItem.title,
-                                                                     playerItem: playerItem)
+                                                                     playerItem: playerItem,
+                                                                     property: property
+                                                                    )
                                             eluvio.pathState.videoParams = params
                                             await MainActor.run {
                                                 _ = eluvio.pathState.path.popLast()

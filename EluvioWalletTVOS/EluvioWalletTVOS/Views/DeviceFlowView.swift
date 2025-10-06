@@ -340,7 +340,8 @@ struct DeviceFlowView: View {
                                     
                                     let account = Account()
                                     account.type = .Auth0
-                                    let duration: Int64 = 1 * 24 * 60 * 60 * 1000
+                                    let duration: Int64 = 14 * 24 * 60 * 60 * 1000
+                                    
                                     account.fabricToken = try await eluvio.fabric.createFabricToken(login:login, duration:duration)
                                     account.signInResponse = signInResponse
                                     account.login = login

@@ -163,7 +163,6 @@ class ViewState: ObservableObject {
                     }
                 }
                 
-
                 if let currentAccount = eluvio.accountManager.currentAccount {
                     debugPrint("Setting current account and going to page.")
                     eluvio.fabric.fabricToken = currentAccount.fabricToken

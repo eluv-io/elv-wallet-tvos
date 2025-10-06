@@ -107,7 +107,7 @@ struct PlayerView: View {
         .onAppear(){
             Task{
                 let initTime = ((Date().now) as NSNumber)
-                debugPrint("*** PlayerView onAppear() ", self.playerItem)
+                debugPrint("*** PlayerView onAppear() ", self.property)
                 //print("PlayerItem",self.playerItem)
                 if self.playerItem == nil {
                     print("playerItem == nil")
@@ -129,8 +129,11 @@ struct PlayerView: View {
                 if let account = eluvio.accountManager.currentAccount {
                     //If our token expires in 4 hours we force a sign in.
                     if (account.isTokenExpiredIn(seconds: 60*60*4)){
-                        _ = eluvio.pathState.path.popLast()
-                        eluvio.viewState.login(eluvio: eluvio)
+                        //_ = eluvio.pathState.path.popLast()
+                        //eluvio.viewState.login(property, eluvio: eluvio)
+                        eluvio.signOut()
+                        _ = eluvio.pathState.path.removeAll()
+                        eluvio.viewState.login(property, eluvio: eluvio)
                         return;
                     }
                     
