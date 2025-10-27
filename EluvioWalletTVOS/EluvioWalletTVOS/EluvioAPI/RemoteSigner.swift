@@ -862,6 +862,8 @@ class RemoteSigner {
                 if (environment != .prod){
                     endpoint = endpoint.appending("?env=\(environment)")
                 }
+                
+                debugPrint("endpoint ", endpoint)
 
                 let headers: HTTPHeaders = [
                      "Accept": "application/json",
@@ -990,6 +992,7 @@ class RemoteSigner {
                      "Content-Type": "application/json" ]
 
                 AF.request(endpoint, encoding: JSONEncoding.default, headers: headers )
+                    .debugLog()
                     .responseJSON { response in
 
                     switch (response.result) {
@@ -1105,6 +1108,70 @@ class RemoteSigner {
                                                                                        response: respJSON, error:FabricError.unexpectedResponse("")))
                                 }else {
                                     continuation.resume(returning: result)
+                                }
+
+                         case .failure(let error):
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
+    func refreshFabricToken(refreshToken:String, nonce: String, fabricToken: String) async throws -> JSON {
+        
+        return try await withCheckedThrowingContinuation({ continuation in
+            debugPrint("****** refreshFabricToken ******")
+            do {
+
+                var endpoint = try self.getAuthEndpoint().appending("/wlt/refresh/csat")
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
+                
+                let headers: HTTPHeaders = [
+                     "Accept": "application/json",
+                     "Content-Type": "application/json"]
+                
+                let body: JSON = [
+                  "refresh_token": refreshToken,
+                  "nonce": nonce,
+                  "last_csat": fabricToken
+                ]
+            
+                var request = URLRequest(url: URL(string:endpoint)!)
+                request.httpMethod = "POST"
+                request.headers = headers
+                do {
+                    request.httpBody = try body.rawData()
+                }catch{
+                    print("Could not serialize body", error)
+                }
+
+                AF.request(request)
+                    .debugLog()
+                    .responseString { response in
+                        var respJSON = JSON()
+                        do{
+                            respJSON = try JSON(data: response.data ?? Data())
+                        }catch{}
+                        
+                        debugPrint("refresh response: ", respJSON)
+                            
+                        switch (response.result) {
+                            case .success(let result):
+                                if respJSON["errors"].exists() {
+                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
+                                }else {
+                                    continuation.resume(returning: respJSON)
                                 }
 
                          case .failure(let error):

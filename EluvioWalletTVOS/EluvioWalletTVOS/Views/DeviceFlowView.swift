@@ -342,7 +342,12 @@ struct DeviceFlowView: View {
                                     account.type = .Auth0
                                     let duration: Int64 = 14 * 24 * 60 * 60 * 1000
                                     
-                                    account.fabricToken = try await eluvio.fabric.createFabricToken(login:login, duration:duration)
+                                    /*account.fabricToken = try await eluvio.fabric.createFabricToken(login:login, duration:duration)*/
+                                    
+                                    account.fabricToken = try await eluvio.fabric.getFabricToken(authToken: login.token)
+                                    
+                                    debugPrint("Fabric Token", account.fabricToken)
+                                    
                                     account.signInResponse = signInResponse
                                     account.login = login
                                     account.expiresAt = Date().now + duration
@@ -351,7 +356,7 @@ struct DeviceFlowView: View {
                                     eluvio.needsRefresh()
                                     
                                 }catch {
-                                    print("could not sign in: \(error.localizedDescription)")
+                                    print("could not sign in: \(error)")
                                 }
                                 
                                 await MainActor.run {

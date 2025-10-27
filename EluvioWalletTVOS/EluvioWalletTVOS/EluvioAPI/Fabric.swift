@@ -19,7 +19,7 @@ var APP_CONFIG : AppConfiguration = loadJsonFileFatal("configuration.json")
 let POLLSECONDS = 300
 
 func IsDemoMode()->Bool {
-    return APP_CONFIG.app.mode == .demo
+    return APP_CONFIG.app.network == .demo
 }
 
 struct MintInfo {
@@ -163,17 +163,20 @@ class Fabric: ObservableObject {
     }
     
     @MainActor
-    func connect(network: String, signIn: Bool = true, token:String="") async throws {
+    func connect(network: String="", token:String="") async throws {
         debugPrint("Fabric connect: ", network)
         var _network = network
 
         if(network.isEmpty) {
+            _network = APP_CONFIG.app.network.rawValue
+            /*
             if let savedNetwork = UserDefaults.standard.object(forKey: "fabric_network")
                     as? String {
                 _network = savedNetwork
             }else{
                 _network = "main"
             }
+             */
             
         }
 
@@ -182,8 +185,11 @@ class Fabric: ObservableObject {
         }
         
         debugPrint("Config URL: \(configUrl)")
-
+        self.network = _network
+        self.configUrl = configUrl
+        
         guard let url = URL(string: configUrl) else {
+            debugPrint("Invalid URL")
             throw FabricError.invalidURL("\(self.configUrl)")
         }
 
@@ -209,8 +215,8 @@ class Fabric: ObservableObject {
         
         self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
 
-        self.configUrl = configUrl
-        self.network = _network
+
+
         UserDefaults.standard.set(_network, forKey: "fabric_network")
 
         self.profileClient = ProfileClient(fabric: self)
@@ -220,6 +226,8 @@ class Fabric: ObservableObject {
         }else if !token.isEmpty{
             fabricToken = token
         }
+        
+        debugPrint("Connected network: ", self.network)
     }
 
     func getContentSpaceId() throws -> String {
@@ -1611,6 +1619,21 @@ class Fabric: ObservableObject {
         return login
     }
     
+    func refreshFabricToken(fabricToken: String, refreshToken:String, nonce:String) async throws -> JSON {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+        
+        return try await signer.refreshFabricToken(refreshToken: refreshToken, nonce: nonce, fabricToken: fabricToken)
+    }
+    
+    func getFabricToken(authToken:String) async throws -> String {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Could not get signer.")
+        }
+        
+        return try await signer.getFabricToken(authToken: authToken)
+    }
     
     
     func createFabricToken(idToken: String, duration: Int64 = 1 * 24 * 60 * 60 * 1000, address: String = "", external: Bool = false) async throws -> String {
@@ -2174,7 +2197,6 @@ class Fabric: ObservableObject {
                 request.httpBody = body.data(using: .utf8)
             }
             
-            //AF.request(url, method: method, parameters: parameters, encoding: URLEncoding.default, headers:headers)
             AF.request(request)
                 .debugLog()
                 .responseJSON { response in

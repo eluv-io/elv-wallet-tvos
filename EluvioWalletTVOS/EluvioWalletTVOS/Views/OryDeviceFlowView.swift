@@ -164,7 +164,14 @@ struct OryDeviceFlowView: View {
                 return
             }
             
-            let url = "https://wallet.contentfabric.io/login?pid=\(self.propertyId)&ory=true&action=login&mode=login&response=code&source=code&refresh=true&ttl=336"
+            //let url = "https://wallet.contentfabric.io/login?pid=\(self.propertyId)&ory=true&action=login&mode=login&response=code&source=code&refresh=true&ttl=336"
+            
+            let nonce = EluvioAPI.NONCE_HASHED
+            
+            let url = "\(APP_CONFIG.getWalletURL)/login?pid=\(self.propertyId)&action=login&mode=login&response=code&source=code&refresh=true&ttl=\(eluvio.ttlHours)&installid=\(nonce)&origin=\(UIDevice.current.name)"
+            
+            debugPrint("URL Code: ", url)
+            
             let json = try await signer.createAuthLogin(redirectUrl: url)
             
             self.response = json
@@ -222,6 +229,9 @@ struct OryDeviceFlowView: View {
             }
             debugPrint("Ory Result ", result)
             
+            let refreshToken = result["refresh_token"].stringValue
+            debugPrint("Refresh Token ", refreshToken)
+            
             let json = JSON.init(parseJSON:result["payload"].stringValue)
 
             if json.isEmpty {
@@ -237,6 +247,7 @@ struct OryDeviceFlowView: View {
             let email = json["email"].stringValue
             let expiresAt = json["expiresAt"].int64Value
             let clusterToken = json["clusterToken"].stringValue
+
             debugPrint("EMAIL: ", email)
 
             do {
@@ -250,17 +261,12 @@ struct OryDeviceFlowView: View {
                 account.type = .Ory
                 account.login = login
                 
-                if expiresAt > 0 {
-                    account.expiresAt = expiresAt
-                }else {
-                    let duration: Int64 = 1 * 24 * 60 * 60 * 1000
-                    account.expiresAt = Date().now + duration
-                }
-
+                account.expiresAt = expiresAt
                 account.email = email
                 account.fabricToken = token
                 account.login = login
                 account.clusterToken = clusterToken
+                account.refreshToken = refreshToken
                 
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
                 eluvio.needsRefresh()

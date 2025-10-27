@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 import SwiftyJSON
+import CryptoKit
 
 class EluvioAPI : ObservableObject {
     @Published var accountManager : AccountManager = AccountManager()
@@ -17,17 +18,25 @@ class EluvioAPI : ObservableObject {
     @Published var viewState : ViewState
     @Published var refreshId = UUID().uuidString
     @Published var devMode: Bool = false
-    //Requested token expiration during for login. 0.0 for default.
-    @Published var ttlHours: Double = 0.0
+    //Requested token expiration during for login.
+    @Published var ttlHours: Double = 336
+    static var NONCE = UIDevice.current.identifierForVendor!.uuidString
+    static var NONCE_HASHED: String {
+        let hashedData = SHA512.hash(data: NONCE.data(using: .utf8)!)
+        return hashedData.compactMap { String(format: "%02x", $0) }.joined()
+    }
     
     private var cancellables: Set<AnyCancellable> = []
     
     init(){
+        
+        debugPrint("Initiating Eluvio APIs on ", UIDevice.current.localizedModel)
+        
         accountManager = .init()
         fabric = .init()
         pathState = .init()
         viewState = .init()
-        
+
         do {
             devMode = UserDefaults.standard.bool(forKey: "api_devmode")
         }catch{
@@ -179,6 +188,36 @@ class EluvioAPI : ObservableObject {
             fabricToken: account.fabricToken,
             provider: provider
         )
+    }
+    
+    func refreshFabricToken() async throws  {
+        if let account = accountManager.currentAccount {
+            
+            if account.refreshToken == "" {
+                return
+            }
+            
+            let response = try await fabric.refreshFabricToken(
+                fabricToken: account.fabricToken,
+                refreshToken: account.refreshToken,
+                nonce:EluvioAPI.NONCE)
+            
+            if response["error"].stringValue != "" {
+                throw FabricError.badInput(response["error"].stringValue)
+            }
+            
+            account.fabricToken = response["token"].stringValue
+            account.refreshToken = response["refresh_token"].stringValue
+            account.expiresAt = response["expires_at"].int64Value
+            fabric.fabricToken = account.fabricToken
+            //debugPrint("Got new token ", account.fabricToken)
+            //debugPrint("Got new refresh token ", account.fabricToken)
+            debugPrint("expires at ", account.expiresAt)
+            accountManager.saveCurrentAccount()
+            return
+        }
+        
+        throw FabricError.noLogin("Not Logged In")
     }
 }
 

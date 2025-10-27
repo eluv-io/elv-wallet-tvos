@@ -24,13 +24,14 @@ class Account: Identifiable, Codable {
     var type: AccountType = .Auth0
     var clusterToken: String = ""
     var fabricToken: String = ""
+    var refreshToken: String = ""
     var profile: ProfileData = ProfileData()
     var login :  LoginResponse? = nil
     var signInResponse: SignInResponse? = nil
     var isLoggedOut = true
     var expiresAt : Int64 = 0
     var email = ""
-
+    
     func getAccountId() -> String {
         guard let address = self.login?.addr else
         {

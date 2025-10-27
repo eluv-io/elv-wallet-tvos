@@ -117,16 +117,21 @@ struct MediaPropertyView : View {
                         }
                         
                         if let currentAccount = eluvio.accountManager.currentAccount {
-                            if currentAccount.type == .DEBUG{
+                            //if currentAccount.type == .DEBUG{
                                 skipLogin = true
                                 eluvio.fabric.fabricToken = currentAccount.fabricToken
-                            }
+                            //}
                         }
                         
                         if !skipLogin {
                            login()
                         }else{
                             debugPrint("Going to property page ", property.id)
+                            if let currentAccount = eluvio.accountManager.currentAccount {
+                                if currentAccount.isTokenExpiredIn(seconds: 24*60*60) {
+                                   try await eluvio.refreshFabricToken()
+                                }
+                            }
                             eluvio.pathState.propertyPage = property.main_page
                             let param = PropertyParam(property:property)
                             eluvio.pathState.path.append(.property(param))
@@ -140,6 +145,7 @@ struct MediaPropertyView : View {
                 login()
             }catch{
                 debugPrint("Error finding property ", error.localizedDescription)
+                eluvio.signOut()
             }
         }
     }

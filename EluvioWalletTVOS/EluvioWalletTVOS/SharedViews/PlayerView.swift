@@ -127,14 +127,16 @@ struct PlayerView: View {
                 var offering: String = ""
                 
                 if let account = eluvio.accountManager.currentAccount {
-                    //If our token expires in 4 hours we force a sign in.
+                    //If our token expires in 4 hours we refresh
                     if (account.isTokenExpiredIn(seconds: 60*60*4)){
-                        //_ = eluvio.pathState.path.popLast()
-                        //eluvio.viewState.login(property, eluvio: eluvio)
-                        eluvio.signOut()
-                        _ = eluvio.pathState.path.removeAll()
-                        eluvio.viewState.login(property, eluvio: eluvio)
-                        return;
+                        do {
+                            try await eluvio.refreshFabricToken()
+                        }catch{
+                            debugPrint("Error refreshing Token ", error)
+                            eluvio.signOut()
+                            eluvio.pathState.path.removeAll()
+                            return;
+                        }
                     }
                     
                     let address = account.getAccountAddress()
@@ -231,6 +233,22 @@ struct PlayerView: View {
                         self.onPlayerProgress(progress,
                                               player.currentItem?.currentTime().seconds ?? 0.0,
                                               player.currentItem?.duration.seconds ?? 0.0)
+                    }
+                    
+                    if let account = eluvio.accountManager.currentAccount {
+                        Task{
+                            //If our token expires in 4 hours we refresh
+                            if (account.isTokenExpiredIn(seconds: 60*60*4)){
+                                do {
+                                    try await eluvio.refreshFabricToken()
+                                }catch{
+                                    debugPrint("Error refreshing Token ", error)
+                                    eluvio.signOut()
+                                    eluvio.pathState.path.removeAll()
+                                    return;
+                                }
+                            }
+                        }
                     }
                     
                     if player.status == .readyToPlay {

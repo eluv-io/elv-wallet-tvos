@@ -373,11 +373,11 @@ struct ContentView: View {
                     MediaItemView(url:params.url, title:params.title)
                         .edgesIgnoringSafeArea(.all)
                 case let .login(params) :
-                    if params.type == .auth0 {
+                    /*if params.type == .auth0 {
                         DeviceFlowView(property: params.property)
-                    }else if params.type == .ory {
+                    }else if params.type == .ory {*/
                         OryDeviceFlowView(property:params.property)
-                    }
+                    //}
                 case .progress:
                     ProgressView()
                         .edgesIgnoringSafeArea(.all)

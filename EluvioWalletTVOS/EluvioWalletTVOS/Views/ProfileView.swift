@@ -50,6 +50,8 @@ struct ProfileView: View {
     @State var isDeveloper = false
     @State var isDebugNode = false
     
+    var networks : [String] = ["main", "demo"]
+    
     var body: some View {
             VStack() {
                 VStack(alignment: .center){
@@ -94,7 +96,9 @@ struct ProfileView: View {
                             FormEntry("Session Expiration:  \(tokenExpiresAt)")
                             
                             Toggle("Set to staging ", isOn:$isStaging)
+                                .accentColor(.gray)
                             Toggle("Use debug node ", isOn:$isDebugNode)
+                                .accentColor(.gray)
                             
                             //Toggle("Set to developer mode ", isOn:$isDeveloper)
                         
@@ -131,7 +135,7 @@ struct ProfileView: View {
                 do {
                     self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
                     self.userId =  eluvio.accountManager.currentAccount?.getAccountId() ?? ""
-                    self.network = eluvio.fabric.network
+                 
                     self.node = try eluvio.fabric.getEndpoint()
                     self.asNode = try eluvio.fabric.signer?.getAuthEndpoint() ?? ""
                     self.ethNode = try eluvio.fabric.signer?.getEthEndpoint() ?? ""
@@ -142,7 +146,7 @@ struct ProfileView: View {
                     self.isDebugNode = eluvio.isDebugNode()
                     
                     if !initialized {
-                        
+                        self.network = eluvio.fabric.network
                         self.selectedLocation = eluvio.fabric.profile.profileData.preferredLocation ?? ""
                         
                         debugPrint("ProfileView OnAppear - locations", self.locations)

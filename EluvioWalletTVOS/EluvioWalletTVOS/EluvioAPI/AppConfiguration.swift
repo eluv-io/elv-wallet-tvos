@@ -12,15 +12,19 @@ struct AppConfiguration: Codable {
     var network: [String: NetworkConfig]
     var auth0 : Auth0Config
     var allowed_properties : [String]?
+    
+    var getWalletURL: String {
+        return network[app.network.rawValue]!.wallet_url
+    }
 }
 
 enum AppMode: String, Codable{
-    case demo, prod
+    case demo, main
 }
 
 struct AppConfig: Codable {
     var name: String
-    var mode: AppMode
+    var network: AppMode
 }
 
 struct NetworkOverrides: Codable {

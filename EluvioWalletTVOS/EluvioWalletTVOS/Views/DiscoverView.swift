@@ -67,11 +67,6 @@ struct DiscoverView: View {
                                     .aspectRatio(contentMode: .fit)
                                     .frame(width:801, height:240, alignment:.leading)
                                     .id(topId)
-                                    .onLongPressGesture(minimumDuration: 5) {
-                                        print("Secret Long Press Action!")
-                                        //FIXME: This does not work
-                                        //showHiddenMenu = true
-                                    }
                                 Spacer()
                             }
                             .frame(maxWidth:.infinity)
@@ -87,31 +82,6 @@ struct DiscoverView: View {
             }
         }
         .opacity(opacity)
-        .sheet(isPresented: $showHiddenMenu) {
-            HStack{
-                Text("Network Selection: ")
-                
-                Button("Main") {
-                    Task{
-                        network = "main"
-                        eluvio.needsRefresh()
-                        showHiddenMenu = false
-                        eluvio.accountManager.signOut()
-                        refresh()
-
-                    }
-                }
-                Button("Demo") {
-                    Task{
-                        network = "demo"
-                        eluvio.needsRefresh()
-                        showHiddenMenu = false
-                        eluvio.accountManager.signOut()
-                        refresh()
-                    }
-                }
-            }
-        }
         .onChange(of:selected){ old, new in
             Task {
                 do {
@@ -180,7 +150,7 @@ struct DiscoverView: View {
             }
 
             do {
-                try await eluvio.fabric.connect(network:network, token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
+                try await eluvio.fabric.connect(token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 
                 var noAuth = true
                 if eluvio.accountManager.currentAccount != nil {
