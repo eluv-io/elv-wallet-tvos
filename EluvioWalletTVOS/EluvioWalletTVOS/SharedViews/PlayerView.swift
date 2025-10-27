@@ -133,8 +133,6 @@ struct PlayerView: View {
                             try await eluvio.refreshFabricToken()
                         }catch{
                             debugPrint("Error refreshing Token ", error)
-                            eluvio.signOut()
-                            eluvio.pathState.path.removeAll()
                             return;
                         }
                     }
@@ -243,8 +241,6 @@ struct PlayerView: View {
                                     try await eluvio.refreshFabricToken()
                                 }catch{
                                     debugPrint("Error refreshing Token ", error)
-                                    eluvio.signOut()
-                                    eluvio.pathState.path.removeAll()
                                     return;
                                 }
                             }

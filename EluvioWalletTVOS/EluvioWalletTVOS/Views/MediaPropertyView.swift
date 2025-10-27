@@ -129,7 +129,7 @@ struct MediaPropertyView : View {
                             debugPrint("Going to property page ", property.id)
                             if let currentAccount = eluvio.accountManager.currentAccount {
                                 if currentAccount.isTokenExpiredIn(seconds: 24*60*60) {
-                                   try await eluvio.refreshFabricToken()
+                                   //try await eluvio.refreshFabricToken()
                                 }
                             }
                             eluvio.pathState.propertyPage = property.main_page

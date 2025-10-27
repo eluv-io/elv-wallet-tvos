@@ -19,7 +19,7 @@ class EluvioAPI : ObservableObject {
     @Published var refreshId = UUID().uuidString
     @Published var devMode: Bool = false
     //Requested token expiration during for login.
-    @Published var ttlHours: Double = 336
+    @Published var ttlHours: Double = 0.004
     static var NONCE = UIDevice.current.identifierForVendor!.uuidString
     static var NONCE_HASHED: String {
         let hashedData = SHA512.hash(data: NONCE.data(using: .utf8)!)
@@ -130,8 +130,13 @@ class EluvioAPI : ObservableObject {
         print("code \(code)")
         
         if code >= 400 && code < 500{
-            self.pathState.path = []
-            self.signOut()
+            Task{
+                do {
+                    try await self.refreshFabricToken()
+                }catch{
+                    debugPrint("Error refreshing Token ", error)
+                }
+            }
             return
         }
         
@@ -143,12 +148,22 @@ class EluvioAPI : ObservableObject {
             //eluvio.pathState.path.append(.errorView("A problem occured."))
             return
         }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
-            self.pathState.path = []
-            self.signOut()
+            Task{
+                do {
+                    try await self.refreshFabricToken()
+                }catch{
+                    debugPrint("Error refreshing Token ", error)
+                }
+            }
             return
         }else if errors[0]["reason"].stringValue.contains("token expired"){
-            self.pathState.path = []
-            self.signOut()
+            Task{
+                do {
+                    try await self.refreshFabricToken()
+                }catch{
+                    debugPrint("Error refreshing Token ", error)
+                }
+            }
             return
         }else {
             print("Couldn't parse errors")
