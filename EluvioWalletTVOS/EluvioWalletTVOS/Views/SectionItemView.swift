@@ -859,13 +859,16 @@ struct SectionItemView: View {
                                     debugPrint("Item without type Item: ", mediaItem)
                                 }
                             }catch(FabricError.apiError(let code, let response, let error)){
+                                await eluvio.handleApiError(code: code, response: response, error: error)
                                 await MainActor.run {
-                                    print("Could not get properties ", error.localizedDescription)
+                                    print("Could not get properties ", error)
                                     _ = eluvio.pathState.path.popLast()
-                                    eluvio.handleApiError(code: code, response: response, error: error)
                                 }
                             }catch{
-                                print("Error processing section Item ", error.localizedDescription)
+                                print("Error processing section Item ", error)
+                                do{
+                                    try await eluvio.refreshFabricToken()
+                                }catch{}
                                 await MainActor.run {
                                     _ = eluvio.pathState.path.popLast()
                                     eluvio.pathState.path.append(.errorView("Could not access media."))

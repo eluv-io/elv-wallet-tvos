@@ -84,20 +84,27 @@ struct DiscoverView: View {
         .opacity(opacity)
         .onChange(of:selected){ old, new in
             Task {
-                do {
-                    if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "", newFetch: DiscoverView.refreshId != eluvio.refreshId) {
-                        debugPrint("Fetched new property ", mediaProperty.id)
-                        let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
-                        withAnimation(.easeIn(duration:1)){
-                            if eluvio.isCustomApp() {
-                                backgroundImageURL = viewItem.startScreenBackground
-                            }else {
-                                backgroundImageURL = viewItem.backgroundImage
+                for _ in 1...10 {
+                    var retry = false
+                    do {
+                        if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "", newFetch: DiscoverView.refreshId != eluvio.refreshId) {
+                            debugPrint("Fetched new property ", mediaProperty.id)
+                            let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
+                            withAnimation(.easeIn(duration:1)){
+                                if eluvio.isCustomApp() {
+                                    backgroundImageURL = viewItem.startScreenBackground
+                                }else {
+                                    backgroundImageURL = viewItem.backgroundImage
+                                }
                             }
                         }
+                    }catch{
+                        debugPrint("Could not fetch new property ",error)
+                        retry = true
                     }
-                }catch{
-                    debugPrint("Could not fetch new property ",error.localizedDescription)
+                    if !retry {
+                        break;
+                    }
                 }
             }
         }
@@ -115,25 +122,26 @@ struct DiscoverView: View {
             
         )
         .scrollClipDisabled()
-        .task(){
-            if properties.count == 0{
-                refresh()
+        .task(id:eluvio.refreshId){
+            debugPrint("DiscoverView onAppear()")
+            
+            Task {
+                withAnimation(.easeInOut(duration: 1)) {
+                  opacity = 1.0
+                }
             }
+            //if properties.count == 0{
+                refresh()
+            //}
         }
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
             opacity = 0.0
-            refresh()
+            //refresh()
         }
     }
     
     func refresh() {
-
-        Task {
-            withAnimation(.easeInOut(duration: 1)) {
-              opacity = 1.0
-            }
-        }
 
         if isRefreshing{
             return
@@ -146,55 +154,63 @@ struct DiscoverView: View {
         Task{
             defer {
                 self.isRefreshing = false
-                DiscoverView.refreshId = eluvio.refreshId
+                //DiscoverView.refreshId = eluvio.refreshId
             }
 
-            do {
-                try await eluvio.fabric.connect(token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
-                
-                var noAuth = true
-                if eluvio.accountManager.currentAccount != nil {
-                    noAuth = false
-                }
-                
-                let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:noAuth, newFetch:true, devMode: eluvio.getDevMode(), properties: APP_CONFIG.allowed_properties)
-                
-                debugPrint("Got properties ", props.count)
-                
-                var newProperties: [MediaPropertyViewModel] = []
-                
-                for property in props{
-                    let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                    if mediaProperty.image.isEmpty && !eluvio.isCustomApp(){
-                        debugPrint("image is empty")
-                    }else{
-                        newProperties.append(mediaProperty)
-                        debugPrint("Added property ", mediaProperty.id)
+            for _ in 1...10 {
+                var retry = false
+                do {
+                    try await eluvio.fabric.connect(token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
+                    
+                    var noAuth = true
+                    if eluvio.accountManager.currentAccount != nil {
+                        noAuth = false
                     }
                     
-                    if newProperties.count > 16 {
-                        self.properties = newProperties
+                    let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:noAuth, newFetch:true, devMode: eluvio.getDevMode(), properties: APP_CONFIG.allowed_properties)
+                    
+                    debugPrint("Got properties ", props.count)
+                    
+                    var newProperties: [MediaPropertyViewModel] = []
+                    
+                    for property in props{
+                        let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
+                        if mediaProperty.image.isEmpty && !eluvio.isCustomApp(){
+                            debugPrint("image is empty")
+                        }else{
+                            newProperties.append(mediaProperty)
+                            debugPrint("Added property ", mediaProperty.id)
+                        }
+                        
+                        if newProperties.count > 16 {
+                            self.properties = newProperties
+                        }
                     }
+                    
+                    if eluvio.isCustomApp() && newProperties.count == 1 {
+                        selected = newProperties[0]
+                        withAnimation(.easeIn(duration: 1)){
+                            backgroundImageURL = newProperties[0].startScreenBackground
+                            debugPrint("Setting backgroundImageURL ", backgroundImageURL)
+                        }
+                    }else if newProperties.count > 1 {
+                        selected = newProperties[0]
+                        withAnimation(.easeIn(duration: 1)){
+                            backgroundImageURL = newProperties[0].backgroundImage
+                        }
+                    }
+                    self.properties = newProperties
+                    debugPrint("Finished setting properties")
+                }catch(FabricError.apiError(let code, let response, let error)){
+                    await eluvio.handleApiError(code: code, response: response, error: error)
+                    retry = true
+                }catch {
+                    print("Could not refresh properties ", error)
+                    retry = true
                 }
-                
-                if eluvio.isCustomApp() && newProperties.count == 1 {
-                    selected = newProperties[0]
-                    withAnimation(.easeIn(duration: 1)){
-                        backgroundImageURL = newProperties[0].startScreenBackground
-                        debugPrint("Setting backgroundImageURL ", backgroundImageURL)
-                    }
-                }else if newProperties.count > 1 {
-                    selected = newProperties[0]
-                    withAnimation(.easeIn(duration: 1)){
-                        backgroundImageURL = newProperties[0].backgroundImage
-                    }
+                if !retry {
+                    break;
                 }
-                self.properties = newProperties
-                debugPrint("Finished setting properties")
-            }catch(FabricError.apiError(let code, let response, let error)){
-                eluvio.handleApiError(code: code, response: response, error: error)
-            }catch {
-                print("Could not refresh properties ", error.localizedDescription)
             }
         }
     }

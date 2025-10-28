@@ -125,18 +125,23 @@ class EluvioAPI : ObservableObject {
         fabric.reset()
     }
     
-    @MainActor func handleApiError(code: Int, response:JSON, error: Error){
+    func handleApiError(code: Int, response:JSON, error: Error) async{
+        await handleApiErrorSync(code: code, response: response, error: error)
+        do {
+            try await refreshFabricToken()
+        }catch{
+            debugPrint("Error refreshing Token ", error)
+            do {
+                try await Task.sleep(for: .seconds(5))
+            }catch{}
+        }
+    }
+    
+    @MainActor func handleApiErrorSync(code: Int, response:JSON, error: Error){
         print("Could not get properties ", error)
         print("code \(code)")
         
         if code >= 400 && code < 500{
-            Task{
-                do {
-                    try await self.refreshFabricToken()
-                }catch{
-                    debugPrint("Error refreshing Token ", error)
-                }
-            }
             return
         }
         
@@ -145,25 +150,12 @@ class EluvioAPI : ObservableObject {
         print("Response ", errors)
         if errors.isEmpty{
             print("errors field is empty")
-            //eluvio.pathState.path.append(.errorView("A problem occured."))
             return
         }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
-            Task{
-                do {
-                    try await self.refreshFabricToken()
-                }catch{
-                    debugPrint("Error refreshing Token ", error)
-                }
-            }
+            //TODO:
             return
         }else if errors[0]["reason"].stringValue.contains("token expired"){
-            Task{
-                do {
-                    try await self.refreshFabricToken()
-                }catch{
-                    debugPrint("Error refreshing Token ", error)
-                }
-            }
+            //TODO:
             return
         }else {
             print("Couldn't parse errors")
@@ -229,6 +221,7 @@ class EluvioAPI : ObservableObject {
             //debugPrint("Got new refresh token ", account.fabricToken)
             debugPrint("expires at ", account.expiresAt)
             accountManager.saveCurrentAccount()
+            await needsRefresh()
             return
         }
         

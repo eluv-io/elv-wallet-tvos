@@ -224,6 +224,7 @@ struct MediaPropertyDetailView: View {
             withAnimation(.easeInOut(duration: 2)) {
               opacity = 0.0
             }
+            eluvio.needsRefresh()
         }
     }
   
@@ -261,100 +262,109 @@ struct MediaPropertyDetailView: View {
             }
             
             let newFetch = true
-            
-            do {
-                debugPrint("Fetching property new? \(newFetch) ", propertyId)
-                
-                if let mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:newFetch) {
-                    debugPrint("Fetched property ", mediaProperty.id)
-                    self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
-                    await MainActor.run {
-                        //self.property = nil
-                        self.property = mediaProperty
-                        debugPrint("Property title inside mainactor", mediaProperty.title)
-                    }
-                    
-                    //Important to have currentSubproperty == nil to keep state of the switcher on child properties on refresh
-                    if findSubs && currentSubproperty == nil{
-                        //Retrieving sub properties to populate Search In: filters
-                        var subs : [PropertySelector] = []
-                        var parentProperty = mediaProperty
-                        if let parentId = mediaProperty.parent_id {
-                            debugPrint("Found parent id", parentId)
-                            if !parentId.isEmpty {
-                                if let prop = try await eluvio.fabric.getProperty(property:parentId) {
-                                    parentProperty = prop
-                                }
-                            }
-                        }
-                        
-                        if var subproperties = parentProperty.property_selection {
-                            for subpropSelection in subproperties.arrayValue {
-                                do {
-                                    let selectorId = subpropSelection["property_id"].stringValue
-                                    let perms = subpropSelection["permission_item_ids"].arrayValue
-                                    //debugPrint("Subproperty permission ids ", perms)
-                                    let authState = try await eluvio.fabric.getPropertyPermissions(propertyId: selectorId, noCache:false)
-                                    //debugPrint("auth state::: ", authState)
-                                    var authorized = try await eluvio.fabric.checkPermissionIds(permissionIds: perms, authState: authState["permission_auth_state"])
-                                    //debugPrint("authorized::: ", authorized)
-                                    
-                                    if !authorized {
-                                        continue
-                                    }
-                                    
-                                    var logoUrl = ""
-                                    debugPrint("subpropSelection : ", subpropSelection)
-                                    debugPrint("logo link: ",subpropSelection["logo"])
-                                    do {
-                                        logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
-                                    }catch{
-                                        print("Could not get logo from link ", error)
-                                    }
-                                    
-                                    var iconUrl = ""
-                                    do {
-                                        iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
-                                    }catch{
-                                        print("Could not get icon from link ", error)
-                                    }
-                                    
-                                    let selector = PropertySelector(logoUrl: logoUrl,
-                                                                    iconUrl: iconUrl,
-                                                                    propertyId: selectorId,
-                                                                    title: subpropSelection["title"].stringValue)
-                                    debugPrint("selector created: ", selector)
-                                    if !selector.isEmpty{
-                                        subs.append(selector)
-                                        debugPrint("added selector")
-                                    }
-                                }catch{
-                                    print("Couldn't process sub property ", subpropSelection)
-                                }
-                            }
-                        }
-                        
-                        await MainActor.run {
-                            if subs.count > 1 {
-                                subProperties = subs
-                            }
-                        }
-                        
-                        if !subProperties.isEmpty {
-                            if let subproperty = try await eluvio.fabric.getProperty(property: subProperties[0].propertyId){
-                                await MainActor.run {
-                                    self.currentSubproperty = subproperty
-                                }
-                            }
-                        }
-                    }
-                    
-                }else{
-                    debugPrint("Could not find property")
-                    return
+            var _mediaProperty:MediaProperty?
+            for _ in 1...10 {
+                var retry = false
+                do {
+                    debugPrint("Fetching property new? \(newFetch) ", propertyId)
+                    _mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:newFetch)
+                }catch(FabricError.apiError(let code, let response, let error)){
+                    await eluvio.handleApiError(code: code, response: response, error: error)
+                    retry = true
+                }catch{
+                    debugPrint("Could not fetch property ",error)
+                    retry = true
                 }
-            }catch{
-                debugPrint("Could not fetch property ",error.localizedDescription)
+                if !retry {
+                    break;
+                }
+            }
+            
+            if let mediaProperty = _mediaProperty {
+                debugPrint("Fetched property ", mediaProperty.id)
+                self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
+                await MainActor.run {
+                    self.property = mediaProperty
+                    debugPrint("Property title inside mainactor", mediaProperty.title)
+                }
+                
+                //Important to have currentSubproperty == nil to keep state of the switcher on child properties on refresh
+                if findSubs && currentSubproperty == nil{
+                    //Retrieving sub properties to populate Search In: filters
+                    var subs : [PropertySelector] = []
+                    var parentProperty = mediaProperty
+                    if let parentId = mediaProperty.parent_id {
+                        debugPrint("Found parent id", parentId)
+                        if !parentId.isEmpty {
+                            if let prop = try await eluvio.fabric.getProperty(property:parentId) {
+                                parentProperty = prop
+                            }
+                        }
+                    }
+                    
+                    if var subproperties = parentProperty.property_selection {
+                        for subpropSelection in subproperties.arrayValue {
+                            do {
+                                let selectorId = subpropSelection["property_id"].stringValue
+                                let perms = subpropSelection["permission_item_ids"].arrayValue
+                                //debugPrint("Subproperty permission ids ", perms)
+                                let authState = try await eluvio.fabric.getPropertyPermissions(propertyId: selectorId, noCache:false)
+                                //debugPrint("auth state::: ", authState)
+                                let authorized = eluvio.fabric.checkPermissionIds(permissionIds: perms, authState: authState["permission_auth_state"])
+                                //debugPrint("authorized::: ", authorized)
+                                
+                                if !authorized {
+                                    continue
+                                }
+                                
+                                var logoUrl = ""
+                                debugPrint("subpropSelection : ", subpropSelection)
+                                debugPrint("logo link: ",subpropSelection["logo"])
+                                do {
+                                    logoUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["tile"])
+                                }catch{
+                                    print("Could not get logo from link ", error)
+                                }
+                                
+                                var iconUrl = ""
+                                do {
+                                    iconUrl = try eluvio.fabric.getUrlFromLink(link: subpropSelection["icon"])
+                                }catch{
+                                    print("Could not get icon from link ", error)
+                                }
+                                
+                                let selector = PropertySelector(logoUrl: logoUrl,
+                                                                iconUrl: iconUrl,
+                                                                propertyId: selectorId,
+                                                                title: subpropSelection["title"].stringValue)
+                                debugPrint("selector created: ", selector)
+                                if !selector.isEmpty{
+                                    subs.append(selector)
+                                    debugPrint("added selector")
+                                }
+                            }catch{
+                                print("Couldn't process sub property ", subpropSelection)
+                            }
+                        }
+                    }
+                    
+                    await MainActor.run {
+                        if subs.count > 1 {
+                            subProperties = subs
+                        }
+                    }
+                    
+                    if !subProperties.isEmpty {
+                        if let subproperty = try await eluvio.fabric.getProperty(property: subProperties[0].propertyId){
+                            await MainActor.run {
+                                self.currentSubproperty = subproperty
+                            }
+                        }
+                    }
+                }
+                
+            }else{
+                debugPrint("Could not find property")
                 return
             }
             
@@ -400,16 +410,23 @@ struct MediaPropertyDetailView: View {
                 print("Could not resolve permissions for property id \(altPropertyId)", error.localizedDescription)
             }
 
-            do {
-                debugPrint("MediaPropertyDetailView getting page sections")
-                sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
-                debugPrint("finished getting sections. ", sections.count)
-            }catch(FabricError.apiError(let code, let response, let error)){
-                debugPrint("Error getting page sections")
-                eluvio.handleApiError(code: code, response: response, error: error)
-            }catch {
-                //eluvio.pathState.path.append(.errorView("A problem occured."))
-                debugPrint("Error:",error.localizedDescription)
+            for _ in 1...10 {
+                var retry = false
+                do {
+                    debugPrint("MediaPropertyDetailView getting page sections")
+                    sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
+                    debugPrint("finished getting sections. ", sections.count)
+                }catch(FabricError.apiError(let code, let response, let error)){
+                    debugPrint("Error getting page sections")
+                    await eluvio.handleApiError(code: code, response: response, error: error)
+                    retry = true
+                }catch {
+                    debugPrint("Error:",error)
+                    retry = true
+                }
+                if !retry {
+                    break;
+                }
             }
 
             var backgroundImageString : String = ""

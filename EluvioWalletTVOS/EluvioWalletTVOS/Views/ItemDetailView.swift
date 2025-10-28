@@ -194,36 +194,42 @@ struct ItemDetailView: View {
                 debugPrint("Item \(item.meta)")
                 
                 Task{
-                    do {
-                        if let response = try await eluvio.fabric.signer?.getNftInfo(nftAddress: item.contract_addr ?? "", accessCode: eluvio.fabric.fabricToken) {
-                        
-                            debugPrint("get Nft info ", response)
+                    for _ in 1...10 {
+                        var retry = false
+                        do {
+                            if let response = try await eluvio.fabric.signer?.getNftInfo(nftAddress: item.contract_addr ?? "", accessCode: eluvio.fabric.fabricToken) {
                             
-                            var info : [LabelValuePair] = []
-                            
-                            var cap = response["cap"].intValue
-                            var burned = response["burned"].intValue
-                            var maxPossible = cap - burned
-                            var supply = response["total_supply"].intValue
-                            var minted = response["minted"].intValue
-                            
-                            //debugPrint("Mint Info: ", item.mintInfo)
-                            info.append(LabelValuePair(label:"Edition", info:item.meta.editionName ?? ""))
-                            info.append(LabelValuePair(label:"Number Minted", info:String(minted)))
-                            info.append(LabelValuePair(label:"Number in Circulation", info:String(supply)))
-                            info.append(LabelValuePair(label:"Number Burned", info:String(burned)))
-                            info.append(LabelValuePair(label:"Maximum Possible in Circulation", info:String(maxPossible)))
-                            info.append(LabelValuePair(label:"Cap", info:String(cap)))
-                            
-                            mintInfo = info
-                            
+                                debugPrint("get Nft info ", response)
+                                
+                                var info : [LabelValuePair] = []
+                                
+                                var cap = response["cap"].intValue
+                                var burned = response["burned"].intValue
+                                var maxPossible = cap - burned
+                                var supply = response["total_supply"].intValue
+                                var minted = response["minted"].intValue
+                                
+                                //debugPrint("Mint Info: ", item.mintInfo)
+                                info.append(LabelValuePair(label:"Edition", info:item.meta.editionName ?? ""))
+                                info.append(LabelValuePair(label:"Number Minted", info:String(minted)))
+                                info.append(LabelValuePair(label:"Number in Circulation", info:String(supply)))
+                                info.append(LabelValuePair(label:"Number Burned", info:String(burned)))
+                                info.append(LabelValuePair(label:"Maximum Possible in Circulation", info:String(maxPossible)))
+                                info.append(LabelValuePair(label:"Cap", info:String(cap)))
+                                
+                                mintInfo = info
+                                
+                            }
+                        }catch(FabricError.apiError(let code, let response, let error)){
+                            await eluvio.handleApiError(code: code, response: response, error: error)
+                            retry = true
+                        }catch {
+                            print("Could not get mint info ", error.localizedDescription)
+                            retry = true
                         }
-                    }catch(FabricError.apiError(let code, let response, let error)){
-                        eluvio.handleApiError(code: code, response: response, error: error)
-                    }catch {
-                        //eluvio.pathState.path.append(.errorView("A problem occured."))
-                        print("Could not get mint info ", error.localizedDescription)
-                        return
+                        if !retry {
+                            break;
+                        }
                     }
                 }
             }

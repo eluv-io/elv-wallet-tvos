@@ -141,7 +141,7 @@ struct MediaPropertyView : View {
                     }
                 
             }catch(FabricError.apiError(let code, let response, let error)){
-                eluvio.handleApiError(code: code, response: response, error: error)
+                eluvio.handleApiErrorSync(code: code, response: response, error: error)
                 login()
             }catch{
                 debugPrint("Error finding property ", error.localizedDescription)

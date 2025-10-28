@@ -94,56 +94,71 @@ struct MyItemsView: View {
         }
         .onAppear(){
             Task{
-                do {
-                    
-                    if !eluvio.isCustomApp() {
-                        let props = try await eluvio.fabric.getProperties(includePublic:false, newFetch:true)
+                for _ in 1...2 {
+                    var retry = false
+                    do {
                         
-                        var properties: [MediaPropertyViewModel] = []
-                        
-                        for property in props {
+                        if !eluvio.isCustomApp() {
+                            let props = try await eluvio.fabric.getProperties(includePublic:false, newFetch:true)
                             
-                            let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
-                            if mediaProperty.title.isEmpty {
-                                debugPrint("Property without a title: \(property.slug ?? "").")
-                            }else{
-                                properties.append(mediaProperty)
+                            var properties: [MediaPropertyViewModel] = []
+                            
+                            for property in props {
+                                
+                                let mediaProperty = await MediaPropertyViewModel.create(mediaProperty:property, fabric: eluvio.fabric)
+                                if mediaProperty.title.isEmpty {
+                                    debugPrint("Property without a title: \(property.slug ?? "").")
+                                }else{
+                                    properties.append(mediaProperty)
+                                }
+                                
                             }
                             
+                            self.properties = properties
                         }
-                        
-                        self.properties = properties
+                    }catch(FabricError.apiError(let code, let response, let error)){
+                        await eluvio.handleApiError(code: code, response: response, error: error)
+                        retry = true
+                    }catch {
+                        print("An error occured getting properties in MyItemsView", error)
+                        retry = true
                     }
-                }catch(FabricError.apiError(let code, let response, let error)){
-                    eluvio.handleApiError(code: code, response: response, error: error)
-                }catch {
-                    //eluvio.pathState.path.append(.errorView("A problem occured."))
-                    return
+                    if !retry {
+                        break;
+                    }
                 }
             }
             
             Task {
-                do {
-                    var allowedNFTs : [NFTModel] = []
-                    isFiltered = false
-                    if let allowedProperties = APP_CONFIG.allowed_properties {
-                        if !allowedProperties.isEmpty {
-                            for propertyId in allowedProperties {
-                                let resp = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
-                                allowedNFTs.append(contentsOf: resp)
+                for _ in 1...2 {
+                    var retry = false
+                    do {
+                        var allowedNFTs : [NFTModel] = []
+                        isFiltered = false
+                        if let allowedProperties = APP_CONFIG.allowed_properties {
+                            if !allowedProperties.isEmpty {
+                                for propertyId in allowedProperties {
+                                    let resp = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
+                                    allowedNFTs.append(contentsOf: resp)
+                                }
+                                
+                                nfts = allowedNFTs;
+                                isFiltered = true
                             }
-                            
-                            nfts = allowedNFTs;
-                            isFiltered = true
                         }
+                        if !isFiltered {
+                            nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
+                        }
+                    }catch(FabricError.apiError(let code, let response, let error)){
+                        await eluvio.handleApiError(code: code, response: response, error: error)
+                        retry = true
+                    }catch {
+                        print("An error occured getting nfts in MyItemsView", error)
+                        retry = true
                     }
-                    if !isFiltered {
-                        nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
+                    if !retry {
+                        break;
                     }
-                }catch(FabricError.apiError(let code, let response, let error)){
-                    eluvio.handleApiError(code: code, response: response, error: error)
-                }catch {
-                    //eluvio.pathState.path.append(.errorView("A problem occured."))
                 }
             }
             

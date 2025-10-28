@@ -511,24 +511,31 @@ struct MediaPropertySectionBannerView: View {
                         }
                     }else if item.type == "external_link"{
                         Task{
-                            debugPrint("Banner clicked external link")
-                            
-                            var backgroundImage = ""
-                            
-                            do {
-                                let property = try await eluvio.fabric.getProperty(property: propertyId)
+                            for _ in 1...10 {
+                                var retry = false
+                                debugPrint("Banner clicked external link")
                                 
+                                var backgroundImage = ""
                                 
-                                backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
-                            }catch(FabricError.apiError(let code, let response, let error)){
-                                eluvio.handleApiError(code: code, response: response, error: error)
-                            }catch {
-                                //eluvio.pathState.path.append(.errorView("A problem occured."))
-                            }
-                            
-                            if let url = item.url {
-                                let params = HtmlParams(url:url, backgroundImage: backgroundImage)
-                                eluvio.pathState.path.append(.html(params))
+                                do {
+                                    let property = try await eluvio.fabric.getProperty(property: propertyId)
+                                    backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
+                                }catch(FabricError.apiError(let code, let response, let error)){
+                                    await eluvio.handleApiError(code: code, response: response, error: error)
+                                    retry = true
+                                }catch {
+                                    print("An error occured getting the background image ", error)
+                                    retry = true
+                                }
+                                
+                                if let url = item.url {
+                                    let params = HtmlParams(url:url, backgroundImage: backgroundImage)
+                                    eluvio.pathState.path.append(.html(params))
+                                }
+                                
+                                if !retry {
+                                    break;
+                                }
                             }
                         }
                     }
@@ -903,52 +910,63 @@ struct MediaPropertySectionView: View {
         debugPrint("number of contents: ", section.content?.count)
 
         Task(){
-            do {
-                if section.type != "search" {
-                    print("Fetching section \(section.id)")
-                    do {
-                        
-                        if section.resolvedPermission == nil {
-                            self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
-                            section.resolvedPermission = self.permission
-                        }else {
+            for _ in 1...2 {
+                var retry = false
+                do {
+                    if section.type != "search" {
+                        print("Fetching section \(section.id)")
+                        do {
+                            
+                            if section.resolvedPermission == nil {
+                                self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
+                                section.resolvedPermission = self.permission
+                            }else {
+                                self.permission = section.resolvedPermission
+                            }
+                        }catch{
                             self.permission = section.resolvedPermission
                         }
-                    }catch{
-                        self.permission = section.resolvedPermission
                     }
-                }
-
-                //looking for subsections
-                var sections : [String] = []
-                if let sects = section.sections{
-                    for sub in sects{
-                        sections.append(sub)
-                    }
-
-                    debugPrint("Fetching subsections count ", sections.count)
-                    if !sections.isEmpty {
-                        
-                        let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections)
-                        await MainActor.run {
-                            self.subsections = result
-                            debugPrint("finished getting sub sections. ")
+                    
+                    //looking for subsections
+                    var sections : [String] = []
+                    if let sects = section.sections{
+                        for sub in sects{
+                            sections.append(sub)
                         }
+                        
+                        debugPrint("Fetching subsections count ", sections.count)
+                        if !sections.isEmpty {
+                            
+                            let result = try await eluvio.fabric.getPropertySections(property: propertyId, sections: sections)
+                            await MainActor.run {
+                                self.subsections = result
+                                debugPrint("finished getting sub sections. ")
+                            }
+                        }
+                    }
+                    
+                    debugPrint("Finished MediaPropertySectionView refresh for \(section.id)")
+                }catch(FabricError.apiError(let code, let response, let error)){
+                    await eluvio.handleApiError(code: code, response: response, error: error)
+                    retry = true
+                }catch {
+                    debugPrint("Error getting section info:",error)
+                    retry = true
+                }
+                
+                if let display = section.display {
+                    do {
+                        inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                        
+                    }catch{
+                        retry = true
                     }
                 }
                 
-                debugPrint("Finished MediaPropertySectionView refresh for \(section.id)")
-            }catch(FabricError.apiError(let code, let response, let error)){
-                eluvio.handleApiError(code: code, response: response, error: error)
-            }catch {
-                //eluvio.pathState.path.append(.errorView("A problem occured."))
-                debugPrint("Error getting section info:",error)
-            }
-            
-            if let display = section.display {
-                do {
-                    inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                }catch{}
+                if !retry {
+                    break;
+                }
             }
         }
 
