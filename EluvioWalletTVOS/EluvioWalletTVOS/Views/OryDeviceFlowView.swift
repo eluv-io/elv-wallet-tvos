@@ -168,7 +168,7 @@ struct OryDeviceFlowView: View {
             
             let nonce = EluvioAPI.NONCE_HASHED
             
-            let url = "\(APP_CONFIG.getWalletURL)/login?pid=\(self.propertyId)&action=login&mode=login&response=code&source=code&refresh=true&ttl=\(eluvio.ttlHours)&installid=\(nonce)&origin=\(UIDevice.current.name)"
+            let url = "\(APP_CONFIG.getWalletURL)/login?pid=\(self.propertyId)&action=login&mode=login&response=code&source=code&ttl=\(eluvio.ttlHours)&installId=\(nonce)&origin=\(UIDevice.current.name)"
             
             debugPrint("URL Code: ", url)
             

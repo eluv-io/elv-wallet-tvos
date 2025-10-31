@@ -24,7 +24,7 @@
           "main_obj_lib_id": "ilib2GdaYEFxB7HyLPhSDPKMyPLhV8x9",
           "public_token": "eyJxc3BhY2VfaWQiOiJpc3BjMlJVb1JlOWVSMnYzM0hBUlFVVlNwMXJZWHp3MSJ9Cg==",
           "state_store_urls": ["https://appsvc.svc.eluv.io"],
-          "wallet_url": "https://wallet.dev.contentfabric.io",
+          "wallet_url": "https://wallet.contentfabric.io",
           "badger_address": "0xa042a585bbbac4419ba39c397f35ab749fc470f0",
           "overrides":{
           },

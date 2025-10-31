@@ -118,10 +118,10 @@ struct MyItemsView: View {
                         }
                     }catch(FabricError.apiError(let code, let response, let error)){
                         await eluvio.handleApiError(code: code, response: response, error: error)
+                        await eluvio.refreshFabricToken()
                         retry = true
                     }catch {
                         print("An error occured getting properties in MyItemsView", error)
-                        retry = true
                     }
                     if !retry {
                         break;
@@ -150,11 +150,11 @@ struct MyItemsView: View {
                             nfts = try await eluvio.fabric.getNFTs(address:address, propertyId:propertyId)
                         }
                     }catch(FabricError.apiError(let code, let response, let error)){
-                        await eluvio.handleApiError(code: code, response: response, error: error)
+                        eluvio.handleApiError(code: code, response: response, error: error)
+                        await eluvio.refreshFabricToken()
                         retry = true
                     }catch {
                         print("An error occured getting nfts in MyItemsView", error)
-                        retry = true
                     }
                     if !retry {
                         break;

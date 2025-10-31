@@ -127,11 +127,6 @@ struct MediaPropertyView : View {
                            login()
                         }else{
                             debugPrint("Going to property page ", property.id)
-                            if let currentAccount = eluvio.accountManager.currentAccount {
-                                if currentAccount.isTokenExpiredIn(seconds: 24*60*60) {
-                                   //try await eluvio.refreshFabricToken()
-                                }
-                            }
                             eluvio.pathState.propertyPage = property.main_page
                             let param = PropertyParam(property:property)
                             eluvio.pathState.path.append(.property(param))
@@ -141,7 +136,7 @@ struct MediaPropertyView : View {
                     }
                 
             }catch(FabricError.apiError(let code, let response, let error)){
-                eluvio.handleApiErrorSync(code: code, response: response, error: error)
+                eluvio.handleApiError(code: code, response: response, error: error)
                 login()
             }catch{
                 debugPrint("Error finding property ", error.localizedDescription)

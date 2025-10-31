@@ -194,7 +194,7 @@ struct ItemDetailView: View {
                 debugPrint("Item \(item.meta)")
                 
                 Task{
-                    for _ in 1...10 {
+                    for _ in 1...2 {
                         var retry = false
                         do {
                             if let response = try await eluvio.fabric.signer?.getNftInfo(nftAddress: item.contract_addr ?? "", accessCode: eluvio.fabric.fabricToken) {
@@ -221,11 +221,11 @@ struct ItemDetailView: View {
                                 
                             }
                         }catch(FabricError.apiError(let code, let response, let error)){
-                            await eluvio.handleApiError(code: code, response: response, error: error)
+                            eluvio.handleApiError(code: code, response: response, error: error)
+                            await eluvio.refreshFabricToken()
                             retry = true
                         }catch {
-                            print("Could not get mint info ", error.localizedDescription)
-                            retry = true
+                            print("Could not get mint info ", error)
                         }
                         if !retry {
                             break;

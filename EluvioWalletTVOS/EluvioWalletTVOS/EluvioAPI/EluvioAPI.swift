@@ -19,11 +19,15 @@ class EluvioAPI : ObservableObject {
     @Published var refreshId = UUID().uuidString
     @Published var devMode: Bool = false
     //Requested token expiration during for login.
-    @Published var ttlHours: Double = 0.004
-    static var NONCE = UIDevice.current.identifierForVendor!.uuidString
+    @Published var ttlHours: Double = 0.01
+    static var NONCE: String {
+        UIDevice.current.identifierForVendor!.uuidString
+    }
+    //static var NONCE = "TESTNONCE"
     static var NONCE_HASHED: String {
         let hashedData = SHA512.hash(data: NONCE.data(using: .utf8)!)
-        return hashedData.compactMap { String(format: "%02x", $0) }.joined()
+        let hex = hashedData.compactMap { String(format: "%02x", $0) }.joined()
+        return hex
     }
     
     private var cancellables: Set<AnyCancellable> = []
@@ -31,6 +35,9 @@ class EluvioAPI : ObservableObject {
     init(){
         
         debugPrint("Initiating Eluvio APIs on ", UIDevice.current.localizedModel)
+        
+        debugPrint("NONCE: ", EluvioAPI.NONCE)
+        debugPrint("NONCE_HASHED: ", EluvioAPI.NONCE_HASHED)
         
         accountManager = .init()
         fabric = .init()
@@ -125,21 +132,15 @@ class EluvioAPI : ObservableObject {
         fabric.reset()
     }
     
-    func handleApiError(code: Int, response:JSON, error: Error) async{
-        await handleApiErrorSync(code: code, response: response, error: error)
-        do {
-            try await refreshFabricToken()
-        }catch{
-            debugPrint("Error refreshing Token ", error)
-            do {
-                try await Task.sleep(for: .seconds(5))
-            }catch{}
-        }
-    }
-    
-    @MainActor func handleApiErrorSync(code: Int, response:JSON, error: Error){
-        print("Could not get properties ", error)
+    //TODO:
+    func handleApiError(code: Int, response:JSON, error: Error){
+        print("handleApiError ", error)
+        print("response ", response)
         print("code \(code)")
+        
+        if code == 401 {
+            return
+        }
         
         if code >= 400 && code < 500{
             return
@@ -152,10 +153,8 @@ class EluvioAPI : ObservableObject {
             print("errors field is empty")
             return
         }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
-            //TODO:
             return
         }else if errors[0]["reason"].stringValue.contains("token expired"){
-            //TODO:
             return
         }else {
             print("Couldn't parse errors")
@@ -197,35 +196,55 @@ class EluvioAPI : ObservableObject {
         )
     }
     
-    func refreshFabricToken() async throws  {
+    func refreshFabricToken() async {
         if let account = accountManager.currentAccount {
             
             if account.refreshToken == "" {
                 return
             }
             
-            let response = try await fabric.refreshFabricToken(
-                fabricToken: account.fabricToken,
-                refreshToken: account.refreshToken,
-                nonce:EluvioAPI.NONCE)
-            
-            if response["error"].stringValue != "" {
-                throw FabricError.badInput(response["error"].stringValue)
+            do {
+                let response = try await fabric.refreshFabricToken(
+                    fabricToken: account.fabricToken,
+                    refreshToken: account.refreshToken,
+                    nonce:EluvioAPI.NONCE)
+                
+                if response["error"].stringValue != "" {
+                    throw FabricError.badInput(response["error"].stringValue)
+                }
+                
+                let fabricToken = response["token"].stringValue
+                let refreshToken = response["refresh_token"].stringValue
+                let expiresAt = response["expires_at"].int64Value
+                
+                if fabricToken.isEmpty || refreshToken.isEmpty || expiresAt == 0 {
+                    throw FabricError.badInput(response["error"].stringValue)
+                }
+                
+                account.fabricToken = fabricToken
+                account.refreshToken = refreshToken
+                account.expiresAt = expiresAt
+                fabric.fabricToken = account.fabricToken
+                //debugPrint("Got new token ", account.fabricToken)
+                //debugPrint("Got new refresh token ", account.fabricToken)
+                debugPrint("expires at ", account.expiresAt)
+                accountManager.saveCurrentAccount()
+                await needsRefresh()
+                return
+            }catch(FabricError.apiError(let code, let response, let error)){
+                handleApiError(code: code, response: response, error: error)
+                if (code == 401 || code == 403){
+                    await signOut()
+                    pathState.path.removeAll()
+                }
+                return
+            }catch{
+                print("Problem refreshing token ", error)
+                await signOut()
+                pathState.path.removeAll()
+                return;
             }
-            
-            account.fabricToken = response["token"].stringValue
-            account.refreshToken = response["refresh_token"].stringValue
-            account.expiresAt = response["expires_at"].int64Value
-            fabric.fabricToken = account.fabricToken
-            //debugPrint("Got new token ", account.fabricToken)
-            //debugPrint("Got new refresh token ", account.fabricToken)
-            debugPrint("expires at ", account.expiresAt)
-            accountManager.saveCurrentAccount()
-            await needsRefresh()
-            return
         }
-        
-        throw FabricError.noLogin("Not Logged In")
     }
 }
 

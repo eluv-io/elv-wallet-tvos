@@ -84,7 +84,7 @@ struct DiscoverView: View {
         .opacity(opacity)
         .onChange(of:selected){ old, new in
             Task {
-                for _ in 1...10 {
+                for _ in 1...2 {
                     var retry = false
                     do {
                         if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "", newFetch: DiscoverView.refreshId != eluvio.refreshId) {
@@ -100,6 +100,7 @@ struct DiscoverView: View {
                         }
                     }catch{
                         debugPrint("Could not fetch new property ",error)
+                        await eluvio.refreshFabricToken()
                         retry = true
                     }
                     if !retry {
@@ -157,7 +158,7 @@ struct DiscoverView: View {
                 //DiscoverView.refreshId = eluvio.refreshId
             }
 
-            for _ in 1...10 {
+            for _ in 1...2 {
                 var retry = false
                 do {
                     try await eluvio.fabric.connect(token:eluvio.accountManager.currentAccount?.fabricToken ?? "")
@@ -169,7 +170,7 @@ struct DiscoverView: View {
                     
                     let props = try await eluvio.fabric.getProperties(includePublic: true, noAuth:noAuth, newFetch:true, devMode: eluvio.getDevMode(), properties: APP_CONFIG.allowed_properties)
                     
-                    debugPrint("Got properties ", props.count)
+                    //debugPrint("Got properties ", props.count)
                     
                     var newProperties: [MediaPropertyViewModel] = []
                     
@@ -179,7 +180,7 @@ struct DiscoverView: View {
                             debugPrint("image is empty")
                         }else{
                             newProperties.append(mediaProperty)
-                            debugPrint("Added property ", mediaProperty.id)
+                            //debugPrint("Added property ", mediaProperty.id)
                         }
                         
                         if newProperties.count > 16 {
@@ -202,11 +203,13 @@ struct DiscoverView: View {
                     self.properties = newProperties
                     debugPrint("Finished setting properties")
                 }catch(FabricError.apiError(let code, let response, let error)){
-                    await eluvio.handleApiError(code: code, response: response, error: error)
-                    retry = true
+                    eluvio.handleApiError(code: code, response: response, error: error)
+                    if code == 401 {
+                        await eluvio.refreshFabricToken()
+                        retry = true
+                    }
                 }catch {
                     print("Could not refresh properties ", error)
-                    retry = true
                 }
                 if !retry {
                     break;

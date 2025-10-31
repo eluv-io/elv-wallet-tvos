@@ -511,32 +511,26 @@ struct MediaPropertySectionBannerView: View {
                         }
                     }else if item.type == "external_link"{
                         Task{
-                            for _ in 1...10 {
-                                var retry = false
-                                debugPrint("Banner clicked external link")
-                                
-                                var backgroundImage = ""
-                                
-                                do {
-                                    let property = try await eluvio.fabric.getProperty(property: propertyId)
-                                    backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
-                                }catch(FabricError.apiError(let code, let response, let error)){
-                                    await eluvio.handleApiError(code: code, response: response, error: error)
-                                    retry = true
-                                }catch {
-                                    print("An error occured getting the background image ", error)
-                                    retry = true
-                                }
-                                
-                                if let url = item.url {
-                                    let params = HtmlParams(url:url, backgroundImage: backgroundImage)
-                                    eluvio.pathState.path.append(.html(params))
-                                }
-                                
-                                if !retry {
-                                    break;
-                                }
+                            debugPrint("Banner clicked external link")
+                            
+                            var backgroundImage = ""
+                            
+                            do {
+                                let property = try await eluvio.fabric.getProperty(property: propertyId)
+                                backgroundImage = try eluvio.fabric.getUrlFromLink(link: property?.image_tv ?? "")
+                            }catch(FabricError.apiError(let code, let response, let error)){
+                                eluvio.handleApiError(code: code, response: response, error: error)
+                                return;
+                            }catch {
+                                print("An error occured getting the background image ", error)
+                                return;
                             }
+                            
+                            if let url = item.url {
+                                let params = HtmlParams(url:url, backgroundImage: backgroundImage)
+                                eluvio.pathState.path.append(.html(params))
+                            }
+                            
                         }
                     }
                 })
@@ -910,8 +904,6 @@ struct MediaPropertySectionView: View {
         debugPrint("number of contents: ", section.content?.count)
 
         Task(){
-            for _ in 1...2 {
-                var retry = false
                 do {
                     if section.type != "search" {
                         print("Fetching section \(section.id)")
@@ -948,26 +940,17 @@ struct MediaPropertySectionView: View {
                     
                     debugPrint("Finished MediaPropertySectionView refresh for \(section.id)")
                 }catch(FabricError.apiError(let code, let response, let error)){
-                    await eluvio.handleApiError(code: code, response: response, error: error)
-                    retry = true
+                    eluvio.handleApiError(code: code, response: response, error: error)
                 }catch {
                     debugPrint("Error getting section info:",error)
-                    retry = true
                 }
                 
                 if let display = section.display {
                     do {
                         inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                        
-                    }catch{
-                        retry = true
-                    }
+                    }catch{}
                 }
-                
-                if !retry {
-                    break;
-                }
-            }
+            
         }
 
     }

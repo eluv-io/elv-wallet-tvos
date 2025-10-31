@@ -1166,21 +1166,25 @@ class RemoteSigner {
                         debugPrint("refresh response: ", respJSON)
                             
                         switch (response.result) {
-                            case .success(let result):
-                                if respJSON["errors"].exists() {
-                                    continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
-                                                                                       response: respJSON, error:FabricError.unexpectedResponse("")))
-                                }else {
+                        case .success(let result):
+                            if respJSON["errors"].exists() {
+                                continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                   response: respJSON, error:FabricError.unexpectedResponse("")))
+                            }else if respJSON["message"].exists(){
+                                continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                                   response: respJSON, error:FabricError.unexpectedResponse(respJSON["message"].stringValue)))
+                            }else {
                                     continuation.resume(returning: respJSON)
-                                }
+                            }
 
                          case .failure(let error):
                             var respJSON = JSON()
                             do{
                                 respJSON = try JSON(data: response.data ?? Data())
                             }catch{}
-                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
-                                                                               response: respJSON, error: error))
+                            continuation.resume(throwing: FabricError.apiError(code:
+                                                                                response.response?.statusCode ?? 0,
+                                                                                response: respJSON, error: error))
                      }
                 }
             }catch{

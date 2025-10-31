@@ -231,6 +231,7 @@ struct MediaPropertyDetailView: View {
     func refresh(findSubs:Bool = true){
         debugPrint("MediaPropertyDetailView refresh() propertyId: ",propertyId)
         debugPrint("MediaPropertyDetailView refresh() page: ",pageId)
+        
         if self.isRefreshing {
             debugPrint("no need for a refresh..exiting")
             return
@@ -256,6 +257,13 @@ struct MediaPropertyDetailView: View {
         debugPrint("refresh, current supbproperty  ", currentSubproperty)
         
         Task {
+            
+            if let currentAccount = eluvio.accountManager.currentAccount {
+                if currentAccount.isTokenExpiredIn(seconds: 24*60*60) {
+                    //await eluvio.refreshFabricToken()
+                }
+            }
+            
             defer {
                 self.isRefreshing = false
                 debugPrint("MediaPropertyDetailView refresh done: setting refreshId ",refreshId)
@@ -263,23 +271,15 @@ struct MediaPropertyDetailView: View {
             
             let newFetch = true
             var _mediaProperty:MediaProperty?
-            for _ in 1...10 {
-                var retry = false
-                do {
-                    debugPrint("Fetching property new? \(newFetch) ", propertyId)
-                    _mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:newFetch)
-                }catch(FabricError.apiError(let code, let response, let error)){
-                    await eluvio.handleApiError(code: code, response: response, error: error)
-                    retry = true
-                }catch{
-                    debugPrint("Could not fetch property ",error)
-                    retry = true
-                }
-                if !retry {
-                    break;
-                }
+            do {
+                debugPrint("Fetching property new? \(newFetch) ", propertyId)
+                _mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:newFetch)
+            }catch(FabricError.apiError(let code, let response, let error)){
+                await eluvio.handleApiError(code: code, response: response, error: error)
+            }catch{
+                debugPrint("Could not fetch property ",error)
             }
-            
+
             if let mediaProperty = _mediaProperty {
                 debugPrint("Fetched property ", mediaProperty.id)
                 self.propertyView = await MediaPropertyViewModel.create(mediaProperty:mediaProperty, fabric:eluvio.fabric)
@@ -410,23 +410,15 @@ struct MediaPropertyDetailView: View {
                 print("Could not resolve permissions for property id \(altPropertyId)", error.localizedDescription)
             }
 
-            for _ in 1...10 {
-                var retry = false
-                do {
-                    debugPrint("MediaPropertyDetailView getting page sections")
-                    sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
-                    debugPrint("finished getting sections. ", sections.count)
-                }catch(FabricError.apiError(let code, let response, let error)){
-                    debugPrint("Error getting page sections")
-                    await eluvio.handleApiError(code: code, response: response, error: error)
-                    retry = true
-                }catch {
-                    debugPrint("Error:",error)
-                    retry = true
-                }
-                if !retry {
-                    break;
-                }
+            do {
+                debugPrint("MediaPropertyDetailView getting page sections")
+                sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
+                debugPrint("finished getting sections. ", sections.count)
+            }catch(FabricError.apiError(let code, let response, let error)){
+                debugPrint("Error getting page sections")
+                await eluvio.handleApiError(code: code, response: response, error: error)
+            }catch {
+                debugPrint("Error:",error)
             }
 
             var backgroundImageString : String = ""

@@ -129,12 +129,7 @@ struct PlayerView: View {
                 if let account = eluvio.accountManager.currentAccount {
                     //If our token expires in 4 hours we refresh
                     if (account.isTokenExpiredIn(seconds: 60*60*4)){
-                        do {
-                            try await eluvio.refreshFabricToken()
-                        }catch{
-                            debugPrint("Error refreshing Token ", error)
-                            return;
-                        }
+                        try await eluvio.refreshFabricToken()
                     }
                     
                     let address = account.getAccountAddress()
@@ -237,12 +232,7 @@ struct PlayerView: View {
                         Task{
                             //If our token expires in 4 hours we refresh
                             if (account.isTokenExpiredIn(seconds: 60*60*4)){
-                                do {
-                                    try await eluvio.refreshFabricToken()
-                                }catch{
-                                    debugPrint("Error refreshing Token ", error)
-                                    return;
-                                }
+                                try await eluvio.refreshFabricToken()
                             }
                         }
                     }
