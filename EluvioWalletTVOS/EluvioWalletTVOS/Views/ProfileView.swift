@@ -104,6 +104,12 @@ struct ProfileView: View {
                         
                         }
                         .padding()
+                        Section(header:Text("App").foregroundColor(.white.opacity(0.6)))
+                        {
+                            FormEntry("Version:  \(BundleVersion)")
+                            FormEntry("Build:  \(BundleBuild)")
+                        }
+                        .padding()
                     }
                     .frame(width:1200)
                     

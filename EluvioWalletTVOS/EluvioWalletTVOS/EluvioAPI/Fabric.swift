@@ -174,7 +174,7 @@ class Fabric: ObservableObject {
                     as? String {
                 _network = savedNetwork
             }else{
-                _network = "main"
+                _network = "main" 
             }
              */
             

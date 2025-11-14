@@ -15,6 +15,9 @@ import AVFoundation
 import VarInt
 import CryptoKit
 
+let BundleVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+let BundleBuild: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+
 extension UnsignedInteger where Self: CVarArg {
     var hexa: String { .init(format: "%ll*0x", bitWidth / 4, self) }
 }

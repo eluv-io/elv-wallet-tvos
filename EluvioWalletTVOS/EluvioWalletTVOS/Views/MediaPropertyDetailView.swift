@@ -78,7 +78,7 @@ struct MediaPropertyDetailView: View {
     @State private var currentSubproperty: MediaProperty?
     @State private var currentSubIndex: Int = 0
     @State private var menuOpen = false
-    //let sectionRefreshTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    let refreshTimer = Timer.publish(every: 24*60*60, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ScrollView() {
@@ -226,6 +226,16 @@ struct MediaPropertyDetailView: View {
             }
             eluvio.needsRefresh()
         }
+        .onReceive(refreshTimer) { _ in
+            Task{
+                if let currentAccount = eluvio.accountManager.currentAccount {
+                    if currentAccount.isTokenExpiredIn(seconds: 2*24*60*60) {
+                        await eluvio.refreshFabricToken()
+                        refresh()
+                    }
+                }
+            }
+        }
     }
   
     func refresh(findSubs:Bool = true){
@@ -257,13 +267,6 @@ struct MediaPropertyDetailView: View {
         debugPrint("refresh, current supbproperty  ", currentSubproperty)
         
         Task {
-            
-            if let currentAccount = eluvio.accountManager.currentAccount {
-                if currentAccount.isTokenExpiredIn(seconds: 24*60*60) {
-                    //await eluvio.refreshFabricToken()
-                }
-            }
-            
             defer {
                 self.isRefreshing = false
                 debugPrint("MediaPropertyDetailView refresh done: setting refreshId ",refreshId)

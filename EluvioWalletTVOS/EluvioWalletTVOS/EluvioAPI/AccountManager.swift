@@ -31,6 +31,7 @@ class Account: Identifiable, Codable {
     var isLoggedOut = true
     var expiresAt : Int64 = 0
     var email = ""
+    var domain = ""
     
     func getAccountId() -> String {
         guard let address = self.login?.addr else

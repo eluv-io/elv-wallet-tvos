@@ -256,6 +256,7 @@ struct OryDeviceFlowView: View {
                 await MainActor.run {
                     eluvio.pathState.path.append(.progress)
                 }
+                
 
                 let account = Account()
                 account.type = .Ory
@@ -267,6 +268,22 @@ struct OryDeviceFlowView: View {
                 account.login = login
                 account.clusterToken = clusterToken
                 account.refreshToken = refreshToken
+                
+                if let login = property?.login {
+                    var useAuth0 = login["settings"]["use_auth0"].boolValue
+                    var disableThirdParty = login["settings"]["disable_third_party_login"].boolValue
+                    var domain = ""
+                    
+                    if useAuth0 {
+                        account.type = .Auth0
+                        if disableThirdParty == false {
+                            domain = login["settings"]["auth0_domain"].stringValue ?? ""
+                            account.domain = domain
+                            account.type = .SSO
+                        }
+                    }
+                }
+                
                 
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
                 eluvio.needsRefresh()

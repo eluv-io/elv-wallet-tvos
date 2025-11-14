@@ -19,7 +19,7 @@ class EluvioAPI : ObservableObject {
     @Published var refreshId = UUID().uuidString
     @Published var devMode: Bool = false
     //Requested token expiration during for login.
-    @Published var ttlHours: Double = 0.01
+    @Published var ttlHours: Double = 336
     static var NONCE: String {
         UIDevice.current.identifierForVendor!.uuidString
     }

@@ -131,14 +131,14 @@ struct DiscoverView: View {
                   opacity = 1.0
                 }
             }
-            //if properties.count == 0{
+            if properties.count == 0{
                 refresh()
-            //}
+            }
         }
         .onDisappear(){
             debugPrint("DiscoverView onDisappear")
             opacity = 0.0
-            //refresh()
+            refresh()
         }
     }
     

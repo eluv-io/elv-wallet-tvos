@@ -191,8 +191,8 @@ struct DeviceFlowView: View {
         debugPrint("DeviceFlowView Auth0 regenerate Code ", property?.login?["settings"])
         var clientId = self.ClientId
         var domain = self.Domain
-        var useAuth0 = property?.login?["settings"]["use_auth0"].boolValue ?? false
-        var disableThirdParty = property?.login?["settings"]["disable_third_party_login"].boolValue ?? false
+        let useAuth0 = property?.login?["settings"]["use_auth0"].boolValue ?? false
+        let disableThirdParty = property?.login?["settings"]["disable_third_party_login"].boolValue ?? false
         
         if useAuth0 && disableThirdParty == false {
             clientId = property?.login?["settings"]["auth0_native_client_id"].stringValue ?? self.ClientId
@@ -204,7 +204,7 @@ struct DeviceFlowView: View {
             json,err in
             
             Task{
-                guard let signer = self.eluvio.fabric.signer else {
+                guard self.eluvio.fabric.signer != nil else {
                     print("MetaMaskFlowView regenerateCode() called without a signer.")
                     return
                 }
@@ -218,7 +218,7 @@ struct DeviceFlowView: View {
                 }
 
                 guard err == nil else {
-                    print(err)
+                    print("Error starting Device Code Flow \(err ?? "")")
                     return
                     
                 }
@@ -238,7 +238,7 @@ struct DeviceFlowView: View {
                     }
                 }
             
-                debugPrint("Shortened URL: ", json)
+                //debugPrint("Shortened URL: ", json)
                 
                 self.code = json?["user_code"] as! String
                 self.deviceCode = json?["device_code"] as! String
@@ -252,7 +252,7 @@ struct DeviceFlowView: View {
                     interval = 7.0
                 }
                 
-                let validFor = json?["expires_in"] as! Int
+                _ = json?["expires_in"] as! Int
                 self.timer = Timer.publish(every: interval, on: .main, in: .common)
                 self.timerCancellable = self.timer.connect()
                 /*self.countDown = Timer.scheduledTimer(timeInterval: TimeInterval(validFor), target: self, selector: #selector(self.onTimerFires), userInfo: nil, repeats: true)*/

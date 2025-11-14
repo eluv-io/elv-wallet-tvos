@@ -20,7 +20,7 @@ struct ImageParams:Hashable{
 }
 
 enum LoginType : String {
-    case auth0, ory
+    case auth0, ory, external
 }
 
 struct MediaGridParams : Hashable {

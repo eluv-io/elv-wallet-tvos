@@ -63,12 +63,37 @@ struct MediaPropertyView : View {
         if let login = property.login {
             //debugPrint("login: ", login)
             
-            let provider = login["settings"]["provider"].stringValue
+            //let provider = login["settings"]["provider"].stringValue
+            
+            var provider = "ory"
+            
+            var useAuth0 = login["settings"]["use_auth0"].boolValue
+            var disableThirdParty = login["settings"]["disable_third_party_login"].boolValue
+            var domain = ""
+            
+            if useAuth0 {
+                provider = "auth0"
+                if disableThirdParty == false {
+                    domain = login["settings"]["auth0_domain"].stringValue ?? ""
+                    provider = "external"
+                }
+            }
+            
+
+            
             if !provider.isEmpty {
                 if provider == "auth0" {
                     debugPrint("Auth0 login.")
                     if eluvio.accountManager.currentAccount?.type != .Auth0 {
                         eluvio.pathState.path.append(.login(LoginParam(type:.auth0, property:property)))
+                        return
+                    }
+                }else if provider == "external" {
+                    debugPrint("3rdparty login.")
+                    if eluvio.accountManager.currentAccount?.type != .SSO ||
+                        domain != eluvio.accountManager.currentAccount?.domain
+                    {
+                        eluvio.pathState.path.append(.login(LoginParam(type:.external, property:property)))
                         return
                     }
                 }else if provider == "ory" {
@@ -117,10 +142,10 @@ struct MediaPropertyView : View {
                         }
                         
                         if let currentAccount = eluvio.accountManager.currentAccount {
-                            //if currentAccount.type == .DEBUG{
+                            if currentAccount.type == .DEBUG{
                                 skipLogin = true
                                 eluvio.fabric.fabricToken = currentAccount.fabricToken
-                            //}
+                            }
                         }
                         
                         if !skipLogin {
