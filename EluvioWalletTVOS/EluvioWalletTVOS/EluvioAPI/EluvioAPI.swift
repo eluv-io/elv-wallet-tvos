@@ -123,7 +123,7 @@ class EluvioAPI : ObservableObject {
         await signOut()
         fabric.fabricToken = account.fabricToken
         try accountManager.addAndSetCurrentAccount(account: account, type: account.type, property:property)
-        try await fabric.connect(network:"main")
+        try await fabric.connect()
     }
     
     @MainActor

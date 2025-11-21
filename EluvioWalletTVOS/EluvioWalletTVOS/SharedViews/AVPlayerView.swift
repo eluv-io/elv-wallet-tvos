@@ -11,25 +11,41 @@ import AVKit
 import MUXSDKStats
 
 struct AVPlayerView: UIViewControllerRepresentable {
-
-   /* @Binding var videoURL: URL?
-
-    private var player: AVPlayer {
-        return AVPlayer(url: videoURL!)
-    }
-*/
     @Binding var player: AVPlayer
     @Binding var playerViewController : AVPlayerViewController
     
+    var seekS : (Double) -> Void
+    
     func updateUIViewController(_ playerController: AVPlayerViewController, context: Context) {
         playerController.modalPresentationStyle = .fullScreen
-        /*let glasses = UIImage(systemName: "eyeglasses")
-        let watchLater = UIAction(title: "Watch Later", image: glasses) { action in
-            // Add or remove the item from the user's watch list,
-            // and update the action state accordingly.
+        
+        if let duration = player.currentItem?.duration {
+            //debugPrint("##### DURATIION ##### ", duration.isIndefinite)
+            
+            if let urlAsset = player.currentItem?.asset as? AVURLAsset {
+                //debugPrint("Playout URL: ", urlAsset.url)
+                let dvr = urlAsset.url.queryParameters?["dvr"] ?? ""
+                let isLive = dvr == "true" || dvr == "1"
+                //debugPrint("##### DURATIION READY ##### ", duration.isIndefinite)
+                if isLive {
+                    //let live = UIImage(systemName: "forward.end.fill")
+                    let watchLive = UIAction(title: "Watch Live"/*, image: live*/) { action in
+                        guard let playerItem = player.currentItem else { return }
+                        let seekableRanges = playerItem.seekableTimeRanges
+                        if let lastRange = seekableRanges.last?.timeRangeValue {
+                            let liveEdgeTime = CMTimeRangeGetEnd(lastRange)
+                            // Seek to the end of the last seekable range
+                            player.seek(to: liveEdgeTime, toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
+                            debugPrint("Seek to the end")
+                        }
+                    }
+                    
+                    if isLive {
+                        playerController.infoViewActions.append(watchLive)
+                    }
+                }
+            }
         }
-        // Append the action to the array.
-        playerController.infoViewActions.append(watchLater)*/
         playerController.player = player
     }
 
