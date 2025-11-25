@@ -8,7 +8,7 @@
           "config_url": "https://dv3.glb.contentfabric.io/config",
           "main_obj_id": "iq__2gkNh8CCZqFFnoRpEUmz7P3PaBQG",
           "main_obj_lib_id": "ilib36Wi5fJDLXix8ckL7ZfaAJwJXWGD",
-          "public_token":"",
+          "public_token":"eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSJ9",
           "state_store_urls": ["https://appsvc.svc.eluv.io"],
           "badger_address": "0x39e9d567137217e8f7dae73bf168db28d242bb31",
           "wallet_url": "https://wallet.demov3.contentfabric.io",
