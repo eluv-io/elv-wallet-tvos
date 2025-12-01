@@ -39,10 +39,9 @@ struct AVPlayerView: UIViewControllerRepresentable {
                             debugPrint("Seek to the end")
                         }
                     }
-                    
-                    if isLive {
-                        playerController.infoViewActions.append(watchLive)
-                    }
+
+                    playerController.infoViewActions = [watchLive]
+                
                 }
             }
         }
