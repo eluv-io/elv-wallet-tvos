@@ -38,7 +38,7 @@ struct PlayerView: View {
     @Environment(\.openURL) private var openURL
     @Namespace var playerNamespace
     @State var player = AVPlayer()
-    @State var playerViewController = AVPlayerViewController()
+    @State var playerViewController: AVPlayerViewController = TrickplayPlayerViewController()
     @State var isPlaying: Bool = false
     var mediaId: String = ""
     var playerItem : AVPlayerItem?
@@ -53,17 +53,20 @@ struct PlayerView: View {
     @State var currentTimeS: Double = -1
     @Binding var finished: Bool
     var progressCallback: ((_ progress: Double,_ currentTimeS: Double,_ durationS: Double)->Void )?
-    
+
     @FocusState private var focusedField: Field?
 
     var backLink: String = ""
     var backLinkIcon: String = ""
     @State var audioLoaded = false
 
+    // Trickplay thumbnails support
+    var thumbnailsWebVttUrl: String?
+
     enum Field: Hashable {
         case startFromBeginningField
     }
-    
+
     var hasSeeked : Bool {
         return currentTimeS > seekTimeS
     }
@@ -76,7 +79,7 @@ struct PlayerView: View {
 
     var body: some View {
         ZStack{
-            AVPlayerView(player: $player, playerViewController: $playerViewController, seekS: seekS)
+            AVPlayerView(player: $player, playerViewController: $playerViewController, thumbnailsWebVttUrl: thumbnailsWebVttUrl, authToken: eluvio.fabric.fabricToken, seekS: seekS)
             .ignoresSafeArea()
         }
         .onReceive(finishedObserver.publisher) {

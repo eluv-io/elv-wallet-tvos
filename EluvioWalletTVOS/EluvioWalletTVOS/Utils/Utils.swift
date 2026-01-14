@@ -923,6 +923,258 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
     
 }
 
+/// Contains video player item with optional trickplay thumbnails URL
+struct VideoPlayoutInfo {
+    let playerItem: AVPlayerItem
+    let thumbnailsWebVttUrl: String?
+}
+
+/// Extract thumbnails_webvtt_uri from playout options
+func extractThumbnailsWebVttUrl(optionsJson: JSON?, basePlayoutUrl: String) -> String? {
+    guard let options = optionsJson else {
+        debugPrint("extractThumbnailsWebVttUrl: optionsJson is nil")
+        return nil
+    }
+
+    debugPrint("extractThumbnailsWebVttUrl: basePlayoutUrl=\(basePlayoutUrl)")
+
+    // Try different DRM options for thumbnails_webvtt_uri
+    let drmTypes = ["hls-clear", "hls-aes128", "hls-fairplay", "hls-sample-aes"]
+
+    for drm in drmTypes {
+        debugPrint("extractThumbnailsWebVttUrl: checking \(drm)")
+        let properties = options[drm]["properties"]
+        debugPrint("extractThumbnailsWebVttUrl: properties keys = \(properties.dictionaryValue.keys)")
+
+        if let thumbnailsUri = properties["thumbnails_webvtt_uri"].string,
+           !thumbnailsUri.isEmpty {
+            debugPrint("extractThumbnailsWebVttUrl: Found thumbnails_webvtt_uri in \(drm): \(thumbnailsUri)")
+            return constructThumbnailsUrl(basePlayoutUrl: basePlayoutUrl, thumbnailsUri: thumbnailsUri)
+        }
+    }
+
+    debugPrint("extractThumbnailsWebVttUrl: No thumbnails_webvtt_uri found in any DRM option")
+    return nil
+}
+
+/// Construct full thumbnails URL from base playout URL and thumbnails URI
+/// The thumbnail URI format is "offering/rest/of/path" - we find the offering in the video URL
+/// and replace everything after it with the rest of the thumbnail path
+private func constructThumbnailsUrl(basePlayoutUrl: String, thumbnailsUri: String) -> String {
+    // Split thumbnail URI into offering and rest of path
+    // e.g., "default/thumbnails/thumbnails.vtt" -> offering="default", restOfPath="thumbnails/thumbnails.vtt"
+    let parts = thumbnailsUri.split(separator: "/", maxSplits: 1)
+    guard parts.count >= 1 else {
+        return thumbnailsUri
+    }
+
+    let offering = String(parts[0])
+    let restOfPath = parts.count > 1 ? String(parts[1]) : ""
+
+    debugPrint("constructThumbnailsUrl: offering=\(offering), restOfPath=\(restOfPath)")
+
+    // Find "/offering/" in the base URL and replace everything after it
+    let searchPattern = "/\(offering)/"
+    if let range = basePlayoutUrl.range(of: searchPattern) {
+        // Get everything up to and including "/offering/"
+        let baseUpToOffering = String(basePlayoutUrl[..<range.upperBound])
+
+        // Append the rest of the thumbnail path
+        var resultUrl = baseUpToOffering + restOfPath
+
+        // Preserve query parameters from original URL
+        if let queryStart = basePlayoutUrl.range(of: "?") {
+            let query = String(basePlayoutUrl[queryStart.lowerBound...])
+            if resultUrl.contains("?") {
+                resultUrl += "&" + query.dropFirst() // drop the "?" since we already have one
+            } else {
+                resultUrl += query
+            }
+        }
+
+        debugPrint("constructThumbnailsUrl: result=\(resultUrl)")
+        return resultUrl
+    }
+
+    debugPrint("constructThumbnailsUrl: offering '\(offering)' not found in URL, returning as-is")
+    return thumbnailsUri
+}
+
+func MakeVideoPlayoutInfoFromVersionHash(fabric: Fabric,
+                                         versionHash: String,
+                                         params: [JSON]? = [],
+                                         offering: String = "default",
+                                         title: String = "",
+                                         description: String = "",
+                                         imageThumb: String = "") async throws -> VideoPlayoutInfo {
+    debugPrint("MakeVideoPlayoutInfoFromVersionHash ", versionHash)
+    let options = try await fabric.getOptions(versionHash: versionHash, offering: offering)
+    debugPrint("getOptions ", options)
+    return try await MakeVideoPlayoutInfoFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
+}
+
+func MakeVideoPlayoutInfoFromLink(fabric: Fabric,
+                                  link: JSON?,
+                                  params: [JSON]? = [],
+                                  offering: String = "default",
+                                  title: String = "",
+                                  description: String = "",
+                                  imageThumb: String = "") async throws -> VideoPlayoutInfo {
+    debugPrint("MakeVideoPlayoutInfoFromLink ", link)
+    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering)
+    debugPrint("getOptionsFromLink ", options)
+    return try await MakeVideoPlayoutInfoFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
+}
+
+func MakeVideoPlayoutInfoFromOptionsJson(fabric: Fabric,
+                                         optionsJson: JSON?,
+                                         versionHash: String,
+                                         offering: String = "default",
+                                         title: String = "",
+                                         description: String = "",
+                                         imageThumb: String = "") async throws -> VideoPlayoutInfo {
+
+    var hlsPlaylistUrl: String = ""
+    var playerItem : AVPlayerItem? = nil
+
+    guard let options = optionsJson else {
+        throw RuntimeError("MakeVideoPlayoutInfoFromOptionsJson options is nil")
+    }
+
+    if options["hls-clear"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-clear", offering: offering)
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        playerItem = AVPlayerItem(asset: urlAsset)
+    } else if options["hls-aes128"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-aes128", offering: offering)
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        playerItem = AVPlayerItem(asset: urlAsset)
+    } else if options["hls-fairplay"].exists() {
+        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+
+        if licenseServer.isEmpty {
+            throw RuntimeError("Error getting licenseServer")
+        }
+        print("license_server \(licenseServer)")
+
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-fairplay", offering: offering)
+
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+
+        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+        playerItem = AVPlayerItem(asset: urlAsset)
+
+    } else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-sample-aes", offering: offering)
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        playerItem = AVPlayerItem(asset: urlAsset)
+    } else {
+        throw RuntimeError("No available playback options \(options)")
+    }
+
+    // Extract thumbnails WebVTT URL
+    let thumbnailsUrl = extractThumbnailsWebVttUrl(optionsJson: optionsJson, basePlayoutUrl: hlsPlaylistUrl)
+
+    if let player = playerItem {
+        await MainActor.run {
+            player.externalMetadata.append(AVMeta(title, key:.commonKeyTitle))
+            player.externalMetadata.append(AVMeta(description, key:.commonKeyDescription))
+        }
+
+        do {
+            if let url = URL(string: imageThumb) {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                let image = AVMetaArtwork(value: data as NSData)
+                player.externalMetadata.append(image)
+            }
+        } catch {
+            print("Error getting player info thumbnail ", error)
+        }
+
+        return VideoPlayoutInfo(playerItem: player, thumbnailsWebVttUrl: thumbnailsUrl)
+    }
+
+    throw RuntimeError("Error creating playerItem")
+}
+
+func MakeVideoPlayoutInfoFromMediaOptionsJson(fabric: Fabric,
+                                              optionsJson: JSON?,
+                                              offering: String = "default",
+                                              title: String = "",
+                                              description: String = "",
+                                              imageThumb: String = "") async throws -> VideoPlayoutInfo {
+
+    debugPrint("MakeVideoPlayoutInfoFromMediaOptionsJson ", optionsJson)
+
+    var hlsPlaylistUrl: String = ""
+    var playerItem : AVPlayerItem? = nil
+
+    guard let options = optionsJson else {
+        throw RuntimeError("MakeVideoPlayoutInfoFromMediaOptionsJson options is nil")
+    }
+
+    if options["hls-clear"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        playerItem = AVPlayerItem(asset: urlAsset)
+    } else if options["hls-aes128"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-aes128", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        playerItem = AVPlayerItem(asset: urlAsset)
+    } else if options["hls-fairplay"].exists() {
+        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+
+        if licenseServer.isEmpty {
+            throw RuntimeError("Error getting licenseServer")
+        }
+        print("license_server \(licenseServer)")
+
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-fairplay", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+
+        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+        playerItem = AVPlayerItem(asset: urlAsset)
+
+    } else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        playerItem = AVPlayerItem(asset: urlAsset)
+    } else {
+        throw RuntimeError("No available playback options \(options)")
+    }
+
+    // Extract thumbnails WebVTT URL
+    let thumbnailsUrl = extractThumbnailsWebVttUrl(optionsJson: optionsJson, basePlayoutUrl: hlsPlaylistUrl)
+
+    if let player = playerItem {
+        await MainActor.run {
+            player.externalMetadata.append(AVMeta(title, key:.commonKeyTitle))
+            player.externalMetadata.append(AVMeta(description, key:.commonKeyDescription))
+        }
+
+        do {
+            if let url = URL(string: imageThumb) {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                let image = AVMetaArtwork(value: data as NSData)
+                player.externalMetadata.append(image)
+            }
+        } catch {
+            print("Error getting player info thumbnail ", error)
+        }
+
+        return VideoPlayoutInfo(playerItem: player, thumbnailsWebVttUrl: thumbnailsUrl)
+    }
+
+    throw RuntimeError("Error creating playerItem")
+}
+
 func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {
    let mdi = AVMutableMetadataItem()
    mdi.locale = NSLocale.current

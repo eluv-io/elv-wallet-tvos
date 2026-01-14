@@ -338,13 +338,14 @@ struct SectionMediaItemView: View {
                                 Task{
                                     do {
                                         let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: item.id ?? "")
-                                        let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:item.title ?? "", description:item.description ?? "", imageThumb: thumbnail)
-                                        
+                                        let playoutInfo = try await MakeVideoPlayoutInfoFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:item.title ?? "", description:item.description ?? "", imageThumb: thumbnail)
+
                                         debugPrint("SectionMediaItemView play video property ", property)
                                         let params = VideoParams(mediaId: item.id ?? "",
                                                                  title: item.title ?? "",
-                                                                 playerItem: playerItem,
-                                                                 property: property)
+                                                                 playerItem: playoutInfo.playerItem,
+                                                                 property: property,
+                                                                 thumbnailsWebVttUrl: playoutInfo.thumbnailsWebVttUrl)
                                         eluvio.pathState.videoParams = params
                                         eluvio.pathState.path.append(.video)
 
@@ -691,12 +692,13 @@ struct SectionItemView: View {
                                         do {
                                             let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
                                             debugPrint("optionsJson ", optionsJson)
-                                            let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:mediaItem.title, description:mediaItem.description, imageThumb: mediaItem.thumbnail)
-                                                                                        
+                                            let playoutInfo = try await MakeVideoPlayoutInfoFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:mediaItem.title, description:mediaItem.description, imageThumb: mediaItem.thumbnail)
+
                                             let params = VideoParams(mediaId:mediaItem.media_id,
                                                                      title: mediaItem.title,
-                                                                     playerItem: playerItem,
-                                                                     property: property
+                                                                     playerItem: playoutInfo.playerItem,
+                                                                     property: property,
+                                                                     thumbnailsWebVttUrl: playoutInfo.thumbnailsWebVttUrl
                                                                     )
                                             eluvio.pathState.videoParams = params
                                             await MainActor.run {

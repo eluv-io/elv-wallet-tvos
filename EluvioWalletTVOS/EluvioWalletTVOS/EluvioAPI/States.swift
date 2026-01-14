@@ -58,6 +58,7 @@ struct VideoParams:Hashable{
     var title: String = ""
     var playerItem : AVPlayerItem? = nil
     var property: MediaProperty? = nil
+    var thumbnailsWebVttUrl: String? = nil
 }
 
 struct VideoErrorParams{

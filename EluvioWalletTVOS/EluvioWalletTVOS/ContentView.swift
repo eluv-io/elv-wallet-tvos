@@ -303,7 +303,8 @@ struct ContentView: View {
                                        playerItem: playerItem,
                                        property: params.property,
                                        title: params.title,
-                                       finished:$playerFinished)
+                                       finished:$playerFinished,
+                                       thumbnailsWebVttUrl: params.thumbnailsWebVttUrl)
                             .environmentObject(self.eluvio)
                         }
                     }

@@ -113,6 +113,12 @@
 		B0E60FAD29D223870079661E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FAC29D223870079661E /* SignInView.swift */; };
 		B0E60FB229D2288C0079661E /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E60FB129D2288C0079661E /* MainView.swift */; };
 		B0EAAF902CADA004000F1BAD /* PurchaseQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EAAF8F2CADA004000F1BAD /* PurchaseQRView.swift */; };
+		FAF63A542F1819BF00B40FF3 /* ScrubThumbnailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF63A4D2F1819BF00B40FF3 /* ScrubThumbnailView.swift */; };
+		FAF63A552F1819BF00B40FF3 /* ThumbnailSprite.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF63A4F2F1819BF00B40FF3 /* ThumbnailSprite.swift */; };
+		FAF63A562F1819BF00B40FF3 /* ThumbnailWebVttParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF63A502F1819BF00B40FF3 /* ThumbnailWebVttParser.swift */; };
+		FAF63A572F1819BF00B40FF3 /* TrickplayManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF63A512F1819BF00B40FF3 /* TrickplayManager.swift */; };
+		FAF63A582F1819BF00B40FF3 /* TrickplayPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF63A522F1819BF00B40FF3 /* TrickplayPlayerViewController.swift */; };
+		FAF63A592F1819BF00B40FF3 /* ThumbnailLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF63A4E2F1819BF00B40FF3 /* ThumbnailLoader.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -277,6 +283,12 @@
 		B0F9DC562B67529E00499C93 /* AQP-Opening-Image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AQP-Opening-Image.png"; sourceTree = "<group>"; };
 		B0F9DC582B68302400499C93 /* InteractiveMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InteractiveMediaView.swift; sourceTree = "<group>"; };
 		B0F9DC5A2B688D2D00499C93 /* A-Quiet-Place-Poster.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "A-Quiet-Place-Poster.jpg"; sourceTree = "<group>"; };
+		FAF63A4D2F1819BF00B40FF3 /* ScrubThumbnailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScrubThumbnailView.swift; sourceTree = "<group>"; };
+		FAF63A4E2F1819BF00B40FF3 /* ThumbnailLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailLoader.swift; sourceTree = "<group>"; };
+		FAF63A4F2F1819BF00B40FF3 /* ThumbnailSprite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailSprite.swift; sourceTree = "<group>"; };
+		FAF63A502F1819BF00B40FF3 /* ThumbnailWebVttParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailWebVttParser.swift; sourceTree = "<group>"; };
+		FAF63A512F1819BF00B40FF3 /* TrickplayManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrickplayManager.swift; sourceTree = "<group>"; };
+		FAF63A522F1819BF00B40FF3 /* TrickplayPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrickplayPlayerViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -510,6 +522,7 @@
 		B0E60F6E29CC23510079661E /* EluvioWalletTVOS */ = {
 			isa = PBXGroup;
 			children = (
+				FAF63A532F1819BF00B40FF3 /* Trickplay */,
 				B0D544712C1B7AA900558B21 /* ViewModels */,
 				B07ADFF72B6D5AD7005C5E5A /* SharedViews */,
 				B07ADFD12B6D50BF005C5E5A /* Utils */,
@@ -633,6 +646,19 @@
 				B0F9DC522B66FE1C00499C93 /* AQP-video-transcript.json */,
 			);
 			path = Books;
+			sourceTree = "<group>";
+		};
+		FAF63A532F1819BF00B40FF3 /* Trickplay */ = {
+			isa = PBXGroup;
+			children = (
+				FAF63A4D2F1819BF00B40FF3 /* ScrubThumbnailView.swift */,
+				FAF63A4E2F1819BF00B40FF3 /* ThumbnailLoader.swift */,
+				FAF63A4F2F1819BF00B40FF3 /* ThumbnailSprite.swift */,
+				FAF63A502F1819BF00B40FF3 /* ThumbnailWebVttParser.swift */,
+				FAF63A512F1819BF00B40FF3 /* TrickplayManager.swift */,
+				FAF63A522F1819BF00B40FF3 /* TrickplayPlayerViewController.swift */,
+			);
+			path = Trickplay;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -823,6 +849,12 @@
 				B0A830E82C784DEB0037BE59 /* EluvioAPI.swift in Sources */,
 				B02CE2042AF4C08700F5F495 /* BackButton.swift in Sources */,
 				B0E60F9D29CD85130079661E /* Utils.swift in Sources */,
+				FAF63A542F1819BF00B40FF3 /* ScrubThumbnailView.swift in Sources */,
+				FAF63A552F1819BF00B40FF3 /* ThumbnailSprite.swift in Sources */,
+				FAF63A562F1819BF00B40FF3 /* ThumbnailWebVttParser.swift in Sources */,
+				FAF63A572F1819BF00B40FF3 /* TrickplayManager.swift in Sources */,
+				FAF63A582F1819BF00B40FF3 /* TrickplayPlayerViewController.swift in Sources */,
+				FAF63A592F1819BF00B40FF3 /* ThumbnailLoader.swift in Sources */,
 				B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */,
 				B069A4832A397DA8006C9E7B /* LoopingPlayer.swift in Sources */,
 				B0D5446C2C17925800558B21 /* MediaPropertyModel.swift in Sources */,

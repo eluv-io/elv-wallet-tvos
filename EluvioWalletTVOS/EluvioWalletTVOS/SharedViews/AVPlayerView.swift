@@ -13,15 +13,17 @@ import MUXSDKStats
 struct AVPlayerView: UIViewControllerRepresentable {
     @Binding var player: AVPlayer
     @Binding var playerViewController : AVPlayerViewController
-    
+    var thumbnailsWebVttUrl: String?
+    var authToken: String?
+
     var seekS : (Double) -> Void
-    
+
     func updateUIViewController(_ playerController: AVPlayerViewController, context: Context) {
         playerController.modalPresentationStyle = .fullScreen
-        
+
         if let duration = player.currentItem?.duration {
             //debugPrint("##### DURATIION ##### ", duration.isIndefinite)
-            
+
             if let urlAsset = player.currentItem?.asset as? AVURLAsset {
                 //debugPrint("Playout URL: ", urlAsset.url)
                 let dvr = urlAsset.url.queryParameters?["dvr"] ?? ""
@@ -41,11 +43,18 @@ struct AVPlayerView: UIViewControllerRepresentable {
                     }
 
                     playerController.infoViewActions = [watchLive]
-                
+
                 }
             }
         }
         playerController.player = player
+
+        // Load trickplay thumbnails if available
+        if let trickplayController = playerController as? TrickplayPlayerViewController,
+           let webVttUrl = thumbnailsWebVttUrl, !webVttUrl.isEmpty {
+            trickplayController.setAuthToken(authToken)
+            trickplayController.loadTrickplayThumbnails(webVttUrl: webVttUrl)
+        }
     }
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
