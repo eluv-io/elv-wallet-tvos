@@ -76,8 +76,9 @@ struct PlayerView: View {
 
     var body: some View {
         ZStack{
-            AVPlayerView(player: $player, playerViewController: $playerViewController)
-            .ignoresSafeArea()
+            //AVPlayerView(player: $player, playerViewController: $playerViewController)
+            //.ignoresSafeArea()
+            VideoPlayerContainerView()
         }
         .onReceive(finishedObserver.publisher) {
             print("Finished!")
