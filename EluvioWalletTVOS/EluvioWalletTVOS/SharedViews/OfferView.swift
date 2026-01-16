@@ -198,7 +198,8 @@ struct OfferView: View {
             }
         }
         .fullScreenCover(isPresented: $showPlayer) { [playerItem] in
-            PlayerView(playerItem:playerItem, seekTimeS: 0, finished:$playerFinished)
+            //FIXME:
+            //PlayerView(playerItem:playerItem, seekTimeS: 0, finished:$playerFinished)
         }
         /*
         .fullScreenCover(isPresented: $showResult) {

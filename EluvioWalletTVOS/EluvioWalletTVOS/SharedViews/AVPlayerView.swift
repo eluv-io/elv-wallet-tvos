@@ -11,16 +11,11 @@ import AVKit
 import MUXSDKStats
 
 struct AVPlayerView: UIViewControllerRepresentable {
-
-   /* @Binding var videoURL: URL?
-
-    private var player: AVPlayer {
-        return AVPlayer(url: videoURL!)
-    }
-*/
-    @Binding var player: AVPlayer
-    @Binding var playerViewController : AVPlayerViewController
-    
+    //@Binding var player: AVPlayer
+    //@Binding var playerViewController : AVPlayerViewController
+    @ObservedObject var viewModel: VideoPlayerViewModel
+    @EnvironmentObject var eluvio : EluvioAPI
+    /*
     func updateUIViewController(_ playerController: AVPlayerViewController, context: Context) {
         playerController.modalPresentationStyle = .fullScreen
         /*let glasses = UIImage(systemName: "eyeglasses")
@@ -35,6 +30,60 @@ struct AVPlayerView: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         return playerViewController
+    }
+     */
+    
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let controller = AVPlayerViewController()
+        controller.player = viewModel.player
+        
+        // Configure for tvOS
+        controller.allowsPictureInPicturePlayback = false
+        
+        // Create default info view controller
+        //let defaultInfoVC = DefaultInfoViewController(viewModel: viewModel, eluvio: eluvio)
+        
+        // Create custom stream selector view controller
+        let streamSelectorVC = StreamSelectorViewController(viewModel: viewModel, eluvio: eluvio)
+        
+        /*
+        // Add custom info tabs
+        let defaultInfoTab = UITabBarItem(
+            title: "Info",
+            image: UIImage(systemName: "info.circle"),
+            tag: 0
+        )
+        defaultInfoVC.tabBarItem = defaultInfoTab
+         */
+        
+        let streamSelectorTab = UITabBarItem(
+            title: "Streams",
+            image: UIImage(systemName: "play.rectangle.on.rectangle"),
+            tag: 1
+        )
+        streamSelectorVC.tabBarItem = streamSelectorTab
+        
+        // Set custom info view controllers
+        controller.customInfoViewControllers = [streamSelectorVC]
+        
+        context.coordinator.playerViewController = controller
+        viewModel.playerViewController = controller
+        
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+        if uiViewController.player !== viewModel.player {
+            uiViewController.player = viewModel.player
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    class Coordinator {
+        var playerViewController: AVPlayerViewController?
     }
 }
 

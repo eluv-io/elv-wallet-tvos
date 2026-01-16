@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftyJSON
+import AVFoundation
 
 struct MediaPropertiesResponse: Codable {
     var contents : [MediaProperty] = []
@@ -231,8 +232,9 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var permissions : JSON? = nil
     
     var resolvedPermission : ResolvedPermission? = nil
-    
+
     func thumbnail(eluvio: EluvioAPI) -> String {
+
         do {
             let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: self.thumbnail_image_square)
             if !thumbnailSquare.isEmpty {
@@ -255,6 +257,22 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
         }catch{}
         
         return ""
+    }
+    
+    func url(eluvio: EluvioAPI, propertyId:String) async throws -> String {
+        let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: id ?? "")
+        let url = try await GetUrlFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+        return url
+    }
+    
+    func playerItem(eluvio: EluvioAPI, propertyId:String) async throws -> AVPlayerItem {
+        if let link = media_link?["sources"]["default"] {
+                let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: id ?? "")
+            let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:title ?? "", description:description ?? "", imageThumb: thumbnail(eluvio:eluvio))
+                return playerItem
+        }
+        
+        throw FabricError.badInput("Media item \(id) does not have a valid link: \(media_link)")
     }
     
     var startDate : Date? {

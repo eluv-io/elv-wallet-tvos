@@ -923,6 +923,52 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
     
 }
 
+func GetUrlFromMediaOptionsJson(fabric: Fabric,
+                                        optionsJson: JSON?,
+                                        offering: String = "default"
+) async throws -> String {
+    
+    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
+    
+    var hlsPlaylistUrl: String = ""
+
+    guard let options = optionsJson else {
+        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
+    }
+    
+    if options["hls-clear"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
+    }else if options["hls-aes128"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-aes128", offering: offering)
+    }else if options["hls-fairplay"].exists() {
+        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+        
+        if(licenseServer.isEmpty)
+        {
+            throw RuntimeError("Error getting licenseServer")
+        }
+        print("license_server \(licenseServer)")
+        
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-fairplay", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+        
+    }else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
+
+    }else{
+        throw RuntimeError("No available playback options \(options)")
+    }
+    
+    print("Playlist URL \(hlsPlaylistUrl)")
+    
+    return hlsPlaylistUrl;
+}
+
 func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {
    let mdi = AVMutableMetadataItem()
    mdi.locale = NSLocale.current

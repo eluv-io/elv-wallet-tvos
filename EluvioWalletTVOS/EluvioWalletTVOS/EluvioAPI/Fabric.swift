@@ -95,7 +95,8 @@ class Fabric: ObservableObject {
     var mediaPropertiesMediaItemCache : [String: MediaPropertySectionMediaItem] = [:]
     @Published
     var mediaPropertiesSectionItemCache : [String: MediaPropertySectionItem] = [:]
-    
+    @Published
+    var PropertyToMediaItemCache : [String: [String: MediaPropertySectionMediaItem]] = [:]
     
     @Published
     var isRefreshing = false
@@ -1405,6 +1406,25 @@ class Fabric: ObservableObject {
         return retValue
     }
     
+    //TODO: This should be an api call
+    func getPropertyLiveMediaItems(property: String, exclude:[String]) async throws -> [MediaPropertySectionMediaItem] {
+        var retValue: [MediaPropertySectionMediaItem] = []
+        
+        guard let propertyItems = self.PropertyToMediaItemCache[property] else {
+            return retValue;
+        }
+
+        for media in propertyItems.values{
+            if !exclude.isEmpty && !exclude.contains(media.id ?? ""){
+                if media.live_video ?? false {
+                    retValue.append(media)
+                }
+            }
+        }
+        
+        return retValue
+    }
+    
     
     func cacheMediaItems(property: String, mediaItems: [String]) async throws{
         guard let signer = self.signer else {
@@ -1413,13 +1433,21 @@ class Fabric: ObservableObject {
 
         let result = try await signer.getMediaItems(property: property, mediaItems: mediaItems, accessCode: self.fabricToken)
         debugPrint("getMediaItems result ", result)
+
         await MainActor.run {
+            var propertyItems = self.PropertyToMediaItemCache[property]
+            if propertyItems == nil {
+                propertyItems = [:]
+                self.PropertyToMediaItemCache[property] = propertyItems
+            }
             for item in result.contents {
                 if let id = item.id {
                     self.mediaPropertiesMediaItemCache[id] = item
+                    propertyItems?[id] = item
                     debugPrint("media item cached \(id)")
                 }
             }
+            self.PropertyToMediaItemCache[property] = propertyItems
         }
     }
 
@@ -1436,6 +1464,11 @@ class Fabric: ObservableObject {
 
     func cachePropertySections(property: String, sections: [MediaPropertySection]) async throws{
         debugPrint("cachePropertySections count \(sections.count)")
+        var propertyItems = self.PropertyToMediaItemCache[property]
+        if propertyItems == nil {
+            propertyItems = [:]
+            self.PropertyToMediaItemCache[property] = propertyItems
+        }
         
         for section in sections {
             self.mediaPropertiesSectionCache[section.id] = section
@@ -1467,6 +1500,7 @@ class Fabric: ObservableObject {
                     if let media = item.media {
                         if let id = media.id {
                             self.mediaPropertiesMediaItemCache[id] = media
+                            propertyItems?[id] = media
                             //debugPrint("cached section media item \(id)")
                         }
                     }
@@ -1476,6 +1510,7 @@ class Fabric: ObservableObject {
             }
             
         }
+        self.PropertyToMediaItemCache[property] = propertyItems
     }
     
     func cacheMediaProperties(properties: MediaPropertiesResponse) throws{
