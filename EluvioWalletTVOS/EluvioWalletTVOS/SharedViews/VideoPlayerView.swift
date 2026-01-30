@@ -343,6 +343,7 @@ class VideoPlayerViewModel: ObservableObject {
     }
 
     func clear(){
+        player?.pause()
         videos.removeAll();
         currentVideo = nil;
         player = nil;
@@ -351,61 +352,6 @@ class VideoPlayerViewModel: ObservableObject {
         currentTimeS = -1;
         propertyId = nil;
     }
-    
-    /*
-    func loadVideos() {
-        // Sample video data - replace with your actual video URLs
-        videos = [
-            Video(
-                title: "Rugby Match 1",
-                thumbnail: "https://picsum.photos/seed/rugby1/800/450",
-                url: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")!,
-                description: "An exciting rugby match featuring intense gameplay and spectacular moments. Watch as teams battle it out on the field.",
-                isLive: false
-            ),
-            Video(
-                title: "Rugby Match 2 - LIVE",
-                thumbnail: "https://picsum.photos/seed/rugby2/800/450",
-                url: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4")!,
-                description: "Live coverage of the championship match. Don't miss a single moment of this thrilling encounter.",
-                isLive: true
-            ),
-            Video(
-                title: "Rugby Match 3",
-                thumbnail: "https://picsum.photos/seed/rugby3/800/450",
-                url: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4")!,
-                description: "Highlights from yesterday's game with amazing tries and crucial defensive plays.",
-                isLive: false
-            ),
-            Video(
-                title: "Rugby Match 4",
-                thumbnail: "https://picsum.photos/seed/rugby4/800/450",
-                url: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4")!,
-                description: "A classic match replay from the archives. Relive the greatest moments in rugby history.",
-                isLive: false
-            ),
-            Video(
-                title: "Rugby Match 5 - LIVE",
-                thumbnail: "https://picsum.photos/seed/rugby5/800/450",
-                url: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4")!,
-                description: "Live stream of the international tournament final. Join us for edge-of-your-seat action.",
-                isLive: true
-            ),
-            Video(
-                title: "Rugby Match 6",
-                thumbnail: "https://picsum.photos/seed/rugby6/800/450",
-                url: URL(string: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4")!,
-                description: "Full match coverage with expert commentary and analysis throughout the game.",
-                isLive: false
-            )
-        ]
-        
-        // Auto-play first video
-        if let firstVideo = videos.first {
-            selectVideo(firstVideo)
-        }
-    }
-     */
     
     func selectVideo(_ video: MediaPropertySectionMediaItem) {
         currentVideo = video

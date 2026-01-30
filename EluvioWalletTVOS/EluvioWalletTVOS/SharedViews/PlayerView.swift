@@ -116,6 +116,7 @@ struct PlayerView: View {
             print("PlayerView onDisappear")
             //self.player.pause()
             //self.player.replaceCurrentItem(with: nil)
+            viewModel.clear()
             if backLink != "" {
                 if let url = URL(string: backLink) {
                     openURL(url) { accepted in
