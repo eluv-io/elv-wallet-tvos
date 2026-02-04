@@ -33,6 +33,7 @@
 		B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5929DB79EA00676872 /* KeccakTiny */; };
 		B0670F5C29DB79EA00676872 /* Sha3Tiny in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5B29DB79EA00676872 /* Sha3Tiny */; };
 		B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5D29DB79EA00676872 /* SwiftKeccak */; };
+		B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F6329DBFC5900676872 /* RLPSwift */; };
 		B0670F6729DC098400676872 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F6629DC098400676872 /* SwiftyJSON */; };
 		B0670F6929DEA0C600676872 /* AdditionalMediaModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6829DEA0C600676872 /* AdditionalMediaModel.swift */; };
 		B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0670F6A29E3D68900676872 /* PlayerView.swift */; };
@@ -290,6 +291,7 @@
 				B0670F5329D55FBE00676872 /* QGrid in Frameworks */,
 				B0D839642DDF2C8700CDC7BB /* JsonRPC in Frameworks */,
 				B0E60F9B29CD84AF0079661E /* Base58Swift in Frameworks */,
+				B0670F6429DBFC5900676872 /* RLPSwift in Frameworks */,
 				B0D8395A2DDE4CDC00CDC7BB /* VarInt in Frameworks */,
 				B0670F5E29DB79EA00676872 /* SwiftKeccak in Frameworks */,
 				B0670F5A29DB79EA00676872 /* KeccakTiny in Frameworks */,
@@ -664,6 +666,7 @@
 				B0670F5929DB79EA00676872 /* KeccakTiny */,
 				B0670F5B29DB79EA00676872 /* Sha3Tiny */,
 				B0670F5D29DB79EA00676872 /* SwiftKeccak */,
+				B0670F6329DBFC5900676872 /* RLPSwift */,
 				B0670F6629DC098400676872 /* SwiftyJSON */,
 				B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */,
 				B06D52162A14657E00BD68D1 /* Introspect-Static */,
@@ -709,6 +712,7 @@
 				B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */,
 				B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */,
 				B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */,
+				B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */,
 				B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 				B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				B06D52152A14657E00BD68D1 /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
@@ -964,7 +968,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 364;
+				CURRENT_PROJECT_VERSION = 365;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -998,7 +1002,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 364;
+				CURRENT_PROJECT_VERSION = 365;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1063,6 +1067,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 0.1.2;
+			};
+		};
+		B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bitfwdcommunity/RLPSwift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
 			};
 		};
 		B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
@@ -1191,6 +1203,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B0670F5829DB79E900676872 /* XCRemoteSwiftPackageReference "SwiftKeccak" */;
 			productName = SwiftKeccak;
+		};
+		B0670F6329DBFC5900676872 /* RLPSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B0670F6229DBFC5900676872 /* XCRemoteSwiftPackageReference "RLPSwift" */;
+			productName = RLPSwift;
 		};
 		B0670F6629DC098400676872 /* SwiftyJSON */ = {
 			isa = XCSwiftPackageProductDependency;

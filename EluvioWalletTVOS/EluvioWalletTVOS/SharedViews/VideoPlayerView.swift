@@ -172,9 +172,9 @@ class VideoPlayerViewModel: ObservableObject {
     }
     
     func selectVideo(_ video: MediaPropertySectionMediaItem) {
+        self.player?.pause()
         currentVideo = video
         Task{
-
             do {
                 guard let eluvio = eluvio else {
                     return;
