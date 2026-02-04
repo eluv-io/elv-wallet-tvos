@@ -1277,7 +1277,13 @@ class Fabric: ObservableObject {
         return try await signer.getMediaCatalogJSON(accessCode: self.fabricToken, mediaId: mediaId)
     }
     
-    //var TESTING = false
+    func getPropertyMultiview(propertyId: String) async throws -> MultiviewResponse {
+        guard let signer = self.signer else {
+            throw FabricError.configError("Signer not initialized.")
+        }
+        
+        return try await signer.getPropertyMultiview(propertyId:propertyId, accessCode: self.fabricToken)
+    }
     
     func getProperty(property: String, noCache:Bool=false, newFetch:Bool=false) async throws -> MediaProperty? {
         guard let signer = self.signer else {

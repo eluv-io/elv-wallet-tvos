@@ -523,6 +523,49 @@ class RemoteSigner {
         })
     }
     
+    func getPropertyMultiview(propertyId: String, accessCode: String) async throws -> MultiviewResponse {
+        return try await withCheckedThrowingContinuation({ continuation in
+            do {
+                
+                var endpoint = try self.getAuthEndpoint()
+                endpoint = endpoint.appending("/mw/properties/\(propertyId)/sidebar/live")
+
+                if (environment != .prod){
+                    endpoint = endpoint.appending("?env=\(environment)")
+                }
+
+                let headers: HTTPHeaders = [
+                    "Authorization": "Bearer \(accessCode)",
+                         "Accept": "application/json" ]
+
+                guard let url =  URL(string:endpoint) else {
+                    throw FabricError.invalidURL("getPropertyMultiview - could not create url from \(endpoint)")
+                }
+                var request = URLRequest(url: url)
+                request.httpMethod = "POST"
+                request.headers = headers
+                
+                AF.request(request)
+                    .debugLog()
+                    .responseDecodable(of: MultiviewResponse.self){ response in
+                        switch (response.result) {
+                            case .success(let result):
+                                continuation.resume(returning: result)
+                         case .failure(let error):
+                            var respJSON = JSON()
+                            do{
+                                respJSON = try JSON(data: response.data ?? Data())
+                            }catch{}
+                            continuation.resume(throwing: FabricError.apiError(code: response.response?.statusCode ?? 0,
+                                                                               response: respJSON, error: error))
+                     }
+                }
+            }catch{
+                continuation.resume(throwing: error)
+            }
+        })
+    }
+    
     func getPropertyPermissions(propertyId: String, accessCode: String, noCache:Bool = true) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
@@ -640,6 +683,7 @@ class RemoteSigner {
             }
         })
     }
+    
     
     func getPropertyPage(property: String, page: String, accessCode: String, parameters : [String: String] = [:]) async throws -> MediaPropertyPage{
         

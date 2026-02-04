@@ -13,178 +13,6 @@ struct Video: Identifiable {
     let isLive: Bool
 }
 
-// MARK: - Video Player Container
-struct VideoPlayerContainerView: View {
-    @StateObject private var viewModel = VideoPlayerViewModel()
-    
-    var body: some View {
-        PlayerViewController(viewModel: viewModel)
-            .ignoresSafeArea()
-    }
-}
-
-// MARK: - AVPlayerViewController Wrapper
-struct PlayerViewController: UIViewControllerRepresentable {
-    @EnvironmentObject var eluvio : EluvioAPI
-    @ObservedObject var viewModel: VideoPlayerViewModel
-    
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        let controller = AVPlayerViewController()
-        controller.player = viewModel.player
-        
-        // Configure for tvOS
-        controller.allowsPictureInPicturePlayback = false
-        
-        // Create default info view controller
-        let defaultInfoVC = DefaultInfoViewController(viewModel: viewModel, eluvio: eluvio)
-        
-        // Create custom stream selector view controller
-        let streamSelectorVC = StreamSelectorViewController(viewModel: viewModel, eluvio: eluvio)
-        
-        // Add custom info tabs
-        let defaultInfoTab = UITabBarItem(
-            title: "Info",
-            image: UIImage(systemName: "info.circle"),
-            tag: 0
-        )
-        defaultInfoVC.tabBarItem = defaultInfoTab
-        
-        let streamSelectorTab = UITabBarItem(
-            title: "Streams",
-            image: UIImage(systemName: "play.rectangle.on.rectangle"),
-            tag: 1
-        )
-        streamSelectorVC.tabBarItem = streamSelectorTab
-        
-        // Set custom info view controllers
-        controller.customInfoViewControllers = [defaultInfoVC, streamSelectorVC]
-        
-        context.coordinator.playerViewController = controller
-        
-        return controller
-    }
-    
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        if uiViewController.player !== viewModel.player {
-            uiViewController.player = viewModel.player
-        }
-    }
-    
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-    
-    class Coordinator {
-        var playerViewController: AVPlayerViewController?
-    }
-}
-
-// MARK: - Default Info View Controller
-class DefaultInfoViewController: UIHostingController<DefaultInfoView> {
-    init(viewModel: VideoPlayerViewModel, eluvio: EluvioAPI) {
-        super.init(rootView: DefaultInfoView(viewModel: viewModel, eluvio:eluvio))
-        self.title = "Info"
-        self.preferredContentSize = CGSize(width: 0, height: 300)
-    }
-    
-    @MainActor required dynamic init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-}
-
-// MARK: - Default Info View
-struct DefaultInfoView: View {
-    @ObservedObject var viewModel: VideoPlayerViewModel
-    var eluvio: EluvioAPI
-    
-    var body: some View {
-        ZStack {
-            Color.clear.ignoresSafeArea()
-            
-            HStack(alignment: .top, spacing: 60) {
-                // Thumbnail
-                if let currentVideo = viewModel.currentVideo {
-                    AsyncImage(url: URL(string: currentVideo.thumbnail(eluvio:eluvio))) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(16/9, contentMode: .fill)
-                    } placeholder: {
-                        Color.gray.opacity(0.3)
-                    }
-                    .frame(width: 320, height: 180)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(radius: 10)
-                }
-                
-                // Info and Actions
-                VStack(alignment: .leading, spacing: 20) {
-                    if let currentVideo = viewModel.currentVideo {
-                        // Title
-                        Text(currentVideo.title ?? "")
-                            .font(.body)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        // Description
-                        Text(currentVideo.description ?? "")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.9))
-                            .lineLimit(4)
-                        
-                        Spacer()
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                
-                // Action Buttons (Right Side)
-                VStack(alignment: .trailing, spacing: 20) {
-                    if let currentVideo = viewModel.currentVideo {
-                        Button(action: {
-                            viewModel.playFromBeginning()
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.counterclockwise")
-                                Text("From Beginning")
-                            }
-                            .font(.subheadline)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                        }
-                        .buttonStyle(.plain)
-                        
-                        if currentVideo.live_video ?? false {
-                            Button(action: {
-                                viewModel.watchLive()
-                            }) {
-                                HStack {
-                                    Image(systemName: "dot.radiowaves.left.and.right")
-                                    Text("Watch Live")
-                                }
-                                .font(.subheadline)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 12)
-                                .background(Color.red)
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        
-                        Spacer()
-                    }
-                }
-            }
-            .padding(.horizontal, 60)
-            .padding(.top, 60)
-            .padding(.bottom, 40)
-        }
-        .frame(maxWidth: .infinity, maxHeight: 300)
-    }
-}
-
 // MARK: - Stream Selector View Controller
 class StreamSelectorViewController: UIHostingController<StreamSelectorView> {
     init(viewModel: VideoPlayerViewModel, eluvio: EluvioAPI) {
@@ -209,35 +37,32 @@ struct StreamSelectorView: View {
     
     var body: some View {
         ZStack {
-            Color.clear.ignoresSafeArea()
+            // Rounded background matching Info tab
+            /*RoundedRectangle(cornerRadius: 20)
+                .fill(.thinMaterial)
+                .ignoresSafeArea()*/
             
-            VStack(spacing: 0) {
-                Spacer()
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 40) {
-                        ForEach(viewModel.videos) { video in
-                            Button(action: {
-                                viewModel.selectVideo(video)
-                            }) {
-                                VideoThumbnailCard(
-                                    video: video,
-                                    isSelected: viewModel.currentVideo?.id == video.id
-                                )
-                                .environmentObject(eluvio)
-                            }
-                            .buttonStyle(TransparentButtonStyle())
-                            .focused($focusedVideo, equals: video.id)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 20) {
+                    ForEach(viewModel.videos) { video in
+                        Button(action: {
+                            viewModel.selectVideo(video)
+                        }) {
+                            VideoThumbnailCard(
+                                video: video,
+                                isSelected: viewModel.currentVideo?.id == video.id
+                            )
+                            .environmentObject(eluvio)
                         }
+                        .buttonStyle(TransparentButtonStyle())
+                        .focused($focusedVideo, equals: video.id)
                     }
-                    .padding(.horizontal, 60)
-                    .padding(.top, 60)
-                    .padding(.bottom, 40)
                 }
-                .frame(height: 300)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 20)
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: 300)
+        .frame(maxWidth: .infinity)
         .onAppear {
             // Set focus to current video or first video
             if let currentVideo = viewModel.currentVideo {
@@ -291,25 +116,19 @@ struct VideoThumbnailCard: View {
             }
             .frame(width: 280, height: 150)
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(isFocused ? Color.white : (isSelected ? Color.blue : Color.clear), lineWidth: 6)
-            )
             .shadow(color: .black.opacity(0.3), radius: 10)
             
-            // Title with background
+            // Title with highlight for selected video
             Text(video.title ?? "")
-                .font(.system(size: 18))
-                .fontWeight(.medium)
-                .foregroundColor(isSelected ? .black : .white)
-                .lineLimit(2)
+                .foregroundColor(isFocused ? .black : .white)
+                .lineLimit(1)
                 .multilineTextAlignment(.center)
                 .padding(.vertical, 8)
                 .padding(.horizontal, 10)
                 .frame(width: 280)
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(isSelected ? Color.white : Color.gray.opacity(0.5))
+                        .fill(isFocused ? Color.white : (isSelected ? Color.white.opacity(0.2) : Color.clear))
                 )
                 .padding(.top, 20)
         }
@@ -343,7 +162,6 @@ class VideoPlayerViewModel: ObservableObject {
     }
 
     func clear(){
-        player?.pause()
         videos.removeAll();
         currentVideo = nil;
         player = nil;

@@ -96,27 +96,38 @@ struct PlayerView: View {
                 if let media = eluvio.fabric.getMediaItem(mediaId: self.mediaId) {
                     
                     var medias: [MediaPropertySectionMediaItem] = []
+                    
                     do {
-                        medias = try await eluvio.fabric.getPropertyLiveMediaItems(property: property?.id ?? "", exclude:[media.id ?? ""]);
+                        
+                        let resp = try await eluvio.fabric.getPropertyMultiview(propertyId: property?.id ?? "");
+                        medias = resp.contents
+                        
 
+                        if let additional_views = media.additional_views {
+                            var views = media.additionalViews(eluvio: eluvio)
+                            debugPrint("Additional views found ", views)
+                            medias = media.additionalViews(eluvio: eluvio) + medias
+                        }
+     
                     } catch {
                         print("Could not get multiview media ", error)
                     }
                     
-                    medias.insert(media, at: 0)
                     viewModel.videos = medias
+                    //Must always select a video to play
                     viewModel.selectVideo(media)
                     
-
                 }
             }
 
         }
         .onWillDisappear {
             print("PlayerView onDisappear")
-            //self.player.pause()
-            //self.player.replaceCurrentItem(with: nil)
-            viewModel.clear()
+            Task{
+                viewModel.player?.pause()
+                try? await Task.sleep(nanoseconds: 1500000000)
+                viewModel.clear()
+            }
             if backLink != "" {
                 if let url = URL(string: backLink) {
                     openURL(url) { accepted in

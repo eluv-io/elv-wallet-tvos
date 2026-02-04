@@ -80,6 +80,7 @@
 		B0A830EB2C78547B0037BE59 /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830EA2C78547B0037BE59 /* States.swift */; };
 		B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
 		B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
+		B0C0B6CB2F2E83A2002A4D32 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6CA2F2E8398002A4D32 /* Response.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -236,6 +237,7 @@
 		B0A830EA2C78547B0037BE59 /* States.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = States.swift; sourceTree = "<group>"; };
 		B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OryDeviceFlowView.swift; sourceTree = "<group>"; };
 		B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseView.swift; sourceTree = "<group>"; };
+		B0C0B6CA2F2E8398002A4D32 /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -561,6 +563,7 @@
 		B0E60FA429D210E50079661E /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				B0C0B6CA2F2E8398002A4D32 /* Response.swift */,
 				B0E60FA629D211040079661E /* MarketplaceModel.swift */,
 				B0E60FA729D211040079661E /* NFTModel.swift */,
 				B0E60FA529D211040079661E /* ProfileModel.swift */,
@@ -814,6 +817,7 @@
 				B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */,
 				B06C4C4D2A589CB6003C414A /* MediaRowViewModel.swift in Sources */,
 				B0670F6929DEA0C600676872 /* AdditionalMediaModel.swift in Sources */,
+				B0C0B6CB2F2E83A2002A4D32 /* Response.swift in Sources */,
 				B0A598D72C22967100D6716F /* SectionItemView.swift in Sources */,
 				B0E60F8B29CD71840079661E /* FabricConfiguration.swift in Sources */,
 				B0A598E72C33B0E000D6716F /* MainViewSideNav.swift in Sources */,
@@ -964,7 +968,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 362;
+				CURRENT_PROJECT_VERSION = 364;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -978,7 +982,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -998,7 +1002,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 362;
+				CURRENT_PROJECT_VERSION = 364;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1012,7 +1016,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.3;
+				MARKETING_VERSION = 1.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

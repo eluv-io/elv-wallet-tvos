@@ -11,27 +11,8 @@ import AVKit
 import MUXSDKStats
 
 struct AVPlayerView: UIViewControllerRepresentable {
-    //@Binding var player: AVPlayer
-    //@Binding var playerViewController : AVPlayerViewController
     @ObservedObject var viewModel: VideoPlayerViewModel
     @EnvironmentObject var eluvio : EluvioAPI
-    /*
-    func updateUIViewController(_ playerController: AVPlayerViewController, context: Context) {
-        playerController.modalPresentationStyle = .fullScreen
-        /*let glasses = UIImage(systemName: "eyeglasses")
-        let watchLater = UIAction(title: "Watch Later", image: glasses) { action in
-            // Add or remove the item from the user's watch list,
-            // and update the action state accordingly.
-        }
-        // Append the action to the array.
-        playerController.infoViewActions.append(watchLater)*/
-        playerController.player = player
-    }
-
-    func makeUIViewController(context: Context) -> AVPlayerViewController {
-        return playerViewController
-    }
-     */
     
     func makeUIViewController(context: Context) -> AVPlayerViewController {
         let controller = AVPlayerViewController()
@@ -39,33 +20,27 @@ struct AVPlayerView: UIViewControllerRepresentable {
         
         // Configure for tvOS
         controller.allowsPictureInPicturePlayback = false
+        // Only show stream selector tab if there are multiple videos
+        var customViewControllers: [UIViewController] = []
         
-        // Create default info view controller
-        //let defaultInfoVC = DefaultInfoViewController(viewModel: viewModel, eluvio: eluvio)
+        if viewModel.videos.count > 1 {
+ 
+            // Create custom stream selector view controller
+            let streamSelectorVC = StreamSelectorViewController(viewModel: viewModel, eluvio: eluvio)
+            
+            let streamSelectorTab = UITabBarItem(
+                title: "Streams",
+                image: UIImage(systemName: "play.rectangle.on.rectangle"),
+                tag: 1
+            )
+            streamSelectorVC.tabBarItem = streamSelectorTab
+            
+            customViewControllers.append(streamSelectorVC)
+
+        }
         
-        // Create custom stream selector view controller
-        let streamSelectorVC = StreamSelectorViewController(viewModel: viewModel, eluvio: eluvio)
-        
-        /*
-        // Add custom info tabs
-        let defaultInfoTab = UITabBarItem(
-            title: "Info",
-            image: UIImage(systemName: "info.circle"),
-            tag: 0
-        )
-        defaultInfoVC.tabBarItem = defaultInfoTab
-         */
-        
-        let streamSelectorTab = UITabBarItem(
-            title: "Streams",
-            image: UIImage(systemName: "play.rectangle.on.rectangle"),
-            tag: 1
-        )
-        streamSelectorVC.tabBarItem = streamSelectorTab
-        
-        // Set custom info view controllers
-        controller.customInfoViewControllers = [streamSelectorVC]
-        
+        // Set custom info view controllers (empty array if no multiple videos)
+        controller.customInfoViewControllers = customViewControllers
         context.coordinator.playerViewController = controller
         viewModel.playerViewController = controller
         
@@ -75,6 +50,26 @@ struct AVPlayerView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
         if uiViewController.player !== viewModel.player {
             uiViewController.player = viewModel.player
+        }
+        
+        // Update custom info view controllers based on videos count
+        let shouldShowStreamSelector = viewModel.videos.count > 1
+        let hasStreamSelector = uiViewController.customInfoViewControllers.contains { $0 is StreamSelectorViewController }
+        
+        if shouldShowStreamSelector && !hasStreamSelector {
+            // Add stream selector tab
+            let streamSelectorVC = StreamSelectorViewController(viewModel: viewModel, eluvio: eluvio)
+            let streamSelectorTab = UITabBarItem(
+                title: "Streams",
+                image: UIImage(systemName: "play.rectangle.on.rectangle"),
+                tag: 1
+            )
+            streamSelectorVC.tabBarItem = streamSelectorTab
+            
+            uiViewController.customInfoViewControllers = [streamSelectorVC]
+        } else if !shouldShowStreamSelector && hasStreamSelector {
+            // Remove stream selector tab
+            uiViewController.customInfoViewControllers = []
         }
     }
     
