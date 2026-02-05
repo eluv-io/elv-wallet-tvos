@@ -34,10 +34,6 @@ struct DiscoverView: View {
     
     static var refreshId = ""
     
-    func goToProperty(){
-        
-    }
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0){
             if eluvio.isCustomApp() {
@@ -83,29 +79,12 @@ struct DiscoverView: View {
         }
         .opacity(opacity)
         .onChange(of:selected){ old, new in
-            Task {
-                for _ in 1...2 {
-                    var retry = false
-                    do {
-                        if let mediaProperty = try await eluvio.fabric.getProperty(property:new.id ?? "", newFetch: DiscoverView.refreshId != eluvio.refreshId) {
-                            debugPrint("Fetched new property ", mediaProperty.id)
-                            let viewItem = await MediaPropertyViewModel.create(mediaProperty: mediaProperty, fabric: eluvio.fabric)
-                            withAnimation(.easeIn(duration:1)){
-                                if eluvio.isCustomApp() {
-                                    backgroundImageURL = viewItem.startScreenBackground
-                                }else {
-                                    backgroundImageURL = viewItem.backgroundImage
-                                }
-                            }
-                        }
-                    }catch{
-                        debugPrint("Could not fetch new property ",error)
-                        await eluvio.refreshFabricToken()
-                        retry = true
-                    }
-                    if !retry {
-                        break;
-                    }
+            // Use the already loaded MediaPropertyViewModel data instead of fetching again
+            withAnimation(.easeIn(duration:1)){
+                if eluvio.isCustomApp() {
+                    backgroundImageURL = new.startScreenBackground
+                }else {
+                    backgroundImageURL = new.backgroundImage
                 }
             }
         }

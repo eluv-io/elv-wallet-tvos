@@ -1048,7 +1048,8 @@ class Fabric: ObservableObject {
     
     func getEnvironment() -> APIEnvironment {
         if let env = UserDefaults.standard.object(forKey: "api_environment") as? String {
-            if env == "staging"{
+            //Currently demo does not have staging
+            if env == "staging" && self.network == "main"{
                 return .staging
             }else{
                 return .prod
@@ -1368,12 +1369,18 @@ class Fabric: ObservableObject {
         return retValue
     }
     
+    //TEST:
+    //For testing automatic refreshing items
+    //let signerTest = RemoteSignerTest_LiveRefresh()
     func getPropertyPageSections(property: String, page: String, noCache: Bool = false, newFetch: Bool = false) async throws -> [MediaPropertySection] {
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
         
         let result = try await signer.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
+
+        //TEST:
+        //let result = try await signerTest.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
         do {
             try await cachePropertySections(property: property, sections: result.contents)
         }catch{

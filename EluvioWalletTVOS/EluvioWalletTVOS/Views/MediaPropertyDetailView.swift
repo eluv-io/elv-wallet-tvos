@@ -78,7 +78,13 @@ struct MediaPropertyDetailView: View {
     @State private var currentSubproperty: MediaProperty?
     @State private var currentSubIndex: Int = 0
     @State private var menuOpen = false
-    let refreshTimer = Timer.publish(every: 24*60*60, on: .main, in: .common).autoconnect()
+    
+    @State private var currentPropertyId : String = ""
+    @State private var currentPageId : String = ""
+    
+    
+    
+    let refreshTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ScrollView() {
@@ -231,10 +237,23 @@ struct MediaPropertyDetailView: View {
                 if let currentAccount = eluvio.accountManager.currentAccount {
                     if currentAccount.isTokenExpiredIn(seconds: 2*24*60*60) {
                         await eluvio.refreshFabricToken()
-                        refresh()
                     }
+                    await refreshPageSections()
                 }
             }
+        }
+    }
+    
+    func refreshPageSections() async {
+        do {
+            debugPrint("MediaPropertyDetailView getting page sections")
+            sections = try await eluvio.fabric.getPropertyPageSections(property: currentPropertyId, page: currentPageId)
+            debugPrint("finished getting sections. ", sections.count)
+        }catch(FabricError.apiError(let code, let response, let error)){
+            debugPrint("Error getting page sections")
+            eluvio.handleApiError(code: code, response: response, error: error)
+        }catch {
+            debugPrint("Error:",error)
         }
     }
   
@@ -406,12 +425,15 @@ struct MediaPropertyDetailView: View {
                         }
                         
                     }else if pagePerms.behavior == .showPurchase {
-                        //TODO: Waht to show?
+                        //TODO: what to show?
                     }
                 }
             }catch{
                 print("Could not resolve permissions for property id \(altPropertyId)", error.localizedDescription)
             }
+            
+            self.currentPropertyId = altPropertyId
+            self.currentPageId = altPageId
 
             do {
                 debugPrint("MediaPropertyDetailView getting page sections")

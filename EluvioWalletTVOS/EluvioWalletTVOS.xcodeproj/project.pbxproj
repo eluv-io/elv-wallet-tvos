@@ -81,6 +81,9 @@
 		B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */; };
 		B0AF0DC92CED1339006A87C6 /* PurchaseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */; };
 		B0C0B6CB2F2E83A2002A4D32 /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6CA2F2E8398002A4D32 /* Response.swift */; };
+		B0C0B6CD2F34FA89002A4D32 /* page_sections.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C0B6CC2F34FA89002A4D32 /* page_sections.json */; };
+		B0C0B6CF2F34FF7F002A4D32 /* RemoteSignerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6CE2F34FF78002A4D32 /* RemoteSignerTest.swift */; };
+		B0C0B6D12F350117002A4D32 /* page_sections_2.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C0B6D02F350117002A4D32 /* page_sections_2.json */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -238,6 +241,9 @@
 		B0A830ED2C7AC7430037BE59 /* OryDeviceFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OryDeviceFlowView.swift; sourceTree = "<group>"; };
 		B0AF0DC72CED1334006A87C6 /* PurchaseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseView.swift; sourceTree = "<group>"; };
 		B0C0B6CA2F2E8398002A4D32 /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
+		B0C0B6CC2F34FA89002A4D32 /* page_sections.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = page_sections.json; sourceTree = "<group>"; };
+		B0C0B6CE2F34FF78002A4D32 /* RemoteSignerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSignerTest.swift; sourceTree = "<group>"; };
+		B0C0B6D02F350117002A4D32 /* page_sections_2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = page_sections_2.json; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -315,6 +321,8 @@
 		B00945A729EA478D00B00FC3 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				B0C0B6CC2F34FA89002A4D32 /* page_sections.json */,
+				B0C0B6D02F350117002A4D32 /* page_sections_2.json */,
 				B0D544692C176EC200558B21 /* properties.json */,
 				B00945A829EA478D00B00FC3 /* TestData.swift */,
 				B00945A929EA478D00B00FC3 /* nfts.json */,
@@ -545,6 +553,7 @@
 		B0E60F8329CD70AF0079661E /* EluvioAPI */ = {
 			isa = PBXGroup;
 			children = (
+				B0C0B6CE2F34FF78002A4D32 /* RemoteSignerTest.swift */,
 				B0E60F8529CD71840079661E /* Fabric.swift */,
 				B0E60F8629CD71840079661E /* FabricConfiguration.swift */,
 				B0E60F8429CD71840079661E /* FabricModels.swift */,
@@ -737,6 +746,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B0C0B6D12F350117002A4D32 /* page_sections_2.json in Resources */,
 				B00945AF29EA478D00B00FC3 /* nfts_marketplace.json in Resources */,
 				B06D52112A12F83500BD68D1 /* property.json in Resources */,
 				B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */,
@@ -744,6 +754,7 @@
 				B0D5446A2C176EC200558B21 /* properties.json in Resources */,
 				B00945AE29EA478D00B00FC3 /* nfts.json in Resources */,
 				B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */,
+				B0C0B6CD2F34FA89002A4D32 /* page_sections.json in Resources */,
 				B06C4C4F2A5D09A9003C414A /* configuration_bak.json in Resources */,
 				B0E60F7E29CD63B60079661E /* configuration.json in Resources */,
 				B00945B129EA478D00B00FC3 /* profile.json in Resources */,
@@ -804,6 +815,7 @@
 				B0412DDB2F192D9B00A77DE7 /* VideoPlayerView.swift in Sources */,
 				B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */,
 				B06C4C552A7B2C2A003C414A /* ProfileClient.swift in Sources */,
+				B0C0B6CF2F34FF7F002A4D32 /* RemoteSignerTest.swift in Sources */,
 				B06C6EB22B2BDFF700EBACEA /* PackView.swift in Sources */,
 				B077BE622C5209F00056DDB1 /* SearchModels.swift in Sources */,
 				B0670F6B29E3D68A00676872 /* PlayerView.swift in Sources */,
@@ -968,7 +980,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 365;
+				CURRENT_PROJECT_VERSION = 366;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1002,7 +1014,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 365;
+				CURRENT_PROJECT_VERSION = 366;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;

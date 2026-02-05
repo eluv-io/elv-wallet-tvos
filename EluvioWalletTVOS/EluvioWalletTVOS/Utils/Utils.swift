@@ -900,21 +900,23 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
     }
     
     if let player = playerItem {
-        await MainActor.run {
-            player.externalMetadata.append(AVMeta(title, key:.commonKeyTitle))
-            player.externalMetadata.append(AVMeta(description, key:.commonKeyDescription))
-        }
-
+        var metadata: [AVMetadataItem] = []
+        
+        metadata.append(AVMeta(title, key:.commonKeyTitle))
+        metadata.append(AVMeta(description, key:.commonKeyDescription))
         do {
             if let url = URL(string: imageThumb) {
                 
                 let (data, _) = try await URLSession.shared.data(from: url);
                 let image = AVMetaArtwork(value: data as NSData)
-                player.externalMetadata.append(image)
-                
+                metadata.append(image)
             }
         }catch{
             print("Error getting player info thumbnail ", error)
+        }
+        
+        await MainActor.run { [metadata] in
+            player.externalMetadata = metadata
         }
         return player
     }
