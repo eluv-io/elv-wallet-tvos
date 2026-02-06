@@ -84,7 +84,6 @@
 		B0C0B6CD2F34FA89002A4D32 /* page_sections.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C0B6CC2F34FA89002A4D32 /* page_sections.json */; };
 		B0C0B6CF2F34FF7F002A4D32 /* RemoteSignerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6CE2F34FF78002A4D32 /* RemoteSignerTest.swift */; };
 		B0C0B6D12F350117002A4D32 /* page_sections_2.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C0B6D02F350117002A4D32 /* page_sections_2.json */; };
-		B0C0B6D32F35C2F3002A4D32 /* page_sections_3.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C0B6D22F35C2F3002A4D32 /* page_sections_3.json */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -245,7 +244,6 @@
 		B0C0B6CC2F34FA89002A4D32 /* page_sections.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = page_sections.json; sourceTree = "<group>"; };
 		B0C0B6CE2F34FF78002A4D32 /* RemoteSignerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSignerTest.swift; sourceTree = "<group>"; };
 		B0C0B6D02F350117002A4D32 /* page_sections_2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = page_sections_2.json; sourceTree = "<group>"; };
-		B0C0B6D22F35C2F3002A4D32 /* page_sections_3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = page_sections_3.json; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -325,7 +323,6 @@
 			children = (
 				B0C0B6CC2F34FA89002A4D32 /* page_sections.json */,
 				B0C0B6D02F350117002A4D32 /* page_sections_2.json */,
-				B0C0B6D22F35C2F3002A4D32 /* page_sections_3.json */,
 				B0D544692C176EC200558B21 /* properties.json */,
 				B00945A829EA478D00B00FC3 /* TestData.swift */,
 				B00945A929EA478D00B00FC3 /* nfts.json */,
@@ -754,7 +751,6 @@
 				B06D52112A12F83500BD68D1 /* property.json in Resources */,
 				B0E60F7729CC23530079661E /* Preview Assets.xcassets in Resources */,
 				B06D52142A130A9300BD68D1 /* tenant.json in Resources */,
-				B0C0B6D32F35C2F3002A4D32 /* page_sections_3.json in Resources */,
 				B0D5446A2C176EC200558B21 /* properties.json in Resources */,
 				B00945AE29EA478D00B00FC3 /* nfts.json in Resources */,
 				B00945B029EA478D00B00FC3 /* marketplaces.json in Resources */,
@@ -984,7 +980,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 366;
+				CURRENT_PROJECT_VERSION = 367;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1018,7 +1014,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 366;
+				CURRENT_PROJECT_VERSION = 367;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
