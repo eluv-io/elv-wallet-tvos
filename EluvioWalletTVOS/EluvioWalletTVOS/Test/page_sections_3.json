@@ -256,7 +256,7 @@
             "public": true,
             "start_time": "2025-11-01T07:00:00.000Z",
             "stream_start_time": "2025-11-01T07:00:00.000Z",
-            "subtitle": "Subtitle changed!",
+            "subtitle": "The First Multiview",
             "tags": [],
             "test_content": false,
             "thumbnail_image_landscape": {
@@ -266,7 +266,7 @@
               "/": "./files/images/examples/landscape/441-1920x1080.jpg"
             },
             "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
-            "title": "Title changed!",
+            "title": "Multiview 1",
             "type": "media",
             "viewed_settings": {
               "description": "",

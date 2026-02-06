@@ -97,11 +97,17 @@ struct MediaPropertySection: Codable, Identifiable, Hashable {
     
     
     static func == (lhs: MediaPropertySection, rhs: MediaPropertySection) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id && 
+               lhs.displayTitle == rhs.displayTitle &&
+               lhs.displaySubtitle == rhs.displaySubtitle &&
+               lhs.content == rhs.content
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(displayTitle)
+        hasher.combine(displaySubtitle)
+        hasher.combine(content)
     }
     
     init(from decoder: Decoder) throws {
@@ -163,11 +169,19 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     
     
     static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id && 
+               lhs.media?.title == rhs.media?.title &&
+               lhs.media?.subtitle == rhs.media?.subtitle &&
+               lhs.media?.live_video == rhs.media?.live_video &&
+               lhs.disabled == rhs.disabled
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(media?.title)
+        hasher.combine(media?.subtitle) 
+        hasher.combine(media?.live_video)
+        hasher.combine(disabled)
     }
 }
 
@@ -465,10 +479,16 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     
     static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id &&
+               lhs.title == rhs.title &&
+               lhs.subtitle == rhs.subtitle &&
+               lhs.live_video == rhs.live_video
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(title)
+        hasher.combine(subtitle)
+        hasher.combine(live_video)
     }
 }

@@ -79,11 +79,23 @@ struct MediaPropertySectionMediaItemViewModel: Codable, Identifiable, Hashable {
     }
     
     static func == (lhs: MediaPropertySectionMediaItemViewModel, rhs: MediaPropertySectionMediaItemViewModel) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id &&
+               lhs.title == rhs.title &&
+               lhs.subtitle == rhs.subtitle &&
+               lhs.live_video == rhs.live_video &&
+               lhs.headerString == rhs.headerString &&
+               lhs.thumbnailFull == rhs.thumbnailFull &&
+               lhs.disabled == rhs.disabled
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(title)
+        hasher.combine(subtitle)
+        hasher.combine(live_video)
+        hasher.combine(headerString)
+        hasher.combine(thumbnailFull)
+        hasher.combine(disabled)
     }
     
     static func create(media: MediaPropertySectionMediaItem, fabric: Fabric) -> MediaPropertySectionMediaItemViewModel{

@@ -120,7 +120,7 @@ struct MediaPropertyDetailView: View {
                 }
 
                 VStack(spacing:0) {
-                    ForEach(Array(sections.enumerated()), id: \.offset ) {index, section in
+                    ForEach(Array(sections.enumerated()), id: \.element) {index, section in
                         if let propertyId = currentSubproperty?.id {
                             MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section,
                                                      isFirstSection: index == 0)
@@ -134,6 +134,7 @@ struct MediaPropertyDetailView: View {
                         }
                     }
                 }
+                .animation(.easeInOut(duration: 0.3), value: sections)
                 .prefersDefaultFocus(in: NamespaceProperty)
                 .id(refreshId)
                 

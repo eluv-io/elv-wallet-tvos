@@ -1371,16 +1371,16 @@ class Fabric: ObservableObject {
     
     //TEST:
     //For testing automatic refreshing items
-    //let signerTest = RemoteSignerTest_LiveRefresh()
+    let signerTest = RemoteSignerTest_LiveRefresh()
     func getPropertyPageSections(property: String, page: String, noCache: Bool = false, newFetch: Bool = false) async throws -> [MediaPropertySection] {
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
         
-        let result = try await signer.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
+        //let result = try await signer.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
 
         //TEST:
-        //let result = try await signerTest.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
+        let result = try await signerTest.getPropertyPageSections(property: property, page: page, noCache: noCache, accessCode: self.fabricToken)
         do {
             try await cachePropertySections(property: property, sections: result.contents)
         }catch{
