@@ -78,6 +78,7 @@ struct MediaPropertyDetailView: View {
     @State private var currentSubproperty: MediaProperty?
     @State private var currentSubIndex: Int = 0
     @State private var menuOpen = false
+    @State private var loadingError: String? = nil
     
     @State private var currentPropertyId : String = ""
     @State private var currentPageId : String = ""
@@ -120,17 +121,63 @@ struct MediaPropertyDetailView: View {
                 }
 
                 VStack(spacing:0) {
-                    ForEach(Array(sections.enumerated()), id: \.element) {index, section in
-                        if let propertyId = currentSubproperty?.id {
-                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section,
-                                                     isFirstSection: index == 0)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .padding(0)
-                        }else if let propertyId = property?.id {
-                            MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section,
-                                                     isFirstSection: index == 0)
-                                .fixedSize(horizontal: false, vertical: true)
-                                .padding(0)
+                    // Show loading indicator when refreshing and no content
+                    if isRefreshing && sections.isEmpty {
+                        VStack {
+                            Spacer()
+                            ProgressView()
+                                .scaleEffect(2.0)
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            Text("Loading...")
+                                .foregroundColor(.white)
+                                .font(.title2)
+                                .padding(.top, 20)
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    // Show error message if there's a loading error
+                    else if let error = loadingError {
+                        VStack {
+                            Spacer()
+                            Image(systemName: "exclamationmark.triangle")
+                                .font(.largeTitle)
+                                .foregroundColor(.yellow)
+                            Text("Error Loading Content")
+                                .foregroundColor(.white)
+                                .font(.title)
+                                .padding(.top, 10)
+                            Text(error)
+                                .foregroundColor(.gray)
+                                .font(.body)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 40)
+                                .padding(.top, 5)
+                            Button("Retry") {
+                                loadingError = nil
+                                Task {
+                                    await refreshAsync()
+                                }
+                            }
+                            .padding(.top, 20)
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    // Show content sections
+                    else {
+                        ForEach(Array(sections.enumerated()), id: \.element) {index, section in
+                            if let propertyId = currentSubproperty?.id {
+                                MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section,
+                                                         isFirstSection: index == 0)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .padding(0)
+                            }else if let propertyId = property?.id {
+                                MediaPropertySectionView(propertyId: propertyId, pageId:pageId, section: section,
+                                                         isFirstSection: index == 0)
+                                    .fixedSize(horizontal: false, vertical: true)
+                                    .padding(0)
+                            }
                         }
                     }
                 }
@@ -205,12 +252,39 @@ struct MediaPropertyDetailView: View {
                 }
                 
                 Task{
-                    if let subproperty = try await eluvio.fabric.getProperty(property: sub.propertyId){
-                        self.currentSubproperty = subproperty
-                        eluvio.needsRefresh()
+                    do {
+                        if let subproperty = try await eluvio.fabric.getProperty(property: sub.propertyId){
+                            await MainActor.run {
+                                self.currentSubproperty = subproperty
+                            }
+                            eluvio.needsRefresh()
+                            
+                            // Fade out, refresh, then fade back in
+                            await MainActor.run {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    opacity = 0.3
+                                }
+                            }
+                            
+                            await refreshAsync()
+                            
+                            await MainActor.run {
+                                withAnimation(.easeInOut(duration: 0.3)) {
+                                    opacity = 1.0
+                                }
+                            }
+                        } else {
+                            debugPrint("Failed to get subproperty: \(sub.propertyId)")
+                        }
+                    } catch {
+                        debugPrint("Error getting subproperty: \(error)")
+                        // Ensure we still show something even if there's an error
+                        await MainActor.run {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                opacity = 1.0
+                            }
+                        }
                     }
-                    opacity = 0.0
-                    refresh(findSubs:false)
                 }
             }
         }
@@ -219,13 +293,20 @@ struct MediaPropertyDetailView: View {
         )
         .onAppear{
             debugPrint("MediaPropertyDetailView onAppear")
-            Task{
-                try? await Task.sleep(nanoseconds: 2000000000)
-                withAnimation(.easeInOut(duration: 1)) {
+            // Set initial opacity to show loading state
+            withAnimation(.easeInOut(duration: 0.3)) {
+                opacity = 0.3  // Show partial opacity to indicate loading
+            }
+            
+            Task {
+                // Refresh content first, then show full visibility
+                await refreshAsync()
+                
+                // Only show full opacity after content is loaded
+                withAnimation(.easeInOut(duration: 0.5)) {
                     opacity = 1.0
                 }
             }
-            refresh()
         }
         .onWillDisappear {
             withAnimation(.easeInOut(duration: 2)) {
@@ -234,6 +315,9 @@ struct MediaPropertyDetailView: View {
             eluvio.needsRefresh()
         }
         .onReceive(refreshTimer) { _ in
+            // Only execute timer code if the view is visible
+            guard opacity > 0 else { return }
+            
             Task{
                 if let currentAccount = eluvio.accountManager.currentAccount {
                     if currentAccount.isTokenExpiredIn(seconds: 2*24*60*60) {
@@ -246,6 +330,9 @@ struct MediaPropertyDetailView: View {
     }
     
     func refreshPageSections() async {
+        if self.currentPropertyId == "" || self.currentPageId == ""{
+            return;
+        }
         do {
             debugPrint("MediaPropertyDetailView getting page sections")
             sections = try await eluvio.fabric.getPropertyPageSections(property: currentPropertyId, page: currentPageId)
@@ -258,22 +345,91 @@ struct MediaPropertyDetailView: View {
         }
     }
   
+    func refreshAsync() async {
+        debugPrint("MediaPropertyDetailView refreshAsync() propertyId: ", propertyId)
+        debugPrint("MediaPropertyDetailView refreshAsync() page: ", pageId)
+        
+        // Clear any previous error
+        await MainActor.run {
+            loadingError = nil
+        }
+        
+        // Check if we have the required parameters
+        if propertyId.isEmpty {
+            debugPrint("Error: propertyId is empty")
+            await MainActor.run {
+                sections = []
+                loadingError = "Invalid property ID"
+            }
+            return
+        }
+        
+        // Check authentication state
+        if eluvio.accountManager.currentAccount == nil {
+            debugPrint("No current account, user may need to sign in")
+            await MainActor.run {
+                loadingError = "Please sign in to access this content"
+            }
+            return
+        }
+        
+        if eluvio.fabric.fabricToken.isEmpty {
+            debugPrint("No fabric token available")
+            await MainActor.run {
+                loadingError = "Authentication required"
+            }
+            return
+        }
+        
+        // Check if already refreshing to avoid duplicate calls
+        if self.isRefreshing {
+            debugPrint("Already refreshing, skipping")
+            return
+        }
+        
+        // Check if we need to refresh based on refresh ID
+        if self.refreshId == eluvio.refreshId {
+            debugPrint("Already up to date, skipping refresh")
+            return
+        }
+        
+        await MainActor.run {
+            self.refreshId = eluvio.refreshId
+            self.isRefreshing = true
+        }
+        
+        defer {
+            Task { @MainActor in
+                self.isRefreshing = false
+            }
+        }
+        
+        // Reset background content
+        await MainActor.run {
+            playerItem = nil
+            backgroundImage = ""
+        }
+        
+        // Call the existing refresh logic but in an async context
+        refresh(findSubs: true)
+    }
+  
     func refresh(findSubs:Bool = true){
         debugPrint("MediaPropertyDetailView refresh() propertyId: ",propertyId)
         debugPrint("MediaPropertyDetailView refresh() page: ",pageId)
+        debugPrint("MediaPropertyDetailView refresh() currentAccount: ", eluvio.accountManager.currentAccount?.id ?? "nil")
+        debugPrint("MediaPropertyDetailView refresh() fabricToken: ", eluvio.fabric.fabricToken.prefix(20), "...")
         
-        if self.isRefreshing {
-            debugPrint("no need for a refresh..exiting")
+        // Validate authentication state
+        if eluvio.accountManager.currentAccount == nil {
+            debugPrint("ERROR: No current account available")
             return
         }
         
-        debugPrint("MediaPropertyDetailView refreshId ",refreshId)
-        
-        if self.refreshId == eluvio.refreshId {
-            debugPrint("skipping refresh...")
+        if eluvio.fabric.fabricToken.isEmpty {
+            debugPrint("ERROR: No fabric token available") 
             return
         }
-        self.refreshId = eluvio.refreshId
         
         playerItem = nil
         backgroundImage = ""
@@ -437,14 +593,39 @@ struct MediaPropertyDetailView: View {
             self.currentPageId = altPageId
 
             do {
-                debugPrint("MediaPropertyDetailView getting page sections")
-                sections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
-                debugPrint("finished getting sections. ", sections.count)
+                debugPrint("MediaPropertyDetailView getting page sections inside refresh", altPropertyId)
+                let fetchedSections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
+                debugPrint("finished getting sections. Count: ", fetchedSections.count)
+                
+                await MainActor.run {
+                    sections = fetchedSections
+                }
+                
+                if fetchedSections.isEmpty {
+                    debugPrint("WARNING: No sections found for property \(altPropertyId) page \(altPageId)")
+                }
+                
             }catch(FabricError.apiError(let code, let response, let error)){
-                debugPrint("Error getting page sections")
+                debugPrint("ERROR getting page sections - Code: \(code)")
+                debugPrint("ERROR response: ", response)
                 await eluvio.handleApiError(code: code, response: response, error: error)
+                
+                // Set empty sections and error state
+                await MainActor.run {
+                    sections = []
+                    if code == 401 || code == 403 {
+                        loadingError = "Authentication required. Please sign in again."
+                    } else {
+                        loadingError = "Failed to load content (Error \(code))"
+                    }
+                }
             }catch {
-                debugPrint("Error:",error)
+                debugPrint("ERROR getting page sections:", error.localizedDescription)
+                // Set empty sections and error state
+                await MainActor.run {
+                    sections = []
+                    loadingError = "Failed to load content: \(error.localizedDescription)"
+                }
             }
 
             var backgroundImageString : String = ""

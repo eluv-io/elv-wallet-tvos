@@ -121,8 +121,8 @@ class EluvioAPI : ObservableObject {
 
     func signIn(account:Account, property:String) async throws {
         await signOut()
-        fabric.fabricToken = account.fabricToken
         try accountManager.addAndSetCurrentAccount(account: account, type: account.type, property:property)
+        try await fabric.connect(token: account.fabricToken)
     }
     
     @MainActor

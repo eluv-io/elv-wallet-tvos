@@ -134,7 +134,6 @@ struct DiscoverView: View {
         Task{
             defer {
                 self.isRefreshing = false
-                //DiscoverView.refreshId = eluvio.refreshId
             }
 
             for _ in 1...2 {

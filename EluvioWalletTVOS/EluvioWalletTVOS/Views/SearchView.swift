@@ -451,7 +451,6 @@ struct SearchView: View {
                                     .frame(maxHeight:.infinity, alignment:.center)
                                 }
                                 .frame(alignment:.center)
-                                //.scrollClipDisabled()
                             }
                         }
                     }
@@ -484,12 +483,12 @@ struct SearchView: View {
                         }
                         .padding([.leading], margin)
                         .padding([.top], secondaryFilters.count > 0 ? 10 : 0)
-                        //.scrollClipDisabled()
                         .focusSection()
                     }
                     
                     if sections.count == 1{
-                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, margin: margin, useScale: true, showBackground: false)
+                        SectionGridView(propertyId: propertyId, pageId: "main", section: sections.first!, margin: margin, useScale: false, showBackground: false, topPadding: 40)
+                            .scrollClipDisabled()
                             .id(refreshId)
                             .focusSection()
                     }else {
@@ -509,7 +508,6 @@ struct SearchView: View {
         .searchable(text:$searchString, prompt: "Search \(name)", suggestions:{})
         .autocorrectionDisabled(true)
         .edgesIgnoringSafeArea([.top])
-        //.scrollTargetBehavior(.custom)
         .onChange(of:searchString) {
             search()
         }
