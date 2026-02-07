@@ -173,6 +173,10 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
                lhs.media?.title == rhs.media?.title &&
                lhs.media?.subtitle == rhs.media?.subtitle &&
                lhs.media?.live_video == rhs.media?.live_video &&
+               lhs.media?.start_time == rhs.media?.start_time &&
+               lhs.media?.end_time == rhs.media?.end_time &&
+               lhs.media?.description == rhs.media?.description &&
+               lhs.media?.icons == rhs.media?.icons &&
                lhs.disabled == rhs.disabled
     }
     
@@ -181,6 +185,9 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
         hasher.combine(media?.title)
         hasher.combine(media?.subtitle) 
         hasher.combine(media?.live_video)
+        hasher.combine(media?.start_time)
+        hasher.combine(media?.end_time)
+        hasher.combine(media?.description)
         hasher.combine(disabled)
     }
 }
