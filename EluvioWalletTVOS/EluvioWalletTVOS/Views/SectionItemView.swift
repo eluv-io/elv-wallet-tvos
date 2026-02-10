@@ -470,7 +470,7 @@ struct SectionItemView: View {
 
     }
     
-    //@State var refreshTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    let refreshTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
     @State var refresh : Bool = false
 
     @State var title : String = ""
@@ -899,13 +899,11 @@ struct SectionItemView: View {
                 updateProgress()
             }
         }
-        /*
         .onReceive(refreshTimer) { _ in
             Task(priority:.background) {
                 update()
             }
         }
-         */
         .onScrollVisibilityChange(threshold: 0.01){ isVisible in
             self.isVisible = isVisible
             if isVisible {
