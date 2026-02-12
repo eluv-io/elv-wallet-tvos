@@ -59,7 +59,7 @@ class ViewState: ObservableObject {
                 self.authToken = authToken
                 debugPrint("Deeplink with auth", authToken)
                     do {
-                        try await fabric.connect(network:"main")
+                        try await fabric.connect()
                         var signInResponse = SignInResponse()
                         signInResponse.idToken = authToken
                         //try await fabric.signIn(signInResponse: signInResponse, external: true)

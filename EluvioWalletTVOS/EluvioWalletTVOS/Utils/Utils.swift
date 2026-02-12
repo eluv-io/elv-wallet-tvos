@@ -900,27 +900,75 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
     }
     
     if let player = playerItem {
-        await MainActor.run {
-            player.externalMetadata.append(AVMeta(title, key:.commonKeyTitle))
-            player.externalMetadata.append(AVMeta(description, key:.commonKeyDescription))
-        }
-
+        var metadata: [AVMetadataItem] = []
+        
+        metadata.append(AVMeta(title, key:.commonKeyTitle))
+        metadata.append(AVMeta(description, key:.commonKeyDescription))
         do {
             if let url = URL(string: imageThumb) {
                 
                 let (data, _) = try await URLSession.shared.data(from: url);
                 let image = AVMetaArtwork(value: data as NSData)
-                player.externalMetadata.append(image)
-                
+                metadata.append(image)
             }
         }catch{
             print("Error getting player info thumbnail ", error)
+        }
+        
+        await MainActor.run { [metadata] in
+            player.externalMetadata = metadata
         }
         return player
     }
     
     throw RuntimeError("Error creating playerItem")
     
+}
+
+func GetUrlFromMediaOptionsJson(fabric: Fabric,
+                                        optionsJson: JSON?,
+                                        offering: String = "default"
+) async throws -> String {
+    
+    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
+    
+    var hlsPlaylistUrl: String = ""
+
+    guard let options = optionsJson else {
+        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
+    }
+    
+    if options["hls-clear"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
+    }else if options["hls-aes128"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-aes128", offering: offering)
+    }else if options["hls-fairplay"].exists() {
+        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+        
+        if(licenseServer.isEmpty)
+        {
+            throw RuntimeError("Error getting licenseServer")
+        }
+        print("license_server \(licenseServer)")
+        
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-fairplay", offering: offering)
+        print("Playlist URL \(hlsPlaylistUrl)")
+        
+        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+        
+        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
+        
+    }else if options["hls-sample-aes"].exists() {
+        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
+
+    }else{
+        throw RuntimeError("No available playback options \(options)")
+    }
+    
+    print("Playlist URL \(hlsPlaylistUrl)")
+    
+    return hlsPlaylistUrl;
 }
 
 func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {

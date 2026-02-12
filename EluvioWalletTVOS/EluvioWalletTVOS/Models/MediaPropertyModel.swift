@@ -7,17 +7,7 @@
 
 import Foundation
 import SwiftyJSON
-
-struct MediaPropertiesResponse: Codable {
-    var contents : [MediaProperty] = []
-    var paging : ResponsePaging = ResponsePaging()
-}
-
-struct ResponsePaging : Codable {
-    var start : Int = 0
-    var limit : Int = 0
-    var total : Int = 0
-}
+import AVFoundation
 
 class MediaProperty: Codable, Identifiable, Hashable {
     var associated_marketplaces : [AssociatedMarketplaces]?
@@ -76,17 +66,6 @@ struct MediaPropertyPage: Codable {
     var sections : [String]?
 }
 
-struct MediaPropertySectionsResponse: Codable {
-    var contents : [MediaPropertySection] = []
-    var paging : ResponsePaging = ResponsePaging()
-    var metadata : JSON?
-}
-
-struct MediaPropertyItemsResponse: Codable {
-    var contents : [MediaPropertySectionMediaItem] = []
-    var paging : ResponsePaging = ResponsePaging()
-}
-
 struct MediaPropertySection: Codable, Identifiable, Hashable {
     var id : String = UUID().uuidString
     var content : [MediaPropertySectionItem]? = []
@@ -118,11 +97,17 @@ struct MediaPropertySection: Codable, Identifiable, Hashable {
     
     
     static func == (lhs: MediaPropertySection, rhs: MediaPropertySection) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id && 
+               lhs.displayTitle == rhs.displayTitle &&
+               lhs.displaySubtitle == rhs.displaySubtitle &&
+               lhs.content == rhs.content
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(displayTitle)
+        hasher.combine(displaySubtitle)
+        hasher.combine(content)
     }
     
     init(from decoder: Decoder) throws {
@@ -184,11 +169,26 @@ struct MediaPropertySectionItem: Codable, Identifiable, Hashable  {
     
     
     static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id && 
+               lhs.media?.title == rhs.media?.title &&
+               lhs.media?.subtitle == rhs.media?.subtitle &&
+               lhs.media?.live_video == rhs.media?.live_video &&
+               lhs.media?.start_time == rhs.media?.start_time &&
+               lhs.media?.end_time == rhs.media?.end_time &&
+               lhs.media?.description == rhs.media?.description &&
+               lhs.media?.icons == rhs.media?.icons &&
+               lhs.disabled == rhs.disabled
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(media?.title)
+        hasher.combine(media?.subtitle) 
+        hasher.combine(media?.live_video)
+        hasher.combine(media?.start_time)
+        hasher.combine(media?.end_time)
+        hasher.combine(media?.description)
+        hasher.combine(disabled)
     }
 }
 
@@ -197,8 +197,26 @@ var debugStartDate = Date() + 4 * 60
 var debugStreamStartDate = Date() + 3 * 60
 var debugEndDate = Date() + 5 * 60
 
+struct MediaItemAdditionView: Codable, Identifiable, Hashable  {
+    var id : String? = UUID().uuidString
+    var image: JSON? = nil
+    var image_hash: String? = ""
+    var label: String? = ""
+    var media_link: JSON? = nil
+    var media_link_info: JSON? = nil
+    static func == (lhs: MediaItemAdditionView, rhs: MediaItemAdditionView) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
 struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     var id : String? = UUID().uuidString
+    var additional_views: [MediaItemAdditionView]? = nil
+    var additional_views_label: String? = ""
     var catalog_title : String? = ""
     var description : String? = ""
     var description_rich_text : String? = ""
@@ -232,29 +250,98 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     var resolvedPermission : ResolvedPermission? = nil
     
+    func additionalViews(eluvio: EluvioAPI) -> [MediaPropertySectionMediaItem] {
+        guard let additionalViews = additional_views else {
+            return []
+        }
+        
+        var mediaItems: [MediaPropertySectionMediaItem] = []
+        
+        for view in additionalViews {
+            let mediaItem = MediaPropertySectionMediaItem(
+                additional_views: nil,
+                additional_views_label: nil,
+                catalog_title: nil,
+                description: nil,
+                description_rich_text: nil,
+                controls: nil,
+                viewed_settings: nil,
+                tags: nil,
+                end_time: nil,
+                offerings: nil,
+                start_time: nil,
+                stream_start_time: nil,
+                label: view.label,
+                live_video: nil,
+                gallery: nil,
+                headers: nil,
+                media: nil,
+                media_lists: nil,
+                media_catalog_id: nil,
+                media_file: nil,
+                media_link: view.media_link,
+                media_type: nil,
+                poster_image: nil,
+                thumbnail_image_square: nil,
+                thumbnail_image_portrait: nil,
+                thumbnail_image_landscape: view.image,
+                title: view.label,
+                subtitle: nil,
+                type: nil,
+                icons: nil,
+                public: nil,
+                permissions: nil,
+                resolvedPermission: nil
+            )
+            
+            mediaItems.append(mediaItem)
+        }
+        
+        return mediaItems
+    }
+
     func thumbnail(eluvio: EluvioAPI) -> String {
-        do {
-            let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: self.thumbnail_image_square)
-            if !thumbnailSquare.isEmpty {
-                return thumbnailSquare + "&width=400"
-            }
-        }catch{}
+        // Check thumbnails in priority order: square -> portrait -> landscape
+        let thumbnails = [thumbnail_image_square, thumbnail_image_portrait, thumbnail_image_landscape]
         
-        do {
-            let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: self.thumbnail_image_portrait)
-            if !thumbnailPortrait.isEmpty {
-                return thumbnailPortrait + "&width=400"
+        for thumbnail in thumbnails {
+            guard let thumb = thumbnail else { continue }
+            
+            do {
+                let url = try eluvio.fabric.getUrlFromLink(link: thumb)
+                
+                //svg currently fails
+                if !url.isEmpty {
+                    if let urlComponents = URLComponents(string: url),
+                       let pathExtension = urlComponents.path.split(separator: ".").last,
+                       ["jpg", "png"].contains(pathExtension.lowercased()) {
+                        return url + "&width=400"
+                    }else{
+                        return url
+                    }
+                }
+            } catch {
+                continue
             }
-        }catch{}
-        
-        do {
-            let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: self.thumbnail_image_landscape )
-            if !thumbnailLand.isEmpty {
-                return thumbnailLand + "&width=400"
-            }
-        }catch{}
+        }
         
         return ""
+    }
+    
+    func url(eluvio: EluvioAPI, propertyId:String) async throws -> String {
+        let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: id ?? "")
+        let url = try await GetUrlFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+        return url
+    }
+    
+    func playerItem(eluvio: EluvioAPI, propertyId:String) async throws -> AVPlayerItem {
+        if let link = media_link?["sources"]["default"] {
+                let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: id ?? "")
+            let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:title ?? "", description:description ?? "", imageThumb: thumbnail(eluvio:eluvio))
+                return playerItem
+        }
+        
+        throw FabricError.badInput("Media item \(id) does not have a valid link: \(media_link)")
     }
     
     var startDate : Date? {
@@ -399,10 +486,16 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
     
     
     static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {
-        return lhs.id == rhs.id
+        return lhs.id == rhs.id &&
+               lhs.title == rhs.title &&
+               lhs.subtitle == rhs.subtitle &&
+               lhs.live_video == rhs.live_video
     }
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
+        hasher.combine(title)
+        hasher.combine(subtitle)
+        hasher.combine(live_video)
     }
 }

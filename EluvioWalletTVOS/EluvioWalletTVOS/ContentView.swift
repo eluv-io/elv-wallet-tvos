@@ -300,7 +300,6 @@ struct ContentView: View {
                     if let params = eluvio.pathState.videoParams {
                         if let playerItem = params.playerItem {
                             PlayerView(mediaId: params.mediaId,
-                                       playerItem: playerItem,
                                        property: params.property,
                                        title: params.title,
                                        finished:$playerFinished)
@@ -425,9 +424,13 @@ struct ContentView: View {
             debugPrint("ShowActivity ", self.showActivity)
         }
         .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
+            // FIXME:
+            /*
             PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
                        backLink: backLink, backLinkIcon: backLinkIcon
             )
+             */
+
         }
         .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [mediaList] in
             GalleryView(gallery: mediaList)

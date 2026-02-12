@@ -1,0 +1,3742 @@
+{
+  "contents_type": "media_section",
+  "contents": [
+    {
+      "allow_overlap": true,
+      "content": [],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 0
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "hero",
+        "inline_background_color": "",
+        "justification": "left",
+        "subtitle": "",
+        "title": ""
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "hero_items": [
+        {
+          "actions": [],
+          "description": "",
+          "display": {
+            "background_image": {
+              ".": {
+                "container": "hq__2WhPyceLJp9jKT64tw4Xsk4BtokSrarcsR91vKA7x4Zgz1VY8JAv86r41tmZ2fbGrLnbKArJSqgA"
+              },
+              "/": "./files/sheep-green-pasture.jpg"
+            },
+            "background_image_hash": "kZkJLIYIV2eIeHeFeHgIh4WPmA==",
+            "description": "",
+            "logo_alt": "",
+            "position": "Left",
+            "sections": [
+              "pscm3dSF46KS8U7w5VJCeXTyyc"
+            ],
+            "title": ""
+          },
+          "id": "pshi8TvZcTTFtuRnzodoQvgodr",
+          "label": "Page Header",
+          "permissions": {
+            "behavior": "hide"
+          }
+        }
+      ],
+      "id": "psch2wmGZLtXdmUnVQy6X1L12Z",
+      "label": "Main Page Header",
+      "permissions": {
+        "behavior": "Hide",
+        "permission_item_ids": []
+      },
+      "tags": [],
+      "type": "hero",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "content": [
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psci5k4muAEF3XZufCxyRCAiN1",
+          "label": "",
+          "media": {
+            "additional_views": [
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/769-1920x1080.jpg"
+                },
+                "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__Ds6NRXfSYW5QF3JWwk5KoyWCt1Cwt1Dj4vuwfoQ4xTVT84eA5rEJ2wuaiyud6J68yPmTGdVJUZ"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__Ds6NRXfSYW5QF3JWwk5KoyWCt1Cwt1Dj4vuwfoQ4xTVT84eA5rEJ2wuaiyud6J68yPmTGdVJUZ"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "Caminandes "
+                },
+                "media_link_info": {
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/902-960x540.jpg"
+                },
+                "image_hash": "IXoSLIp3d4efh3iIh4WBoDcIeA==",
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/4k2.jpg"
+                },
+                "image_hash": "mtYJHIJXeHh8eHdwh3p3gHgX+A==",
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/108-960x540.jpg"
+                },
+                "image_hash": "NwgKDIJ/V6l5iIeHdlthkAo2mA==",
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "All Views",
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 1",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-06-30T07:00:00.000Z",
+            "headers": [
+              "Free",
+              "Fun"
+            ],
+            "id": "mvidXfCEiubPrrC8XUH5xLjkf1",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 1",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "primary_view_label": "Main Broadcast",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "The First Multiview",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 1",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidXfCEiubPrrC8XUH5xLjkf1",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciUZYq4ttVxfPtb6EXT26Phx",
+          "label": "",
+          "media": {
+            "additional_views": [
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/0/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/902-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "IXoSLIp3d4efh3iIh4WBoDcIeA==",
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/4k2.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/2/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "mtYJHIJXeHh8eHdwh3p3gHgX+A==",
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/108-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/3/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "NwgKDIJ/V6l5iIeHdlthkAo2mA==",
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "Other Views",
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 3",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-03-31T07:00:00.000Z",
+            "headers": [],
+            "id": "mvidQR4ZezTvcT4GWTKKwKUcES",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 3",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/thumbnail_image_landscape?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 3",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidQR4ZezTvcT4GWTKKwKUcES",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciFYwrraoki62NNNTorxR5Bx",
+          "label": "",
+          "media": {
+            "additional_views": [
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/0/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/902-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "IXoSLIp3d4efh3iIh4WBoDcIeA==",
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/4k2.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/2/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "mtYJHIJXeHh8eHdwh3p3gHgX+A==",
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/108-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/3/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "NwgKDIJ/V6l5iIeHdlthkAo2mA==",
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "representations": [
+                    {
+                      "bitrate": 9500000,
+                      "codec": "h264",
+                      "height": 1080,
+                      "isTopResolution": true,
+                      "key": "videovideo_1920x1080_h264@9500000",
+                      "resolution": "1920x1080",
+                      "string": "1920x1080 (9.5Mbps)",
+                      "width": 1920
+                    },
+                    {
+                      "bitrate": 4500000,
+                      "codec": "h264",
+                      "height": 720,
+                      "key": "videovideo_1280x720_h264@4500000",
+                      "resolution": "1280x720",
+                      "string": "1280x720 (4.5Mbps)",
+                      "width": 1280
+                    },
+                    {
+                      "bitrate": 1750000,
+                      "codec": "h264",
+                      "height": 480,
+                      "key": "videovideo_854x480_h264@1750000",
+                      "resolution": "854x480",
+                      "string": "854x480 (1.8Mbps)",
+                      "width": 854
+                    },
+                    {
+                      "bitrate": 810000,
+                      "codec": "h264",
+                      "height": 360,
+                      "key": "videovideo_640x360_h264@810000",
+                      "resolution": "640x360",
+                      "string": "640x360 (0.8Mbps)",
+                      "width": 640
+                    },
+                    {
+                      "bitrate": 500000,
+                      "codec": "h264",
+                      "height": 240,
+                      "key": "videovideo_426x240_h264@500000",
+                      "resolution": "426x240",
+                      "string": "426x240 (0.5Mbps)",
+                      "width": 426
+                    }
+                  ],
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "Other Views",
+            "allow_download": false,
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 2",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-03-31T07:00:00.000Z",
+            "headers": [],
+            "id": "mvid52RhBmGHxyJo3p9t5RR6b2",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 2",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/thumbnail_image_landscape?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 2",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvid52RhBmGHxyJo3p9t5RR6b2",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciEEqu28UMmTr4f8aLMco5qe",
+          "label": "",
+          "media": {
+            "additional_views": [
+              {
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "Other Views",
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 4",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-04-30T07:00:00.000Z",
+            "headers": [],
+            "id": "mvidMNY2DQoqXw9JjjiJKLdFqP",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 4",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/thumbnail_image_landscape?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 4",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidMNY2DQoqXw9JjjiJKLdFqP",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        }
+      ],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 4
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "card_style": "",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "carousel",
+        "display_limit": 0,
+        "hide_on_tv": false,
+        "inline_background_color": "",
+        "inline_background_color_2": "",
+        "inline_background_gradient": "",
+        "justification": "left",
+        "show_app_links": false,
+        "subtitle": "",
+        "text_justification": "left",
+        "title": "Multiview + Thumbnails",
+        "wrap_titles": false
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "id": "pscmQrQ3KcLebMtBDE9YQQXqLz",
+      "label": "Multiview-section",
+      "permissions": {
+        "behavior": "",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "tags": [],
+      "type": "manual",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "content": [
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciQ3uAg172Yy9qSNVn766MJR",
+          "label": "",
+          "media": {
+            "always_show_poster": false,
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Goat 1",
+            "clip": false,
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mvidWuNf58XT8R2pB5fGPtyAXc",
+            "label": "Goat 1",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__owRg2KdvZH6ZEGmPBEQzUog3mUYtJr8Nceah1y7qs4n83BTfuV7hbMyEUPaQCMiCKXPFPLUBqZd"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__owRg2KdvZH6ZEGmPBEQzUog3mUYtJr8Nceah1y7qs4n83BTfuV7hbMyEUPaQCMiCKXPFPLUBqZd"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [
+              {
+                "permission_item_id": "prmo51rABK9243M66xT3mgDH3P"
+              }
+            ],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "poster_image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/goat-3.jpeg"
+            },
+            "poster_image_hash": "3OcFLYbdj1JOU5d0Z4i5aXaARgha",
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "/qfab/hq__HpgP1bGiizbFAqLjVdzbQnUcLEkqdBoBkqzRGV1kBksWPqzUYWxmV9L3AFFEkt4jvFurv9DFf5/files/goat-test-uri-2.jpeg"
+            },
+            "title": "Goat 1",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidWuNf58XT8R2pB5fGPtyAXc",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "show_purchase",
+            "permission_item_ids": [
+              "prmo51rABK9243M66xT3mgDH3P"
+            ],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciMNEYdsYfAcv4HgCdpnU8Jo",
+          "label": "",
+          "media": {
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Goat 2",
+            "clip": false,
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mvidA4HTAQyRZiii22tMBMwYYP",
+            "label": "Goat 2",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__owRg2KdvZH6ZEGmPBEQzUog3mUYtJr8Nceah1y7qs4n83BTfuV7hbMyEUPaQCMiCKXPFPLUBqZd"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__owRg2KdvZH6ZEGmPBEQzUog3mUYtJr8Nceah1y7qs4n83BTfuV7hbMyEUPaQCMiCKXPFPLUBqZd"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [
+              {
+                "permission_item_id": "prmoRJhR6X5ASUXvvVbwtw9LWG"
+              }
+            ],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/goat-3.jpeg"
+            },
+            "title": "Goat 2",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidA4HTAQyRZiii22tMBMwYYP",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "show_purchase",
+            "permission_item_ids": [
+              "prmoRJhR6X5ASUXvvVbwtw9LWG"
+            ],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciQPBP4YjiR7ogQtaKBKPPpu",
+          "label": "",
+          "media": {
+            "allow_download": false,
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Goat 3",
+            "clip": false,
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mvidB5qxAgiwHrH6QctagHffzE",
+            "label": "Goat 3",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__2H2uZ62kQJYf8KSB1qZJT9x4iELvKoCXTv3AeyhCFmj4xE8j6QehNpAEwuSDZLAHqdXwjcF8EXSr"
+              },
+              "display_title": "03_caminandes_llamigos_episode-3",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__2H2uZ62kQJYf8KSB1qZJT9x4iELvKoCXTv3AeyhCFmj4xE8j6QehNpAEwuSDZLAHqdXwjcF8EXSr"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "03_caminandes_llamigos_episode-3"
+            },
+            "media_link_info": {
+              "clip_end_time": 41,
+              "clip_start_time": 0,
+              "name": "ne wclip",
+              "type": "clip"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [
+              {
+                "permission_item_id": "prmoFNdxzg9QQKXjJ6J3Gk4LuC"
+              }
+            ],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "/qfab/hq__5H9W3utGNFjdBLCnLTBCdaG7fnqPWM9fKwZpf4me5wcyEj1DuNqgwwkadbGdYGEmLq18pPVNfx/files/test_goat_001.jpeg"
+            },
+            "thumbnail_image_landscape_hash": "lSgKDYKyepdgZYmXd4Z4iQhkjFCZ",
+            "title": "Goat 3",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidB5qxAgiwHrH6QctagHffzE",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "show_purchase",
+            "permission_item_ids": [
+              "prmoFNdxzg9QQKXjJ6J3Gk4LuC"
+            ],
+            "secondary_market_purchase_option": "show"
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciDLrtdAi3CPwE6UKiprBdjj",
+          "label": "",
+          "media": {
+            "allow_download": false,
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Goat 4",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mvid2xZmDr2wcRgq5At8i2P8Z5",
+            "label": "Goat 4",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [
+              {
+                "permission_item_id": "prmo51rABK9243M66xT3mgDH3P"
+              },
+              {
+                "permission_item_id": "prmoTwkKrXZeTvj65YZnnb18gE"
+              },
+              {
+                "permission_item_id": "prmoRJhR6X5ASUXvvVbwtw9LWG"
+              },
+              {
+                "permission_item_id": "prmoVUbzc37Kd2rMEPgryrnRJB"
+              },
+              {
+                "permission_item_id": "prmeB4mv939FCLwCHBRoDjmYbJ"
+              }
+            ],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/04e8939e87c219969b0dfa2f5839bc198abf7c16.png"
+            },
+            "thumbnail_image_landscape_hash": "DggODIKHiHhwd3iEeInHgMcNhg==",
+            "title": "Goat 4",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvid2xZmDr2wcRgq5At8i2P8Z5",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciTh8z2waKmaknSUb3GVkaBt",
+          "label": "",
+          "media": {
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Forbidden Goat",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mvidRh6YpVFvZS1s7zL62z7UBr",
+            "label": "Forbidden Goat",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [
+              {
+                "permission_item_id": "prmo77gZeEQNnXmBtexPhW8wjF"
+              }
+            ],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/41b426915e8d2b7380b338d7c219082951744503.png"
+            },
+            "thumbnail_image_landscape_hash": "TQgKFII3x2mgVnSpe2wKcPjZIg==",
+            "title": "Forbidden Goat",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidRh6YpVFvZS1s7zL62z7UBr",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "id": "psci9e6LE9uhMMg6oBsBjn9hQL",
+          "items": [
+            {
+              "description": "",
+              "id": "YXzrLcE1cHMzARq4u1AzSX",
+              "marketplace": {
+                "marketplace_id": "iq__2dXeKyUVhpcsd1RM6xaC1jdeZpyr",
+                "marketplace_slug": "eluvio-live-marketplace-a-place-for-goats",
+                "tenant_slug": "paladin"
+              },
+              "marketplace_sku": "",
+              "permission_item_id": "prmo51rABK9243M66xT3mgDH3P",
+              "redirect_page": "",
+              "secondary_market_purchase_option": "",
+              "title": "",
+              "use_custom_image": false
+            }
+          ],
+          "label": "Buy Now",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "item_purchase"
+        }
+      ],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 6
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "background_image": {
+          ".": {
+            "container": "hq__2WhPyceLJp9jKT64tw4Xsk4BtokSrarcsR91vKA7x4Zgz1VY8JAv86r41tmZ2fbGrLnbKArJSqgA"
+          },
+          "/": "/qfab/hq__8Lea9ZeAVQnvTPASmX7bUmW41VCW2MgbgwKR7f8FVzvapc6QDxaJ6UDcFyRyzrMT8M6PwJapvJ/files/test_goat_001.jpeg"
+        },
+        "card_style": "",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "carousel",
+        "display_limit": 0,
+        "hide_on_tv": false,
+        "inline_background_gradient": "",
+        "justification": "left",
+        "show_app_links": false,
+        "subtitle": "",
+        "text_justification": "left",
+        "title": "",
+        "wrap_titles": false
+      },
+      "filters": {
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "group_by": "",
+      "id": "pscm3dSF46KS8U7w5VJCeXTyyc",
+      "label": "Goat Section 1",
+      "permissions": {
+        "behavior": "show_purchase",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "primary_filter": "",
+      "secondary_filter": "",
+      "type": "manual",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "content": [
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciUK58bv7g67Ea9A1RwkPQut",
+          "label": "",
+          "media": {
+            "attributes": {},
+            "catalog_title": "collection",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mcolNdWBYGQY7XJbJTC2MqXjFn",
+            "label": "collection",
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_lists": [
+              "mlstXQd5Xzczj3jY6gfSEL8AU7"
+            ],
+            "permissions": [
+              {
+                "permission_item_id": "prmo51rABK9243M66xT3mgDH3P"
+              },
+              {
+                "permission_item_id": "prmoRJhR6X5ASUXvvVbwtw9LWG"
+              },
+              {
+                "permission_item_id": "prmoFNdxzg9QQKXjJ6J3Gk4LuC"
+              }
+            ],
+            "preferred_aspect_ratio": "Landscape",
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/04e8939e87c219969b0dfa2f5839bc198abf7c16.png"
+            },
+            "thumbnail_image_landscape_hash": "DggODIKHiHhwd3iEeInHgMcNhg==",
+            "title": "collection",
+            "type": "collection"
+          },
+          "media_id": "mcolNdWBYGQY7XJbJTC2MqXjFn",
+          "media_type": "collection",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        }
+      ],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 1
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "card_style": "",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "carousel",
+        "display_limit": 0,
+        "hide_on_tv": false,
+        "inline_background_color": "",
+        "inline_background_color_2": "",
+        "inline_background_gradient": "",
+        "justification": "left",
+        "show_app_links": false,
+        "subtitle": "",
+        "text_justification": "left",
+        "title": "",
+        "wrap_titles": false
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "id": "pscmJ41VzKZUCPZfMYx7id6rpX",
+      "label": "Collection",
+      "permissions": {
+        "behavior": "",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "tags": [],
+      "type": "manual",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "_auto_section": true,
+      "_auto_section_count": 7,
+      "_auto_section_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 7
+      },
+      "_auto_section_titles": [
+        "DENVER NUGGETS VS MILWAUKEE BUCKS",
+        "ATLANTA HAWKS VS MIAMI HEAT",
+        "Multiview 1",
+        "Multiview 2",
+        "Multiview 3",
+        "Multiview 4",
+        "Live Stream Test"
+      ],
+      "content": [
+        {
+          "expand": false,
+          "id": "psci-psca9UzMxVcxZHjUdgGEfq2CXi-mvidARPMWCE3RwYXpEk5RnLSGZ",
+          "is_automatic_content": true,
+          "media": {
+            "always_show_poster": false,
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "DENVER NUGGETS VS MILWAUKEE BUCKS",
+            "countdown_background_desktop": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/nug-v-bucks.svg"
+            },
+            "countdown_background_desktop_hash": "zceFE4YPmAd4eGGQhfKXZwAAdnZmZmc=",
+            "date": "2025-08-24T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": true,
+            "end_time": "2026-04-16T07:00:00.000Z",
+            "headers": [],
+            "icons": [
+              {
+                "icon": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/lakers.svg"
+                },
+                "icon_hash": "6UmGI4I59Wh3d5oJh5pwaBd2d3eAh1g="
+              },
+              {
+                "icon": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/celtics.svg"
+                },
+                "icon_hash": "XtiJDYI6h0p5dmBqmDvf6fKuC0iIiHF3WA=="
+              }
+            ],
+            "id": "mvidARPMWCE3RwYXpEk5RnLSGZ",
+            "label": "DENVER NUGGETS VS MILWAUKEE BUCKS",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__owRg2KdvZH6ZEGmPBEQzUog3mUYtJr8Nceah1y7qs4n83BTfuV7hbMyEUPaQCMiCKXPFPLUBqZd"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__owRg2KdvZH6ZEGmPBEQzUog3mUYtJr8Nceah1y7qs4n83BTfuV7hbMyEUPaQCMiCKXPFPLUBqZd"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [
+              {
+                "permission_item_id": "prmoVUbzc37Kd2rMEPgryrnRJB"
+              },
+              {
+                "permission_item_id": "prmoTwkKrXZeTvj65YZnnb18gE"
+              },
+              {
+                "permission_item_id": "prmoEgn1cSL77sppG8L5wrEuyT"
+              },
+              {
+                "permission_item_id": "prmo2DnpR5PHRbpdC2zgT5qebQ"
+              }
+            ],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "poster_image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/nug-v-bucks.svg"
+            },
+            "poster_image_hash": "zceFE4YPmAd4eGGQhfKXZwAAdnZmZmc=",
+            "public": false,
+            "slug": "nuggets-vs-bucks",
+            "start_time": "2025-08-24T07:00:00.000Z",
+            "stream_start_time": "2025-08-24T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/nug-v-bucks.svg"
+            },
+            "thumbnail_image_landscape_hash": "zceFE4YPmAd4eGGQhfKXZwAAdnZmZmc=",
+            "title": "Denver Nuggets vs. Milwaukee Bucks",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidARPMWCE3RwYXpEk5RnLSGZ",
+          "media_type": "media",
+          "section_id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "expand": false,
+          "id": "psci-psca9UzMxVcxZHjUdgGEfq2CXi-mvidDnG4n9wYG8AMZ48zghrU7F",
+          "is_automatic_content": true,
+          "media": {
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "ATLANTA HAWKS VS MIAMI HEAT",
+            "countdown_background_desktop": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/04e8939e87c219969b0dfa2f5839bc198abf7c16.png"
+            },
+            "countdown_background_desktop_hash": "DggODIKHiHhwd3iEeInHgMcNhg==",
+            "date": "2025-08-25T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-08-07T07:00:00.000Z",
+            "headers": [],
+            "icons": [
+              {
+                "icon": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/celtics.svg"
+                },
+                "icon_hash": "XtiJDYI6h0p5dmBqmDvf6fKuC0iIiHF3WA=="
+              },
+              {
+                "icon": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/lakers.svg"
+                },
+                "icon_hash": "6UmGI4I59Wh3d5oJh5pwaBd2d3eAh1g="
+              }
+            ],
+            "id": "mvidDnG4n9wYG8AMZ48zghrU7F",
+            "label": "ATLANTA HAWKS VS MIAMI HEAT",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "slug": "hawks-vs-heat",
+            "start_time": "2025-08-25T07:00:00.000Z",
+            "stream_start_time": "2025-08-25T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/hawks-v-heat.svg"
+            },
+            "thumbnail_image_landscape_hash": "mtmKE4QPj1V5h2Rvebt0+FRVcHdgBwc=",
+            "title": "Atlanta Hawks vs. Miami Heat",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidDnG4n9wYG8AMZ48zghrU7F",
+          "media_type": "media",
+          "section_id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "expand": false,
+          "id": "psci-psca9UzMxVcxZHjUdgGEfq2CXi-mvidXfCEiubPrrC8XUH5xLjkf1",
+          "is_automatic_content": true,
+          "media": {
+            "additional_views": [
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/769-1920x1080.jpg"
+                },
+                "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__Ds6NRXfSYW5QF3JWwk5KoyWCt1Cwt1Dj4vuwfoQ4xTVT84eA5rEJ2wuaiyud6J68yPmTGdVJUZ"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__Ds6NRXfSYW5QF3JWwk5KoyWCt1Cwt1Dj4vuwfoQ4xTVT84eA5rEJ2wuaiyud6J68yPmTGdVJUZ"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "Caminandes "
+                },
+                "media_link_info": {
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/902-960x540.jpg"
+                },
+                "image_hash": "IXoSLIp3d4efh3iIh4WBoDcIeA==",
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/4k2.jpg"
+                },
+                "image_hash": "mtYJHIJXeHh8eHdwh3p3gHgX+A==",
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/108-960x540.jpg"
+                },
+                "image_hash": "NwgKDIJ/V6l5iIeHdlthkAo2mA==",
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "All Views",
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 1",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-06-30T07:00:00.000Z",
+            "headers": [
+              "Free",
+              "Fun"
+            ],
+            "id": "mvidXfCEiubPrrC8XUH5xLjkf1",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 1",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "primary_view_label": "Main Broadcast",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "The First Multiview",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 1",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidXfCEiubPrrC8XUH5xLjkf1",
+          "media_type": "media",
+          "section_id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "expand": false,
+          "id": "psci-psca9UzMxVcxZHjUdgGEfq2CXi-mvid52RhBmGHxyJo3p9t5RR6b2",
+          "is_automatic_content": true,
+          "media": {
+            "additional_views": [
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/0/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/902-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "IXoSLIp3d4efh3iIh4WBoDcIeA==",
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/4k2.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/2/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "mtYJHIJXeHh8eHdwh3p3gHgX+A==",
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/108-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/3/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "NwgKDIJ/V6l5iIeHdlthkAo2mA==",
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "representations": [
+                    {
+                      "bitrate": 9500000,
+                      "codec": "h264",
+                      "height": 1080,
+                      "isTopResolution": true,
+                      "key": "videovideo_1920x1080_h264@9500000",
+                      "resolution": "1920x1080",
+                      "string": "1920x1080 (9.5Mbps)",
+                      "width": 1920
+                    },
+                    {
+                      "bitrate": 4500000,
+                      "codec": "h264",
+                      "height": 720,
+                      "key": "videovideo_1280x720_h264@4500000",
+                      "resolution": "1280x720",
+                      "string": "1280x720 (4.5Mbps)",
+                      "width": 1280
+                    },
+                    {
+                      "bitrate": 1750000,
+                      "codec": "h264",
+                      "height": 480,
+                      "key": "videovideo_854x480_h264@1750000",
+                      "resolution": "854x480",
+                      "string": "854x480 (1.8Mbps)",
+                      "width": 854
+                    },
+                    {
+                      "bitrate": 810000,
+                      "codec": "h264",
+                      "height": 360,
+                      "key": "videovideo_640x360_h264@810000",
+                      "resolution": "640x360",
+                      "string": "640x360 (0.8Mbps)",
+                      "width": 640
+                    },
+                    {
+                      "bitrate": 500000,
+                      "codec": "h264",
+                      "height": 240,
+                      "key": "videovideo_426x240_h264@500000",
+                      "resolution": "426x240",
+                      "string": "426x240 (0.5Mbps)",
+                      "width": 426
+                    }
+                  ],
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "Other Views",
+            "allow_download": false,
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 2",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-03-31T07:00:00.000Z",
+            "headers": [],
+            "id": "mvid52RhBmGHxyJo3p9t5RR6b2",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 2",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/thumbnail_image_landscape?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 2",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvid52RhBmGHxyJo3p9t5RR6b2",
+          "media_type": "media",
+          "section_id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "expand": false,
+          "id": "psci-psca9UzMxVcxZHjUdgGEfq2CXi-mvidQR4ZezTvcT4GWTKKwKUcES",
+          "is_automatic_content": true,
+          "media": {
+            "additional_views": [
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/0/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/902-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "IXoSLIp3d4efh3iIh4WBoDcIeA==",
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/4k2.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/2/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "mtYJHIJXeHh8eHdwh3p3gHgX+A==",
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "image": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/images/examples/landscape/108-960x540.jpg",
+                  "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/additional_views/3/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "image_hash": "NwgKDIJ/V6l5iIeHdlthkAo2mA==",
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "Other Views",
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 3",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-03-31T07:00:00.000Z",
+            "headers": [],
+            "id": "mvidQR4ZezTvcT4GWTKKwKUcES",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 3",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/thumbnail_image_landscape?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 3",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidQR4ZezTvcT4GWTKKwKUcES",
+          "media_type": "media",
+          "section_id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "expand": false,
+          "id": "psci-psca9UzMxVcxZHjUdgGEfq2CXi-mvidMNY2DQoqXw9JjjiJKLdFqP",
+          "is_automatic_content": true,
+          "media": {
+            "additional_views": [
+              {
+                "label": "Camera 1",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "label": "Camera 2",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "label": "Camera 3",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              },
+              {
+                "label": "Camera 4",
+                "media_link": {
+                  ".": {
+                    "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "display_title": "",
+                  "sources": {
+                    "default": {
+                      ".": {
+                        "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                      },
+                      "/": "./rep/playout/default/options.json"
+                    }
+                  },
+                  "title": "BBB Clear"
+                },
+                "media_link_info": {
+                  "name": "BBB Clear MEZ",
+                  "type": "main"
+                }
+              }
+            ],
+            "additional_views_label": "Other Views",
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Multiview 4",
+            "date": "2025-11-01T07:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": false,
+            "end_time": "2026-04-30T07:00:00.000Z",
+            "headers": [],
+            "id": "mvidMNY2DQoqXw9JjjiJKLdFqP",
+            "image": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/769-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/image?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "image_hash": "khcOHIZ3d3iEh3eAeH93gGcGNw==",
+            "label": "Multiview 4",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TeJPbkGM3Qs8jd2Nd8xZsMWKWCYaGV48adzPimcnai86aVydv4vQemSP4dF1vcLNbCFeAbpHHqu"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "BBB Clear"
+            },
+            "media_link_info": {
+              "name": "BBB Clear MEZ",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2025-11-01T07:00:00.000Z",
+            "stream_start_time": "2025-11-01T07:00:00.000Z",
+            "subtitle": "",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/images/examples/landscape/441-1920x1080.jpg",
+              "url": "https://host-76-74-28-227.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidXfCEiubPrrC8XUH5xLjkf1/thumbnail_image_landscape?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+            },
+            "thumbnail_image_landscape_hash": "ligSFIQHaXhtlnZ4h4YGVmVQVA==",
+            "title": "Multiview 4",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidMNY2DQoqXw9JjjiJKLdFqP",
+          "media_type": "media",
+          "section_id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "expand": false,
+          "id": "psci-psca9UzMxVcxZHjUdgGEfq2CXi-mvidQQu9bqg9eigm8QWwTLJa9K",
+          "is_automatic_content": true,
+          "media": {
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Live Stream Test",
+            "clip": false,
+            "date": "2024-12-09T05:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": true,
+            "end_time": "2026-02-07T06:40:59.565Z",
+            "headers": [],
+            "id": "mvidQQu9bqg9eigm8QWwTLJa9K",
+            "label": "Live Stream Test",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__CdtUWaXTtrRjUd5btEnMTa8TSzabYjAd1ineVMwp6mHNqWsCigpLSh28t6k13NAE8mS9RuJssqe"
+              },
+              "display_title": "24/7 RTMP BBB Test",
+              "slug": "247-rtmp-bbb-test",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__CdtUWaXTtrRjUd5btEnMTa8TSzabYjAd1ineVMwp6mHNqWsCigpLSh28t6k13NAE8mS9RuJssqe"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "24/7 RTMP BBB Test",
+              "title_type": "live_stream",
+              "video_type": "live"
+            },
+            "media_link_info": {
+              "name": "24/7 RTMP BBB Test",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2026-01-31T05:44:00.860Z",
+            "stream_start_time": "2026-01-21T05:34:00.906Z",
+            "subtitle": "",
+            "tags": [],
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/stock-concert.jpg"
+            },
+            "thumbnail_image_landscape_hash": "TkkGHYQIV4h8iImAjMh3jIh/i/mo",
+            "title": "Live Stream Test",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidQQu9bqg9eigm8QWwTLJa9K",
+          "media_type": "media",
+          "section_id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+          "type": "media",
+          "use_media_settings": true
+        }
+      ],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 7
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "card_style": "",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "carousel",
+        "display_limit": 0,
+        "hide_on_tv": false,
+        "inline_background_color": "",
+        "inline_background_color_2": "",
+        "inline_background_gradient": "",
+        "justification": "left",
+        "show_app_links": false,
+        "subtitle": "",
+        "text_justification": "left",
+        "title": "Live Now",
+        "wrap_titles": false
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "id": "psca9UzMxVcxZHjUdgGEfq2CXi",
+      "label": "auto-livenow",
+      "permissions": {
+        "behavior": "",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "select": {
+        "attribute_values": {},
+        "attributes": [],
+        "content_type": "media",
+        "media_catalog": "",
+        "media_types": [
+          "Video"
+        ],
+        "schedule": "live",
+        "sort": "start_time",
+        "sort_order": ""
+      },
+      "tags": [],
+      "type": "automatic",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "content": [
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciDedBfySByjBoxg2QdBkCNj",
+          "label": "",
+          "media": {
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "Live Stream Test",
+            "clip": false,
+            "date": "2024-12-09T05:00:00.000Z",
+            "description": "",
+            "description_rich_text": "",
+            "enable_dvr": true,
+            "end_time": "2026-02-07T06:40:59.565Z",
+            "headers": [],
+            "id": "mvidQQu9bqg9eigm8QWwTLJa9K",
+            "label": "Live Stream Test",
+            "live_video": true,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__CdtUWaXTtrRjUd5btEnMTa8TSzabYjAd1ineVMwp6mHNqWsCigpLSh28t6k13NAE8mS9RuJssqe"
+              },
+              "display_title": "24/7 RTMP BBB Test",
+              "slug": "247-rtmp-bbb-test",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__CdtUWaXTtrRjUd5btEnMTa8TSzabYjAd1ineVMwp6mHNqWsCigpLSh28t6k13NAE8mS9RuJssqe"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "24/7 RTMP BBB Test",
+              "title_type": "live_stream",
+              "video_type": "live"
+            },
+            "media_link_info": {
+              "name": "24/7 RTMP BBB Test",
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "start_time": "2026-01-31T05:44:00.860Z",
+            "stream_start_time": "2026-01-21T05:34:00.906Z",
+            "subtitle": "",
+            "tags": [],
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/stock-concert.jpg"
+            },
+            "thumbnail_image_landscape_hash": "TkkGHYQIV4h8iImAjMh3jIh/i/mo",
+            "title": "Live Stream Test",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidQQu9bqg9eigm8QWwTLJa9K",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciVAmJNqBxdZ6SZzon1aEAWK",
+          "label": "",
+          "media": {
+            "allow_download": true,
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "English Title",
+            "description": "English description",
+            "description_rich_text": "<p>English rich text description</p>",
+            "headers": [
+              "English Header 1",
+              "English Header 2",
+              "English Header 3"
+            ],
+            "icons": [
+              {
+                "alt_text": "English alt text 2",
+                "icon": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/celtics.svg",
+                  "url": "https://host-76-74-28-235.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidD9ZwvF9BWTpK8WsY1cEu4e/icons/1/icon?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "icon_hash": "XtiJDYI6h0p5dmBqmDvf6fKuC0iIiHF3WA=="
+              },
+              {
+                "alt_text": "English alt text 1",
+                "icon": {
+                  ".": {
+                    "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+                  },
+                  "/": "./files/celtics.svg",
+                  "url": "https://host-76-74-28-235.contentfabric.io/qlibs/ilibHkx1BHF74MSNC1QQSgy17dGxC9e/q/iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH/meta/public/asset_metadata/info/media/mvidD9ZwvF9BWTpK8WsY1cEu4e/icons/0/icon?authorization=eyJxc3BhY2VfaWQiOiJpc3BjM0FOb1ZTek5BM1A2dDdhYkxSNjlobzVZUFBaVSIsImFkZHIiOiIweDc2MWY0NTI4N2VhMzY0ZGI2YjIxNmJkNjU1OTEwNDMwYWZhM2U4MzkiLCJxbGliX2lkIjoiaWxpYkhreDFCSEY3NE1TTkMxUVFTZ3kxN2RHeEM5ZSJ9.RVMyNTZLXzNBVnJTN3U2QWNRWUhFVXB0R2s4UWZTcEJIS1R0N25qTWs5aWR4YlJHSkpqVlRjdmtwNXRKYzRUdnJmMVBxUzdHc1k5aTRZODlza2J6YVRzd1I2QTduaGhj&resolve=true"
+                },
+                "icon_hash": "XtiJDYI6h0p5dmBqmDvf6fKuC0iIiHF3WA=="
+              }
+            ],
+            "id": "mvidD9ZwvF9BWTpK8WsY1cEu4e",
+            "label": "Localization Test",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__TjH74jHwpFpC29Ko5mGmpR9o1ntfwpL1XadcHrYxyJpjooGigLeSCKQgrtxdjV8EDPnZvUasBNS"
+              },
+              "display_title": "",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__TjH74jHwpFpC29Ko5mGmpR9o1ntfwpL1XadcHrYxyJpjooGigLeSCKQgrtxdjV8EDPnZvUasBNS"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "Caminandes Clear"
+            },
+            "media_link_info": {
+              "downloadable": true,
+              "name": "Caminandes Clear MEZ",
+              "representations": [
+                {
+                  "bitrate": 8550000,
+                  "codec": "h264",
+                  "height": 1080,
+                  "isTopResolution": true,
+                  "key": "videovideo_1920x1080_h264@8550000",
+                  "resolution": "1920x1080",
+                  "string": "1920x1080 (8.6Mbps)",
+                  "width": 1920
+                },
+                {
+                  "bitrate": 4050000,
+                  "codec": "h264",
+                  "height": 720,
+                  "key": "videovideo_1280x720_h264@4050000",
+                  "resolution": "1280x720",
+                  "string": "1280x720 (4.0Mbps)",
+                  "width": 1280
+                },
+                {
+                  "bitrate": 1580000,
+                  "codec": "h264",
+                  "height": 480,
+                  "key": "videovideo_854x480_h264@1580000",
+                  "resolution": "854x480",
+                  "string": "854x480 (1.6Mbps)",
+                  "width": 854
+                },
+                {
+                  "bitrate": 729000,
+                  "codec": "h264",
+                  "height": 360,
+                  "key": "videovideo_640x360_h264@729000",
+                  "resolution": "640x360",
+                  "string": "640x360 (0.7Mbps)",
+                  "width": 640
+                },
+                {
+                  "bitrate": 450000,
+                  "codec": "h264",
+                  "height": 240,
+                  "key": "videovideo_426x240_h264@450000",
+                  "resolution": "426x240",
+                  "string": "426x240 (0.5Mbps)",
+                  "width": 426
+                }
+              ],
+              "type": "main"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "subtitle": "English Subtitle",
+            "tags": [],
+            "test_content": false,
+            "thumbnail_alt_text": "English alt text",
+            "thumbnail_image_landscape": {
+              ".": {
+                "container": "hq__WeseJhUHmUrqMXa98PPhNTTPH9ybBRpj6YcyXWAzymVbAqAqVBohqAx5SLrFF9N3ifMQoK2HuBT"
+              },
+              "/": "./files/lights-party-dancing-music.jpg"
+            },
+            "thumbnail_image_landscape_hash": "FecNHYY3dod9dYdwiTendgqFfGC3",
+            "title": "English Title",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidD9ZwvF9BWTpK8WsY1cEu4e",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        }
+      ],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 2
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "card_style": "",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "carousel",
+        "display_limit": 0,
+        "hide_on_tv": false,
+        "inline_background_color": "",
+        "inline_background_gradient": "",
+        "justification": "left",
+        "show_app_links": false,
+        "subtitle": "",
+        "text_justification": "left",
+        "title": "Live Stream Test",
+        "wrap_titles": false
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "id": "pscmLmQJr5ixTP2qJJ8ZUdLvQV",
+      "label": "Live Stream Test",
+      "permissions": {
+        "behavior": "",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "tags": [],
+      "type": "manual",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "content": [
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciJ8g9RJ3qfFa5aib26t5Xa2",
+          "label": "",
+          "media": {
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "test_clipped_comp",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mvid3mZD5udHEewv8hQDMkHcSQ",
+            "label": "test_clipped_comp",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+              },
+              "asset_type": "primary",
+              "display_title": "01_llama_drama-episode-1",
+              "episodes": {},
+              "images": {
+                "landscape": {
+                  "default": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./files/3lines.png"
+                  },
+                  "thumbnail": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./rep/thumbnail/files/3lines.png"
+                  }
+                },
+                "logo": {
+                  "default": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./files/warriors-logo.jpeg"
+                  },
+                  "thumbnail": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./rep/thumbnail/files/warriors-logo.jpeg"
+                  }
+                }
+              },
+              "info": {
+                "copyright": "",
+                "creator": "",
+                "release_date": "",
+                "runtime": null,
+                "synopsis": "",
+                "talent": {}
+              },
+              "ip_title_id": "",
+              "playlists": {},
+              "seasons": {},
+              "series": {},
+              "slug": "01llamadrama-episode-1",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "01_llama_drama-episode-1",
+              "title_type": "collection",
+              "titles": {}
+            },
+            "media_link_info": {
+              "clip_end_time": 19,
+              "clip_start_time": 5,
+              "composition_key": "todd_comp1",
+              "name": "todd-comp1",
+              "type": "composition"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": false,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "subtitle": "",
+            "tags": [],
+            "title": "test_clipped_comp",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvid3mZD5udHEewv8hQDMkHcSQ",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        },
+        {
+          "description": "",
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "expand": false,
+          "id": "psciFHJ6jKTiTE3UHePLMwpAuT",
+          "label": "",
+          "media": {
+            "associated_media": [],
+            "attributes": {},
+            "catalog_title": "test_composition",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "id": "mvidUWDsSSGbMVdvp5MN9Ftdv4",
+            "label": "test_composition",
+            "live_video": false,
+            "media_catalog_id": "iq__Zgc4jRvrJTPTWsjJ5Un3N2VDjYH",
+            "media_link": {
+              ".": {
+                "source": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+              },
+              "asset_type": "primary",
+              "display_title": "01_llama_drama-episode-1",
+              "episodes": {},
+              "images": {
+                "landscape": {
+                  "default": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./files/3lines.png"
+                  },
+                  "thumbnail": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./rep/thumbnail/files/3lines.png"
+                  }
+                },
+                "logo": {
+                  "default": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./files/warriors-logo.jpeg"
+                  },
+                  "thumbnail": {
+                    ".": {
+                      "auto_update": {
+                        "tag": "latest"
+                      },
+                      "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                    },
+                    "/": "./rep/thumbnail/files/warriors-logo.jpeg"
+                  }
+                }
+              },
+              "info": {
+                "copyright": "",
+                "creator": "",
+                "release_date": "",
+                "runtime": null,
+                "synopsis": "",
+                "talent": {}
+              },
+              "ip_title_id": "",
+              "playlists": {},
+              "seasons": {},
+              "series": {},
+              "slug": "01llamadrama-episode-1",
+              "sources": {
+                "default": {
+                  ".": {
+                    "container": "hq__oZobKs1ptAL5mfRe5N8d6KzcBgcD4y9cbscGJ5EHpUGa9QhvDtXXxsFRsQTQ8bqgaNXojLw1sVi"
+                  },
+                  "/": "./rep/playout/default/options.json"
+                }
+              },
+              "title": "01_llama_drama-episode-1",
+              "title_type": "collection",
+              "titles": {}
+            },
+            "media_link_info": {
+              "composition_key": "testcompllama",
+              "name": "test_comp_llama",
+              "type": "composition"
+            },
+            "media_type": "Video",
+            "offerings": [],
+            "override_settings_when_viewed": false,
+            "permissions": [],
+            "player_controls": "",
+            "player_loop": true,
+            "player_muted": false,
+            "player_profile": "",
+            "public": true,
+            "subtitle": "",
+            "tags": [],
+            "title": "test_composition",
+            "type": "media",
+            "viewed_settings": {
+              "description": "",
+              "description_rich_text": "",
+              "headers": [],
+              "subtitle": "",
+              "title": ""
+            }
+          },
+          "media_id": "mvidUWDsSSGbMVdvp5MN9Ftdv4",
+          "media_type": "media",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "media",
+          "use_media_settings": true
+        }
+      ],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 2
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "card_style": "",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "carousel",
+        "display_limit": 0,
+        "hide_on_tv": false,
+        "inline_background_color": "",
+        "justification": "left",
+        "subtitle": "",
+        "text_justification": "left",
+        "title": "Compositions",
+        "wrap_titles": false
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "id": "pscmRzh3CMyhvGDD4VG1sdomeS",
+      "label": "composition_tests",
+      "permissions": {
+        "behavior": "",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "tags": [],
+      "type": "manual",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "allow_overlap": true,
+      "content": [],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 0
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "hero",
+        "inline_background_color": "",
+        "inline_background_color_2": "",
+        "inline_background_gradient": "",
+        "justification": "left",
+        "subtitle": "",
+        "title": ""
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "hero_items": [
+        {
+          "actions": [],
+          "description": "",
+          "display": {
+            "background_image": {
+              ".": {
+                "container": "hq__2WhPyceLJp9jKT64tw4Xsk4BtokSrarcsR91vKA7x4Zgz1VY8JAv86r41tmZ2fbGrLnbKArJSqgA"
+              },
+              "/": "./files/goat-test-uri.jpg"
+            },
+            "background_image_hash": "6uYJNYbJV4eQlmd3eImHiSaQZgJp",
+            "description": "",
+            "logo_alt": "",
+            "position": "Left",
+            "title": ""
+          },
+          "id": "pshiKdtq51mpffqqSwzoYdebYd",
+          "label": "<New Hero Item>",
+          "permissions": {
+            "behavior": "hide"
+          }
+        }
+      ],
+      "id": "pschFmqsCBPUzhBrEGBReaHvVz",
+      "label": "Hero overlap test",
+      "permissions": {
+        "behavior": "",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "tags": [],
+      "type": "hero",
+      "url_slug": "",
+      "visibility": ""
+    },
+    {
+      "content": [
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "id": "psciUJbWVqh56hHDRFER2fmoeh",
+          "items": [
+            {
+              "description": "",
+              "id": "KKkWuBqB8Fw9StDaFehDsc",
+              "marketplace": {
+                "marketplace_id": "iq__2dXeKyUVhpcsd1RM6xaC1jdeZpyr",
+                "marketplace_slug": "eluvio-live-marketplace-a-place-for-goats",
+                "tenant_slug": "paladin"
+              },
+              "marketplace_sku": "",
+              "permission_item_id": "prmo51rABK9243M66xT3mgDH3P",
+              "redirect_page": "",
+              "secondary_market_purchase_option": "",
+              "title": "",
+              "use_custom_image": false
+            }
+          ],
+          "label": "Purchase 1",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "item_purchase"
+        },
+        {
+          "description": "",
+          "disabled": false,
+          "display": {
+            "attributes": {},
+            "catalog_title": "",
+            "description": "",
+            "description_rich_text": "",
+            "headers": [],
+            "permissions": [],
+            "public": false,
+            "show_price": false,
+            "subtitle": "",
+            "tags": [],
+            "title": ""
+          },
+          "id": "psciUBUEFhsnyLo1u4FfQ6mS7j",
+          "items": [
+            {
+              "description": "",
+              "id": "8BocSUUqX6PhEpyUqDaoaA",
+              "marketplace": {
+                "marketplace_id": "iq__2dXeKyUVhpcsd1RM6xaC1jdeZpyr",
+                "marketplace_slug": "eluvio-live-marketplace-a-place-for-goats",
+                "tenant_slug": "paladin"
+              },
+              "marketplace_sku": "",
+              "permission_item_id": "prmoRJhR6X5ASUXvvVbwtw9LWG",
+              "redirect_page": "",
+              "secondary_market_purchase_option": "",
+              "title": "",
+              "use_custom_image": false
+            }
+          ],
+          "label": "Purchase 2",
+          "permissions": {
+            "behavior": "",
+            "permission_item_ids": [],
+            "secondary_market_purchase_option": ""
+          },
+          "type": "item_purchase"
+        }
+      ],
+      "content_paging": {
+        "start": 0,
+        "limit": 0,
+        "total": 2
+      },
+      "description": "",
+      "display": {
+        "aspect_ratio": "Landscape",
+        "card_default_button_text": "Click Here",
+        "card_style": "button_vertical",
+        "content_display_text": "titles",
+        "description": "",
+        "description_rich_text": "",
+        "display_format": "grid",
+        "display_limit": 0,
+        "display_limit_type": "items",
+        "hide_on_tv": false,
+        "inline_background_color": "",
+        "inline_background_color_2": "",
+        "inline_background_gradient": "",
+        "justification": "left",
+        "show_app_links": false,
+        "subtitle": "",
+        "text_justification": "left",
+        "title": "",
+        "wrap_titles": false
+      },
+      "filters": {
+        "filter_options": [],
+        "group_by": "",
+        "primary_filter": ""
+      },
+      "id": "pscmAtUnyBaFWk1Z8QB6PKgpmp",
+      "label": "Purchase Cards",
+      "permissions": {
+        "behavior": "",
+        "permission_item_ids": [],
+        "secondary_market_purchase_option": ""
+      },
+      "tags": [],
+      "type": "manual",
+      "url_slug": "",
+      "visibility": ""
+    }
+  ],
+  "paging": {
+    "start": 0,
+    "limit": 0,
+    "total": 9
+  },
+  "metadata": {}
+}

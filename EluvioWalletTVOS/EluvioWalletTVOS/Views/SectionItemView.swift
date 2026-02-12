@@ -470,30 +470,12 @@ struct SectionItemView: View {
 
     }
     
-    var title : String {
-        if viewItem.title.isEmpty {
-            if let mediaTitle = viewItem.sectionItem?.media?.title {
-                if !mediaTitle.isEmpty {
-                    return mediaTitle
-                }
-            }
-            
-            if let mediaTitle = viewItem.mediaItem?.title {
-                if !mediaTitle.isEmpty {
-                    return mediaTitle
-                }
-            }
-            
-            return ""
-        }else{
-            return viewItem.title
-        }
-    }
-    
-    @State var refreshTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    let refreshTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
     @State var refresh : Bool = false
 
+    @State var title : String = ""
     @State var subtitle : String = ""
+    @State var timeString : String = ""
     @State var imageThumbnail : String = ""
     @State var isUpcoming : Bool = false
     @State var isLive : Bool = false
@@ -882,9 +864,9 @@ struct SectionItemView: View {
                                   isFocused:isFocused,
                                   isUpcoming: isUpcoming,
                                   startTimeString: startTimeString,
-                                  title: viewItem.title,
-                                  subtitle: viewItem.subtitle,
-                                  timeString: viewItem.headerString,
+                                  title: title,
+                                  subtitle: subtitle,
+                                  timeString: timeString,
                                   isLive: isLive,
                                   centerFocusedText: false,
                                   showFocusedTitle: viewItem.title.isEmpty ? false : true,
@@ -893,13 +875,28 @@ struct SectionItemView: View {
                                   sizeFactor: scaleFactor,
                                   permission: permission
                         )
-                        .id(refreshId)
+                        .animation(.easeInOut(duration: 0.2), value: title)
+                        .animation(.easeInOut(duration: 0.2), value: subtitle)
+                        .animation(.easeInOut(duration: 0.2), value: isLive)
+                        .id("\(viewItem.id)_\(title)_\(subtitle)_\(isLive)")
                         .opacity(opacity)
                         
                     }
                     .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
                     .focused($isFocused)
                 }
+            }
+        }
+        .onAppear {
+            Task {
+                update()
+                updateProgress()
+            }
+        }
+        .onChange(of: viewItem.id) { _, _ in
+            Task {
+                update()
+                updateProgress()
             }
         }
         .onReceive(refreshTimer) { _ in
@@ -919,36 +916,52 @@ struct SectionItemView: View {
     }
     
     func update(){
-        //debugPrint("SectionItemView update ", viewItem.title)
-        
         if !isVisible {
             return
         }
-
         let sectionItemId = viewItem.id
-        if let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: sectionItemId) {
+        
+        Task { @MainActor in
+            if let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: sectionItemId) {
+                
+                let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                let newIsLive = viewItem.mediaItem?.currentlyLive ?? false
+                let newStartTimeString = viewItem.mediaItem?.startDateTimeString ?? ""
+                let newThumbnail = viewItem.thumbnail
+                let newIsUpcoming = viewItem.mediaItem?.isUpcoming ?? false
+                let newTitle = viewItem.title
+                let newSubtitle = viewItem.subtitle
+                let newTimeString = viewItem.headerString
+                
+                // Only update if values have actually changed
+                if self.isLive != newIsLive { self.isLive = newIsLive }
+                if self.startTimeString != newStartTimeString { self.startTimeString = newStartTimeString }
+                if self.imageThumbnail != newThumbnail { self.imageThumbnail = newThumbnail }
+                if self.isUpcoming != newIsUpcoming { self.isUpcoming = newIsUpcoming }
+                if self.title != newTitle { self.title = newTitle }
+                if self.subtitle != newSubtitle { self.subtitle = newSubtitle }
+                if self.timeString != newTimeString { self.timeString = newTimeString }
 
-
-            self.isLive = item.media?.currentlyLive ?? false
-            self.startTimeString = item.media?.startDateTimeString ?? ""
-            let _thumb = viewItem.thumbnail
-            if self.imageThumbnail != _thumb {
-                self.imageThumbnail = viewItem.thumbnail
+            } else {
+                let newIsLive = self.viewItem.mediaItem?.currentlyLive ?? false
+                let newStartTimeString = self.viewItem.mediaItem?.startDateTimeString ?? ""
+                let newThumbnail = self.viewItem.thumbnail
+                let newIsUpcoming = self.viewItem.mediaItem?.isUpcoming ?? false
+                let newTitle = self.viewItem.title
+                let newSubtitle = self.viewItem.subtitle
+                let newTimeString = self.viewItem.headerString
+                
+                // Only update if values have actually changed
+                if self.isLive != newIsLive { self.isLive = newIsLive }
+                if self.startTimeString != newStartTimeString { self.startTimeString = newStartTimeString }
+                if self.imageThumbnail != newThumbnail { self.imageThumbnail = newThumbnail }
+                if self.isUpcoming != newIsUpcoming { self.isUpcoming = newIsUpcoming }
+                if self.title != newTitle { self.title = newTitle }
+                if self.subtitle != newSubtitle { self.subtitle = newSubtitle }
+                if self.timeString != newTimeString { self.timeString = newTimeString }
             }
-            
-            self.isUpcoming = item.media?.isUpcoming ?? false
-        }else {
-            self.isLive = viewItem.mediaItem?.currentlyLive ?? false
-            self.startTimeString = viewItem.mediaItem?.startDateTimeString ?? ""
-            
-            let _thumb = viewItem.thumbnail
-            if self.imageThumbnail != _thumb {
-                self.imageThumbnail = viewItem.thumbnail
-            }
-            
-            self.isUpcoming = viewItem.mediaItem?.isUpcoming ?? false
         }
-        self.refreshId = viewItem.id + eluvio.refreshId
+        //self.refreshId = viewItem.id + eluvio.refreshId
     }
 }
 
