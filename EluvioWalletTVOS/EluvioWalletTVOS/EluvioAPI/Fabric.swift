@@ -2027,6 +2027,37 @@ class Fabric: ObservableObject {
         return newUrl
     }
     
+    //New API for media item playout
+    func getOptionsFromHash(versionHash:String) async throws -> JSON {
+        let path = "/as/mw/playout_options/" + versionHash
+        
+        guard let signer = self.signer else {
+            throw FabricError.configError("getPlayoutFromMediaId: could not get authD endpoint")
+        }
+        
+        guard let url = URL(string:try signer.getAuthEndpoint()) else {
+            throw FabricError.configError("getPlayoutFromMediaId: could not get fabric endpoint")
+        }
+        var components = URLComponents()
+        components.scheme = url.scheme
+        components.host = url.host
+        components.path = path
+        
+        var queryItems : [URLQueryItem] = []
+        if getEnvironment() == .staging {
+            queryItems.append(URLQueryItem(name:"env", value: "staging"))
+        }
+        components.queryItems = queryItems
+
+        guard let newUrl = components.url else {
+            throw FabricError.invalidURL("getPlayoutFromMediaId: could not create url from components. \(components)")
+        }
+                                    
+        //print("GET ",newUrl)
+
+        return try await self.getJsonRequest(url: newUrl.absoluteString)
+    }
+    
     func getOptions(versionHash:String , params: [JSON]? = [], offering:String="default") async throws -> JSON {
         var path = NSString.path(withComponents: ["/","q",versionHash,"rep","playout",offering,"options.json"])
         
@@ -2316,22 +2347,34 @@ class Fabric: ObservableObject {
             throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
         }
         
-
-        if (hash.isEmpty) {
-            throw FabricError.badInput("getHlsPlaylistFromOptions: hash is empty")
-        }
+        let uri = link[drm]["uri"].stringValue
         
-
-        var uri = link[drm]["uri"].stringValue
+        if uri.isEmpty {
+            throw FabricError.badInput("getHlsPlaylistFromOptions: uri is empty for drm type \(drm)")
+        }
         
         guard let url = URL(string:try self.getEndpoint()) else {
             throw FabricError.badInput("getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
         }
         
-        var newUrl = "\(url.absoluteString)/q/\(hash)/rep/playout/\(offering)/\(uri)"
-        if(newUrl.contains("?")){
+        var newUrl: String
+        
+        // Check if URI already contains the full path (starts with q/)
+        if uri.hasPrefix("q/") {
+            // URI already contains the full path, just append to base URL
+            newUrl = "\(url.absoluteString)/\(uri)"
+        } else {
+            // URI is relative, construct the full path with hash and offering
+            if hash.isEmpty {
+                throw FabricError.badInput("getHlsPlaylistFromOptions: hash is empty and required for relative URI")
+            }
+            newUrl = "\(url.absoluteString)/q/\(hash)/rep/playout/\(offering)/\(uri)"
+        }
+        
+        // Add authorization token
+        if newUrl.contains("?") {
             newUrl = newUrl + "&authorization=\(self.fabricToken)"
-        }else{
+        } else {
             newUrl = newUrl + "?authorization=\(self.fabricToken)"
         }
         

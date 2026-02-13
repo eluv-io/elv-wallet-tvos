@@ -743,7 +743,8 @@ func MakePlayerItemFromVersionHash(fabric: Fabric,
                                    description: String = "",
                                    imageThumb: String = "") async throws -> AVPlayerItem {
     debugPrint("MakePlayerItemFromVersionHash ", versionHash)
-    let options = try await fabric.getOptions(versionHash: versionHash, offering: offering)
+    //let options = try await fabric.getOptions(versionHash: versionHash)
+    let options = try await fabric.getOptionsFromHash(versionHash: versionHash)
     debugPrint("getOptions ", options)
     return try await MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
 }

@@ -900,6 +900,9 @@ struct SectionItemView: View {
             }
         }
         .onReceive(refreshTimer) { _ in
+            // Performance optimization: Only update if view is visible to avoid expensive operations
+            // when views are not onscreen or another view is on top of it
+            guard isVisible else { return }
             Task(priority:.background) {
                 update()
             }

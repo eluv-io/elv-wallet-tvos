@@ -57,6 +57,7 @@ struct IconButton: View {
 struct MediaPropertyDetailView: View {
     @Namespace var NamespaceProperty
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var eluvio: EluvioAPI
     
     @State var propertyId:String
@@ -82,6 +83,8 @@ struct MediaPropertyDetailView: View {
     
     @State private var currentPropertyId : String = ""
     @State private var currentPageId : String = ""
+    @State private var isViewVisible: Bool = false
+    @State private var isViewActive: Bool = false
     
     
     
@@ -293,6 +296,8 @@ struct MediaPropertyDetailView: View {
         )
         .onAppear{
             debugPrint("MediaPropertyDetailView onAppear")
+            isViewVisible = true
+            isViewActive = true
             // Set initial opacity to show loading state
             withAnimation(.easeInOut(duration: 0.3)) {
                 opacity = 0.3  // Show partial opacity to indicate loading
@@ -309,39 +314,81 @@ struct MediaPropertyDetailView: View {
             }
         }
         .onWillDisappear {
+            debugPrint("MediaPropertyDetailView onWillDisappear")
+            isViewVisible = false
+            isViewActive = false
             withAnimation(.easeInOut(duration: 2)) {
               opacity = 0.0
             }
             eluvio.needsRefresh()
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            debugPrint("MediaPropertyDetailView scenePhase changed to: \(newPhase)")
+            switch newPhase {
+            case .active:
+                if isViewVisible {
+                    isViewActive = true
+                }
+            case .inactive, .background:
+                isViewActive = false
+            @unknown default:
+                isViewActive = false
+            }
+        }
         .onReceive(refreshTimer) { _ in
-            // Only execute timer code if the view is visible
-            guard opacity > 0 else { return }
+            // Performance optimization: Only execute timer code if the view is truly active and visible
+            // Check multiple indicators to ensure view is actually on screen and active
+            let isSceneActive = scenePhase == .active
+            let hasGoodOpacity = opacity > 0.8
+            let isActive = isViewActive && isViewVisible
             
+            debugPrint("MediaPropertyDetailView timer fired - scenePhase: \(scenePhase), isViewActive: \(isViewActive), isViewVisible: \(isViewVisible), opacity: \(opacity)")
+            
+            guard isSceneActive && hasGoodOpacity && isActive else { 
+                debugPrint("MediaPropertyDetailView timer: view not fully active/visible, skipping refresh (sceneActive: \(isSceneActive), goodOpacity: \(hasGoodOpacity), active: \(isActive))")
+                return 
+            }
+            
+            debugPrint("MediaPropertyDetailView timer: executing refresh operations")
             Task{
                 if let currentAccount = eluvio.accountManager.currentAccount {
                     if currentAccount.isTokenExpiredIn(seconds: 2*24*60*60) {
+                        debugPrint("MediaPropertyDetailView timer: refreshing fabric token")
                         await eluvio.refreshFabricToken()
                     }
+                    debugPrint("MediaPropertyDetailView timer: calling refreshPageSections")
                     await refreshPageSections()
                 }
+            }
+        }
+        .onScrollVisibilityChange(threshold: 0.1) { isVisible in
+            debugPrint("MediaPropertyDetailView scroll visibility changed to: \(isVisible)")
+            self.isViewVisible = isVisible
+            if isVisible && scenePhase == .active {
+                self.isViewActive = true
+                debugPrint("MediaPropertyDetailView became fully active")
+            } else {
+                self.isViewActive = false
+                debugPrint("MediaPropertyDetailView became inactive")
             }
         }
     }
     
     func refreshPageSections() async {
+        debugPrint("MediaPropertyDetailView refreshPageSections called - currentPropertyId: '\(currentPropertyId)', currentPageId: '\(currentPageId)'")
         if self.currentPropertyId == "" || self.currentPageId == ""{
+            debugPrint("MediaPropertyDetailView refreshPageSections: skipping due to empty IDs")
             return;
         }
         do {
-            debugPrint("MediaPropertyDetailView getting page sections")
+            debugPrint("MediaPropertyDetailView making API call: getPropertyPageSections for property: \(currentPropertyId), page: \(currentPageId)")
             sections = try await eluvio.fabric.getPropertyPageSections(property: currentPropertyId, page: currentPageId)
-            debugPrint("finished getting sections. ", sections.count)
+            debugPrint("MediaPropertyDetailView API call finished getting sections. Count: ", sections.count)
         }catch(FabricError.apiError(let code, let response, let error)){
-            debugPrint("Error getting page sections")
+            debugPrint("MediaPropertyDetailView API Error getting page sections")
             eluvio.handleApiError(code: code, response: response, error: error)
         }catch {
-            debugPrint("Error:",error)
+            debugPrint("MediaPropertyDetailView Error:",error)
         }
     }
   

@@ -99,13 +99,20 @@ struct PlayerView: View {
                     
                     do {
                         
-                        let resp = try await eluvio.fabric.getPropertyMultiview(propertyId: property?.id ?? "");
-                        medias = resp.contents
+                        if media.currentlyLive {
+                            let resp = try await eluvio.fabric.getPropertyMultiview(propertyId: property?.id ?? "");
+                            medias = resp.contents
+                        }
                         
 
-                        if let additional_views = media.additional_views {
-                            var views = media.additionalViews(eluvio: eluvio)
-                            debugPrint("Additional views found ", views)
+                        if media.additional_views != nil {
+                            let views = media.additionalViews(eluvio: eluvio)
+
+                            
+                            for view in views {
+                                debugPrint("Additional view", view.title)
+                            }
+                            
                             medias = media.additionalViews(eluvio: eluvio) + medias
                         }
      

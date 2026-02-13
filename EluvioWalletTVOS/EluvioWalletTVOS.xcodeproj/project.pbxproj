@@ -984,7 +984,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 369;
+				CURRENT_PROJECT_VERSION = 371;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -998,7 +998,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -1018,7 +1018,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 369;
+				CURRENT_PROJECT_VERSION = 371;
 				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletTVOS/Preview Content\"";
 				DEVELOPMENT_TEAM = 2KH8KC3MMX;
 				ENABLE_PREVIEWS = YES;
@@ -1032,7 +1032,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.4;
+				MARKETING_VERSION = 1.1.5;
 				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";

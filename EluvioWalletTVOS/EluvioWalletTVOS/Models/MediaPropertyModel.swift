@@ -200,10 +200,27 @@ var debugEndDate = Date() + 5 * 60
 struct MediaItemAdditionView: Codable, Identifiable, Hashable  {
     var id : String? = UUID().uuidString
     var image: JSON? = nil
+    var image_tv: JSON? = nil
     var image_hash: String? = ""
     var label: String? = ""
     var media_link: JSON? = nil
     var media_link_info: JSON? = nil
+    
+    /// Returns the effective image to use - checks image first, then falls back to image_tv if image is empty or nil
+    var effectiveImage: JSON? {
+        // Check if image exists and has content
+        if let image = image, image.exists() && !image.isEmpty {
+            return image
+        }
+        
+        // Fall back to image_tv if image is empty or nil
+        if let image_tv = image_tv, image_tv.exists() && !image_tv.isEmpty {
+            return image_tv
+        }
+        
+        return nil
+    }
+    
     static func == (lhs: MediaItemAdditionView, rhs: MediaItemAdditionView) -> Bool {
         return lhs.id == rhs.id
     }
@@ -284,7 +301,7 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
                 poster_image: nil,
                 thumbnail_image_square: nil,
                 thumbnail_image_portrait: nil,
-                thumbnail_image_landscape: view.image,
+                thumbnail_image_landscape: view.effectiveImage,
                 title: view.label,
                 subtitle: nil,
                 type: nil,
@@ -334,11 +351,42 @@ struct MediaPropertySectionMediaItem: Codable, Identifiable, Hashable  {
         return url
     }
     
+    /*
     func playerItem(eluvio: EluvioAPI, propertyId:String) async throws -> AVPlayerItem {
         if let link = media_link?["sources"]["default"] {
                 let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: id ?? "")
             let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:title ?? "", description:description ?? "", imageThumb: thumbnail(eluvio:eluvio))
                 return playerItem
+        }
+        
+        throw FabricError.badInput("Media item \(id) does not have a valid link: \(media_link)")
+    }
+    */
+    
+    func playerItem(eluvio: EluvioAPI, propertyId:String) async throws -> AVPlayerItem {
+        debugPrint("media_link: ", media_link)
+        debugPrint("link[.]: ", media_link?["."])
+        if let mediaId = id {
+            if mediaId.hasPrefix("mvid") {
+                debugPrint("Fetching options for mvid: \(mediaId)")
+                let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: id ?? "")
+                let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:title ?? "", description:description ?? "", imageThumb: thumbnail(eluvio:eluvio))
+                return playerItem
+            }
+        }
+        
+        if let link = media_link {
+            if !link["."].isEmpty {
+                let hash = link["."]["source"].stringValue
+                if hash.hasPrefix("hq__") {
+                    //just a single versionHash
+                    let playerItem = try await MakePlayerItemFromVersionHash(fabric: eluvio.fabric, versionHash: hash)
+                    return playerItem
+                }
+                
+                let playerItem = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, title:title ?? "", description:description ?? "", imageThumb: thumbnail(eluvio:eluvio))
+                return playerItem
+            }
         }
         
         throw FabricError.badInput("Media item \(id) does not have a valid link: \(media_link)")

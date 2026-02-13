@@ -64,12 +64,14 @@ struct StreamSelectorView: View {
         }
         .frame(maxWidth: .infinity)
         .onAppear {
+            /*
             // Set focus to current video or first video
             if let currentVideo = viewModel.currentVideo {
                 focusedVideo = currentVideo.id
             } else if let firstVideo = viewModel.videos.first {
                 focusedVideo = firstVideo.id
             }
+             */
         }
     }
 }
@@ -278,10 +280,12 @@ class VideoPlayerViewModel: ObservableObject {
                 let viewData = MUXSDKCustomerViewData()
                 viewData.viewSessionId = sessionId
                 
-                
-                if let customerData = MUXSDKCustomerData(customerPlayerData: playerData, videoData: videoData, viewData: viewData, customData: nil, viewerData: nil){
-                    let playerBinding = MUXSDKStats.monitorAVPlayerViewController(playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
-                    debugPrint("MUX initialized.")
+                // Ensure MUX SDK initialization happens on the main thread to prevent UI thread safety violations
+                await MainActor.run {
+                    if let customerData = MUXSDKCustomerData(customerPlayerData: playerData, videoData: videoData, viewData: viewData, customData: nil, viewerData: nil){
+                        let playerBinding = MUXSDKStats.monitorAVPlayerViewController(playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
+                        debugPrint("MUX initialized on main thread.")
+                    }
                 }
             }catch {
                 print("Error creating player", error)
@@ -289,78 +293,86 @@ class VideoPlayerViewModel: ObservableObject {
             }
             
             
+            // Progress observer setup (already uses main queue internally)
             player?.addProgressObserver { progress in
-                
-                self.currentTimeS = self.player?.currentItem?.currentTime().seconds ?? -1.0
-                
-                if self.currentTimeS == -1.0 {
-                    return
-                }
-                
-                if let progressCallback = self.progressCallback {
-                    progressCallback(progress,
-                                     self.player?.currentItem?.currentTime().seconds ?? 0.0,
-                                     self.player?.currentItem?.duration.seconds ?? 0.0)
-                }else {
-                    self.onPlayerProgress(progress,
-                                          self.player?.currentItem?.currentTime().seconds ?? 0.0,
-                                          self.player?.currentItem?.duration.seconds ?? 0.0)
-                }
-                
-                guard let eluvio = self.eluvio else {
-                    return;
-                }
-                
-                if let account = eluvio.accountManager.currentAccount {
-                    Task{
-                        //If our token expires in 4 hours we refresh
-                        if (account.isTokenExpiredIn(seconds: 60*60*4)){
-                            await eluvio.refreshFabricToken()
-                        }
+                    
+                    self.currentTimeS = self.player?.currentItem?.currentTime().seconds ?? -1.0
+                    
+                    if self.currentTimeS == -1.0 {
+                        return
                     }
-                }
-                
-                if self.player?.status == .readyToPlay {
-                    //Fixes a bug where the default audio track is not loaded with some playlists with missing default
-                    if !self.audioLoaded {
-                        let playerItem = self.player?.currentItem
-                        if let group = playerItem?.asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
-                            debugPrint("group options ", group.options)
-                            debugPrint("group default option", group.defaultOption)
-                            if let defaultOption = group.defaultOption {
-                                playerItem?.select(defaultOption, in: group)
-                            }else {
-                                playerItem?.select(group.options.first, in: group)
+                    
+                    if let progressCallback = self.progressCallback {
+                        progressCallback(progress,
+                                         self.player?.currentItem?.currentTime().seconds ?? 0.0,
+                                         self.player?.currentItem?.duration.seconds ?? 0.0)
+                    }else {
+                        self.onPlayerProgress(progress,
+                                              self.player?.currentItem?.currentTime().seconds ?? 0.0,
+                                              self.player?.currentItem?.duration.seconds ?? 0.0)
+                    }
+                    
+                    guard let eluvio = self.eluvio else {
+                        return;
+                    }
+                    
+                    if let account = eluvio.accountManager.currentAccount {
+                        Task{
+                            //If our token expires in 4 hours we refresh
+                            if (account.isTokenExpiredIn(seconds: 60*60*4)){
+                                await eluvio.refreshFabricToken()
                             }
                         }
-                        self.audioLoaded = true
                     }
+                    
+                    if self.player?.status == .readyToPlay {
+                        //Fixes a bug where the default audio track is not loaded with some playlists with missing default
+                        if !self.audioLoaded {
+                            let playerItem = self.player?.currentItem
+                            if let group = playerItem?.asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
+                                debugPrint("group options ", group.options)
+                                debugPrint("group default option", group.defaultOption)
+                                if let defaultOption = group.defaultOption {
+                                    playerItem?.select(defaultOption, in: group)
+                                }else {
+                                    playerItem?.select(group.options.first, in: group)
+                                }
+                            }
+                            self.audioLoaded = true
+                        }
+                    }
+                    
                 }
-                
-            }
             
+            // Error observer setup (already uses main queue)
             NotificationCenter.default.addObserver(forName: .AVPlayerItemNewErrorLogEntry, object: player?.currentItem, queue: .main) { [self] _ in
                 print(player?.currentItem?.errorLog()?.events.last?.errorComment)
             }
             
-            if seekTimeS == 0 {
-                do {
-                    if let account = eluvio?.accountManager.currentAccount {
-                        let progress = try eluvio?.fabric.getUserViewedProgress(address:account.getAccountAddress(), mediaId: currentVideo?.id ?? "")
-                        debugPrint("Finsihed getting progress ", progress)
-                        seekS(progress?.current_time_s ?? 0)
+            await MainActor.run {
+                if seekTimeS == 0 {
+                    Task {
+                        do {
+                            if let account = eluvio?.accountManager.currentAccount {
+                                let progress = try eluvio?.fabric.getUserViewedProgress(address:account.getAccountAddress(), mediaId: currentVideo?.id ?? "")
+                                debugPrint("Finished getting progress ", progress)
+                                await MainActor.run {
+                                    self.seekS(progress?.current_time_s ?? 0)
+                                }
+                            }
+                        }catch{
+                            debugPrint(error)
+                        }
                     }
-                }catch{
-                    debugPrint(error)
+                }else {
+                    seekS(seekTimeS)
                 }
-            }else {
-                seekS(seekTimeS)
-            }
-            
-            player?.play()
-            print("*** PlayerView errors: ", player?.error)
+                
+                player?.play()
+                print("*** PlayerView errors: ", player?.error)
 
-            self.finishedObserver = PlayerFinishedObserver(player: player)
+                self.finishedObserver = PlayerFinishedObserver(player: player)
+            }
         }
 
     }
