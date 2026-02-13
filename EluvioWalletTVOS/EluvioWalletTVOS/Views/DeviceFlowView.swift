@@ -353,7 +353,7 @@ struct DeviceFlowView: View {
                                     account.expiresAt = Date().now + duration
                                     account.email = email
                                     try await eluvio.signIn(account:account, property: property?.id ?? "")
-                                    eluvio.needsRefresh()
+                                    // needsRefresh() is now called by signIn's pre-cache Task when auth cache is ready
                                     
                                 }catch {
                                     print("could not sign in: \(error)")

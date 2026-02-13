@@ -125,7 +125,9 @@ class EluvioAPI : ObservableObject {
         try await fabric.connect(token: account.fabricToken)
 
         // Pre-cache authenticated properties in background so DiscoverView
-        // gets an instant cache hit after login
+        // gets an instant cache hit after login.
+        // needsRefresh() is called AFTER caching completes so DiscoverView
+        // finds fresh auth ViewModels instead of building from raw properties.
         let fabricRef = self.fabric
         let devMode = self.getDevMode()
         Task { @MainActor in
@@ -151,8 +153,12 @@ class EluvioAPI : ObservableObject {
                 }
                 cache.cachePropertyViewModels(viewModels, network: network, authState: true)
                 debugPrint("Pre-cached \(viewModels.count) auth PropertyViewModels after sign-in")
+                // Trigger DiscoverView refresh NOW that auth cache is ready
+                self.needsRefresh()
             } catch {
                 debugPrint("Background auth property pre-cache failed: \(error)")
+                // Still trigger refresh so DiscoverView can fall back to other cache paths
+                self.needsRefresh()
             }
         }
     }

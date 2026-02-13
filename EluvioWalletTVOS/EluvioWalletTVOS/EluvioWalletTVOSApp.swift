@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SDWebImage
 
 /*
 @main
@@ -45,6 +46,22 @@ struct EluvioWalletTVOSApp: App {
     
     init(){
         print("App Init")
+
+        // Configure SDWebImage to strip the "authorization" query parameter from cache keys.
+        // Image URLs embed the current fabricToken as ?authorization=<token>. When the token
+        // changes (e.g. after sign-in), SDWebImage would treat identical images as different
+        // cache entries because the full URL differs. By stripping "authorization" from the
+        // cache key, the same image always hits the same cache entry regardless of token.
+        SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
+            guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                return url.absoluteString
+            }
+            components.queryItems = components.queryItems?.filter { $0.name != "authorization" }
+            if components.queryItems?.isEmpty == true {
+                components.queryItems = nil
+            }
+            return components.url?.absoluteString ?? url.absoluteString
+        }
     }
 
     var body: some Scene {

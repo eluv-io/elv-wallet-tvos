@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SDWebImage
 
 
 /*
@@ -42,11 +43,24 @@ struct ShowcaseWalletApp: App {
     @State var showApp = false
     @State var isBranded = true
     @State var openUrl : URL? = nil
-    
+
     init(){
         print("App Init")
+
+        // Strip "authorization" token from SDWebImage cache keys so the same image
+        // always hits the same cache entry regardless of fabricToken changes.
+        SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
+            guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+                return url.absoluteString
+            }
+            components.queryItems = components.queryItems?.filter { $0.name != "authorization" }
+            if components.queryItems?.isEmpty == true {
+                components.queryItems = nil
+            }
+            return components.url?.absoluteString ?? url.absoluteString
+        }
     }
-    
+
     var body: some Scene {
         WindowGroup {
             ZStack{

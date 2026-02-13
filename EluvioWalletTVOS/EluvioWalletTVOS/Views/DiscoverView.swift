@@ -34,7 +34,11 @@ struct DiscoverView: View {
     @StateObject private var persistentCache = PersistentDataCache()
     
     static var refreshId = ""
-    
+    /// Prevents multiple DiscoverView instances from doing heavy loading simultaneously.
+    /// Only the first instance to acquire the lock does the full load; others skip.
+    @State private var isLoadingOwner = false
+    private static var isLoading = false
+
     var body: some View {
         ZStack {
             VStack(alignment: .leading, spacing: 0){
@@ -92,32 +96,9 @@ struct DiscoverView: View {
             }
         }
         .onChange(of: properties) { oldProperties, newProperties in
-            debugPrint("📊 Properties array changed - old count: \(oldProperties.count), new count: \(newProperties.count)")
-            if newProperties.isEmpty {
-                debugPrint("⚠️ Properties is now empty!")
-            } else {
-                debugPrint("✅ Properties now has \(newProperties.count) items")
-                // Only show first 3 to avoid log spam
-                for (index, property) in newProperties.prefix(3).enumerated() {
-                    debugPrint("  Property \(index): \(property.title) (image: \(property.image.isEmpty ? "EMPTY" : "HAS_IMAGE"))")
-                }
-                if newProperties.count > 3 {
-                    debugPrint("  ... and \(newProperties.count - 3) more properties")
-                }
+            if oldProperties.count != newProperties.count {
+                debugPrint("Properties: \(oldProperties.count) → \(newProperties.count)")
             }
-            
-            // Debug UI state when properties change
-            debugPrint("🖥️ UI State - eluvio.isCustomApp(): \(eluvio.isCustomApp())")
-            debugPrint("🖥️ UI State - properties.isEmpty: \(newProperties.isEmpty)")
-            debugPrint("🖥️ UI State - current opacity: \(opacity)")
-            
-            // Force a UI refresh by triggering a state change
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                debugPrint("🔄 Forced UI refresh check - final properties.count: \(self.properties.count)")
-            }
-        }
-        .onChange(of: opacity) { oldOpacity, newOpacity in
-            debugPrint("🎨 Opacity changed from \(oldOpacity) to \(newOpacity)")
         }
         .background(
             Group{
@@ -149,43 +130,52 @@ struct DiscoverView: View {
     func loadCachedDataAndRefresh() async {
         let currentNetwork = network
         let hasAuth = eluvio.accountManager.currentAccount != nil
-        
+
         debugPrint("🔍 Starting loadCachedDataAndRefresh - network: \(currentNetwork), hasAuth: \(hasAuth)")
-        debugPrint("🔍 Current properties.count before cache load: \(properties.count)")
-        debugPrint("🔍 Current opacity before cache load: \(opacity)")
+
+        // Prevent multiple DiscoverView instances from doing heavy loading simultaneously
+        guard !DiscoverView.isLoading else {
+            debugPrint("🔍 Another DiscoverView is already loading - skipping")
+            // Still try to load from cache for display
+            if let cachedViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, authState: hasAuth),
+               !cachedViewModels.isEmpty {
+                self.properties = cachedViewModels
+                withAnimation(.easeInOut(duration: 0.3)) { opacity = 1.0 }
+                if cachedViewModels.count > 1 {
+                    selected = cachedViewModels[0]
+                    backgroundImageURL = cachedViewModels[0].backgroundImage
+                }
+            }
+            return
+        }
+        DiscoverView.isLoading = true
+        isLoadingOwner = true
+        defer {
+            if isLoadingOwner {
+                DiscoverView.isLoading = false
+                isLoadingOwner = false
+            }
+        }
         
         // First, try to load ViewModels from cache (with resolved URLs!)
         if let cachedViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, authState: hasAuth) {
-            debugPrint("🚀 Loading cached ViewModels: \(cachedViewModels.count)")
-            debugPrint("🚀 Cache hit - ViewModels have resolved image URLs!")
-            
-            // Check cache validity
-            debugPrint("💾 Cache validation - first property: \(cachedViewModels.first?.title ?? "nil")")
-            debugPrint("💾 Cache validation - last property: \(cachedViewModels.last?.title ?? "nil")")
-            debugPrint("💾 First property image URL: \(cachedViewModels.first?.image ?? "EMPTY")")
-            
+            debugPrint("🚀 ViewModel cache hit: \(cachedViewModels.count) items, first: \(cachedViewModels.first?.title ?? "nil")")
+
             // Use cached ViewModels directly - no conversion needed!
             self.properties = cachedViewModels
-            debugPrint("✅ Set properties directly from cached ViewModels - count: \(properties.count)")
-            
+
             // Show cached content immediately with smooth transition
-            debugPrint("🎨 About to set opacity to 1.0...")
             withAnimation(.easeInOut(duration: 0.3)) {
                 opacity = 1.0
             }
-            
-            debugPrint("🎨 Set opacity to 1.0, current properties count: \(properties.count)")
-            debugPrint("🎨 UI should now be visible with cached ViewModels!")
-            
+
             // Set background immediately from cached ViewModels
             if eluvio.isCustomApp() && cachedViewModels.count == 1 {
                 selected = cachedViewModels[0]
                 backgroundImageURL = cachedViewModels[0].startScreenBackground
-                debugPrint("🎨 Custom app - set background: \(backgroundImageURL)")
             } else if cachedViewModels.count > 1 {
                 selected = cachedViewModels[0]
                 backgroundImageURL = cachedViewModels[0].backgroundImage
-                debugPrint("🎨 Regular app - set background: \(backgroundImageURL)")
             }
             
             // If we have cached ViewModels, completely skip network refresh for now
@@ -205,27 +195,20 @@ struct DiscoverView: View {
         
         // Fallback: try old raw property cache
         if let cachedProperties = persistentCache.loadCachedProperties(network: currentNetwork, authState: hasAuth) {
-            debugPrint("💾 Loading cached raw properties: \(cachedProperties.count)")
-            debugPrint("⚠️ Using fallback raw property cache - URLs may be empty")
-            
+            debugPrint("💾 Raw property cache fallback: \(cachedProperties.count) items")
+
             await updatePropertiesFromCache(cachedProperties)
-            debugPrint("✅ After updatePropertiesFromCache - properties count: \(properties.count)")
-            
-            // Show cached content immediately with smooth transition
-            debugPrint("🎨 About to set opacity to 1.0...")
+
             withAnimation(.easeInOut(duration: 0.3)) {
                 opacity = 1.0
             }
-            
+
             if !cachedProperties.isEmpty {
-                debugPrint("Using cached raw properties, completely skipping network calls for startup")
-                // Ensure Fabric signer is initialized so getProperty() works when user taps a property
                 try? await eluvio.fabric.connect(token: eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 Task.detached {
                     try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds later
                     await self.silentBackgroundRefresh()
                 }
-                debugPrint("🎯 Early return - raw property cache loading complete")
                 return
             }
         }
@@ -331,44 +314,18 @@ struct DiscoverView: View {
     
     @MainActor
     func updatePropertiesFromCache(_ cachedProperties: [MediaProperty]) async {
-        debugPrint("🔄 Starting updatePropertiesFromCache with \(cachedProperties.count) cached properties")
-        
+        debugPrint("🔄 updatePropertiesFromCache: \(cachedProperties.count) cached properties")
+
         var newProperties: [MediaPropertyViewModel] = []
-        
-        for (index, property) in cachedProperties.enumerated() {
-            debugPrint("  🏗️ Creating MediaPropertyViewModel for property \(index): \(property.title ?? "nil")")
-            
-            do {
-                let mediaProperty = await MediaPropertyViewModel.create(mediaProperty: property, fabric: eluvio.fabric)
-                
-                debugPrint("    ✅ Created MediaPropertyViewModel - id: \(mediaProperty.id), image: \(mediaProperty.image.isEmpty ? "EMPTY" : "HAS_IMAGE")")
-                
-                // For cached data, include all properties regardless of image status
-                newProperties.append(mediaProperty)
-                debugPrint("    ➕ Added property (count now: \(newProperties.count))")
-                
-                // Pre-cache images for faster loading (only if not empty)
-                if !mediaProperty.image.isEmpty {
-                    Task {
-                        await preloadImage(url: mediaProperty.image)
-                    }
-                }
-                
-            } catch {
-                debugPrint("    💥 Error creating MediaPropertyViewModel: \(error)")
-            }
+
+        for property in cachedProperties {
+            let mediaProperty = await MediaPropertyViewModel.create(mediaProperty: property, fabric: eluvio.fabric)
+            newProperties.append(mediaProperty)
         }
-        
-        debugPrint("🎯 Final newProperties count: \(newProperties.count)")
-        
+
+        debugPrint("🔄 updatePropertiesFromCache: built \(newProperties.count) ViewModels")
+
         self.properties = newProperties
-        
-        debugPrint("📦 Set self.properties, count: \(self.properties.count)")
-        
-        // Force UI update and add debug info about the UI state
-        debugPrint("🔍 UI Debug - eluvio.isCustomApp(): \(eluvio.isCustomApp())")
-        debugPrint("🔍 UI Debug - properties.isEmpty: \(self.properties.isEmpty)")
-        debugPrint("🔍 UI Debug - properties.count: \(self.properties.count)")
         
         // Batch preload images in background for instant display next time
         if !newProperties.isEmpty {

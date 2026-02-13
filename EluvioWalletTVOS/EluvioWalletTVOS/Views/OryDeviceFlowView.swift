@@ -286,7 +286,7 @@ struct OryDeviceFlowView: View {
                 
                 
                 try await eluvio.signIn(account:account, property: property?.id ?? "")
-                eluvio.needsRefresh()
+                // needsRefresh() is now called by signIn's pre-cache Task when auth cache is ready
                 debugPrint("Ory Signing in done!")
             }catch {
                 print("could not sign in: \(error.localizedDescription)")

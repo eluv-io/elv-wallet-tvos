@@ -86,7 +86,7 @@ struct MediaPropertyDetailView: View {
     @State private var isViewVisible: Bool = false
     @State private var isViewActive: Bool = false
     @State private var lastInteractionTime: Date = Date()
-    private let interactionCooldown: TimeInterval = 30 // seconds of inactivity before timer refresh fires
+    private let interactionCooldown: TimeInterval = 5 // seconds of inactivity before timer refresh fires
 
 
     let refreshTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
@@ -359,7 +359,7 @@ struct MediaPropertyDetailView: View {
             // Don't refresh if user recently interacted (navigating, scrolling, etc.)
             let timeSinceInteraction = Date().timeIntervalSince(lastInteractionTime)
             guard timeSinceInteraction >= interactionCooldown else {
-                debugPrint("MediaPropertyDetailView timer: skipping, \(String(format: "%.1f", timeSinceInteraction))s since last interaction (cooldown: \(interactionCooldown)s)")
+                debugPrint("MediaPropertyDetailView timer: skipping, \(String(format: "%.1f", timeSinceInteraction))s since last interaction")
                 return
             }
 
@@ -368,6 +368,8 @@ struct MediaPropertyDetailView: View {
             }
 
             debugPrint("MediaPropertyDetailView timer: executing refresh operations")
+            // Reset interaction time so next refresh waits another full cooldown period
+            lastInteractionTime = Date()
             Task{
                 if let currentAccount = eluvio.accountManager.currentAccount {
                     if currentAccount.isTokenExpiredIn(seconds: 2*24*60*60) {
