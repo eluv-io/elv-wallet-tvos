@@ -85,6 +85,9 @@
 		B0C0B6CF2F34FF7F002A4D32 /* RemoteSignerTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6CE2F34FF78002A4D32 /* RemoteSignerTest.swift */; };
 		B0C0B6D12F350117002A4D32 /* page_sections_2.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C0B6D02F350117002A4D32 /* page_sections_2.json */; };
 		B0C0B6D52F378638002A4D32 /* page_sections_3.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C0B6D42F378638002A4D32 /* page_sections_3.json */; };
+		B0C0B6D92F3FA24A002A4D32 /* PersistentDataCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6D82F3FA24A002A4D32 /* PersistentDataCache.swift */; };
+		B0C0B6DB2F3FA28D002A4D32 /* LoadingStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6DA2F3FA28D002A4D32 /* LoadingStateView.swift */; };
+		B0C0B6DD2F3FA2A4002A4D32 /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C0B6DC2F3FA2A4002A4D32 /* CacheManager.swift */; };
 		B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0CEB6742B0C8A00009355FE /* AVPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */; };
@@ -246,6 +249,9 @@
 		B0C0B6CE2F34FF78002A4D32 /* RemoteSignerTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSignerTest.swift; sourceTree = "<group>"; };
 		B0C0B6D02F350117002A4D32 /* page_sections_2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = page_sections_2.json; sourceTree = "<group>"; };
 		B0C0B6D42F378638002A4D32 /* page_sections_3.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = page_sections_3.json; sourceTree = "<group>"; };
+		B0C0B6D82F3FA24A002A4D32 /* PersistentDataCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistentDataCache.swift; sourceTree = "<group>"; };
+		B0C0B6DA2F3FA28D002A4D32 /* LoadingStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingStateView.swift; sourceTree = "<group>"; };
+		B0C0B6DC2F3FA2A4002A4D32 /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
 		B0C9665E2AF5ED11008D4D33 /* onWillDisappear+View.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "onWillDisappear+View.swift"; sourceTree = "<group>"; };
 		B0CEB6732B0C8A00009355FE /* AVPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AVPlayerView.swift; sourceTree = "<group>"; };
 		B0D53D6F2AE754E900E0A82E /* VuduPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VuduPage.swift; sourceTree = "<group>"; };
@@ -373,6 +379,9 @@
 				B00945A529E9C45F00B00FC3 /* QRView.swift */,
 				B069A4822A397DA8006C9E7B /* LoopingPlayer.swift */,
 				B0DFFF932A17129200F1E358 /* MediaView.swift */,
+				B0C0B6D82F3FA24A002A4D32 /* PersistentDataCache.swift */,
+				B0C0B6DA2F3FA28D002A4D32 /* LoadingStateView.swift */,
+				B0C0B6DC2F3FA2A4002A4D32 /* CacheManager.swift */,
 			);
 			path = SharedViews;
 			sourceTree = "<group>";
@@ -777,6 +786,7 @@
 				B0A5AB3F2CCAC2B800335D84 /* SectionGridView.swift in Sources */,
 				B0A598E52C33976100D6716F /* PageGesture.swift in Sources */,
 				B08CB5AE2B7DF2E800E04C0D /* AudioPlayer.swift in Sources */,
+				B0C0B6D92F3FA24A002A4D32 /* PersistentDataCache.swift in Sources */,
 				B06C92BF2A3060370001CF4E /* DropDetail.swift in Sources */,
 				B08CB5AA2B7DE8F200E04C0D /* ViewState.swift in Sources */,
 				B08CB4E22B7143EB00E04C0D /* AudioPageModel.swift in Sources */,
@@ -799,6 +809,7 @@
 				B0C9665F2AF5ED11008D4D33 /* onWillDisappear+View.swift in Sources */,
 				B077BE652C6EC8B70056DDB1 /* ItemDetailView.swift in Sources */,
 				B0DFFF942A17129200F1E358 /* MediaView.swift in Sources */,
+				B0C0B6DD2F3FA2A4002A4D32 /* CacheManager.swift in Sources */,
 				B0A830EE2C7AC7430037BE59 /* OryDeviceFlowView.swift in Sources */,
 				B00945A229E937C500B00FC3 /* Styles.swift in Sources */,
 				B06D520F2A12875D00BD68D1 /* MyItemsView.swift in Sources */,
@@ -818,6 +829,7 @@
 				B06D52192A14882200BD68D1 /* SearchView.swift in Sources */,
 				B0412DDB2F192D9B00A77DE7 /* VideoPlayerView.swift in Sources */,
 				B00945A629E9C45F00B00FC3 /* QRView.swift in Sources */,
+				B0C0B6DB2F3FA28D002A4D32 /* LoadingStateView.swift in Sources */,
 				B06C4C552A7B2C2A003C414A /* ProfileClient.swift in Sources */,
 				B0C0B6CF2F34FF7F002A4D32 /* RemoteSignerTest.swift in Sources */,
 				B06C6EB22B2BDFF700EBACEA /* PackView.swift in Sources */,

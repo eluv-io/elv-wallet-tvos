@@ -104,20 +104,21 @@ struct PlayerView: View {
                             medias = resp.contents
                         }
                         
-
                         if media.additional_views != nil {
                             let views = media.additionalViews(eluvio: eluvio)
-
-                            
-                            for view in views {
-                                debugPrint("Additional view", view.title)
-                            }
-                            
                             medias = media.additionalViews(eluvio: eluvio) + medias
                         }
      
                     } catch {
                         print("Could not get multiview media ", error)
+                    }
+                    
+                    // Remove all medias that contain the same id as the main media
+                    medias = medias.filter { $0.id != media.id }
+                    
+                    // Add the main media to the front of the list only if the final medias list is not empty
+                    if !medias.isEmpty {
+                        medias.insert(media, at: 0)
                     }
                     
                     viewModel.videos = medias

@@ -173,17 +173,11 @@ struct ContentView: View {
         }else{
             //Don't use NavigationView, pops back to root on ObservableObject update
             NavigationStack {
-                ZStack {
-                    if (appeared == 1.0) {
-                        MainView()
-                            .preferredColorScheme(colorScheme)
-                            .background(Color.mainBackground)
-                            .navigationBarHidden(true)
-                    }
-                    if (showActivity) {
-                        ProgressView()
-                            .edgesIgnoringSafeArea(.all)
-                    }
+                if (appeared == 1.0) {
+                    MainView()
+                        .preferredColorScheme(colorScheme)
+                        .background(Color.mainBackground)
+                        .navigationBarHidden(true)
                 }
                 .onDisappear {debugPrint("ContentView onDisappear")
                     self.appeared = 0.0
@@ -208,15 +202,6 @@ struct ContentView: View {
                             }
                             checkViewState()
                             showActivity = false
-                        }
-                    
-                    self.fabricCancellable = fabric.$isRefreshing
-                        .sink { val in
-                            if (val && fabric.library.isEmpty){
-                                showActivity = true
-                            }else {
-                                showActivity = false
-                            }
                         }
                     
                     if viewState.op == .mint {

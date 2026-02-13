@@ -123,6 +123,38 @@ class EluvioAPI : ObservableObject {
         await signOut()
         try accountManager.addAndSetCurrentAccount(account: account, type: account.type, property:property)
         try await fabric.connect(token: account.fabricToken)
+
+        // Pre-cache authenticated properties in background so DiscoverView
+        // gets an instant cache hit after login
+        let fabricRef = self.fabric
+        let devMode = self.getDevMode()
+        Task { @MainActor in
+            do {
+                let props = try await fabricRef.getProperties(
+                    includePublic: true,
+                    noAuth: false,
+                    newFetch: true,
+                    devMode: devMode,
+                    properties: APP_CONFIG.allowed_properties
+                )
+
+                let cache = PersistentDataCache()
+                let network = fabricRef.network
+                cache.cacheProperties(props, network: network, authState: true)
+
+                var viewModels: [MediaPropertyViewModel] = []
+                for prop in props {
+                    let vm = await MediaPropertyViewModel.create(mediaProperty: prop, fabric: fabricRef)
+                    if !vm.image.isEmpty {
+                        viewModels.append(vm)
+                    }
+                }
+                cache.cachePropertyViewModels(viewModels, network: network, authState: true)
+                debugPrint("Pre-cached \(viewModels.count) auth PropertyViewModels after sign-in")
+            } catch {
+                debugPrint("Background auth property pre-cache failed: \(error)")
+            }
+        }
     }
     
     @MainActor

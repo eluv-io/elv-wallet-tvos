@@ -180,7 +180,9 @@ struct SectionMediaItemView: View {
     var propertyId: String = ""
     @State var viewItem: MediaPropertySectionMediaItemViewModel? = nil
     var forceDisplay : MediaDisplay? = nil
-    
+    @State private var cachedThumbnailFull: String = ""
+    @State private var cachedThumbnail: String = ""
+
     var display : MediaDisplay {
         if let forceDisplay = forceDisplay {
             return forceDisplay
@@ -189,54 +191,51 @@ struct SectionMediaItemView: View {
         if item.thumbnail_image_square != nil {
             return .square
         }
-        
+
         if item.thumbnail_image_portrait != nil {
             return .feature
         }
-        
+
         if item.thumbnail_image_landscape != nil {
             return .video
         }
-        
+
         return .square
     }
 
+    // thumbnail and thumbnailFull are now @State, resolved once in onAppear
+    var thumbnail : String { cachedThumbnail }
+    var thumbnailFull : String { cachedThumbnailFull }
 
-    var thumbnail : String {
-        if thumbnailFull.isEmpty {
-            return ""
-        }
-        
-        if thumbnailFull.contains("?") {
-            return thumbnailFull + "&height=400"
-        }else {
-            return thumbnailFull + "?height=400"
-        }
-    }
-    
-    var thumbnailFull : String {
+    private func resolveUrls() {
+        var resolved = ""
         do {
             let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_square)
-            if !thumbnailSquare.isEmpty {
-                return thumbnailSquare
-            }
-        }catch{}
-        
-        do {
-            let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_portrait)
-            if !thumbnailPortrait.isEmpty {
-                return thumbnailPortrait
-            }
-        }catch{}
-        
-        do {
-            let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_landscape )
-            if !thumbnailLand.isEmpty {
-                return thumbnailLand
-            }
-        }catch{}
-        
-        return ""
+            if !thumbnailSquare.isEmpty { resolved = thumbnailSquare }
+        } catch {}
+
+        if resolved.isEmpty {
+            do {
+                let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_portrait)
+                if !thumbnailPortrait.isEmpty { resolved = thumbnailPortrait }
+            } catch {}
+        }
+
+        if resolved.isEmpty {
+            do {
+                let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: item.thumbnail_image_landscape)
+                if !thumbnailLand.isEmpty { resolved = thumbnailLand }
+            } catch {}
+        }
+
+        cachedThumbnailFull = resolved
+        if resolved.isEmpty {
+            cachedThumbnail = ""
+        } else if resolved.contains("?") {
+            cachedThumbnail = resolved + "&height=400"
+        } else {
+            cachedThumbnail = resolved + "?height=400"
+        }
     }
 
     @FocusState var isFocused
@@ -403,7 +402,9 @@ struct SectionMediaItemView: View {
             .buttonStyle(TitleButtonStyle(focused: isFocused, scale:1.0))
             .focused($isFocused)
             .onAppear(){
-
+                if cachedThumbnailFull.isEmpty {
+                    resolveUrls()
+                }
             }
         }
     }
@@ -1037,42 +1038,35 @@ struct SectionItemPurchaseView: View {
     }
 
     
-    var thumbnail : String {
-        
+    @State private var cachedThumbnail: String = ""
+
+    private func resolveThumbnail() {
         if let image = sectionItem.display?["thumbnail_image_square"] {
             do {
-                let thumbnailSquare = try eluvio.fabric.getUrlFromLink(link: image)
-                if !thumbnailSquare.isEmpty {
-                    return thumbnailSquare
-                }
-            }catch{}
+                let url = try eluvio.fabric.getUrlFromLink(link: image)
+                if !url.isEmpty { cachedThumbnail = url; return }
+            } catch {}
         }
-        
-        
         if let image = sectionItem.display?["thumbnail_image_portrait"] {
             do {
-                let thumbnailPortrait = try eluvio.fabric.getUrlFromLink(link: image)
-                if !thumbnailPortrait.isEmpty {
-                    return thumbnailPortrait
-                }
-            }catch{}
+                let url = try eluvio.fabric.getUrlFromLink(link: image)
+                if !url.isEmpty { cachedThumbnail = url; return }
+            } catch {}
         }
-        
         if let image = sectionItem.display?["thumbnail_image_landscape"] {
             do {
-                let thumbnailLand = try eluvio.fabric.getUrlFromLink(link: image)
-                if !thumbnailLand.isEmpty {
-                    return thumbnailLand
-                }
-            }catch{}
+                let url = try eluvio.fabric.getUrlFromLink(link: image)
+                if !url.isEmpty { cachedThumbnail = url; return }
+            } catch {}
         }
-
-        return ""
     }
-     
+
     var body: some View {
-         ItemView(image:thumbnail, title: title, subtitle: subtitle, action:purchase, scale:scaleFactor)
+         ItemView(image:cachedThumbnail, title: title, subtitle: subtitle, action:purchase, scale:scaleFactor)
             .onAppear(){
+                if cachedThumbnail.isEmpty {
+                    resolveThumbnail()
+                }
                 debugPrint("SectionItemPurchaseView onAppear ")
                 debugPrint("title: ", title)
             }

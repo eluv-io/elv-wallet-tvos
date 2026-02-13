@@ -136,7 +136,6 @@ struct MediaCard: View {
     @State var height: CGFloat = 300
     var sizeFactor: CGFloat = 1
     @State var cornerRadius: CGFloat = 3
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State private var newItem : Bool = true
     var permission : ResolvedPermission? = nil
     

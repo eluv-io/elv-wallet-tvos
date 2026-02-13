@@ -1235,6 +1235,9 @@ class Fabric: ObservableObject {
             if noAuth == false && !self.fabricToken.isEmpty {
                 try cacheMediaProperties(properties: response)
             }
+            await MainActor.run {
+                self.mediaProperties = response
+            }
             return response.contents
         }
         

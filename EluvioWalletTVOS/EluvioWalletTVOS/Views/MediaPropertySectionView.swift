@@ -167,7 +167,6 @@ struct MediaPropertyRegularSectionView: View {
             do {
                 
                 let icon = try eluvio.fabric.getUrlFromLink(link: display["title_icon"])
-                debugPrint("display ", icon)
                 return icon
             }catch{
                 //print("error ", error)
@@ -391,63 +390,196 @@ struct MediaPropertyRegularSectionView: View {
     }
     
     func refresh() {
+        // Guard against duplicate refreshes (onAppear fires every time section scrolls into view)
+        if self.refreshId == eluvio.refreshId {
+            return
+        }
+        self.refreshId = eluvio.refreshId
+
         debugPrint("MediaPropertyRegularSectionView refresh() ", section.displayTitle)
 
         Task {
-            if let display = section.display {
-                do {
-                    logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
-                }catch{}
-                
-                if lookForBackground {
-                    do {
-                        inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-                    }catch{}
+            let start = CFAbsoluteTimeGetCurrent()
+
+            // Load from cache first for immediate display
+            if let cachedItems = await loadFromCache() {
+                await MainActor.run {
+                    self.items = cachedItems
                 }
-                 
+                debugPrint("⏱️ Section '\(section.displayTitle)' cache load: \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - start))s (\(cachedItems.count) items)")
             }
-            
-            
+
+            // Always refresh from network to get latest data and permissions
+            let networkStart = CFAbsoluteTimeGetCurrent()
+            await refreshFromNetwork()
+            debugPrint("⏱️ Section '\(section.displayTitle)' network refresh: \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - networkStart))s")
+            debugPrint("⏱️ Section '\(section.displayTitle)' TOTAL: \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - start))s")
+        }
+    }
+    
+    private func loadFromCache() async -> [MediaPropertySectionMediaItemViewModel]? {
+        // Use the existing cache infrastructure from Fabric
+        var cachedItems: [MediaPropertySectionMediaItemViewModel] = []
+        
+        // Check if we have cached section content
+        if let content = section.content, !content.isEmpty {
             let max = 25
             var count = 0
-            var sectionItems : [MediaPropertySectionMediaItemViewModel] = []
+            
+            for _item in content {
+                var item = _item
+                
+                // Try to get from cache first
+                if let type = section.type {
+                    if type != "search" {
+                        if let cachedItem = eluvio.fabric.getSectionItem(sectionId: section.id, sectionItemId: _item.id ?? "") {
+                            item = cachedItem
+                        } else {
+                            // If not in cache, skip for now - will be loaded by network refresh
+                            continue
+                        }
+                    }
+                }
+                
+                // Check if we have cached permissions
+                if let resolvedPermission = item.resolvedPermission {
+                    if !resolvedPermission.hide {
+                        let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                        cachedItems.append(viewItem)
+                    }
+                } else {
+                    // If no cached permission, create view model anyway and let network refresh handle permissions
+                    let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                    cachedItems.append(viewItem)
+                }
+                
+                count += 1
+                if count == max {
+                    break
+                }
+            }
+        }
+        
+        // Return cached items only if we have some meaningful content
+        return cachedItems.isEmpty ? nil : cachedItems
+    }
+    
+    private func refreshFromNetwork() async {
+        do {
+            // Only refresh display URLs if we don't have them cached
+            if let display = section.display {
+                if logoUrl == nil {
+                    do {
+                        logoUrl = try eluvio.fabric.getUrlFromLink(link: display["logo"])
+                    } catch {}
+                }
+
+                if lookForBackground && inlineBackgroundUrl == nil {
+                    do {
+                        inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
+                    } catch {}
+                }
+            }
+
+            let max = 25
+
+            // Phase 1: Build ViewModels immediately from cached data (text + images, no permissions yet)
+            // This shows the full layout with all titles and thumbnails right away
+            var resolvedItems: [(item: MediaPropertySectionItem, viewModel: MediaPropertySectionMediaItemViewModel)] = []
+
             if let content = section.content {
+                var count = 0
                 for _item in content {
-                    
                     var item = _item
-                    
+
                     if let type = section.type {
                         if type != "search" {
                             guard let testItem = eluvio.fabric.getSectionItem(sectionId: section.id, sectionItemId: _item.id ?? "") else {
-                                continue;
+                                continue
                             }
                             item = testItem
                         }
                     }
 
-                    let mediaPermission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id, sectionItemId: item.id ?? "", mediaItemId: item.media_id ?? "")
+                    let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                    resolvedItems.append((item: item, viewModel: viewItem))
 
-                    item.media?.resolvedPermission = mediaPermission
-                    item.resolvedPermission = mediaPermission
-                    
-                    if !mediaPermission.hide {
-                        let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
-                        sectionItems.append(viewItem)
-                    }
-                    
-                    //Optimization so we show the first 4 first so faster loading sections don't render ahead of us as much
-                    if sectionItems.count == 4{
-                        self.items = sectionItems
-                    }
-                    
                     count += 1
                     if count == max {
                         break
                     }
                 }
-
             }
-            self.items = sectionItems
+
+            // Show all items immediately so layout is stable (no jumping)
+            if !resolvedItems.isEmpty {
+                let immediateViewModels = resolvedItems.map { $0.viewModel }
+                await MainActor.run {
+                    self.items = immediateViewModels
+                }
+            }
+
+            // Phase 2: Resolve permissions in parallel, then filter hidden items
+            let permStart = CFAbsoluteTimeGetCurrent()
+            let sectionId = section.id
+            let fabricRef = eluvio.fabric
+            let propId = self.propertyId
+            let pgId = self.pageId
+
+            let permissionResults: [(index: Int, item: MediaPropertySectionItem, permission: ResolvedPermission)] = await withTaskGroup(
+                of: (Int, MediaPropertySectionItem, ResolvedPermission)?.self
+            ) { group in
+                for (index, entry) in resolvedItems.enumerated() {
+                    let entryItem = entry.item
+                    group.addTask {
+                        do {
+                            let perm = try await fabricRef.resolveContentPermission(
+                                propertyId: propId,
+                                pageId: pgId,
+                                sectionId: sectionId,
+                                sectionItemId: entryItem.id ?? "",
+                                mediaItemId: entryItem.media_id ?? ""
+                            )
+                            var updatedItem = entryItem
+                            updatedItem.media?.resolvedPermission = perm
+                            updatedItem.resolvedPermission = perm
+                            return (index, updatedItem, perm)
+                        } catch {
+                            return nil
+                        }
+                    }
+                }
+
+                var results: [(Int, MediaPropertySectionItem, ResolvedPermission)] = []
+                for await result in group {
+                    if let r = result {
+                        results.append(r)
+                    }
+                }
+                return results.sorted { $0.0 < $1.0 }
+            }
+
+            debugPrint("⏱️ Section '\(sectionId)' parallel permissions: \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - permStart))s (\(resolvedItems.count) items, \(permissionResults.count) resolved)")
+            // Rebuild final list with permissions applied, filtering hidden items
+            // Items that failed permission resolution keep their Phase 1 ViewModel
+            var finalItems: [MediaPropertySectionMediaItemViewModel] = []
+            for (index, entry) in resolvedItems.enumerated() {
+                if let result = permissionResults.first(where: { $0.index == index }) {
+                    if !result.permission.hide {
+                        let viewItem = MediaPropertySectionMediaItemViewModel.create(item: result.item, fabric: fabricRef)
+                        finalItems.append(viewItem)
+                    }
+                } else {
+                    // Permission resolution failed — keep the item as-is from Phase 1
+                    finalItems.append(entry.viewModel)
+                }
+            }
+
+            await MainActor.run {
+                self.items = finalItems
+            }
+        } catch {
+            print("Error refreshing from network: \(error)")
         }
     }
 
@@ -586,7 +718,6 @@ struct MediaPropertySectionView: View {
             do {
                 
                 let icon = try eluvio.fabric.getUrlFromLink(link: display["title_icon"])
-                debugPrint("display ", icon)
                 return icon
             }catch{
                 //print("error ", error)
@@ -746,19 +877,11 @@ struct MediaPropertySectionView: View {
     var hide : Bool {
         if let permission = self.permission {
             if !permission.authorized && permission.hide {
-                debugPrint("Section \(section.id) is hidden (permission)")
                 return true
             }
         }
         
         if let content = section.content {
-            if section.displayTitle == "Match Replays - 2024/25 EPCR Challenge Cup" {
-                debugPrint("EMPTY CONTENT");
-                debugPrint("subsections ", subsections);
-                debugPrint("isHero ", isHero);
-                debugPrint("content ", content.count);
-                debugPrint("type ", section.type);
-            }
             if (isRegular || isGrid) && content.count == 0 {
                 return true;
             }
@@ -912,6 +1035,9 @@ struct MediaPropertySectionView: View {
                             if section.resolvedPermission == nil {
                                 self.permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: section.id)
                                 section.resolvedPermission = self.permission
+                                if let perm = self.permission, !perm.authorized && perm.hide {
+                                    debugPrint("Section \(section.id) is hidden (permission)")
+                                }
                             }else {
                                 self.permission = section.resolvedPermission
                             }

@@ -149,7 +149,7 @@ struct MediaPropertyView : View {
                         }
                         
                         if !skipLogin {
-                           login()
+                           login(property)
                         }else{
                             debugPrint("Going to property page ", property.id)
                             eluvio.pathState.propertyPage = property.main_page

@@ -226,7 +226,7 @@ struct MetaMaskFlowView: View {
             account.clusterToken = clusterToken
             account.login = login
             try await eluvio.signIn(account:account, property: property?.id ?? "")
-            try await eluvio.fabric.getProperties(includePublic: true, newFetch: true)
+            // getProperties is now handled by signIn()'s background pre-cache Task
             newProperty = try await eluvio.fabric.getProperty(property: property?.id ?? "")
 
         } catch {

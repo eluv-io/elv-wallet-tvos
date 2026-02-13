@@ -85,9 +85,10 @@ struct MediaPropertyDetailView: View {
     @State private var currentPageId : String = ""
     @State private var isViewVisible: Bool = false
     @State private var isViewActive: Bool = false
-    
-    
-    
+    @State private var lastInteractionTime: Date = Date()
+    private let interactionCooldown: TimeInterval = 30 // seconds of inactivity before timer refresh fires
+
+
     let refreshTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -246,14 +247,26 @@ struct MediaPropertyDetailView: View {
         .opacity(opacity)
         .scrollClipDisabled()
         .edgesIgnoringSafeArea(.all)
+        .onScrollGeometryChange(for: CGFloat.self) { geo in
+            geo.contentOffset.y
+        } action: { _, _ in
+            lastInteractionTime = Date()
+        }
+        .onChange(of: switcherFocused) { _, _ in
+            lastInteractionTime = Date()
+        }
+        .onChange(of: headerFocused) { _, _ in
+            lastInteractionTime = Date()
+        }
         .onChange(of:currentSubIndex){
+            lastInteractionTime = Date()
             if subProperties.count > currentSubIndex {
                 let sub = subProperties[currentSubIndex]
-                
+
                 if sub.propertyId == self.currentSubproperty?.id ?? "" {
                     return
                 }
-                
+
                 Task{
                     do {
                         if let subproperty = try await eluvio.fabric.getProperty(property: sub.propertyId){
@@ -298,6 +311,7 @@ struct MediaPropertyDetailView: View {
             debugPrint("MediaPropertyDetailView onAppear")
             isViewVisible = true
             isViewActive = true
+            lastInteractionTime = Date() // Prevent timer refresh during initial load
             // Set initial opacity to show loading state
             withAnimation(.easeInOut(duration: 0.3)) {
                 opacity = 0.3  // Show partial opacity to indicate loading
@@ -341,14 +355,18 @@ struct MediaPropertyDetailView: View {
             let isSceneActive = scenePhase == .active
             let hasGoodOpacity = opacity > 0.8
             let isActive = isViewActive && isViewVisible
-            
-            debugPrint("MediaPropertyDetailView timer fired - scenePhase: \(scenePhase), isViewActive: \(isViewActive), isViewVisible: \(isViewVisible), opacity: \(opacity)")
-            
-            guard isSceneActive && hasGoodOpacity && isActive else { 
-                debugPrint("MediaPropertyDetailView timer: view not fully active/visible, skipping refresh (sceneActive: \(isSceneActive), goodOpacity: \(hasGoodOpacity), active: \(isActive))")
-                return 
+
+            // Don't refresh if user recently interacted (navigating, scrolling, etc.)
+            let timeSinceInteraction = Date().timeIntervalSince(lastInteractionTime)
+            guard timeSinceInteraction >= interactionCooldown else {
+                debugPrint("MediaPropertyDetailView timer: skipping, \(String(format: "%.1f", timeSinceInteraction))s since last interaction (cooldown: \(interactionCooldown)s)")
+                return
             }
-            
+
+            guard isSceneActive && hasGoodOpacity && isActive else {
+                return
+            }
+
             debugPrint("MediaPropertyDetailView timer: executing refresh operations")
             Task{
                 if let currentAccount = eluvio.accountManager.currentAccount {
@@ -356,7 +374,6 @@ struct MediaPropertyDetailView: View {
                         debugPrint("MediaPropertyDetailView timer: refreshing fabric token")
                         await eluvio.refreshFabricToken()
                     }
-                    debugPrint("MediaPropertyDetailView timer: calling refreshPageSections")
                     await refreshPageSections()
                 }
             }
@@ -490,15 +507,17 @@ struct MediaPropertyDetailView: View {
         debugPrint("refresh, current supbproperty  ", currentSubproperty)
         
         Task {
+            let refreshStart = CFAbsoluteTimeGetCurrent()
             defer {
                 self.isRefreshing = false
-                debugPrint("MediaPropertyDetailView refresh done: setting refreshId ",refreshId)
+                let elapsed = CFAbsoluteTimeGetCurrent() - refreshStart
+                debugPrint("⏱️ MediaPropertyDetailView refresh TOTAL: \(String(format: "%.2f", elapsed))s")
             }
-            
-            let newFetch = true
+
+            let newFetch = false // Use cached property (already fetched when user tapped the tile)
             var _mediaProperty:MediaProperty?
             do {
-                debugPrint("Fetching property new? \(newFetch) ", propertyId)
+                debugPrint("Fetching property (cached) ", propertyId)
                 _mediaProperty = try await eluvio.fabric.getProperty(property:propertyId, newFetch:newFetch)
             }catch(FabricError.apiError(let code, let response, let error)){
                 await eluvio.handleApiError(code: code, response: response, error: error)
@@ -515,6 +534,7 @@ struct MediaPropertyDetailView: View {
                 }
                 
                 //Important to have currentSubproperty == nil to keep state of the switcher on child properties on refresh
+                let subStart = CFAbsoluteTimeGetCurrent()
                 if findSubs && currentSubproperty == nil{
                     //Retrieving sub properties to populate Search In: filters
                     var subs : [PropertySelector] = []
@@ -588,7 +608,8 @@ struct MediaPropertyDetailView: View {
                         }
                     }
                 }
-                
+                debugPrint("⏱️ Subproperties: \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - subStart))s")
+
             }else{
                 debugPrint("Could not find property")
                 return
@@ -640,9 +661,10 @@ struct MediaPropertyDetailView: View {
             self.currentPageId = altPageId
 
             do {
-                debugPrint("MediaPropertyDetailView getting page sections inside refresh", altPropertyId)
+                let sectionsStart = CFAbsoluteTimeGetCurrent()
+                debugPrint("⏱️ Fetching page sections...", altPropertyId)
                 let fetchedSections = try await eluvio.fabric.getPropertyPageSections(property: altPropertyId, page: altPageId)
-                debugPrint("finished getting sections. Count: ", fetchedSections.count)
+                debugPrint("⏱️ Page sections fetch: \(String(format: "%.2f", CFAbsoluteTimeGetCurrent() - sectionsStart))s, count: \(fetchedSections.count)")
                 
                 await MainActor.run {
                     sections = fetchedSections
