@@ -32,9 +32,6 @@ struct ContentView: View {
     @State var showMinter : Bool = false
     @State var mintItem = JSON()
     @State var mintInfo = MintInfo()
-    @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State var timerCancellable: Cancellable? = nil
-    
     @State var showProperty : Bool = false
     @State var property : PropertyModel?
     

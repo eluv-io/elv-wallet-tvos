@@ -40,10 +40,7 @@ struct ContentView: View {
     
     @State var showMinter : Bool = false
     @State var mintItem = JSON()
-    @State var mintInfo = MintInfo()
-    @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    @State var timerCancellable: Cancellable? = nil
-    
+    @State var mintInfo = MintInfo()    
     @State var showProperty : Bool = false
     @State var property : PropertyModel?
     
@@ -298,13 +295,12 @@ struct ContentView: View {
                     .environmentObject(self.eluvio)
                 case .video:
                     if let params = eluvio.pathState.videoParams {
-                        if let playerItem = params.playerItem {
-                            PlayerView(mediaId: params.mediaId,
-                                       property: params.property,
-                                       title: params.title,
-                                       finished:$playerFinished)
-                            .environmentObject(self.eluvio)
-                        }
+                        PlayerView(mediaId: params.mediaId,
+                                   property: params.property,
+                                   propertyId: params.propertyId,
+                                   title: params.title,
+                                   finished:$playerFinished)
+                        .environmentObject(self.eluvio)
                     }
                 case .videoError:
                     if let params = eluvio.pathState.videoErrorParams {

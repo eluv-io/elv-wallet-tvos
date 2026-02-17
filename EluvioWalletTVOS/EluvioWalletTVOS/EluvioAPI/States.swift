@@ -7,7 +7,6 @@
 
 import Foundation
 import Combine
-import AVKit
 
 enum NavDestination: Hashable {
     case property(PropertyParam), video, gallery, mediaGrid(MediaGridParams), html(HtmlParams), search, sectionViewAll, nft,
@@ -56,8 +55,8 @@ enum VideoErrorType: String, Hashable {
 struct VideoParams:Hashable{
     var mediaId: String = ""
     var title: String = ""
-    var playerItem : AVPlayerItem? = nil
     var property: MediaProperty? = nil
+    var propertyId: String = ""
 }
 
 struct VideoErrorParams{

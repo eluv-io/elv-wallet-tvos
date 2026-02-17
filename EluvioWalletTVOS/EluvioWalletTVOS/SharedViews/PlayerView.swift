@@ -41,6 +41,7 @@ struct PlayerView: View {
     @State var isPlaying: Bool = false
     var mediaId: String = ""
     var property: MediaProperty?
+    var propertyId: String = ""
     var title: String = ""
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var playerImageOverlayUrl = ""
@@ -88,7 +89,7 @@ struct PlayerView: View {
                 let initTime = ((Date().now) as NSNumber)
                 viewModel.clear()
                 viewModel.eluvio = eluvio
-                viewModel.propertyId = self.property?.id
+                viewModel.propertyId = self.property?.id ?? (propertyId.isEmpty ? nil : propertyId)
                 debugPrint("*** PlayerView onAppear()")
                 debugPrint("Property: ", self.property?.id)
                 debugPrint("Media Id: ", self.mediaId)
@@ -100,7 +101,7 @@ struct PlayerView: View {
                     do {
                         
                         if media.currentlyLive {
-                            let resp = try await eluvio.fabric.getPropertyMultiview(propertyId: property?.id ?? "");
+                            let resp = try await eluvio.fabric.getPropertyMultiview(propertyId: viewModel.propertyId ?? "");
                             medias = resp.contents
                         }
                         

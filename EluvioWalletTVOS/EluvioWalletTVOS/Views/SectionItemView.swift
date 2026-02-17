@@ -7,7 +7,7 @@
 
 import SwiftUI
 import SwiftyJSON
-import AVFoundation
+
 import SDWebImageSwiftUI
 
 struct MediaItemGridView: View {
@@ -333,25 +333,12 @@ struct SectionMediaItemView: View {
                     
                     if let type = item.media_type {
                         if ( type.lowercased() == "video") {
-                            if let link = item.media_link?["sources"]["default"] {
-                                Task{
-                                    do {
-                                        let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: item.id ?? "")
-                                        let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:item.title ?? "", description:item.description ?? "", imageThumb: thumbnail)
-                                        
-                                        debugPrint("SectionMediaItemView play video property ", property)
-                                        let params = VideoParams(mediaId: item.id ?? "",
-                                                                 title: item.title ?? "",
-                                                                 playerItem: playerItem,
-                                                                 property: property)
-                                        eluvio.pathState.videoParams = params
-                                        eluvio.pathState.path.append(.video)
-
-                                    }catch{
-                                        print("Error getting link url for playback ", error)
-                                    }
-                                }
-                            }
+                            debugPrint("SectionMediaItemView play video property ", property)
+                            let params = VideoParams(mediaId: item.id ?? "",
+                                                     title: item.title ?? "",
+                                                     property: property)
+                            eluvio.pathState.videoParams = params
+                            eluvio.pathState.path.append(.video)
                         }else if (type.lowercased() == "html") {
                             debugPrint("Media Item", item)
                             do {
@@ -653,50 +640,30 @@ struct SectionItemView: View {
                                 }
                                 
                                 if ( mediaItem.media_type.lowercased() == "video") {
-                                    
-                                    if var link = item.media?.media_link?["sources"]["default"] {
-                                        if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
-                                            debugPrint("permission denied! ", mediaItem.title)
-                                            debugPrint("startTime! ", mediaItem.start_time)
-                                            //debugPrint("icons! ", mediaItem.icons)
-                                            debugPrint("media_link ", item.media?.media_link)
-                                            
-                                            let videoErrorParams = VideoErrorParams(mediaItem:item.media, type: .permission, backgroundImage: backgroundImage, images: images)
-                                            
-                                            eluvio.pathState.videoErrorParams = videoErrorParams
-                                            await MainActor.run {
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.videoError)
-                                                return
-                                            }
+
+                                    if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
+                                        debugPrint("permission denied! ", mediaItem.title)
+                                        debugPrint("startTime! ", mediaItem.start_time)
+                                        debugPrint("media_link ", item.media?.media_link)
+
+                                        let videoErrorParams = VideoErrorParams(mediaItem:item.media, type: .permission, backgroundImage: backgroundImage, images: images)
+
+                                        eluvio.pathState.videoErrorParams = videoErrorParams
+                                        await MainActor.run {
+                                            _ = eluvio.pathState.path.popLast()
+                                            eluvio.pathState.path.append(.videoError)
+                                            return
                                         }
-                                        
-                                        do {
-                                            let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.media_id)
-                                            debugPrint("optionsJson ", optionsJson)
-                                            let playerItem = try await MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:mediaItem.title, description:mediaItem.description, imageThumb: mediaItem.thumbnail)
-                                                                                        
-                                            let params = VideoParams(mediaId:mediaItem.media_id,
-                                                                     title: mediaItem.title,
-                                                                     playerItem: playerItem,
-                                                                     property: property
-                                                                    )
-                                            eluvio.pathState.videoParams = params
-                                            await MainActor.run {
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.video)
-                                                return
-                                            }
-                                        }catch{
-                                            print("Error getting link url for playback ", error)
-                                            let videoErrorParams = VideoErrorParams(mediaItem:item.media, type:.permission, backgroundImage: mediaItem.thumbnail)
-                                            eluvio.pathState.videoErrorParams = videoErrorParams
-                                            await MainActor.run {
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.videoError)
-                                                return
-                                            }
-                                        }
+                                    }
+
+                                    let params = VideoParams(mediaId:mediaItem.media_id,
+                                                             title: mediaItem.title,
+                                                             property: property)
+                                    eluvio.pathState.videoParams = params
+                                    await MainActor.run {
+                                        _ = eluvio.pathState.path.popLast()
+                                        eluvio.pathState.path.append(.video)
+                                        return
                                     }
                                 }else if ( mediaItem.media_type.lowercased() == "html") {
                                     
@@ -908,7 +875,7 @@ struct SectionItemView: View {
                 update()
             }
         }
-        .onScrollVisibilityChange(threshold: 0.01){ isVisible in
+        .onScrollVisibilityChange(threshold: 0.5){ isVisible in
             self.isVisible = isVisible
             if isVisible {
                 Task(priority:.background){

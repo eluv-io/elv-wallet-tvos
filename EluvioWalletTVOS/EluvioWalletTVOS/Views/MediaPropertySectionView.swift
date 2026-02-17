@@ -138,7 +138,6 @@ struct MediaPropertyRegularSectionView: View {
     var margin: CGFloat = 80
     @State private var refreshId = ""
     @State var items: [MediaPropertySectionMediaItemViewModel] = []
-    //private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
     @FocusState private var currentFocusItem: MediaPropertySectionMediaItemViewModel?
     @State private var lastFocusItem: MediaPropertySectionMediaItemViewModel?
     var useScale = false

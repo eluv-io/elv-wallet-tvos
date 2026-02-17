@@ -86,10 +86,11 @@ struct MediaPropertyDetailView: View {
     @State private var isViewVisible: Bool = false
     @State private var isViewActive: Bool = false
     @State private var lastInteractionTime: Date = Date()
+    @State private var postInteractionRefreshTask: Task<Void, Never>? = nil
     private let interactionCooldown: TimeInterval = 5 // seconds of inactivity before timer refresh fires
 
 
-    let refreshTimer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    let refreshTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
     var body: some View {
         ScrollView() {
@@ -250,16 +251,16 @@ struct MediaPropertyDetailView: View {
         .onScrollGeometryChange(for: CGFloat.self) { geo in
             geo.contentOffset.y
         } action: { _, _ in
-            lastInteractionTime = Date()
+            schedulePostInteractionRefresh()
         }
         .onChange(of: switcherFocused) { _, _ in
-            lastInteractionTime = Date()
+            schedulePostInteractionRefresh()
         }
         .onChange(of: headerFocused) { _, _ in
-            lastInteractionTime = Date()
+            schedulePostInteractionRefresh()
         }
         .onChange(of:currentSubIndex){
-            lastInteractionTime = Date()
+            schedulePostInteractionRefresh()
             if subProperties.count > currentSubIndex {
                 let sub = subProperties[currentSubIndex]
 
@@ -368,8 +369,6 @@ struct MediaPropertyDetailView: View {
             }
 
             debugPrint("MediaPropertyDetailView timer: executing refresh operations")
-            // Reset interaction time so next refresh waits another full cooldown period
-            lastInteractionTime = Date()
             Task{
                 if let currentAccount = eluvio.accountManager.currentAccount {
                     if currentAccount.isTokenExpiredIn(seconds: 2*24*60*60) {
@@ -393,6 +392,18 @@ struct MediaPropertyDetailView: View {
         }
     }
     
+    func schedulePostInteractionRefresh() {
+        lastInteractionTime = Date()
+        postInteractionRefreshTask?.cancel()
+        postInteractionRefreshTask = Task {
+            try? await Task.sleep(nanoseconds: UInt64(interactionCooldown * 1_000_000_000))
+            guard !Task.isCancelled else { return }
+            guard isViewVisible && isViewActive && scenePhase == .active else { return }
+            debugPrint("MediaPropertyDetailView: post-interaction refresh firing")
+            await refreshPageSections()
+        }
+    }
+
     func refreshPageSections() async {
         debugPrint("MediaPropertyDetailView refreshPageSections called - currentPropertyId: '\(currentPropertyId)', currentPageId: '\(currentPageId)'")
         if self.currentPropertyId == "" || self.currentPageId == ""{
@@ -403,6 +414,7 @@ struct MediaPropertyDetailView: View {
             debugPrint("MediaPropertyDetailView making API call: getPropertyPageSections for property: \(currentPropertyId), page: \(currentPageId)")
             sections = try await eluvio.fabric.getPropertyPageSections(property: currentPropertyId, page: currentPageId)
             debugPrint("MediaPropertyDetailView API call finished getting sections. Count: ", sections.count)
+            await MainActor.run { eluvio.needsRefresh() }
         }catch(FabricError.apiError(let code, let response, let error)){
             debugPrint("MediaPropertyDetailView API Error getting page sections")
             eluvio.handleApiError(code: code, response: response, error: error)

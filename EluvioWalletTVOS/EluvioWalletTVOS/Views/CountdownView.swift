@@ -131,51 +131,31 @@ struct CountDownView: View {
                             timer.invalidate()
                             debugPrint("Starting stream...")
                             if ( mediaItem.media_type?.lowercased() == "video") {
-                                Task{
-                                    if var link = mediaItem.media_link?["sources"]["default"] {
-                                        if mediaItem.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
-                                            debugPrint("permission denied! ", mediaItem.title)
-                                            
-                                            let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImageUrl, images: images)
-                                            
-                                            eluvio.pathState.videoErrorParams = videoErrorParams
-                                            await MainActor.run {
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.videoError)
-                                                return
-                                            }
-                                        }
-                                        
-                                        do {
-                                            let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(propertyId: propertyId, mediaId: mediaItem.id ?? "")
-                                            
-                                            var thumbnail = imageUrl;
-                                            if thumbnail.isEmpty && !images.isEmpty{
-                                                thumbnail = images[0]
-                                            }
-                                            
-                                            let playerItem = try await  MakePlayerItemFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson, title:title, description:description, imageThumb: thumbnail)
-                                            let params = VideoParams(mediaId:mediaItem.id ?? "",
-                                                                     title: title,
-                                                                     playerItem: playerItem)
-                                            eluvio.pathState.videoParams = params
-    
-                                            await MainActor.run {
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.video)
-                                                return
-                                            }
-                                        }catch{
-                                            print("Error getting link url for playback ", error)
-                                            let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type:.permission, backgroundImage: backgroundImageUrl)
-                                            eluvio.pathState.videoErrorParams = videoErrorParams
-                                            await MainActor.run {
-                                                _ = eluvio.pathState.path.popLast()
-                                                eluvio.pathState.path.append(.videoError)
-                                                return
-                                            }
-                                        }
+                                let resolvedPropertyId = propertyId.isEmpty
+                                    ? (eluvio.pathState.videoErrorParams?.propertyId ?? "")
+                                    : propertyId
+
+                                if mediaItem.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
+                                    debugPrint("permission denied! ", mediaItem.title)
+
+                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImageUrl, images: images)
+
+                                    eluvio.pathState.videoErrorParams = videoErrorParams
+                                    Task { @MainActor in
+                                        _ = eluvio.pathState.path.popLast()
+                                        eluvio.pathState.path.append(.videoError)
                                     }
+                                    return
+                                }
+
+                                let params = VideoParams(mediaId: mediaItem.id ?? "",
+                                                         title: title,
+                                                         propertyId: resolvedPropertyId)
+                                eluvio.pathState.videoParams = params
+
+                                Task { @MainActor in
+                                    _ = eluvio.pathState.path.popLast()
+                                    eluvio.pathState.path.append(.video)
                                 }
                             }
                         }
