@@ -116,7 +116,11 @@ struct DiscoverView: View {
         .scrollClipDisabled()
         .task(id:eluvio.refreshId){
             debugPrint("DiscoverView onAppear()")
-            
+
+            // .task(id:) cancels any previous task, so reset the loading flag
+            // in case the previous task's defer hasn't executed yet
+            DiscoverView.isLoading = false
+
             // Load cached data immediately if available
             await loadCachedDataAndRefresh()
         }
