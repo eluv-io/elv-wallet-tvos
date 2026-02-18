@@ -118,6 +118,12 @@ class Fabric: ObservableObject {
     init(createDemoProperties: Bool = true){
         print("Fabric init config_url \(self.configUrl)");
         self.createDemoProperties = createDemoProperties
+
+        // Restore environment from UserDefaults so it survives app restart
+        if let env = UserDefaults.standard.object(forKey: "api_environment") as? String,
+           env == "staging" {
+            self.environment = .staging
+        }
     }
     
     
@@ -1013,19 +1019,13 @@ class Fabric: ObservableObject {
     }
     
     func getEnvironment() -> APIEnvironment {
-        if let env = UserDefaults.standard.object(forKey: "api_environment") as? String {
-            //Currently demo does not have staging
-            if env == "staging" && self.network == "main"{
-                return .staging
-            }else{
-                return .prod
-            }
-        }else{
-            print("Could not get api_environment from user defaults")
-            return environment
+        //Currently demo does not have staging
+        if self.network == "demo" {
+            return .prod
         }
+        return environment
     }
-    
+
     func setEnvironment(env:APIEnvironment) {
         environment = env
         if let signer = self.signer {
@@ -1713,12 +1713,16 @@ class Fabric: ObservableObject {
         components.scheme = url.scheme
         components.host = url.host
         components.path = path
-        components.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "link_depth", value: "1"),
             URLQueryItem(name: "resolve", value: "true"),
             URLQueryItem(name: "resolve_include_source", value: "true"),
             URLQueryItem(name: "resolve_ignore_errors", value: "true")
         ]
+        if getEnvironment() == .staging {
+            queryItems.append(URLQueryItem(name: "env", value: "staging"))
+        }
+        components.queryItems = queryItems
 
         guard let newUrl = components.url else {
             throw FabricError.invalidURL("getNFTData: could not create url from components. \(components)")
@@ -1935,11 +1939,12 @@ class Fabric: ObservableObject {
     //New API for media item playout
     func getMediaPlayoutOptions(propertyId:String, mediaId:String) async throws -> JSON {
         var path = "/as/mw/properties/" + propertyId + "/media_items/" + mediaId + "/offerings/any/playout_options"
-        
+
+        let env = getEnvironment()
         guard let signer = self.signer else {
             throw FabricError.configError("getPlayoutFromMediaId: could not get authD endpoint")
         }
-        
+
         guard let url = URL(string:try signer.getAuthEndpoint()) else {
             throw FabricError.configError("getPlayoutFromMediaId: could not get fabric endpoint")
         }
@@ -1947,9 +1952,9 @@ class Fabric: ObservableObject {
         components.scheme = url.scheme
         components.host = url.host
         components.path = path
-        
+
         var queryItems : [URLQueryItem] = []
-        if getEnvironment() == .staging {
+        if env == .staging {
             queryItems.append(URLQueryItem(name:"env", value: "staging"))
         }
         components.queryItems = queryItems
@@ -2022,24 +2027,26 @@ class Fabric: ObservableObject {
     
     func getOptions(versionHash:String , params: [JSON]? = [], offering:String="default") async throws -> JSON {
         var path = NSString.path(withComponents: ["/","q",versionHash,"rep","playout",offering,"options.json"])
-        
+
         var urlString = try self.getEndpoint()
-        
+
         guard let url = URL(string: urlString) else {
             throw FabricError.invalidURL("\(urlString)")
         }
-        
+
         var pathComponents = url.pathComponents
         pathComponents.append(path)
         path = NSString.path(withComponents: pathComponents)
-        
+
         var components = URLComponents()
         components.scheme = url.scheme
         components.host = url.host
         components.path = path
-        
+
         var queryItems : [URLQueryItem] = []
-        
+        if getEnvironment() == .staging {
+            queryItems.append(URLQueryItem(name: "env", value: "staging"))
+        }
         components.queryItems = queryItems
         
         for param in params! {
@@ -2183,7 +2190,11 @@ class Fabric: ObservableObject {
             queryItems.append(URLQueryItem(name: "resolve", value: "true"))
             queryItems.append(URLQueryItem(name: "resolve_ignore_errors", value: "true"))
         }
-        
+
+        if getEnvironment() == .staging {
+            queryItems.append(URLQueryItem(name: "env", value: "staging"))
+        }
+
         components.queryItems = queryItems
         
         for param in params! {
@@ -2225,9 +2236,11 @@ class Fabric: ObservableObject {
 
             
             var components = URLComponents(string: url)!
-            components.queryItems = parameters.map { (key, value) in
+            var existingItems = components.queryItems ?? []
+            existingItems.append(contentsOf: parameters.map { (key, value) in
                 URLQueryItem(name: key, value: value)
-            }
+            })
+            components.queryItems = existingItems.isEmpty ? nil : existingItems
             components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
             var request = URLRequest(url: components.url!)
 
@@ -2236,7 +2249,7 @@ class Fabric: ObservableObject {
             if (!body.isEmpty){
                 request.httpBody = body.data(using: .utf8)
             }
-            
+
             AF.request(request)
                 .debugLog(apiLogs)
                 .responseJSON { response in
@@ -2270,9 +2283,11 @@ class Fabric: ObservableObject {
 
             
             var components = URLComponents(string: url)!
-            components.queryItems = parameters.map { (key, value) in
+            var existingItems = components.queryItems ?? []
+            existingItems.append(contentsOf: parameters.map { (key, value) in
                 URLQueryItem(name: key, value: value)
-            }
+            })
+            components.queryItems = existingItems.isEmpty ? nil : existingItems
             components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
             var request = URLRequest(url: components.url!)
 

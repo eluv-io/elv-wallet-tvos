@@ -19,7 +19,7 @@ class EluvioAPI : ObservableObject {
     @Published var refreshId = UUID().uuidString
     @Published var forceNetworkRefresh = false
     @Published var devMode: Bool = false
-    @Published var apiLogs: Bool = false
+    @Published var apiLogs: Bool = true
     //Requested token expiration during for login.
     @Published var ttlHours: Double = 336
     static var NONCE: String {
@@ -47,7 +47,7 @@ class EluvioAPI : ObservableObject {
         viewState = .init()
 
         devMode = UserDefaults.standard.bool(forKey: "api_devmode")
-        apiLogs = UserDefaults.standard.bool(forKey: "api_logs")
+        apiLogs = apiLogs
         fabric.apiLogs = apiLogs
 
         Publishers.MergeMany(
