@@ -1,5 +1,5 @@
 {
-  "originHash" : "de67c00213258253589e1bd52a54f3dc1298e6cd8e4b3b2024cac7313db8e128",
+  "originHash" : "5201a1e4d92c180f21347f466e1c347684e7176de227e4c128b4a5301a5c8d84",
   "pins" : [
     {
       "identity" : "alamofire",
@@ -80,15 +80,6 @@
       "state" : {
         "revision" : "804e59f8cb9f66b226685e9369fb82029742b83a",
         "version" : "0.1.4"
-      }
-    },
-    {
-      "identity" : "rlpswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/bitfwdcommunity/RLPSwift.git",
-      "state" : {
-        "branch" : "master",
-        "revision" : "3f6dbdfcd0a8ed0a3d650f67779802a652e58c44"
       }
     },
     {

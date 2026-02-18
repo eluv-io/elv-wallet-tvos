@@ -25,7 +25,6 @@ struct DiscoverView: View {
     
     @State private var selected: MediaPropertyViewModel = MediaPropertyViewModel()
     @State private var position: Int?
-    let timer = Timer.publish(every: 3*60, on: .main, in: .common).autoconnect()
     @State var isRefreshing = false
     @State private var opacity: Double = 1.0 // Start with visible content
     @State private var showHiddenMenu = false

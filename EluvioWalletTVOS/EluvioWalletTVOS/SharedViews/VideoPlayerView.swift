@@ -146,10 +146,12 @@ class VideoPlayerViewModel: ObservableObject {
     var propertyId: String?
     @Published var player: AVPlayer?
     var playerViewController : AVPlayerViewController?
-    @State var audioLoaded = false
-    @State var finishedObserver = PlayerFinishedObserver()
+    var audioLoaded = false
+    var finishedObserver = PlayerFinishedObserver()
     var seekTimeS: Double = 0
-    @State var currentTimeS: Double = -1
+    var currentTimeS: Double = -1
+    private var errorLogObserver: NSObjectProtocol?
+    private var tokenRefreshChecked = false
     var hasSeeked : Bool {
         return currentTimeS > seekTimeS
     }
@@ -164,6 +166,10 @@ class VideoPlayerViewModel: ObservableObject {
     }
 
     func clear(){
+        if let observer = errorLogObserver {
+            NotificationCenter.default.removeObserver(observer)
+            errorLogObserver = nil
+        }
         videos.removeAll();
         currentVideo = nil;
         player = nil;
@@ -171,6 +177,7 @@ class VideoPlayerViewModel: ObservableObject {
         seekTimeS = 0;
         currentTimeS = -1;
         propertyId = nil;
+        tokenRefreshChecked = false;
     }
     
     func selectVideo(_ video: MediaPropertySectionMediaItem) {
@@ -192,7 +199,7 @@ class VideoPlayerViewModel: ObservableObject {
                     return
                 }
                 
-                let initTime = ((Date().now) as NSNumber)
+                let initTime = NSNumber(value: Date().timeIntervalSince1970 * 1000)
                 
                 var objectId: String = ""
                 var versionHash: String = ""
@@ -283,7 +290,9 @@ class VideoPlayerViewModel: ObservableObject {
                 // Ensure MUX SDK initialization happens on the main thread to prevent UI thread safety violations
                 await MainActor.run {
                     if let customerData = MUXSDKCustomerData(customerPlayerData: playerData, videoData: videoData, viewData: viewData, customData: nil, viewerData: nil){
-                        let playerBinding = MUXSDKStats.monitorAVPlayerViewController(playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
+                        // MUXSDKStats retains the binding internally for the named player.
+                        // Use destroyPlayer("mainPlayer") when done to release it.
+                        _ = MUXSDKStats.monitorAVPlayerViewController(playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
                         debugPrint("MUX initialized on main thread.")
                     }
                 }
@@ -315,12 +324,18 @@ class VideoPlayerViewModel: ObservableObject {
                     guard let eluvio = self.eluvio else {
                         return;
                     }
-                    
-                    if let account = eluvio.accountManager.currentAccount {
-                        Task{
-                            //If our token expires in 4 hours we refresh
-                            if (account.isTokenExpiredIn(seconds: 60*60*4)){
-                                await eluvio.refreshFabricToken()
+
+                    // Check token expiry once, then skip on subsequent ticks to avoid spawning Tasks every tick
+                    if !self.tokenRefreshChecked {
+                        self.tokenRefreshChecked = true
+                        if let account = eluvio.accountManager.currentAccount {
+                            Task{
+                                if (account.isTokenExpiredIn(seconds: 60*60*4)){
+                                    await eluvio.refreshFabricToken()
+                                }
+                                // Reset after 5 minutes so it checks again
+                                try? await Task.sleep(nanoseconds: 5 * 60 * 1_000_000_000)
+                                self.tokenRefreshChecked = false
                             }
                         }
                     }
@@ -344,33 +359,43 @@ class VideoPlayerViewModel: ObservableObject {
                     
                 }
             
-            // Error observer setup (already uses main queue)
-            NotificationCenter.default.addObserver(forName: .AVPlayerItemNewErrorLogEntry, object: player?.currentItem, queue: .main) { [self] _ in
-                print(player?.currentItem?.errorLog()?.events.last?.errorComment)
+            // Remove previous error observer before adding a new one
+            if let observer = errorLogObserver {
+                NotificationCenter.default.removeObserver(observer)
+            }
+            errorLogObserver = NotificationCenter.default.addObserver(forName: .AVPlayerItemNewErrorLogEntry, object: player?.currentItem, queue: .main) { [weak self] _ in
+                if let comment = self?.player?.currentItem?.errorLog()?.events.last?.errorComment {
+                    print("AVPlayer error:", comment)
+                }
             }
             
-            await MainActor.run {
-                if seekTimeS == 0 {
-                    Task {
-                        do {
-                            if let account = eluvio?.accountManager.currentAccount {
-                                let progress = try eluvio?.fabric.getUserViewedProgress(address:account.getAccountAddress(), mediaId: currentVideo?.id ?? "")
-                                debugPrint("Finished getting progress ", progress)
-                                await MainActor.run {
-                                    self.seekS(progress?.current_time_s ?? 0)
-                                }
+            // Seek to saved progress or specified time before playing
+            if seekTimeS == 0 {
+                do {
+                    if let account = eluvio?.accountManager.currentAccount {
+                        let progress = try eluvio?.fabric.getUserViewedProgress(address:account.getAccountAddress(), mediaId: currentVideo?.id ?? "")
+                        debugPrint("Finished getting progress ", progress)
+                        let savedTime = progress?.current_time_s ?? 0
+                        if savedTime > 0 {
+                            await MainActor.run {
+                                self.seekS(savedTime)
                             }
-                        }catch{
-                            debugPrint(error)
                         }
                     }
-                }else {
+                }catch{
+                    debugPrint(error)
+                }
+            }else {
+                await MainActor.run {
                     seekS(seekTimeS)
                 }
-                
-                player?.play()
-                print("*** PlayerView errors: ", player?.error)
+            }
 
+            await MainActor.run {
+                player?.play()
+                if let error = player?.error {
+                    print("*** PlayerView error:", error)
+                }
                 self.finishedObserver = PlayerFinishedObserver(player: player)
             }
         }

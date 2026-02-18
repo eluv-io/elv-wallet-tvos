@@ -43,7 +43,6 @@ struct PlayerView: View {
     var property: MediaProperty?
     var propertyId: String = ""
     var title: String = ""
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var playerImageOverlayUrl = ""
     @State var playerTextOverlay = ""
     @Binding var finished: Bool
@@ -86,7 +85,7 @@ struct PlayerView: View {
         }
         .onAppear(){
             Task{
-                let initTime = ((Date().now) as NSNumber)
+                let initTime = NSNumber(value: Date().timeIntervalSince1970 * 1000)
                 viewModel.clear()
                 viewModel.eluvio = eluvio
                 viewModel.propertyId = self.property?.id ?? (propertyId.isEmpty ? nil : propertyId)
@@ -163,10 +162,9 @@ struct PlayerView2: View {
     @Environment(\.colorScheme) var colorScheme
     @State var player = AVPlayer()
     @State var playoutUrl: URL?
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var finishedObserver = PlayerFinishedObserver()
     @Binding var finished: Bool
-    
+
     @State var playerItem : AVPlayerItem?
     @Binding var currentTimeMS: Int64
     @Binding var durationMS: Int64
@@ -213,8 +211,6 @@ struct PlayerView2: View {
         .onReceive(finishedObserver.publisher) {
             debugPrint("Video Finished!")
             self.finished = true
-        }
-        .onReceive(timer) { time in
         }
         .onAppear(){
             debugPrint("PlayerView2 onAppear ", playoutUrl)
@@ -268,7 +264,6 @@ struct PlayerView2: View {
 
 struct SoundPlayer: View {
     @State var playoutUrl: URL?
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     @State var finishedObserver = PlayerFinishedObserver()
     @Binding var finished: Bool
     @Binding var currentTimeMS: Int64

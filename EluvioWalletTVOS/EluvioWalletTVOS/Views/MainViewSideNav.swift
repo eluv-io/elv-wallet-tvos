@@ -17,7 +17,6 @@ struct MainViewSideNav: View {
 
     @State var selection: MainTab = MainTab.Discover
     @State private var cancellable: AnyCancellable? = nil
-    @State var logOutTimer = Timer.publish(every:24*60*60, on: .main, in: .common)
     @FocusState var navFocused
     @State var showNav = false
     @State var navDisabled = true
