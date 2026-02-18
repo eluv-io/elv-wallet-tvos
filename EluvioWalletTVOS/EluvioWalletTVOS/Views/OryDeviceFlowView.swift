@@ -176,9 +176,7 @@ struct OryDeviceFlowView: View {
             
             self.response = json
             
-            print("createAuthLogin completed");
-            
-            
+
             debugPrint("Create response: ",json)
 
             var _url = json["url"].stringValue
@@ -204,7 +202,6 @@ struct OryDeviceFlowView: View {
                                     
     
     func checkDeviceVerification(statusUrl: String) async {
-        print("checkDeviceVerification \(self.code)");
         if self.isChecking {
             return
         }
@@ -217,14 +214,12 @@ struct OryDeviceFlowView: View {
         
         do {
             guard let result = try await self.eluvio.fabric.signer?.checkAuthLogin(createResponse: response) else{
-                print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
             }
 
             let status = result["status"].intValue
             
             if(status != 200){
-                print("Check value \(result)")
                 return
             }
             debugPrint("Ory Result ", result)
@@ -235,7 +230,6 @@ struct OryDeviceFlowView: View {
             let json = JSON.init(parseJSON:result["payload"].stringValue)
 
             if json.isEmpty {
-                print("MetaMaskFlowView checkDeviceVerification() json payload is empty.")
                 showError = true
                 return
             }

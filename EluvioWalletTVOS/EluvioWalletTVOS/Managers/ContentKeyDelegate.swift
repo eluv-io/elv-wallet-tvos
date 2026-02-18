@@ -59,7 +59,6 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
     var contentKeyToStreamNameMap = [String: String]()
     
     func requestApplicationCertificate() throws -> Data {
-        print("ContentKeyDelegate.requestApplicationCertificate")
         let cert64: String = "MIIExzCCA6+gAwIBAgIIHyfkXhxLHC4wDQYJKoZIhvcNAQEFBQAwfzELMAkGA1UEBhMCVVMxEzARBgNVBAoMCkFwcGxlIEluYy4xJjAkBgNVBAsMHUFwcGxlIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MTMwMQYDVQQDDCpBcHBsZSBLZXkgU2VydmljZXMgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwHhcNMjAwOTEyMDMzMjI0WhcNMjIwOTEzMDMzMjI0WjBgMQswCQYDVQQGEwJVUzETMBEGA1UECgwKRWx1dmlvIEluYzETMBEGA1UECwwKMktIOEtDM01NWDEnMCUGA1UEAwweRmFpclBsYXkgU3RyZWFtaW5nOiBFbHV2aW8gSW5jMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDslbBURB6gj07g7VrS7Ojixe7FNZOupomcZt+mtMvyavjg7X7/T4RccmKUQxOoMLKCJcQ6WrdHhIpN8+bciq7lr0mNzaN467zREiUNYOpkVPi13sJLieY2m2MEPOQTbIl52Cu1YyH+4/g1dKPmeguSnzZRo36jsCGHlJBjHq0jkQIDAQABo4IB6DCCAeQwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBRj5EdUy4VxWUYsg6zMRDFkZwMsvjCB4gYDVR0gBIHaMIHXMIHUBgkqhkiG92NkBQEwgcYwgcMGCCsGAQUFBwICMIG2DIGzUmVsaWFuY2Ugb24gdGhpcyBjZXJ0aWZpY2F0ZSBieSBhbnkgcGFydHkgYXNzdW1lcyBhY2NlcHRhbmNlIG9mIHRoZSB0aGVuIGFwcGxpY2FibGUgc3RhbmRhcmQgdGVybXMgYW5kIGNvbmRpdGlvbnMgb2YgdXNlLCBjZXJ0aWZpY2F0ZSBwb2xpY3kgYW5kIGNlcnRpZmljYXRpb24gcHJhY3RpY2Ugc3RhdGVtZW50cy4wNQYDVR0fBC4wLDAqoCigJoYkaHR0cDovL2NybC5hcHBsZS5jb20va2V5c2VydmljZXMuY3JsMB0GA1UdDgQWBBR4jerseBHEUDC7mU+NQuIzZqHRFDAOBgNVHQ8BAf8EBAMCBSAwOAYLKoZIhvdjZAYNAQMBAf8EJgFuNnNkbHQ2OXFuc3l6eXp5bWFzdmdudGthbWd2bGE1Y212YzdpMC4GCyqGSIb3Y2QGDQEEAQH/BBwBd252bHhlbGV1Y3Vpb2JyZW4yeHZlZmV6N2Y5MA0GCSqGSIb3DQEBBQUAA4IBAQBM17YYquw0soDPAadr1aIM6iC6BQ/kOGYu3y/6AlrwYgAQNFy8DjsQUoqlQWFuA0sigp57bTUymkXEBf9yhUmXXiPafGjbxzsPF5SPFLIciolWbxRCB153L1a/Vh2wg3rhf4IvAZuJpnml6SSg5SjD19bN+gD7zrtp3yWKBKuarLSjDvVIB1SoxEToBs3glAEqoBiA2eZjikBA0aBlbvjUF2gqOmZjZJ7dmG1Tos2Zd4SdGL6ltSpKUeSGSxyv41aqF83vNpymNJmey2t2kPPtC7mt0LM32Ift3AkAl8Za9JbV/pOnc95oAfPhVTOGOI+u2BuB2qaKWjqHwkfqCz4A"
         let applicationCertificate: Data? = Data(base64Encoded: cert64)
         guard applicationCertificate != nil else {
@@ -69,7 +68,6 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
     }
     
     func requestContentKeyFromKeySecurityModule(spcData: Data, assetID: String) throws -> Data {
-        print("ContentKeyDelegate.requestContentKeyFromKeySecurityModule assetID " + assetID)
         
         var ckcData: Data? = nil
         let semaphore = DispatchSemaphore(value: 0)
@@ -154,7 +152,6 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
      determines that the content is encrypted based on the playlist the client provided when it requests playback.
      */
     func contentKeySession(_ session: AVContentKeySession, didProvide keyRequest: AVContentKeyRequest) {
-        print("ContentKeyDelegate.contentKeySession didProvide keyRequest")
         handleStreamingContentKeyRequest(keyRequest: keyRequest)
     }
     
@@ -163,7 +160,6 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
      Will be invoked by an AVContentKeySession as the result of a call to -renewExpiringResponseDataForContentKeyRequest:.
      */
     func contentKeySession(_ session: AVContentKeySession, didProvideRenewingContentKeyRequest keyRequest: AVContentKeyRequest) {
-        print("ContentKeyDelegate.contentKeySession didProvideRenewingContentKeyRequest")
         handleStreamingContentKeyRequest(keyRequest: keyRequest)
     }
     
@@ -178,7 +174,6 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
      */
     func contentKeySession(_ session: AVContentKeySession, shouldRetry keyRequest: AVContentKeyRequest,
                            reason retryReason: AVContentKeyRequest.RetryReason) -> Bool {
-        print("ContentKeyDelegate.contentKeySession shouldRetry")
         var shouldRetry = false
         
         switch retryReason {
@@ -249,7 +244,6 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
                     do {
                         // Send SPC to Key Server and obtain CKC
                         let ckcData = try strongSelf.requestContentKeyFromKeySecurityModule(spcData: spcData, assetID: assetIDString)
-                        print("ckcData ", ckcData)
                         
                         /*
                          AVContentKeyResponse is used to represent the data returned from the key server when requesting a key for
@@ -290,7 +284,6 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
                 
                 // Request a Persistable Key Request.
                 do {
-                    print("ContentKeyDelegate.handleStreamingContentKeyRequest respondByRequestingPersistableContentKeyRequestAndReturnError")
                     try keyRequest.respondByRequestingPersistableContentKeyRequestAndReturnError()
                 } catch {
 

@@ -42,7 +42,6 @@ struct GalleryItemView: View {
                 }else{
                     do {
                         self.imageUrl = try eluvio.fabric.getUrlFromLink(link: media?.thumbnail)
-                        print("Gallery Image URL: ", self.imageUrl)
                     }catch{
                         print("Error getting image URL from link ", media?.thumbnail as Any)
                     }

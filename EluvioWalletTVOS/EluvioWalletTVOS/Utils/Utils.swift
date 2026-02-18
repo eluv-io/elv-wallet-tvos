@@ -118,7 +118,6 @@ func HexToBytes(_ string: String) -> [UInt8]? {
     }
     
     if str.isEmpty{
-        print("Error: Length == 0")
         return nil
     }
     
@@ -325,13 +324,11 @@ func FindContentHash(uri: String) -> String? {
     do {
         let regexp = try Regex("hq__[^&/]+")
         if let result = uri.firstMatch(of: regexp) {
-            print(result.output)
             if let sub  = result.output[0].substring {
                 return String(sub)
             }
         }
     }catch{
-        print("Error in FindContentHash ", uri)
     }
     
     return nil
@@ -391,13 +388,15 @@ func GenerateQRCode(from string: String) -> UIImage {
 }
 
 extension Request {
-    public func debugLog() -> Self {
+    public func debugLog(_ enabled: Bool = false) -> Self {
     #if DEBUG
-    cURLDescription(calling: { (curl) in
-        debugPrint("=======================================")
-        print(curl)
-        debugPrint("=======================================")
-    })
+    if enabled {
+        cURLDescription(calling: { (curl) in
+            debugPrint("=======================================")
+            print(curl)
+            debugPrint("=======================================")
+        })
+    }
     #endif
     return self
   }
@@ -687,7 +686,7 @@ func MakePlayerItemFromMediaOptions(fabric: Fabric,
         playerItem = AVPlayerItem(asset: urlAsset)
     }else if options["hls-sample-aes"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         playerItem = AVPlayerItem(asset: urlAsset)
@@ -698,7 +697,7 @@ func MakePlayerItemFromMediaOptions(fabric: Fabric,
         {
             throw RuntimeError("Error getting licenseServer")
         }
-        print("license_server \(licenseServer)")
+
         
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson,  drm:"hls-fairplay", offering: offering)
         //print("Playlist URL \(hlsPlaylistUrl)")
@@ -788,7 +787,7 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric,
         playerItem = AVPlayerItem(asset: urlAsset)
     }else if options["hls-aes128"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-aes128", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         playerItem = AVPlayerItem(asset: urlAsset)
@@ -799,7 +798,7 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric,
         {
             throw RuntimeError("Error getting licenseServer")
         }
-        print("license_server \(licenseServer)")
+
         
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-fairplay", offering: offering)
         //print("Playlist URL \(hlsPlaylistUrl)")
@@ -812,7 +811,7 @@ func MakePlayerItemFromOptionsJson(fabric: Fabric,
         
     }else if options["hls-sample-aes"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-sample-aes", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         playerItem = AVPlayerItem(asset: urlAsset)
@@ -862,13 +861,13 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
     
     if options["hls-clear"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         playerItem = AVPlayerItem(asset: urlAsset)
     }else if options["hls-aes128"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-aes128", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         playerItem = AVPlayerItem(asset: urlAsset)
@@ -879,10 +878,10 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
         {
             throw RuntimeError("Error getting licenseServer")
         }
-        print("license_server \(licenseServer)")
+
         
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-fairplay", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
@@ -892,7 +891,7 @@ func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
         
     }else if options["hls-sample-aes"].exists() {
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
         playerItem = AVPlayerItem(asset: urlAsset)
@@ -950,10 +949,10 @@ func GetUrlFromMediaOptionsJson(fabric: Fabric,
         {
             throw RuntimeError("Error getting licenseServer")
         }
-        print("license_server \(licenseServer)")
+
         
         hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-fairplay", offering: offering)
-        print("Playlist URL \(hlsPlaylistUrl)")
+
         
         let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
         
@@ -966,8 +965,6 @@ func GetUrlFromMediaOptionsJson(fabric: Fabric,
     }else{
         throw RuntimeError("No available playback options \(options)")
     }
-    
-    print("Playlist URL \(hlsPlaylistUrl)")
     
     return hlsPlaylistUrl;
 }

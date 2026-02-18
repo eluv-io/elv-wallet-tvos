@@ -104,17 +104,14 @@ struct SectionItemListView: View {
     @FocusState var isFocused
     
     func filterList(list : [MediaPropertySectionMediaItem]) async throws -> [MediaPropertySectionMediaItem] {
-        debugPrint("SectionItemListView filterList")
         var filtered : [MediaPropertySectionMediaItem] = []
         for var mediaItem in list {
             if let mediaId = mediaItem.id {
-                debugPrint("SEARCH PERMISSION MediaID: \(mediaId)")
                 let permissions = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, mediaItemId: mediaId, isSearch:isSearch)
                 //debugPrint("FilterList Permissions for \(mediaItem.title ?? "") ", permissions)
                 if !permissions.hide {
                     mediaItem.resolvedPermission = permissions
                     filtered.append(mediaItem)
-                    debugPrint("filter list mediaItem authorized? ", mediaItem.resolvedPermission?.authorized)
                 }
             }
         }
@@ -128,13 +125,11 @@ struct SectionItemListView: View {
             //.padding([.leading],40)
             .focusSection()
         .onAppear(){
-            debugPrint("SectionItemListView onAppear item ", item)
             Task {
                 var filtered : [MediaPropertySectionMediaItem] = []
 
                 if let ids = list {
                     let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: ids)
-                    debugPrint("media result: ", result)
                     do {
                         filtered = try await filterList(list:result)
                     }catch{
@@ -145,7 +140,6 @@ struct SectionItemListView: View {
                     }
                 }else if let mediaList = item?.media?.media {
                     let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: mediaList)
-                    debugPrint("media result: ", result)
                     do {
                         filtered = try await filterList(list:result)
                     }catch{
@@ -157,7 +151,6 @@ struct SectionItemListView: View {
                     }
                 }else if let lists = item?.media?.media_lists {
                     let result = try await eluvio.fabric.getPropertyMediaItems(property: propertyId, mediaItems: lists)
-                    debugPrint("media_list result: ", result)
                     do {
                         filtered = try await filterList(list:result)
                     }catch{
@@ -244,11 +237,6 @@ struct SectionMediaItemView: View {
         VStack(alignment:.leading, spacing:10){
             Button(action: {
                 Task {
-                    debugPrint("Media Item pressed: ", item.id)
-                    
-                    debugPrint("streamStartDate ", item.streamStartDate)
-                    debugPrint("startDate ", item.startDate)
-                    debugPrint("isUpcoming ", item.isUpcoming)
                     guard let property = try await eluvio.fabric.getProperty(property: propertyId) else {
                         await MainActor.run {
                             _ = eluvio.pathState.path.popLast()
@@ -268,11 +256,8 @@ struct SectionMediaItemView: View {
                                 
                                 if permission.purchaseGate || item.type == "item_purchase" {
                                     
-                                    debugPrint("permission ids ", permission.permissionItemIds)
-                                    
                                     let auth = eluvio.createWalletAuthorization()
                                     let url = try eluvio.fabric.createWalletPurchaseUrl(id:item.id ?? "", propertyId: propertyId, pageId: "", sectionItemId: item.id ?? "", permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption, authorization: auth)
-                                    debugPrint("SectionMediaItemView Purchase! ", url)
 
                                     let params = PurchaseParams(url:url,
                                                                 backgroundImage: purchaseImage,
@@ -285,11 +270,8 @@ struct SectionMediaItemView: View {
                                     
                                     return
                                 }else if permission.showAlternatePage {
-                                    debugPrint("ShowAlternatePage ")
-                                    
                                     let auth = eluvio.createWalletAuthorization()
                                     let url = eluvio.fabric.createWalletPageLink(propertyId: propertyId, pageId:permission.alternatePageId, authorization: auth)
-                                    debugPrint("SectionItemView Alternative Page Purchase! ", url)
 
                                     let params = PurchaseParams(url:url,
                                                                 backgroundImage: purchaseImage,
@@ -315,7 +297,6 @@ struct SectionMediaItemView: View {
                     }
                     
                     if item.type?.lowercased() == "list" {
-                        debugPrint("list type")
                         if let list = item.media {
                             if !list.isEmpty {
                                 
@@ -323,7 +304,6 @@ struct SectionMediaItemView: View {
                                 let params = MediaGridParams(propertyId: propertyId, list: list)
                                 //_ = eluvio.pathState.path.popLast()
                                 eluvio.pathState.path.append(.mediaGrid(params))
-                                debugPrint("launching mediaGrid")
                                 return
                                 // }
                             }
@@ -333,14 +313,12 @@ struct SectionMediaItemView: View {
                     
                     if let type = item.media_type {
                         if ( type.lowercased() == "video") {
-                            debugPrint("SectionMediaItemView play video property ", property)
                             let params = VideoParams(mediaId: item.id ?? "",
                                                      title: item.title ?? "",
                                                      property: property)
                             eluvio.pathState.videoParams = params
                             eluvio.pathState.path.append(.video)
                         }else if (type.lowercased() == "html") {
-                            debugPrint("Media Item", item)
                             do {
                                 if let file = item.media_file {
                                     let url = try eluvio.fabric.getUrlFromLink(link:file,staticUrl:true)
@@ -353,7 +331,6 @@ struct SectionMediaItemView: View {
                                 print("Could not get file url for html media type: ", error)
                             }
                         }else if (type.lowercased() == "gallery") {
-                            debugPrint("Media Item Gallery Type ", item)
                             do {
                                 if let gallery = item.gallery {
                                     eluvio.pathState.gallery = gallery
@@ -369,8 +346,6 @@ struct SectionMediaItemView: View {
                             let params = ImageParams(url:thumbnailFull, title: item.title ?? "")
                             eluvio.pathState.path.append(.imageView(params))
                         }else {
-                            debugPrint("Item media_type: ", item.media_type)
-                            debugPrint("Item without type Item: ", item)
                         }
                     }
                 }
@@ -470,6 +445,7 @@ struct SectionItemView: View {
     @State var startTimeString : String = ""
     @State var mediaProgress: MediaProgress?
     @State var isVisible : Bool = false
+    @State private var scheduledRefreshTask: Task<Void, Never>? = nil
     
     var progressText: String {
         guard let progress = mediaProgress else {
@@ -522,12 +498,6 @@ struct SectionItemView: View {
                 VStack(alignment:.leading, spacing:10){
                     Text(title).font(.system(size:1)).hidden() // This is needed for some reason single items in a section didn't show
                     Button(action: {
-                        debugPrint("Media Item pressed: ", viewItem.mediaItem?.id)
-                        
-                        debugPrint("streamStartDate ", viewItem.mediaItem?.streamStartDate)
-                        debugPrint("startDate ", viewItem.mediaItem?.startDate)
-                        debugPrint("isUpcoming ", viewItem.mediaItem?.isUpcoming)
-                        
                         if disable {
                             return
                         }
@@ -569,10 +539,7 @@ struct SectionItemView: View {
                                 
                                 if let sectionItemId = item.id {
                                     //Might be a race condition where the resolved permissions
-                                    
-                                    debugPrint("sectionItemId ", sectionItemId)
-                                    debugPrint("mediaItem.id ", mediaItem.id)
-                                    
+
                                     var permission = permission
                                     if permission == nil {
                                         permission = try await eluvio.fabric.resolveContentPermission(propertyId: propertyId, pageId: pageId, sectionId: sectionId, sectionItemId: sectionItemId, mediaItemId: mediaItem.media_id)
@@ -582,16 +549,12 @@ struct SectionItemView: View {
                                         if !permission.authorized  || item.type == "item_purchase"{
                                             
                                             let purchaseImage = viewModel.purchaseImage
-                                            debugPrint("purchase image: ", viewModel.purchaseImage)
-                                            debugPrint("property purchase_settings ", property.purchase_settings)
-                                            
+
                                             if permission.purchaseGate || item.type == "item_purchase" {
-                                                
+
                                                 let auth = eluvio.createWalletAuthorization()
-                                                
-                                                debugPrint("authorization: ", auth)
+
                                                 let url = try eluvio.fabric.createWalletPurchaseUrl(id:sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption, authorization:auth)
-                                                debugPrint("SectionItemView Purchase! ", url)
                                                 
                                                 
                                                 let params = PurchaseParams(url:url,
@@ -605,10 +568,8 @@ struct SectionItemView: View {
                                                 
                                                 return
                                             }else if permission.showAlternatePage {
-                                                debugPrint("ShowAlternatePage ")
                                                 let auth = eluvio.createWalletAuthorization()
                                                 let url = eluvio.fabric.createWalletPageLink(propertyId: propertyId, pageId:permission.alternatePageId, authorization: auth)
-                                                debugPrint("SectionItemView Alternative Page Purchase! ", url)
                                                 
                                                 let params = PurchaseParams(url:url,
                                                                             backgroundImage: purchaseImage,
@@ -642,10 +603,6 @@ struct SectionItemView: View {
                                 if ( mediaItem.media_type.lowercased() == "video") {
 
                                     if item.media?.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
-                                        debugPrint("permission denied! ", mediaItem.title)
-                                        debugPrint("startTime! ", mediaItem.start_time)
-                                        debugPrint("media_link ", item.media?.media_link)
-
                                         let videoErrorParams = VideoErrorParams(mediaItem:item.media, type: .permission, backgroundImage: backgroundImage, images: images)
 
                                         eluvio.pathState.videoErrorParams = videoErrorParams
@@ -666,8 +623,6 @@ struct SectionItemView: View {
                                         return
                                     }
                                 }else if ( mediaItem.media_type.lowercased() == "html") {
-                                    
-                                    debugPrint("Media Item", item)
                                     if !mediaItem.media_file_url.isEmpty {
                                         let url = mediaItem.media_file_url
                                         let params = HtmlParams(url:url, backgroundImage: "")
@@ -680,9 +635,6 @@ struct SectionItemView: View {
                                         print("MediaItem has empty file for html type")
                                     }
                                 }else if ( item.media_type?.lowercased() == "list" || item.media_type?.lowercased() == "collection") {
-                                    
-                                    debugPrint("Media Item media List type!", item.media?.media_lists)
-                                    
                                     if let media = item.media {
                                         if let list = media.media {
                                             if !list.isEmpty {
@@ -690,7 +642,6 @@ struct SectionItemView: View {
                                                     _ = eluvio.pathState.path.popLast()
                                                     let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list, sectionItem: item)
                                                     eluvio.pathState.path.append(.mediaGrid(params))
-                                                    debugPrint("launching mediaGrid")
                                                     return
                                                 }
                                             }
@@ -702,7 +653,6 @@ struct SectionItemView: View {
                                                     _ = eluvio.pathState.path.popLast()
                                                     let params = MediaGridParams(propertyId: propertyId, pageId: pageId, list: list, sectionItem: item)
                                                     eluvio.pathState.path.append(.mediaGrid(params))
-                                                    debugPrint("launching mediaGrid")
                                                     return
                                                 }
                                             }
@@ -715,7 +665,6 @@ struct SectionItemView: View {
                                     
                                     
                                 }else if (mediaItem.media_type.lowercased() == "gallery") {
-                                    debugPrint("Media Item Gallery Type ", item)
                                     if let gallery = item.media?.gallery {
                                         await MainActor.run {
                                             eluvio.pathState.gallery = gallery
@@ -727,14 +676,10 @@ struct SectionItemView: View {
                                         print("MediaItem has empty file for html type")
                                     }
                                 }else if ( mediaItem.type == "subproperty_link") {
-                                    debugPrint("Media Subproperty Item", mediaItem.thumbnail)
-                                    debugPrint("Media Item", item)
                                     //Task {
                                     do {
                                         if let propertyId = item.subproperty_id {
                                             if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                                debugPrint("Found Sub property", property)
-                                                
                                                 var pageId = "main"
                                                 if let _pageId = item.subproperty_page_id {
                                                     pageId = _pageId
@@ -742,14 +687,11 @@ struct SectionItemView: View {
                                                 
                                                 var page = property.main_page
                                                 if let _page = try await eluvio.fabric.getPropertyPage(propertyId: propertyId, pageId: pageId) {
-                                                    debugPrint("Found page")
                                                     page = _page
                                                 }else{
-                                                    debugPrint("Could not find page for propertyId")
                                                 }
-                                                
+
                                                 await MainActor.run {
-                                                    debugPrint("Found sub property page")
                                                     eluvio.pathState.property = property
                                                     eluvio.pathState.propertyPage = page
                                                     let params = PropertyParam(property:property, pageId: page?.id ?? "main")
@@ -758,13 +700,10 @@ struct SectionItemView: View {
                                                 }
                                                 
                                             }else{
-                                                debugPrint("Could not find property from propertyId ", propertyId)
                                             }
                                         }else{
-                                            debugPrint("Could not find subproperty_id")
                                         }
                                     }catch{
-                                        debugPrint("Error finding property ", item.subproperty_id)
                                     }
                                 }else if mediaItem.media_type.lowercased() == "image" {
                                     _ = eluvio.pathState.path.popLast()
@@ -772,26 +711,20 @@ struct SectionItemView: View {
                                     eluvio.pathState.path.append(.imageView(params))
                                     
                                 }else if ( item.type?.lowercased() == "page_link") {
-                                    debugPrint("page_link item: ", item)
-                                    
                                     do {
                                         if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                                            debugPrint("propertyID : ", propertyId)
                                             let pageId = item.page_id ?? ""
                                             
                                             var page = property.main_page
                                             if let _page = try await eluvio.fabric.getPropertyPage(propertyId: propertyId, pageId: pageId) {
-                                                debugPrint("Found page")
                                                 page = _page
                                             }else{
-                                                debugPrint("Could not find page for propertyId")
                                             }
-                                            
+
                                             await MainActor.run {
-                                                
+
                                                 if !pageId.isEmpty {
                                                     let param = PropertyParam(property:property, pageId:pageId)
-                                                    debugPrint("property page params: ", param)
                                                     eluvio.pathState.property = property
                                                     eluvio.pathState.propertyPage = page
                                                     
@@ -806,7 +739,6 @@ struct SectionItemView: View {
                                     }
                                     
                                 }else {
-                                    debugPrint("Item without type Item: ", mediaItem)
                                 }
                             }catch(FabricError.apiError(let code, let response, let error)){
                                 await eluvio.handleApiError(code: code, response: response, error: error)
@@ -885,11 +817,14 @@ struct SectionItemView: View {
     
     func update(){
         let sectionItemId = viewItem.id
-        
+
         Task { @MainActor in
+            let mediaItem: MediaPropertySectionMediaItem?
+
             if let item = eluvio.fabric.getSectionItem(sectionId: sectionId, sectionItemId: sectionItemId) {
-                
+
                 let viewItem = MediaPropertySectionMediaItemViewModel.create(item: item, fabric: eluvio.fabric)
+                mediaItem = viewItem.mediaItem
                 let newIsLive = viewItem.mediaItem?.currentlyLive ?? false
                 let newStartTimeString = viewItem.mediaItem?.startDateTimeString ?? ""
                 let newThumbnail = viewItem.thumbnail
@@ -897,7 +832,7 @@ struct SectionItemView: View {
                 let newTitle = viewItem.title
                 let newSubtitle = viewItem.subtitle
                 let newTimeString = viewItem.headerString
-                
+
                 // Only update if values have actually changed
                 if self.isLive != newIsLive { self.isLive = newIsLive }
                 if self.startTimeString != newStartTimeString { self.startTimeString = newStartTimeString }
@@ -908,6 +843,7 @@ struct SectionItemView: View {
                 if self.timeString != newTimeString { self.timeString = newTimeString }
 
             } else {
+                mediaItem = self.viewItem.mediaItem
                 let newIsLive = self.viewItem.mediaItem?.currentlyLive ?? false
                 let newStartTimeString = self.viewItem.mediaItem?.startDateTimeString ?? ""
                 let newThumbnail = self.viewItem.thumbnail
@@ -915,7 +851,7 @@ struct SectionItemView: View {
                 let newTitle = self.viewItem.title
                 let newSubtitle = self.viewItem.subtitle
                 let newTimeString = self.viewItem.headerString
-                
+
                 // Only update if values have actually changed
                 if self.isLive != newIsLive { self.isLive = newIsLive }
                 if self.startTimeString != newStartTimeString { self.startTimeString = newStartTimeString }
@@ -924,6 +860,56 @@ struct SectionItemView: View {
                 if self.title != newTitle { self.title = newTitle }
                 if self.subtitle != newSubtitle { self.subtitle = newSubtitle }
                 if self.timeString != newTimeString { self.timeString = newTimeString }
+            }
+
+            // Schedule a precise refresh at start_time or end_time so the
+            // live/upcoming status flips immediately when the threshold is crossed
+            scheduleTransitionRefresh(for: mediaItem)
+        }
+    }
+
+    /// Schedule a one-shot refresh at the next live/upcoming transition time.
+    /// Cancels any previously scheduled refresh.
+    private func scheduleTransitionRefresh(for mediaItem: MediaPropertySectionMediaItem?) {
+        scheduledRefreshTask?.cancel()
+        scheduledRefreshTask = nil
+
+        guard let mediaItem = mediaItem,
+              mediaItem.live_video == true else { return }
+
+        let now = Date()
+        var nextTransitionDate: Date? = nil
+
+        if let startDate = mediaItem.streamStartDate ?? mediaItem.startDate {
+            if startDate > now {
+                // Upcoming → Live transition: refresh when start_time is reached
+                nextTransitionDate = startDate
+            }
+        }
+
+        if let endDate = mediaItem.endDate {
+            if endDate > now {
+                // Live → Ended transition: refresh when end_time is reached
+                if let existing = nextTransitionDate {
+                    nextTransitionDate = min(existing, endDate)
+                } else {
+                    nextTransitionDate = endDate
+                }
+            }
+        }
+
+        guard let targetDate = nextTransitionDate else { return }
+
+        // Add 1 second buffer so Date() is clearly past the threshold
+        let delay = targetDate.timeIntervalSince(now) + 1.0
+
+        // Only schedule if the transition is within 24 hours
+        guard delay > 0 && delay < 86400 else { return }
+
+        scheduledRefreshTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            if !Task.isCancelled {
+                update()
             }
         }
     }
@@ -1027,8 +1013,6 @@ struct SectionItemPurchaseView: View {
                 if cachedThumbnail.isEmpty {
                     resolveThumbnail()
                 }
-                debugPrint("SectionItemPurchaseView onAppear ")
-                debugPrint("title: ", title)
             }
     }
     
@@ -1041,7 +1025,6 @@ struct SectionItemPurchaseView: View {
                     if let permission = permission {
                         let auth = eluvio.createWalletAuthorization()
                         let url = try eluvio.fabric.createWalletPurchaseUrl(id: sectionItemId, propertyId: propertyId, pageId:pageId, sectionId: sectionId, sectionItemId: sectionItemId, permissionIds: permission.permissionItemIds, secondaryPurchaseOption: permission.secondaryPurchaseOption, authorization: auth)
-                        debugPrint("Item Purchase! ", url)
                         eluvio.pathState.propertyId = propertyId
                         eluvio.pathState.pageId = permission.alternatePageId  
                         

@@ -86,7 +86,6 @@ struct MainView: View {
         .onAppear(){
             debugPrint("MainView onAppear")
             self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
-                print("MainView fabric changed, ", val)
                 if val == nil {
                     self.selection = MainTab.Discover
                 }

@@ -60,6 +60,7 @@ class Fabric: ObservableObject {
     //var isExternal = false
     
     var createDemoProperties : Bool = true
+    var apiLogs: Bool = false
     
     var previousRefreshHash = SHA256.hash(data:Data())
     
@@ -128,7 +129,6 @@ class Fabric: ObservableObject {
         
         if let node = APP_CONFIG.network[network]?.overrides?.fabric_url {
             if node != "" {
-                print ("Found dev fabric node: ", node)
                 return node
             }
         }
@@ -165,7 +165,6 @@ class Fabric: ObservableObject {
     
     @MainActor
     func connect(network: String="", token:String="") async throws {
-        debugPrint("Fabric connect: ", network)
         var _network = network
 
         if(network.isEmpty) {
@@ -185,7 +184,6 @@ class Fabric: ObservableObject {
             throw FabricError.configError("Error, configuration network not found \(network)")
         }
         
-        debugPrint("Config URL: \(configUrl)")
         self.network = _network
         self.configUrl = configUrl
         
@@ -198,9 +196,6 @@ class Fabric: ObservableObject {
         // Code might suspend here
         let (data, _) = try await URLSession.shared.data(from: url)
         
-        let str = String(decoding: data, as: UTF8.self)
-        
-        print("Fabric config response: \(str)")
 
         let config = try JSONDecoder().decode(FabricConfiguration.self, from: data)
         self.setConfiguration(configuration:config)
@@ -212,9 +207,9 @@ class Fabric: ObservableObject {
             throw FabricError.configError("Error getting authority apis from config: \(self.configuration)")
         }
         
-        debugPrint("Authority API: \(asApi)")
         
         self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
+        self.signer?.apiLogs = self.apiLogs
 
 
 
@@ -228,7 +223,6 @@ class Fabric: ObservableObject {
             fabricToken = token
         }
         
-        debugPrint("Connected network: ", self.network)
     }
 
     func getContentSpaceId() throws -> String {
@@ -240,7 +234,6 @@ class Fabric: ObservableObject {
 
     func setConfiguration(configuration: FabricConfiguration){
         self.configuration = configuration
-        print("QSPACE_ID: \(self.configuration?.qspace.id)")
     }
 
     func getTenantId(objectId: String) async throws -> String {
@@ -277,7 +270,6 @@ class Fabric: ObservableObject {
 
                 if !propertyId.isEmpty {
                     if let nftTemplate = nftmodel.nft_template{
-                        debugPrint("bundled_id: ", nftTemplate["bundled_property_id"].stringValue)
                         if nftTemplate["bundled_property_id"].stringValue == propertyId{
                             items.append(nftmodel)
                         }
@@ -319,7 +311,6 @@ class Fabric: ObservableObject {
             }
         }
         
-        print("Features: ", featured.unique().media.count)
         
         return MediaLibrary(features: featured.unique(), items: items/*, mediaRows: mediaRows*/)
     }
@@ -569,29 +560,26 @@ class Fabric: ObservableObject {
     
     func redeemComplete(confirmationId: String, tenantId: String, pollSeconds:Int = POLLSECONDS)  async throws -> (isRedeemed:Bool, transactionId:String, transactionHash:String){
         
-        print("Redeem Complete check")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
-        
+
         var transactionId = ""
         var transactionHash = ""
         var complete = false
-        
+
         for _ in 0...pollSeconds {
             try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
-            
+
             let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
-            //print("Wallet Status Result: ", result)
-            
+
             for status in result.arrayValue {
                 let op = status["op"].stringValue
-                
+
                 let opSplit = op.split(separator: ":")
                 if opSplit.count == 5 {
                     if opSplit[0] == "nft-offer-redeem" && opSplit[4] == confirmationId {
                         if (status["status"] == "complete"){
-                            print("Wallet Status Result: complete: ", op)
                             transactionId = status["extra"]["trans_id"].stringValue
                             transactionHash = status["extra"]["tx_hash"].stringValue
                             complete = true
@@ -687,40 +675,30 @@ class Fabric: ObservableObject {
     
     func packStatus(opString:String, tenantId: String, contractAddr: String, tokenId:String, pollSeconds:Int = POLLSECONDS)  async throws -> (isComplete:Bool, status:String, transactionId:String, contractAddress:String, tokenId:String){
         
-        print("Redeem Complete check")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
-        
+
         var transactionId = ""
         var complete = false
         var status = ""
         let address = contractAddr.starts(with: "0x") ? contractAddr.dropFirst(2).lowercased() : contractAddr.lowercased()
-        
+
         for _ in 0...pollSeconds {
             try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
-            
+
             let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
-            print("Wallet Status Result: ", result)
-            
+
             for stat in result.arrayValue {
                 let op = stat["op"].stringValue
-                debugPrint("Testing op ", op)
-                
+
                 let opSplit = op.split(separator: ":")
                 if opSplit.count >= 3 {
-                    debugPrint("opSplit 3 ", opSplit)
-                    debugPrint("operator: ", opString)
-                    debugPrint("opSplit[0] ", opSplit[0])
                     if opSplit[0] == opString {
-                        debugPrint("opSplit op found ", op)
                         if opSplit[1] == address {
-                            debugPrint("opSplit op! found ", address)
                             if opSplit[2] == tokenId {
                                 status = stat["status"].stringValue
-                                debugPrint("Matched status", status)
                                 if (status == "complete"){
-                                    print("Wallet Status Result: complete: ", op)
                                     transactionId = stat["extra"]["trans_id"].stringValue
                                     let newContractAddr = stat["extra"]["0"]["token_addr"].stringValue
                                     let newTokenId = stat["extra"]["0"]["token_id_str"].stringValue
@@ -778,7 +756,6 @@ class Fabric: ObservableObject {
     //XXX: superslow
     //Gets the marketplace data from the fabric
     func getMarketplace(marketplaceId: String) async throws -> MarketplaceViewModel{
-        debugPrint("getMarketplace marketplace id ", marketplaceId)
         if marketplaceId == "" {
             throw FabricError.badInput("Could not query marketplace. ID is empty.")
         }
@@ -795,7 +772,6 @@ class Fabric: ObservableObject {
         return try CreateMarketplaceViewModel(meta: model, fabric: self)
          */
         
-        debugPrint("marketMeta: ", marketMeta)
         let title = marketMeta["info"]["title"].stringValue
         var logo = ""
         do{
@@ -823,9 +799,7 @@ class Fabric: ObservableObject {
     
     //Returns the property stored in memory based on the id (currently using the marketplace id)
     func findProperty(marketplaceId: String) throws -> PropertyModel?{
-        debugPrint("findProperty ", marketplaceId)
         for prop in properties {
-            debugPrint("Property \(prop.title) ID: ", prop.id)
             if prop.id == marketplaceId {
                 return prop
             }
@@ -836,7 +810,6 @@ class Fabric: ObservableObject {
     
     //Waits for transaction for pollSeconds
     func mintEntitlement(tenantId: String, entitlement: String, pollSeconds: Int = POLLSECONDS) async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String) {
-        debugPrint("mintEntitlement \(entitlement)")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
@@ -861,7 +834,6 @@ class Fabric: ObservableObject {
     //TODO: change pollSeconds to 120 or something. 30 is just demo
     func mintEntitlementStatus(tenantId: String, opResponse: String, pollSeconds:Int = POLLSECONDS)  async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String){
         
-        print("mintEntitlementStatus check")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
@@ -875,14 +847,12 @@ class Fabric: ObservableObject {
             try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
             
             let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
-            debugPrint("Wallet Status Result: ", result)
-            
+
             for status in result.arrayValue {
                 let op = status["op"].stringValue
-                
+
                 if opResponse == op {
                     if (status["status"] == "complete"){
-                        print("Wallet Status Result: complete: ", op)
                         return (true,
                                 status["extra"]["0"]["token_addr"].stringValue,
                                 status["extra"]["0"]["token_id"].stringValue
@@ -908,7 +878,6 @@ class Fabric: ObservableObject {
             throw FabricError.unexpectedResponse("Error minting item. sku is empty")
         }
         
-        debugPrint("mintItem \(tenantId) \(marketplaceId) \(sku)")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
@@ -943,27 +912,24 @@ class Fabric: ObservableObject {
     //TODO: change pollSeconds to 120 or something. 30 is just demo
     func mintComplete(confirmationId: String, tenantId: String, marketplaceId: String, sku:String, pollSeconds:Int = POLLSECONDS)  async throws -> (isRedeemed:Bool, contractAddress:String, tokenId:String){
         
-        print("mintComplete check")
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not available")
         }
-        
+
         //confimrationId doesn't return yet
         for _ in 0...pollSeconds {
             try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
-            
+
             let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
-            debugPrint("Wallet Status Result: ", result)
-            
+
             for status in result.arrayValue {
                 let op = status["op"].stringValue
-                
+
                 let opSplit = op.split(separator: ":")
                 //confimrationId doesn't return yet. Should check using that once done
-                
+
                 if opSplit[0] == "nft-claim" && opSplit[1] == marketplaceId && opSplit[2] == sku {
                     if (status["status"] == "complete"){
-                        print("Wallet Status Result: complete: ", op)
                         return (true,
                                 status["extra"]["0"]["token_addr"].stringValue,
                                 status["extra"]["0"]["token_id"].stringValue
@@ -1009,7 +975,6 @@ class Fabric: ObservableObject {
     //Move this to the app level
     @MainActor
     func refresh() async {
-        debugPrint("Fabric refresh")
 
         if self.isRefreshing {
             return
@@ -1118,7 +1083,6 @@ class Fabric: ObservableObject {
 
         let json = JSON(paramDict)
         
-        debugPrint("wallet authorization: ", json)
         let array = [UInt8](try json.rawData())
         
         let params = Base58.base58Encode(array)
@@ -1157,7 +1121,6 @@ class Fabric: ObservableObject {
         let json = JSON(paramDict)
     
         
-        debugPrint("wallet purchase params: ", json)
         let array = [UInt8](try json.rawData())
         
         let params = Base58.base58Encode(array)
@@ -1197,7 +1160,6 @@ class Fabric: ObservableObject {
                        devMode:Bool=false,
                        properties:[String]? = nil
     ) async throws -> [MediaProperty] {
-        debugPrint("Fabric getProperties includingPublic \(includePublic) noCache \(noCache) noAuth \(noAuth) newFetch \(newFetch)")
         
         guard let signer = self.signer else {
             throw FabricError.configError("Signer not initialized.")
@@ -1211,7 +1173,6 @@ class Fabric: ObservableObject {
                     for propertyId in allowedProperties {
                         if let prop = try await getProperty(property: propertyId, noCache: true, newFetch: true) {
                             response.contents.insert(prop, at:0)
-                            debugPrint("added allowed prop ", prop.title)
                         }
                     }
                     
@@ -1226,7 +1187,6 @@ class Fabric: ObservableObject {
                 for propertyId in self.devProperties {
                     if let prop = try await getProperty(property: propertyId) {
                         response.contents.insert(prop, at:0)
-                        debugPrint("added dev prop ", prop.title)
                     }
                 }
             }
@@ -1355,7 +1315,6 @@ class Fabric: ObservableObject {
                 retValue.append(section)
             }else {
                 foundAll = false
-                debugPrint("Couldn't find section in cache: \(id)")
             }
         }
         
@@ -1450,7 +1409,6 @@ class Fabric: ObservableObject {
         }
 
         let result = try await signer.getMediaItems(property: property, mediaItems: mediaItems, accessCode: self.fabricToken)
-        debugPrint("getMediaItems result ", result)
 
         await MainActor.run {
             var propertyItems = self.PropertyToMediaItemCache[property]
@@ -1462,7 +1420,6 @@ class Fabric: ObservableObject {
                 if let id = item.id {
                     self.mediaPropertiesMediaItemCache[id] = item
                     propertyItems?[id] = item
-                    debugPrint("media item cached \(id)")
                 }
             }
             self.PropertyToMediaItemCache[property] = propertyItems
@@ -1470,7 +1427,6 @@ class Fabric: ObservableObject {
     }
 
     func getAndCachePropertySections(property: String, sections: [String], noCache:Bool=false, clearCache:Bool = true) async throws{
-        debugPrint("getAndCachePropertySections property \(property) ", sections)
         guard let signer = self.signer else {
             throw FabricError.configError("Could not get signer.")
         }
@@ -1481,17 +1437,16 @@ class Fabric: ObservableObject {
     }
 
     func cachePropertySections(property: String, sections: [MediaPropertySection]) async throws{
-        debugPrint("cachePropertySections count \(sections.count)")
         var propertyItems = self.PropertyToMediaItemCache[property]
         if propertyItems == nil {
             propertyItems = [:]
             self.PropertyToMediaItemCache[property] = propertyItems
         }
-        
+
         for section in sections {
             self.mediaPropertiesSectionCache[section.id] = section
             //debugPrint("Caching section ", section.id)
-    
+
             var subs : [String] = []
             if let sects = section.sections{
                 for sub in sects{
@@ -1505,16 +1460,30 @@ class Fabric: ObservableObject {
                     }
                 }
             }
-            
-            
+
+
             if let sectionContents = section.content {
                 for item in sectionContents {
-                    
+
                     if let sectionItemId = item.id {
+                        // [TRACE] Log when cached media item has live_video and its time fields
+                        if let media = item.media, media.live_video == true {
+                            let oldItem = self.mediaPropertiesSectionItemCache[sectionItemId]
+                            let oldStart = oldItem?.media?.start_time ?? "nil"
+                            let oldEnd = oldItem?.media?.end_time ?? "nil"
+                            let newStart = media.start_time ?? "nil"
+                            let newEnd = media.end_time ?? "nil"
+                            if oldStart != newStart || oldEnd != newEnd {
+                                debugPrint("[TRACE] cachePropertySections: CHANGE DETECTED for '\(media.title ?? sectionItemId)' start_time: \(oldStart) → \(newStart), end_time: \(oldEnd) → \(newEnd)")
+                            } else {
+                                debugPrint("[TRACE] cachePropertySections: no change for '\(media.title ?? sectionItemId)' start_time: \(newStart), end_time: \(newEnd), live_video: \(media.live_video ?? false)")
+                            }
+                        }
+
                         self.mediaPropertiesSectionItemCache[sectionItemId] = item
                         //debugPrint("cached section item \(sectionItemId)")
                     }
-                    
+
                     if let media = item.media {
                         if let id = media.id {
                             self.mediaPropertiesMediaItemCache[id] = media
@@ -1524,9 +1493,8 @@ class Fabric: ObservableObject {
                     }
                 }
             }else{
-                debugPrint("section has no content, skipping...")
             }
-            
+
         }
         self.PropertyToMediaItemCache[property] = propertyItems
     }
@@ -1552,7 +1520,6 @@ class Fabric: ObservableObject {
     
     func getMediaItem(mediaId:String) -> MediaPropertySectionMediaItem? {
         if mediaId.isEmpty {
-            debugPrint("getMediaItem: id is empty")
             return nil
         }
         if let item = self.mediaPropertiesMediaItemCache[mediaId] {
@@ -1565,7 +1532,6 @@ class Fabric: ObservableObject {
     func getSectionItem(sectionId:String, sectionItemId:String) -> MediaPropertySectionItem? {
         //debugPrint("getSectionItem sectionId \(sectionId) sectionItemId \(sectionItemId)")
         if sectionItemId.isEmpty {
-            debugPrint("getSectionItem: id is empty")
             return nil
         }
         
@@ -1576,7 +1542,6 @@ class Fabric: ObservableObject {
                 if let section = self.mediaPropertiesSectionCache[sectionId] {
                     if let content = section.content {
                         if !content.contains(item) {
-                            debugPrint("Section does not contain item", item.id)
                             return nil
                         }
                     }
@@ -1655,10 +1620,8 @@ class Fabric: ObservableObject {
             let json: [String: Any] = ["ext": ["share_email":true]]
             request.httpBody = try! JSONSerialization.data(withJSONObject: json, options: [])
             
-            debugPrint("http request: ", request)
             
-            login = try await AF.request(request).debugLog().serializingDecodable(LoginResponse.self).value
-            debugPrint("http response: ", login)
+            login = try await AF.request(request).debugLog(apiLogs).serializingDecodable(LoginResponse.self).value
             
             //UserDefaults.standard.set(signInResponse.accessToken, forKey: "access_token")
             //UserDefaults.standard.set(signInResponse.idToken, forKey: "id_token")
@@ -1842,7 +1805,6 @@ class Fabric: ObservableObject {
                     AF.request(tokenUri)
                         .validate()
                         .responseDecodable(of: NFTMetaResponse.self){ response in
-                            debugPrint("Response: \(response)")
                     switch (response.result) {
                         case .success( _):
                             guard let value = response.value else {
@@ -1859,7 +1821,6 @@ class Fabric: ObservableObject {
     }
     
     func startDeviceCodeFlow(domain: String?, clientId: String?, completion: @escaping ([String: AnyObject]?, String?) -> Void){
-        print("startDeviceCodeFlow domain \(domain) clientId \(clientId)")
         var _domain = "https://".appending(APP_CONFIG.auth0.domain) 
         if let d = domain {
             if !d.isEmpty {
@@ -1877,7 +1838,7 @@ class Fabric: ObservableObject {
         let oAuthEndpoint: String = _domain.appending("/oauth/device/code");
         let authRequest = ["client_id":_clientId,"scope": "openid profile email"] as! Dictionary<String,String>
         AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
-            .debugLog()
+            .debugLog(apiLogs)
             .responseJSON { response in
                 switch (response.result) {
                     case .success( _):
@@ -2008,11 +1969,8 @@ class Fabric: ObservableObject {
             throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
         }
         
-        debugPrint("getHlsPlaylistFromMediaOptions ", optionsJson)
-        debugPrint("drm ", drm)
 
         let uri = link[drm]["uri"].stringValue
-        debugPrint("uri ", drm)
         
         guard let url = URL(string:try self.getEndpoint()) else {
             throw FabricError.badInput("getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
@@ -2171,7 +2129,6 @@ class Fabric: ObservableObject {
         }
         
         if path.isEmpty {
-            debugPrint("searching sources.default for link path")
             path = link["sources"]["default"]["/"].stringValue
         }
         
@@ -2265,8 +2222,6 @@ class Fabric: ObservableObject {
                 headers["Authorization"] =  "Bearer \(token)"
             }
 
-            debugPrint("GET ",url)
-            debugPrint("HEADERS ", headers)
             
             var components = URLComponents(string: url)!
             components.queryItems = parameters.map { (key, value) in
@@ -2282,10 +2237,9 @@ class Fabric: ObservableObject {
             }
             
             AF.request(request)
-                .debugLog()
+                .debugLog(apiLogs)
                 .responseJSON { response in
                     
-                    debugPrint("getJsonRequest response:\n")
                 switch (response.result) {
                     case .success( _):
                         let value = JSON(response.value!)
@@ -2313,8 +2267,6 @@ class Fabric: ObservableObject {
                 headers["Authorization"] =  "Bearer \(token)"
             }
 
-            debugPrint("GET ",url)
-            debugPrint("HEADERS ", headers)
             
             var components = URLComponents(string: url)!
             components.queryItems = parameters.map { (key, value) in
@@ -2330,10 +2282,9 @@ class Fabric: ObservableObject {
             }
 
             AF.request(request)
-                .debugLog()
+                .debugLog(apiLogs)
                 .responseData { response in
                     
-                    debugPrint("getJsonRequest response:\n")
                 switch (response.result) {
                     case .success( _):
                         continuation.resume(returning: response.value!)
@@ -2415,33 +2366,26 @@ class Fabric: ObservableObject {
     
     func getNFT(contract: String,
                 token: String="") -> NFTModel?{
-        debugPrint("Fabric getNFT \(contract) token: \(token)")
         for nft in library.items {
-            debugPrint("Contract", nft.contract_addr)
-            debugPrint("Token", nft.token_id_str)
 
             if token != "" {
                 if nft.contract_addr == contract.lowercased() &&
                     nft.token_id_str == token {
-                    debugPrint("Found NFT")
                     return nft
                 }
             }else {
                 if nft.contract_addr == contract.lowercased() {
-                    debugPrint("Found NFT")
                     return nft
                 }
             }
         }
         
-        debugPrint("Could not find token")
         return nil
     }
     
     
     //Move this to ElvLive class
     func getTenants() async throws -> JSON {
-        print ("getTenants")
         let objectId = try self.getNetworkConfig().main_obj_id
         //let libraryId = try self.getNetworkConfig().main_obj_lib_id
         let metadataSubtree = "public/asset_metadata/tenants"
@@ -2492,7 +2436,6 @@ class Fabric: ObservableObject {
                            pageId:String = ""
     ) async throws -> ResolvedPermission {
         
-        debugPrint("resolvePagePermission")
         var result = ResolvedPermission()
         
         let mediaProperty = try await getProperty(property: propertyId)

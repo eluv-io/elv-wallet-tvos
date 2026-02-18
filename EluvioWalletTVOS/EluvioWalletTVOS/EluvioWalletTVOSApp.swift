@@ -84,10 +84,8 @@ struct EluvioWalletTVOSApp: App {
             }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .inactive {
-                    print("Inactive")
                     self.opacity = 0.0
                 } else if newPhase == .active {
-                    print("Active ")
                     Task {
                         await MainActor.run {
                             withAnimation(.easeInOut(duration: 3)) {
@@ -96,17 +94,14 @@ struct EluvioWalletTVOSApp: App {
                         }
                     }
                 } else if newPhase == .background {
-                    print("Background")
                     self.opacity = 0.0
                 }
             }
             .onOpenURL { url in
                 Task {
-                    debugPrint("url opened: ", url)
                     self.showLoader = true
                     await eluvio.viewState.handleLink(url:url, fabric:eluvio.fabric)
                     self.showLoader = false
-                    debugPrint("handle link done opened: ", url)
                 }
             }
             .edgesIgnoringSafeArea(.all)

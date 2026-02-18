@@ -209,8 +209,6 @@ struct DeviceFlowView: View {
                     return
                 }
                 
-                print("startDeviceCodeFlow completed");
-                
                 if !clientId.isEmpty {
                     if useThirdParty {
                         self.thirdPartyClientId = clientId
@@ -270,7 +268,6 @@ struct DeviceFlowView: View {
         }
         
         self.isChecking = true
-        print("checkDeviceVerification \(self.code)");
         var oAuthEndpoint: String = "https://".appending(self.Domain).appending("/oauth/token");
         var clientId = self.ClientId;
         
@@ -284,10 +281,8 @@ struct DeviceFlowView: View {
         
         let authRequest = ["grant_type":self.GrantType,"device_code": self.deviceCode, "client_id":clientId] as! Dictionary<String,String>
         AF.request(oAuthEndpoint , method: .post, parameters: authRequest, encoding: JSONEncoding.default)
-            .debugLog()
+            .debugLog(eluvio.apiLogs)
             .responseJSON { response in
-                debugPrint("Response: \(response)")
-                
                 defer {
                     self.isChecking = false
                 }
@@ -372,7 +367,6 @@ struct DeviceFlowView: View {
 
                             self.timerCancellable!.cancel()
                         }else{
-                            print("didn't get response yet!")
                         }
                      case .failure(let error):
                         print("Request error: \(error.localizedDescription)")

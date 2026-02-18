@@ -77,7 +77,6 @@ struct ContentView: View {
     }
     
     func checkViewState() {
-        debugPrint("checkViewState op ", viewState.op)
         if self.checkingViewState == true {
             return
         }
@@ -96,9 +95,6 @@ struct ContentView: View {
         Task{
             self.showActivity = true
         
-            debugPrint("showActivity true ")
-            
-            debugPrint("backlink: ", viewState.backLink)
             self.backLink = viewState.backLink
             let marketplace = viewState.marketplaceId
             let sku = viewState.itemSKU
@@ -112,14 +108,12 @@ struct ContentView: View {
                 }
             }
             self.backLinkIcon = logo
-            debugPrint("BackLink Icon: ", logo)
-            
+
             var contract = viewState.itemContract
             
             if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
                 do {
                     contract = try await eluvio.fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
-                    debugPrint(contract)
                 }catch {
                     print("Could not find NFT contract from marketplace and sku. ")
                     self.showActivity = false
@@ -444,11 +438,8 @@ struct ContentView: View {
         .edgesIgnoringSafeArea(.all)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .inactive {
-                print("Inactive")
             } else if newPhase == .active {
-                print("Active ")
             } else if newPhase == .background {
-                print("Content View Going to the Background")
                 Task{
                     _ = try await eluvio.fabric.getProperties(includePublic:true, noCache: true)
                     await MainActor.run {

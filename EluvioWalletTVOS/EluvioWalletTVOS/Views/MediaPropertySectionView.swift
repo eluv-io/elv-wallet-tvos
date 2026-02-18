@@ -1028,7 +1028,6 @@ struct MediaPropertySectionView: View {
         Task(){
                 do {
                     if section.type != "search" {
-                        print("Fetching section \(section.id)")
                         do {
                             
                             if section.resolvedPermission == nil {

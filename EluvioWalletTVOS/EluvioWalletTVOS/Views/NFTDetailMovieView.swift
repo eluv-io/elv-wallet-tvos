@@ -119,7 +119,6 @@ struct NFTDetailMovieView: View {
                             debugPrint("BackButton link Icon: ", backLinkIcon)
                             if let url = URL(string: backLink) {
                                 openURL(url) { accepted in
-                                    print(accepted ? "Success" : "Failure")
                                     if (!accepted){
                                         print("Could not open URL ", backLink)
                                     }else{

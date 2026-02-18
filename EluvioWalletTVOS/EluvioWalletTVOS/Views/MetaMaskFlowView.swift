@@ -148,9 +148,7 @@ struct MetaMaskFlowView: View {
             
             self.response = json
             
-            print("createMetaMaskLogin completed");
-            
-            
+
             debugPrint("MetaMask create response: ",json)
             //self.url = json?["verification_uri"] as! String
             self.url = json["metamask_url"].stringValue
@@ -184,20 +182,17 @@ struct MetaMaskFlowView: View {
                                     
     
     func checkDeviceVerification() async{
-        print("Metamask checkDeviceVerification \(self.code)");
         var newProperty : MediaProperty? = property
         
         do {
 
             guard let result = try await eluvio.fabric.signer?.checkMetaMaskLogin(createResponse: response) else{
-                print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
                 return
             }
             
             let status = result["status"].intValue
             
             if(status != 200){
-                print("Check value \(result)")
                 return
             }
             
@@ -206,7 +201,6 @@ struct MetaMaskFlowView: View {
             let json = JSON.init(parseJSON:result["payload"].stringValue)
             
             if json.isEmpty {
-                print("MetaMaskFlowView checkDeviceVerification() json payload is empty.")
                 showError = true
                 return
             }

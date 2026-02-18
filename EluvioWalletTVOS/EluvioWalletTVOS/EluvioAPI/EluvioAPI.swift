@@ -18,6 +18,7 @@ class EluvioAPI : ObservableObject {
     @Published var viewState : ViewState
     @Published var refreshId = UUID().uuidString
     @Published var devMode: Bool = false
+    @Published var apiLogs: Bool = false
     //Requested token expiration during for login.
     @Published var ttlHours: Double = 336
     static var NONCE: String {
@@ -44,12 +45,10 @@ class EluvioAPI : ObservableObject {
         pathState = .init()
         viewState = .init()
 
-        do {
-            devMode = UserDefaults.standard.bool(forKey: "api_devmode")
-        }catch{
-            print("Could not get api_devmode")
-        }
-        
+        devMode = UserDefaults.standard.bool(forKey: "api_devmode")
+        apiLogs = UserDefaults.standard.bool(forKey: "api_logs")
+        fabric.apiLogs = apiLogs
+
         Publishers.MergeMany(
             self.accountManager.objectWillChange,
             self.fabric.objectWillChange,
@@ -77,7 +76,6 @@ class EluvioAPI : ObservableObject {
     
     @MainActor
     func needsRefresh() {
-        debugPrint("EluvioAPI needs refresh")
         refreshId = UUID().uuidString
     }
 
@@ -101,6 +99,18 @@ class EluvioAPI : ObservableObject {
     
     func getDevMode() -> Bool {
         return devMode
+    }
+
+    @MainActor
+    func setApiLogs(apiLogs: Bool){
+        UserDefaults.standard.set(apiLogs, forKey: "api_logs")
+        self.apiLogs = apiLogs
+        fabric.apiLogs = apiLogs
+        fabric.signer?.apiLogs = apiLogs
+    }
+
+    func getApiLogs() -> Bool {
+        return apiLogs
     }
     
     func isDebugNode() -> Bool {
@@ -152,11 +162,9 @@ class EluvioAPI : ObservableObject {
                     }
                 }
                 cache.cachePropertyViewModels(viewModels, network: network, authState: true)
-                debugPrint("Pre-cached \(viewModels.count) auth PropertyViewModels after sign-in")
                 // Trigger DiscoverView refresh NOW that auth cache is ready
                 self.needsRefresh()
             } catch {
-                debugPrint("Background auth property pre-cache failed: \(error)")
                 // Still trigger refresh so DiscoverView can fall back to other cache paths
                 self.needsRefresh()
             }
@@ -172,29 +180,23 @@ class EluvioAPI : ObservableObject {
     //TODO:
     func handleApiError(code: Int, response:JSON, error: Error){
         print("handleApiError ", error)
-        print("response ", response)
-        print("code \(code)")
-        
+
         if code == 401 {
             return
         }
-        
+
         if code >= 400 && code < 500{
             return
         }
-        
-        print("Response ", response)
+
         let errors = response["errors"].arrayValue
-        print("Response ", errors)
         if errors.isEmpty{
-            print("errors field is empty")
             return
         }else if errors[0]["cause"]["reason"].stringValue.contains("token expired"){
             return
         }else if errors[0]["reason"].stringValue.contains("token expired"){
             return
         }else {
-            print("Couldn't parse errors")
             return
         }
     }
@@ -262,9 +264,6 @@ class EluvioAPI : ObservableObject {
                 account.refreshToken = refreshToken
                 account.expiresAt = expiresAt
                 fabric.fabricToken = account.fabricToken
-                //debugPrint("Got new token ", account.fabricToken)
-                //debugPrint("Got new refresh token ", account.fabricToken)
-                debugPrint("expires at ", account.expiresAt)
                 accountManager.saveCurrentAccount()
                 await needsRefresh()
                 return

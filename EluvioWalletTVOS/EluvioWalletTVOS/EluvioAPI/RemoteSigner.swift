@@ -31,6 +31,7 @@ class RemoteSigner {
     var currentAuthIndex = 0
     var network : String
     var environment : APIEnvironment = .prod
+    var apiLogs: Bool = false
 
     init(ethApi: [String], authorityApi: [String], network: String){
         self.ethApi = ethApi
@@ -64,7 +65,6 @@ class RemoteSigner {
     func getEthEndpoint() throws -> String{
         if let node = APP_CONFIG.network[network]?.overrides?.eth_url {
             if node != "" {
-                print ("Found dev elvmaster node: ", node)
                 return node
             }
         }
@@ -79,7 +79,6 @@ class RemoteSigner {
     func getAuthEndpoint() throws -> String{
         if let node = APP_CONFIG.network[network]?.overrides?.as_url {
             if node != "" {
-                print ("Found dev authd node: ", node)
                 return node
             }
         }
@@ -129,7 +128,6 @@ class RemoteSigner {
                     endpoint = endpoint.appending("&name_like=\(name)")
                 }
                                                                     
-                print("getWalletData Request: \(endpoint)")
                 //print("Params: \(parameters)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
@@ -137,7 +135,7 @@ class RemoteSigner {
                 //print("Headers: \(headers)")
                 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON { response in
 
                         
@@ -185,7 +183,7 @@ class RemoteSigner {
                          "Accept": "application/json" ]
 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON{ response in
                         var respJSON = JSON()
                         do{
@@ -240,16 +238,13 @@ class RemoteSigner {
                         endpoint = endpoint.appending("?env=\(environment)")
                     }
                 }
-                          
-                print("getProperties Request: \(endpoint)")
-                //print("Params: \(parameters)")
+
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                //print("Headers: \(headers)")
-                
+
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MediaProperty.self) { response in
                     var respJSON = JSON()
                     do{
@@ -297,15 +292,12 @@ class RemoteSigner {
                     endpoint = endpoint.appending("&no_cache=true")
                 }
                 
-                print("getProperties Request: \(endpoint)")
-                //print("Params: \(parameters)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                //print("Headers: \(headers)")
-                
+
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MediaPropertiesResponse.self) { response in
                         var respJSON = JSON()
                         do{
@@ -349,13 +341,10 @@ class RemoteSigner {
                     endpoint = endpoint.appending("?env=\(environment)")
                 }
                                                                     
-                print("getPropertySection Request: \(endpoint)")
-                //print("Params: \(parameters)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                //print("Headers: \(headers)")
-                
+
                 guard let url =  URL(string:endpoint) else {
                     throw FabricError.invalidURL("getPropertySections - could not create url from \(endpoint)")
                 }
@@ -363,9 +352,9 @@ class RemoteSigner {
                 request.httpMethod = "POST"
                 request.headers = headers
                 request.httpBody = try JSONSerialization.data(withJSONObject: sections)
-                
+
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     //.responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                     .responseJSON() { response in
                         var respJSON = JSON()
@@ -410,13 +399,10 @@ class RemoteSigner {
                     endpoint = endpoint.appending("&env=\(environment)")
                 }
                                                                     
-                print("getPropertySection Request: \(endpoint)")
-                //print("Params: \(parameters)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                //print("Headers: \(headers)")
-                
+
                 let body = [
                     "tags": tags,
                     "attributes": attributes,
@@ -432,7 +418,7 @@ class RemoteSigner {
                 request.httpBody = try JSONSerialization.data(withJSONObject: body)
                 
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                     //.responseJSON() { response in
                         var respJSON = JSON()
@@ -491,7 +477,7 @@ class RemoteSigner {
                 request.headers = headers
                 
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON() { response in
                         var respJSON = JSON()
                         do{
@@ -545,7 +531,7 @@ class RemoteSigner {
                 request.headers = headers
                 
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MultiviewResponse.self){ response in
                         switch (response.result) {
                             case .success(let result):
@@ -588,7 +574,7 @@ class RemoteSigner {
                 request.headers = headers
                 
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON() { response in
                         var respJSON = JSON()
                         do{
@@ -636,13 +622,10 @@ class RemoteSigner {
                     endpoint = endpoint.appending("&no_cache=true")
                 }
                                                                     
-                print("getPropertySection Request: \(endpoint)")
-                //print("Params: \(parameters)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                //print("Headers: \(headers)")
-                
+
                 guard let url =  URL(string:endpoint) else {
                     throw FabricError.invalidURL("getPropertySections - could not create url from \(endpoint)")
                 }
@@ -650,9 +633,9 @@ class RemoteSigner {
                 request.httpMethod = "POST"
                 request.headers = headers
                 request.httpBody = try JSONSerialization.data(withJSONObject: sections)
-                
+
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                         var respJSON = JSON()
                         do{
@@ -701,7 +684,7 @@ class RemoteSigner {
                          "Accept": "application/json" ]
 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MediaPropertyPage.self) { response in
                         var respJSON = JSON()
                         do{
@@ -754,7 +737,7 @@ class RemoteSigner {
                          "Accept": "application/json" ]
 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MediaPropertySectionsResponse.self) { response in
                         var respJSON = JSON()
                         do{
@@ -794,11 +777,10 @@ class RemoteSigner {
                     endpoint = endpoint.appending("&no_cache=true")
                 }
                                                                     
-                print("getPropertySection Request: \(endpoint)")
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                
+
                 guard let url =  URL(string:endpoint) else {
                     throw FabricError.invalidURL("getPropertySections - could not create url from \(endpoint)")
                 }
@@ -808,7 +790,7 @@ class RemoteSigner {
                 request.httpBody = try JSONSerialization.data(withJSONObject: mediaItems)
                 
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseDecodable(of: MediaPropertyItemsResponse.self) { response in
                         var respJSON = JSON()
                         do{
@@ -842,7 +824,6 @@ class RemoteSigner {
     //TODO: Convert this to responseDecodable
     func createMetaMaskLogin() async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** createMetaMaskLogin ******")
             do {
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/login/redirect/metamask")
                 if (environment != .prod){
@@ -861,7 +842,7 @@ class RemoteSigner {
                 let parameters : [String: Any] = ["op":"create", "dest": walletUrl]
                 
                 AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON { response in
 
                     switch (response.result) {
@@ -885,34 +866,31 @@ class RemoteSigner {
     //Pass in the response JSON of createMetaMaskLogin
     func checkMetaMaskLogin(createResponse: JSON) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** checkMetaMaskLogin ******")
             do {
-                
+
                 let id = createResponse["id"].stringValue
                 let pass = createResponse["passcode"].stringValue
-                
+
                 if (id == ""){
                     continuation.resume(throwing: FabricError.badInput("checkMetaMaskLogin failed. ID is empty"))
                 }
-                
+
                 if (pass == ""){
                     continuation.resume(throwing: FabricError.badInput("checkMetaMaskLogin failed. passcode is empty"))
                 }
-                
+
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/login/redirect/metamask/")
                     .appending(id).appending("/").appending(pass)
                 if (environment != .prod){
                     endpoint = endpoint.appending("?env=\(environment)")
                 }
-                
-                debugPrint("endpoint ", endpoint)
 
                 let headers: HTTPHeaders = [
                      "Accept": "application/json",
                      "Content-Type": "application/json" ]
 
                 AF.request(endpoint, encoding: JSONEncoding.default, headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON { response in
 
                     switch (response.result) {
@@ -936,7 +914,6 @@ class RemoteSigner {
     //TODO: Convert this to responseDecodable
     func createAuthLogin(redirectUrl: String) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** createMetaMaskLogin ******")
             do {
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/login/redirect/metamask")
                 if (environment != .prod){
@@ -972,7 +949,6 @@ class RemoteSigner {
     
     func shortenUrl(url: String) async throws -> String {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** shortenUrl ******")
             do {
                 var endpoint = "https://elv.lv/tiny/create"
                 
@@ -981,15 +957,13 @@ class RemoteSigner {
                      "Content-Type": "application/json" ]
                 
                 AF.request(endpoint, method: .post, parameters: [:], encoding: url, headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON{ response in
 
                     var respJSON = JSON()
                     do{
                         respJSON = try JSON(data: response.data ?? Data())
                     }catch{}
-                        
-                    debugPrint("shorten response: ", respJSON)
                         
                     switch (response.result) {
                         case .success:
@@ -1008,7 +982,6 @@ class RemoteSigner {
     //Pass in the response JSON of createMetaMaskLogin
     func checkAuthLogin(createResponse: JSON) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** checkMetaMaskLogin ******")
             do {
                 
                 let id = createResponse["id"].stringValue
@@ -1034,7 +1007,7 @@ class RemoteSigner {
                      "Content-Type": "application/json" ]
 
                 AF.request(endpoint, encoding: JSONEncoding.default, headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON { response in
 
                     switch (response.result) {
@@ -1122,7 +1095,6 @@ class RemoteSigner {
     //This uses the authd api with a cluster token (returned from /login/jwt) to get a fabric token
     func getFabricToken(authToken:String) async throws -> String{
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** checkMetaMaskLogin ******")
             do {
 
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/sign/csat")
@@ -1136,7 +1108,7 @@ class RemoteSigner {
                      "Authorization" : "bearer \(authToken)"]
 
                 AF.request(endpoint, encoding: JSONEncoding.default, headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseString { response in
                         var respJSON = JSON()
                         do{
@@ -1170,7 +1142,6 @@ class RemoteSigner {
     func refreshFabricToken(refreshToken:String, nonce: String, fabricToken: String) async throws -> JSON {
         
         return try await withCheckedThrowingContinuation({ continuation in
-            debugPrint("****** refreshFabricToken ******")
             do {
 
                 var endpoint = try self.getAuthEndpoint().appending("/wlt/refresh/csat")
@@ -1198,15 +1169,13 @@ class RemoteSigner {
                 }
 
                 AF.request(request)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseString { response in
                         var respJSON = JSON()
                         do{
                             respJSON = try JSON(data: response.data ?? Data())
                         }catch{}
                         
-                        debugPrint("refresh response: ", respJSON)
-                            
                         switch (response.result) {
                         case .success(let result):
                             if respJSON["errors"].exists() {
@@ -1308,9 +1277,8 @@ class RemoteSigner {
     // authToken: token given back from the /wlt/login/jwt endpoint
     func signDigest(digest: Data, accountId: String, authToken: String, external: Bool = false) async throws -> [String: AnyObject] {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** signDigest ******")
             do {
-                
+
                 var endpoint: String = ""
                 if external {
                     endpoint = "https://wlt.stg.svc.eluv.io/as/wlt/sign/eth/".appending(accountId);
@@ -1321,8 +1289,6 @@ class RemoteSigner {
                     endpoint = endpoint.appending("?env=\(environment)")
                 }
 
-                print("Request: \(endpoint)")
-                
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(authToken)",
                      "Accept": "application/json",
@@ -1332,10 +1298,8 @@ class RemoteSigner {
                 let parameters : [String: Any] = ["hash":digest.hexEncodedString()]
                 
                 AF.request(endpoint, method: .post, parameters: parameters, encoding: JSONEncoding.default, headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON { response in
-                    debugPrint("signDigest Response: \(response)")
-                    
                     switch (response.result) {
                         case .success( _):
                             if var result = response.value as? [String: AnyObject] {
@@ -1366,7 +1330,6 @@ class RemoteSigner {
     
     func getNftInfo(nftAddress: String, tokenId: String = "", accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            print("****** getNftInfo ******")
             do {
                 var endpoint: String = try self.getAuthEndpoint().appending("/nft/info/\(nftAddress)");
                 if !tokenId.isEmpty {
@@ -1380,7 +1343,7 @@ class RemoteSigner {
                          "Accept": "application/json" ]
 
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers )
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .responseJSON { response in
 
                     switch (response.result) {
@@ -1404,22 +1367,16 @@ class RemoteSigner {
     func getWalletStatus(tenantId: String, accessCode: String, parameters : [String: String] = [:]) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
             do {
-                debugPrint("****** getWalletStatus ******")
                 var endpoint: String = try self.getAuthEndpoint().appending("/wlt/status/act/\(tenantId)");
                 if (environment != .prod){
                     endpoint = endpoint.appending("?env=\(environment)")
                 }
-                
-                
-                debugPrint("Request: \(endpoint)")
-                debugPrint("Params: \(parameters)")
+
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                debugPrint("Headers: \(headers)")
-                
+
                 AF.request(endpoint, parameters: parameters, encoding: URLEncoding.default,headers: headers ).responseJSON { response in
-                    //print("Response : \(response)")
                     var respJSON = JSON()
                     do{
                         respJSON = try JSON(data: response.data ?? Data())
@@ -1452,21 +1409,15 @@ class RemoteSigner {
     func postWalletStatus(tenantId: String, accessCode: String, query:[String:String], body : [String: Any] = [:], bodyData : Data? = nil) async throws -> JSON{
         return try await withCheckedThrowingContinuation({ continuation in
             do {
-                debugPrint("****** postWalletStatus ******")
                 var endpoint: String = try self.getAuthEndpoint().appending("/wlt/act/\(tenantId)");
                 if (environment != .prod){
                     endpoint = endpoint.appending("?env=\(environment)")
                 }
-                
-                debugPrint("Request: \(endpoint)")
-                debugPrint("Body: \(body)")
-                debugPrint("Query: \(query)")
-                
+
                 let headers: HTTPHeaders = [
                     "Authorization": "Bearer \(accessCode)",
                          "Accept": "application/json" ]
-                debugPrint("Headers: \(headers)")
-                
+
                 guard let url = URL(string: endpoint) else{
                     continuation.resume(throwing: FabricError.badInput("Could not form url from \(endpoint)"))
                     return
@@ -1483,13 +1434,9 @@ class RemoteSigner {
                 
                 encodedURLRequest.httpBody = data
                 
-                print("Request: ", encodedURLRequest)
-                
                 AF.request(encodedURLRequest)
-                    .debugLog()
+                    .debugLog(apiLogs)
                     .response{ response in
-                    print("Response : \(response)")
-                    
                     switch (response.result) {
                         case .success:
                             if let value = response.value {
@@ -1514,7 +1461,6 @@ class RemoteSigner {
     
     func createEntitlement(tenantId: String, marketplace: String, sku: String, purchaseId: String, authToken: String) async throws -> JSON {
         return try await withCheckedThrowingContinuation({ continuation in
-            debugPrint("****** checkAuthLogin ******")
             var endpoint = "https://appsvc.svc.eluv.io/sample-purchase/gen-entitlement"
             endpoint = endpoint.appending("?env=\(environment)")
             

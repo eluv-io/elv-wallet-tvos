@@ -258,7 +258,6 @@ class VideoPlayerViewModel: ObservableObject {
                             
                             do {
                                 tenantId = try await eluvio.fabric.getTenantId(objectId: objectId)
-                                debugPrint("tenantID: ", tenantId)
                             }catch {
                                 print("Could not get tenantId from object \(objectId).", error);
                             }
