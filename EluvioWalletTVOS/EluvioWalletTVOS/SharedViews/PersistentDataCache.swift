@@ -25,8 +25,9 @@ class PersistentDataCache: ObservableObject {
         case sections = "sections"
         case mediaItems = "media_items"
         
-        func filename(network: String) -> String {
-            return "\(network)_\(self.rawValue).json"
+        func filename(network: String, environment: String) -> String {
+            let envLabel = environment.isEmpty ? "prod" : environment
+            return "\(network)_\(envLabel)_\(self.rawValue).json"
         }
     }
     
@@ -64,43 +65,45 @@ class PersistentDataCache: ObservableObject {
     
     // MARK: - Generic Cache Operations
     
-    private func cacheFilePath(for key: CacheKey, network: String) -> URL {
-        return cacheDirectory.appendingPathComponent(key.filename(network: network))
+    private func cacheFilePath(for key: CacheKey, network: String, environment: String) -> URL {
+        return cacheDirectory.appendingPathComponent(key.filename(network: network, environment: environment))
     }
-    
-    private func saveToCache<T: Codable>(_ data: T, 
-                                       key: CacheKey, 
-                                       network: String, 
+
+    private func saveToCache<T: Codable>(_ data: T,
+                                       key: CacheKey,
+                                       network: String,
+                                       environment: String,
                                        authState: Bool) {
-        let metadata = CacheMetadata(timestamp: Date(), 
-                                   network: network, 
+        let metadata = CacheMetadata(timestamp: Date(),
+                                   network: network,
                                    authState: authState)
         let cachedData = CachedData(data: data, metadata: metadata)
-        
+
         do {
             let jsonData = try JSONEncoder().encode(cachedData)
-            let filePath = cacheFilePath(for: key, network: network)
+            let filePath = cacheFilePath(for: key, network: network, environment: environment)
             try jsonData.write(to: filePath)
-            logger.info("Cached \(key.rawValue) for network \(network), auth: \(authState)")
+            logger.info("Cached \(key.rawValue) for network \(network), env: \(environment), auth: \(authState)")
         } catch {
             logger.error("Failed to cache \(key.rawValue): \(error.localizedDescription)")
         }
     }
-    
-    private func loadFromCache<T: Codable>(_ type: T.Type, 
-                                        key: CacheKey, 
-                                        network: String, 
+
+    private func loadFromCache<T: Codable>(_ type: T.Type,
+                                        key: CacheKey,
+                                        network: String,
+                                        environment: String,
                                         authState: Bool) -> T? {
-        let filePath = cacheFilePath(for: key, network: network)
-        
+        let filePath = cacheFilePath(for: key, network: network, environment: environment)
+
         guard FileManager.default.fileExists(atPath: filePath.path) else {
             return nil
         }
-        
+
         do {
             let jsonData = try Data(contentsOf: filePath)
             let cachedData = try JSONDecoder().decode(CachedData<T>.self, from: jsonData)
-            
+
             // Check if cache is valid
             guard !cachedData.isExpired,
                   cachedData.metadata.network == network,
@@ -108,10 +111,10 @@ class PersistentDataCache: ObservableObject {
                 logger.info("Cache expired or auth state mismatch for \(key.rawValue)")
                 return nil
             }
-            
-            logger.info("Loaded \(key.rawValue) from cache for network \(network), auth: \(authState)")
+
+            logger.info("Loaded \(key.rawValue) from cache for network \(network), env: \(environment), auth: \(authState)")
             return cachedData.data
-            
+
         } catch {
             logger.error("Failed to load \(key.rawValue) from cache: \(error.localizedDescription)")
             return nil
@@ -120,38 +123,42 @@ class PersistentDataCache: ObservableObject {
     
     // MARK: - Properties Cache
     
-    func cacheProperties(_ properties: [MediaProperty], 
-                        network: String, 
+    func cacheProperties(_ properties: [MediaProperty],
+                        network: String,
+                        environment: String,
                         authState: Bool) {
         let key: CacheKey = authState ? .propertiesAuth : .propertiesNoAuth
-        saveToCache(properties, key: key, network: network, authState: authState)
+        saveToCache(properties, key: key, network: network, environment: environment, authState: authState)
     }
-    
-    func loadCachedProperties(network: String, 
+
+    func loadCachedProperties(network: String,
+                             environment: String,
                              authState: Bool) -> [MediaProperty]? {
         let key: CacheKey = authState ? .propertiesAuth : .propertiesNoAuth
-        return loadFromCache([MediaProperty].self, key: key, network: network, authState: authState)
+        return loadFromCache([MediaProperty].self, key: key, network: network, environment: environment, authState: authState)
     }
     
     // MARK: - Property ViewModels Cache (NEW - with resolved URLs)
     
-    func cachePropertyViewModels(_ propertyViewModels: [MediaPropertyViewModel], 
-                                network: String, 
+    func cachePropertyViewModels(_ propertyViewModels: [MediaPropertyViewModel],
+                                network: String,
+                                environment: String,
                                 authState: Bool) {
         let key: CacheKey = authState ? .propertyViewModelsAuth : .propertyViewModelsNoAuth
-        saveToCache(propertyViewModels, key: key, network: network, authState: authState)
+        saveToCache(propertyViewModels, key: key, network: network, environment: environment, authState: authState)
         logger.info("Cached \(propertyViewModels.count) PropertyViewModels with resolved URLs")
     }
-    
-    func loadCachedPropertyViewModels(network: String, 
+
+    func loadCachedPropertyViewModels(network: String,
+                                     environment: String,
                                      authState: Bool) -> [MediaPropertyViewModel]? {
         let key: CacheKey = authState ? .propertyViewModelsAuth : .propertyViewModelsNoAuth
-        let viewModels = loadFromCache([MediaPropertyViewModel].self, key: key, network: network, authState: authState)
-        
+        let viewModels = loadFromCache([MediaPropertyViewModel].self, key: key, network: network, environment: environment, authState: authState)
+
         if let viewModels = viewModels {
             logger.info("Loaded \(viewModels.count) PropertyViewModels from cache with resolved URLs")
         }
-        
+
         return viewModels
     }
     

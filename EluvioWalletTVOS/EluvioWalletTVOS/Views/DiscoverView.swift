@@ -132,15 +132,22 @@ struct DiscoverView: View {
     @MainActor
     func loadCachedDataAndRefresh() async {
         let currentNetwork = network
+        let currentEnvironment = eluvio.fabric.environment.rawValue
         let hasAuth = eluvio.accountManager.currentAccount != nil
+        let forceRefresh = eluvio.forceNetworkRefresh
 
-        debugPrint("🔍 Starting loadCachedDataAndRefresh - network: \(currentNetwork), hasAuth: \(hasAuth)")
+        // Consume the flag so subsequent refreshes use cache normally
+        if forceRefresh {
+            eluvio.forceNetworkRefresh = false
+        }
+
+        debugPrint("🔍 Starting loadCachedDataAndRefresh - network: \(currentNetwork), env: \(currentEnvironment), hasAuth: \(hasAuth), forceRefresh: \(forceRefresh)")
 
         // Prevent multiple DiscoverView instances from doing heavy loading simultaneously
         guard !DiscoverView.isLoading else {
             debugPrint("🔍 Another DiscoverView is already loading - skipping")
             // Still try to load from cache for display
-            if let cachedViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, authState: hasAuth),
+            if let cachedViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, environment: currentEnvironment, authState: hasAuth),
                !cachedViewModels.isEmpty {
                 self.properties = cachedViewModels
                 withAnimation(.easeInOut(duration: 0.3)) { opacity = 1.0 }
@@ -159,9 +166,30 @@ struct DiscoverView: View {
                 isLoadingOwner = false
             }
         }
-        
+
+        // On environment change, skip cache early-returns and refresh from network immediately.
+        // Still show any matching cache as a placeholder while the network call runs.
+        if forceRefresh {
+            debugPrint("🔄 Force refresh (environment change) - going straight to network")
+            // Show existing env-specific cache as placeholder if available (no flicker)
+            if let cachedViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, environment: currentEnvironment, authState: hasAuth),
+               !cachedViewModels.isEmpty {
+                self.properties = cachedViewModels
+                withAnimation(.easeInOut(duration: 0.3)) { opacity = 1.0 }
+                if eluvio.isCustomApp() && cachedViewModels.count == 1 {
+                    selected = cachedViewModels[0]
+                    backgroundImageURL = cachedViewModels[0].startScreenBackground
+                } else if cachedViewModels.count > 1 {
+                    selected = cachedViewModels[0]
+                    backgroundImageURL = cachedViewModels[0].backgroundImage
+                }
+            }
+            await refreshFromNetwork(useCache: false)
+            return
+        }
+
         // First, try to load ViewModels from cache (with resolved URLs!)
-        if let cachedViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, authState: hasAuth) {
+        if let cachedViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, environment: currentEnvironment, authState: hasAuth) {
             debugPrint("🚀 ViewModel cache hit: \(cachedViewModels.count) items, first: \(cachedViewModels.first?.title ?? "nil")")
 
             // Use cached ViewModels directly - no conversion needed!
@@ -180,24 +208,26 @@ struct DiscoverView: View {
                 selected = cachedViewModels[0]
                 backgroundImageURL = cachedViewModels[0].backgroundImage
             }
-            
+
             // If we have cached ViewModels, completely skip network refresh for now
             if !cachedViewModels.isEmpty {
                 debugPrint("Using cached ViewModels, completely skipping network calls for startup")
                 // Ensure Fabric signer is initialized so getProperty() works when user taps a property
+                guard !Task.isCancelled else { return }
                 try? await eluvio.fabric.connect(token: eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 // Only refresh in background much later
                 Task.detached {
                     try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds later
+                    guard !Task.isCancelled else { return }
                     await self.silentBackgroundRefresh()
                 }
                 debugPrint("🎯 Early return - ViewModel cache loading complete")
                 return // Exit early - don't make network call at all
             }
         }
-        
+
         // Fallback: try old raw property cache
-        if let cachedProperties = persistentCache.loadCachedProperties(network: currentNetwork, authState: hasAuth) {
+        if let cachedProperties = persistentCache.loadCachedProperties(network: currentNetwork, environment: currentEnvironment, authState: hasAuth) {
             debugPrint("💾 Raw property cache fallback: \(cachedProperties.count) items")
 
             await updatePropertiesFromCache(cachedProperties)
@@ -207,18 +237,20 @@ struct DiscoverView: View {
             }
 
             if !cachedProperties.isEmpty {
+                guard !Task.isCancelled else { return }
                 try? await eluvio.fabric.connect(token: eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 Task.detached {
                     try? await Task.sleep(nanoseconds: 30_000_000_000) // 30 seconds later
+                    guard !Task.isCancelled else { return }
                     await self.silentBackgroundRefresh()
                 }
                 return
             }
         }
-        
+
         // If authenticated but no auth cache, try showing unauth cache as placeholder
         if hasAuth {
-            if let unauthViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, authState: false),
+            if let unauthViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, environment: currentEnvironment, authState: false),
                !unauthViewModels.isEmpty {
                 debugPrint("📋 Auth cache miss - using unauth ViewModels as placeholder: \(unauthViewModels.count)")
                 self.properties = unauthViewModels
@@ -231,9 +263,33 @@ struct DiscoverView: View {
                 }
                 // Connect signer then refresh silently after a delay
                 // (signIn's background pre-cache Task may already be fetching auth properties)
+                guard !Task.isCancelled else { return }
                 try? await eluvio.fabric.connect(token: eluvio.accountManager.currentAccount?.fabricToken ?? "")
                 Task.detached {
                     try? await Task.sleep(nanoseconds: 10_000_000_000) // 10 seconds - let signIn pre-cache finish first
+                    guard !Task.isCancelled else { return }
+                    await self.silentBackgroundRefresh()
+                }
+                return
+            }
+        }
+
+        // If no unauth cache, try auth cache as placeholder (e.g., after sign-out)
+        if !hasAuth {
+            if let authViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, environment: currentEnvironment, authState: true),
+               !authViewModels.isEmpty {
+                debugPrint("📋 Unauth cache miss - using auth ViewModels as placeholder: \(authViewModels.count)")
+                self.properties = authViewModels
+                withAnimation(.easeInOut(duration: 0.3)) { opacity = 1.0 }
+                if authViewModels.count > 1 {
+                    selected = authViewModels[0]
+                    backgroundImageURL = authViewModels[0].backgroundImage
+                }
+                guard !Task.isCancelled else { return }
+                try? await eluvio.fabric.connect(token: "")
+                Task.detached {
+                    try? await Task.sleep(nanoseconds: 10_000_000_000)
+                    guard !Task.isCancelled else { return }
                     await self.silentBackgroundRefresh()
                 }
                 return
@@ -251,10 +307,11 @@ struct DiscoverView: View {
         do {
             let noAuth = eluvio.accountManager.currentAccount == nil
             let currentNetwork = eluvio.fabric.network
+            let currentEnvironment = eluvio.fabric.environment.rawValue
 
             // Check if persistent cache already has fresh auth ViewModels
             // (e.g., from signIn's background pre-cache Task)
-            if let freshViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, authState: !noAuth),
+            if let freshViewModels = persistentCache.loadCachedPropertyViewModels(network: currentNetwork, environment: currentEnvironment, authState: !noAuth),
                !freshViewModels.isEmpty {
                 let oldIds = self.properties.map { $0.id }
                 let newIds = freshViewModels.map { $0.id }
@@ -280,7 +337,7 @@ struct DiscoverView: View {
             )
 
             // Cache the fresh data (both raw and ViewModels)
-            persistentCache.cacheProperties(props, network: network, authState: !noAuth)
+            persistentCache.cacheProperties(props, network: currentNetwork, environment: currentEnvironment, authState: !noAuth)
 
             // Silently update properties if they've changed
             var newProperties: [MediaPropertyViewModel] = []
@@ -299,7 +356,7 @@ struct DiscoverView: View {
             }
 
             // Cache the ViewModels with resolved URLs
-            persistentCache.cachePropertyViewModels(newProperties, network: network, authState: !noAuth)
+            persistentCache.cachePropertyViewModels(newProperties, network: currentNetwork, environment: currentEnvironment, authState: !noAuth)
 
             // Update if content changed (compare IDs, not just count)
             let oldIds = self.properties.map { $0.id }
@@ -414,6 +471,7 @@ struct DiscoverView: View {
         }
         
         for _ in 1...2 {
+            guard !Task.isCancelled else { break }
             var retry = false
             do {
                 try await eluvio.fabric.connect(token: eluvio.accountManager.currentAccount?.fabricToken ?? "")
@@ -430,7 +488,8 @@ struct DiscoverView: View {
                 )
                 
                 // Cache the fresh data (both raw and ViewModels)
-                persistentCache.cacheProperties(props, network: network, authState: !noAuth)
+                let currentEnvironment = eluvio.fabric.environment.rawValue
+                persistentCache.cacheProperties(props, network: network, environment: currentEnvironment, authState: !noAuth)
                 
                 var newProperties: [MediaPropertyViewModel] = []
                 
@@ -459,7 +518,7 @@ struct DiscoverView: View {
                 }
                 
                 // Cache the ViewModels with resolved URLs for instant future loading!
-                persistentCache.cachePropertyViewModels(newProperties, network: network, authState: !noAuth)
+                persistentCache.cachePropertyViewModels(newProperties, network: network, environment: currentEnvironment, authState: !noAuth)
                 
                 await MainActor.run {
                     // Update background with smooth transition

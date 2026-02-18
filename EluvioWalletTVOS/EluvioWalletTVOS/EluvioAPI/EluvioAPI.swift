@@ -17,6 +17,7 @@ class EluvioAPI : ObservableObject {
     @Published var pathState : PathState = PathState()
     @Published var viewState : ViewState
     @Published var refreshId = UUID().uuidString
+    @Published var forceNetworkRefresh = false
     @Published var devMode: Bool = false
     @Published var apiLogs: Bool = false
     //Requested token expiration during for login.
@@ -83,6 +84,7 @@ class EluvioAPI : ObservableObject {
     func setEnvironment(env:APIEnvironment){
         UserDefaults.standard.set(env.rawValue, forKey: "api_environment")
         fabric.setEnvironment(env: env)
+        forceNetworkRefresh = true
         needsRefresh()
     }
     
@@ -152,7 +154,8 @@ class EluvioAPI : ObservableObject {
 
                 let cache = PersistentDataCache()
                 let network = fabricRef.network
-                cache.cacheProperties(props, network: network, authState: true)
+                let environment = fabricRef.environment.rawValue
+                cache.cacheProperties(props, network: network, environment: environment, authState: true)
 
                 var viewModels: [MediaPropertyViewModel] = []
                 for prop in props {
@@ -161,7 +164,7 @@ class EluvioAPI : ObservableObject {
                         viewModels.append(vm)
                     }
                 }
-                cache.cachePropertyViewModels(viewModels, network: network, authState: true)
+                cache.cachePropertyViewModels(viewModels, network: network, environment: environment, authState: true)
                 // Trigger DiscoverView refresh NOW that auth cache is ready
                 self.needsRefresh()
             } catch {
@@ -175,6 +178,7 @@ class EluvioAPI : ObservableObject {
     func signOut(){
         accountManager.signOut()
         fabric.reset()
+        setEnvironment(env: .prod)
     }
     
     //TODO:

@@ -210,6 +210,7 @@ class Fabric: ObservableObject {
         
         self.signer = RemoteSigner(ethApi: ethereumApi, authorityApi:asApi, network:_network)
         self.signer?.apiLogs = self.apiLogs
+        self.signer?.setEnvironment(env: self.environment)
 
 
 
