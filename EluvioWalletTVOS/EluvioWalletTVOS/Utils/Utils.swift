@@ -5,459 +5,232 @@
 //  Created by Wayne Tran on 2021-09-27.
 //
 
-import Foundation
-import Base58Swift
-import SwiftUI
 import Alamofire
-import AVKit
-import SwiftyJSON
-import AVFoundation
-import VarInt
+import Base58Swift
 import CryptoKit
+import Foundation
+import VarInt
 
-let BundleVersion: String = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+let BundleVersion: String =
+  Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 let BundleBuild: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
 
 extension UnsignedInteger where Self: CVarArg {
-    var hexa: String { .init(format: "%ll*0x", bitWidth / 4, self) }
-}
-
-extension DataProtocol {
-    var sha256Digest: SHA256Digest { SHA256.hash(data: self) }
-    var sha256Data: Data { .init(sha256Digest) }
-    var sha256Hexa: String { sha256Digest.map(\.hexa).joined() }
+  var hexa: String {
+    .init(format: "%ll*0x", bitWidth / 4, self)
+  }
 }
 
 extension SHA256Digest {
-    var data: Data { .init(self) }
-    var hexa: String { map(\.hexa).joined() }
-}
-
-extension StringProtocol {
-    var data: Data { .init(utf8) }
-    var sha256Digest: SHA256Digest { data.sha256Digest }
-    var sha256Data: Data { data.sha256Data }
-    var sha256Hexa: String { data.sha256Hexa }
-}
-
-
-extension Encodable {
-    /// Converting object to postable JSON
-    func toJSONString(_ encoder: JSONEncoder = JSONEncoder()) -> String {
-        do {
-            let jsonData = try encoder.encode(self)
-            let json = String(data: jsonData, encoding: String.Encoding.utf8)
-            return json ?? ""
-        }catch{
-            return ""
-        }
-
-    }
+  var hexa: String {
+    map(\.hexa).joined()
+  }
 }
 
 extension URL {
-    public var queryParameters: [String: String]? {
-        guard
-            let components = URLComponents(url: self, resolvingAgainstBaseURL: true),
-            let queryItems = components.queryItems else { return nil }
-        return queryItems.reduce(into: [String: String]()) { (result, item) in
-            result[item.name] = item.value
-        }
+  public var queryParameters: [String: String]? {
+    guard
+      let components = URLComponents(url: self, resolvingAgainstBaseURL: true),
+      let queryItems = components.queryItems
+    else { return nil }
+    return queryItems.reduce(into: [String: String]()) { result, item in
+      result[item.name] = item.value
     }
+  }
 }
 
-
 func FormatAddress(address: String) -> String {
-    if address.isEmpty {
-        return address
-    }
-        
-    var formatted = address.trim()
-    if(!formatted.starts(with: "0x")){
-        formatted = "0x".appending(formatted)
-    }
-    
-    return formatted.lowercased()
+  if address.isEmpty {
+    return address
+  }
+
+  var formatted = address.trim()
+  if !formatted.starts(with: "0x") {
+    formatted = "0x".appending(formatted)
+  }
+
+  return formatted.lowercased()
 }
 
 func loadJsonFile<T: Decodable>(_ filename: String) throws -> T {
-    let data: Data
+  let data: Data
 
-    guard let file = Bundle.main.url(forResource: filename, withExtension: nil)
-        else {
-            throw "Couldn't find \(filename) in main bundle."
-    }
+  guard let file = Bundle.main.url(forResource: filename, withExtension: nil)
+  else {
+    throw "Couldn't find \(filename) in main bundle."
+  }
 
-    do {
-        data = try Data(contentsOf: file)
-    } catch {
-        throw "Couldn't load \(filename) from main bundle:\n\(error)"
-    }
+  do {
+    data = try Data(contentsOf: file)
+  } catch {
+    throw "Couldn't load \(filename) from main bundle:\n\(error)"
+  }
 
-    do {
-        let decoder = JSONDecoder()
-        return try decoder.decode(T.self, from: data)
-    } catch {
-        throw "Couldn't parse \(filename) as \(T.self):\n\(error)"
-    }
+  do {
+    let decoder = JSONDecoder()
+    return try decoder.decode(T.self, from: data)
+  } catch {
+    throw "Couldn't parse \(filename) as \(T.self):\n\(error)"
+  }
 }
 
 func loadJsonFileFatal<T: Decodable>(_ filename: String) -> T {
-    do {
-        return try loadJsonFile(filename)
-    }catch{
-        fatalError(error.localizedDescription)
-    }
+  do {
+    return try loadJsonFile(filename)
+  } catch {
+    fatalError(error.localizedDescription)
+  }
 }
 
 func HexToBytes(_ string: String) -> [UInt8]? {
-    var str = string
+  var str = string
 
-    if(string.hasPrefix("0x")){
-        str = String(string.dropFirst(2))
-    }
-    
-    if str.isEmpty{
-        return nil
-    }
-    
-    return str.hexaBytes
+  if string.hasPrefix("0x") {
+    str = String(string.dropFirst(2))
+  }
+
+  if str.isEmpty {
+    print("Error: Length == 0")
+    return nil
+  }
+
+  return str.hexaBytes
 }
 
 func Hash(_ string: String) -> String {
-    SHA256.hash(data: string.data(using: .utf8)!).hexa
+  SHA256.hash(data: string.data(using: .utf8)!).hexa
 }
 
 extension StringProtocol {
-    var hexaData: Data { .init(hexa) }
-    var hexaBytes: [UInt8] { .init(hexa) }
-    private var hexa: UnfoldSequence<UInt8, Index> {
-        sequence(state: startIndex) { startIndex in
-            guard startIndex < self.endIndex else { return nil }
-            let endIndex = self.index(startIndex, offsetBy: 2, limitedBy: self.endIndex) ?? self.endIndex
-            defer { startIndex = endIndex }
-            return UInt8(self[startIndex..<endIndex], radix: 16)
-        }
+  var hexaBytes: [UInt8] {
+    .init(hexa)
+  }
+
+  private var hexa: UnfoldSequence<UInt8, Index> {
+    sequence(state: startIndex) { startIndex in
+      guard startIndex < self.endIndex else { return nil }
+      let endIndex = self.index(startIndex, offsetBy: 2, limitedBy: self.endIndex) ?? self.endIndex
+      defer { startIndex = endIndex }
+      return UInt8(self[startIndex..<endIndex], radix: 16)
     }
+  }
 }
 
-extension String: LocalizedError {
-    public var errorDescription: String? { return self }
-}
+func addressToId(prefix: String, address: String) throws -> String {
+  guard let bytes = HexToBytes(address) else {
+    throw FabricError.badInput("addressToId: could not get bytes from address \(address)")
+  }
 
-extension String {
-    enum ExtendedEncoding {
-        case hexadecimal
-    }
-    
-    func trim() -> String {
-        return self.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-    
-    var fixedBase64Format: Self {
-        let offset = count % 4
-        guard offset != 0 else { return self.trim() }
-        return padding(toLength: count + 4 - offset, withPad: "=", startingAt: 0).trim()
-      }
-    
-    func base64() -> String {
-        let stringData = self.data(using: .utf8)!
-        return stringData.base64EncodedString()
-    }
-    
-    func fromBase64() -> String? {
-        guard let data = Data(base64Encoded: self) else {
-            return nil
-        }
+  let encoded = Base58.base58Encode(bytes)
 
-        return String(data: data, encoding: .utf8)
-    }
-    
-    func jsonToDictionary() -> [String: Any]? {
-        if let data = self.data(using: .utf8) {
-            do {
-                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            } catch {
-                print(error.localizedDescription)
-            }
-        }
-        return nil
-    }
-
-    func data(using encoding:ExtendedEncoding) -> Data? {
-        let hexStr = self.dropFirst(self.hasPrefix("0x") ? 2 : 0)
-
-        guard hexStr.count % 2 == 0 else { return nil }
-
-        var newData = Data(capacity: hexStr.count/2)
-
-        var indexIsEven = true
-        for i in hexStr.indices {
-            if indexIsEven {
-                let byteRange = i...hexStr.index(after: i)
-                guard let byte = UInt8(hexStr[byteRange], radix: 16) else { return nil }
-                newData.append(byte)
-            }
-            indexIsEven.toggle()
-        }
-        return newData
-    }
-    
-    public func replaceFirst(of pattern:String,
-                             with replacement:String) -> String {
-      if let range = self.range(of: pattern){
-        return self.replacingCharacters(in: range, with: replacement)
-      }else{
-        return self
-      }
-    }
-    
-    public func replaceAll(of pattern:String,
-                           with replacement:String,
-                           options: NSRegularExpression.Options = []) -> String{
-      do{
-        let regex = try NSRegularExpression(pattern: pattern, options: [])
-        let range = NSRange(0..<self.utf16.count)
-        return regex.stringByReplacingMatches(in: self, options: [],
-                                              range: range, withTemplate: replacement)
-      }catch{
-        NSLog("replaceAll error: \(error)")
-        return self
-      }
-    }
-    
-    func capitalizingFirstLetter() -> String {
-        return prefix(1).capitalized + dropFirst()
-    }
-
-    mutating func capitalizeFirstLetter() {
-        self = self.capitalizingFirstLetter()
-    }
-    
-    func html2Attributed(fontScale: Double = 2.5) -> AttributedString {
-
-        guard let data = data(using: String.Encoding.utf8) else {
-            return ""
-        }
- 
-        if let attr = try? NSMutableAttributedString(data: data, options: [.documentType: NSAttributedString.DocumentType.html, .characterEncoding: NSUTF8StringEncoding], documentAttributes: nil) {
-            
-            let range = NSRange(location: 0, length: attr.length)
-            attr.enumerateAttribute(.font, in: range, options: .longestEffectiveRangeNotRequired) { attrib, range, _ in
-                if let htmlFont = attrib as? UIFont {
-                    let traits = htmlFont.fontDescriptor.symbolicTraits
-                    var descrip = htmlFont.fontDescriptor.withFamily("Helvetica Neue")
-
-                    if (traits.rawValue & UIFontDescriptor.SymbolicTraits.traitBold.rawValue) != 0 {
-                        descrip = descrip.withSymbolicTraits(.traitBold)!
-                    }
-
-                    if (traits.rawValue & UIFontDescriptor.SymbolicTraits.traitItalic.rawValue) != 0 {
-                        descrip = descrip.withSymbolicTraits(.traitItalic)!
-                    }
-
-                    attr.addAttribute(.font, value: UIFont(descriptor: descrip, size: htmlFont.pointSize * fontScale), range: range)
-                }
-            }
-            
-            return AttributedString(attr)
-        }
-         
-        return ""
-        
-    }
-    
+  return "\(prefix)\(encoded)"
 }
 
 extension Data {
-    struct HexEncodingOptions: OptionSet {
-        let rawValue: Int
-        static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
-    }
+  struct HexEncodingOptions: OptionSet {
+    let rawValue: Int
+    static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
+  }
 
-    func hexEncodedString(options: HexEncodingOptions = []) -> String {
-        let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
-        return "0x\(self.map { String(format: format, $0) }.joined())"
-    }
-    
-    var prettyPrintedJSONString: NSString? { /// NSString gives us a nice sanitized debugDescription
-        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
-              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
-              let prettyPrintedString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) else { return nil }
+  func hexEncodedString(options: HexEncodingOptions = []) -> String {
+    let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
+    return "0x\(map { String(format: format, $0) }.joined())"
+  }
 
-        return prettyPrintedString
-    }
-}
+  var prettyPrintedJSONString: NSString? {  // NSString gives us a nice sanitized debugDescription
+    guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
+      let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+      let prettyPrintedString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
+    else { return nil }
 
-
-func addressToId(prefix: String, address: String) throws -> String {
-    guard let bytes = HexToBytes(address) else {
-        throw FabricError.badInput("addressToId: could not get bytes from address \(address)")
-    }
-    
-    let encoded = Base58.base58Encode(bytes)
-    
-    return "\(prefix)\(encoded)"
+    return prettyPrintedString
+  }
 }
 
 extension Date {
-    var now:Int64 {
-        Int64((self.timeIntervalSince1970 * 1000.0).rounded())
-    }
-    
-    init(milliseconds:Int64) {
-        self = Date(timeIntervalSince1970: TimeInterval(milliseconds) / 1000)
-    }
+  var now: Int64 {
+    Int64((timeIntervalSince1970 * 1000.0).rounded())
+  }
 }
 
 func FindContentHash(uri: String) -> String? {
-    guard let url = URL(string:uri) else {
-        return nil
-    }
-    for component in url.pathComponents {
-        if (component.hasPrefix("hq__")){
-            return component
-        }
-    }
-    
-    //try searching params (for embed
-    do {
-        let regexp = try Regex("hq__[^&/]+")
-        if let result = uri.firstMatch(of: regexp) {
-            if let sub  = result.output[0].substring {
-                return String(sub)
-            }
-        }
-    }catch{
-    }
-    
+  guard let url = URL(string: uri) else {
     return nil
+  }
+  for component in url.pathComponents {
+    if component.hasPrefix("hq__") {
+      return component
+    }
+  }
+
+  // try searching params (for embed
+  do {
+    let regexp = try Regex("hq__[^&/]+")
+    if let result = uri.firstMatch(of: regexp) {
+      print(result.output)
+      if let sub = result.output[0].substring {
+        return String(sub)
+      }
+    }
+  } catch {
+    print("Error in FindContentHash ", uri)
+  }
+
+  return nil
 }
 
 extension NSNotification {
-    static let LoggedOut = Notification.Name.init("LoggedOut")
+  static let LoggedOut = Notification.Name("LoggedOut")
 }
 
 extension String: ParameterEncoding {
-
-    public func encode(_ urlRequest: URLRequestConvertible, with parameters: Parameters?) throws -> URLRequest {
-        var request = try urlRequest.asURLRequest()
-        request.httpBody = data(using: .utf8, allowLossyConversion: false)
-        return request
-    }
-
-}
-
-/*
-func GenerateQRCodeUIImage(from string: String) -> UIImage {
-    let context = CIContext()
-    let filter = CIFilter.qrCodeGenerator()
-    filter.message = Data(string.utf8)
-
-    if let outputImage = filter.outputImage {
-        if let cgimg = context.createCGImage(outputImage, from: outputImage.extent) {
-            return UIImage(cgImage: cgimg)
-        }
-    }
-
-
-    return UIImage(systemName: "xmark.circle") ?? UIImage()
-}
-*/
-
-func GenerateQRCode(from string: String) -> UIImage {
-    let ciContext = CIContext()
-    
-    guard let data = string.data(using: .ascii, allowLossyConversion: false) else {
-        return UIImage()
-        
-    }
-    let filter = CIFilter.qrCodeGenerator()
-    filter.message = data
-    
-    if let ciImage = filter.outputImage {
-        if let cgImage = ciContext.createCGImage(
-            ciImage,
-            from: ciImage.extent) {
-            
-            return UIImage(cgImage: cgImage)
-        }
-    }
-    
-    return UIImage()
+  public func encode(_ urlRequest: URLRequestConvertible, with _: Parameters?) throws -> URLRequest
+  {
+    var request = try urlRequest.asURLRequest()
+    request.httpBody = data(using: .utf8, allowLossyConversion: false)
+    return request
+  }
 }
 
 extension Request {
-    public func debugLog(_ enabled: Bool = false) -> Self {
+  public func debugLog() -> Self {
     #if DEBUG
-    if enabled {
-        cURLDescription(calling: { (curl) in
-            debugPrint("=======================================")
-            print(curl)
-            debugPrint("=======================================")
-        })
-    }
+      cURLDescription(calling: { curl in
+        debugPrint("=======================================")
+        print(curl)
+        debugPrint("=======================================")
+      })
     #endif
+    return self
+  }
+
+  public func debugLog(_ enabled: Bool) -> Self {
+    if enabled {
+      return debugLog()
+    }
     return self
   }
 }
 
 extension RangeReplaceableCollection where Element: Equatable {
-    @discardableResult
-    mutating func appendIfNotContains(_ element: Element) -> (appended: Bool, memberAfterAppend: Element) {
-        if let index = firstIndex(of: element) {
-            return (false, self[index])
-        } else {
-            append(element)
-            return (true, element)
-        }
+  func unique() -> [Element] where Element: Equatable {
+    var newArray: [Element] = []
+    for i in self {
+      if !newArray.contains(i) {
+        newArray.append(i)
+      }
     }
-    
-    func unique() -> [Element] where Element: Equatable {
-        var newArray: [Element] = []
-        self.forEach { i in
-            if !newArray.contains(i) {
-                newArray.append(i)
-                
-            }
-        }
-        return newArray
-    }
-    
-    func group<Discrimininator>(by discriminator: (Element)->(Discrimininator)) -> [Discrimininator: [Element]] where Discrimininator: Hashable {
-        
-        var result = [Discrimininator: [Element]]()
-        for element in self {
-            
-            let key = discriminator(element)
-            var array = result[key] ?? [Element]()
-            array.append(element)
-            result[key] = array
-        }
-        
-        return result
-    }
+    return newArray
+  }
 }
 
 extension URL {
-    func valueOf(_ queryParameterName: String) -> String? {
-        guard let url = URLComponents(string: self.absoluteString) else { return nil }
-        return url.queryItems?.first(where: { $0.name == queryParameterName })?.value
-    }
+  func valueOf(_ queryParameterName: String) -> String? {
+    guard let url = URLComponents(string: absoluteString) else { return nil }
+    return url.queryItems?.first(where: { $0.name == queryParameterName })?.value
+  }
 }
 
-
-extension AVPlayer {
-    func addProgressObserver(intervalSeconds: Double = 5, action:@escaping ((Double) -> Void)) -> Any {
-        return self.addPeriodicTimeObserver(forInterval: CMTime.init(value: Int64(intervalSeconds *  1000), timescale: 1000), queue: .main, using: { time in
-            if let duration = self.currentItem?.duration {
-                let duration = CMTimeGetSeconds(duration), time = CMTimeGetSeconds(time)
-                let progress = (time/duration)
-                action(progress)
-            }
-        })
-    }
-}
 extension Double {
   func asTimeString(style: DateComponentsFormatter.UnitsStyle) -> String {
     let formatter = DateComponentsFormatter()
@@ -467,544 +240,121 @@ extension Double {
   }
 }
 
-extension Color {
-    init(hex: UInt, alpha: Double = 1) {
-        self.init(
-            .sRGB,
-            red: Double((hex >> 16) & 0xff) / 255,
-            green: Double((hex >> 08) & 0xff) / 255,
-            blue: Double((hex >> 00) & 0xff) / 255,
-            opacity: alpha
-        )
-    }
-}
-
-func imageForPDF(document : CGPDFDocument, pageNumber: Int, imageWidth: CGFloat = 0, imageHeight: CGFloat = 0) -> UIImage? {
-
-    guard let page = document.page(at: pageNumber) else { return nil }
-
-    var pageRect = page.getBoxRect(.mediaBox)
-    
-    var scale = 1.0
-    
-    if imageWidth > 0 {
-        scale = imageWidth / pageRect.size.width
-    }else if imageHeight > 0 {
-        scale = imageHeight / pageRect.size.height
-    }
-
-    //Clamp the scale because a larger scale just shrinks the content int the frame
-    /*if scale > 1 {
-        scale = 1.0
-    }*/
-    
-    pageRect.size = CGSize(width: pageRect.size.width * scale,
-                           height: pageRect.size.height * scale)
-    pageRect.origin = CGPoint.zero
-    
-    UIGraphicsBeginImageContext(pageRect.size)
-    guard let context = UIGraphicsGetCurrentContext()  else { return nil }
-    context.setFillColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0)
-    context.fill(pageRect)
-    context.saveGState()
-    
-    // Rotate the PDF so that it’s the right way around
-    context.translateBy(x: 0.0, y: pageRect.size.height)
-    context.scaleBy(x: 1.0, y: -1.0)
-    context.scaleBy(x: scale, y: scale)
-   // context.concatenate(page.getDrawingTransform(.mediaBox, rect: pageRect, rotate: 0, preserveAspectRatio: true))
-    
-    context.drawPDFPage(page)
-    context.restoreGState()
-    
-    let image = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    return image
-}
-
 extension Int64 {
-    var msToSeconds: Double { Double(self) / 1000 }
+  var msToSeconds: Double {
+    Double(self) / 1000
+  }
 }
 
 extension TimeInterval {
-    var hourMinuteSecond: String {
-        String(format:"%d:%02d:%02d", hour, minute, second)
-    }
-    
-    var hourMinuteSecondMS: String {
-        String(format:"%d:%02d:%02d.%03d", hour, minute, second, millisecond)
-    }
-    var minuteSecondMS: String {
-        String(format:"%d:%02d.%03d", minute, second, millisecond)
-    }
-    var hour: Int {
-        Int((self/3600).truncatingRemainder(dividingBy: 3600))
-    }
-    var minute: Int {
-        Int((self/60).truncatingRemainder(dividingBy: 60))
-    }
-    var second: Int {
-        Int(truncatingRemainder(dividingBy: 60))
-    }
-    var millisecond: Int {
-        Int((self*1000).truncatingRemainder(dividingBy: 1000))
-    }
+  var hourMinuteSecond: String {
+    String(format: "%d:%02d:%02d", hour, minute, second)
+  }
+
+  var hour: Int {
+    Int((self / 3600).truncatingRemainder(dividingBy: 3600))
+  }
+
+  var minute: Int {
+    Int((self / 60).truncatingRemainder(dividingBy: 60))
+  }
+
+  var second: Int {
+    Int(truncatingRemainder(dividingBy: 60))
+  }
 }
-/*
- DecodeVersionHash: (versionHash) => {
-   if(!(versionHash.startsWith("hq__") || versionHash.startsWith("tq__"))) {
-     throw new Error(`Invalid version hash: "${versionHash}"`);
-   }
 
-   versionHash = versionHash.slice(4);
+/// Logic copied from elv-client-js
+func DecodeVersionHash(versionHash: String) -> (
+  digest: String, size: UInt64, objectId: String, partHash: String
+) {
+  var digest = ""
+  var size: UInt64 = 0
+  var objectId = ""
+  var partHash = ""
 
-   // Decode base58 payload
-   let bytes = Utils.FromB58(versionHash);
+  if !versionHash.hasPrefix("hq__"), !versionHash.hasPrefix("tq__") {
+    return ("", 0, "", "")
+  }
 
-   // Remove 32 byte SHA256 digest
-   const digestBytes = bytes.slice(0, 32);
-   const digest = digestBytes.toString("hex");
-   bytes = bytes.slice(32);
+  var hash = versionHash.replaceFirst(
+    of: "hq__",
+    with: "")
 
-   // Determine size of varint content size
-   let sizeLength = 0;
-   while(bytes[sizeLength] >= 128) {
-     sizeLength++;
-   }
-   sizeLength++;
+  debugPrint("HASH ", hash)
 
-   // Remove size
-   const sizeBytes = bytes.slice(0, sizeLength);
-   const size = VarInt.decode(sizeBytes);
-   bytes = bytes.slice(sizeLength);
+  if var bytes = Base58.base58Decode(hash) {
+    let digestBytes = bytes[0...31]
 
-   // Remaining bytes is object ID
-   const objectId = "iq__" + Utils.B58(bytes);
+    debugPrint("Digest Bytes ", digestBytes)
 
-   // Part hash is B58 encoded version hash without the ID
-   const partHash = "hqp_" + Utils.B58(Buffer.concat([digestBytes, sizeBytes]));
+    digest = digestBytes.map { String(format: "%02hhx", $0) }.joined()
+    debugPrint("Digest", digest)
 
-   return {
-     digest,
-     size,
-     objectId,
-     partHash
-   };
- }
- */
-func DecodeVersionHash(versionHash: String) -> (digest:String, size:UInt64, objectId:String, partHash:String){
-    var digest = ""
-    var size: UInt64 = 0
-    var objectId = ""
-    var partHash = ""
-    
-    if(!versionHash.hasPrefix("hq__") && !versionHash.hasPrefix("tq__")) {
-        return ("",0,"", "")
+    bytes = Array(bytes[32...])
+    debugPrint("Bytes", bytes)
+
+    // Determine size of varint content size
+    var sizeLength = 0
+    while bytes[sizeLength] >= 128 {
+      sizeLength += 1
     }
-    
-    var hash = versionHash.replaceFirst(of: "hq__",
-                                        with: "")
-    
-    debugPrint("HASH ", hash)
-    
-    if var bytes = Base58.base58Decode(hash) {
-        let digestBytes = bytes[0...31]
-        
-        debugPrint("Digest Bytes ", digestBytes)
-        
-        digest = digestBytes.map { String(format: "%02hhx", $0) }.joined()
-        debugPrint("Digest", digest)
-        
-        bytes = Array(bytes[32...])
-        debugPrint("Bytes", bytes)
-        
-        // Determine size of varint content size
-        var sizeLength = 0
-        while(bytes[sizeLength] >= 128) {
-            sizeLength += 1
-        }
-        sizeLength += 1
-        
-        debugPrint("sizeLength", sizeLength)
-        
-        // Remove size
-        let sizeBytes = bytes[0...sizeLength-1]
-        
-        debugPrint("sizeBytes", sizeBytes)
-        
-        size = uVarInt(Array(sizeBytes)).value
-        debugPrint("size", size)
-        
-        bytes = Array(bytes[sizeLength...])
-        
-        // Remaining bytes is object ID
-        objectId = "iq__" + Base58.base58Encode(bytes);
-        
-        // Part hash is B58 encoded version hash without the ID
-        partHash = "hqp_" + Base58.base58Encode(Array(digestBytes) + Array(sizeBytes))
-    }
-    
-    //TODO:
-    return (digest,size,objectId,partHash)
+    sizeLength += 1
+
+    debugPrint("sizeLength", sizeLength)
+
+    // Remove size
+    let sizeBytes = bytes[0...sizeLength - 1]
+
+    debugPrint("sizeBytes", sizeBytes)
+
+    size = uVarInt(Array(sizeBytes)).value
+    debugPrint("size", size)
+
+    bytes = Array(bytes[sizeLength...])
+
+    // Remaining bytes is object ID
+    objectId = "iq__" + Base58.base58Encode(bytes)
+
+    // Part hash is B58 encoded version hash without the ID
+    partHash = "hqp_" + Base58.base58Encode(Array(digestBytes) + Array(sizeBytes))
+  }
+
+  // TODO:
+  return (digest, size, objectId, partHash)
 }
 
 extension Array {
-    func dividedIntoGroups(of i: Int = 3) -> [[Element]] {
-        var copy = self
-        var res = [[Element]]()
-        while copy.count > i {
-            res.append( (0 ..< i).map { _ in copy.remove(at: 0) } )
-        }
-        res.append(copy)
-        return res
+  func dividedIntoGroups(of i: Int = 3) -> [[Element]] {
+    var copy = self
+    var res = [[Element]]()
+    while copy.count > i {
+      res.append((0..<i).map { _ in copy.remove(at: 0) })
     }
-}
-
-/*
-func MakePlayerItemFromMediaOptions(fabric: Fabric,
-                                    optionsJson: JSON?,
-                                    offering: String = "default",
-                                    title: String = "",
-                                    description: String = "",
-                                    imageThumb: String = ""
-    ) async throws -> AVPlayerItem {
-    
-    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
-    
-    var hlsPlaylistUrl: String = ""
-    var playerItem : AVPlayerItem? = nil
-    
-    guard let options = optionsJson else {
-        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
-    }
-    
-    if options["hls-clear"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
-        //print("Playlist URL \(hlsPlaylistUrl)")
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else if options["hls-sample-aes"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
-
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else if options["hls-fairplay"].exists() {
-        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
-        
-        if(licenseServer.isEmpty)
-        {
-            throw RuntimeError("Error getting licenseServer")
-        }
-
-        
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson,  drm:"hls-fairplay", offering: offering)
-        //print("Playlist URL \(hlsPlaylistUrl)")
-        
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
-        playerItem = AVPlayerItem(asset: urlAsset)
-        
-    }else{
-        throw RuntimeError("No available playback options \(options)")
-    }
-    
-    if let player = playerItem {
-        await MainActor.run {
-            player.externalMetadata.append(AVMeta(title, key:.commonKeyTitle))
-            player.externalMetadata.append(AVMeta(description, key:.commonKeyDescription))
-        }
-        
-        /*
-        if let url = URL(string: imageThumb),
-           let data = try? Data(contentsOf: url) {
-            let image = AVMetaArtwork(value: data as NSData)
-            player.externalMetadata.append(image)
-        }
-         */
-        
-        return player
-    }
-    
-    throw RuntimeError("Error creating playerItem")
-}
-
- */
-
-func MakePlayerItemFromVersionHash(fabric: Fabric,
-                                   versionHash: String,
-                                   params: [JSON]? = [],
-                                   offering: String = "default",
-                                   title: String = "",
-                                   description: String = "",
-                                   imageThumb: String = "") async throws -> AVPlayerItem {
-    debugPrint("MakePlayerItemFromVersionHash ", versionHash)
-    //let options = try await fabric.getOptions(versionHash: versionHash)
-    let options = try await fabric.getOptionsFromHash(versionHash: versionHash)
-    debugPrint("getOptions ", options)
-    return try await MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
-}
-
-func MakePlayerItemFromLink(fabric: Fabric,
-                            link: JSON?,
-                            params: [JSON]? = [],
-                            offering: String = "default",
-                            //hash: String = "",
-                            title: String = "",
-                            description: String = "",
-                            imageThumb: String = "") async throws -> AVPlayerItem {
-    debugPrint("MakePlayerItemFromLink ", link)
-    let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering)
-    debugPrint("getOptionsFromLink ", options)
-    return try await MakePlayerItemFromOptionsJson(fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash, offering: offering)
-}
-
-func MakePlayerItemFromOptionsJson(fabric: Fabric,
-                                   optionsJson: JSON?,
-                                   versionHash: String,
-                                   offering: String = "default",
-                                   title: String = "",
-                                   description: String = "",
-                                   imageThumb: String = "") async throws -> AVPlayerItem {
-    
-    //debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
-    
-    var hlsPlaylistUrl: String = ""
-    var playerItem : AVPlayerItem? = nil
-    
-    guard let options = optionsJson else {
-        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
-    }
-    
-    if options["hls-clear"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-clear", offering: offering)
-        //print("Playlist URL \(hlsPlaylistUrl)")
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else if options["hls-aes128"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-aes128", offering: offering)
-
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else if options["hls-fairplay"].exists() {
-        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
-        
-        if(licenseServer.isEmpty)
-        {
-            throw RuntimeError("Error getting licenseServer")
-        }
-
-        
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-fairplay", offering: offering)
-        //print("Playlist URL \(hlsPlaylistUrl)")
-        
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
-        playerItem = AVPlayerItem(asset: urlAsset)
-        
-    }else if options["hls-sample-aes"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(optionsJson: optionsJson, hash: versionHash, drm:"hls-sample-aes", offering: offering)
-
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else{
-        throw RuntimeError("No available playback options \(options)")
-    }
-    
-    if let player = playerItem {
-        await MainActor.run {
-            player.externalMetadata.append(AVMeta(title, key:.commonKeyTitle))
-            player.externalMetadata.append(AVMeta(description, key:.commonKeyDescription))
-        }
-        
-        do {
-            if let url = URL(string: imageThumb) {
-                
-                let (data, _) = try await URLSession.shared.data(from: url);
-                let image = AVMetaArtwork(value: data as NSData)
-                player.externalMetadata.append(image)
-            }
-        }catch{
-            print("Error getting player info thumbnail ", error)
-        }
-        
-        return player
-    }
-    
-    throw RuntimeError("Error creating playerItem")
-}
-
-func MakePlayerItemFromMediaOptionsJson(fabric: Fabric,
-                                        optionsJson: JSON?,
-                                        offering: String = "default",
-                                        title: String = "",
-                                        description: String = "",
-                                        imageThumb: String = ""
-) async throws -> AVPlayerItem {
-    
-    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
-    
-    var hlsPlaylistUrl: String = ""
-    var playerItem : AVPlayerItem? = nil
-    
-    guard let options = optionsJson else {
-        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
-    }
-    
-    if options["hls-clear"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
-
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else if options["hls-aes128"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-aes128", offering: offering)
-
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else if options["hls-fairplay"].exists() {
-        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
-        
-        if(licenseServer.isEmpty)
-        {
-            throw RuntimeError("Error getting licenseServer")
-        }
-
-        
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-fairplay", offering: offering)
-
-        
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
-        playerItem = AVPlayerItem(asset: urlAsset)
-        
-    }else if options["hls-sample-aes"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
-
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        playerItem = AVPlayerItem(asset: urlAsset)
-    }else{
-        throw RuntimeError("No available playback options \(options)")
-    }
-    
-    if let player = playerItem {
-        var metadata: [AVMetadataItem] = []
-        
-        metadata.append(AVMeta(title, key:.commonKeyTitle))
-        metadata.append(AVMeta(description, key:.commonKeyDescription))
-        do {
-            if let url = URL(string: imageThumb) {
-                
-                let (data, _) = try await URLSession.shared.data(from: url);
-                let image = AVMetaArtwork(value: data as NSData)
-                metadata.append(image)
-            }
-        }catch{
-            print("Error getting player info thumbnail ", error)
-        }
-        
-        await MainActor.run { [metadata] in
-            player.externalMetadata = metadata
-        }
-        return player
-    }
-    
-    throw RuntimeError("Error creating playerItem")
-    
-}
-
-func GetUrlFromMediaOptionsJson(fabric: Fabric,
-                                        optionsJson: JSON?,
-                                        offering: String = "default"
-) async throws -> String {
-    
-    debugPrint("MakePlayerItemFromOptionsJson ", optionsJson)
-    
-    var hlsPlaylistUrl: String = ""
-
-    guard let options = optionsJson else {
-        throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
-    }
-    
-    if options["hls-clear"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-clear", offering: offering)
-    }else if options["hls-aes128"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-aes128", offering: offering)
-    }else if options["hls-fairplay"].exists() {
-        let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
-        
-        if(licenseServer.isEmpty)
-        {
-            throw RuntimeError("Error getting licenseServer")
-        }
-
-        
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-fairplay", offering: offering)
-
-        
-        let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
-        
-        ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-        ContentKeyManager.shared.contentKeyDelegate.setDRM(licenseServer:licenseServer, authToken: fabric.fabricToken)
-        
-    }else if options["hls-sample-aes"].exists() {
-        hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(optionsJson: optionsJson, drm:"hls-sample-aes", offering: offering)
-
-    }else{
-        throw RuntimeError("No available playback options \(options)")
-    }
-    
-    return hlsPlaylistUrl;
-}
-
-func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {
-   let mdi = AVMutableMetadataItem()
-   mdi.locale = NSLocale.current
-   mdi.key = key as (NSCopying & NSObjectProtocol)
-   mdi.keySpace = AVMetadataKeySpace.common
-   mdi.value = data as (NSCopying & NSObjectProtocol)?
-   return mdi
-}
-
-func AVMetaArtwork(value: Any) -> AVMetadataItem {
-    let item = AVMutableMetadataItem()
-    item.identifier = AVMetadataIdentifier(rawValue: AVMetadataIdentifier.commonIdentifierArtwork.rawValue)
-    item.value = value as? NSCopying & NSObjectProtocol
-    item.extendedLanguageTag = "und"
-    return item.copy() as! AVMetadataItem
+    res.append(copy)
+    return res
+  }
 }
 
 func parseDateString(_ dateString: String) -> Date? {
-    let dateFormatter = ISO8601DateFormatter()
+  let dateFormatter = ISO8601DateFormatter()
+  dateFormatter.formatOptions = [
+    .withFractionalSeconds,
+    .withFullDate,
+    .withTime,  // without time zone
+    .withColonSeparatorInTime,
+    .withDashSeparatorInDate,
+  ]
+  var date = dateFormatter.date(from: dateString)
+
+  if date == nil {
     dateFormatter.formatOptions = [
-        .withFractionalSeconds,
-        .withFullDate,
-        .withTime, // without time zone
-        .withColonSeparatorInTime,
-        .withDashSeparatorInDate
+      .withFullDate,
+      .withTime,
+      .withColonSeparatorInTime,
+      .withDashSeparatorInDate,
     ]
-    var date = dateFormatter.date(from:dateString)
-    
-    if date == nil {
-        dateFormatter.formatOptions = [
-            .withFullDate,
-            .withTime,
-            .withColonSeparatorInTime,
-            .withDashSeparatorInDate
-        ]
-        date = dateFormatter.date(from:dateString)
-    }
-    return date
+    date = dateFormatter.date(from: dateString)
+  }
+  return date
 }

@@ -5,106 +5,82 @@
 //  Created by Wayne Tran on 2023-03-23.
 //
 
+import SDWebImageSwiftUI
 import SwiftUI
-import SDWebImage
-
-/*
-@main
-struct EluvioWalletTVOSApp: App {
-    @Environment(\.scenePhase) var scenePhase
-    
-    @StateObject
-    var fabric = Fabric()
-    @StateObject
-    var viewState = ViewState()
-    
-    @State var showApp = false
-    
-    @State var opacity : CGFloat = 0.0
-    
-    init(){
-        print("App Init")
-    }
-    
-    var body: some Scene {
-        WindowGroup {
-            WalletApp(isBranded: false)
-        }
-    }
-}
-   
-*/
 
 @main
 struct EluvioWalletTVOSApp: App {
-    @Environment(\.scenePhase) var scenePhase
-    @StateObject var eluvio = EluvioAPI()
-    
-    @State var showLoader: Bool = false
-    
-    @State var opacity : CGFloat = 0.0
-    
-    init(){
-        print("App Init")
+  @StateObject var eluvio = EluvioAPI.shared
+  @StateObject var router: Router = Router.shared
 
-        // Configure SDWebImage to strip the "authorization" query parameter from cache keys.
-        // Image URLs embed the current fabricToken as ?authorization=<token>. When the token
-        // changes (e.g. after sign-in), SDWebImage would treat identical images as different
-        // cache entries because the full URL differs. By stripping "authorization" from the
-        // cache key, the same image always hits the same cache entry regardless of token.
-        SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
-            guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
-                return url.absoluteString
-            }
-            components.queryItems = components.queryItems?.filter { $0.name != "authorization" }
-            if components.queryItems?.isEmpty == true {
-                components.queryItems = nil
-            }
-            return components.url?.absoluteString ?? url.absoluteString
-        }
+  #if DEBUG
+    @State private var debugMenu = DebugMenuHandler()
+  #endif
+
+  init() {
+    print("App Init")
+
+    initWebImageComponents()
+  }
+
+  var body: some Scene {
+    WindowGroup {
+      ZStack {
+        Color.black.edgesIgnoringSafeArea(.all)
+        ContentView()
+          .preferredColorScheme(.dark)
+          .environmentObject(eluvio)
+          .environmentObject(router)
+      }
+      #if DEBUG
+        .onKeyPress(phases: .down) { debugMenu.handle($0, router: router) }
+      #endif
+      .edgesIgnoringSafeArea(.all)
+      .task {
+        eluvio.router = router
+        try? await eluvio.fabric.connect()
+      }
+    }
+  }
+
+  private func initWebImageComponents() {
+    // Normalize SDWebImage cache keys:
+    // 1. Strip "authorization" so the same image hits cache regardless of token changes
+    // 2. Normalize contentfabric.io hosts so different host-x-x-x-x nodes share cache entries
+    SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
+      guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
+        return url.absoluteString
+      }
+      components.queryItems = components.queryItems?.filter { $0.name != "authorization" }
+      if components.queryItems?.isEmpty == true {
+        components.queryItems = nil
+      }
+      if let host = components.host, host.hasSuffix(".contentfabric.io") {
+        components.host = "contentfabric.io"
+      }
+      return components.url?.absoluteString ?? url.absoluteString
     }
 
-    var body: some Scene {
-        WindowGroup {
-            ZStack{
-                Color.black.edgesIgnoringSafeArea(.all)
-                if showLoader {
-                        ZStack{
-                            Color.black.edgesIgnoringSafeArea(.all)
-                            ProgressView()
-                        }
-                        .frame(minWidth: 0, maxWidth: .infinity , minHeight: 0, maxHeight: .infinity)
-                        .edgesIgnoringSafeArea(.all)
-                }else {
-                    ContentView()
-                        .opacity(opacity)
-                        .environmentObject(eluvio)
-                        .preferredColorScheme(.dark)
-                }
-            }
-            .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .inactive {
-                    self.opacity = 0.0
-                } else if newPhase == .active {
-                    Task {
-                        await MainActor.run {
-                            withAnimation(.easeInOut(duration: 3)) {
-                                self.opacity = 1.0
-                            }
-                        }
-                    }
-                } else if newPhase == .background {
-                    self.opacity = 0.0
-                }
-            }
-            .onOpenURL { url in
-                Task {
-                    self.showLoader = true
-                    await eluvio.viewState.handleLink(url:url, fabric:eluvio.fabric)
-                    self.showLoader = false
-                }
-            }
-            .edgesIgnoringSafeArea(.all)
-        }
+    // Check and replace fabric url placeholder with real fabric base url
+    SDWebImageDownloader.shared.requestModifier = SDWebImageDownloaderRequestModifier { request in
+      var realUrl = request.url
+
+      if var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false),
+        components.url?.absoluteString.contains(ImageLink.fabricUrlPlaceholder) == true
+      {
+        components.scheme = nil
+        components.host = nil
+        let base = FabricConfigStore.shared.fabricBaseUrl
+        let rest = components.url!.absoluteString.trimmingPrefix("/")
+        realUrl = URL(string: base + rest)
+      }
+
+      var modified = request
+      modified.url = realUrl
+      #if DEBUG
+        debugPrint("SDWebImage requesting:", modified.url?.absoluteString ?? "nil")
+      #endif
+      return modified
     }
+  }
 }

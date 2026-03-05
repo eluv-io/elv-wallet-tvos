@@ -5,475 +5,345 @@
 //  Created by Wayne Tran on 2023-03-23.
 //
 
-import SwiftUI
-import Combine
 import AVKit
-import SwiftyJSON
+import Combine
 import SDWebImageSwiftUI
+import SwiftUI
+import SwiftyJSON
 
 struct ContentView: View {
-    @Environment(\.scenePhase) var scenePhase
-    @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var eluvio: EluvioAPI
-    var viewState: ViewState {
-        return eluvio.viewState
-    }
-    @Environment(\.openURL) private var openURL
-    
-    @State private var viewStateCancellable: AnyCancellable? = nil
-    @State private var fabricCancellable: AnyCancellable? = nil
-    
-    @State var showNft: Bool = false
-    @State var nft = NFTModel()
-    
-    @State var showPlayer: Bool = false
-    @State var mediaItem : MediaItem?
-    @State var playerItem : AVPlayerItem?
-    @State var playerFinished = false
-    @State var showActivity = true
-    @State var backLink = ""
-    @State var backLinkIcon = ""
-    
-    //Gallery View
-    @State var showGallery: Bool = false
-    @State var mediaList: [GalleryItem] = []
-    
-    @State var showMinter : Bool = false
-    @State var mintItem = JSON()
-    @State var mintInfo = MintInfo()    
-    @State var showProperty : Bool = false
-    @State var property : PropertyModel?
-    
-    @State var appeared: Double = 1.0
-    
-    @State var showError : Bool = false
-    @State var errorMessage: String = ""
-    @State var checkingViewState = false
+  @Environment(\.scenePhase) var scenePhase
+  @Environment(\.colorScheme) var colorScheme
+  @EnvironmentObject var eluvio: EluvioAPI
+  @EnvironmentObject var router: Router
+  var viewState: ViewState {
+    return eluvio.viewState
+  }
+  @Environment(\.openURL) private var openURL
 
-    @State private var selectedProperty: MediaPropertyViewModel = MediaPropertyViewModel()
-    
-    @State var playerFinsished : Bool = false
-    
-    func reset() {
-        showNft = false
-        nft = NFTModel()
-        showPlayer = false
-        mediaItem = nil
-        playerFinished = false
-        showActivity = true
-        showMinter = false
-        showProperty = false
-        property = nil
-        mintItem = JSON()
-        mintInfo = MintInfo()
-        backLink = ""
-        backLinkIcon = ""
-        checkingViewState = false
-        mediaList = []
-        withAnimation(.easeInOut(duration: 2)) {
-            self.appeared = 1.0
-        }
-        viewState.reset()
+  @State private var viewStateCancellable: AnyCancellable? = nil
+
+  @State var showNft: Bool = false
+  @State var nft = NFTModel()
+
+  @State var showPlayer: Bool = false
+  @State var mediaItem: MediaItem?
+  @State var playerItem: AVPlayerItem?
+  @State var showActivity = true
+  @State var backLink = ""
+  @State var backLinkIcon = ""
+
+  //Gallery View
+  @State var showGallery: Bool = false
+  @State var mediaList: [GalleryItem] = []
+
+  @State var showMinter: Bool = false
+  @State var mintItem = JSON()
+  @State var mintInfo = MintInfo()
+  @State var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+  @State var timerCancellable: Cancellable? = nil
+
+  @State var showProperty: Bool = false
+  @State var property: PropertyModel?
+
+  @State var appeared: Double = 1.0
+
+  @State var showError: Bool = false
+  @State var errorMessage: String = ""
+  @State var checkingViewState = false
+
+  func reset() {
+    showNft = false
+    nft = NFTModel()
+    showPlayer = false
+    mediaItem = nil
+    showActivity = true
+    showMinter = false
+    showProperty = false
+    property = nil
+    mintItem = JSON()
+    mintInfo = MintInfo()
+    backLink = ""
+    backLinkIcon = ""
+    checkingViewState = false
+    mediaList = []
+    withAnimation(.easeInOut(duration: 2)) {
+      self.appeared = 1.0
     }
-    
-    func checkViewState() {
-        if self.checkingViewState == true {
+    viewState.reset()
+  }
+
+  func checkViewState() {
+    debugPrint("checkViewState op ", viewState.op)
+    if self.checkingViewState == true {
+      return
+    }
+    self.checkingViewState = true
+
+    defer {
+      self.checkingViewState = false
+    }
+
+    if viewState.op == .none {
+      showActivity = false
+      return
+    }
+
+    Task {
+      self.showActivity = true
+
+      debugPrint("showActivity true ")
+
+      debugPrint("backlink: ", viewState.backLink)
+      self.backLink = viewState.backLink
+      let marketplace = viewState.marketplaceId
+      let sku = viewState.itemSKU
+      var logo = ""
+      if marketplace != "" {
+        do {
+          let market = try await eluvio.fabric.getMarketplace(marketplaceId: marketplace)
+          logo = market.logo
+        } catch {
+          print("Could not getMarketplace", error)
+        }
+      }
+      self.backLinkIcon = logo
+      debugPrint("BackLink Icon: ", logo)
+
+      var contract = viewState.itemContract
+
+      if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty {
+        do {
+          contract = try await eluvio.fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
+          debugPrint(contract)
+        } catch {
+          print("Could not find NFT contract from marketplace and sku. ")
+          self.showActivity = false
+          viewState.reset()
+          errorMessage = "Could not find bundle."
+          showError = true
+          return
+        }
+      }
+
+      if viewState.op == .item {
+        // This hasn't really worked in a long time, so just disabling it until we need it again
+        let _nft: NFTModel? = nil  // = eluvio.fabric.getNFT(contract: contract, token: viewState.itemTokenStr)
+
+        if let _nft {
+          await MainActor.run {
+            self.nft = _nft
+            debugPrint("Showing NFT: ", nft.contract_name)
+            self.showNft = true
+          }
+        } else {
+          debugPrint("Could not find NFT from deeplink. ")
+          viewState.reset()
+          errorMessage = "Could not find bundle."
+          showError = true
+          self.showActivity = false
+          return
+        }
+
+      } else if viewState.op == .play {
+        debugPrint("Playmedia: ", viewState.mediaId)
+
+        if let item = eluvio.fabric.getMediaItem(mediaId: viewState.mediaId) {
+          debugPrint("Found item: ", item.title)
+
+          do {
+            if let link = item.media_link?["sources"]["default"] {
+              debugPrint("Item link: ", link)
+              let item = try await MakePlayerItemFromLink(
+                fabric: eluvio.fabric, link: link, title: item.title ?? "",
+                description: item.description ?? "", imageThumb: item.thumbnail())
+              await MainActor.run {
+                self.playerItem = item
+                self.showPlayer = true
+              }
+            }
+          } catch {
+            print("checkViewState - could not create AVPlayerItem ", error)
+            viewState.reset()
+            errorMessage = "Could not play item."
+            showError = true
+            self.showActivity = false
             return
+          }
         }
-        self.checkingViewState = true
-        
-        defer {
-            self.checkingViewState = false
-        }
-        
-        if viewState.op == .none {
-            showActivity = false
+
+      } else if viewState.op == .gallery {
+        debugPrint("Gallery View: ", viewState.mediaId)
+        if let item = eluvio.fabric.getMediaItem(mediaId: viewState.mediaId) {
+          debugPrint("Found item: ", item.title)
+
+          do {
+            if let mediaList = item.media {
+              debugPrint("Media list: ", mediaList)
+
+              var gallery: [GalleryItem] = []
+
+              for item in mediaList {
+                //gallery.append(GalleryItem.create(propertyMedia:item))
+              }
+
+              await MainActor.run {
+                self.mediaList = gallery
+                self.showGallery = true
+              }
+            }
+          } catch {
+            print("checkViewState - could not create AVPlayerItem ", error)
+            viewState.reset()
+            errorMessage = "Could not play item."
+            showError = true
+            self.showActivity = false
             return
+          }
+        } else {
+          viewState.reset()
+          errorMessage = "Could not find media."
+          showError = true
+          self.showActivity = false
         }
-        
+      } else if viewState.op == .mint {
+        debugPrint("Mint marketplace: ", viewState.marketplaceId)
+        debugPrint("Mint: sku", viewState.itemSKU)
+        do {
+          let (itemJSON, tenantId) = try await eluvio.fabric.findItem(
+            marketplaceId: marketplace, sku: sku)
 
-        Task{
-            self.showActivity = true
-        
-            self.backLink = viewState.backLink
-            let marketplace = viewState.marketplaceId
-            let sku = viewState.itemSKU
-            var logo = ""
-            if marketplace != ""{
-                do {
-                    let market = try await eluvio.fabric.getMarketplace(marketplaceId: marketplace)
-                    logo = market.logo
-                }catch{
-                    print("Could not getMarketplace", error)
-                }
-            }
-            self.backLinkIcon = logo
-
-            var contract = viewState.itemContract
-            
-            if contract.isEmpty && !marketplace.isEmpty && !sku.isEmpty{
-                do {
-                    contract = try await eluvio.fabric.findItemAddress(marketplaceId: marketplace, sku: sku)
-                }catch {
-                    print("Could not find NFT contract from marketplace and sku. ")
-                    self.showActivity = false
-                    viewState.reset()
-                    errorMessage = "Could not find bundle."
-                    showError = true
-                    return
-                }
-            }
-                        
-            if viewState.op == .item {
-                if let _nft = eluvio.fabric.getNFT(contract: contract,
-                                            token: viewState.itemTokenStr) {
-                    await MainActor.run {
-                        self.nft = _nft
-                        debugPrint("Showing NFT: ", nft.contract_name)
-                        self.showNft = true
-                    }
-                }else{
-                    debugPrint("Could not find NFT from deeplink. ")
-                    viewState.reset()
-                    errorMessage = "Could not find bundle."
-                    showError = true
-                    self.showActivity = false
-                    return
-                }
-                
-            }else if viewState.op == .play {
-                debugPrint("Playmedia: ", viewState.mediaId)
-
-                if let item = eluvio.fabric.getMediaItem(mediaId:viewState.mediaId) {
-                    debugPrint("Found item: ", item.title)
-
-                    do {
-                        if let link = item.media_link?["sources"]["default"] {
-                            debugPrint("Item link: ", link)
-                            let item  = try await MakePlayerItemFromLink(fabric: eluvio.fabric, link: link, title:item.title ?? "", description: item.description ?? "", imageThumb: item.thumbnail(eluvio:eluvio))
-                            await MainActor.run {
-                                self.playerItem = item
-                                self.showPlayer = true
-                            }
-                        }
-                    }catch{
-                        print("checkViewState - could not create AVPlayerItem ", error)
-                        viewState.reset()
-                        errorMessage = "Could not play item."
-                        showError = true
-                        self.showActivity = false
-                        return
-                    }
-                }
-                
-            }else if viewState.op == .gallery {
-                debugPrint("Gallery View: ", viewState.mediaId)
-                if let item = eluvio.fabric.getMediaItem(mediaId:viewState.mediaId) {
-                    debugPrint("Found item: ", item.title)
-
-                    do {
-                        if let mediaList = item.media{
-                            debugPrint("Media list: ", mediaList)
-                            
-                            var gallery : [GalleryItem] = []
-                            
-                            for item in mediaList {
-                                //gallery.append(GalleryItem.create(propertyMedia:item))
-                            }
-                        
-                            await MainActor.run {
-                                self.mediaList = gallery
-                                self.showGallery = true
-                            }
-                        }
-                    }catch{
-                        print("checkViewState - could not create AVPlayerItem ", error)
-                        viewState.reset()
-                        errorMessage = "Could not play item."
-                        showError = true
-                        self.showActivity = false
-                        return
-                    }
-                }else{
-                    viewState.reset()
-                    errorMessage = "Could not find media."
-                    showError = true
-                    self.showActivity = false
-                }
-            }else if viewState.op == .mint {
-                debugPrint("Mint marketplace: ", viewState.marketplaceId)
-                debugPrint("Mint: sku", viewState.itemSKU)
-                do {
-                    let (itemJSON, tenantId) = try await eluvio.fabric.findItem(marketplaceId: marketplace, sku: sku)
-                    
-                    if let item = itemJSON {
-                        await MainActor.run {
-                            self.mintItem = item
-                            self.mintInfo = MintInfo(tenantId: tenantId, marketplaceId: marketplace, sku: sku, entitlement:viewState.entitlement)
-                            debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
-                            self.showMinter = true
-                        }
-                    }
-                }catch{
-                    print("checkViewState mint error ", error)
-                    viewState.reset()
-                    errorMessage = "Could not mint item."
-                    showError = true
-                    self.showActivity = false
-                    return
-                }
-            }else if viewState.op == .property {
-                debugPrint("property marketplace: ", viewState.marketplaceId)
-                
-                let marketplace = viewState.marketplaceId
-                await MainActor.run {
-                    do {
-                        self.property = try eluvio.fabric.findProperty(marketplaceId: marketplace)
-                        self.showProperty = true
-                    }catch{
-                        debugPrint("Could not find property ", marketplace)
-                        viewState.reset()
-                        errorMessage = "Could not find property."
-                        showError = true
-                        self.showActivity = false
-                        return
-                    }
-                }
-            }
-        }
-    }
-    
-    var body: some View {
-        NavigationStack(path: $eluvio.pathState.path) {
-            Group{
-                if eluvio.accountManager.isLoggedOut {
-                    DiscoverView()
-                        .environmentObject(self.eluvio)
-                        .preferredColorScheme(colorScheme)
-                        .background(Color.mainBackground)
-                }else{
-                    //Don't use NavigationView, pops back to root on ObservableObject update
-                    
-                    ZStack {
-                        if (showActivity) {
-                            ProgressView()
-                                .edgesIgnoringSafeArea(.all)
-                        }else {
-                            MainView()
-                                .environmentObject(self.eluvio)
-                                .edgesIgnoringSafeArea(.all)
-                                .preferredColorScheme(colorScheme)
-                                .background(Color.mainBackground)
-                                .navigationBarHidden(true)
-                        }
-                    }
-                }
-            }
-            .navigationDestination(for: NavDestination.self) { destination in
-                switch destination {
-                case let .property(params):
-                    if let propertyId = params.property?.id {
-                        MediaPropertyDetailView(propertyId: propertyId, pageId: params.pageId)
-                        .environmentObject(self.eluvio)
-                    }else{
-                        Text("Could not load property.")
-                            .font(.title)
-                            .background(.black)
-                            .edgesIgnoringSafeArea(.all)
-                    }
-                case let .html(params):
-                    QRView(url: params.url, backgroundImage:params.backgroundImage, title:params.title)
-                        .environmentObject(self.eluvio)
-                case let .purchaseQRView(params):
-                    PurchaseView(backgroundImage:params.backgroundImage, propertyId:params.propertyId)
-                    .environmentObject(self.eluvio)
-                case .video:
-                    if let params = eluvio.pathState.videoParams {
-                        PlayerView(mediaId: params.mediaId,
-                                   property: params.property,
-                                   propertyId: params.propertyId,
-                                   title: params.title,
-                                   finished:$playerFinished)
-                        .environmentObject(self.eluvio)
-                    }
-                case .videoError:
-                    if let params = eluvio.pathState.videoErrorParams {
-                        if let mediaItem = params.mediaItem {
-                            if params.type == .permission {
-                                PlayerErrorView(backgroundImageUrl:params.backgroundImage, title:"The media is not available")
-                            }else if params.type == .upcoming {
-                                CountDownView(backgroundImageUrl:params.backgroundImage,
-                                              images:params.images,
-                                              title:mediaItem.title ?? "",
-                                              description: mediaItem.description ?? "",
-                                              infoText:params.headerString,
-                                              mediaItem: mediaItem,
-                                              propertyId: params.propertyId)
-                            }
-                        }
-                    }
-                case let .mediaGrid(params):
-                    ScrollView {
-                        if !params.list.isEmpty {
-                            SectionItemListView(propertyId: params.propertyId ?? "", item: params.sectionItem, list:params.list)
-                                .environmentObject(self.eluvio)
-                                .edgesIgnoringSafeArea(([.leading,.trailing]))
-                        }else if let item = eluvio.pathState.sectionItem {
-                            if !eluvio.pathState.propertyId.isEmpty {
-                                SectionItemListView(propertyId: eluvio.pathState.propertyId, item:item)
-                                    .environmentObject(self.eluvio)
-                                    .edgesIgnoringSafeArea([.leading,.trailing])
-                            }
-                        }
-                    }
-                    .scrollClipDisabled()
-                    .edgesIgnoringSafeArea([.leading,.trailing])
-                case .gallery:
-                    GalleryView(gallery:eluvio.pathState.gallery)
-                        .environmentObject(self.eluvio)
-                case .search:
-                    if let params = eluvio.pathState.searchParams {
-                        SearchView(searchString: params.searchTerm,
-                                   propertyId: params.propertyId,
-                                   primaryFilters: params.primaryFilters
-                        )
-                        .environmentObject(self.eluvio)
-                    }
-                case .sectionViewAll:
-                    if let section = eluvio.pathState.section {
-                        ScrollView {
-                            SectionGridView(propertyId: eluvio.pathState.propertyId, pageId: eluvio.pathState.pageId, section:section, margin: 80, showBackground:false, topPadding: 40)
-                                .environmentObject(self.eluvio)
-                        }
-                        .scrollClipDisabled()
-                        .edgesIgnoringSafeArea(.all)
-                    }
-                case .nft:
-                    if let nft = eluvio.pathState.nft {
-                        ItemDetailView(item:nft)
-                            .environmentObject(self.eluvio)
-                    }
-                case let .errorView(msg) :
-                    Text(msg)
-                        .font(.title)
-                        .background(.black)
-                        .edgesIgnoringSafeArea(.all)
-                case let .imageView(params) :
-                    MediaItemView(url:params.url, title:params.title)
-                        .edgesIgnoringSafeArea(.all)
-                case let .login(params) :
-                    /*if params.type == .auth0 {
-                        DeviceFlowView(property: params.property)
-                    }else if params.type == .ory {*/
-                        OryDeviceFlowView(property:params.property)
-                    //}
-                case .progress:
-                    ProgressView()
-                        .edgesIgnoringSafeArea(.all)
-                case .black:
-                   Color.black
-                        .edgesIgnoringSafeArea(.all)
-                }
-            }
-            .onAppear(){
-                debugPrint("ContentView onAppear")
-                self.showActivity = true
-                
-                self.viewStateCancellable = viewState.$op
-                    .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                    .sink { val in
-                        debugPrint("viewState changed.", viewState.op)
-                        debugPrint("showNFT ", showNft)
-                        if viewState.op == .none || eluvio.accountManager.isLoggedOut{
-                            self.showActivity = false
-                            return
-                        }
-                        checkViewState()
-                        showActivity = false
-                    }
-
-                self.fabricCancellable = eluvio.fabric.$isRefreshing
-                    .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-                    .sink { val in
-                        debugPrint("isRefreshing changed.", eluvio.fabric.isRefreshing)
-                        if (eluvio.fabric.isRefreshing){
-                            return
-                        }
-                        
-                        checkViewState()
-                    }
-                
-                if viewState.op != .none {
-                    checkViewState()
-                }else {
-                    showActivity = false
-                }
-            }
-        }
-        .onChange(of: self.showActivity) {
-            debugPrint("ShowActivity ", self.showActivity)
-        }
-        .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) { [playerItem, backLink, backLinkIcon] in
-            // FIXME:
-            /*
-            PlayerView(playerItem:playerItem, seekTimeS: 0, finished: $playerFinished,
-                       backLink: backLink, backLinkIcon: backLinkIcon
-            )
-             */
-
-        }
-        .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) { [mediaList] in
-            GalleryView(gallery: mediaList)
-        }
-        .fullScreenCover(isPresented: $showError, onDismiss: didFullScreenCoverDismiss) {
-            HStack{
-                Text(errorMessage).font(.description)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-            .background(.black)
-        }
-        .edgesIgnoringSafeArea(.all)
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .inactive {
-            } else if newPhase == .active {
-            } else if newPhase == .background {
-                Task{
-                    _ = try await eluvio.fabric.getProperties(includePublic:true, noCache: true)
-                    await MainActor.run {
-                        eluvio.needsRefresh()
-                    }
-                }
-            }
-        }
-    }
-    
-    
-    func didFullScreenCoverDismiss() {
-        if (backLink != ""){
-            if let url = URL(string: backLink) {
-                openURL(url) { accepted in
-                    debugPrint(accepted ? "Successfully launched backlink \(backLink)" : "Failure launching backlink \(backLink)")
-                }
-            }
-        }
-        reset()
-        Task {
-            try? await Task.sleep(nanoseconds: 1500000000)
+          if let item = itemJSON {
             await MainActor.run {
-                showActivity = false
+              self.mintItem = item
+              self.mintInfo = MintInfo(
+                tenantId: tenantId, marketplaceId: marketplace, sku: sku,
+                entitlement: viewState.entitlement)
+              debugPrint("findItem", mintItem["nft_template"]["nft"]["display_name"].stringValue)
+              self.showMinter = true
             }
+          }
+        } catch {
+          print("checkViewState mint error ", error)
+          viewState.reset()
+          errorMessage = "Could not mint item."
+          showError = true
+          self.showActivity = false
+          return
         }
+      } else if viewState.op == .property {
+        // This has been broken for a long time, so we deleted the non-funtional code.
+        // Will need to be re-implemented if we ever want it again
+        debugPrint("property marketplace: ", viewState.marketplaceId)
+      }
     }
+  }
+
+  var body: some View {
+    NavigationStack(path: $router.path) {
+      Group {
+        if eluvio.accountManager.isLoggedOut {
+          DiscoverView()
+            .preferredColorScheme(colorScheme)
+        } else {
+          //Don't use NavigationView, pops back to root on ObservableObject update
+
+          ZStack {
+            if showActivity {
+              ProgressView()
+                .edgesIgnoringSafeArea(.all)
+                .accessibilityIdentifier("loading_indicator")
+            } else {
+              MainView()
+                .edgesIgnoringSafeArea(.all)
+                .preferredColorScheme(colorScheme)
+                .navigationBarHidden(true)
+                .accessibilityIdentifier("main_view")
+            }
+          }
+        }
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity)
+      .background(Color.mainBackground)
+      .navigationDestination(for: NavDestination.self) { destination in
+        destination.view()
+      }
+      .onAppear {
+        debugPrint("ContentView onAppear")
+        self.showActivity = true
+
+        self.viewStateCancellable = viewState.$op
+          .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
+          .sink { val in
+            debugPrint("viewState changed.", viewState.op)
+            debugPrint("showNFT ", showNft)
+            if viewState.op == .none || eluvio.accountManager.isLoggedOut {
+              self.showActivity = false
+              return
+            }
+            checkViewState()
+            showActivity = false
+          }
+
+        if viewState.op != .none {
+          checkViewState()
+        } else {
+          showActivity = false
+        }
+      }
+    }
+    .onChange(of: self.showActivity) {
+      debugPrint("ShowActivity ", self.showActivity)
+    }
+    .fullScreenCover(isPresented: $showPlayer, onDismiss: didFullScreenCoverDismiss) {
+      [playerItem, backLink, backLinkIcon] in
+      PlayerView(
+        playerItem: playerItem, seekTimeS: 0,
+        backLink: backLink, backLinkIcon: backLinkIcon
+      )
+    }
+    .fullScreenCover(isPresented: $showGallery, onDismiss: didFullScreenCoverDismiss) {
+      [mediaList] in
+      GalleryView(gallery: mediaList)
+    }
+    .fullScreenCover(isPresented: $showError, onDismiss: didFullScreenCoverDismiss) {
+      HStack {
+        Text(errorMessage).font(.description)
+          .foregroundColor(.white)
+          .multilineTextAlignment(.center)
+          .padding()
+      }
+      .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+      .background(.black)
+    }
+    .edgesIgnoringSafeArea(.all)
+  }
+
+  func didFullScreenCoverDismiss() {
+    if backLink != "" {
+      if let url = URL(string: backLink) {
+        openURL(url) { accepted in
+          debugPrint(
+            accepted
+              ? "Successfully launched backlink \(backLink)"
+              : "Failure launching backlink \(backLink)")
+        }
+      }
+    }
+    reset()
+    Task {
+      try? await Task.sleep(for: .seconds(1.5))
+      await MainActor.run {
+        showActivity = false
+      }
+    }
+  }
 }
 
-
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-            .environmentObject(Fabric())
-            .preferredColorScheme(.dark)
-    }
+  static var previews: some View {
+    ContentView()
+      .environmentObject(Fabric())
+      .preferredColorScheme(.dark)
+  }
 }

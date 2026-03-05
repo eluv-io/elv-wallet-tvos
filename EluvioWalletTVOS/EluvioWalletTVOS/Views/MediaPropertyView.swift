@@ -5,285 +5,140 @@
 //  Created by Wayne Tran on 2024-06-13.
 //
 
-import SwiftUI
-import SDWebImageSwiftUI
 import Foundation
+import SDWebImageSwiftUI
+import SwiftUI
 
-struct MediaPropertyView : View {
-    @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var eluvio : EluvioAPI
-    var property: MediaPropertyViewModel
-    @FocusState private var focused : Bool
-    @Binding var selected : MediaPropertyViewModel
-    static var factor = 1.0
-    var isSimple = false
-    var simpleText : String  {
-        return eluvio.accountManager.isLoggedOut ? "Sign In" : "Welcome Back"
-    }
-    
-    var width : CGFloat {
-        if landscape {
-            return 417 * MediaPropertyView.factor
-        }else {
-            return 330 * MediaPropertyView.factor
+struct MediaPropertyView: View {
+  @Environment(\.colorScheme) var colorScheme
+  @EnvironmentObject var eluvio: EluvioAPI
+  @EnvironmentObject var router: Router
+  var property: MediaProperty
+  @FocusState private var focused: Bool
+  @Binding var selected: MediaProperty?
+  var isSimple = false
+  var simpleText: String {
+    return eluvio.accountManager.isLoggedOut ? "Sign In" : "Welcome Back"
+  }
+
+  var width: CGFloat = 330
+  var height: CGFloat = 470
+
+  var cornerRadius: CGFloat = 3
+
+  @State var disabled = true
+
+  var body: some View {
+    VStack(spacing: 10) {
+      if isSimple {
+        Button(action: buttonPressed) {
+          Text(simpleText)
         }
-    }
-    var height : CGFloat {
-        if landscape {
-            return 235 * MediaPropertyView.factor
-        }else {
-            return 470 * MediaPropertyView.factor
+        .focused($focused)
+        .onAppear {
+          focused = true
         }
-    }
-    
-    var cornerRadius : CGFloat {
-        if landscape {
-            return 16
-        }else {
-            return 3
-        }
-    }
-    
-    @State var disabled = true
-    var landscape: Bool = false
-    
-    //Returns true if we can load the page
-    func login(_ _property: MediaProperty? = nil){
-        
-        var prop = _property
-        
-        if prop == nil {
-            prop = self.property.model
-        }
-        
-        guard let property = prop else {
-            return
-        }
-        
-        if let login = property.login {
-            //debugPrint("login: ", login)
-            
-            //let provider = login["settings"]["provider"].stringValue
-            
-            var provider = "ory"
-            
-            var useAuth0 = login["settings"]["use_auth0"].boolValue
-            var disableThirdParty = login["settings"]["disable_third_party_login"].boolValue
-            var domain = ""
-            
-            if useAuth0 {
-                provider = "auth0"
-                if disableThirdParty == false {
-                    domain = login["settings"]["auth0_domain"].stringValue ?? ""
-                    provider = "external"
-                }
+      } else {
+        Button(action: buttonPressed) {
+          if let image = property.image?.url?.nilIfEmpty() {
+            ScaledWebImage(url: image, height: height)
+              .resizable()
+              .onSuccess { image, data, cacheType in
+                self.disabled = false
+              }
+              .aspectRatio(contentMode: .fill)
+              .frame(width: width, height: height)
+              .cornerRadius(cornerRadius)
+          } else {
+            ZStack {
+              if property.backgroundImage != "" {
+                WebImage(url: URL(string: property.backgroundImage))
+                  .resizable()
+                  .onSuccess { image, data, cacheType in
+                    self.disabled = false
+                  }
+                  .aspectRatio(contentMode: .fill)
+                  .frame(width: width, height: height)
+                  .cornerRadius(3)
+
+                Rectangle()
+                  .fill(Color.black)
+                  .opacity(focused ? 0.7 : 0.5)
+                  .frame(width: width, height: height)
+                  .cornerRadius(3)
+              } else {
+                Rectangle()
+                  .fill(Color.secondaryBackground)
+                  .frame(width: width, height: height)
+                  .cornerRadius(3)
+              }
+              if property.displayName.isEmpty {
+                //Text("Untitled").font(.largeTitle)
+              } else {
+                Text(property.displayName).font(.largeTitle.bold())
+              }
             }
-            
-
-            
-            if !provider.isEmpty {
-                if provider == "auth0" {
-                    debugPrint("Auth0 login.")
-                    if eluvio.accountManager.currentAccount?.type != .Auth0 {
-                        eluvio.pathState.path.append(.login(LoginParam(type:.auth0, property:property)))
-                        return
-                    }
-                }else if provider == "external" {
-                    debugPrint("3rdparty login.")
-                    if eluvio.accountManager.currentAccount?.type != .SSO ||
-                        domain != eluvio.accountManager.currentAccount?.domain
-                    {
-                        eluvio.pathState.path.append(.login(LoginParam(type:.external, property:property)))
-                        return
-                    }
-                }else if provider == "ory" {
-                    debugPrint("Ory login.")
-                    if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
-                        return
-                    }
-                }else {
-                    //Default to Ory:
-                    if eluvio.accountManager.currentAccount?.type != .Ory {
-                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
-                        return
-                    }
-                }
-                
-
-                if let currentAccount = eluvio.accountManager.currentAccount {
-                    debugPrint("Setting current account and going to page.")
-                    eluvio.fabric.fabricToken = currentAccount.fabricToken
-                    eluvio.pathState.propertyPage = property.main_page
-                    let param = PropertyParam(property:property)
-                    eluvio.pathState.path.append(.property(param))
-                }
-            }
+          }
         }
+        .opacity(self.disabled ? 0 : 1)
+        .buttonStyle(TitleButtonStyle(focused: focused, bordered: true, borderRadius: cornerRadius))
+        .focused($focused)
+        .accessibilityIdentifier("property_\(property.id ?? "unknown")")
+      }
+
     }
-    
-    func buttonPressed() {
-        Task {
-            do {
-                let propertyId = property.id
-                    if let property = try await eluvio.fabric.getProperty(property: propertyId) {
-                        debugPrint("propertyID clicked: ", propertyId)
-
-                        await MainActor.run {
-                            eluvio.pathState.property = property
-                        }
-
-                        var skipLogin = false
-                        
-                        if let disableLogin = property.login?["settings"]["disable_login"].boolValue {
-                            if disableLogin {
-                                skipLogin = true
-                                debugPrint("disableLogin ", disableLogin)
-                            }
-                        }
-                        
-                        if let currentAccount = eluvio.accountManager.currentAccount {
-                            if currentAccount.type == .DEBUG{
-                                skipLogin = true
-                                eluvio.fabric.fabricToken = currentAccount.fabricToken
-                            }
-                        }
-                        
-                        if !skipLogin {
-                           login(property)
-                        }else{
-                            debugPrint("Going to property page ", property.id)
-                            eluvio.pathState.propertyPage = property.main_page
-                            let param = PropertyParam(property:property)
-                            eluvio.pathState.path.append(.property(param))
-                        }
-                    }else{
-                        //eluvio.pathState.path.append(.errorView("Error finding property."))
-                    }
-                
-            }catch(FabricError.apiError(let code, let response, let error)){
-                eluvio.handleApiError(code: code, response: response, error: error)
-                login()
-            }catch{
-                debugPrint("Error finding property ", error.localizedDescription)
-                eluvio.signOut()
-            }
-        }
+    .accessibilityIdentifier("property_card_\(property.id ?? "unknown")")
+    .onChange(of: focused) { _, focused in
+      if focused {
+        selected = property
+      }
     }
+  }
 
-    var body: some View {
-        VStack(spacing:10) {
-            if isSimple {
-                Button(action: buttonPressed){
-                    Text(simpleText)
-                }
-                .focused($focused)
-                .onAppear() {
-                    focused = true
-                }
-            }else {
-                Button(action: buttonPressed){
-                    if property.image != "" {
-                        VStack{
-                            WebImage(url: URL(string: property.image))
-                                .resizable()
-                                .onSuccess { image, data, cacheType in
-                                    self.disabled = false
-                                }
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: width, height: height)
-                                .cornerRadius(cornerRadius)
-                        }
-                    }else{
-                        ZStack{
-                            if property.backgroundImage != "" {
-                                WebImage(url: URL(string: property.backgroundImage))
-                                    .resizable()
-                                    .onSuccess { image, data, cacheType in
-                                        self.disabled = false
-                                    }
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: width, height: height)
-                                    .cornerRadius(3)
-                                
-                                Rectangle()
-                                    .fill(Color.black)
-                                    .opacity(focused ? 0.7 : 0.5)
-                                    .frame(width: width, height: height)
-                                    .cornerRadius(3)
-                            }else{
-                                Rectangle()
-                                    .fill(Color.secondaryBackground)
-                                    .frame(width: width, height: height)
-                                    .cornerRadius(3)
-                            }
-                            if property.title.isEmpty {
-                                //Text("Untitled").font(.largeTitle)
-                            }else{
-                                Text(property.title).font(.largeTitle.bold())
-                            }
-                        }
-                    }
-                }
-                .opacity(self.disabled ? 0 : 1)
-                .buttonStyle(TitleButtonStyle(focused: focused, bordered : true, borderRadius: cornerRadius))
-                .focused($focused)
-            }
+  private func buttonPressed() {
+    debugPrint("propertyID clicked: ", property.id)
 
-        }
-        .onChange(of:focused) {old, new in
-            if (new){
-                selected = property
-            }
-        }
+    let loggedInWithSameProvider =
+      property.accountType == eluvio.accountManager.currentAccount?.type
+    let skipLogin = property.login?.settings?.disable_login == true
+    debugPrint("disableLogin: ", skipLogin)
+
+    if skipLogin || loggedInWithSameProvider {
+      debugPrint("Going to property page ", property.id)
+      let param = PropertyParam(propertyId: property.id)
+      router.path.append(.property(param))
+    } else {
+      debugPrint("Not logged in with same account type as Property - navigating to Login.")
+      router.push(to: .login(LoginParam(property: property)))
     }
+  }
 }
 
 struct MediaPropertiesView: View {
-    @Environment(\.colorScheme) var colorScheme
-    @EnvironmentObject var eluvio: EluvioAPI
-    
-    var numColumns = 5
-    @Binding var properties: [MediaPropertyViewModel]
-    var propertiesGroups : [[MediaPropertyViewModel]] {
-        properties.dividedIntoGroups(of: numColumns)
-    }
-    
-    @Binding var selected : MediaPropertyViewModel
-    
-    var isSimple = false
-    
-    let columns = [
-        GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible()),GridItem(.flexible())
-    ]
-    
-    var body: some View {
-        VStack(alignment:.leading, spacing:20) {
-            ForEach(propertiesGroups, id: \.self) {groups in
-                HStack(alignment:.center, spacing:20) {
-                    ForEach(groups, id: \.self) { property in
-                        MediaPropertyView(property: property, selected: $selected)
-                            .environmentObject(self.eluvio)
-                            .fixedSize()
-                    }
-                    
-                }
-                .frame(maxWidth:.infinity, alignment:.leading)
-            }
+  @Environment(\.colorScheme) var colorScheme
+  @EnvironmentObject var eluvio: EluvioAPI
+
+  var numColumns = 5
+  var properties: [MediaProperty]
+  var propertiesGroups: [[MediaProperty]] {
+    properties.dividedIntoGroups(of: numColumns)
+  }
+
+  @Binding var selected: MediaProperty?
+
+  var body: some View {
+    VStack(alignment: .leading, spacing: 20) {
+      ForEach(propertiesGroups, id: \.self) { groups in
+        HStack(alignment: .center, spacing: 20) {
+          ForEach(groups, id: \.self) { property in
+            MediaPropertyView(property: property, selected: $selected)
+              .fixedSize()
+          }
+
         }
-        .frame(maxWidth:.infinity, maxHeight: .infinity)
-        .task(){
-            debugPrint("Properties number: ", properties.count)
-            
-            var count = 0
-            for group in propertiesGroups {
-                for property in group {
-                    count += 1
-                }
-            }
-            
-            debugPrint("PropertyGroups number: ", count)
-        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+      }
     }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+  }
 }
-
-

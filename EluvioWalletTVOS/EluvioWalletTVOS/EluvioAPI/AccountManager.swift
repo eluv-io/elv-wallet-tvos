@@ -5,227 +5,118 @@
 //  Created by Wayne Tran on 2024-08-17.
 //
 
-import Foundation
 import Base58Swift
+import Foundation
 
-enum AccountType: Codable {
-    case Auth0, Ory, SSO, DEBUG, Metamask
+enum AccountType: Codable, Equatable {
+  case Ory
+  case Auth0(domain: String)
 }
 
 class Account: Identifiable, Codable {
-    var id: String {
-        let _id = getAccountId()
-        if _id.isEmpty {
-            return UUID().uuidString
-        }
-        
-        return _id
-    }
-    var type: AccountType = .Auth0
-    var clusterToken: String = ""
-    var fabricToken: String = ""
-    var refreshToken: String = ""
-    var profile: ProfileData = ProfileData()
-    var login :  LoginResponse? = nil
-    var signInResponse: SignInResponse? = nil
-    var isLoggedOut = true
-    var expiresAt : Int64 = 0
-    var email = ""
-    var domain = ""
-    
-    func getAccountId() -> String {
-        guard let address = self.login?.addr else
-        {
-            return ""
-        }
-        
-        guard let bytes = HexToBytes(address) else {
-            return ""
-        }
-        
-        let encoded = Base58.base58Encode(bytes)
-        
-        return "iusr\(encoded)"
-    }
-    
-    func getAccountAddress() -> String {
-        guard let address = self.login?.addr else
-        {
-            return ""
-        }
-        
-        return FormatAddress(address: address)
-    }
-    
-    func isTokenExpired() -> Bool {
-        return isTokenExpiredIn(seconds: 0)
-    }
-    
-    func isTokenExpiredIn(seconds: Int) -> Bool {
-        if (expiresAt == 0) {
-            return false
-        }
-        let now = Int64(Date().timeIntervalSince1970)
-        
-        debugPrint("NOW DATE \(Date(timeIntervalSince1970: Double(now)))")
-        let tokenIn = Int64(expiresAt/1000) - Int64(seconds)
-        debugPrint("tokenIn DATE \(Date(timeIntervalSince1970: Double(tokenIn)))")
-        
-        debugPrint("Now \(now), tokenIn \(tokenIn)")
-        return now > tokenIn
-    }
-    
-    var expiresAtDate: Date {
-        return Date(timeIntervalSince1970: Double(expiresAt) / 1000)
-    }
-    
-    var expiresAtDateString: String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateStyle = .short
-        dateFormatter.timeStyle = .short
-        dateFormatter.timeZone = TimeZone.current
-        
-        return dateFormatter.string(from: expiresAtDate)
+  var id: String {
+    getAccountId() ?? UUID().uuidString
+  }
+
+  var type: AccountType = .Ory
+  var clusterToken: String = ""
+  var fabricToken: String = ""
+  var refreshToken: String = ""
+  var login: LoginResponse? = nil
+  var signInResponse: SignInResponse? = nil
+  var expiresAt: Int64 = 0
+  var email = ""
+  var profile: ProfileData = .init()
+
+  func getAccountId() -> String? {
+    guard let address = login?.addr else { return nil }
+    guard let bytes = HexToBytes(address) else { return nil }
+    let encoded = Base58.base58Encode(bytes)
+    return "iusr\(encoded)"
+  }
+
+  func getAccountAddress() -> String {
+    guard let address = login?.addr else {
+      return ""
     }
 
+    return FormatAddress(address: address)
+  }
+
+  func isTokenExpiredIn(seconds: Int) -> Bool {
+    if expiresAt == 0 {
+      return false
+    }
+    let now = Int64(Date().timeIntervalSince1970)
+
+    debugPrint("NOW DATE \(Date(timeIntervalSince1970: Double(now)))")
+    let tokenIn = Int64(expiresAt / 1000) - Int64(seconds)
+    debugPrint("tokenIn DATE \(Date(timeIntervalSince1970: Double(tokenIn)))")
+
+    debugPrint("Now \(now), tokenIn \(tokenIn)")
+    return now > tokenIn
+  }
+
+  fileprivate var expiresAtDate: Date {
+    return Date(timeIntervalSince1970: Double(expiresAt) / 1000)
+  }
+
+  var expiresAtDateString: String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateStyle = .short
+    dateFormatter.timeStyle = .short
+    dateFormatter.timeZone = TimeZone.current
+
+    return dateFormatter.string(from: expiresAtDate)
+  }
 }
 
-typealias PropertyID = String
-typealias PropertyIDAccountDict = [PropertyID:Account]
+class AccountManager: ObservableObject {
+  @Published
+  var currentAccount: Account? = nil {
+    didSet {
+      saveAccount(currentAccount)
+    }
+  }
 
-class AccountManager : ObservableObject {
-    var accounts: [AccountType: PropertyIDAccountDict] = [.Auth0:[:],.Ory:[:], .Metamask:[:], .SSO:[:], .DEBUG:[:]]
-    @Published
-    var currentAccount : Account? = nil
-    
-    var signingIn = false
-    
-    init(){
-        accounts = [.Auth0:[:],.Ory:[:], .Metamask:[:], .SSO:[:], .DEBUG:[:]]
-        getSavedAccount()
-        debugPrint("accounts ", accounts)
-/*
-       let account = Account ()
-        account.fabricToken = "acspjcBzzzk7wijCd6yAz21VGTr86XvtpoLmVGVNpFMDg4yrExvYd8RgNyYnGPXKkTnGiL6MYhLRZgaiC9aKCBN8HYsm2vnQVQgSc5sJyy4hbSb6AWZ3EjhfzGC8t9kNqviy7n6zFF8GWnMsMG14stsdgmurAT4uQoocHjhjkhGAsuVQi32WEcF5pnV3fZsNsxLyNaoyAoQMxXm4ykGU18KCuaBKpPCFMnheF7Um5fp2CGQXqznYBh1d7LQBeVwZnAqq1LqC3WkWbUEG8Rqig5XLpjVwi3iWWGZkaCcwz5xGFHo8gX6mTMTkjc59MDxS"
-        account.type = .DEBUG
-        account.login = LoginResponse(addr:"0x2cdca879563d986210c2484b7984abcab821fd8c")
-        currentAccount = account
-        */
+  init() {
+    currentAccount = getSavedAccount()
+  }
 
+  private func getSavedAccount() -> Account? {
+    // We used to save a "type" field, which didn't hold enough data to
+    guard let accountData = UserDefaults.standard.object(forKey: "current_account") as? Data else {
+      return nil
     }
-    
-    func getSavedAccount() {
-        if let accountData = UserDefaults.standard.object(forKey: "current_account") as? Data {
-            let decoder = JSONDecoder()
-            if let account = try? decoder.decode(Account.self, from: accountData) {
-                debugPrint("Retrieved "+account.id)
-                
-                //Testing expiration in 3 hours from now
-                //account.expiresAt = Int64((Date().timeIntervalSince1970 + 60*60*3) * 1000)
-                debugPrint("Now Date \(Date())")
-                debugPrint("ExpiresAt Date \(account.expiresAtDate)")
-                debugPrint("isTokenExpiredIn \(account.isTokenExpiredIn(seconds: 60*60*4))")
-                
-                do {
-                    try addAndSetCurrentAccount(account: account, type:account.type)
-                }catch{
-                    print("Could not add account: ", error.localizedDescription)
-                }
-            }
-        }
+    guard let account = try? JSONDecoder().decode(Account.self, from: accountData) else {
+      return nil
     }
-    
-    func saveCurrentAccount() {
-        let encoder = JSONEncoder()
-        if let encoded = try? encoder.encode(currentAccount) {
-            let defaults = UserDefaults.standard
-            defaults.set(encoded, forKey: "current_account")
-        }
-    }
-    
-    var isLoggedOut : Bool {
-        if currentAccount == nil{
-            return true
-        }
-        
-        return false
-    }
-    
-    func signOut() {
-        currentAccount = nil
-        accounts = [.Auth0:[:],.Ory:[:]]
-        UserDefaults.standard.removeObject(forKey: "current_account")
-    }
-    
-    func isSignedIn(type: AccountType) -> Bool {
-        if let types = accounts[type] {
-            return !types.isEmpty
-        }
-        
-        return false
-    }
+    debugPrint("Retrieved " + account.id)
 
-    func getAccount(type:AccountType, property: String = "") -> Account? {
-        if let type = accounts[type] {
-            if let account = type[property] {
-                return account
-            }
-        }
-        return nil
-    }
-    
-    func getPropertyAccount(property:String) -> Account? {
-        //If we've set a debug account, use it!
-        if let account = currentAccount {
-            if account.type == .DEBUG {
-                return account
-            }
-        }
-        
-        if let account = getAccount(type:.Auth0, property:property) {
-            return account
-        }
-        
-        if let account = getAccount(type:.Ory, property:property) {
-            return account
-        }
-        
-        if let account = getAccount(type:.SSO, property:property) {
-            return account
-        }
-        
-        return nil
-    }
-    
-    func setCurrentAccount(account:Account) {
-        currentAccount = account
-        saveCurrentAccount()
-    }
-    
-    func addAndSetCurrentAccount(account:Account, type:AccountType, property: String = "") throws {
-        try addAccount(account:account, type:type)
-        setCurrentAccount(account: account)
-    }
+    // Testing expiration in 3 hours from now
+    // account.expiresAt = Int64((Date().timeIntervalSince1970 + 60*60*3) * 1000)
+    debugPrint("Now Date \(Date())")
+    debugPrint("ExpiresAt Date \(account.expiresAtDate)")
+    debugPrint("isTokenExpiredIn \(account.isTokenExpiredIn(seconds: 60 * 60 * 4))")
 
-    func addAccount(account:Account, type:AccountType, property: String = "") throws {
-        debugPrint("addAccount accounts ", accounts)
-        debugPrint("addAccount \(account) type: \(type) property: \(property) typeAccounts: \(accounts[type])")
-        if accounts[type] == nil {
-            accounts[type] = [:]
-        }
-        
-        if var typeAccounts = accounts[type] {
-            typeAccounts[property] = account
-            accounts[type] = typeAccounts
-        }
-    }
+    return account
+  }
 
-    func removeAccount(type:AccountType, property: String = "") {
-        if var typeAccounts = accounts[type] {
-            typeAccounts[property] = nil
-            accounts[type] = typeAccounts
-        }
+  private func saveAccount(_ account: Account?) {
+    if account == nil {
+      UserDefaults.standard.removeObject(forKey: "current_account")
+    } else {
+      if let encoded = try? JSONEncoder().encode(account) {
+        UserDefaults.standard.set(encoded, forKey: "current_account")
+      }
     }
-        
-    
+  }
+
+  var isLoggedOut: Bool {
+    return currentAccount == nil
+  }
+
+  func signOut() {
+    currentAccount = nil
+  }
 }

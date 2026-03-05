@@ -1,5 +1,5 @@
 //
-//  self.swift
+//  ViewState.swift
 //  EluvioWalletTVOS
 //
 //  Created by Wayne Tran on 2024-02-15.
@@ -8,169 +8,130 @@
 import SwiftUI
 
 enum LinkOp {
-    case item, play, mint, property, gallery, none
+  case item, play, mint, property, gallery, none
 }
 
 class ViewState: ObservableObject {
-    @Published var op: LinkOp  = .none
-    var itemContract = ""
-    var itemTokenStr = ""
-    var marketplaceId = ""
-    var itemSKU = ""
-    var mediaId = ""
-    var backLink = ""
-    var authToken = ""
-    var address = ""
-    var entitlement = ""
-    
-    //App states
-    var isBranded = false
-    var signInBackground : RadialGradient
-    
-    init(isBranded: Bool = false, signInBackground: RadialGradient = Color.mainBackground){
-        self.isBranded = isBranded
-        self.signInBackground = signInBackground
+  @Published var op: LinkOp = .none
+  var itemContract = ""
+  var itemTokenStr = ""
+  var marketplaceId = ""
+  var itemSKU = ""
+  var mediaId = ""
+  var backLink = ""
+  var authToken = ""
+  var address = ""
+  var entitlement = ""
+
+  // App states
+  var isBranded = false
+  var signInBackground: RadialGradient
+
+  init(isBranded: Bool = false, signInBackground: RadialGradient = Color.mainBackground) {
+    self.isBranded = isBranded
+    self.signInBackground = signInBackground
+  }
+
+  func reset() {
+    itemContract = ""
+    itemTokenStr = ""
+    marketplaceId = ""
+    itemSKU = ""
+    mediaId = ""
+    backLink = ""
+    if op == .none {
+      return
     }
-    
-    func reset() {
-        itemContract = ""
-        itemTokenStr = ""
-        marketplaceId = ""
-        itemSKU = ""
-        mediaId = ""
-        backLink = ""
-        if op == .none {
-            return
+    op = .none
+  }
+
+  func handleLink(url: URL, fabric: Fabric) async {
+    if let host = url.host()?.lowercased() {
+      debugPrint("handleLink ", host)
+      reset()
+
+      if let backlink = url.valueOf("back_link")?.removingPercentEncoding {
+        backLink = backlink
+      }
+      debugPrint("backlink: ", backLink)
+
+      if let authToken = url.valueOf("authorization")?.removingPercentEncoding {
+        self.authToken = authToken
+        debugPrint("Deeplink with auth", authToken)
+        do {
+          try await fabric.connect()
+          var signInResponse = SignInResponse()
+          signInResponse.idToken = authToken
+          // try await fabric.signIn(signInResponse: signInResponse, external: true)
+
+          debugPrint("Signed In!")
+
+          await MainActor.run {
+            setViewState(host: host, url: url)
+          }
+        } catch {
+          print("Could not login from deeplink: \(error.localizedDescription)")
         }
-        op = .none
-    }
-    
-    func handleLink(url:URL, fabric: Fabric) async{
-        if let host = url.host()?.lowercased() {
-            debugPrint("handleLink ", host)
-            reset()
-            
-            if let backlink = url.valueOf("back_link")?.removingPercentEncoding {
-                backLink = backlink
-            }
-            debugPrint("backlink: ", backLink)
-            
-            if let authToken = url.valueOf("authorization")?.removingPercentEncoding {
-                self.authToken = authToken
-                debugPrint("Deeplink with auth", authToken)
-                    do {
-                        try await fabric.connect()
-                        var signInResponse = SignInResponse()
-                        signInResponse.idToken = authToken
-                        //try await fabric.signIn(signInResponse: signInResponse, external: true)
-                        
-                        debugPrint("Signed In!")
-                        
-                        
-                        await MainActor.run {
-                            setViewState(host: host, url: url)
-                        }
-                    }catch {
-                        print("Could not login from deeplink: \(error.localizedDescription)")
-                    }
-            }else{
-                await MainActor.run {
-                    setViewState(host:host, url:url)
-                }
-            }
+      } else {
+        await MainActor.run {
+          setViewState(host: host, url: url)
         }
+      }
     }
-    
-    //@MainActor
-    func setViewState(host:String, url:URL){
-       switch(host){
-       case "items":
-           debugPrint("viewStateProperty items")
-           self.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-           self.itemTokenStr = url.valueOf("token") ?? ""
-           self.marketplaceId = url.valueOf("marketplace") ?? ""
-           self.itemSKU = url.valueOf("sku") ?? ""
-           debugPrint("backlink: ", self.backLink)
-           self.op = .item
-       case "play":
-           debugPrint("viewStateProperty play")
-           self.itemContract = url.valueOf("contract")?.lowercased() ?? ""
-           self.itemTokenStr = url.valueOf("token") ?? ""
-           self.mediaId = url.valueOf("media") ?? ""
-           self.marketplaceId = url.valueOf("marketplace") ?? ""
-           self.itemSKU = url.valueOf("sku") ?? ""
-           self.op = .play
-       case "mint":
-           debugPrint("viewStateProperty mint")
-           self.marketplaceId = url.valueOf("marketplace") ?? ""
-           self.itemSKU = url.valueOf("sku") ?? ""
-           self.entitlement = url.valueOf("entitlement") ?? ""
-           self.op = .mint
-       case "property":
-           debugPrint("viewStateProperty property ",self.marketplaceId)
-           self.marketplaceId = url.lastPathComponent
-           self.op = .property
-       default:
-           return
-       }
+  }
+
+  /// @MainActor
+  func setViewState(host: String, url: URL) {
+    switch host {
+    case "items":
+      debugPrint("viewStateProperty items")
+      itemContract = url.valueOf("contract")?.lowercased() ?? ""
+      itemTokenStr = url.valueOf("token") ?? ""
+      marketplaceId = url.valueOf("marketplace") ?? ""
+      itemSKU = url.valueOf("sku") ?? ""
+      debugPrint("backlink: ", backLink)
+      op = .item
+    case "play":
+      debugPrint("viewStateProperty play")
+      itemContract = url.valueOf("contract")?.lowercased() ?? ""
+      itemTokenStr = url.valueOf("token") ?? ""
+      mediaId = url.valueOf("media") ?? ""
+      marketplaceId = url.valueOf("marketplace") ?? ""
+      itemSKU = url.valueOf("sku") ?? ""
+      op = .play
+    case "mint":
+      debugPrint("viewStateProperty mint")
+      marketplaceId = url.valueOf("marketplace") ?? ""
+      itemSKU = url.valueOf("sku") ?? ""
+      entitlement = url.valueOf("entitlement") ?? ""
+      op = .mint
+    case "property":
+      debugPrint("viewStateProperty property ", marketplaceId)
+      marketplaceId = url.lastPathComponent
+      op = .property
+    default:
+      return
     }
-    
-    func setViewState(state: ViewState){
-        self.itemContract = state.itemContract
-        self.itemTokenStr = state.itemTokenStr
-        self.marketplaceId = state.marketplaceId
-        self.itemSKU = state.itemSKU
-        self.mediaId = state.mediaId
-        self.op = state.op
+  }
+
+  func setViewState(state: ViewState) {
+    itemContract = state.itemContract
+    itemTokenStr = state.itemTokenStr
+    marketplaceId = state.marketplaceId
+    itemSKU = state.itemSKU
+    mediaId = state.mediaId
+    op = state.op
+  }
+
+  /// Returns true if we can load the page
+  func login(_ property: MediaProperty, eluvio: EluvioAPI, router: Router) {
+    if property.accountType == eluvio.accountManager.currentAccount?.type {
+      debugPrint("Logged in with correct account type - navigating to Property.")
+      let param = PropertyParam(propertyId: property.id)
+      router.push(to: .property(param))
+    } else {
+      debugPrint("Not logged in with same account type as Property - navigating to Login.")
+      router.push(to: .login(LoginParam(property: property)))
     }
-    
-    //Returns true if we can load the page
-    func login(_ _property: MediaProperty? = nil, eluvio: EluvioAPI){
-        
-        var prop = _property
-        
-        guard let property = prop else {
-            if eluvio.accountManager.currentAccount?.type == .Auth0 {
-                eluvio.pathState.path.append(.login(LoginParam(type:.auth0)))
-                return
-            }else {
-                eluvio.pathState.path.append(.login(LoginParam(type:.ory)))
-            }
-            return
-        }
-        
-        if let login = property.login {
-            //debugPrint("login: ", login)
-            
-            let provider = login["settings"]["provider"].stringValue
-            if !provider.isEmpty {
-                if provider == "auth0" {
-                    debugPrint("Auth0 login.")
-                    if eluvio.accountManager.currentAccount?.type != .Auth0 {
-                        eluvio.pathState.path.append(.login(LoginParam(type:.auth0, property:property)))
-                        return
-                    }
-                }else if provider == "ory" {
-                    debugPrint("Ory login.")
-                    if eluvio.accountManager.currentAccount?.type != .Ory {                                                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
-                        return
-                    }
-                }else {
-                    //Default to Ory:
-                    if eluvio.accountManager.currentAccount?.type != .Ory {
-                        eluvio.pathState.path.append(.login(LoginParam(type:.ory, property:property)))
-                        return
-                    }
-                }
-                
-                if let currentAccount = eluvio.accountManager.currentAccount {
-                    debugPrint("Setting current account and going to page.")
-                    eluvio.fabric.fabricToken = currentAccount.fabricToken
-                    eluvio.pathState.propertyPage = property.main_page
-                    let param = PropertyParam(property:property)
-                    eluvio.pathState.path.append(.property(param))
-                }
-            }
-        }
-    }
+  }
 }

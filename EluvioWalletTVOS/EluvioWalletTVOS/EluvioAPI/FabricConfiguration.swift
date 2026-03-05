@@ -67,82 +67,73 @@
 import Foundation
 
 // MARK: - Welcome
-struct FabricConfiguration: Codable {
-    let nodeID: String
-    let network: Network
-    let qspace: Qspace
-    let fabricVersion: String
 
-    enum CodingKeys: String, CodingKey {
-        case nodeID = "node_id"
-        case network, qspace
-        case fabricVersion = "fabric_version"
-    }
-    
-    func getQspaceId() -> String{
-        return self.qspace.id
-    }
-    
-    func getAuthServices() -> [String]{
-        return self.network.services.authorityService
-    }
-    
-    func getFabricAPI() -> [String]{
-        return self.network.seedNodes.fabricAPI
-    }
-    
-    func getEthereumAPI() -> [String]{
-        return self.network.seedNodes.ethereumAPI
-    }
+struct FabricConfiguration: Codable {
+  let nodeID: String
+  let network: Network
+  let qspace: Qspace
+
+  enum CodingKeys: String, CodingKey {
+    case nodeID = "node_id"
+    case network, qspace
+  }
+
+  func getQspaceId() -> String {
+    return qspace.id
+  }
+
+  func getAuthServices() -> [String] {
+    return network.services.authorityService
+  }
+
+  func getFabricAPI() -> [String] {
+    return network.seedNodes.fabricAPI
+  }
+
+  func getEthereumAPI() -> [String] {
+    return network.seedNodes.ethereumAPI
+  }
 }
 
 // MARK: - Network
-struct Network: Codable {
-    let seedNodes: SeedNodes
-    let apiVersions: [Int]
-    let services: Services
 
-    enum CodingKeys: String, CodingKey {
-        case seedNodes = "seed_nodes"
-        case apiVersions = "api_versions"
-        case services
-    }
+struct Network: Codable {
+  let seedNodes: SeedNodes
+  let services: Services
+
+  enum CodingKeys: String, CodingKey {
+    case seedNodes = "seed_nodes"
+    case services
+  }
 }
 
 // MARK: - SeedNodes
-struct SeedNodes: Codable {
-    let fabricAPI, ethereumAPI: [String]
 
-    enum CodingKeys: String, CodingKey {
-        case fabricAPI = "fabric_api"
-        case ethereumAPI = "ethereum_api"
-    }
+struct SeedNodes: Codable {
+  let fabricAPI, ethereumAPI: [String]
+
+  enum CodingKeys: String, CodingKey {
+    case fabricAPI = "fabric_api"
+    case ethereumAPI = "ethereum_api"
+  }
 }
 
 // MARK: - Services
+
 struct Services: Codable {
-    let authorityService, ethereumAPI, fabricAPI : [String]
-    let search: [String]?
-    enum CodingKeys: String, CodingKey {
-        case authorityService = "authority_service"
-        case ethereumAPI = "ethereum_api"
-        case fabricAPI = "fabric_api"
-        case search
-    }
+  let authorityService, ethereumAPI, fabricAPI: [String]
+  let search: [String]?
+  enum CodingKeys: String, CodingKey {
+    case authorityService = "authority_service"
+    case ethereumAPI = "ethereum_api"
+    case fabricAPI = "fabric_api"
+    case search
+  }
 }
 
 // MARK: - Qspace
+
 struct Qspace: Codable {
-    let id, version, type: String
-    let ethereum: Ethereum
-    let names: [String]
-}
-
-// MARK: - Ethereum
-struct Ethereum: Codable {
-    let networkID: Int
-
-    enum CodingKeys: String, CodingKey {
-        case networkID = "network_id"
-    }
+  let id, version, type: String
+  let names: [String]
 }

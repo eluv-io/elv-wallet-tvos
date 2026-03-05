@@ -8,36 +8,36 @@
 import SwiftUI
 
 struct InfoTab: View {
-    var image: UIImage
-    var title = ""
-    var description = ""
-    var copyright = ""
-    
-    var body: some View {
-        HStack(alignment:.top) {
-            Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 200, height: 200, alignment: .top)
-                .clipped()
-                .layoutPriority(1)
-                //.padding(.top, 10)
-                .padding(20)
-            
-            VStack(alignment:.leading) {
-                Text(title)
-                    .font(.title2)
-                Text(description)
-                    .opacity(0.8)
-                    .lineLimit(4)
-                Spacer()
-                if (!copyright.isEmpty){
-                    Text("Copyright © \(copyright)")
-                        .font(.footnote)
-                }
-            }
-            .frame(maxWidth:.infinity, alignment: .leading)
+  var image: UIImage
+  var title = ""
+  var description = ""
+  var copyright = ""
+
+  var body: some View {
+    HStack(alignment: .top) {
+      Image(uiImage: image)
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 200, height: 200, alignment: .top)
+        .clipped()
+        .layoutPriority(1)
+        // .padding(.top, 10)
+        .padding(20)
+
+      VStack(alignment: .leading) {
+        Text(title)
+          .font(.title2)
+        Text(description)
+          .opacity(0.8)
+          .lineLimit(4)
+        Spacer()
+        if !copyright.isEmpty {
+          Text("Copyright © \(copyright)")
+            .font(.footnote)
         }
-        .padding(.top,20)
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
     }
+    .padding(.top, 20)
+  }
 }

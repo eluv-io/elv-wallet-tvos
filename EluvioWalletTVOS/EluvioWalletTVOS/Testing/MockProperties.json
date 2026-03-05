@@ -1,0 +1,185 @@
+{
+    "contents": [
+        {
+            "id": "iq__mock_property_1",
+            "title": "Mock Property 1",
+            "name": "mock-property-1",
+            "slug": "mock-property-1",
+            "image": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 1",
+                "color": "1a1a2e"
+            },
+            "image_tv": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 1",
+                "color": "1a1a2e"
+            },
+            "require_login": true,
+            "login": {
+                "settings": {
+                    "provider": "ory",
+                    "disable_login": false,
+                    "use_auth0": false
+                }
+            },
+            "main_page": {
+                "id": "main",
+                "label": "Main Page",
+                "slug": "main",
+                "sections": [
+                    "hero",
+                    "featured",
+                    "recent"
+                ]
+            }
+        },
+        {
+            "id": "iq__mock_property_2",
+            "title": "Mock Property 2",
+            "name": "mock-property-2",
+            "slug": "mock-property-2",
+            "image": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 2",
+                "color": "2d4a3e"
+            },
+            "image_tv": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 2",
+                "color": "2d4a3e"
+            },
+            "require_login": true,
+            "login": {
+                "settings": {
+                    "provider": "ory",
+                    "disable_login": false,
+                    "use_auth0": false
+                }
+            },
+            "main_page": {
+                "id": "main",
+                "label": "Main Page",
+                "slug": "main",
+                "sections": [
+                    "hero",
+                    "featured"
+                ]
+            }
+        },
+        {
+            "id": "iq__mock_property_3",
+            "title": "Mock Property 3",
+            "name": "mock-property-3",
+            "slug": "mock-property-3",
+            "image": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 3",
+                "color": "4a2d3e"
+            },
+            "image_tv": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 3",
+                "color": "4a2d3e"
+            },
+            "require_login": true,
+            "login": {
+                "settings": {
+                    "provider": "ory",
+                    "disable_login": false,
+                    "use_auth0": false
+                }
+            },
+            "main_page": {
+                "id": "main",
+                "label": "Main Page",
+                "slug": "main",
+                "sections": [
+                    "hero",
+                    "featured"
+                ]
+            }
+        },
+        {
+            "id": "iq__mock_property_4",
+            "title": "Mock Property 4",
+            "name": "mock-property-4",
+            "slug": "mock-property-4",
+            "image": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 4",
+                "color": "3d2d4a"
+            },
+            "image_tv": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 4",
+                "color": "3d2d4a"
+            },
+            "require_login": true,
+            "login": {
+                "settings": {
+                    "provider": "ory",
+                    "disable_login": false,
+                    "use_auth0": false
+                }
+            },
+            "main_page": {
+                "id": "main",
+                "label": "Main Page",
+                "slug": "main",
+                "sections": [
+                    "hero",
+                    "featured"
+                ]
+            }
+        },
+        {
+            "id": "iq__mock_property_5",
+            "title": "Mock Property 5",
+            "name": "mock-property-5",
+            "slug": "mock-property-5",
+            "image": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 5",
+                "color": "4a3d2d"
+            },
+            "image_tv": {
+                "comment":
+                    "This is mock data and doesn't conform to the true structure of 'image'",
+                "text": "Property 5",
+                "color": "4a3d2d"
+            },
+            "require_login": true,
+            "login": {
+                "settings": {
+                    "provider": "ory",
+                    "disable_login": false,
+                    "use_auth0": false
+                }
+            },
+            "main_page": {
+                "id": "main",
+                "label": "Main Page",
+                "slug": "main",
+                "sections": [
+                    "hero",
+                    "featured"
+                ]
+            }
+        }
+    ],
+    "paging": {
+        "start": 0,
+        "limit": 10,
+        "total": 5
+    }
+}

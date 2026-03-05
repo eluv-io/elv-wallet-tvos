@@ -1,0 +1,167 @@
+{
+    "contents": [
+        {
+            "id": "hero",
+            "label": "Hero",
+            "type": "hero",
+            "authorized": true,
+            "display": {
+                "display_format": "hero"
+            },
+            "hero_items": [
+                {
+                    "display": {
+                        "title": "Welcome to Mock Property",
+                        "description": "This is a mock hero section for UI testing. Navigate through the content below to explore the app.",
+                        "position": "Left",
+                        "logo": {
+                            "color": "3b82f6",
+                            "text": "LOGO"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "id": "featured",
+            "label": "Featured Content",
+            "type": "manual",
+            "authorized": true,
+            "display": {
+                "title": "Featured",
+                "display_limit": 10
+            },
+            "content": [
+                {
+                    "id": "item_1",
+                    "media_id": "media_1",
+                    "media_type": "video",
+                    "type": "media",
+                    "label": "Video 1",
+                    "display": {
+                        "title": "Featured Video 1",
+                        "subtitle": "Mock content for testing",
+                        "aspect_ratio": "landscape",
+                        "thumbnail_image_landscape": {
+                            "color": "2563eb",
+                            "text": "Video 1"
+                        }
+                    }
+                },
+                {
+                    "id": "item_2",
+                    "media_id": "media_2",
+                    "media_type": "video",
+                    "type": "media",
+                    "label": "Video 2",
+                    "display": {
+                        "title": "Featured Video 2",
+                        "subtitle": "Mock content for testing",
+                        "aspect_ratio": "landscape",
+                        "thumbnail_image_landscape": {
+                            "color": "16a34a",
+                            "text": "Video 2"
+                        }
+                    }
+                },
+                {
+                    "id": "item_3",
+                    "media_id": "media_3",
+                    "media_type": "video",
+                    "type": "media",
+                    "label": "Video 3",
+                    "display": {
+                        "title": "Featured Video 3",
+                        "subtitle": "Mock content for testing",
+                        "aspect_ratio": "landscape",
+                        "thumbnail_image_landscape": {
+                            "color": "dc2626",
+                            "text": "Video 3"
+                        }
+                    }
+                },
+                {
+                    "id": "item_4",
+                    "media_id": "media_4",
+                    "media_type": "video",
+                    "type": "media",
+                    "label": "Video 4",
+                    "display": {
+                        "title": "Featured Video 4",
+                        "subtitle": "Mock content for testing",
+                        "aspect_ratio": "landscape",
+                        "thumbnail_image_landscape": {
+                            "color": "9333ea",
+                            "text": "Video 4"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "id": "recent",
+            "label": "Recently Added",
+            "type": "manual",
+            "authorized": true,
+            "display": {
+                "title": "Recently Added",
+                "display_limit": 10
+            },
+            "content": [
+                {
+                    "id": "recent_1",
+                    "media_id": "recent_media_1",
+                    "media_type": "video",
+                    "type": "media",
+                    "label": "Recent Video 1",
+                    "display": {
+                        "title": "Recent Video 1",
+                        "subtitle": "Recently added content",
+                        "aspect_ratio": "landscape",
+                        "thumbnail_image_landscape": {
+                            "color": "ea580c",
+                            "text": "Recent 1"
+                        }
+                    }
+                },
+                {
+                    "id": "recent_2",
+                    "media_id": "recent_media_2",
+                    "media_type": "video",
+                    "type": "media",
+                    "label": "Recent Video 2",
+                    "display": {
+                        "title": "Recent Video 2",
+                        "subtitle": "Recently added content",
+                        "aspect_ratio": "landscape",
+                        "thumbnail_image_landscape": {
+                            "color": "0891b2",
+                            "text": "Recent 2"
+                        }
+                    }
+                },
+                {
+                    "id": "recent_3",
+                    "media_id": "recent_media_3",
+                    "media_type": "video",
+                    "type": "media",
+                    "label": "Recent Video 3",
+                    "display": {
+                        "title": "Recent Video 3",
+                        "subtitle": "Recently added content",
+                        "aspect_ratio": "landscape",
+                        "thumbnail_image_landscape": {
+                            "color": "be185d",
+                            "text": "Recent 3"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "paging": {
+        "start": 0,
+        "limit": 10,
+        "total": 3
+    }
+}

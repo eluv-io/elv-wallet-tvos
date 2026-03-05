@@ -1,0 +1,20 @@
+{
+  "swift.path": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin",
+  "files.watcherExclude": {
+    "**/DerivedData/**": true,
+    "**/build/**": true,
+    "**/.build/**": true,
+    "**/Pods/**": true,
+    "**/*.xcodeproj/**": true,
+    "**/SourcePackages/**": true
+  },
+  "search.exclude": {
+    "**/DerivedData/**": true,
+    "**/build/**": true,
+    "**/SourcePackages/**": true
+  },
+  "files.exclude": {
+    "**/DerivedData/**": true,
+    "**/build/**": true
+  }
+}

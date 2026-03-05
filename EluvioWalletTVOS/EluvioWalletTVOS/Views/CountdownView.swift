@@ -1,168 +1,201 @@
 //
-//  PlayerCountdownView.swift
+//  CountdownView.swift
 //  EluvioWalletTVOS
 //
 //  Created by Wayne Tran on 2024-08-20.
 //
 
-import SwiftUI
 import SDWebImageSwiftUI
+import SwiftUI
 
 struct PlayerErrorView: View {
-    var backgroundImageUrl : String = "https://picsum.photos/1920/1080"
-    var title: String = "The media is not available"
-    
-    var body: some View {
-        ZStack(alignment:.center){
-            
-            WebImage(url:URL(string:backgroundImageUrl))
-                .resizable()
-                .edgesIgnoringSafeArea(.all)
-            
-            Color.black.opacity(0.5)
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(alignment:.center, spacing:0){
-                Spacer()
-                Image(systemName:"lock")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width:100, height:100)
-                    .padding(.bottom, 52)
+  var propertyId: String = ""
+  var title: String = "The media is not available"
 
-                Text(title).font(.system(size:32, weight:.semibold))
-                    .lineLimit(1)
-                    .frame(maxWidth: 1600)
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 52)
+  var backgroundImageUrl: String {
+    PropertyStore.shared.getProperty(id: propertyId)?.backgroundImage ?? ""
+  }
 
-                Spacer()
-            }
-        }
+  var body: some View {
+    ZStack(alignment: .center) {
+      WebImage(url: URL(string: backgroundImageUrl))
+        .resizable()
+        .edgesIgnoringSafeArea(.all)
+
+      Color.black.opacity(0.5)
+        .edgesIgnoringSafeArea(.all)
+
+      VStack(alignment: .center, spacing: 0) {
+        Spacer()
+        Image(systemName: "lock")
+          .resizable()
+          .scaledToFit()
+          .frame(width: 100, height: 100)
+          .padding(.bottom, 52)
+
+        Text(title).font(.system(size: 32, weight: .semibold))
+          .lineLimit(1)
+          .frame(maxWidth: 1600)
+          .multilineTextAlignment(.center)
+          .padding(.bottom, 52)
+
+        Spacer()
+      }
     }
+  }
 }
 
 struct CountDownView: View {
-    @EnvironmentObject var eluvio: EluvioAPI
-    var backgroundImageUrl : String = ""
-    var images : [String] = []
-    var imageUrl : String = ""
-    var title: String = ""
-    var description: String = ""
-    var infoText: String = ""
-    var mediaItem: MediaPropertySectionMediaItem
-    var propertyId: String = ""
-    @State var timeRemaining : String = " "
+  @EnvironmentObject var eluvio: EluvioAPI
+  @EnvironmentObject var router: Router
+  var mediaItem: MediaPropertySectionMediaItem
+  var propertyId: String = ""
 
+  var backgroundImageUrl: String {
+    PropertyStore.shared.getProperty(id: propertyId)?.backgroundImage ?? ""
+  }
+  @State var timeRemaining: String = " "
 
-    @State var timer:Timer?
-    
-    var body: some View {
-        ZStack(alignment:.center){
-            
-            WebImage(url:URL(string:backgroundImageUrl))
+  var images: [String] {
+    mediaItem.icons?.compactMap { $0.icon?.url } ?? []
+  }
+
+  var title: String {
+    mediaItem.title ?? ""
+  }
+
+  var description: String {
+    mediaItem.description ?? ""
+  }
+
+  var infoText: String {
+    mediaItem.headers?.joined(separator: "   ") ?? ""
+  }
+
+  var imageUrl: String {
+    mediaItem.thumbnail_image_square?.url
+      ?? mediaItem.thumbnail_image_landscape?.url
+      ?? mediaItem.thumbnail_image_portrait?.url
+      ?? ""
+  }
+
+  var body: some View {
+    ZStack(alignment: .center) {
+      WebImage(url: URL(string: backgroundImageUrl))
+        .resizable()
+        .edgesIgnoringSafeArea(.all)
+
+      Color.black.opacity(0.5)
+        .edgesIgnoringSafeArea(.all)
+
+      VStack(alignment: .center, spacing: 0) {
+        Spacer()
+        if images.isEmpty {
+          WebImage(url: URL(string: imageUrl))
+            .resizable()
+            .scaledToFit()
+            .frame(width: 600, height: 300)
+            .padding(.bottom, 52)
+        } else if !images.isEmpty {
+          HStack(spacing: 52) {
+            ForEach(0..<images.count, id: \.self) { index in
+              WebImage(url: URL(string: images[index]))
                 .resizable()
-                .edgesIgnoringSafeArea(.all)
-            
-            Color.black.opacity(0.5)
-                .edgesIgnoringSafeArea(.all)
-            
-            VStack(alignment:.center, spacing:0){
-                Spacer()
-                if images.isEmpty {
-                    WebImage(url:URL(string:imageUrl))
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width:600, height:300)
-                        .padding(.bottom, 52)
-                }else if !images.isEmpty {
-                    HStack(spacing:52) {
-                        ForEach(0..<images.count, id:\.self) { index in
-                            WebImage(url:URL(string:images[index]))
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width:200, height:200)
-                                .padding(.bottom, 52)
-                        }
-                    }
-                }
-                
-                Text(infoText).font(.system(size:32))
-                    .lineLimit(1)
-                    .frame(maxWidth: 1600)
-                    .padding(.bottom, 28)
-                
-                Text(title).font(.system(size:32, weight:.semibold))
-                    .lineLimit(1)
-                    .frame(maxWidth: 1600)
-                    .multilineTextAlignment(.center)
-                    .padding(.bottom, 52)
-                
-                Text(timeRemaining).font(.system(size:62, weight:.semibold))
-                    .lineLimit(1)
-                    .frame(maxWidth: 1600)
-                    .multilineTextAlignment(.center)
-                    .transition(.opacity)
-                    .id("time remainging: " + timeRemaining)
-                    .padding()
-                Spacer()
+                .scaledToFit()
+                .frame(width: 200, height: 200)
+                .padding(.bottom, 52)
             }
+          }
         }
-        .onDisappear(){
-            if let timer = self.timer {
-                timer.invalidate()
-            }
-        }
-        .onAppear(){
-            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { timer in
-                if let startDate = mediaItem.startDate{
-                    if startDate > Date() && !mediaItem.hasStarted{
-                        timeRemaining = mediaItem.timeUntilStartLong
-                    }else{
-                        if (timeRemaining.isEmpty || timeRemaining == " "){
-                            withAnimation(.easeInOut(duration: 1), {
-                                timeRemaining = "Starting soon"
-                            })
-                        }else{
-                            timeRemaining = "Starting soon"
-                        }
-                        
-                        if mediaItem.hasStarted {
-                            timer.invalidate()
-                            debugPrint("Starting stream...")
-                            if ( mediaItem.media_type?.lowercased() == "video") {
-                                let resolvedPropertyId = propertyId.isEmpty
-                                    ? (eluvio.pathState.videoErrorParams?.propertyId ?? "")
-                                    : propertyId
 
-                                if mediaItem.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
-                                    debugPrint("permission denied! ", mediaItem.title)
+        Text(infoText).font(.system(size: 32))
+          .lineLimit(1)
+          .frame(maxWidth: 1600)
+          .padding(.bottom, 28)
 
-                                    let videoErrorParams = VideoErrorParams(mediaItem:mediaItem, type: .permission, backgroundImage: backgroundImageUrl, images: images)
+        Text(title).font(.system(size: 32, weight: .semibold))
+          .lineLimit(1)
+          .frame(maxWidth: 1600)
+          .multilineTextAlignment(.center)
+          .padding(.bottom, 52)
 
-                                    eluvio.pathState.videoErrorParams = videoErrorParams
-                                    Task { @MainActor in
-                                        _ = eluvio.pathState.path.popLast()
-                                        eluvio.pathState.path.append(.videoError)
-                                    }
-                                    return
-                                }
-
-                                let params = VideoParams(mediaId: mediaItem.id ?? "",
-                                                         title: title,
-                                                         propertyId: resolvedPropertyId)
-                                eluvio.pathState.videoParams = params
-
-                                Task { @MainActor in
-                                    _ = eluvio.pathState.path.popLast()
-                                    eluvio.pathState.path.append(.video)
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-        }
+        Text(timeRemaining).font(.system(size: 62, weight: .semibold))
+          .lineLimit(1)
+          .frame(maxWidth: 1600)
+          .multilineTextAlignment(.center)
+          .transition(.opacity)
+          .id("time remainging: " + timeRemaining)
+          .padding()
+        Spacer()
+      }
     }
+    .repeatTask {
+      guard let startDate = mediaItem.startDate else { return }
+      if startDate > Date() && !mediaItem.hasStarted {
+        timeRemaining = mediaItem.timeUntilStartLong
+      } else {
+        if timeRemaining.isEmpty || timeRemaining == " " {
+          withAnimation(.easeInOut(duration: 1)) {
+            timeRemaining = "Starting soon"
+          }
+        } else {
+          timeRemaining = "Starting soon"
+        }
+
+        if mediaItem.hasStarted {
+          await startVideo()
+          throw "stop loop"
+        }
+      }
+      try await Task.sleep(for: .seconds(1))
+    }
+  }
+
+  private func startVideo() async {
+    debugPrint("Starting stream...")
+
+    if mediaItem.media_link?["."]["resolution_error"]["kind"].stringValue == "permission denied" {
+      debugPrint("permission denied! ", mediaItem.title)
+
+      let videoErrorParams = VideoPermissionErrorParams(propertyId: propertyId)
+      await MainActor.run {
+        router.replace(with: .videoPermissionError(videoErrorParams))
+        return
+      }
+    }
+
+    guard let link = mediaItem.media_link?["sources"]["default"] else { return }
+    do {
+      let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(
+        propertyId: propertyId, mediaId: mediaItem.id ?? "")
+      let playout = try ResolveMediaPlayoutInfo(
+        fabric: eluvio.fabric, optionsJson: optionsJson)
+      let viewModel = MediaPropertySectionMediaItemViewModel.create(
+        media: mediaItem)
+      let params = VideoParams(viewItem: viewModel, playout: playout)
+      await MainActor.run {
+        router.replace(with: .video(params))
+      }
+    } catch {
+      print("Error getting link url for playback ", error)
+      let videoErrorParams = VideoPermissionErrorParams(propertyId: propertyId)
+      await MainActor.run {
+        router.replace(with: .videoPermissionError(videoErrorParams))
+      }
+    }
+  }
+}
+
+// MARK: - SwiftUI Previews
+
+#Preview("Player Error View") {
+  PlayerErrorView(
+    title: "This content is not available"
+  )
+}
+
+#Preview("Player Error - Custom Message") {
+  PlayerErrorView(
+    title: "You don't have permission to view this content"
+  )
 }

@@ -1,0 +1,17 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "sweetpad",
+      "action": "launch",
+      "label": "sweetpad: launch",
+      "problemMatcher": []
+    },
+    {
+      "type": "sweetpad",
+      "action": "build",
+      "label": "sweetpad: build",
+      "problemMatcher": []
+    }
+  ]
+}

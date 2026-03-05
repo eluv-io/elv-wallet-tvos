@@ -1,0 +1,135 @@
+//
+//  MainView.swift
+//  EluvioLiveIOS
+//
+//  Created by Wayne Tran on 2021-08-10.
+//
+
+import Combine
+import SwiftUI
+import SwiftyJSON
+
+struct HeaderView: View {
+  @EnvironmentObject var eluvio: EluvioAPI
+  var logo = "e_logo"
+  var logoUrl = ""
+  var name = APP_CONFIG.app.name
+
+  var body: some View {
+    VStack {
+      HStack(spacing: 20) {
+        if !eluvio.viewState.isBranded {
+          Image(logo)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 60)
+          Text(name)
+            .foregroundColor(Color.white)
+            .font(.headline)
+        } else {
+          Image(logo)
+            .resizable()
+            .aspectRatio(contentMode: .fit)
+            .frame(width: 250, height: 60)
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+  }
+}
+
+enum MainTab { case Discover, Items, Profile }
+
+struct MainView: View {
+  @Environment(\.colorScheme) var colorScheme
+  @EnvironmentObject var eluvio: EluvioAPI
+  @Namespace var MAIN
+
+  @State var selection: MainTab = .Discover
+  @State private var cancellable: AnyCancellable? = nil
+  @State var logOutTimer = Timer.publish(every: 24 * 60 * 60, on: .main, in: .common)
+  @FocusState var navFocused
+  @State var showNav = false
+  @State var navDisabled = true
+  @State var justDismissed = false
+
+  init() {
+    UITabBar.appearance().barTintColor = UIColor(white: 1, alpha: 0.2)
+  }
+
+  var body: some View {
+    ZStack {
+      TabView(selection: $selection) {
+        DiscoverView().preferredColorScheme(colorScheme)
+          .environmentObject(self.eluvio)
+          .prefersDefaultFocus(in: MAIN)
+          .opacity(selection == .Discover ? 1.0 : 0.0)
+          .tabItem { Text("Home") }
+          .tag(MainTab.Discover)
+          .accessibilityIdentifier("tab_home")
+
+        MyItemsView().preferredColorScheme(colorScheme)
+          .environmentObject(self.eluvio)
+          .opacity(selection == .Items ? 1.0 : 0.0)
+          .tabItem { Text("My Items") }
+          .tag(MainTab.Items)
+          .accessibilityIdentifier("tab_my_items")
+
+        ProfileView().preferredColorScheme(colorScheme)
+          .environmentObject(self.eluvio)
+          .opacity(selection == .Profile ? 1.0 : 0.0)
+          .preferredColorScheme(.dark)
+          .tabItem { Text("Profile") }
+          .tag(MainTab.Profile)
+          .accessibilityIdentifier("tab_profile")
+      }
+    }
+    .edgesIgnoringSafeArea(.all)
+    .onAppear {
+      debugPrint("MainView onAppear")
+      self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
+        print("MainView fabric changed, ", val)
+        if val == nil {
+          self.selection = MainTab.Discover
+        }
+      }
+      Task {
+        await MainActor.run {
+          navDisabled = false
+        }
+      }
+    }
+    .onChange(of: navFocused) { _, new in
+      debugPrint("on Nav Focused ", new)
+      debugPrint("justDismissed ", justDismissed)
+
+      if new {
+        if !justDismissed {
+          debugPrint("showing nav ")
+          navDisabled = true
+          showNav = true
+        } else {
+          justDismissed = false
+        }
+      }
+    }
+    .onChange(of: navDisabled) { _, new in
+      debugPrint("on Nav navDisabled ", new)
+    }
+  }
+}
+
+// MARK: - SwiftUI Previews
+
+#Preview("Header View") {
+  HeaderView()
+    .environmentObject(EluvioAPI())
+    .padding()
+    .background(Color.black)
+}
+
+#Preview("Main View") {
+  MainView()
+    .preferredColorScheme(.dark)
+    .environmentObject(EluvioAPI())
+}
