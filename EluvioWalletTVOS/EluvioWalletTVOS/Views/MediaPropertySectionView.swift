@@ -176,7 +176,7 @@ struct MediaPropertyRegularSectionView: View {
                     .frame(alignment: alignment)
                 }
 
-                if showViewAll {
+                if section.showViewAll {
                   ViewAllButton(action: {
                     debugPrint("View All pressed")
                     let params = SectionViewAllParams(
@@ -309,11 +309,6 @@ struct MediaPropertyRegularSectionView: View {
     self.items = sectionItems
   }
 
-  var showViewAll: Bool {
-    let content = section.content ?? []
-    return content.count > 5 || (content.count > section.displayLimit && section.displayLimit > 0)
-  }
-
   var titleIcon: String {
     section.display?.title_icon?.url ?? ""
   }
@@ -431,52 +426,22 @@ struct MediaPropertySectionView: View {
   var useScale = false
   var isFirstSection = false
 
-  @State var inlineBackgroundUrl: String? = nil
-  var hasBackground: Bool {
-    if let background = inlineBackgroundUrl {
-      if !background.isEmpty {
-        return true
-      }
-    }
-
-    return false
+  var inlineBackgroundUrl: String? {
+    section.display?.inline_background_image?.url
   }
+  var hasBackground: Bool { inlineBackgroundUrl?.nilIfEmpty() != nil }
 
-  var showViewAll: Bool {
-    if let sectionItems = section.content {
-      if sectionItems.count > 5
-        || (sectionItems.count > section.displayLimit && section.displayLimit > 0)
-      {
-        return true
-      }
-    }
+  var title: String { section.displayTitle }
 
-    return false
-  }
+  var titleIcon: String { section.display?.title_icon?.url ?? "" }
 
-  var title: String {
-    return section.displayTitle
-  }
+  var isDisplayable: Bool { section.display?.display_format == "carousel" || isHero }
 
-  var titleIcon: String {
-    return section.display?.title_icon?.url ?? ""
-  }
+  var isRegular: Bool { !isHero && !isBanner && !isContainer }
 
-  var isDisplayable: Bool {
-    return section.display?.display_format == "carousel" || isHero
-  }
+  var isHero: Bool { section.display?.display_format == "hero" }
 
-  var isRegular: Bool {
-    return !isHero && !isBanner && !isContainer
-  }
-
-  var isHero: Bool {
-    return section.display?.display_format == "hero"
-  }
-
-  var isBanner: Bool {
-    return section.display?.display_format == "banner"
-  }
+  var isBanner: Bool { section.display?.display_format == "banner" }
 
   var isContainer: Bool {
     if let type = section.type {
@@ -500,24 +465,18 @@ struct MediaPropertySectionView: View {
 
   @State var playerItem: AVPlayerItem? = nil
 
-  var minHeight: CGFloat {
-    if hasBackground {
-      return 420
-    }
+  var minHeight: CGFloat { hasBackground ? 420 : 400 }
 
-    return 400
-  }
+  var heroItem: JSON? { section.hero_items?.array?.first }
 
   var heroPosition: SectionPosition {
-    if let items = section.hero_items?.arrayValue {
-      if !items.isEmpty {
-        if items[0]["display"]["position"].stringValue == "Left" {
-          return .Left
-        } else if items[0]["display"]["position"].stringValue == "Right" {
-          return .Right
-        } else if items[0]["display"]["position"].stringValue == "Center" {
-          return .Center
-        }
+    if let hero = heroItem {
+      if hero["display"]["position"].stringValue == "Left" {
+        return .Left
+      } else if hero["display"]["position"].stringValue == "Right" {
+        return .Right
+      } else if hero["display"]["position"].stringValue == "Center" {
+        return .Center
       }
     }
 
@@ -525,13 +484,11 @@ struct MediaPropertySectionView: View {
   }
 
   var heroLogoUrl: String {
-    if let items = section.hero_items?.arrayValue {
-      if !items.isEmpty {
-        do {
-          return try eluvio.fabric.getUrlFromLink(link: items[0]["display"]["logo"])
-        } catch {
-          return ""
-        }
+    if let logo = heroItem?["display"]["logo"] {
+      do {
+        return try eluvio.fabric.getUrlFromLink(link: logo)
+      } catch {
+        return ""
       }
     }
 
@@ -539,21 +496,11 @@ struct MediaPropertySectionView: View {
   }
 
   var heroTitle: String {
-    if let items = section.hero_items?.arrayValue {
-      if !items.isEmpty {
-        return items[0]["display"]["title"].stringValue
-      }
-    }
-    return ""
+    heroItem?["display"]["title"].stringValue ?? ""
   }
 
   var heroDescription: String {
-    if let items = section.hero_items?.arrayValue {
-      if !items.isEmpty {
-        return items[0]["display"]["description"].stringValue
-      }
-    }
-    return ""
+    heroItem?["display"]["description"].stringValue ?? ""
   }
 
   var hAlignment: HorizontalAlignment {
@@ -714,7 +661,7 @@ struct MediaPropertySectionView: View {
     .background(
       Group {
         if let url = inlineBackgroundUrl {
-          WebImage(url: URL(string: url))
+          ScaledWebImage(url: url, height: UIScreen.main.bounds.height)
             .resizable()
             .aspectRatio(contentMode: .fill)
             .frame(maxWidth: .infinity)
@@ -727,18 +674,6 @@ struct MediaPropertySectionView: View {
     )
     .disabled(disable)
     .focusSection()
-    .onAppear {
-      refresh()
-    }
-  }
-
-  func refresh() {
-    debugPrint("MediaPropertySectionView section ", section.displayTitle)
-    debugPrint("section isHero ", isHero)
-    debugPrint("section isBanner ", isBanner)
-    debugPrint("number of contents: ", section.content?.count)
-
-    inlineBackgroundUrl = section.display?.inline_background_image?.url
   }
 }
 

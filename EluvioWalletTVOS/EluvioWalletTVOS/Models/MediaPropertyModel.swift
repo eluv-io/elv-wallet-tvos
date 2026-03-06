@@ -206,6 +206,11 @@ final class MediaPropertySection: Identifiable, Hashable, Permissionable, Encoda
     display?.justification ?? ""
   }
 
+  var showViewAll: Bool {
+    let content = content ?? []
+    return content.count > 5 || (content.count > displayLimit && displayLimit > 0)
+  }
+
   static func == (lhs: MediaPropertySection, rhs: MediaPropertySection) -> Bool {
     return lhs.id == rhs.id
       && lhs.displayTitle == rhs.displayTitle
