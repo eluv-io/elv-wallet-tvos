@@ -144,94 +144,6 @@ struct MediaPropertyRegularSectionView: View {
   var scaleFactor: CGFloat = 0.7
   var lookForBackground = false
 
-  var showViewAll: Bool {
-    if let sectionItems = section.content {
-      if sectionItems.count > 5
-        || (sectionItems.count > section.displayLimit && section.displayLimit > 0)
-      {
-        return true
-      }
-    }
-
-    return false
-  }
-
-  var title: String {
-    return section.displayTitle
-  }
-
-  var titleIcon: String {
-    return section.display?.title_icon?.url ?? ""
-  }
-
-  var isDisplayable: Bool {
-    if section.display?.display_format == "carousel" {
-      return true
-    }
-
-    return false
-  }
-
-  @State var logoUrl: String? = nil
-  var logoText: String {
-    return section.display?.logo_text ?? ""
-  }
-
-  @State var inlineBackgroundUrl: String? = nil
-  var hasBackground: Bool {
-    if let background = inlineBackgroundUrl {
-      if !background.isEmpty {
-        return true
-      }
-    }
-
-    return false
-  }
-
-  var minHeight: CGFloat {
-    if hasBackground {
-      return 420
-    }
-
-    return 400
-  }
-
-  var hAlignment: HorizontalAlignment {
-    if let justification = section.display?.justification {
-      if justification.lowercased() == "left" {
-        return .leading
-      }
-      if justification.lowercased() == "right" {
-        return .trailing
-      }
-      if justification.lowercased() == "center" {
-        return .center
-      }
-    }
-
-    return .leading
-  }
-
-  var alignment: Alignment {
-    if let justification = section.display?.justification {
-      if justification.lowercased() == "left" {
-        return .leading
-      }
-      if justification.lowercased() == "right" {
-        return .trailing
-      }
-      if justification.lowercased() == "center" {
-        return .center
-      }
-    }
-
-    return .leading
-  }
-
-  var forceAspectRatio: String {
-    return section.display?.aspect_ratio ?? ""
-  }
-
   var body: some View {
     ZStack(alignment: .leading) {
       HStack(alignment: .center) {
@@ -364,21 +276,13 @@ struct MediaPropertyRegularSectionView: View {
     .clipped()
     .edgesIgnoringSafeArea([.trailing])
     .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .task {
+    .task(id: section.content ?? []) {
       await refresh()
     }
   }
 
   func refresh() async {
     debugPrint("MediaPropertyRegularSectionView refresh() ", section.displayTitle)
-
-    if let display = section.display {
-      logoUrl = display.logo?.url
-
-      if lookForBackground {
-        inlineBackgroundUrl = display.inline_background_image?.url
-      }
-    }
 
     let max = 25
     var count = 0
@@ -403,6 +307,47 @@ struct MediaPropertyRegularSectionView: View {
     }
     debugPrint("section \(section.id) has \(sectionItems.count) items")
     self.items = sectionItems
+  }
+
+  var showViewAll: Bool {
+    let content = section.content ?? []
+    return content.count > 5 || (content.count > section.displayLimit && section.displayLimit > 0)
+  }
+
+  var titleIcon: String {
+    section.display?.title_icon?.url ?? ""
+  }
+
+  var logoUrl: String? {
+    section.display?.logo?.url
+  }
+
+  var logoText: String {
+    section.display?.logo_text ?? ""
+  }
+
+  var inlineBackgroundUrl: String? {
+    lookForBackground ? section.display?.inline_background_image?.url : nil
+  }
+
+  var hAlignment: HorizontalAlignment {
+    switch section.display?.justification?.lowercased() {
+    case "right": .trailing
+    case "center": .center
+    default: .leading
+    }
+  }
+
+  var alignment: Alignment {
+    switch section.display?.justification?.lowercased() {
+    case "right": .trailing
+    case "center": .center
+    default: .leading
+    }
+  }
+
+  var forceAspectRatio: String {
+    section.display?.aspect_ratio ?? ""
   }
 }
 
@@ -477,7 +422,7 @@ struct MediaPropertySectionView: View {
   @EnvironmentObject var eluvio: EluvioAPI
   var property: MediaProperty
   var pageId: String
-  @State var section: MediaPropertySection
+  var section: MediaPropertySection
   var margin: CGFloat = 80
   @State private var refreshId = ""
 

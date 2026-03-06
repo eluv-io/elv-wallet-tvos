@@ -159,7 +159,7 @@ final class MediaPropertyPage: Permissionable, Encodable, Equatable {
     lhs.id == rhs.id
   }
 
-  var id: String? = UUID().uuidString
+  var id: String = "main"
   var layout: JSON?
   var permissions: PermissionsDto?
   var resolvedPermissions: ResolvedPermission?

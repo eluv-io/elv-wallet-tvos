@@ -285,7 +285,7 @@ struct MediaPropertyDetailView: View {
 struct PropertyDetailForResolvedPage: View {
   @EnvironmentObject var eluvio: EluvioAPI
   private var property: MediaProperty
-  private var page: MediaPropertyPage
+  @State var page: MediaPropertyPage
   @Binding var sectionsLoading: Bool
   private var sections: [MediaPropertySection] {
     PropertyStore.shared.sections(for: page)
@@ -308,15 +308,21 @@ struct PropertyDetailForResolvedPage: View {
       // even before sections are loaded.
       Color.clear.frame(height: 0)
 
-      ForEach(Array(sections.enumerated()), id: \.offset) { index, section in
+      ForEach(Array(sections.enumerated()), id: \.element.id) { index, section in
         MediaPropertySectionView(
-          property: property, pageId: page.id ?? "", section: section,
+          property: property, pageId: page.id, section: section,
           isFirstSection: index == 0
         )
         .fixedSize(horizontal: false, vertical: true)
         .padding(0)
       }
     }.repeatTask {
+      // Refresh page and sections every minute
+      if let newPage = try? await PropertyStore.shared.fetchPage(
+        property: property, pageId: page.id)
+      {
+        self.page = newPage
+      }
       await PropertyStore.shared.fetchSections(property: property, page: page)
       try await Task.sleep(for: .minutes(1))  // This throws if task is cancelled
     }

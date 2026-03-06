@@ -32,19 +32,7 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
   var thumbnail_image_square: String = ""
   var thumbnail_image_portrait: String = ""
   var thumbnail_image_landscape: String = ""
-  var thumbnail: String {
-    if thumbnailFull.isEmpty {
-      return ""
-    }
-
-    if thumbnailFull.contains("?") {
-      return thumbnailFull + "&height=400"
-    } else {
-      return thumbnailFull + "?height=400"
-    }
-  }
-
-  var thumbnailFull: String = ""
+  var thumbnail: String = ""
   var thumb_aspect_ratio: ImageAspectRatio = .square
   var headerString: String = ""
 
@@ -134,8 +122,8 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
     debugPrint("thumbnail: ", thumbnail)
 
     return MediaPropertySectionMediaItemViewModel(
-      id: media.id ?? "",
-      media_id: media.id ?? "",
+      id: media.id,
+      media_id: media.id,
       display: DisplaySettings(),
       catalog_title: catalog_title,
       description: description,
@@ -155,7 +143,7 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
       thumbnail_image_square: thumbnailSquare,
       thumbnail_image_portrait: thumbnailPortrait,
       thumbnail_image_landscape: thumbnailLand,
-      thumbnailFull: thumbnail,
+      thumbnail: thumbnail,
       thumb_aspect_ratio: thumb_aspect_ratio,
       headerString: headerString,
       icons: icons,
@@ -260,7 +248,7 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
       thumbnail_image_square: thumbnailSquareLink?.url ?? "",
       thumbnail_image_portrait: thumbnailPortraitLink?.url ?? "",
       thumbnail_image_landscape: thumbnailLandLink?.url ?? "",
-      thumbnailFull: thumbnail,
+      thumbnail: thumbnail,
       thumb_aspect_ratio: thumb_aspect_ratio,
       headerString: headerString,
       icons: item.media?.icons,

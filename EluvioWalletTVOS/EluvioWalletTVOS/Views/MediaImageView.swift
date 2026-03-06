@@ -7,7 +7,7 @@ struct MediaItemView: View {
   @EnvironmentObject var eluvio: EluvioAPI
   var viewItem: MediaPropertySectionMediaItemViewModel
 
-  var url: String { viewItem.thumbnailFull }
+  var url: String { viewItem.thumbnail }
   var title: String { viewItem.title }
 
   var body: some View {

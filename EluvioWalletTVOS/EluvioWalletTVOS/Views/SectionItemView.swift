@@ -375,25 +375,6 @@ struct SectionMediaItemView: View {
     return .square
   }
 
-  var thumbnail: String {
-    if thumbnailFull.isEmpty {
-      return ""
-    }
-
-    if thumbnailFull.contains("?") {
-      return thumbnailFull + "&height=400"
-    } else {
-      return thumbnailFull + "?height=400"
-    }
-  }
-
-  var thumbnailFull: String {
-    return item.thumbnail_image_square?.url
-      ?? item.thumbnail_image_portrait?.url
-      ?? item.thumbnail_image_landscape?.url
-      ?? ""
-  }
-
   @FocusState var isFocused
 
   var body: some View {
@@ -409,7 +390,7 @@ struct SectionMediaItemView: View {
       }) {
         MediaCard(
           display: display,
-          image: thumbnail,
+          image: item.thumbnail(),
           isFocused: isFocused,
           isUpcoming: item.isUpcoming,
           startTimeString: item.startDateTimeString,
@@ -441,19 +422,12 @@ struct SectionItemView: View {
   }
 
   var scaleFactor = 1.0
-  @State private var refreshId = UUID().uuidString
 
-  var hide: Bool {
-    permission?.hide == true
-  }
+  var hide: Bool { permission?.hide == true }
 
-  var disable: Bool {
-    return viewItem.disabled
-  }
+  var disable: Bool { viewItem.disabled }
 
-  var opacity: CGFloat {
-    permission?.authorized == false ? 0.6 : 1.0
-  }
+  var opacity: CGFloat { permission?.authorized == false ? 0.6 : 1.0 }
 
   var display: MediaDisplay {
     if let forceDisplay = forceDisplay {
@@ -483,16 +457,11 @@ struct SectionItemView: View {
       ?? viewItem.mediaItem?.title ?? ""
   }
 
-  @State var refreshTimer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
-  @State var refresh: Bool = false
-
   @State var subtitle: String = ""
-  @State var imageThumbnail: String = ""
-  @State var isUpcoming: Bool = false
-  @State var isLive: Bool = false
-  @State var startTimeString: String = ""
+
   @State var mediaProgress: MediaProgress?
   @State var isVisible: Bool = false
+  @State var refreshId = UUID()
 
   var progressText: String {
     guard let progress = mediaProgress else {
@@ -543,6 +512,9 @@ struct SectionItemView: View {
 
   var body: some View {
     Group {
+      // Trigger a re-render when refreshId changed, without causing the entire view to be considered "new"
+      Color.clear.id(refreshId).frame(height: 0)
+
       if !hide {
         VStack(alignment: .leading, spacing: 10) {
           Text(title).font(.system(size: 1)).hidden()  // This is needed for some reason single items in a section didn't show
@@ -572,7 +544,6 @@ struct SectionItemView: View {
               sizeFactor: scaleFactor,
               permission: permission
             )
-            .id(refreshId)
             .opacity(opacity)
           }
           .buttonStyle(TitleButtonStyle(focused: isFocused, scale: 1.0))
@@ -580,44 +551,54 @@ struct SectionItemView: View {
         }
       }
     }
-    .onReceive(refreshTimer) { _ in
-      Task(priority: .background) {
-        update()
-      }
+    .task(id: timeTillLiveStateChange) {
+      await refreshWhenLiveStatusChanges()
     }
     .onScrollVisibilityChange(threshold: 0.5) { isVisible in
       self.isVisible = isVisible
       if isVisible {
         Task(priority: .background) {
-          update()
           updateProgress()
         }
       }
     }
   }
 
-  func update() {
-    let sectionItemId = viewItem.id
-    if let item = viewItem.sectionItem {
-      isLive = item.media?.currentlyLive ?? false
-      startTimeString = item.media?.startDateTimeString ?? ""
-      let _thumb = viewItem.thumbnail
-      if imageThumbnail != _thumb {
-        imageThumbnail = viewItem.thumbnail
-      }
-
-      isUpcoming = item.media?.isUpcoming ?? false
-    } else {
-      isLive = viewItem.mediaItem?.currentlyLive ?? false
-      startTimeString = viewItem.mediaItem?.startDateTimeString ?? ""
-
-      let _thumb = viewItem.thumbnail
-      if imageThumbnail != _thumb {
-        imageThumbnail = viewItem.thumbnail
-      }
-
-      isUpcoming = viewItem.mediaItem?.isUpcoming ?? false
+  private func refreshWhenLiveStatusChanges() async {
+    let id = media?.id ?? "unknown_mvid"
+    guard let wait = timeTillLiveStateChange, wait > 0 else {
+      debugPrint("No live status change expected for \(id).")
+      return
     }
-    refreshId = viewItem.id + eluvio.refreshId
+    debugPrint("Live status of \(id) will change in \(wait) seconds - queueing refresh")
+    if (try? await Task.sleep(for: .seconds(wait))) != nil {
+      // Only refresh on a successful wait, not if the task is cancelled
+      debugPrint("Live status of \(id) changed. Triggering refresh.")
+      refreshId = UUID()
+    } else {
+      debugPrint("Queued refresh for \(id) cancelled.")
+    }
+  }
+
+  private var media: MediaPropertySectionMediaItem? {
+    viewItem.sectionItem?.media ?? viewItem.mediaItem
+  }
+  var imageThumbnail: String { viewItem.thumbnail }
+  var isUpcoming: Bool { media?.isUpcoming == true }
+  var isLive: Bool { media?.currentlyLive == true }
+  var startTimeString: String { media?.startDateTimeString ?? "" }
+
+  private var timeTillLiveStateChange: TimeInterval? {
+    guard let media = media else { return nil }
+    return if media.hasEnded {
+      // Stream ended, no more changes.
+      nil
+    } else if media.hasStarted {
+      // Stream started, next change is Stream End
+      media.endDate?.timeIntervalSinceNow
+    } else {
+      // Stream hasn't started yet. Next change is Stream Start
+      media.streamStartDate?.timeIntervalSinceNow
+    }
   }
 }

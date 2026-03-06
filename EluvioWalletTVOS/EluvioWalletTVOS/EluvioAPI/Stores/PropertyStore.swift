@@ -89,15 +89,27 @@ class PropertyStore {
 
   // MARK: - Pages
 
-  /// Fetches a page by ID, resolves its permissions, caches it, and returns it.
-  fileprivate func fetchPage(
+  /// Returns page from cache if exists, otherwise from network
+  fileprivate func getPage(
     property: MediaProperty,
     pageId: String
   ) async throws -> MediaPropertyPage {
     let cacheKey = "\(property.id):\(pageId)"
     if let cached = pageCache[cacheKey] {
+      debugPrint("Page fetched from cache \(cacheKey)")
       return cached
     }
+    debugPrint("Page cache miss, fetching \(cacheKey)")
+    return try await fetchPage(property: property, pageId: pageId)
+  }
+
+  /// Fetches a page by ID, resolves its permissions, caches it, and returns it.
+  func fetchPage(
+    property: MediaProperty,
+    pageId: String
+  ) async throws -> MediaPropertyPage {
+    let cacheKey = "\(property.id):\(pageId)"
+
     let page: MediaPropertyPage = try await NetworkManager.shared
       .request("mw/properties/\(property.id)/pages/\(pageId)")
     PermissionResolver.resolvePermissions(
@@ -110,16 +122,13 @@ class PropertyStore {
 
   // MARK: - Sections
 
-  /// Fetches missing sections into cache with permissions already resolved.
+  /// Fetches all sections into cache with permissions already resolved.
+  /// Unauthorized sections with "hide" permission behavior, or sections with only hidden items - will be dropped and not cached.
   func fetchSections(property: MediaProperty, page: MediaPropertyPage) async {
-    let sectionIds = page.sectionIds
-    let missingSectionIds = sectionIds.filter { sectionCache[$0] == nil }
-    guard !missingSectionIds.isEmpty else { return }
-
     do {
       let response: MediaPropertySectionsResponse = try await NetworkManager.shared.request(
         "mw/properties/\(property.id)/sections?resolve_subsections=true",
-        body: missingSectionIds
+        body: page.sectionIds
       )
       PermissionResolver.resolvePermissions(
         response.contents,
@@ -127,7 +136,11 @@ class PropertyStore {
         permissionStates: property.permission_auth_state ?? [:]
       )
       for section in response.contents {
-        sectionCache[section.id] = section
+        if section.shouldHide {
+          debugPrint("Dropping hidden section \(section.id)")
+        } else {
+          sectionCache[section.id] = section
+        }
       }
     } catch {
       print("Error fetching sections: \(error)")
@@ -137,6 +150,21 @@ class PropertyStore {
   /// Returns cached sections for the given page (permissions already resolved).
   func sections(for page: MediaPropertyPage) -> [MediaPropertySection] {
     return page.sectionIds.compactMap { sectionCache[$0] }
+  }
+
+}
+
+extension MediaPropertySection {
+  fileprivate var shouldHide: Bool {
+    if resolvedPermissions?.hide == true || display?.hide_on_tv == true {
+      true
+    } else if type?.lowercased() == "hero" {
+      false
+    } else if type?.lowercased() == "container" {
+      sections_resolved?.allSatisfy { $0.shouldHide } == true
+    } else {
+      content?.allSatisfy { $0.resolvedPermissions?.hide == true } == true
+    }
   }
 }
 
@@ -149,7 +177,7 @@ extension PropertyStore {
   ) async throws -> MediaPropertyPage {
     var startPage: MediaPropertyPage? = nil
     if let pageId, !pageId.isEmpty {
-      startPage = try await fetchPage(property: property, pageId: pageId)
+      startPage = try await getPage(property: property, pageId: pageId)
     } else {
       startPage = property.main_page
     }
@@ -167,7 +195,7 @@ extension PropertyStore {
       // No page yet — check property-level permissions first
       if let propPerms = property.resolvedPropertyPermissions {
         if propPerms.showAlternatePage, !propPerms.alternatePageId.isEmpty {
-          let redirectPage = try await fetchPage(
+          let redirectPage = try await getPage(
             property: property, pageId: propPerms.alternatePageId)
           return try await resolveAuthorizedPage(
             property: property, currentPage: redirectPage, visitedPageIds: &visitedPageIds)
@@ -181,11 +209,9 @@ extension PropertyStore {
         property: property, currentPage: property.main_page, visitedPageIds: &visitedPageIds)
     }
 
-    let pageId = page.id ?? ""
-
     // Check for purchase gate on page
     if page.resolvedPagePermissions?.purchaseGate == true {
-      throw PageRedirectError.purchaseRequired(propertyId: property.id, pageId: pageId)
+      throw PageRedirectError.purchaseRequired(propertyId: property.id, pageId: page.id)
     }
 
     // Check for alternate page redirect
@@ -200,12 +226,12 @@ extension PropertyStore {
     let redirectPageId = pagePerms.alternatePageId
 
     // Circular redirect detection
-    if redirectPageId == pageId || visitedPageIds.contains(redirectPageId) {
+    if redirectPageId == page.id || visitedPageIds.contains(redirectPageId) {
       throw PageRedirectError.circularRedirect
     }
 
-    visitedPageIds.insert(pageId)
-    let redirectPage = try await fetchPage(property: property, pageId: redirectPageId)
+    visitedPageIds.insert(page.id)
+    let redirectPage = try await getPage(property: property, pageId: redirectPageId)
     return try await resolveAuthorizedPage(
       property: property, currentPage: redirectPage, visitedPageIds: &visitedPageIds)
   }

@@ -43,21 +43,15 @@ extension MediaPropertySectionMediaItem {
 
   func url(eluvio: EluvioAPI, propertyId: String) async throws -> String {
     let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(
-      propertyId: propertyId, mediaId: id ?? "")
+      propertyId: propertyId, mediaId: id)
     return try await GetUrlFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
   }
 
   func thumbnail() -> String {
-    let url =
-      thumbnail_image_square?.url
+    thumbnail_image_square?.url
       ?? thumbnail_image_portrait?.url
       ?? thumbnail_image_landscape?.url
       ?? ""
-    if !url.isEmpty {
-      return url + "&width=400"
-    }
-
-    return ""
   }
 
   var startDate: Date? {
@@ -184,13 +178,7 @@ extension MediaPropertySectionMediaItem {
   }
 
   var currentlyLive: Bool {
-    if let live = live_video {
-      if !isUpcoming && live && hasStarted && !hasEnded {
-        return true
-      }
-    }
-
-    return false
+    live_video == true && !isUpcoming && hasStarted && !hasEnded
   }
 
   static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {

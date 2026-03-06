@@ -9,7 +9,11 @@ struct ResolvedPermission: Codable, Hashable {
 
 extension ResolvedPermission {
   var hide: Bool {
-    return !authorized && behavior == .hide
+    if authorized {
+      behavior == .showIfUnauthorized
+    } else {
+      behavior == .hide
+    }
   }
 
   var disable: Bool {

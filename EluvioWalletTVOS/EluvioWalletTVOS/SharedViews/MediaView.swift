@@ -146,11 +146,16 @@ struct MediaCard: View {
   var image_ratio: String? = nil  // Square, Wide, Tall or nil
   var progressValue: Double = 0.0
 
-  @State var width: CGFloat = 300
-  @State var height: CGFloat = 300
   var sizeFactor: CGFloat = 1
-  @State var cornerRadius: CGFloat = 3
-  let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+  var width: CGFloat {
+    sizes().width
+  }
+  var height: CGFloat {
+    sizes().height
+  }
+  var cornerRadius: CGFloat {
+    sizes().cornerRadius
+  }
   @State private var newItem: Bool = true
   var permission: ResolvedPermission? = nil
 
@@ -163,7 +168,7 @@ struct MediaCard: View {
             .cornerRadius(cornerRadius)
         } else {
           if image.hasPrefix("http") {
-            WebImage(url: URL(string: image))
+            ScaledWebImage(url: image, height: height)
               .resizable()
               .aspectRatio(contentMode: .fill)
               .frame(width: width, height: height)
@@ -314,33 +319,25 @@ struct MediaCard: View {
       }
     }
     .frame(width: width, height: height)
-    .onAppear {
-      if display == MediaDisplay.feature {
-        width = 248 * sizeFactor
-        height = 372 * sizeFactor
-        cornerRadius = 3 * sizeFactor
-      } else if display == MediaDisplay.video {
-        width = 400 * sizeFactor
-        height = 225 * sizeFactor
-        cornerRadius = 16 * sizeFactor
-      } else if display == MediaDisplay.books {
-        width = 235 * sizeFactor
-        height = 300 * sizeFactor
-        cornerRadius = 16 * sizeFactor
-      } else if display == MediaDisplay.property {
-        width = 330 * sizeFactor
-        height = 470 * sizeFactor
-        cornerRadius = 16 * sizeFactor
-      } else if display == MediaDisplay.tile {
-        width = 887 * sizeFactor
-        height = 551 * sizeFactor
-        cornerRadius = 0
-      } else {
-        width = 235 * sizeFactor
-        height = 235 * sizeFactor
-        cornerRadius = 16 * sizeFactor
+  }
+
+  private func sizes() -> (width: CGFloat, height: CGFloat, cornerRadius: CGFloat) {
+    let raw: (width: CGFloat, height: CGFloat, cornerRadius: CGFloat) =
+      switch display {
+      case .feature:
+        (248, 372, 3)
+      case .video:
+        (400, 225, 16)
+      case .books:
+        (235, 300, 16)
+      case .property:
+        (330, 470, 16)
+      case .tile:
+        (887, 551, 0)
+      default:
+        (235, 235, 16)
       }
-    }
+    return (raw.width * sizeFactor, raw.height * sizeFactor, raw.cornerRadius * sizeFactor)
   }
 }
 
