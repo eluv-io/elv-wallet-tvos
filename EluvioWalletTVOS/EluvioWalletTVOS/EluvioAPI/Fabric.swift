@@ -530,17 +530,6 @@ class Fabric: ObservableObject {
     return nil
   }
 
-  func refreshFabricToken(fabricToken: String, refreshToken: String, nonce: String) async throws
-    -> JSON
-  {
-    guard let signer = signer else {
-      throw FabricError.configError("Could not get signer.")
-    }
-
-    return try await signer.refreshFabricToken(
-      refreshToken: refreshToken, nonce: nonce, fabricToken: fabricToken)
-  }
-
   func reset() async {
     signer = nil
 

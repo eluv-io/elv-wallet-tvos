@@ -78,7 +78,8 @@ struct EluvioWalletTVOSApp: App {
       var modified = request
       modified.url = realUrl
       #if DEBUG
-        debugPrint("SDWebImage requesting:", modified.url?.absoluteString ?? "nil")
+        // Extremely verbose, but useful to check images are being requested at correct sizes
+        //debugPrint("SDWebImage requesting:", modified.url?.absoluteString ?? "nil")
       #endif
       return modified
     }

@@ -21,8 +21,6 @@ class EluvioAPI: ObservableObject {
   @Published var refreshId = UUID().uuidString
   @Published var forceNetworkRefresh = false
   @Published var devMode: Bool = false
-  // Requested token expiration during for login.
-  @Published var ttlHours: Double = 336
   static var NONCE: String {
     UIDevice.current.identifierForVendor!.uuidString
   }
@@ -131,14 +129,6 @@ class EluvioAPI: ObservableObject {
     fabric.isDebugNode = debugNode
   }
 
-  func setTtlHours(_ hours: Double) {
-    ttlHours = hours
-  }
-
-  func getTtlHours() -> Double {
-    return ttlHours
-  }
-
   func signIn(account: Account, property: String) async throws {
     await signOut()
     accountManager.currentAccount = account
@@ -215,52 +205,6 @@ class EluvioAPI: ObservableObject {
   }
 
   func refreshFabricToken() async {
-    if let account = accountManager.currentAccount {
-      if account.refreshToken == "" {
-        return
-      }
-
-      do {
-        let response = try await fabric.refreshFabricToken(
-          fabricToken: account.fabricToken,
-          refreshToken: account.refreshToken,
-          nonce: EluvioAPI.NONCE
-        )
-
-        if response["error"].stringValue != "" {
-          throw FabricError.badInput(response["error"].stringValue)
-        }
-
-        let fabricToken = response["token"].stringValue
-        let refreshToken = response["refresh_token"].stringValue
-        let expiresAt = response["expires_at"].int64Value
-
-        if fabricToken.isEmpty || refreshToken.isEmpty || expiresAt == 0 {
-          throw FabricError.badInput(response["error"].stringValue)
-        }
-
-        account.fabricToken = fabricToken
-        account.refreshToken = refreshToken
-        account.expiresAt = expiresAt
-        // debugPrint("Got new token ", account.fabricToken)
-        // debugPrint("Got new refresh token ", account.fabricToken)
-        debugPrint("expires at ", account.expiresAt)
-        accountManager.currentAccount = account
-        await needsRefresh()
-        return
-      } catch let FabricError.apiError(code, response, error) {
-        handleApiError(code: code, response: response, error: error)
-        if code == 401 || code == 403 {
-          await signOut()
-          router?.path.removeAll()
-        }
-        return
-      } catch {
-        print("Problem refreshing token ", error)
-        await signOut()
-        router?.path.removeAll()
-        return
-      }
-    }
+    await NetworkManager.shared.refreshToken()
   }
 }

@@ -121,15 +121,17 @@ struct OryDeviceFlowView: View {
   func regenerateCode() async {
     do {
       let nonce = EluvioAPI.NONCE_HASHED
-      let propertyId = property.id
 
-      let url =
-        "\(FabricConfigStore.shared.walletUrl)/login?pid=\(propertyId)&action=login&mode=login&response=code&source=code&ttl=\(eluvio.ttlHours)&installId=\(nonce)&origin=\(UIDevice.current.name)"
+      var url = FabricConfigStore.shared.walletUrl
+      url += "/login?pid=\(property.id)"
+      url += "&action=login&mode=login&response=code&source=code"
+      url += "&installId=\(nonce)&origin=\(UIDevice.current.name)"
+      // url += "&ttl=0.008"  // Time in hours, only for debugging short-lived tokens
 
       debugPrint("URL Code: ", url)
 
       let parameters: [String: Any] = ["op": "create", "dest": url]
-      let json: JSON = await try NetworkManager.shared.request(
+      let json: JSON = try await NetworkManager.shared.request(
         "/wlt/login/redirect/metamask", method: .post, parameters: parameters)
 
       response = json

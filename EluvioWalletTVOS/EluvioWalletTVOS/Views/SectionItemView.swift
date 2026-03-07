@@ -567,17 +567,23 @@ struct SectionItemView: View {
   private func refreshWhenLiveStatusChanges() async {
     let id = media?.id ?? "unknown_mvid"
     guard let wait = timeTillLiveStateChange, wait > 0 else {
-      debugPrint("No live status change expected for \(id).")
+      printLiveStatus("No live status change expected for \(id).")
       return
     }
-    debugPrint("Live status of \(id) will change in \(wait) seconds - queueing refresh")
+    printLiveStatus("Live status of \(id) will change in \(wait) seconds - queueing refresh")
     if (try? await Task.sleep(for: .seconds(wait))) != nil {
       // Only refresh on a successful wait, not if the task is cancelled
-      debugPrint("Live status of \(id) changed. Triggering refresh.")
+      printLiveStatus("Live status of \(id) changed. Triggering refresh.")
       refreshId = UUID()
     } else {
-      debugPrint("Queued refresh for \(id) cancelled.")
+      printLiveStatus("Queued refresh for \(id) cancelled.")
     }
+  }
+
+  private func printLiveStatus(_ message: String) {
+    // This gets really verbose, but useful for debugging.
+    // Commented out while not needed:
+    //    debugPrint(message)
   }
 
   private var media: MediaPropertySectionMediaItem? {

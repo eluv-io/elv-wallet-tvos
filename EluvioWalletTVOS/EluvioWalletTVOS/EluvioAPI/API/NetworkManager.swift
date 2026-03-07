@@ -59,6 +59,16 @@ class NetworkManager {
     }
     return value
   }
+
+  func refreshToken() async {
+    guard let account = accountStore.account else {
+      // Not logged in
+      return
+    }
+    try? await EluvioWalletTVOS.refreshToken(
+      refreshToken: account.refreshToken, nonce: EluvioAPI.NONCE,
+      fabricToken: account.fabricToken)
+  }
 }
 
 class AuthInterceptor: RequestInterceptor {
@@ -159,6 +169,7 @@ func refreshToken(refreshToken: String, nonce: String, fabricToken: String) asyn
         "refresh_token": refreshToken,
         "nonce": nonce,
         "last_csat": fabricToken,
+        // "exp": 30,  // Only for debugging short-lived tokens
       ]
 
       var request = URLRequest(url: URL(string: endpoint)!)
@@ -187,12 +198,6 @@ func refreshToken(refreshToken: String, nonce: String, fabricToken: String) asyn
                 throwing: FabricError.apiError(
                   code: response.response?.statusCode ?? 0,
                   response: respJSON, error: FabricError.unexpectedResponse("")))
-            } else if respJSON["message"].exists() {
-              continuation.resume(
-                throwing: FabricError.apiError(
-                  code: response.response?.statusCode ?? 0,
-                  response: respJSON,
-                  error: FabricError.unexpectedResponse(respJSON["message"].stringValue)))
             } else {
 
               let fabricToken = respJSON["token"].stringValue
