@@ -14,12 +14,10 @@ import SwiftyJSON
 class EluvioAPI: ObservableObject {
   static let shared = EluvioAPI()
 
-  @Published var accountManager: AccountManager = .init()
   @Published var fabric: Fabric = .init()
   @Published var viewState: ViewState
   weak var router: Router?
   @Published var refreshId = UUID().uuidString
-  @Published var forceNetworkRefresh = false
   @Published var devMode: Bool = false
   static var NONCE: String {
     UIDevice.current.identifierForVendor!.uuidString
@@ -32,13 +30,16 @@ class EluvioAPI: ObservableObject {
 
   private var cancellables: Set<AnyCancellable> = []
 
+  var accountManager: AccountManager {
+    AccountStore.shared.accountManager
+  }
+
   init() {
     debugPrint("Initiating Eluvio APIs on ", UIDevice.current.localizedModel)
 
     debugPrint("NONCE: ", EluvioAPI.NONCE)
     debugPrint("NONCE_HASHED: ", EluvioAPI.NONCE_HASHED)
 
-    accountManager = .init()
     // Use MockFabric for UI testing, real Fabric otherwise
     fabric = MockData.isEnabled ? MockFabric() : Fabric()
     viewState = .init()
@@ -46,7 +47,6 @@ class EluvioAPI: ObservableObject {
     devMode = UserDefaults.standard.bool(forKey: "api_devmode")
 
     Publishers.MergeMany(
-      accountManager.objectWillChange,
       fabric.objectWillChange,
       viewState.objectWillChange
     )
@@ -106,7 +106,6 @@ class EluvioAPI: ObservableObject {
   func setEnvironment(env: APIEnvironment) {
     UserDefaults.standard.set(env.rawValue, forKey: "api_environment")
     NetworkStore.shared.environment = env
-    forceNetworkRefresh = true
     needsRefresh()
   }
 
