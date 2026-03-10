@@ -19,24 +19,65 @@ class Account: Identifiable, Codable {
   }
 
   var type: AccountType = .Ory
-  var clusterToken: String = ""
+  var clusterToken: String? = nil
   var fabricToken: String = ""
-  var refreshToken: String = ""
-  var login: LoginResponse? = nil
+  var refreshToken: String? = nil
+  var addr: String? = nil
   var signInResponse: SignInResponse? = nil
   var expiresAt: Int64 = 0
-  var email = ""
+  var email: String? = nil
   var profile: ProfileData = .init()
 
+  init() {}
+
+  // Backwards compatibility: old accounts stored address inside a "login" object
+  private enum CodingKeys: String, CodingKey {
+    case type, clusterToken, fabricToken, refreshToken, addr, signInResponse, expiresAt, email,
+      profile, login
+  }
+
+  // The custom encode / decode is only required for backward compat.
+  // We'll be able to remove this in the future when we're confident no existing clients use the old 'login' field.
+  required init(from decoder: Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    type = try container.decodeIfPresent(AccountType.self, forKey: .type) ?? .Ory
+    clusterToken = try container.decodeIfPresent(String.self, forKey: .clusterToken)
+    fabricToken = try container.decodeIfPresent(String.self, forKey: .fabricToken) ?? ""
+    refreshToken = try container.decodeIfPresent(String.self, forKey: .refreshToken)
+    addr = try container.decodeIfPresent(String.self, forKey: .addr)
+    signInResponse = try container.decodeIfPresent(SignInResponse.self, forKey: .signInResponse)
+    expiresAt = try container.decodeIfPresent(Int64.self, forKey: .expiresAt) ?? 0
+    email = try container.decodeIfPresent(String.self, forKey: .email)
+    profile = try container.decodeIfPresent(ProfileData.self, forKey: .profile) ?? .init()
+
+    if addr == nil, let login = try container.decodeIfPresent([String: String].self, forKey: .login)
+    {
+      addr = login["addr"]
+    }
+  }
+
+  func encode(to encoder: Encoder) throws {
+    var container = encoder.container(keyedBy: CodingKeys.self)
+    try container.encode(type, forKey: .type)
+    try container.encodeIfPresent(clusterToken, forKey: .clusterToken)
+    try container.encode(fabricToken, forKey: .fabricToken)
+    try container.encodeIfPresent(refreshToken, forKey: .refreshToken)
+    try container.encodeIfPresent(addr, forKey: .addr)
+    try container.encodeIfPresent(signInResponse, forKey: .signInResponse)
+    try container.encode(expiresAt, forKey: .expiresAt)
+    try container.encodeIfPresent(email, forKey: .email)
+    try container.encode(profile, forKey: .profile)
+  }
+
   func getAccountId() -> String? {
-    guard let address = login?.addr else { return nil }
+    guard let address = addr else { return nil }
     guard let bytes = HexToBytes(address) else { return nil }
     let encoded = Base58.base58Encode(bytes)
     return "iusr\(encoded)"
   }
 
   func getAccountAddress() -> String {
-    guard let address = login?.addr else {
+    guard let address = addr else {
       return ""
     }
 

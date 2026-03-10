@@ -7,13 +7,6 @@
 
 import Foundation
 
-struct LoginResponse: Codable {
-  var type: String? = ""
-  var addr: String = ""
-  var eth: String = ""
-  var token: String = ""
-}
-
 struct MediaProgress: Identifiable, Codable {
   var id: String = ""
   var duration_s: Double = 0.0

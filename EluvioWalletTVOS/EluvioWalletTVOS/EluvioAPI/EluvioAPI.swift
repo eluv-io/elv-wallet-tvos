@@ -81,7 +81,7 @@ class EluvioAPI: ObservableObject {
       print("UI Testing with mock login enabled")
       let mockAccount = Account()
       mockAccount.type = .Ory
-      mockAccount.login = LoginResponse(addr: "0x0000000000000000000000000000000000000000")
+      mockAccount.addr = "0x0000000000000000000000000000000000000000"
       accountManager.currentAccount = mockAccount
     }
   }

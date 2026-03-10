@@ -20,13 +20,9 @@ struct OryDeviceFlowView: View {
   @EnvironmentObject var router: Router
   @State var url = ""
   @State var statusUrl: String = ""
-  @State var code = ""
-  @State var deviceCode = ""
   @State var timer = Timer.publish(every: 1, on: .main, in: .common)
   @State var timerCancellable: Cancellable? = nil
-  @State var showError = false
-  @State var errorMessage = ""
-  @State private var response = JSON()
+  @State private var response: ActivationCodeResponse? = nil
 
   @State var isChecking = false
   var property: MediaProperty
@@ -56,7 +52,7 @@ struct OryDeviceFlowView: View {
             .fontWeight(.semibold)
             .padding()
 
-          Text(code)
+          Text(response?.id ?? "")
             .font(.custom("Helvetica Neue", size: 50))
             .fontWeight(.semibold)
           if url != "" {
@@ -107,15 +103,6 @@ struct OryDeviceFlowView: View {
         await checkDeviceVerification(statusUrl: statusUrl)
       }
     }
-    .fullScreenCover(isPresented: $showError) {
-      VStack {
-        Spacer()
-        Text("Error connecting to the Network. Please try again later.")
-        Spacer()
-      }
-      .background(Color.black.opacity(0.8))
-      .background(.thickMaterial)
-    }
   }
 
   func regenerateCode() async {
@@ -131,26 +118,22 @@ struct OryDeviceFlowView: View {
       debugPrint("URL Code: ", url)
 
       let parameters: [String: Any] = ["op": "create", "dest": url]
-      let json: JSON = try await NetworkManager.shared.request(
+      let response: ActivationCodeResponse = try await NetworkManager.shared.request(
         "/wlt/login/redirect/metamask", method: .post, parameters: parameters)
 
-      response = json
+      self.response = response
 
       print("createAuthLogin completed")
+      debugPrint("Create response: ", response)
 
-      debugPrint("Create response: ", json)
-
-      var _url = json["url"].stringValue
-      if !_url.hasPrefix("https"), !_url.hasPrefix("http") {
+      var _url = response.url
+      if !_url.hasPrefix("http") {
         _url = "https://".appending(_url)
       }
 
       debugPrint("URL: ", self.url)
       self.url = await UrlShortener.shortenUrl(_url)
       debugPrint("Ory shortened URL: ", _url)
-
-      code = json["id"].stringValue
-      deviceCode = json["passcode"].stringValue
 
       let interval = 5.0
       timer = Timer.publish(every: interval, on: .main, in: .common)
@@ -162,96 +145,63 @@ struct OryDeviceFlowView: View {
   }
 
   func checkDeviceVerification(statusUrl _: String) async {
-    print("checkDeviceVerification \(code)")
+    print("checkDeviceVerification \(response?.id ?? "nil")")
+    guard let response = response else { return }
     if isChecking {
       return
     }
-
     isChecking = true
-
     defer {
       self.isChecking = false
     }
 
-    do {
-      guard let result = try await eluvio.fabric.signer?.checkAuthLogin(createResponse: response)
-      else {
-        print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
-        return
-      }
-
-      let status = result["status"].intValue
-
-      if status != 200 {
-        print("Check value \(result)")
-        return
-      }
-      debugPrint("Ory Result ", result)
-
-      let refreshToken = result["refresh_token"].stringValue
-      debugPrint("Refresh Token ", refreshToken)
-
-      let json = JSON(parseJSON: result["payload"].stringValue)
-
-      if json.isEmpty {
-        print("MetaMaskFlowView checkDeviceVerification() json payload is empty.")
-        showError = true
-        return
-      }
-
-      let type = json["type"].stringValue
-      let token = json["token"].stringValue
-      let addr = json["addr"].stringValue
-      let eth = json["eth"].stringValue
-      let email = json["email"].stringValue
-      let expiresAt = json["expiresAt"].int64Value
-      let clusterToken = json["clusterToken"].stringValue
-
-      debugPrint("EMAIL: ", email)
-
-      do {
-        let login = LoginResponse(type: type, addr: addr, eth: eth, token: token)
-        debugPrint("Ory signing in ")
-
-        let account = Account()
-        account.type = property.accountType
-        account.login = login
-        account.expiresAt = expiresAt
-        account.email = email
-        account.fabricToken = token
-        account.clusterToken = clusterToken
-        account.refreshToken = refreshToken
-
-        try await eluvio.signIn(account: account, property: property.id)
-        // needsRefresh() is now called by signIn's pre-cache Task when auth cache is ready
-
-        debugPrint("Starting section prefetch")
-        await prefetchPropertyAndSections(property.id)
-
-        debugPrint("Ory Signing in done!")
-      } catch {
-        print("could not sign in: \(error.localizedDescription)")
-      }
-
-      await MainActor.run {
-        debugPrint("Sign in finished.")
-
-        router.path.removeAll()
-        debugPrint("Popped the path state.")
-        let params = PropertyParam(propertyId: property.id)
-        router.path.append(.property(params))
-
-        self.isChecking = false
-      }
-
-      timerCancellable!.cancel()
-    } catch {
-      await MainActor.run {
-        print("checkDeviceVerification error", error)
-        self.errorMessage = error.localizedDescription
-        showError = true
-      }
+    guard let result = await checkAuthLogin(code: response.id, passcode: response.passcode)
+    else {
+      print("MetaMaskFlowView checkDeviceVerification() checkMetaMaskLogin returned nil")
+      return
     }
+
+    debugPrint("Ory Result ", result)
+
+    let refreshToken = result.refreshToken
+    debugPrint("Refresh Token ", refreshToken ?? "nil")
+
+    do {
+      debugPrint("Ory signing in ")
+
+      let account = Account()
+      account.type = property.accountType
+      account.addr = result.addr
+      account.expiresAt = result.expiresAt ?? Int64.max
+      account.email = result.email
+      account.fabricToken = result.token
+      account.clusterToken = result.clusterToken
+      account.refreshToken = refreshToken
+      debugPrint("EMAIL: ", account.email ?? "nil")
+
+      try await eluvio.signIn(account: account, property: property.id)
+      // needsRefresh() is now called by signIn's pre-cache Task when auth cache is ready
+
+      debugPrint("Starting section prefetch")
+      await prefetchPropertyAndSections(property.id)
+
+      debugPrint("Ory Signing in done!")
+    } catch {
+      print("could not sign in: \(error.localizedDescription)")
+    }
+
+    await MainActor.run {
+      debugPrint("Sign in finished.")
+
+      router.path.removeAll()
+      debugPrint("Popped the path state.")
+      let params = PropertyParam(propertyId: property.id)
+      router.path.append(.property(params))
+
+      self.isChecking = false
+    }
+
+    timerCancellable!.cancel()
   }
 
   private func prefetchPropertyAndSections(_ propertyId: String) async {
@@ -272,4 +222,47 @@ struct OryDeviceFlowView: View {
   //  OryDeviceFlowView()
   //    .environmentObject(EluvioAPI())
   //    .preferredColorScheme(.dark)
+}
+
+/// Pass in the response JSON of createMetaMaskLogin
+func checkAuthLogin(code: String, passcode: String) async -> CheckTokenPayload? {
+  do {
+    let response: CheckTokenResponse = try await NetworkManager.shared.request(
+      "wlt/login/redirect/metamask/\(code)/\(passcode)")
+    return response.payload
+  } catch {
+    debugPrint("Token check failed")
+    return nil
+  }
+}
+struct ActivationCodeResponse: Codable {
+  // This is the "code" visible to the user along with the QR
+  var id: String
+  // This is a secret identifier sent along with 'id' to check token requests
+  var passcode: String
+  var url: String
+  var expiration: Int64
+}
+
+struct CheckTokenResponse: Decodable {
+  var payload: CheckTokenPayload
+  enum CodingKeys: CodingKey {
+    case payload
+  }
+
+  init(from decoder: any Decoder) throws {
+    let container = try decoder.container(keyedBy: CodingKeys.self)
+    let payloadString = try container.decode(String.self, forKey: .payload)
+    let payloadData = Data(payloadString.utf8)
+    self.payload = try JSONDecoder().decode(CheckTokenPayload.self, from: payloadData)
+  }
+}
+
+struct CheckTokenPayload: Decodable {
+  var token: String
+  var expiresAt: Int64?
+  var refreshToken: String?
+  var addr: String
+  var clusterToken: String?
+  var email: String?
 }

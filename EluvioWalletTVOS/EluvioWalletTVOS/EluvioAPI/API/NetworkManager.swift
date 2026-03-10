@@ -61,12 +61,12 @@ class NetworkManager {
   }
 
   func refreshToken() async {
-    guard let account = accountStore.account else {
-      // Not logged in
+    guard let account = accountStore.account, let refreshToken = account.refreshToken else {
+      // Not logged in, or not refresh token available
       return
     }
     try? await EluvioWalletTVOS.refreshToken(
-      refreshToken: account.refreshToken, nonce: EluvioAPI.NONCE,
+      refreshToken: refreshToken, nonce: EluvioAPI.NONCE,
       fabricToken: account.fabricToken)
   }
 }
@@ -126,13 +126,13 @@ class AuthInterceptor: RequestInterceptor {
 
     Task {
       do {
-        guard let account = accountStore.account else {
-          // Not logged in
+        guard let account = accountStore.account, let refToken = account.refreshToken else {
+          // Not logged in, or not refresh token available
           completion(.doNotRetry)
           return
         }
         try await refreshToken(
-          refreshToken: account.refreshToken, nonce: EluvioAPI.NONCE,
+          refreshToken: refToken, nonce: EluvioAPI.NONCE,
           fabricToken: account.fabricToken)
         lock.withLock {
           isRefreshing = false
@@ -169,7 +169,7 @@ func refreshToken(refreshToken: String, nonce: String, fabricToken: String) asyn
         "refresh_token": refreshToken,
         "nonce": nonce,
         "last_csat": fabricToken,
-        // "exp": 30,  // Only for debugging short-lived tokens
+          // "exp": 30,  // Only for debugging short-lived tokens
       ]
 
       var request = URLRequest(url: URL(string: endpoint)!)

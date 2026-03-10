@@ -392,42 +392,25 @@ class Fabric: ObservableObject {
   }
 
   func createWalletAuthorization(
-    address: String = "",
-    email: String = "",
-    expiresAt: Int64 = 0,
-    walletType: String = "Custodial",
-    walletName: String = "Eluvio",
-    clusterToken: String = "",
-    fabricToken: String = "",
-    provider: String = ""
+    address: String? = "",
+    email: String? = "",
+    expiresAt: Int64? = nil,
+    walletType: String? = "Custodial",
+    walletName: String? = "Eluvio",
+    clusterToken: String? = "",
+    fabricToken: String? = "",
+    provider: String? = ""
   ) throws -> String {
-    var paramDict = [String: Any]()
-
-    if !address.isEmpty {
-      paramDict["address"] = address
-    }
-    if !email.isEmpty {
-      paramDict["email"] = email
-    }
-    if expiresAt > 0 {
-      paramDict["expiresAt"] = expiresAt
-    }
-    if !walletType.isEmpty {
-      paramDict["walletType"] = walletType
-    }
-    if !walletName.isEmpty {
-      paramDict["walletName"] = walletName
-    }
-    if !clusterToken.isEmpty {
-      paramDict["clusterToken"] = clusterToken
-    }
-    if !fabricToken.isEmpty {
-      paramDict["fabricToken"] = fabricToken
-    }
-    if !provider.isEmpty {
-      paramDict["provider"] = provider
-    }
-
+    var paramDict: [String: Any?] = [
+      "address": address?.nilIfEmpty(),
+      "email": email?.nilIfEmpty(),
+      "expiresAt": expiresAt,
+      "walletType": walletType?.nilIfEmpty(),
+      "walletName": walletName?.nilIfEmpty(),
+      "clusterToken": clusterToken?.nilIfEmpty(),
+      "fabricToken": fabricToken?.nilIfEmpty(),
+      "provider": provider?.nilIfEmpty(),
+    ]
     let json = JSON(paramDict)
 
     debugPrint("wallet authorization: ", json)
