@@ -11,11 +11,6 @@ import SwiftyJSON
 
 class MockFabric: Fabric {
 
-  override func connect() async throws {
-    debugPrint("MockFabric: skipping connection")
-    // No-op for mock - we don't need real connections
-  }
-
   override func getProperty(
     property: String,
     newFetch: Bool = false

@@ -36,10 +36,6 @@ struct EluvioWalletTVOSApp: App {
         .onKeyPress(phases: .down) { debugMenu.handle($0, router: router) }
       #endif
       .edgesIgnoringSafeArea(.all)
-      .task {
-        eluvio.router = router
-        try? await eluvio.fabric.connect()
-      }
     }
   }
 

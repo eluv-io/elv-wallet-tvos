@@ -23,7 +23,17 @@ class NetworkManager {
     parameters: Parameters = [:],
     body: (any Encodable)? = nil
   ) async throws -> T {
-    var url = URL(string: configStore.apiBaseUrl + path.trimmingPrefix("/"))!
+    let url = configStore.apiBaseUrl + path.trimmingPrefix("/")
+    return try await requestUrl(url: url, method: method, parameters: parameters, body: body)
+  }
+
+  func requestUrl<T: Decodable>(
+    url: String,
+    method: HTTPMethod = .get,
+    parameters: Parameters = [:],
+    body: (any Encodable)? = nil
+  ) async throws -> T {
+    var url = URL(string: url)!
     if NetworkStore.shared.environment == .staging {
       url = url.appending(queryItems: [URLQueryItem(name: "env", value: "staging")])
     }

@@ -191,30 +191,21 @@ struct ItemDetailView: View {
         for _ in 1...2 {
           var retry = false
           do {
-            if let response = try await eluvio.fabric.signer?.getNftInfo(
-              nftAddress: item.contract_addr ?? "", accessCode: eluvio.fabric.fabricToken)
-            {
-              debugPrint("get Nft info ", response)
+            let response = try await RemoteSigner.getContractInfo(
+              contractAddress: item.contract_addr ?? "")
+            debugPrint("get Nft info ", response)
 
-              var info: [LabelValuePair] = []
+            let maxPossible = response.cap - response.burned
+            var info: [LabelValuePair] = [
+              .init(label: "Edition", info: item.meta.editionName ?? ""),
+              .init(label: "Number Minted", info: String(response.minted)),
+              .init(label: "Number in Circulation", info: String(response.total_supply)),
+              .init(label: "Number Burned", info: String(response.burned)),
+              .init(label: "Maximum Possible in Circulation", info: String(maxPossible)),
+              .init(label: "Cap", info: String(response.cap)),
+            ]
 
-              var cap = response["cap"].intValue
-              var burned = response["burned"].intValue
-              var maxPossible = cap - burned
-              var supply = response["total_supply"].intValue
-              var minted = response["minted"].intValue
-
-              // debugPrint("Mint Info: ", item.mintInfo)
-              info.append(LabelValuePair(label: "Edition", info: item.meta.editionName ?? ""))
-              info.append(LabelValuePair(label: "Number Minted", info: String(minted)))
-              info.append(LabelValuePair(label: "Number in Circulation", info: String(supply)))
-              info.append(LabelValuePair(label: "Number Burned", info: String(burned)))
-              info.append(
-                LabelValuePair(label: "Maximum Possible in Circulation", info: String(maxPossible)))
-              info.append(LabelValuePair(label: "Cap", info: String(cap)))
-
-              mintInfo = info
-            }
+            mintInfo = info
           } catch let FabricError.apiError(code, response, error) {
             eluvio.handleApiError(code: code, response: response, error: error)
             await eluvio.refreshFabricToken()

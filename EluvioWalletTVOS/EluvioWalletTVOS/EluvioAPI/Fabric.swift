@@ -63,15 +63,12 @@ class Fabric: ObservableObject {
     AccountStore.shared.bestToken
   }
 
-  // TODO: Factor out authd api or rename this better
-  var signer: RemoteSigner?
-
   var profile = Profile()
 
   var debugNode = "https://host-76-74-91-2.contentfabric.io"
   var isDebugNode = false
 
-  func getEndpoint() throws -> String {
+  func getEndpoint() -> String {
     if isDebugNode {
       return debugNode
     }
@@ -79,29 +76,10 @@ class Fabric: ObservableObject {
     return FabricConfigStore.shared.fabricBaseUrl
   }
 
-  @MainActor
-  func connect() async throws {
-    debugPrint("Fabric connect: ", network)
-
-    let ethereumApi = configuration.getEthereumAPI()
-
-    let asApi = configuration.getAuthServices()
-
-    debugPrint("Authority API: \(asApi)")
-
-    signer = RemoteSigner()
-
-    debugPrint("Connected network: ", self.network)
-  }
-
   func getOptionsFromHash(versionHash: String) async throws -> JSON {
     let path = "/as/mw/playout_options/" + versionHash
 
-    guard let signer = signer else {
-      throw FabricError.configError("getOptionsFromHash: could not get authD endpoint")
-    }
-
-    guard let url = try URL(string: signer.getAuthEndpoint()) else {
+    guard let url = URL(string: FabricConfigStore.shared.apiBaseUrl) else {
       throw FabricError.configError("getOptionsFromHash: could not get endpoint")
     }
     var components = URLComponents()
@@ -161,91 +139,67 @@ class Fabric: ObservableObject {
     return items
   }
 
-  func isOfferActive(offerId: String, nft: NFTModel) async throws -> (
-    isActive: Bool, isRedeemed: Bool, offerStats: JSON
-  ) {
-    guard let signer = signer else {
-      throw FabricError.configError("Signer not available")
+  func isOfferActive(offerId: String, nft: NFTModel) async throws -> NftRedeemableOffer? {
+    guard let address = nft.contract_addr?.nilIfEmpty(),
+      let tokenId = nft.token_id_str?.nilIfEmpty()
+    else {
+      return nil
     }
 
-    let nftInfo = try await signer.getNftInfo(
-      nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
+    let nftInfo = try await RemoteSigner.getNftInfo(nftAddress: address, tokenId: tokenId)
 
     // print ("NFT INFO", nftInfo)
+    return nftInfo.offers?.first(where: { $0.id == offerId })
+  }
 
-    if let offers = nftInfo["offers"].array {
-      for offer in offers {
-        let offer_id = offer["id"].stringValue
-        if offerId == offer_id {
-          let offerActive = offer["active"].boolValue
-          let redeemer = offer["redeemer"].stringValue
-          let redeemed = offer["redeemed"].stringValue
-          let transaction = offer["transaction"].stringValue
+  private func getWalletStatus(tenantId: String) async throws -> [RedemptionStatus] {
+    debugPrint("****** getWalletStatus ******")
+    return try await NetworkManager.shared.request("alt/status/act/\(tenantId)")
+  }
 
-          var offerRedeemed = false
-          if !redeemer.isEmpty, !redeemed.isEmpty, !transaction.isEmpty {
-            offerRedeemed = true
-          }
-
-          return (offerActive, offerRedeemed, offer)
-        }
-      }
-    }
-
-    return (false, false, JSON())
+  private func postWalletStatus(tenantId: String, body: InitiateRedemptionRequest) async throws {
+    let _: JSON = try await NetworkManager.shared.request("wlt/act/\(tenantId)")
+    return
   }
 
   func redeemComplete(confirmationId: String, tenantId: String, pollSeconds: Int = POLLSECONDS)
-    async throws -> (isRedeemed: Bool, transactionId: String, transactionHash: String)
+    async throws -> (isRedeemed: Bool, transactionHash: String)
   {
     print("Redeem Complete check")
-    guard let signer = signer else {
-      throw FabricError.configError("Signer not available")
-    }
 
-    var transactionId = ""
     var transactionHash = ""
     var complete = false
 
     for _ in 0...pollSeconds {
       try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
 
-      let result = try await signer.getWalletStatus(tenantId: tenantId, accessCode: fabricToken)
+      let result = try await getWalletStatus(tenantId: tenantId)
       // print("Wallet Status Result: ", result)
 
-      for status in result.arrayValue {
-        let op = status["op"].stringValue
+      for status in result {
+        let op = status.op
 
         let opSplit = op.split(separator: ":")
         if opSplit.count == 5 {
           if opSplit[0] == "nft-offer-redeem", opSplit[4] == confirmationId {
-            if status["status"] == "complete" {
+            if status.status == "complete" {
               print("Wallet Status Result: complete: ", op)
-              transactionId = status["extra"]["trans_id"].stringValue
-              transactionHash = status["extra"]["tx_hash"].stringValue
+              transactionHash = status.extra?.tx_hash ?? ""
               complete = true
-              return (
-                complete,
-                transactionId,
-                transactionHash
-              )
+              return (complete, transactionHash)
             }
           }
         }
       }
     }
 
-    return (complete, transactionId, transactionHash)
+    return (complete, transactionHash)
   }
 
   /// Waits for transaction for pollSeconds
   func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = POLLSECONDS) async throws -> (
-    isRedeemed: Bool, transactionId: String, transactionHash: String
+    isRedeemed: Bool, transactionHash: String
   ) {
-    guard let signer = signer else {
-      throw FabricError.configError("Signer not available")
-    }
-
     guard let tokenId = nft.token_id_str else {
       throw FabricError.badInput("Could not get token_id_str from nft \(nft)")
     }
@@ -254,29 +208,25 @@ class Fabric: ObservableObject {
       throw FabricError.badInput("Could not get contract_addr from nft \(nft)")
     }
 
-    let nftInfo = try await signer.getNftInfo(
-      nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "", accessCode: fabricToken)
+    let nftInfo = try await RemoteSigner.getNftInfo(
+      nftAddress: nft.contract_addr ?? "", tokenId: nft.token_id_str ?? "")
 
-    let tenantId = nftInfo["tenant"].stringValue
+    let tenantId = nftInfo.tenant
 
     if tenantId == "" {
       throw FabricError.unexpectedResponse("Could not get tenant ID from nft \(contractAddr)")
     }
-
-    // let query = ["dry_run":"true"]
-    let query: [String: String] = [:]
     let uuid = UUID()
     let confirmationId = try uuid.shortened(using: .base58)
-    let body: [String: Any] = [
-      "op": "nft-offer-redeem",
-      "client_reference_id": confirmationId,
-      "tok_addr": contractAddr,
-      "tok_id": tokenId,
-      "offer_id": offerId,
-    ]
+    let body = InitiateRedemptionRequest(
+      op: "nft-offer-redeem",
+      client_reference_id: confirmationId,
+      tok_addr: contractAddr,
+      tok_id: tokenId,
+      offer_id: offerId,
+    )
 
-    try await signer.postWalletStatus(
-      tenantId: tenantId, accessCode: fabricToken, query: query, body: body)
+    try await postWalletStatus(tenantId: tenantId, body: body)
 
     return try await redeemComplete(
       confirmationId: confirmationId, tenantId: tenantId, pollSeconds: pollSeconds)
@@ -475,16 +425,21 @@ class Fabric: ObservableObject {
   func getNFTs(
     address: String, propertyId: String = "", description: String = "", name: String = ""
   ) async throws -> [NFTModel] {
-    guard let signer = signer else {
-      throw FabricError.configError("Signer not initialized.")
+    var path = "apigw/nfts?limit=100"
+
+    if !propertyId.isEmpty {
+      path = path.appending("&property_id=\(propertyId)")
     }
-    let response = try await signer.getWalletData(
-      accountAddress: address,
-      propertyId: propertyId,
-      description: description,
-      name: name,
-      accessCode: fabricToken)
-    let profileData = response.result
+
+    if !description.isEmpty {
+      path = path.appending("&filter=meta/description:co:\(description)")
+    }
+
+    if !name.isEmpty {
+      path = path.appending("&name_like=\(name)")
+    }
+    let response: JSON = try await NetworkManager.shared.request(path)
+    let profileData = response
     return try await parseNfts(profileData["contents"].arrayValue, propertyId: propertyId)
   }
 
@@ -503,12 +458,6 @@ class Fabric: ObservableObject {
     // This only serves deeplinking.
     // After the big refactor we left this non-functional until we need it again.
     return nil
-  }
-
-  func reset() async {
-    signer = nil
-
-    try? await connect()
   }
 
   private func getKeyMediaProgressContainer(address: String) throws -> String {
@@ -569,15 +518,11 @@ class Fabric: ObservableObject {
 
   /// New API for media item playout
   func getMediaPlayoutOptions(propertyId: String, mediaId: String) async throws -> JSON {
-    var path =
+    let path =
       "/as/mw/properties/" + propertyId + "/media_items/" + mediaId
       + "/offerings/any/playout_options"
 
-    guard let signer = signer else {
-      throw FabricError.configError("getPlayoutFromMediaId: could not get authD endpoint")
-    }
-
-    guard let url = try URL(string: signer.getAuthEndpoint()) else {
+    guard let url = URL(string: FabricConfigStore.shared.apiBaseUrl) else {
       throw FabricError.configError("getPlayoutFromMediaId: could not get fabric endpoint")
     }
     var components = URLComponents()
@@ -609,13 +554,13 @@ class Fabric: ObservableObject {
       throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
     }
 
-    debugPrint("getHlsPlaylistFromMediaOptions ", optionsJson)
+    debugPrint("getHlsPlaylistFromMediaOptions ", optionsJson ?? "nil")
     debugPrint("drm ", drm)
 
     let uri = link[drm]["uri"].stringValue
     debugPrint("uri ", drm)
 
-    guard let url = try URL(string: getEndpoint()) else {
+    guard let url = URL(string: getEndpoint()) else {
       throw FabricError.badInput(
         "getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
     }
@@ -729,8 +674,7 @@ class Fabric: ObservableObject {
 
     var queryItems: [URLQueryItem] = []
     if includeAuth! {
-      var auth = AccountStore.shared.bestToken
-      queryItems.append(URLQueryItem(name: "authorization", value: auth))
+      queryItems.append(URLQueryItem(name: "authorization", value: AccountStore.shared.bestToken))
     }
 
     if resolveHeaders! {
@@ -762,7 +706,7 @@ class Fabric: ObservableObject {
   }
 
   /// Convenience for early code
-  func getJsonRequest(
+  private func getJsonRequest(
     url: String, accessToken: String? = nil, parameters: [String: String] = [:],
     noAuth: Bool = false
   ) async throws -> JSON {
@@ -770,7 +714,7 @@ class Fabric: ObservableObject {
       url: url, method: .get, accessToken: accessToken, parameters: parameters, noAuth: noAuth)
   }
 
-  func httpJsonRequest(
+  private func httpJsonRequest(
     url: String, method: HTTPMethod, accessToken: String? = nil, parameters: [String: String] = [:],
     noAuth: Bool = false, body: String = ""
   ) async throws -> JSON {
@@ -834,7 +778,7 @@ class Fabric: ObservableObject {
 
     let uri = link[drm]["uri"].stringValue
 
-    guard let url = try URL(string: getEndpoint()) else {
+    guard let url = URL(string: getEndpoint()) else {
       throw FabricError.badInput(
         "getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
     }

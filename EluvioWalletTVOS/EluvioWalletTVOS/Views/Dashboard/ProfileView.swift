@@ -128,35 +128,29 @@ struct ProfileView: View {
     }
     .onChange(of: isDebugNode) { _, val in
       eluvio.setIsDebugNode(debugNode: val)
-      do {
-        self.network = try eluvio.fabric.getEndpoint()
-      } catch {
-        print("Could not get fabric endpoint. ", error)
-      }
+      self.network = eluvio.fabric.getEndpoint()
     }
     .onAppear {
-      do {
-        self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
-        self.userId = eluvio.accountManager.currentAccount?.getAccountId() ?? ""
+      self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
+      self.userId = eluvio.accountManager.currentAccount?.getAccountId() ?? ""
 
-        self.node = try eluvio.fabric.getEndpoint()
-        self.asNode = try eluvio.fabric.signer?.getAuthEndpoint() ?? ""
-        self.ethNode = try eluvio.fabric.signer?.getEthEndpoint() ?? ""
+      self.node = eluvio.fabric.getEndpoint()
+      self.asNode = FabricConfigStore.shared.apiBaseUrl
+      self.ethNode = FabricConfigStore.shared.config.getEthereumAPI()[0]
 
-        self.isStaging = NetworkStore.shared.environment == .staging
-        self.isDeveloper = eluvio.getDevMode()
-        self.tokenExpiresAt = eluvio.accountManager.currentAccount?.expiresAtDateString ?? ""
-        self.isDebugNode = eluvio.isDebugNode()
+      self.isStaging = NetworkStore.shared.environment == .staging
+      self.isDeveloper = eluvio.getDevMode()
+      self.tokenExpiresAt = eluvio.accountManager.currentAccount?.expiresAtDateString ?? ""
+      self.isDebugNode = eluvio.isDebugNode()
 
-        if !initialized {
-          self.network = eluvio.fabric.network
-          self.selectedLocation = eluvio.fabric.profile.profileData.preferredLocation ?? ""
+      if !initialized {
+        self.network = eluvio.fabric.network
+        self.selectedLocation = eluvio.fabric.profile.profileData.preferredLocation ?? ""
 
-          debugPrint("ProfileView OnAppear - locations", self.locations)
-          debugPrint("ProfileView OnAppear - selectedLocation", self.selectedLocation)
-          initialized = true
-        }
-      } catch {}
+        debugPrint("ProfileView OnAppear - locations", self.locations)
+        debugPrint("ProfileView OnAppear - selectedLocation", self.selectedLocation)
+        initialized = true
+      }
     }
   }
 }

@@ -138,7 +138,6 @@ struct OfferView: View {
                         }
 
                         var redeemed = false
-                        var transactionId = ""
                         var transactionHash = ""
                         do {
                           debugPrint(
@@ -148,7 +147,6 @@ struct OfferView: View {
                           let result = try await eluvio.fabric.redeemOffer(
                             offerId: redeemable.offerId, nft: redeemable.nft)
                           redeemed = result.isRedeemed
-                          transactionId = result.transactionId
                           transactionHash = result.transactionHash
 
                           debugPrint("Redeem result", result)
@@ -162,7 +160,6 @@ struct OfferView: View {
                             self.isRedeeming = false
                           }
                           self.redeemable.status.isRedeemed = redeemed
-                          self.redeemable.status.transactionId = transactionId
                           self.redeemable.status.transactionHash = transactionHash
                           self.showResult = true
                           debugPrint("showResult = true, is redeemed.")
@@ -373,9 +370,9 @@ struct OfferResultView: View {
       debugPrint(fulfill["err"])
       debugPrint(fulfill["err"].isEmpty)
       if fulfill["err"].isEmpty {
-        if !redeemable.status.transactionId.isEmpty, !redeemable.status.transactionHash.isEmpty {
+        if !redeemable.status.transactionHash.isEmpty {
           description =
-            "You have successfully redeedeemd.\nTransaction ID: \(redeemable.status.transactionId)\n\(redeemable.status.transactionHash)"
+            "You have successfully redeedeemd.\nTransaction Hash: \(redeemable.status.transactionHash)"
         } else {
           description = "You have successfully redeedeemd."
         }

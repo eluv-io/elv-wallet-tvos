@@ -964,7 +964,7 @@ struct ContentView: View {
               let sku = "5MmuT4t6RoJtrT9h1yTnos"
               let purchaseId = UUID().uuidString
 
-              if let entitlementJson = try await fabric.signer?.createEntitlement(
+              if let entitlementJson = try await RemoteSigner.createEntitlement(
                 tenantId: tenant, marketplace: marketplace, sku: sku, purchaseId: purchaseId,
                 authToken: token)
               {

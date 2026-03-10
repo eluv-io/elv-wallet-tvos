@@ -16,7 +16,6 @@ class EluvioAPI: ObservableObject {
 
   @Published var fabric: Fabric = .init()
   @Published var viewState: ViewState
-  weak var router: Router?
   @Published var refreshId = UUID().uuidString
   @Published var devMode: Bool = false
   static var NONCE: String {
@@ -128,16 +127,15 @@ class EluvioAPI: ObservableObject {
     fabric.isDebugNode = debugNode
   }
 
+  @MainActor
   func signIn(account: Account, property: String) async throws {
-    await signOut()
     accountManager.currentAccount = account
-    try await fabric.connect()
+    setEnvironment(env: .prod)
   }
 
   @MainActor
   func signOut() async {
     accountManager.signOut()
-    await fabric.reset()
     setEnvironment(env: .prod)
   }
 

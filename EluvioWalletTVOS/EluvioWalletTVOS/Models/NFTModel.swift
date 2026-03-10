@@ -13,7 +13,6 @@ import SwiftyJSON
 struct RedeemStatus {
   var isRedeemed = false
   var isActive = true
-  var transactionId = ""
   var transactionHash = ""
   var redeemer = ""
   var fulfillment: JSON?
@@ -177,12 +176,9 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
   }
 
   func checkOfferStatus(fabric: Fabric) async throws -> RedeemStatus {
-    var isOfferActive = false
-    var isRedeemed = false
-
     let result = try await fabric.isOfferActive(offerId: offerId, nft: nft)
-    isOfferActive = result.isActive
-    isRedeemed = result.isRedeemed
+    let isOfferActive = result?.active == true
+    let isRedeemed = result?.offerRedeemed == true
 
     return RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive)
   }
@@ -201,14 +197,13 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     // TODO: Find status
     var isRedeemed = false
     var isOfferActive = false
-    var offer = JSON()
+    var offer: NftRedeemableOffer? = nil
     if let offerId = redeemable.offer_id {
       do {
-        let result = try await fabric.isOfferActive(offerId: offerId, nft: nft)
-        isOfferActive = result.isActive
-        isRedeemed = result.isRedeemed
-        offer = result.offerStats
-        debugPrint("OfferStatus: \(redeemable.name) ", result)
+        let offer = try await fabric.isOfferActive(offerId: offerId, nft: nft)
+        isOfferActive = offer?.active == true
+        isRedeemed = offer?.offerRedeemed == true
+        debugPrint("OfferStatus: \(redeemable.name) ", offer)
       } catch {
         print("Error finding redeem status ", error)
       }
@@ -216,8 +211,8 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
 
     let redeemStatus = RedeemStatus(
       isRedeemed: isRedeemed, isActive: isOfferActive,
-      transactionHash: offer["transaction"].stringValue,
-      redeemer: offer["redeemer"].stringValue)
+      transactionHash: offer?.transaction ?? "",
+      redeemer: offer?.redeemer ?? "")
 
     var isClaimed = false
     do {

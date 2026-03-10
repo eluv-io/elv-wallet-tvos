@@ -123,13 +123,6 @@ struct SignInView: View {
 
               Button(action: {
                 self.showDeviceFlow = true
-                Task {
-                  do {
-                    try await eluvio.fabric.connect()
-                  } catch {
-                    print("Request failed with error: \(error)")
-                  }
-                }
               }) {
                 Text("Sign In")
               }

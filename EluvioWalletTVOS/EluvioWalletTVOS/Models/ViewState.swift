@@ -58,19 +58,14 @@ class ViewState: ObservableObject {
       if let authToken = url.valueOf("authorization")?.removingPercentEncoding {
         self.authToken = authToken
         debugPrint("Deeplink with auth", authToken)
-        do {
-          try await fabric.connect()
-          var signInResponse = SignInResponse()
-          signInResponse.idToken = authToken
-          // try await fabric.signIn(signInResponse: signInResponse, external: true)
+        var signInResponse = SignInResponse()
+        signInResponse.idToken = authToken
+        // try await fabric.signIn(signInResponse: signInResponse, external: true)
 
-          debugPrint("Signed In!")
+        debugPrint("Signed In!")
 
-          await MainActor.run {
-            setViewState(host: host, url: url)
-          }
-        } catch {
-          print("Could not login from deeplink: \(error.localizedDescription)")
+        await MainActor.run {
+          setViewState(host: host, url: url)
         }
       } else {
         await MainActor.run {
