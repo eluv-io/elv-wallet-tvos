@@ -3,17 +3,14 @@ import Foundation
 
 extension MediaPropertySectionMediaItem {
   func additionalViews() -> [MediaPropertySectionMediaItem] {
-    guard let additionalViews = additional_views else { return [] }
-    var items: [MediaPropertySectionMediaItem] = []
-    for view in additionalViews {
+    return additional_views?.map { view in
       let item = MediaPropertySectionMediaItem()
       item.label = view.label
       item.title = view.label
       item.media_link = view.media_link
       item.thumbnail_image_landscape = view.effectiveImage
-      items.append(item)
-    }
-    return items
+      return item
+    } ?? []
   }
 
   func playerItem(eluvio: EluvioAPI, propertyId: String) async throws -> AVPlayerItem {

@@ -22,7 +22,6 @@ struct ResponsePaging: Codable {
 typealias MediaPropertiesResponse = PagedContent<MediaProperty>
 typealias MediaPropertySectionsResponse = PagedContent<MediaPropertySection>
 typealias MediaPropertyItemsResponse = PagedContent<MediaPropertySectionMediaItem>
-typealias MultiviewResponse = PagedContent<MediaPropertySectionMediaItem>
 
 class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
   var associated_marketplaces: [AssociatedMarketplaces]?
@@ -281,13 +280,7 @@ struct MediaItemAdditionView: Codable, Identifiable, Hashable {
   var media_link_info: JSON?
 
   var effectiveImage: ImageLink? {
-    if let image = image, image.url != nil {
-      return image
-    }
-    if let image_tv = image_tv, image_tv.url != nil {
-      return image_tv
-    }
-    return nil
+    image_tv ?? image
   }
 
   static func == (lhs: MediaItemAdditionView, rhs: MediaItemAdditionView) -> Bool {

@@ -130,12 +130,8 @@ struct PlayerView: View {
           }
 
           if rawMedia.currentlyLive, let propId = property?.id {
-            do {
-              let resp = try await eluvio.fabric.getPropertyMultiview(propertyId: propId)
-              additionalMedias += resp.contents
-            } catch {
-              print("Could not get multiview media ", error)
-            }
+            additionalMedias += await MultiviewFetcher.shared.getPropertyMultiview(
+              propertyId: propId)
           }
 
           // Remove duplicates with the primary media

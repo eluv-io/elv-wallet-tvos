@@ -516,14 +516,6 @@ class Fabric: ObservableObject {
     return result
   }
 
-  func getPropertyMultiview(propertyId: String) async throws -> MultiviewResponse {
-    guard let signer = signer else {
-      throw FabricError.configError("Could not get signer.")
-    }
-    return try await signer.getPropertyMultiview(
-      propertyId: propertyId, accessCode: fabricToken)
-  }
-
   func getMediaItem(mediaId: String) -> MediaPropertySectionMediaItem? {
     // This only serves deeplinking.
     // After the big refactor we left this non-functional until we need it again.

@@ -63,21 +63,24 @@ struct VideoThumbnailCard: View {
   let isSelected: Bool
   @Environment(\.isFocused) var isFocused
 
+  private let width: CGFloat = 280
+  private let height: CGFloat = 150
+
   var body: some View {
     VStack(spacing: 0) {
       ZStack {
-        AsyncImage(url: URL(string: video.thumbnail())) { image in
-          image
-            .resizable()
-            .aspectRatio(16 / 9, contentMode: .fill)
-        } placeholder: {
-          Color.clear
-            .overlay(
-              Image(systemName: "play.rectangle.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.white.opacity(0.5))
-            )
-        }
+        ScaledWebImage(url: video.thumbnail(), height: height)
+          .placeholder(content: {
+            Color.clear
+              .overlay(
+                Image(systemName: "play.rectangle.fill")
+                  .font(.system(size: 60))
+                  .foregroundColor(.white.opacity(0.5))
+              )
+
+          })
+          .resizable()
+          .aspectRatio(16 / 9, contentMode: .fill)
 
         if isSelected {
           Image(systemName: "play.circle.fill")
@@ -86,7 +89,7 @@ struct VideoThumbnailCard: View {
             .shadow(color: .black.opacity(0.5), radius: 5)
         }
       }
-      .frame(width: 280, height: 150)
+      .frame(width: width, height: height)
       .clipShape(RoundedRectangle(cornerRadius: 16))
       .shadow(color: .black.opacity(0.3), radius: 10)
 
@@ -96,7 +99,7 @@ struct VideoThumbnailCard: View {
         .multilineTextAlignment(.center)
         .padding(.vertical, 8)
         .padding(.horizontal, 10)
-        .frame(width: 280)
+        .frame(width: width)
         .background(
           RoundedRectangle(cornerRadius: 8)
             .fill(
@@ -127,8 +130,7 @@ class VideoPlayerViewModel: ObservableObject {
     return currentTimeS > seekTimeS
   }
 
-  var progressCallback:
-    ((_ progress: Double, _ currentTimeS: Double, _ durationS: Double) -> Void)?
+  var progressCallback: ((_ progress: Double, _ currentTimeS: Double, _ durationS: Double) -> Void)?
 
   func seekS(_ s: Double) {
     debugPrint("PlayerView seekS ", s)
