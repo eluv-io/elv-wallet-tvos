@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SDWebImageSwiftUI
 import SwiftUI
 
 struct MediaPropertyView: View {
@@ -52,7 +51,7 @@ struct MediaPropertyView: View {
           } else {
             ZStack {
               if property.backgroundImage != "" {
-                WebImage(url: URL(string: property.backgroundImage))
+                ScaledWebImage(url: property.backgroundImage, height: height)
                   .resizable()
                   .onSuccess { image, data, cacheType in
                     self.disabled = false

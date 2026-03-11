@@ -6,20 +6,19 @@
 //
 
 import AVKit
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
 struct GalleryItemView: View {
   @EnvironmentObject var eluvio: EluvioAPI
   var media: GalleryItem? = nil
-  @State var imageUrl: String = "https://picsum.photos/600/800"
+  @State var imageUrl: String = ""
   @Binding var currentImageUrl: String
   @FocusState var isFocused
 
   var body: some View {
     Button(action: {}) {
-      WebImage(url: URL(string: imageUrl))
+      ScaledWebImage(url: imageUrl, height: 200)
         .resizable()
         .aspectRatio(contentMode: .fill)
         .frame(width: 200, height: 200)
@@ -27,22 +26,17 @@ struct GalleryItemView: View {
     }
     .buttonStyle(GalleryButtonStyle(focused: isFocused))
     .focused($isFocused)
-    .onChange(of: isFocused) { newValue in
+    .onChange(of: isFocused) { _, newValue in
       if newValue {
         self.currentImageUrl = self.imageUrl
       }
     }
     .onAppear {
-      if ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1" {
-        self.imageUrl = "https://picsum.photos/600/800"
-        self.currentImageUrl = "https://picsum.photos/1000/1000"
+      if let url = media?.thumbnail?.url {
+        print("Gallery Image URL: ", url)
+        self.imageUrl = url
       } else {
-        if let url = media?.thumbnail?.url {
-          print("Gallery Image URL: ", url)
-          self.imageUrl = url
-        } else {
-          print("Error getting image URL from link ", media?.thumbnail as Any)
-        }
+        print("Error getting image URL from link ", media?.thumbnail as Any)
       }
     }
   }
@@ -66,7 +60,7 @@ struct GalleryView: View {
       }
     }
     .background {
-      WebImage(url: URL(string: currentImageUrl))
+      ScaledWebImage(url: currentImageUrl, height: UIScreen.main)
         .resizable()
         .aspectRatio(contentMode: .fit)
         .edgesIgnoringSafeArea(.all)
@@ -77,13 +71,12 @@ struct GalleryView: View {
 // MARK: - SwiftUI Previews
 
 #Preview("Gallery View") {
-  GalleryView(gallery: [
-    GalleryItem(),
-    GalleryItem(),
-    GalleryItem(),
-    GalleryItem(),
-    GalleryItem(),
-    GalleryItem(),
-  ])
+  GalleryView(
+    gallery: (0...5).map { i in
+      var item = GalleryItem()
+      item.thumbnail = ImageLink.test()
+      return item
+    }
+  )
   .environmentObject(EluvioAPI())
 }

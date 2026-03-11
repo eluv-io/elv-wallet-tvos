@@ -5,7 +5,7 @@
 //  Created by Wayne Tran on 2023-03-23.
 //
 
-import SDWebImageSwiftUI
+import SDWebImage
 import SwiftUI
 
 @main
@@ -59,6 +59,11 @@ struct EluvioWalletTVOSApp: App {
 
     // Check and replace fabric url placeholder with real fabric base url
     SDWebImageDownloader.shared.requestModifier = SDWebImageDownloaderRequestModifier { request in
+      #if DEBUG
+        if isInPreviewMode {
+          return fakeImageRequest(request)
+        }
+      #endif
       var realUrl = request.url
 
       if var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false),
@@ -81,3 +86,25 @@ struct EluvioWalletTVOSApp: App {
     }
   }
 }
+
+#if DEBUG
+  private var isInPreviewMode: Bool {
+    ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
+  }
+
+  private func fakeImageRequest(_ request: URLRequest) -> URLRequest {
+    var modified = request
+    var width = 200
+    var height = 200
+    let path = request.url?.pathComponents ?? []
+    if let index = path.firstIndex(of: "width") {
+      width = Int(path[index + 1]) ?? width
+    }
+    if let index = path.firstIndex(of: "height") {
+      height = Int(path[index + 1]) ?? height
+    }
+    modified.url = URL(string: "https://picsum.photos/\(width)/\(height)")
+    return modified
+  }
+
+#endif

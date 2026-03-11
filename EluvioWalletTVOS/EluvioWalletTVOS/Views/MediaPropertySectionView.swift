@@ -7,7 +7,6 @@
 
 import AVFoundation
 import Foundation
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
@@ -76,7 +75,7 @@ struct MediaPropertySectionGridView: View {
     HStack(spacing: 0) {
       if let url = logoUrl {
         VStack(spacing: 20) {
-          WebImage(url: URL(string: url))
+          ScaledWebImage(url: url, height: 100)
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 180, height: 180)
@@ -90,21 +89,6 @@ struct MediaPropertySectionGridView: View {
         property: property, pageId: pageId, section: section, margin: margin,
         useScale: useScale, showBackground: false)
     }
-    /*
-     .background(
-         Group {
-             if let url = inlineBackgroundUrl {
-                 WebImage(url:URL(string:url))
-                     .resizable()
-                     .aspectRatio(contentMode: .fill)
-                     .frame(maxWidth: .infinity)
-                     .clipped()
-                     .zIndex(-10)
-             }
-         }
-         .frame(maxWidth: .infinity)
-     )
-      */
     .clipped()
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .onAppear {
@@ -116,11 +100,6 @@ struct MediaPropertySectionGridView: View {
 
       if let display = section.display {
         logoUrl = display.logo?.url
-        /*
-         do {
-             inlineBackgroundUrl = try eluvio.fabric.getUrlFromLink(link: display["inline_background_image"])
-         }catch{}
-          */
       }
     }
   }
@@ -152,7 +131,7 @@ struct MediaPropertyRegularSectionView: View {
         } else {
           if let url = logoUrl {
             VStack(spacing: 20) {
-              WebImage(url: URL(string: url))
+              ScaledWebImage(url: url, height: 180)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 180, height: 180)
@@ -166,7 +145,7 @@ struct MediaPropertyRegularSectionView: View {
             VStack(alignment: hAlignment, spacing: 5) {
               HStack(alignment: .center, spacing: 20) {
                 if !titleIcon.isEmpty {
-                  WebImage(url: URL(string: titleIcon))
+                  ScaledWebImage(url: titleIcon, height: 60)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 60)
@@ -262,7 +241,7 @@ struct MediaPropertyRegularSectionView: View {
       if lookForBackground {
         Group {
           if let url = inlineBackgroundUrl {
-            WebImage(url: URL(string: url))
+            ScaledWebImage(url: url, height: UIScreen.main)
               .resizable()
               .aspectRatio(contentMode: .fill)
               .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -615,7 +594,7 @@ struct MediaPropertySectionView: View {
               if !section.displayTitle.isEmpty {
                 HStack(alignment: .center, spacing: 20) {
                   if !titleIcon.isEmpty {
-                    WebImage(url: URL(string: titleIcon))
+                    ScaledWebImage(url: titleIcon, height: 60)
                       .resizable()
                       .aspectRatio(contentMode: .fit)
                       .frame(width: 60, height: 60)
@@ -661,7 +640,7 @@ struct MediaPropertySectionView: View {
     .background(
       Group {
         if let url = inlineBackgroundUrl {
-          ScaledWebImage(url: url, height: UIScreen.main.bounds.height)
+          ScaledWebImage(url: url, height: UIScreen.main)
             .resizable()
             .aspectRatio(contentMode: .fill)
             .frame(maxWidth: .infinity)
@@ -715,12 +694,10 @@ struct MediaPropertyHeader: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      WebImage(url: URL(string: logo))
+      ScaledWebImage(url: logo, height: 180)
         .resizable()
         .scaledToFit()
         .frame(height: 180, alignment: alignment)
-      // .frame(maxWidth:.infinity)
-      // .clipped()
 
       if !title.isEmpty {
         Text(title).font(.title3)
@@ -787,7 +764,9 @@ struct MediaPropertyBanner: View {
           action: action,
           label: {
             HStack(alignment: .center) {
-              WebImage(url: URL(string: image))
+              // Height shouldn't actually reach full screen height, this is
+              // just an upper bound to prevent downloading insanely large images
+              ScaledWebImage(url: image, height: UIScreen.main)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .edgesIgnoringSafeArea(.horizontal)
@@ -804,7 +783,9 @@ struct MediaPropertyBanner: View {
         .opacity(isFocused ? 1.0 : 0.6)
       } else {
         HStack(alignment: .center) {
-          WebImage(url: URL(string: image))
+          // Height shouldn't actually reach full screen height, this is
+          // just an upper bound to prevent downloading insanely large images
+          ScaledWebImage(url: image, height: UIScreen.main)
             .resizable()
             .aspectRatio(contentMode: isFullBleed ? .fill : .fit)
             .edgesIgnoringSafeArea(.horizontal)

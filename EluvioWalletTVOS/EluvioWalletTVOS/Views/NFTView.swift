@@ -4,7 +4,6 @@
 //
 //  Created by Wayne Tran on 2021-08-11.
 
-import SDWebImageSwiftUI
 import SwiftUI
 
 struct NFTView: View {
@@ -106,7 +105,7 @@ struct NFTView: View {
         VStack {
           HStack(alignment: .center, spacing: 10) {
             if propertyLogo.hasPrefix("http") {
-              WebImage(url: URL(string: propertyLogo))
+              ScaledWebImage(url: propertyLogo, height: 40)
                 .resizable()
                 .indicator(.activity)  // Activity Indicator
                 .transition(.fade(duration: 0.5))
@@ -131,7 +130,7 @@ struct NFTView: View {
           }
           .padding(.bottom)
           if image.hasPrefix("http") {
-            WebImage(url: URL(string: image))
+            ScaledWebImage(url: propertyLogo, height: 420)
               .resizable()
               .indicator(.activity)  // Activity Indicator
               .transition(.fade(duration: 0.5))

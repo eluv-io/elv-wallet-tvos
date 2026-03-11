@@ -16,3 +16,8 @@ func ScaledWebImage(url: String, height: CGFloat) -> WebImage {
   }
   return WebImage(url: URL(string: url), context: [.downloadRequestModifier: modifier])
 }
+
+/// Convenience shorthand to scaled image to screen-height
+func ScaledWebImage(url: String, height: UIScreen) -> WebImage {
+  ScaledWebImage(url: url, height: height.bounds.height)
+}

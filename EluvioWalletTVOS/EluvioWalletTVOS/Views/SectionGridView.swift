@@ -5,7 +5,6 @@
 //  Created by Wayne Tran on 2024-10-24.
 //
 
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
@@ -130,7 +129,7 @@ struct SectionGridView: View {
       Group {
         if showBackground {
           if let url = inlineBackgroundUrl {
-            WebImage(url: URL(string: url))
+            ScaledWebImage(url: url, height: UIScreen.main)
               .resizable()
               .aspectRatio(contentMode: .fill)
               .frame(maxWidth: .infinity)
@@ -142,10 +141,10 @@ struct SectionGridView: View {
       .frame(maxWidth: .infinity)
     )
     .padding([.leading], margin)
-    // .focusSection()
     .task {
       guard let content = section.content else { return }
-      items = content
+      items =
+        content
         .prefix(100)
         .filter { $0.resolvedPermissions?.hide != true }
         .map { MediaPropertySectionMediaItemViewModel.create(item: $0) }
@@ -155,4 +154,3 @@ struct SectionGridView: View {
     }
   }
 }
-

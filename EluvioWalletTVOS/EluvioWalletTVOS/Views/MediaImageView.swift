@@ -1,5 +1,4 @@
 import AVKit
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
@@ -14,7 +13,7 @@ struct MediaItemView: View {
     ZStack {
       HStack(alignment: .center) {
         Spacer()
-        WebImage(url: URL(string: url))
+        ScaledWebImage(url: url, height: UIScreen.main)
           .resizable()
           .scaledToFit()
           .background(.black)
@@ -41,4 +40,3 @@ struct MediaItemView: View {
     .edgesIgnoringSafeArea(.all)
   }
 }
-

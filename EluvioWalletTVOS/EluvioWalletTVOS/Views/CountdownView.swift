@@ -5,7 +5,6 @@
 //  Created by Wayne Tran on 2024-08-20.
 //
 
-import SDWebImageSwiftUI
 import SwiftUI
 
 struct PlayerErrorView: View {
@@ -18,7 +17,7 @@ struct PlayerErrorView: View {
 
   var body: some View {
     ZStack(alignment: .center) {
-      WebImage(url: URL(string: backgroundImageUrl))
+      ScaledWebImage(url: backgroundImageUrl, height: UIScreen.main)
         .resizable()
         .edgesIgnoringSafeArea(.all)
 
@@ -81,7 +80,7 @@ struct CountDownView: View {
 
   var body: some View {
     ZStack(alignment: .center) {
-      WebImage(url: URL(string: backgroundImageUrl))
+      ScaledWebImage(url: backgroundImageUrl, height: UIScreen.main)
         .resizable()
         .edgesIgnoringSafeArea(.all)
 
@@ -91,7 +90,7 @@ struct CountDownView: View {
       VStack(alignment: .center, spacing: 0) {
         Spacer()
         if images.isEmpty {
-          WebImage(url: URL(string: imageUrl))
+          ScaledWebImage(url: imageUrl, height: 300)
             .resizable()
             .scaledToFit()
             .frame(width: 600, height: 300)
@@ -99,7 +98,7 @@ struct CountDownView: View {
         } else if !images.isEmpty {
           HStack(spacing: 52) {
             ForEach(0..<images.count, id: \.self) { index in
-              WebImage(url: URL(string: images[index]))
+              ScaledWebImage(url: images[index], height: 200)
                 .resizable()
                 .scaledToFit()
                 .frame(width: 200, height: 200)

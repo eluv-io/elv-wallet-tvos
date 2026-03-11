@@ -5,7 +5,6 @@
 //  Created by Wayne Tran on 2024-06-13.
 
 import Combine
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
@@ -85,7 +84,7 @@ private struct BackgroundImage: View {
   @State var loaded = false
 
   var body: some View {
-    ScaledWebImage(url: url, height: UIScreen.main.bounds.height)
+    ScaledWebImage(url: url, height: UIScreen.main)
       .onSuccess { _, _, _ in
         loaded = true
       }
@@ -97,7 +96,7 @@ private struct BackgroundImage: View {
       .opacity(loaded ? 1 : 0)
       .animation(bgImageAnimation, value: loaded)
       .edgesIgnoringSafeArea(.all)
-      .frame(width: UIScreen.main.bounds.size.width, height: UIScreen.main.bounds.size.height)
+      .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
   }
 }
 
@@ -112,7 +111,7 @@ struct CustomAppDiscoverView: View {
     VStack(alignment: .center, spacing: 40) {
       Spacer()
       if let property = property {
-        WebImage(url: URL(string: property.startScreenImage))
+        ScaledWebImage(url: property.startScreenImage, height: 400)
           .resizable()
           .aspectRatio(contentMode: .fit)
           .frame(width: 900, height: 400, alignment: .leading)

@@ -5,7 +5,6 @@
 //  Created by Wayne Tran on 2023-05-16.
 //
 
-import SDWebImageSwiftUI
 import SwiftUI
 
 struct SearchView: View {

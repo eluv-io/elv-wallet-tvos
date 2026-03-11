@@ -7,7 +7,6 @@
 
 import AVFoundation
 import Foundation
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
@@ -106,13 +105,13 @@ struct MediaPropertyDetailView: View {
           }
           .frame(maxWidth: .infinity, maxHeight: UIScreen.main.bounds.size.height)
         } else if backgroundImage.hasPrefix("http") {
-          WebImage(url: URL(string: backgroundImage))
+          ScaledWebImage(url: backgroundImage, height: UIScreen.main)
             .resizable()
             .aspectRatio(contentMode: .fill)
             .edgesIgnoringSafeArea([.top, .leading, .trailing])
             .frame(
-              width: UIScreen.main.bounds.size.width,
-              height: UIScreen.main.bounds.size.height, alignment: .topLeading
+              width: UIScreen.main.bounds.width,
+              height: UIScreen.main.bounds.height, alignment: .topLeading
             )
             .clipped()
             .id(backgroundImage)

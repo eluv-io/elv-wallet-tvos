@@ -9,7 +9,6 @@ import AVKit
 import Combine
 import Foundation
 import MUXSDKStats
-import SDWebImageSwiftUI
 import SwiftUI
 
 class PlayerFinishedObserver: ObservableObject {
@@ -99,7 +98,7 @@ struct PlayerView: View {
     .overlay {
       VStack {
         if !playerImageOverlayUrl.isEmpty {
-          WebImage(url: URL(string: playerImageOverlayUrl))
+          ScaledWebImage(url: playerImageOverlayUrl, height: 600)
             .resizable()
             .indicator(.activity)  // Activity Indicator
             .transition(.fade(duration: 0.5))

@@ -5,7 +5,6 @@
 //  Created by Wayne Tran on 2024-02-01.
 //
 
-import SDWebImageSwiftUI
 import SwiftUI
 
 struct MediaTabItemView: View {

@@ -5,7 +5,6 @@
 //  Created by Wayne Tran on 2023-04-14.
 //
 
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
@@ -50,7 +49,7 @@ struct QRView: View {
   var body: some View {
     ZStack {
       if !backgroundImage.isEmpty {
-        WebImage(url: URL(string: backgroundImage))
+        ScaledWebImage(url: backgroundImage, height: UIScreen.main)
           .resizable()
           .scaledToFill()
           .edgesIgnoringSafeArea(.all)

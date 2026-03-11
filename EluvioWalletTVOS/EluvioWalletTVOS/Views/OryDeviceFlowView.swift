@@ -9,7 +9,6 @@ import Alamofire
 import AuthenticationServices
 import Combine
 import CoreImage.CIFilterBuiltins
-import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON
 
@@ -40,7 +39,7 @@ struct OryDeviceFlowView: View {
   var body: some View {
     ZStack {
       Color.mainBackground.edgesIgnoringSafeArea(.all)
-      WebImage(url: URL(string: backgroundImage))
+      ScaledWebImage(url: backgroundImage, height: UIScreen.main)
         .resizable()
         .scaledToFill()
         .edgesIgnoringSafeArea(.all)

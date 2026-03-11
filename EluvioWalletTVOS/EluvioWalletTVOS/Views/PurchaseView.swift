@@ -5,7 +5,6 @@
 //  Created by Wayne Tran on 2024-11-19.
 //
 
-import SDWebImageSwiftUI
 import SwiftUI
 
 /// This is a simple view without a QR Code to purchase since it's against Apple's policy's
@@ -20,7 +19,7 @@ struct PurchaseView: View {
   var body: some View {
     ZStack {
       if !backgroundImage.isEmpty {
-        WebImage(url: URL(string: backgroundImage))
+        ScaledWebImage(url: backgroundImage, height: UIScreen.main)
           .resizable()
           .scaledToFill()
           .edgesIgnoringSafeArea(.all)

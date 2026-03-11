@@ -1,4 +1,3 @@
-import SDWebImageSwiftUI
 import SwiftUI
 
 struct SecondaryFilterView: View {
@@ -13,7 +12,7 @@ struct SecondaryFilterView: View {
     ZStack(alignment: .center) {
       Button(action: action) {
         if !imageUrl.isEmpty {
-          WebImage(url: URL(string: imageUrl))
+          ScaledWebImage(url: imageUrl, height: 80)
             .resizable()
             .scaledToFit()
             .frame(width: 80, height: 80)
