@@ -102,12 +102,11 @@ class AuthInterceptor: RequestInterceptor {
       //XXX: skip until we figure out where this is saved after the big refactor
       request.setValue("Bearer \("idToken-placeholder")", forHTTPHeaderField: "Authorization")
     } else if path.contains("wlt/sign/csat"),
-      let clusterToken = accountStore.accountManager.currentAccount?.clusterToken
+      let clusterToken = accountStore.account?.clusterToken
     {
       request.setValue("Bearer \(clusterToken)", forHTTPHeaderField: "Authorization")
     } else {
-      let token =
-        accountStore.accountManager.currentAccount?.fabricToken ?? accountStore.staticToken
+      let token = accountStore.account?.fabricToken ?? accountStore.staticToken
       request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
     }
     completion(.success(request))

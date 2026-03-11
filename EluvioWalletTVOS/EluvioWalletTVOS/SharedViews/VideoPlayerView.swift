@@ -182,7 +182,7 @@ class VideoPlayerViewModel: ObservableObject {
         var sessionId = ""
         var offering = ""
 
-        if let account = eluvio.accountManager.currentAccount {
+        if let account = AccountStore.shared.account {
           if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
             try await eluvio.refreshFabricToken()
           }
@@ -276,7 +276,7 @@ class VideoPlayerViewModel: ObservableObject {
         // Check token expiry once, then skip on subsequent ticks
         if !self.tokenRefreshChecked {
           self.tokenRefreshChecked = true
-          if let account = eluvio.accountManager.currentAccount {
+          if let account = AccountStore.shared.account {
             Task {
               if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
                 await eluvio.refreshFabricToken()
@@ -320,9 +320,9 @@ class VideoPlayerViewModel: ObservableObject {
       // Seek to saved progress or specified time before playing
       if seekTimeS == 0 {
         do {
-          if let account = eluvio?.accountManager.currentAccount {
+          if let addr = AccountStore.shared.account?.getAccountAddress() {
             let progress = try eluvio?.fabric.getUserViewedProgress(
-              address: account.getAccountAddress(), mediaId: currentVideo?.id ?? "")
+              address: addr, mediaId: currentVideo?.id ?? "")
             let savedTime = progress?.current_time_s ?? 0
             if savedTime > 0 {
               await MainActor.run {
@@ -378,9 +378,9 @@ class VideoPlayerViewModel: ObservableObject {
       id: currentVideo.id ?? "", duration_s: durationS, current_time_s: currentTimeS)
 
     do {
-      if let account = eluvio?.accountManager.currentAccount {
+      if let addr = AccountStore.shared.account?.getAccountAddress() {
         try eluvio?.fabric.setUserViewedProgress(
-          address: account.getAccountAddress(), mediaId: currentVideo.id ?? "",
+          address: addr, mediaId: currentVideo.id ?? "",
           progress: mediaProgress)
       }
     } catch {

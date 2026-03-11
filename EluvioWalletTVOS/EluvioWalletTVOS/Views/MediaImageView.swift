@@ -3,7 +3,6 @@ import SwiftUI
 import SwiftyJSON
 
 struct MediaItemView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
   var viewItem: MediaPropertySectionMediaItemViewModel
 
   var url: String { viewItem.thumbnail }

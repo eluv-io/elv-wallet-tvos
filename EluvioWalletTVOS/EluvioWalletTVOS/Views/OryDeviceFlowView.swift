@@ -15,7 +15,6 @@ import SwiftyJSON
 struct OryDeviceFlowView: View {
   @Environment(\.presentationMode) var presentationMode
   @Environment(\.colorScheme) var colorScheme
-  @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
   @State var url = ""
   @State var statusUrl: String = ""
@@ -178,8 +177,7 @@ struct OryDeviceFlowView: View {
       account.refreshToken = refreshToken
       debugPrint("EMAIL: ", account.email ?? "nil")
 
-      try await eluvio.signIn(account: account, property: property.id)
-      // needsRefresh() is now called by signIn's pre-cache Task when auth cache is ready
+      AccountStore.shared.account = account
 
       debugPrint("Starting section prefetch")
       await prefetchPropertyAndSections(property.id)

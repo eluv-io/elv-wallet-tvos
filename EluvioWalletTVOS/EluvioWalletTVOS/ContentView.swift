@@ -241,7 +241,7 @@ struct ContentView: View {
   var body: some View {
     NavigationStack(path: $router.path) {
       Group {
-        if eluvio.accountManager.isLoggedOut {
+        if AccountStore.shared.isLoggedOut {
           DiscoverView()
             .preferredColorScheme(colorScheme)
         } else {
@@ -276,7 +276,7 @@ struct ContentView: View {
           .sink { val in
             debugPrint("viewState changed.", viewState.op)
             debugPrint("showNFT ", showNft)
-            if viewState.op == .none || eluvio.accountManager.isLoggedOut {
+            if viewState.op == .none || AccountStore.shared.isLoggedOut {
               self.showActivity = false
               return
             }

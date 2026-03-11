@@ -11,7 +11,6 @@ import SwiftyJSON
 /// QR Code display view - shows a QR code with title and description
 /// Can be initialized with all state (for previews) or with EluvioAPI (for runtime)
 struct QRView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
 
   // Primary data - can be passed directly for previews

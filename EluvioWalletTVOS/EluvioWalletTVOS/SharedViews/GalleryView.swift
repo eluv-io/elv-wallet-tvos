@@ -10,7 +10,6 @@ import SwiftUI
 import SwiftyJSON
 
 struct GalleryItemView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
   var media: GalleryItem? = nil
   @State var imageUrl: String = ""
   @Binding var currentImageUrl: String
@@ -43,7 +42,6 @@ struct GalleryItemView: View {
 }
 
 struct GalleryView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
   var gallery: [GalleryItem]
   @State var currentImageUrl: String = ""
 

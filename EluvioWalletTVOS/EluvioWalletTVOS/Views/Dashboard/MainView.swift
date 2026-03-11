@@ -46,7 +46,6 @@ struct MainView: View {
   @Namespace var MAIN
 
   @State var selection: MainTab = .Discover
-  @State private var cancellable: AnyCancellable? = nil
   @State var logOutTimer = Timer.publish(every: 24 * 60 * 60, on: .main, in: .common)
   @FocusState var navFocused
   @State var showNav = false
@@ -85,14 +84,13 @@ struct MainView: View {
       }
     }
     .edgesIgnoringSafeArea(.all)
+    .onAnyChange(of: AccountStore.shared.account) { _, newAccount in
+      if newAccount == nil {
+        self.selection = MainTab.Discover
+      }
+    }
     .onAppear {
       debugPrint("MainView onAppear")
-      self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
-        print("MainView fabric changed, ", val)
-        if val == nil {
-          self.selection = MainTab.Discover
-        }
-      }
       Task {
         await MainActor.run {
           navDisabled = false

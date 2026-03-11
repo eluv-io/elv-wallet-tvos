@@ -10,14 +10,13 @@ import SwiftUI
 
 struct MediaPropertyView: View {
   @Environment(\.colorScheme) var colorScheme
-  @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
   var property: MediaProperty
   @FocusState private var focused: Bool
   @Binding var selected: MediaProperty?
   var isSimple = false
   var simpleText: String {
-    return eluvio.accountManager.isLoggedOut ? "Sign In" : "Welcome Back"
+    AccountStore.shared.isLoggedOut ? "Sign In" : "Welcome Back"
   }
 
   var width: CGFloat = 330
@@ -98,7 +97,7 @@ struct MediaPropertyView: View {
     debugPrint("propertyID clicked: ", property.id)
 
     let loggedInWithSameProvider =
-      property.accountType == eluvio.accountManager.currentAccount?.type
+      property.accountType == AccountStore.shared.account?.type
     let skipLogin = property.login?.settings?.disable_login == true
     debugPrint("disableLogin: ", skipLogin)
 
@@ -115,7 +114,6 @@ struct MediaPropertyView: View {
 
 struct MediaPropertiesView: View {
   @Environment(\.colorScheme) var colorScheme
-  @EnvironmentObject var eluvio: EluvioAPI
 
   var numColumns = 5
   var properties: [MediaProperty]

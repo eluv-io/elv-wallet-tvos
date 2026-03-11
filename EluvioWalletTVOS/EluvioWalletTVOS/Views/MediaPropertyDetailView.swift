@@ -60,7 +60,6 @@ struct IconButton: View {
 struct MediaPropertyDetailView: View {
   @Namespace var NamespaceProperty
   @Environment(\.colorScheme) var colorScheme
-  @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
 
   private let propertyId: String

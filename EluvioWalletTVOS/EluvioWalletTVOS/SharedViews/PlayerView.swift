@@ -177,7 +177,7 @@ struct PlayerView: View {
         var sessionId = ""
         var offering = ""
 
-        if let account = eluvio.accountManager.currentAccount {
+        if let account = AccountStore.shared.account {
           // If our token expires in 4 hours we refresh
           if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
             try await eluvio.refreshFabricToken()
@@ -278,7 +278,7 @@ struct PlayerView: View {
               player.currentItem?.duration.seconds ?? 0.0)
           }
 
-          if let account = eluvio.accountManager.currentAccount {
+          if let account = AccountStore.shared.account {
             Task {
               // If our token expires in 4 hours we refresh
               if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
@@ -313,9 +313,9 @@ struct PlayerView: View {
 
         if seekTimeS == 0 {
           do {
-            if let account = eluvio.accountManager.currentAccount {
+            if let addr = AccountStore.shared.account?.getAccountAddress() {
               let progress = try eluvio.fabric.getUserViewedProgress(
-                address: account.getAccountAddress(), mediaId: mediaId)
+                address: addr, mediaId: mediaId)
               debugPrint("Finsihed getting progress ", progress)
               seekS(progress.current_time_s)
             }
@@ -382,9 +382,9 @@ struct PlayerView: View {
       id: mediaId, duration_s: durationS, current_time_s: currentTimeS)
 
     do {
-      if let account = eluvio.accountManager.currentAccount {
+      if let addr = AccountStore.shared.account?.getAccountAddress() {
         try eluvio.fabric.setUserViewedProgress(
-          address: account.getAccountAddress(), mediaId: mediaId, progress: mediaProgress)
+          address: addr, mediaId: mediaId, progress: mediaProgress)
         debugPrint("Finsihed setting progress.")
       }
     } catch {

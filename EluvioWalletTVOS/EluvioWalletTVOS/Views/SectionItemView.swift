@@ -235,8 +235,6 @@ func handleVideoItem(
 // MARK: - Views
 
 struct MediaItemGridView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
-
   var property: MediaProperty
   var items: [MediaPropertySectionMediaItem]
   var title: String = ""
@@ -317,8 +315,6 @@ struct MediaItemGridView: View {
 }
 
 struct SectionItemListView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
-
   var property: MediaProperty
   var mediaItemIds: [String]
   var title: String = ""
@@ -492,9 +488,8 @@ struct SectionItemView: View {
     Task {
       do {
         let mediaId = viewItem.media_id
-        if let account = eluvio.accountManager.currentAccount {
-          let progress = try eluvio.fabric.getUserViewedProgress(
-            address: account.getAccountAddress(), mediaId: mediaId)
+        if let addr = AccountStore.shared.account?.getAccountAddress() {
+          let progress = try eluvio.fabric.getUserViewedProgress(address: addr, mediaId: mediaId)
           if progress.current_time_s > 0 {
             // debugPrint("Found saved progress ", progress)
             await MainActor.run {

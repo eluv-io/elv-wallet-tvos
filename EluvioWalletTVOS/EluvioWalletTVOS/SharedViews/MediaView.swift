@@ -28,7 +28,6 @@ enum MediaFlagPosition {
 
 // TODO: Make this generic
 struct RedeemFlag: View {
-  @EnvironmentObject var eluvio: EluvioAPI
   @State var redeemable: RedeemableViewModel
   @State var position: MediaFlagPosition = .bottomCenter
 
@@ -37,8 +36,8 @@ struct RedeemFlag: View {
   }
 
   private var text: String {
-    if let account = eluvio.accountManager.currentAccount {
-      return redeemable.displayLabel(currentUserAddress: account.getAccountAddress())
+    if let addr = AccountStore.shared.account?.getAccountAddress() {
+      return redeemable.displayLabel(currentUserAddress: addr)
     }
 
     return ""

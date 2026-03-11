@@ -275,7 +275,6 @@ struct MintInfoView: View {
 }
 
 struct ItemContractInfoView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
   var address: String
   var hash: String = ""

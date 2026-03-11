@@ -107,7 +107,6 @@ struct MediaPropertySectionGridView: View {
 
 struct MediaPropertyRegularSectionView: View {
   @Environment(\.colorScheme) var colorScheme
-  @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
   @Namespace var SectionNamespace
   var property: MediaProperty
@@ -658,7 +657,6 @@ struct MediaPropertySectionView: View {
 
 struct MediaPropertyHeader: View {
   @Namespace var NamespaceProperty
-  @EnvironmentObject var eluvio: EluvioAPI
   var logo: String = ""
   var title: String = ""
   var description: String = ""
@@ -744,7 +742,6 @@ struct MediaPropertyHeader: View {
 
 struct MediaPropertyBanner: View {
   @Namespace var NamespaceProperty
-  @EnvironmentObject var eluvio: EluvioAPI
   var image: String = ""
   var imageURL: String {
     return image + "&width=600"

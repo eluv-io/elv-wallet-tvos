@@ -20,11 +20,7 @@ struct MyItemsView: View {
   @State var isFiltered = false
   var properties: [MediaProperty] = PropertyStore.shared.ownedProperties.map { $0.value }
   var address: String {
-    if let account = eluvio.accountManager.currentAccount {
-      return account.getAccountAddress()
-    }
-
-    return ""
+    AccountStore.shared.account?.getAccountAddress() ?? ""
   }
 
   func search() {
@@ -36,8 +32,6 @@ struct MyItemsView: View {
       }
     }
   }
-
-  @State private var cancellable: AnyCancellable? = nil
 
   var body: some View {
     ScrollView {
@@ -94,6 +88,11 @@ struct MyItemsView: View {
     .onChange(of: searchString) {
       search()
     }
+    .onAnyChange(of: AccountStore.shared.account) { _, newAccount in
+      if newAccount == nil {
+        nfts = []
+      }
+    }
     .onAppear {
       Task {
         for _ in 1...2 {
@@ -126,12 +125,6 @@ struct MyItemsView: View {
           if !retry {
             break
           }
-        }
-      }
-
-      self.cancellable = eluvio.accountManager.$currentAccount.sink { val in
-        if val == nil {
-          nfts = []
         }
       }
     }

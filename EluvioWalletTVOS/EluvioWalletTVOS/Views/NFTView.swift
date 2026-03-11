@@ -7,7 +7,6 @@
 import SwiftUI
 
 struct NFTView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
   var nft: NFTModel = .init()
   var isForsale = false

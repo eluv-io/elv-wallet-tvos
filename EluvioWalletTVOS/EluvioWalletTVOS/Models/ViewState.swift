@@ -120,7 +120,7 @@ class ViewState: ObservableObject {
 
   /// Returns true if we can load the page
   func login(_ property: MediaProperty, eluvio: EluvioAPI, router: Router) {
-    if property.accountType == eluvio.accountManager.currentAccount?.type {
+    if property.accountType == AccountStore.shared.account?.type {
       debugPrint("Logged in with correct account type - navigating to Property.")
       let param = PropertyParam(propertyId: property.id)
       router.push(to: .property(param))

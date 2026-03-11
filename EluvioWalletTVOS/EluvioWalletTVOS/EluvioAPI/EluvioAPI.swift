@@ -12,7 +12,7 @@ import SwiftUI
 import SwiftyJSON
 
 class EluvioAPI: ObservableObject {
-  static let shared = EluvioAPI()
+  @MainActor static let shared = EluvioAPI()
 
   @Published var fabric: Fabric = .init()
   @Published var viewState: ViewState
@@ -29,10 +29,7 @@ class EluvioAPI: ObservableObject {
 
   private var cancellables: Set<AnyCancellable> = []
 
-  var accountManager: AccountManager {
-    AccountStore.shared.accountManager
-  }
-
+  @MainActor
   init() {
     debugPrint("Initiating Eluvio APIs on ", UIDevice.current.localizedModel)
 
@@ -73,7 +70,7 @@ class EluvioAPI: ObservableObject {
     // Force logged out state for UI testing
     if isUITesting && isForceLoggedOut {
       print("UI Testing with forced logout")
-      accountManager.signOut()
+      AccountStore.shared.signOut()
     }
     // Set up mock account for UI testing if needed
     else if isUITesting && isMockLoggedIn {
@@ -81,7 +78,7 @@ class EluvioAPI: ObservableObject {
       let mockAccount = Account()
       mockAccount.type = .Ory
       mockAccount.addr = "0x0000000000000000000000000000000000000000"
-      accountManager.currentAccount = mockAccount
+      AccountStore.shared.account = mockAccount
     }
   }
 
@@ -127,18 +124,6 @@ class EluvioAPI: ObservableObject {
     fabric.isDebugNode = debugNode
   }
 
-  @MainActor
-  func signIn(account: Account, property: String) async throws {
-    accountManager.currentAccount = account
-    setEnvironment(env: .prod)
-  }
-
-  @MainActor
-  func signOut() async {
-    accountManager.signOut()
-    setEnvironment(env: .prod)
-  }
-
   /// TODO:
   func handleApiError(code: Int, response: JSON, error: Error) {
     print("handleApiError ", error)
@@ -171,7 +156,7 @@ class EluvioAPI: ObservableObject {
 
   func createWalletAuthorization() -> String {
     do {
-      if let account = accountManager.currentAccount {
+      if let account = AccountStore.shared.account {
         return try createWalletAuthorizationFromAccount(account: account)
       }
     } catch {

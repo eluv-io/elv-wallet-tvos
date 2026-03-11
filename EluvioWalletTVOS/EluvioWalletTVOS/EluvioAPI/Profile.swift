@@ -9,7 +9,7 @@ import Foundation
 
 var DEMO_LOCATIONS: [String]? = ["los angeles", "phoenix", "washington dc"]
 
-struct ProfileData: Codable {
+struct ProfileData: Codable, Equatable {
   // DEMO:
   var locations: [String]? = DEMO_LOCATIONS
   var preferredLocation: String? = "los angeles"

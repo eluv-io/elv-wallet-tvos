@@ -131,8 +131,9 @@ struct ProfileView: View {
       self.network = eluvio.fabric.getEndpoint()
     }
     .onAppear {
-      self.address = eluvio.accountManager.currentAccount?.getAccountAddress() ?? ""
-      self.userId = eluvio.accountManager.currentAccount?.getAccountId() ?? ""
+      let account = AccountStore.shared.account
+      self.address = account?.getAccountAddress() ?? ""
+      self.userId = account?.getAccountId() ?? ""
 
       self.node = eluvio.fabric.getEndpoint()
       self.asNode = FabricConfigStore.shared.apiBaseUrl
@@ -140,7 +141,7 @@ struct ProfileView: View {
 
       self.isStaging = NetworkStore.shared.environment == .staging
       self.isDeveloper = eluvio.getDevMode()
-      self.tokenExpiresAt = eluvio.accountManager.currentAccount?.expiresAtDateString ?? ""
+      self.tokenExpiresAt = account?.expiresAtDateString ?? ""
       self.isDebugNode = eluvio.isDebugNode()
 
       if !initialized {

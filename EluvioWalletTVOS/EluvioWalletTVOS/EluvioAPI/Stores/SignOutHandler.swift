@@ -1,8 +1,8 @@
 enum SignOutHandler {
   static func signOut() async {
+      AccountStore.shared.signOut()
       await PropertyStore.shared.clear()
       await PersistentDataCache().clearCache()
-      await EluvioAPI.shared.signOut()
       Router.shared.reset()
       // Re-fetch properties after reset
       await PropertyStore.shared.fetchProperties()

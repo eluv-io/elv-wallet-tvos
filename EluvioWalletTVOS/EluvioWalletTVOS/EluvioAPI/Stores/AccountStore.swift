@@ -7,11 +7,10 @@ class AccountStore {
 
   var staticToken: String
 
-  //temp
-  let accountManager = AccountManager()
-
   var account: Account? {
-    accountManager.currentAccount
+    didSet {
+      saveAccount(account)
+    }
   }
 
   // Either a fabric token is the user is logged in, or a static token for the current network
@@ -20,6 +19,8 @@ class AccountStore {
   }
 
   private init() {
+    account = getSavedAccount()
+
     let configStore = FabricConfigStore.shared
     self.staticToken = createStaticToken(qspace: configStore.config.qspace.id)
     withObservationTracking { [weak self] in
@@ -31,6 +32,38 @@ class AccountStore {
       }
     }
   }
+
+  var isLoggedOut: Bool {
+    return account == nil
+  }
+
+  func signOut() {
+    account = nil
+  }
+
+  private func saveAccount(_ account: Account?) {
+    if account == nil {
+      UserDefaults.standard.removeObject(forKey: "current_account")
+    } else if let encoded = try? JSONEncoder().encode(account) {
+      UserDefaults.standard.set(encoded, forKey: "current_account")
+    }
+  }
+}
+
+private func getSavedAccount() -> Account? {
+  // We used to save a "type" field, which didn't hold enough data to
+  guard let accountData = UserDefaults.standard.object(forKey: "current_account") as? Data else {
+    return nil
+  }
+  guard let account = try? JSONDecoder().decode(Account.self, from: accountData) else {
+    return nil
+  }
+  debugPrint("Retrieved " + account.id)
+
+  debugPrint("Now Date \(Date())")
+  debugPrint("ExpiresAt \(account.expiresAt)")
+
+  return account
 }
 
 private func createStaticToken(qspace: String) -> String {
