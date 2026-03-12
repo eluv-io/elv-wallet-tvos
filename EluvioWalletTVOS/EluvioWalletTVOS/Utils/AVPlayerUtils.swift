@@ -53,7 +53,7 @@ func MakePlayerItemFromLink(
 
 func MakePlayerItemFromOptionsJson(
   fabric: Fabric,
-  optionsJson: JSON?,
+  optionsJson: JSON,
   versionHash: String,
   offering: String = "default",
   title: String = "",
@@ -65,26 +65,22 @@ func MakePlayerItemFromOptionsJson(
   var hlsPlaylistUrl = ""
   var playerItem: AVPlayerItem? = nil
 
-  guard let options = optionsJson else {
-    throw RuntimeError("MakePlayerItemFromOptionsJson options is nil")
-  }
-
-  if options["hls-clear"].exists() {
+  if let options = optionsJson.get("hls-clear") {
     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(
-      optionsJson: optionsJson, hash: versionHash, drm: "hls-clear", offering: offering)
+      uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     // print("Playlist URL \(hlsPlaylistUrl)")
     let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
 
     playerItem = AVPlayerItem(asset: urlAsset)
-  } else if options["hls-aes128"].exists() {
+  } else if let options = optionsJson.get("hls-aes128") {
     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(
-      optionsJson: optionsJson, hash: versionHash, drm: "hls-aes128", offering: offering)
+      uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     print("Playlist URL \(hlsPlaylistUrl)")
     let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
 
     playerItem = AVPlayerItem(asset: urlAsset)
-  } else if options["hls-fairplay"].exists() {
-    let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+  } else if let options = optionsJson.get("hls-fairplay") {
+    let licenseServer = options["properties"]["license_servers"][0].stringValue
 
     if licenseServer.isEmpty {
       throw RuntimeError("Error getting licenseServer")
@@ -92,7 +88,7 @@ func MakePlayerItemFromOptionsJson(
     print("license_server \(licenseServer)")
 
     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(
-      optionsJson: optionsJson, hash: versionHash, drm: "hls-fairplay", offering: offering)
+      uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     // print("Playlist URL \(hlsPlaylistUrl)")
 
     let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
@@ -102,15 +98,15 @@ func MakePlayerItemFromOptionsJson(
       licenseServer: licenseServer, authToken: fabric.fabricToken)
     playerItem = AVPlayerItem(asset: urlAsset)
 
-  } else if options["hls-sample-aes"].exists() {
+  } else if let options = optionsJson.get("hls-sample-aes") {
     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(
-      optionsJson: optionsJson, hash: versionHash, drm: "hls-sample-aes", offering: offering)
+      uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     print("Playlist URL \(hlsPlaylistUrl)")
     let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
 
     playerItem = AVPlayerItem(asset: urlAsset)
   } else {
-    throw RuntimeError("No available playback options \(options)")
+    throw RuntimeError("No available playback options \(optionsJson)")
   }
 
   if let player = playerItem {
@@ -137,37 +133,26 @@ func MakePlayerItemFromOptionsJson(
 
 func ResolveMediaPlayoutInfo(
   fabric: Fabric,
-  optionsJson: JSON?,
+  optionsJson: JSON,
   offering: String = "default"
 ) throws -> VideoParams.PlayoutInfo {
-  guard let options = optionsJson else {
-    throw RuntimeError("ResolveMediaPlayoutInfo options is nil")
-  }
 
-  if options["hls-clear"].exists() {
-    let url = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-clear", offering: offering)
-    return VideoParams.PlayoutInfo(hlsPlaylistUrl: url, drmType: "hls-clear")
-  } else if options["hls-aes128"].exists() {
-    let url = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-aes128", offering: offering)
-    return VideoParams.PlayoutInfo(hlsPlaylistUrl: url, drmType: "hls-aes128")
-  } else if options["hls-fairplay"].exists() {
-    let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
-    if licenseServer.isEmpty {
-      throw RuntimeError("Error getting licenseServer")
-    }
-    let url = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-fairplay", offering: offering)
-    return VideoParams.PlayoutInfo(
-      hlsPlaylistUrl: url, drmType: "hls-fairplay", licenseServer: licenseServer)
-  } else if options["hls-sample-aes"].exists() {
-    let url = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-sample-aes", offering: offering)
-    return VideoParams.PlayoutInfo(hlsPlaylistUrl: url, drmType: "hls-sample-aes")
-  }
+  guard
+    let dict = optionsJson.get("hls-clear")
+      ?? optionsJson.get("hls-aes128")
+      ?? optionsJson.get("hls-fairplay")
+      ?? optionsJson.get("hls-sample-aes")
+  else { throw RuntimeError("No available playback options \(optionsJson)") }
 
-  throw RuntimeError("No available playback options \(options)")
+  let url = fabric.getHlsPlaylistFromMediaOptions(uri: dict["uri"].stringValue)
+  let properties = dict["properties"]
+  let drmType = properties["protocol"].stringValue + "-" + properties["drm"].stringValue
+  let licenseServer = properties["license_servers"][0].stringValue
+  return VideoParams.PlayoutInfo(
+    hlsPlaylistUrl: url,
+    drmType: drmType,
+    licenseServer: licenseServer
+  )
 }
 
 func MakePlayerItemFromPlayoutInfo(
@@ -207,7 +192,7 @@ func MakePlayerItemFromPlayoutInfo(
 
 func MakePlayerItemFromMediaOptionsJson(
   fabric: Fabric,
-  optionsJson: JSON?,
+  optionsJson: JSON,
   offering: String = "default",
   title: String = "",
   description: String = "",
@@ -222,37 +207,33 @@ func MakePlayerItemFromMediaOptionsJson(
 
 func GetUrlFromMediaOptionsJson(
   fabric: Fabric,
-  optionsJson: JSON?,
+  optionsJson: JSON,
   offering: String = "default"
 ) async throws -> String {
   var hlsPlaylistUrl = ""
 
-  guard let options = optionsJson else {
-    throw RuntimeError("GetUrlFromMediaOptionsJson options is nil")
-  }
-
-  if options["hls-clear"].exists() {
-    hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-clear", offering: offering)
-  } else if options["hls-aes128"].exists() {
-    hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-aes128", offering: offering)
-  } else if options["hls-fairplay"].exists() {
-    let licenseServer = options["hls-fairplay"]["properties"]["license_servers"][0].stringValue
+  if let options = optionsJson.get("hls-clear") {
+    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
+      uri: options["uri"].stringValue)
+  } else if let options = optionsJson.get("hls-aes128") {
+    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
+      uri: options["uri"].stringValue)
+  } else if let options = optionsJson.get("hls-fairplay") {
+    let licenseServer = options["properties"]["license_servers"][0].stringValue
     if licenseServer.isEmpty {
       throw RuntimeError("Error getting licenseServer")
     }
-    hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-fairplay", offering: offering)
+    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
+      uri: options["uri"].stringValue)
     let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
     ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
     ContentKeyManager.shared.contentKeyDelegate.setDRM(
       licenseServer: licenseServer, authToken: fabric.fabricToken)
-  } else if options["hls-sample-aes"].exists() {
-    hlsPlaylistUrl = try fabric.getHlsPlaylistFromMediaOptions(
-      optionsJson: optionsJson, drm: "hls-sample-aes", offering: offering)
+  } else if let options = optionsJson.get("hls-sample-aes") {
+    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
+      uri: options["uri"].stringValue)
   } else {
-    throw RuntimeError("No available playback options \(options)")
+    throw RuntimeError("No available playback options \(optionsJson)")
   }
 
   return hlsPlaylistUrl
@@ -274,4 +255,12 @@ func AVMetaArtwork(value: Any) -> AVMetadataItem {
   item.value = value as? NSCopying & NSObjectProtocol
   item.extendedLanguageTag = "und"
   return item.copy() as! AVMetadataItem
+}
+
+extension JSON {
+  /// Convenience to get a value only if it exists
+  func get(_ key: String) -> JSON? {
+    let value = self[key]
+    return value.exists() ? value : nil
+  }
 }

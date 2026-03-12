@@ -65,7 +65,7 @@ class Fabric: ObservableObject {
 
   var profile = Profile()
 
-  var debugNode = "https://host-76-74-91-2.contentfabric.io"
+  var debugNode = "https://host-76-74-91-2.contentfabric.io/"
   var isDebugNode = false
 
   func getEndpoint() -> String {
@@ -547,34 +547,8 @@ class Fabric: ObservableObject {
   }
 
   /// New API for media item playout. optionsJson is from the media api, not from fabric options
-  func getHlsPlaylistFromMediaOptions(
-    optionsJson: JSON?, drm: String = "hls-clear", offering _: String = "default"
-  ) throws -> String {
-    guard let link = optionsJson else {
-      throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
-    }
-
-    debugPrint("getHlsPlaylistFromMediaOptions ", optionsJson ?? "nil")
-    debugPrint("drm ", drm)
-
-    let uri = link[drm]["uri"].stringValue
-    debugPrint("uri ", drm)
-
-    guard let url = URL(string: getEndpoint()) else {
-      throw FabricError.badInput(
-        "getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
-    }
-
-    var newUrl = "\(url.absoluteString)/\(uri)"
-    if newUrl.contains("?") {
-      newUrl = newUrl + "&authorization=\(fabricToken)"
-    } else {
-      newUrl = newUrl + "?authorization=\(fabricToken)"
-    }
-
-    // print("HLS URL: ", newUrl)
-
-    return newUrl
+  func getHlsPlaylistFromMediaOptions(uri: String)  -> String {
+    addTokenQuery("\(getEndpoint())\(uri)")
   }
 
   // Deprectated: Doesn't work with Live
@@ -770,39 +744,35 @@ class Fabric: ObservableObject {
   }
 
   func getHlsPlaylistFromOptions(
-    optionsJson: JSON?, hash: String, drm: String = "hls-clear", offering: String = "default"
+    uri: String, hash: String, offering: String = "default"
   ) throws -> String {
-    guard let link = optionsJson else {
-      throw FabricError.badInput("getHlsPlaylistFromOptions: optionsJson is nil")
-    }
-
-    let uri = link[drm]["uri"].stringValue
-
-    guard let url = URL(string: getEndpoint()) else {
-      throw FabricError.badInput(
-        "getHlsPlaylistFromOptions: Could not get parse endpoint. Link: \(link)")
-    }
-
+    let url = getEndpoint()
     var newUrl: String
     if uri.hasPrefix("q/") {
       // URI already contains the full path
-      newUrl = "\(url.absoluteString)/\(uri)"
+      newUrl = "\(url)\(uri)"
     } else {
       if hash.isEmpty {
         throw FabricError.badInput(
           "getHlsPlaylistFromOptions: hash is empty and required for relative URI")
       }
-      newUrl = "\(url.absoluteString)/q/\(hash)/rep/playout/\(offering)/\(uri)"
+      newUrl = "\(url)q/\(hash)/rep/playout/\(offering)/\(uri)"
     }
-    if newUrl.contains("?") {
-      newUrl = newUrl + "&authorization=\(fabricToken)"
-    } else {
-      newUrl = newUrl + "?authorization=\(fabricToken)"
-    }
+    newUrl = addTokenQuery(newUrl)
 
     // print("HLS URL: ", newUrl)
 
     return newUrl
+  }
+
+  private func addTokenQuery(_ url: String) -> String {
+    if url.contains("authorization=") {
+      url
+    } else if url.contains("?") {
+      url + "&authorization=\(fabricToken)"
+    } else {
+      url + "?authorization=\(fabricToken)"
+    }
   }
 
   // ELV-CLIENT API
