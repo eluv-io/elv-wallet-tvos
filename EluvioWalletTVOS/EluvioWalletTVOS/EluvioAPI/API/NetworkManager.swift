@@ -215,6 +215,7 @@ func refreshToken(refreshToken: String, nonce: String, fabricToken: String) asyn
 
               if fabricToken.isEmpty || refreshToken.isEmpty || expiresAt == 0 {
                 continuation.resume(throwing: FabricError.badInput(respJSON["error"].stringValue))
+                return
               }
               guard let account = AccountStore.shared.account else {
                 continuation.resume(
