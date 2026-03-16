@@ -9,11 +9,19 @@ class FabricConfigStore {
   var config: FabricConfiguration
 
   var apiBaseUrl: String {
-    config.getAuthServices()[0].ensuringSuffix("/")
+    config.getAuthServices().first?.ensuringSuffix("/") ?? ""
   }
 
   var fabricBaseUrl: String {
-    config.getFabricAPI()[0].ensuringSuffix("/") + "s/" + config.qspace.names[0] + "/"
+    guard let base = config.getFabricAPI().first?.ensuringSuffix("/") else {
+      debugPrint("WARNING: Failed to get fabric base URL from Config")
+      return ""
+    }
+    guard let qspace = config.qspace.names.first else {
+      debugPrint("WARNING: Failed to get qspace name from Config")
+      return ""
+    }
+    return base + "s/" + qspace + "/"
   }
 
   var walletUrl: String {
