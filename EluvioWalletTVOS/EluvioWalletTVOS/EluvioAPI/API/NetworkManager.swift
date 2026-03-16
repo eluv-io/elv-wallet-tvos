@@ -226,7 +226,8 @@ func refreshToken(refreshToken: String, nonce: String, fabricToken: String) asyn
               account.fabricToken = fabricToken
               account.refreshToken = refreshToken
               account.expiresAt = expiresAt
-
+              // Re-assign to trigger @Observable change tracking
+              AccountStore.shared.account = account
               continuation.resume()
             }
 
