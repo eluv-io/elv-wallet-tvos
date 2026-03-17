@@ -68,37 +68,12 @@ class Fabric: ObservableObject {
   var debugNode = "https://host-76-74-91-2.contentfabric.io/"
   var isDebugNode = false
 
-  func getEndpoint() -> String {
+  func getFabricEndpoint() -> String {
     if isDebugNode {
       return debugNode
     }
 
     return FabricConfigStore.shared.fabricBaseUrl
-  }
-
-  func getOptionsFromHash(versionHash: String) async throws -> JSON {
-    let path = "/as/mw/playout_options/" + versionHash
-
-    guard let url = URL(string: FabricConfigStore.shared.apiBaseUrl) else {
-      throw FabricError.configError("getOptionsFromHash: could not get endpoint")
-    }
-    var components = URLComponents()
-    components.scheme = url.scheme
-    components.host = url.host
-    components.path = path
-
-    var queryItems: [URLQueryItem] = []
-    if getEnvironment() == .staging {
-      queryItems.append(URLQueryItem(name: "env", value: "staging"))
-    }
-    components.queryItems = queryItems.isEmpty ? nil : queryItems
-
-    guard let newUrl = components.url else {
-      throw FabricError.invalidURL(
-        "getOptionsFromHash: could not create url from components. \(components)")
-    }
-
-    return try await getJsonRequest(url: newUrl.absoluteString)
   }
 
   func parseNfts(_ nfts: [JSON], propertyId: String) async throws -> [NFTModel] {
@@ -302,12 +277,7 @@ class Fabric: ObservableObject {
   }
 
   func getStateStoreUrl() -> String? {
-    if let urls = APP_CONFIG.network[network]?.state_store_urls {
-      if urls.count > 0 {
-        return urls[0]
-      }
-    }
-    return nil
+    APP_CONFIG.network[network]?.state_store_urls.first
   }
 
   func redeemFulfillment(transactionHash: String) async throws -> JSON {
@@ -320,7 +290,7 @@ class Fabric: ObservableObject {
       let url = stateUrl.appending("/code-fulfillment/").appending(
         network == "main" ? "main" : "demov3"
       ).appending("/fulfill/").appending(transactionHash)
-      return try await getJsonRequest(url: url)
+      return try await httpJsonRequest(url: url)
     }
     return JSON()
   }
@@ -516,39 +486,20 @@ class Fabric: ObservableObject {
     }
   }
 
+  func getOptionsFromHash(versionHash: String) async throws -> JSON {
+    let path = "mw/playout_options/" + versionHash
+    return try await NetworkManager.shared.request(path)
+  }
+
   /// New API for media item playout
   func getMediaPlayoutOptions(propertyId: String, mediaId: String) async throws -> JSON {
-    let path =
-      "/as/mw/properties/" + propertyId + "/media_items/" + mediaId
-      + "/offerings/any/playout_options"
-
-    guard let url = URL(string: FabricConfigStore.shared.apiBaseUrl) else {
-      throw FabricError.configError("getPlayoutFromMediaId: could not get fabric endpoint")
-    }
-    var components = URLComponents()
-    components.scheme = url.scheme
-    components.host = url.host
-    components.path = path
-
-    var queryItems: [URLQueryItem] = []
-    if getEnvironment() == .staging {
-      queryItems.append(URLQueryItem(name: "env", value: "staging"))
-    }
-    components.queryItems = queryItems
-
-    guard let newUrl = components.url else {
-      throw FabricError.invalidURL(
-        "getPlayoutFromMediaId: could not create url from components. \(components)")
-    }
-
-    // print("GET ",newUrl)
-
-    return try await getJsonRequest(url: newUrl.absoluteString)
+    return try await NetworkManager.shared.request(
+      "mw/properties/\(propertyId)/media_items/\(mediaId)/offerings/any/playout_options")
   }
 
   /// New API for media item playout. optionsJson is from the media api, not from fabric options
-  func getHlsPlaylistFromMediaOptions(uri: String)  -> String {
-    addTokenQuery("\(getEndpoint())\(uri)")
+  func getHlsPlaylistFromMediaOptions(uri: String) -> String {
+    addTokenQuery("\(getFabricEndpoint())\(uri)")
   }
 
   // Deprectated: Doesn't work with Live
@@ -574,7 +525,7 @@ class Fabric: ObservableObject {
       throw RuntimeError("Could not find hash from \(optionsUrl)")
     }
 
-    let optionsJson = try await getJsonRequest(url: optionsUrl)
+    let optionsJson = try await httpJsonRequest(url: optionsUrl)
     // print("options json \(optionsJson)")
 
     return (optionsJson, versionsHash)
@@ -679,74 +630,14 @@ class Fabric: ObservableObject {
     return newUrl.standardized.absoluteString
   }
 
-  /// Convenience for early code
-  private func getJsonRequest(
-    url: String, accessToken: String? = nil, parameters: [String: String] = [:],
-    noAuth: Bool = false
-  ) async throws -> JSON {
-    return try await httpJsonRequest(
-      url: url, method: .get, accessToken: accessToken, parameters: parameters, noAuth: noAuth)
-  }
-
-  private func httpJsonRequest(
-    url: String, method: HTTPMethod, accessToken: String? = nil, parameters: [String: String] = [:],
-    noAuth: Bool = false, body: String = ""
-  ) async throws -> JSON {
-    return try await withCheckedThrowingContinuation { continuation in
-      var token = accessToken ?? ""
-
-      if token.isEmpty, noAuth == false {
-        token = self.fabricToken
-      }
-
-      var headers: HTTPHeaders = [
-        "Accept": "application/json"
-      ]
-
-      if !token.isEmpty {
-        headers["Authorization"] = "Bearer \(token)"
-      }
-
-      debugPrint("GET ", url)
-      debugPrint("HEADERS ", headers)
-
-      var components = URLComponents(string: url)!
-      var existingItems = components.queryItems ?? []
-      existingItems.append(
-        contentsOf: parameters.map { key, value in
-          URLQueryItem(name: key, value: value)
-        })
-      components.queryItems = existingItems.isEmpty ? nil : existingItems
-      components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(
-        of: "+", with: "%2B")
-      var request = URLRequest(url: components.url!)
-
-      request.httpMethod = method.rawValue
-      request.headers = headers
-      if !body.isEmpty {
-        request.httpBody = body.data(using: .utf8)
-      }
-
-      AF.request(request)
-        .debugLog()
-        .responseJSON { response in
-          debugPrint("getJsonRequest response:\n")
-          switch response.result {
-          case .success:
-            let value = JSON(response.value!)
-            continuation.resume(returning: value)
-          case .failure(let error):
-            print("Get JSON Request error: \(error.localizedDescription)")
-            continuation.resume(throwing: error)
-          }
-        }
-    }
+  private func httpJsonRequest(url: String) async throws -> JSON {
+    return try await NetworkManager.shared.requestUrl(url: url)
   }
 
   func getHlsPlaylistFromOptions(
     uri: String, hash: String, offering: String = "default"
   ) throws -> String {
-    let url = getEndpoint()
+    let url = getFabricEndpoint()
     var newUrl: String
     if uri.hasPrefix("q/") {
       // URI already contains the full path
@@ -779,10 +670,7 @@ class Fabric: ObservableObject {
 
   /// id is objectId or versionHash
   func contentObjectMetadata(id: String, metadataSubtree: String? = "") async throws -> JSON {
-    let url: String = try getEndpoint().appending("/s/\(network)/").appending("/q/").appending(
-      "\(id)"
-    ).appending("/meta/\(metadataSubtree!)").appending("?\(Fabric.CommonFabricParams)")
-
-    return try await getJsonRequest(url: url)
+    let url = "\(getFabricEndpoint())q/\(id)/meta/\(metadataSubtree!)?\(Fabric.CommonFabricParams)"
+    return try await httpJsonRequest(url: url)
   }
 }

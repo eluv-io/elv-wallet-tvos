@@ -128,14 +128,14 @@ struct ProfileView: View {
     }
     .onChange(of: isDebugNode) { _, val in
       eluvio.setIsDebugNode(debugNode: val)
-      self.network = eluvio.fabric.getEndpoint()
+      self.network = eluvio.fabric.getFabricEndpoint()
     }
     .onAppear {
       let account = AccountStore.shared.account
       self.address = account?.getAccountAddress() ?? ""
       self.userId = account?.getAccountId() ?? ""
 
-      self.node = eluvio.fabric.getEndpoint()
+      self.node = eluvio.fabric.getFabricEndpoint()
       self.asNode = FabricConfigStore.shared.apiBaseUrl
       self.ethNode = FabricConfigStore.shared.config.getEthereumAPI()[0]
 
