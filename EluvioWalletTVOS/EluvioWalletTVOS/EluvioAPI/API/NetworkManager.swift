@@ -76,7 +76,7 @@ class NetworkManager {
       return
     }
     try? await EluvioWalletTVOS.refreshToken(
-      refreshToken: refreshToken, nonce: EluvioAPI.NONCE,
+      refreshToken: refreshToken,
       fabricToken: account.fabricToken)
   }
 }
@@ -136,12 +136,12 @@ class AuthInterceptor: RequestInterceptor {
     Task {
       do {
         guard let account = accountStore.account, let refToken = account.refreshToken else {
-          // Not logged in, or not refresh token available
+          // Not logged in, or no refresh token available
           completion(.doNotRetry)
           return
         }
         try await refreshToken(
-          refreshToken: refToken, nonce: EluvioAPI.NONCE,
+          refreshToken: refToken,
           fabricToken: account.fabricToken)
         lock.withLock {
           isRefreshing = false
@@ -159,93 +159,53 @@ class AuthInterceptor: RequestInterceptor {
   }
 }
 
-func refreshToken(refreshToken: String, nonce: String, fabricToken: String) async throws {
-  return try await withCheckedThrowingContinuation { continuation in
-    debugPrint("****** refreshFabricToken ******")
-    do {
-      var endpoint = FabricConfigStore.shared.apiBaseUrl.appending("/wlt/refresh/csat")
-      let environment = NetworkStore.shared.environment
-      if environment != .prod {
-        endpoint = endpoint.appending("?env=\(environment)")
-      }
-
-      let headers: HTTPHeaders = [
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      ]
-
-      let body: JSON = [
-        "refresh_token": refreshToken,
-        "nonce": nonce,
-        "last_csat": fabricToken,
-        // Only for debugging short-lived tokens
-        "exp": MockData.testShortTokens ? 90 : JSON.null,
-      ]
-
-      var request = URLRequest(url: URL(string: endpoint)!)
-      request.httpMethod = "POST"
-      request.headers = headers
-      do {
-        request.httpBody = try body.rawData()
-      } catch {
-        print("Could not serialize body", error)
-      }
-
-      AF.request(request)
-        .debugLog()
-        .responseString { response in
-          var respJSON = JSON()
-          do {
-            respJSON = try JSON(data: response.data ?? Data())
-          } catch {}
-
-          debugPrint("refresh response: ", respJSON)
-
-          switch response.result {
-          case .success(let result):
-            if respJSON["errors"].exists() {
-              continuation.resume(
-                throwing: FabricError.apiError(
-                  code: response.response?.statusCode ?? 0,
-                  response: respJSON, error: FabricError.unexpectedResponse("")))
-            } else {
-
-              let fabricToken = respJSON["token"].stringValue
-              let refreshToken = respJSON["refresh_token"].stringValue
-              let expiresAt = respJSON["expires_at"].int64Value
-
-              if fabricToken.isEmpty || refreshToken.isEmpty || expiresAt == 0 {
-                continuation.resume(throwing: FabricError.badInput(respJSON["error"].stringValue))
-                return
-              }
-              guard let account = AccountStore.shared.account else {
-                continuation.resume(
-                  throwing: FabricError.noLogin(
-                    "Tried refreshing token while no account is available"))
-                return
-              }
-              account.fabricToken = fabricToken
-              account.refreshToken = refreshToken
-              account.expiresAt = expiresAt
-              // Re-assign to trigger @Observable change tracking
-              AccountStore.shared.account = account
-              continuation.resume()
-            }
-
-          case .failure(let error):
-            var respJSON = JSON()
-            do {
-              respJSON = try JSON(data: response.data ?? Data())
-            } catch {}
-            continuation.resume(
-              throwing: FabricError.apiError(
-                code:
-                  response.response?.statusCode ?? 0,
-                response: respJSON, error: error))
-          }
-        }
-    } catch {
-      continuation.resume(throwing: error)
-    }
+private func refreshToken(refreshToken: String, fabricToken: String) async throws {
+  debugPrint("****** refreshFabricToken ******")
+  var endpoint = FabricConfigStore.shared.apiBaseUrl.appending("wlt/refresh/csat")
+  let environment = NetworkStore.shared.environment
+  if environment != .prod {
+    endpoint = endpoint.appending("?env=\(environment)")
   }
+
+  let headers: HTTPHeaders = [
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+  ]
+
+  let body: JSON = [
+    "refresh_token": refreshToken,
+    "nonce": EluvioAPI.NONCE,
+    "last_csat": fabricToken,
+    // Only for debugging short-lived tokens
+    "exp": MockData.testShortTokens ? 90 : JSON.null,
+  ]
+
+  var request = URLRequest(url: URL(string: endpoint)!)
+  request.httpMethod = "POST"
+  request.headers = headers
+  do {
+    request.httpBody = try body.rawData()
+  } catch {
+    print("Could not serialize body", error)
+  }
+  let response = try await AF.request(request)
+    .debugLog()
+    .serializingDecodable(JSON.self)
+    .value
+
+  let fabricToken = response["token"].stringValue
+  let refreshToken = response["refresh_token"].stringValue
+  let expiresAt = response["expires_at"].int64Value
+
+  if fabricToken.isEmpty || refreshToken.isEmpty || expiresAt == 0 {
+    throw FabricError.badInput(response["error"].stringValue)
+  }
+  guard let account = AccountStore.shared.account else {
+    throw FabricError.noLogin("Tried refreshing token while no account is available")
+  }
+  account.fabricToken = fabricToken
+  account.refreshToken = refreshToken
+  account.expiresAt = expiresAt
+  // Re-assign to trigger @Observable change tracking
+  AccountStore.shared.account = account
 }
