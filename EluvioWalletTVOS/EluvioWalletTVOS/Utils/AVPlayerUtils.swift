@@ -51,17 +51,12 @@ extension AVPlayer {
 func MakePlayerItemFromVersionHash(
   fabric: Fabric,
   versionHash: String,
-  params: [JSON]? = [],
-  offering: String = "default",
-  title: String = "",
-  description: String = "",
-  imageThumb: String = ""
 ) async throws -> AVPlayerItem {
   debugPrint("MakePlayerItemFromVersionHash ", versionHash)
   let options = try await fabric.getOptionsFromHash(versionHash: versionHash)
   debugPrint("getOptionsFromHash ", options)
   return try await MakePlayerItemFromOptionsJson(
-    fabric: fabric, optionsJson: options, versionHash: versionHash, offering: offering)
+    fabric: fabric, optionsJson: options, versionHash: versionHash)
 }
 
 func MakePlayerItemFromLink(
@@ -69,17 +64,16 @@ func MakePlayerItemFromLink(
   link: JSON?,
   params: [JSON]? = [],
   offering: String = "default",
-  // hash: String = "",
-  title _: String = "",
-  description _: String = "",
-  imageThumb _: String = ""
+  title: String = "",
+  description: String = "",
+  imageThumb: String = ""
 ) async throws -> AVPlayerItem {
   debugPrint("MakePlayerItemFromLink ", link)
   let options = try await fabric.getOptionsFromLink(link: link, params: params, offering: offering)
   debugPrint("getOptionsFromLink ", options)
   return try await MakePlayerItemFromOptionsJson(
     fabric: fabric, optionsJson: options.optionsJson, versionHash: options.versionHash,
-    offering: offering)
+    offering: offering, title: title, description: description, imageThumb: imageThumb)
 }
 
 func MakePlayerItemFromOptionsJson(
@@ -141,25 +135,37 @@ func MakePlayerItemFromOptionsJson(
   }
 
   if let player = playerItem {
-    await MainActor.run {
-      player.externalMetadata.append(AVMeta(title, key: .commonKeyTitle))
-      player.externalMetadata.append(AVMeta(description, key: .commonKeyDescription))
-    }
-
-    do {
-      if let url = URL(string: imageThumb) {
-        let (data, _) = try await URLSession.shared.data(from: url)
-        let image = AVMetaArtwork(value: data as NSData)
-        player.externalMetadata.append(image)
-      }
-    } catch {
-      print("Error getting player info thumbnail ", error)
-    }
-
+    await updateMetadata(
+      playerItem: player, title: title, description: description, imageThumb: imageThumb)
     return player
   }
 
   throw RuntimeError("Error creating playerItem")
+}
+
+private func updateMetadata(
+  playerItem: AVPlayerItem, title: String, description: String, imageThumb: String
+) async {
+  await MainActor.run {
+    playerItem.externalMetadata.append(AVMeta(title, key: .commonKeyTitle))
+    playerItem.externalMetadata.append(AVMeta(description, key: .commonKeyDescription))
+  }
+
+  do {
+    if let url = URL(string: imageThumb)?
+      .replaceFabricUrlPlaceholder()?
+      // Limit height for thumbnail
+      .replacingQueryParam("height", "600")
+    {
+      let (data, _) = try await URLSession.shared.data(from: url)
+      let image = AVMetaArtwork(value: data as NSData)
+      await MainActor.run {
+        playerItem.externalMetadata.append(image)
+      }
+    }
+  } catch {
+    print("Error getting player info thumbnail ", error)
+  }
 }
 
 func ResolveMediaPlayoutInfo(
@@ -202,28 +208,12 @@ func MakePlayerItemFromPlayoutInfo(
   }
 
   let playerItem = AVPlayerItem(asset: urlAsset)
-
-  await MainActor.run {
-    playerItem.externalMetadata.append(AVMeta(title, key: .commonKeyTitle))
-    playerItem.externalMetadata.append(AVMeta(description, key: .commonKeyDescription))
-  }
-
-  do {
-    if let url = URL(string: imageThumb)?
-      .replaceFabricUrlPlaceholder()?
-      // Limit height for thumbnail
-      .replacingQueryParam("height", "600")
-    {
-      let (data, _) = try await URLSession.shared.data(from: url)
-      let image = AVMetaArtwork(value: data as NSData)
-      await MainActor.run {
-        playerItem.externalMetadata.append(image)
-      }
-    }
-  } catch {
-    print("Error getting player info thumbnail ", error)
-  }
-
+  await updateMetadata(
+    playerItem: playerItem,
+    title: title,
+    description: description,
+    imageThumb: imageThumb
+  )
   return playerItem
 }
 
