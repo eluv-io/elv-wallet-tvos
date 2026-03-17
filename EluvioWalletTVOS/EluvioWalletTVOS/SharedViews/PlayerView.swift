@@ -91,6 +91,13 @@ struct PlayerView: View {
           .ignoresSafeArea()
       }
     }
+    .proactiveTokenRefresh()
+    .onChange(of: AccountStore.shared.bestToken) { _, _ in
+      let activePlayer = useMultiview ? (multiviewModel.player ?? player) : player
+      Task {
+        await activePlayer.refreshCurrentItemAuth()
+      }
+    }
     .onReceive(finishedObserver.publisher) {
       print("Finished!")
       self.finished.wrappedValue = true
@@ -177,17 +184,8 @@ struct PlayerView: View {
         var sessionId = ""
         var offering = ""
 
-        if let account = AccountStore.shared.account {
-          // If our token expires in 4 hours we refresh
-          if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
-            try await eluvio.refreshFabricToken()
-          }
-
-          let address = account.getAccountAddress()
-          debugPrint("Address ", address)
-
-          // FIXME: Can't find viewer_user_id to store userId
-          userId = Hash(account.getAccountAddress())
+        if let address = AccountStore.shared.account?.getAccountAddress() {
+          userId = Hash(address)
           debugPrint("UserID: ", userId)
         }
 
@@ -278,15 +276,6 @@ struct PlayerView: View {
               player.currentItem?.duration.seconds ?? 0.0)
           }
 
-          if let account = AccountStore.shared.account {
-            Task {
-              // If our token expires in 4 hours we refresh
-              if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
-                try await eluvio.refreshFabricToken()
-              }
-            }
-          }
-
           if player.status == .readyToPlay {
             if !audioLoaded {
               if let group = player.currentItem?.asset.mediaSelectionGroup(
@@ -338,7 +327,7 @@ struct PlayerView: View {
       if useMultiview {
         multiviewModel.player?.pause()
         Task {
-          try? await Task.sleep(nanoseconds: 1_500_000_000)
+          try? await Task.sleep(for: .seconds(1.5))
           multiviewModel.clear()
         }
       } else {
@@ -437,7 +426,7 @@ struct PlayerView2: View {
       seekMS(Double(seekTimeMS))
     }
     .onChange(of: playPause) {
-      if playPause == true {
+      if playPause {
         player.play()
       } else {
         player.pause()
@@ -450,45 +439,42 @@ struct PlayerView2: View {
     }
     .onAppear {
       debugPrint("PlayerView2 onAppear ", playoutUrl)
-      if let url = self.playoutUrl {
-        let urlAsset = AVURLAsset(url: url)
-        self.playerItem = AVPlayerItem(asset: urlAsset)
-        self.player.replaceCurrentItem(with: playerItem)
-        self.finished = false
-        // self.player.seek(to: CMTime(seconds:240, preferredTimescale: 1))
-        self.player.play()
-        self.finishedObserver = PlayerFinishedObserver(player: player)
-        debugPrint("PlayerView onAppear finsihed.")
+      guard let url = self.playoutUrl else { return }
+      let urlAsset = AVURLAsset(url: url)
+      self.playerItem = AVPlayerItem(asset: urlAsset)
+      self.player.replaceCurrentItem(with: playerItem)
+      self.finished = false
+      // self.player.seek(to: CMTime(seconds:240, preferredTimescale: 1))
+      self.player.play()
+      self.finishedObserver = PlayerFinishedObserver(player: player)
+      debugPrint("PlayerView onAppear finsihed.")
 
-        player.addProgressObserver(intervalSeconds: 0.1) { _ in
-          // debugPrint("Player progress: ", progress)
-          // debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
-          // debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
+      player.addProgressObserver(intervalSeconds: 0.1) { _ in
+        // debugPrint("Player progress: ", progress)
+        // debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
+        // debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
 
-          let currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
+        let currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
 
-          if currentTimeS == -1.0 {
-            return
-          }
+        if currentTimeS == -1.0 {
+          return
+        }
 
-          if currentTimeS.isNormal {
-            currentTimeMS = Int64(currentTimeS * 1000)
-          }
-          let duration = player.currentItem?.duration.seconds ?? 0.0
-          if duration.isNormal {
-            self.durationMS = Int64(duration * 1000)
-          }
+        if currentTimeS.isNormal {
+          currentTimeMS = Int64(currentTimeS * 1000)
+        }
+        let duration = player.currentItem?.duration.seconds ?? 0.0
+        if duration.isNormal {
+          self.durationMS = Int64(duration * 1000)
+        }
 
-          if player.timeControlStatus == .playing && !playPause {
-            playPause = true
-          }
+        if player.timeControlStatus == .playing && !playPause {
+          playPause = true
         }
       }
     }
     .onDisappear {
-      if let playerItem = self.player.currentItem {
-        self.player.pause()
-      }
+      player.pause()
     }
   }
 

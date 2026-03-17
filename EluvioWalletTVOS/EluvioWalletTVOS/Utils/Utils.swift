@@ -28,6 +28,21 @@ extension SHA256Digest {
 }
 
 extension URL {
+  /// Returns a new URL with the given query parameter replaced (or added).
+  func replacingQueryParam(_ name: String, _ value: String) -> URL? {
+    guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
+      return nil
+    }
+    var queryItems = components.queryItems ?? []
+    if let index = queryItems.firstIndex(where: { $0.name == name }) {
+      queryItems[index] = URLQueryItem(name: name, value: value)
+    } else {
+      queryItems.append(URLQueryItem(name: name, value: value))
+    }
+    components.queryItems = queryItems
+    return components.url
+  }
+
   public var queryParameters: [String: String]? {
     guard
       let components = URLComponents(url: self, resolvingAgainstBaseURL: true),
@@ -36,6 +51,17 @@ extension URL {
     return queryItems.reduce(into: [String: String]()) { result, item in
       result[item.name] = item.value
     }
+  }
+
+  func replaceFabricUrlPlaceholder() -> URL? {
+    guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false),
+      components.url?.absoluteString.contains(ImageLink.fabricUrlPlaceholder) == true
+    else { return self }
+    components.scheme = nil
+    components.host = nil
+    let base = FabricConfigStore.shared.fabricBaseUrl
+    let rest = components.url!.absoluteString.trimmingPrefix("/")
+    return URL(string: base + rest) ?? self
   }
 }
 

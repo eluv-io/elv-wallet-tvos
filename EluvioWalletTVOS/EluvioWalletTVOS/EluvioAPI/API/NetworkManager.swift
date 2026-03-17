@@ -178,7 +178,8 @@ func refreshToken(refreshToken: String, nonce: String, fabricToken: String) asyn
         "refresh_token": refreshToken,
         "nonce": nonce,
         "last_csat": fabricToken,
-          // "exp": 30,  // Only for debugging short-lived tokens
+        // Only for debugging short-lived tokens
+        "exp": MockData.testShortTokens ? 90 : JSON.null,
       ]
 
       var request = URLRequest(url: URL(string: endpoint)!)

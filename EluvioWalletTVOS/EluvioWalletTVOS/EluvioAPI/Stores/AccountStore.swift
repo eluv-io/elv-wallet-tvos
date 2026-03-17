@@ -9,6 +9,9 @@ class AccountStore {
 
   var account: Account? {
     didSet {
+      debugPrint(
+        "Account updated: addr=\(account?.id ?? "<nil>") token=\(account?.fabricToken.prefix(30).appending("...") ?? "<nil>")"
+      )
       saveAccount(account)
     }
   }

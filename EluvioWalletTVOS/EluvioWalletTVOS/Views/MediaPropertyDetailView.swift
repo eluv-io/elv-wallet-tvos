@@ -323,6 +323,9 @@ struct PropertyDetailForResolvedPage: View {
       }
       await PropertyStore.shared.fetchSections(property: property, page: page)
       try await Task.sleep(for: .minutes(1))  // This throws if task is cancelled
+
+      // Side note: this will help keep the token fresh,
+      // so the bg video player doesn't need to worry about proactive token refreshing
     }
     .onAnyChange(of: sections) { _, _ in
       sectionsLoading = sections.isEmpty

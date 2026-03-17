@@ -125,7 +125,6 @@ class VideoPlayerViewModel: ObservableObject {
   var seekTimeS: Double = 0
   var currentTimeS: Double = -1
   private var errorLogObserver: NSObjectProtocol?
-  private var tokenRefreshChecked = false
   var hasSeeked: Bool {
     return currentTimeS > seekTimeS
   }
@@ -151,7 +150,6 @@ class VideoPlayerViewModel: ObservableObject {
     seekTimeS = 0
     currentTimeS = -1
     propertyId = nil
-    tokenRefreshChecked = false
   }
 
   func selectVideo(_ video: MediaPropertySectionMediaItem) {
@@ -177,19 +175,10 @@ class VideoPlayerViewModel: ObservableObject {
         var objectId = ""
         var versionHash = ""
         var videoHostname = ""
-        var userId = ""
+        var userId = AccountStore.shared.account?.getAccountAddress() ?? ""
         var tenantId = ""
         var sessionId = ""
         var offering = ""
-
-        if let account = AccountStore.shared.account {
-          if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
-            try await eluvio.refreshFabricToken()
-          }
-
-          let address = account.getAccountAddress()
-          userId = Hash(address)
-        }
 
         if let asset = playerItem.asset as? AVURLAsset {
           let url = asset.url
@@ -269,23 +258,6 @@ class VideoPlayerViewModel: ObservableObject {
             progress,
             self.player?.currentItem?.currentTime().seconds ?? 0.0,
             self.player?.currentItem?.duration.seconds ?? 0.0)
-        }
-
-        guard let eluvio = self.eluvio else { return }
-
-        // Check token expiry once, then skip on subsequent ticks
-        if !self.tokenRefreshChecked {
-          self.tokenRefreshChecked = true
-          if let account = AccountStore.shared.account {
-            Task {
-              if account.isTokenExpiredIn(seconds: 60 * 60 * 4) {
-                await eluvio.refreshFabricToken()
-              }
-              // Reset after 5 minutes so it checks again
-              try? await Task.sleep(nanoseconds: 5 * 60 * 1_000_000_000)
-              self.tokenRefreshChecked = false
-            }
-          }
         }
 
         if self.player?.status == .readyToPlay {

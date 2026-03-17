@@ -9,6 +9,8 @@ import Foundation
 import SwiftyJSON
 
 enum MockData {
+  static var testShortTokens = false
+
   /// Check if app is running with mock data enabled
   static var isEnabled: Bool {
     ProcessInfo.processInfo.arguments.contains("MOCK_DATA")

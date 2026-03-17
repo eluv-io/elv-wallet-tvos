@@ -7,6 +7,7 @@ extension AVPlayer {
     return addPeriodicTimeObserver(
       forInterval: CMTime(value: Int64(intervalSeconds * 1000), timescale: 1000), queue: .main,
       using: { time in
+        guard self.currentItem?.status == .readyToPlay else { return }
         if let duration = self.currentItem?.duration {
           let duration = CMTimeGetSeconds(duration)
           let time = CMTimeGetSeconds(time)
@@ -14,6 +15,36 @@ extension AVPlayer {
           action(progress)
         }
       })
+  }
+
+  /// Recreates the current player item with a fresh token in the URL query param,
+  /// preserving playback position and metadata.
+  func refreshCurrentItemAuth() async {
+    guard let currentItem = self.currentItem else { return }
+    guard let asset = currentItem.asset as? AVURLAsset else { return }
+
+    let currentTime = currentItem.currentTime()
+    let wasPlaying = (self.rate != 0)
+    let oldExternalMetadata = currentItem.externalMetadata
+
+    guard let newUrl = asset.url.replacingQueryParam("authorization", AccountStore.shared.bestToken)
+    else {
+      debugPrint("[Auth] Failed to update authorization query param")
+      return
+    }
+
+    let newAsset = AVURLAsset(url: newUrl)
+    let newItem = AVPlayerItem(asset: newAsset)
+    newItem.externalMetadata = oldExternalMetadata
+
+    await MainActor.run {
+      self.replaceCurrentItem(with: newItem)
+      self.seek(to: currentTime)
+      if wasPlaying {
+        self.play()
+      }
+      debugPrint("[Auth] Refreshed player item with new token in URL")
+    }
   }
 }
 
@@ -178,10 +209,16 @@ func MakePlayerItemFromPlayoutInfo(
   }
 
   do {
-    if let url = URL(string: imageThumb) {
+    if let url = URL(string: imageThumb)?
+      .replaceFabricUrlPlaceholder()?
+      // Limit height for thumbnail
+      .replacingQueryParam("height", "600")
+    {
       let (data, _) = try await URLSession.shared.data(from: url)
       let image = AVMetaArtwork(value: data as NSData)
-      playerItem.externalMetadata.append(image)
+      await MainActor.run {
+        playerItem.externalMetadata.append(image)
+      }
     }
   } catch {
     print("Error getting player info thumbnail ", error)

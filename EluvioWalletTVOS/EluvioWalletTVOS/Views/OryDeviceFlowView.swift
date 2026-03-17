@@ -111,7 +111,9 @@ struct OryDeviceFlowView: View {
       url += "/login?pid=\(property.id)"
       url += "&action=login&mode=login&response=code&source=code"
       url += "&installId=\(nonce)&origin=\(UIDevice.current.name)"
-      // url += "&ttl=0.008"  // Time in hours, only for debugging short-lived tokens
+      if MockData.testShortTokens {
+        url += "&ttl=0.025"  // Time in hours, only for debugging short-lived tokens
+      }
 
       debugPrint("URL Code: ", url)
 

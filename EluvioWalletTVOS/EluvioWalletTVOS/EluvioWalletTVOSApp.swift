@@ -64,20 +64,9 @@ struct EluvioWalletTVOSApp: App {
           return fakeImageRequest(request)
         }
       #endif
-      var realUrl = request.url
-
-      if var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false),
-        components.url?.absoluteString.contains(ImageLink.fabricUrlPlaceholder) == true
-      {
-        components.scheme = nil
-        components.host = nil
-        let base = FabricConfigStore.shared.fabricBaseUrl
-        let rest = components.url!.absoluteString.trimmingPrefix("/")
-        realUrl = URL(string: base + rest)
-      }
 
       var modified = request
-      modified.url = realUrl
+      modified.url = request.url!.replaceFabricUrlPlaceholder()
       #if DEBUG
         // Extremely verbose, but useful to check images are being requested at correct sizes
         //debugPrint("SDWebImage requesting:", modified.url?.absoluteString ?? "nil")
