@@ -8,7 +8,6 @@
 import AVKit
 import AuthenticationServices
 import CoreImage.CIFilterBuiltins
-import SwiftEventBus
 import SwiftUI
 
 class Subscriber {

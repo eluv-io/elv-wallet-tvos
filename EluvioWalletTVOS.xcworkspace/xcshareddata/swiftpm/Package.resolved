@@ -1,13 +1,13 @@
 {
-  "originHash" : "7d8a74d593a0364cb6e014a8f3033ce9a8818cb82737599596be98d52d87c6aa",
+  "originHash" : "3220b61b6d72f96f4df08ad753c8ce069958b1a097e31bf0e8a0ea37cfcb3a73",
   "pins" : [
     {
       "identity" : "alamofire",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Alamofire/Alamofire.git",
       "state" : {
-        "revision" : "78424be314842833c04bc3bef5b72e85fff99204",
-        "version" : "5.6.4"
+        "revision" : "3f99050e75bbc6fe71fc323adabb039756680016",
+        "version" : "5.11.1"
       }
     },
     {
@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/attaswift/BigInt.git",
       "state" : {
-        "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
-        "version" : "5.3.0"
+        "revision" : "e07e00fa1fd435143a2dcf8b7eec9a7710b2fdfe",
+        "version" : "5.7.0"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/muxinc/mux-stats-sdk-avplayer.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "5eae8626cf974bd3987f6e5afd83598d86855ec0"
+        "revision" : "a8c04056f331218959fff89c9d249d7db6ecc73d",
+        "version" : "4.12.0"
       }
     },
     {
@@ -51,17 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImage.git",
       "state" : {
-        "revision" : "fb50c1d20f24db5322b2f8f379de3618f75fe08e",
-        "version" : "5.15.5"
-      }
-    },
-    {
-      "identity" : "sdwebimagepdfcoder",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SDWebImage/SDWebImagePDFCoder.git",
-      "state" : {
-        "revision" : "2aecb0a16e4d054c7f36a140f7feef6e1ede7bb6",
-        "version" : "1.0.1"
+        "revision" : "e7d3256c497af9330a0df866ee38f544ddd87c49",
+        "version" : "5.20.1"
       }
     },
     {
@@ -69,8 +60,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SDWebImage/SDWebImageSwiftUI.git",
       "state" : {
-        "revision" : "61fefe9c284fd41ddef77d02749e88f00c305196",
-        "version" : "2.2.2"
+        "revision" : "53573d6dd017e354c0e7d8f1c86b77ef1383c996",
+        "version" : "2.2.7"
       }
     },
     {
@@ -78,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/muxinc/stats-sdk-objc.git",
       "state" : {
-        "revision" : "1d2c51af433eadb5f904904554422d7bc476c167",
-        "version" : "5.4.0"
+        "revision" : "aba0b57a2fb75e154848b30ad8ec07283b520b75",
+        "version" : "5.11.0"
       }
     },
     {
@@ -87,17 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/swift-libp2p/swift-varint.git",
       "state" : {
-        "revision" : "1ea4cd2ea5f1c74527600de659f0805d2e12fa6b",
-        "version" : "0.0.2"
-      }
-    },
-    {
-      "identity" : "swifteventbus",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/cesarferreira/SwiftEventBus.git",
-      "state" : {
-        "revision" : "a30ff35e616f507d8a8d122dac32a2150371a87e",
-        "version" : "5.1.0"
+        "revision" : "b62beeea61d5c7c434d7af8a212211a4e7a8f926",
+        "version" : "0.2.0"
       }
     },
     {
@@ -105,17 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftyJSON/SwiftyJSON.git",
       "state" : {
-        "revision" : "b3dcd7dbd0d488e1a7077cb33b00f2083e382f07",
-        "version" : "5.0.1"
-      }
-    },
-    {
-      "identity" : "uuid-shortener",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Dean151/uuid-shortener",
-      "state" : {
-        "branch" : "main",
-        "revision" : "4aa608ca0692b28b94f2110e3b46ebed03c65acd"
+        "revision" : "af76cf3ef710b6ca5f8c05f3a31307d44a3c5828",
+        "version" : "5.0.2"
       }
     }
   ],

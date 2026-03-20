@@ -9,13 +9,12 @@
 /* Begin PBXBuildFile section */
 		B0670F5329D55FBE00676872 /* QGrid in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F5229D55FBE00676872 /* QGrid */; };
 		B0670F6729DC098400676872 /* SwiftyJSON in Frameworks */ = {isa = PBXBuildFile; productRef = B0670F6629DC098400676872 /* SwiftyJSON */; };
-		B069A48C2A5225A4006C9E7B /* UUIDShortener in Frameworks */ = {isa = PBXBuildFile; productRef = B069A48B2A5225A4006C9E7B /* UUIDShortener */; };
 		B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */; };
 		B0D839572DDBE88300CDC7BB /* MUXSDKStats in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839562DDBE88300CDC7BB /* MUXSDKStats */; };
 		B0D8395A2DDE4CDC00CDC7BB /* VarInt in Frameworks */ = {isa = PBXBuildFile; productRef = B0D839592DDE4CDC00CDC7BB /* VarInt */; };
 		B0E60F9529CD84420079661E /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = B0E60F9429CD84420079661E /* Alamofire */; };
-		B0E60F9829CD84900079661E /* SwiftEventBus in Frameworks */ = {isa = PBXBuildFile; productRef = B0E60F9729CD84900079661E /* SwiftEventBus */; };
 		B0E60F9B29CD84AF0079661E /* Base58Swift in Frameworks */ = {isa = PBXBuildFile; productRef = B0E60F9A29CD84AF0079661E /* Base58Swift */; };
+		FA2E85AC2F6E0FE400EC2DAD /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E85AB2F6E0FE400EC2DAD /* SDWebImage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,13 +125,12 @@
 			files = (
 				B0670F5329D55FBE00676872 /* QGrid in Frameworks */,
 				B0E60F9B29CD84AF0079661E /* Base58Swift in Frameworks */,
+				FA2E85AC2F6E0FE400EC2DAD /* SDWebImage in Frameworks */,
 				B0D8395A2DDE4CDC00CDC7BB /* VarInt in Frameworks */,
 				B0D839572DDBE88300CDC7BB /* MUXSDKStats in Frameworks */,
 				B0E60F9529CD84420079661E /* Alamofire in Frameworks */,
 				B0CD050429EBB06400511E7F /* SDWebImageSwiftUI in Frameworks */,
 				B0670F6729DC098400676872 /* SwiftyJSON in Frameworks */,
-				B069A48C2A5225A4006C9E7B /* UUIDShortener in Frameworks */,
-				B0E60F9829CD84900079661E /* SwiftEventBus in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,14 +311,13 @@
 			name = EluvioWalletTVOS;
 			packageProductDependencies = (
 				B0E60F9429CD84420079661E /* Alamofire */,
-				B0E60F9729CD84900079661E /* SwiftEventBus */,
 				B0E60F9A29CD84AF0079661E /* Base58Swift */,
 				B0670F5229D55FBE00676872 /* QGrid */,
 				B0670F6629DC098400676872 /* SwiftyJSON */,
 				B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */,
-				B069A48B2A5225A4006C9E7B /* UUIDShortener */,
 				B0D839562DDBE88300CDC7BB /* MUXSDKStats */,
 				B0D839592DDE4CDC00CDC7BB /* VarInt */,
+				FA2E85AB2F6E0FE400EC2DAD /* SDWebImage */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -379,15 +376,13 @@
 			mainGroup = B0E60F6329CC23510079661E;
 			packageReferences = (
 				B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */,
-				B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */,
 				B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */,
 				B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */,
 				B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */,
 				B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
-				B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */,
-				B0F9DC3A2B578D9800499C93 /* XCRemoteSwiftPackageReference "SDWebImagePDFCoder" */,
 				B0D839552DDBE88300CDC7BB /* XCRemoteSwiftPackageReference "mux-stats-sdk-avplayer" */,
 				B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */,
+				FA2E85AA2F6E0FE400EC2DAD /* XCRemoteSwiftPackageReference "SDWebImage" */,
 			);
 			productRefGroup = B0E60F6D29CC23510079661E /* Products */;
 			projectDirPath = "";
@@ -710,80 +705,64 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Q-Mobile/QGrid";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.4;
+				kind = exactVersion;
+				version = 0.1.4;
 			};
 		};
 		B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SwiftyJSON/SwiftyJSON.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
-			};
-		};
-		B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/Dean151/uuid-shortener";
-			requirement = {
-				kind = revision;
-				revision = 4aa608ca0692b28b94f2110e3b46ebed03c65acd;
+				kind = exactVersion;
+				version = 5.0.2;
 			};
 		};
 		B0CD050229EBB06400511E7F /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SDWebImage/SDWebImageSwiftUI.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				kind = exactVersion;
+				version = 2.2.7;
 			};
 		};
 		B0D839552DDBE88300CDC7BB /* XCRemoteSwiftPackageReference "mux-stats-sdk-avplayer" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/muxinc/mux-stats-sdk-avplayer.git";
 			requirement = {
-				kind = revision;
-				revision = 5eae8626cf974bd3987f6e5afd83598d86855ec0;
+				kind = exactVersion;
+				version = 4.12.0;
 			};
 		};
 		B0D839582DDE495600CDC7BB /* XCRemoteSwiftPackageReference "swift-varint" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/swift-libp2p/swift-varint.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.2;
+				kind = exactVersion;
+				version = 0.2.0;
 			};
 		};
 		B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
-			};
-		};
-		B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/cesarferreira/SwiftEventBus.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 5.0.0;
+				kind = exactVersion;
+				version = 5.11.1;
 			};
 		};
 		B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/keefertaylor/Base58Swift.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
+				kind = exactVersion;
+				version = 2.1.14;
 			};
 		};
-		B0F9DC3A2B578D9800499C93 /* XCRemoteSwiftPackageReference "SDWebImagePDFCoder" */ = {
+		FA2E85AA2F6E0FE400EC2DAD /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/SDWebImage/SDWebImagePDFCoder.git";
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.1;
+				kind = exactVersion;
+				version = 5.20.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -798,11 +777,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B0670F6529DC098400676872 /* XCRemoteSwiftPackageReference "SwiftyJSON" */;
 			productName = SwiftyJSON;
-		};
-		B069A48B2A5225A4006C9E7B /* UUIDShortener */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B069A48A2A5225A4006C9E7B /* XCRemoteSwiftPackageReference "uuid-shortener" */;
-			productName = UUIDShortener;
 		};
 		B0CD050329EBB06400511E7F /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -824,15 +798,15 @@
 			package = B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
 		};
-		B0E60F9729CD84900079661E /* SwiftEventBus */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B0E60F9629CD84900079661E /* XCRemoteSwiftPackageReference "SwiftEventBus" */;
-			productName = SwiftEventBus;
-		};
 		B0E60F9A29CD84AF0079661E /* Base58Swift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */;
 			productName = Base58Swift;
+		};
+		FA2E85AB2F6E0FE400EC2DAD /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA2E85AA2F6E0FE400EC2DAD /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

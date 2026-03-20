@@ -6,7 +6,6 @@
 //
 
 import AVKit
-import SDWebImagePDFCoder
 import SwiftUI
 
 struct PDFPage: View {

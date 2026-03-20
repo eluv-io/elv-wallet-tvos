@@ -10,7 +10,6 @@ import Base58Swift
 import CryptoKit
 import Foundation
 import SwiftyJSON
-import UUIDShortener
 
 var APP_CONFIG: AppConfiguration = loadJsonFileFatal("configuration.json")
 let POLLSECONDS = 300
@@ -191,8 +190,7 @@ class Fabric: ObservableObject {
     if tenantId == "" {
       throw FabricError.unexpectedResponse("Could not get tenant ID from nft \(contractAddr)")
     }
-    let uuid = UUID()
-    let confirmationId = try uuid.shortened(using: .base58)
+    let confirmationId = UUID().uuidString
     let body = InitiateRedemptionRequest(
       op: "nft-offer-redeem",
       client_reference_id: confirmationId,
