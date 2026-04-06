@@ -41,7 +41,7 @@ extension MediaPropertySectionMediaItem {
   func url(eluvio: EluvioAPI, propertyId: String) async throws -> String {
     let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(
       propertyId: propertyId, mediaId: id)
-    return try await GetUrlFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
+    return try await GetUriFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
   }
 
   func thumbnail() -> String {

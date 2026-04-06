@@ -17,7 +17,7 @@ extension AVPlayer {
       })
   }
 
-  /// Recreates the current player item with a fresh token in the URL query param,
+  /// Recreates the current player item with a fresh token in the HTTP header,
   /// preserving playback position and metadata.
   func refreshCurrentItemAuth() async {
     guard let currentItem = self.currentItem else { return }
@@ -27,13 +27,7 @@ extension AVPlayer {
     let wasPlaying = (self.rate != 0)
     let oldExternalMetadata = currentItem.externalMetadata
 
-    guard let newUrl = asset.url.replacingQueryParam("authorization", AccountStore.shared.bestToken)
-    else {
-      debugPrint("[Auth] Failed to update authorization query param")
-      return
-    }
-
-    let newAsset = AVURLAsset(url: newUrl)
+    let newAsset = AuthenticatedURLAsset(url: asset.url, token: AccountStore.shared.bestToken)
     let newItem = AVPlayerItem(asset: newAsset)
     newItem.externalMetadata = oldExternalMetadata
 
@@ -43,7 +37,7 @@ extension AVPlayer {
       if wasPlaying {
         self.play()
       }
-      debugPrint("[Auth] Refreshed player item with new token in URL")
+      debugPrint("[Auth] Refreshed player item with new token")
     }
   }
 }
@@ -94,14 +88,16 @@ func MakePlayerItemFromOptionsJson(
     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(
       uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     // print("Playlist URL \(hlsPlaylistUrl)")
-    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+    let urlAsset = AuthenticatedURLAsset(
+      url: URL(string: hlsPlaylistUrl)!, token: fabric.fabricToken)
 
     playerItem = AVPlayerItem(asset: urlAsset)
   } else if let options = optionsJson.get("hls-aes128") {
     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(
       uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     print("Playlist URL \(hlsPlaylistUrl)")
-    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+    let urlAsset = AuthenticatedURLAsset(
+      url: URL(string: hlsPlaylistUrl)!, token: fabric.fabricToken)
 
     playerItem = AVPlayerItem(asset: urlAsset)
   } else if let options = optionsJson.get("hls-fairplay") {
@@ -116,7 +112,8 @@ func MakePlayerItemFromOptionsJson(
       uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     // print("Playlist URL \(hlsPlaylistUrl)")
 
-    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+    let urlAsset = AuthenticatedURLAsset(
+      url: URL(string: hlsPlaylistUrl)!, token: fabric.fabricToken)
 
     ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
     ContentKeyManager.shared.contentKeyDelegate.setDRM(
@@ -127,7 +124,8 @@ func MakePlayerItemFromOptionsJson(
     hlsPlaylistUrl = try fabric.getHlsPlaylistFromOptions(
       uri: options["uri"].stringValue, hash: versionHash, offering: offering)
     print("Playlist URL \(hlsPlaylistUrl)")
-    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+    let urlAsset = AuthenticatedURLAsset(
+      url: URL(string: hlsPlaylistUrl)!, token: fabric.fabricToken)
 
     playerItem = AVPlayerItem(asset: urlAsset)
   } else {
@@ -181,12 +179,12 @@ func ResolveMediaPlayoutInfo(
       ?? optionsJson.get("hls-sample-aes")
   else { throw RuntimeError("No available playback options \(optionsJson)") }
 
-  let url = fabric.getHlsPlaylistFromMediaOptions(uri: dict["uri"].stringValue)
+  let uri = dict["uri"].stringValue
   let properties = dict["properties"]
   let drmType = properties["protocol"].stringValue + "-" + properties["drm"].stringValue
   let licenseServer = properties["license_servers"][0].stringValue
   return VideoParams.PlayoutInfo(
-    hlsPlaylistUrl: url,
+    uri: uri,
     drmType: drmType,
     licenseServer: licenseServer
   )
@@ -199,7 +197,7 @@ func MakePlayerItemFromPlayoutInfo(
   description: String = "",
   imageThumb: String = ""
 ) async -> AVPlayerItem {
-  let urlAsset = AVURLAsset(url: URL(string: playoutInfo.hlsPlaylistUrl)!)
+  let urlAsset = AuthenticatedURLAsset(uri: playoutInfo.uri, token: fabricToken)
 
   if playoutInfo.drmType == "hls-fairplay" {
     ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
@@ -232,38 +230,48 @@ func MakePlayerItemFromMediaOptionsJson(
     title: title, description: description, imageThumb: imageThumb)
 }
 
-func GetUrlFromMediaOptionsJson(
+func GetUriFromMediaOptionsJson(
   fabric: Fabric,
   optionsJson: JSON,
   offering: String = "default"
 ) async throws -> String {
-  var hlsPlaylistUrl = ""
+  guard
+    let dict = optionsJson.get("hls-clear")
+      ?? optionsJson.get("hls-aes128")
+      ?? optionsJson.get("hls-fairplay")
+      ?? optionsJson.get("hls-sample-aes")
+  else { throw RuntimeError("No available playback options \(optionsJson)") }
 
-  if let options = optionsJson.get("hls-clear") {
-    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
-      uri: options["uri"].stringValue)
-  } else if let options = optionsJson.get("hls-aes128") {
-    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
-      uri: options["uri"].stringValue)
-  } else if let options = optionsJson.get("hls-fairplay") {
-    let licenseServer = options["properties"]["license_servers"][0].stringValue
+  let uri = dict["uri"].stringValue
+
+  if optionsJson.get("hls-fairplay") != nil {
+    let licenseServer = dict["properties"]["license_servers"][0].stringValue
     if licenseServer.isEmpty {
       throw RuntimeError("Error getting licenseServer")
     }
-    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
-      uri: options["uri"].stringValue)
-    let urlAsset = AVURLAsset(url: URL(string: hlsPlaylistUrl)!)
+    let urlAsset = AuthenticatedURLAsset(uri: uri, token: fabric.fabricToken)
     ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
     ContentKeyManager.shared.contentKeyDelegate.setDRM(
       licenseServer: licenseServer, authToken: fabric.fabricToken)
-  } else if let options = optionsJson.get("hls-sample-aes") {
-    hlsPlaylistUrl = fabric.getHlsPlaylistFromMediaOptions(
-      uri: options["uri"].stringValue)
-  } else {
-    throw RuntimeError("No available playback options \(optionsJson)")
   }
 
-  return hlsPlaylistUrl
+  return uri
+}
+
+func AuthenticatedURLAsset(url: URL, token: String) -> AVURLAsset {
+  /// Adding the token as a query param will result in every URI in the response referencing the token, which bloats the size of the response.
+  /// This can  be very significant for long running (6+ hours) VODS.
+  /// Adding it as a header avoids all that bloat.
+  AVURLAsset(
+    url: url,
+    options: [
+      "AVURLAssetHTTPHeaderFieldsKey": ["Authorization": "Bearer \(token)"]
+    ])
+}
+
+func AuthenticatedURLAsset(uri: String, token: String) -> AVURLAsset {
+  let url = URL(string: "\(FabricConfigStore.shared.fabricBaseUrl)\(uri)")!
+  return AuthenticatedURLAsset(url: url, token: token)
 }
 
 func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {

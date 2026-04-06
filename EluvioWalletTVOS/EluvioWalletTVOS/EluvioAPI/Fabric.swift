@@ -495,11 +495,6 @@ class Fabric: ObservableObject {
       "mw/properties/\(propertyId)/media_items/\(mediaId)/offerings/any/playout_options")
   }
 
-  /// New API for media item playout. optionsJson is from the media api, not from fabric options
-  func getHlsPlaylistFromMediaOptions(uri: String) -> String {
-    addTokenQuery("\(getFabricEndpoint())\(uri)")
-  }
-
   // Deprectated: Doesn't work with Live
   func getOptionsFromLink(
     link: JSON?, params: [JSON]? = [], offering: String = "default", hash: String = ""
@@ -647,21 +642,9 @@ class Fabric: ObservableObject {
       }
       newUrl = "\(url)q/\(hash)/rep/playout/\(offering)/\(uri)"
     }
-    newUrl = addTokenQuery(newUrl)
-
     // print("HLS URL: ", newUrl)
 
     return newUrl
-  }
-
-  private func addTokenQuery(_ url: String) -> String {
-    if url.contains("authorization=") {
-      url
-    } else if url.contains("?") {
-      url + "&authorization=\(fabricToken)"
-    } else {
-      url + "?authorization=\(fabricToken)"
-    }
   }
 
   // ELV-CLIENT API

@@ -32,7 +32,7 @@ struct SearchParams: Hashable {
 
 struct VideoParams: Hashable {
   struct PlayoutInfo: Hashable {
-    var hlsPlaylistUrl: String
+    var uri: String
     var drmType: String
     var licenseServer: String = ""
   }
