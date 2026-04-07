@@ -142,10 +142,17 @@ enum PermissionResolver {
       )
     } else {
       // Parent is authorized — child checks its own permissions.
-      let childResolved = child.toResolvedPermission(permissionStates: permissionStates)
+
+      var behavior = child.behavior
+      if behavior == .undefined {
+        // Drop "undefined" behavior in favor of parent behavior
+        behavior = nil
+      }
+      behavior = behavior ?? parent.behavior
+
       return ResolvedPermission(
-        authorized: childResolved.authorized,
-        behavior: child.behavior ?? parent.behavior,
+        authorized: child.calcAuthorized(permissionStates: permissionStates),
+        behavior: behavior ?? .undefined,
         secondaryPurchaseOption: child.secondary_market_purchase_option
           ?? parent.secondaryPurchaseOption,
         alternatePageId: child.alternate_page_id ?? parent.alternatePageId,
