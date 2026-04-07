@@ -108,18 +108,12 @@ func handleMediaItemTap(
       print("MediaItem has empty file for html type")
       _ = router.path.popLast()
     }
-  } else if mediaType == "list" || mediaType == "collection" {
-    let ids = mediaItem.media ?? mediaItem.media_lists ?? []
-    if !ids.isEmpty {
-      let params = MediaGridParams(
-        property: property, mediaItemIds: ids, title: mediaItem.title ?? "",
-        parentMediaItem: mediaItem)
-      _ = router.path.popLast()
-      router.path.append(.mediaGrid(params))
-    } else {
-      print("MediaItem has empty list")
-      _ = router.path.popLast()
-    }
+  } else if let mediaItemIds = mediaItem.mediaItemIds, !mediaItemIds.isEmpty {
+    let params = MediaGridParams(
+      property: property, mediaItemIds: mediaItemIds, title: mediaItem.title ?? "",
+      parentMediaItem: mediaItem)
+    _ = router.path.popLast()
+    router.path.append(.mediaGrid(params))
   } else if mediaType == "gallery" {
     if let gallery = mediaItem.gallery {
       _ = router.path.popLast()

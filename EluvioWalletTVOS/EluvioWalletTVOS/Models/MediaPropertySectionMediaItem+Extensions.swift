@@ -178,6 +178,13 @@ extension MediaPropertySectionMediaItem {
     live_video == true && !isUpcoming && hasStarted && !hasEnded
   }
 
+  /// Media Lists will have a list of media items under `media`, while Media Collections
+  /// will have a list of media lists under `mediaLists`. It is assumed that there will
+  /// only be one or the other, so we're just trying both with no real priority.
+  var mediaItemIds: [String]? {
+    media ?? media_lists
+  }
+
   static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {
     return lhs.id == rhs.id
       && lhs.title == rhs.title
