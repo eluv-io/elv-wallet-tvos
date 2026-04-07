@@ -129,7 +129,7 @@ struct NFTView: View {
           }
           .padding(.bottom)
           if image.hasPrefix("http") {
-            ScaledWebImage(url: propertyLogo, height: 420)
+            ScaledWebImage(url: image, height: 420)
               .resizable()
               .indicator(.activity)  // Activity Indicator
               .transition(.fade(duration: 0.5))
