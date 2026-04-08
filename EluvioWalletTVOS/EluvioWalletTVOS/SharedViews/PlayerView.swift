@@ -14,19 +14,22 @@ import SwiftUI
 class PlayerFinishedObserver: ObservableObject {
   @Published
   var publisher = PassthroughSubject<Void, Never>()
+  private var cancellable: AnyCancellable?
 
   init(player: AVPlayer? = nil) {
     if let player = player {
       let item = player.currentItem
 
-      var cancellable: AnyCancellable?
       cancellable = NotificationCenter.default.publisher(
         for: .AVPlayerItemDidPlayToEndTime, object: item
       ).sink { [weak self] _ in
         self?.publisher.send()
-        cancellable?.cancel()
       }
     }
+  }
+
+  deinit {
+    cancellable?.cancel()
   }
 }
 
@@ -65,6 +68,8 @@ struct PlayerView: View {
   var backLink: String = ""
   var backLinkIcon: String = ""
   @State var audioLoaded = false
+  @State private var progressObserverToken: Any?
+  @State private var errorLogObserver: NSObjectProtocol?
 
   enum Field: Hashable {
     case startFromBeginningField
@@ -257,7 +262,7 @@ struct PlayerView: View {
           debugPrint("MUX initialized.")
         }
 
-        player.addProgressObserver { progress in
+        progressObserverToken = player.addProgressObserver { progress in
           currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
 
           if currentTimeS == -1.0 {
@@ -294,9 +299,9 @@ struct PlayerView: View {
           }
         }
 
-        NotificationCenter.default.addObserver(
+        errorLogObserver = NotificationCenter.default.addObserver(
           forName: .AVPlayerItemNewErrorLogEntry, object: player.currentItem, queue: .main
-        ) { [self] _ in
+        ) { _ in
           print(player.currentItem?.errorLog()?.events.last?.errorComment)
         }
 
@@ -324,6 +329,16 @@ struct PlayerView: View {
     }
     .onWillDisappear {
       print("PlayerView onDisappear")
+      // Clean up progress observer
+      if let token = progressObserverToken {
+        player.removeTimeObserver(token)
+        progressObserverToken = nil
+      }
+      // Clean up error log observer
+      if let observer = errorLogObserver {
+        NotificationCenter.default.removeObserver(observer)
+        errorLogObserver = nil
+      }
       if useMultiview {
         multiviewModel.player?.pause()
         Task {
@@ -391,6 +406,7 @@ struct PlayerView2: View {
   @Binding var finished: Bool
 
   @State var playerItem: AVPlayerItem?
+  @State private var progressObserverToken: Any?
   @Binding var currentTimeMS: Int64
   @Binding var durationMS: Int64
   @Binding var seekTimeMS: Int64
@@ -449,7 +465,7 @@ struct PlayerView2: View {
       self.finishedObserver = PlayerFinishedObserver(player: player)
       debugPrint("PlayerView onAppear finsihed.")
 
-      player.addProgressObserver(intervalSeconds: 0.1) { _ in
+      progressObserverToken = player.addProgressObserver(intervalSeconds: 0.1) { _ in
         // debugPrint("Player progress: ", progress)
         // debugPrint("Player duration seconds: ", player.currentItem?.duration.seconds)
         // debugPrint("Player currentTime seconds: ", player.currentItem?.currentTime().seconds)
@@ -474,7 +490,12 @@ struct PlayerView2: View {
       }
     }
     .onDisappear {
+      if let token = progressObserverToken {
+        player.removeTimeObserver(token)
+        progressObserverToken = nil
+      }
       player.pause()
+      player.replaceCurrentItem(with: nil)
     }
   }
 

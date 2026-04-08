@@ -273,10 +273,10 @@ struct ContentView: View {
 
         self.viewStateCancellable = viewState.$op
           .receive(on: DispatchQueue.main)  //Delays the sink closure to get called after didSet
-          .sink { val in
-            debugPrint("viewState changed.", viewState.op)
+          .sink { [weak viewState] val in
+            debugPrint("viewState changed.", viewState?.op)
             debugPrint("showNFT ", showNft)
-            if viewState.op == .none || AccountStore.shared.isLoggedOut {
+            if viewState?.op == .none || AccountStore.shared.isLoggedOut {
               self.showActivity = false
               return
             }
