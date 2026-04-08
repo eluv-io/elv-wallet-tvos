@@ -51,6 +51,10 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
       }
     }
 
+    deinit {
+      NotificationCenter.default.removeObserver(self)
+    }
+
     @objc
     func rewindVideo(notification _: Notification) {
       player.seek(to: .zero)

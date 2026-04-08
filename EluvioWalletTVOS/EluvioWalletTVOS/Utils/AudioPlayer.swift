@@ -50,9 +50,13 @@ class AudioPlayer {
 
   static func pause() {
     audioPlayer?.pause()
+    timer?.invalidate()
+    timer = nil
   }
 
   static func stop() {
     audioPlayer?.stop()
+    timer?.invalidate()
+    timer = nil
   }
 }

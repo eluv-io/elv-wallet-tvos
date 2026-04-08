@@ -125,6 +125,8 @@ class VideoPlayerViewModel: ObservableObject {
   var seekTimeS: Double = 0
   var currentTimeS: Double = -1
   private var errorLogObserver: NSObjectProtocol?
+  private var progressObserverToken: Any?
+
   var hasSeeked: Bool {
     return currentTimeS > seekTimeS
   }
@@ -139,6 +141,11 @@ class VideoPlayerViewModel: ObservableObject {
   }
 
   func clear() {
+    // Remove progress observer before releasing player
+    if let token = progressObserverToken, let player = player {
+      player.removeTimeObserver(token)
+    }
+    progressObserverToken = nil
     if let observer = errorLogObserver {
       NotificationCenter.default.removeObserver(observer)
       errorLogObserver = nil
@@ -241,7 +248,12 @@ class VideoPlayerViewModel: ObservableObject {
         return
       }
 
-      player?.addProgressObserver { progress in
+      // Remove previous progress observer before adding a new one
+      if let token = progressObserverToken, let oldPlayer = player {
+        oldPlayer.removeTimeObserver(token)
+      }
+      progressObserverToken = player?.addProgressObserver { [weak self] progress in
+        guard let self = self else { return }
         self.currentTimeS = self.player?.currentItem?.currentTime().seconds ?? -1.0
 
         if self.currentTimeS == -1.0 {

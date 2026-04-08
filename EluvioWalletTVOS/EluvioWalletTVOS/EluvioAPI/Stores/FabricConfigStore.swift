@@ -1,12 +1,14 @@
 import Alamofire
 import Foundation
 import Observation
+import UIKit
 
 @Observable
 class FabricConfigStore {
   static let shared = FabricConfigStore()
 
   var config: FabricConfiguration
+  private var refreshTask: Task<Void, Never>?
 
   var apiBaseUrl: String {
     config.getAuthServices().first?.ensuringSuffix("/") ?? ""
@@ -31,16 +33,37 @@ class FabricConfigStore {
   private init() {
     let networkStore = NetworkStore.shared
     config = defaultConfig(for: networkStore.selectedNetwork)
-    Task {
+    startRefreshLoop(networkStore)
+
+    NotificationCenter.default.addObserver(
+      forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main
+    ) { [weak self] _ in
+      self?.startRefreshLoop(networkStore)
+    }
+    NotificationCenter.default.addObserver(
+      forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: .main
+    ) { [weak self] _ in
+      self?.stopRefreshLoop()
+    }
+  }
+
+  private func startRefreshLoop(_ networkStore: NetworkStore) {
+    guard refreshTask == nil else { return }
+    refreshTask = Task {
       repeat {
         do {
           await refreshConfig(for: networkStore.selectedNetwork)
-          try await Task.sleep(for: .minutes(3))  // This throws if task is cancelled
+          try await Task.sleep(for: .minutes(3))
         } catch {
           break
         }
       } while !Task.isCancelled
     }
+  }
+
+  private func stopRefreshLoop() {
+    refreshTask?.cancel()
+    refreshTask = nil
   }
 
   func refreshConfig(for network: AppMode) async {
