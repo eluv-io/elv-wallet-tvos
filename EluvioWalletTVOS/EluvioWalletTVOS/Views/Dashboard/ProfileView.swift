@@ -7,6 +7,36 @@
 
 import SwiftUI
 
+struct CheckboxRow: View {
+  var label: String
+  @Binding var isOn: Bool
+
+  init(_ label: String, isOn: Binding<Bool>) {
+    self.label = label
+    self._isOn = isOn
+  }
+
+  var body: some View {
+    Button {
+      isOn.toggle()
+    } label: {
+      HStack {
+        Text(label)
+        Spacer()
+        Image(systemName: isOn ? "checkmark.square.fill" : "square")
+          .font(.system(size: 32))
+      }
+      .font(.system(size: 24))
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.horizontal, 20)
+      .padding(.vertical, 13)
+      .background(Color.white.opacity(0.1))
+      .cornerRadius(10)
+    }
+    .buttonStyle(.plain)
+  }
+}
+
 struct FormEntry: View {
   var message: String
   init(_ message: String = "") {
@@ -14,12 +44,13 @@ struct FormEntry: View {
   }
 
   var body: some View {
-    Button {
-    } label: {
-      Text(message)  // <<: Do anything you want with your imported View here.
-        .font(.small)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }.buttonStyle(.plain)
+    Text(message)
+      .font(.system(size: 24))
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .padding(.horizontal, 20)
+      .padding(.vertical, 13)
+      .background(Color.white.opacity(0.1))
+      .cornerRadius(10)
   }
 }
 
@@ -55,66 +86,69 @@ struct ProfileView: View {
 
   var body: some View {
     VStack {
-      VStack(alignment: .center) {
-        Form {
-          Section(header: Text("Profile").foregroundColor(.white.opacity(0.6))) {
-            FormEntry("Address:  \(address)")
-            FormEntry("User Id:  \(userId)")
-          }
-          .padding()
-          if IsDemoMode() {
-            Section(header: Text("Preferred location").foregroundColor(.white.opacity(0.6))) {
-              Picker("", selection: $selectedLocation) {
-                ForEach(locations, id: \.self) {
-                  FormEntry($0.uppercased())
+      ScrollView {
+        HStack(alignment: .top, spacing: 40) {
+          // Left column: Profile + App
+          VStack(alignment: .leading, spacing: 12) {
+            Section(header: Text("PROFILE").foregroundColor(.white.opacity(0.6)).padding(.vertical, 8)) {
+              FormEntry("Address: \(address)")
+              FormEntry("User Id: \(userId)")
+            }
+
+            if IsDemoMode() {
+              Section(header: Text("PREFERRED LOCATION").foregroundColor(.white.opacity(0.6)).padding(.vertical, 8)) {
+                Picker("", selection: $selectedLocation) {
+                  ForEach(locations, id: \.self) {
+                    FormEntry($0.uppercased())
+                  }
                 }
-              }
-              // FIX: The highlight foreground color doesn't change from white, setting it to gray so it shows up all the time
-              .accentColor(.gray)
-              .onChange(of: selectedLocation) { selected in
-                print("Selected location: ", selected)
-                Task {
-                  do {
-                    try await eluvio.fabric.profile.setPreferredLocation(location: selected)
-                  } catch {
-                    print("Error setting preferred location", error)
+                .accentColor(.gray)
+                .onChange(of: selectedLocation) { selected in
+                  print("Selected location: ", selected)
+                  Task {
+                    do {
+                      try await eluvio.fabric.profile.setPreferredLocation(location: selected)
+                    } catch {
+                      print("Error setting preferred location", error)
+                    }
                   }
                 }
               }
             }
-            .padding()
-          }
 
-          Section(header: Text("Fabric").foregroundColor(.white.opacity(0.6))) {
-            FormEntry("Network:  \(network.localizedUppercase)")
-            FormEntry("Fabric Node:  \(node)")
-            FormEntry("Authority Service:  \(asNode)")
-            FormEntry("Eth Service:  \(ethNode)")
-            FormEntry("Session Expiration:  \(tokenExpiresAt)")
-
-            Toggle("Set to staging ", isOn: $isStaging)
-              .accentColor(.gray)
-            Toggle("Use debug node ", isOn: $isDebugNode)
-              .accentColor(.gray)
-
-            // Toggle("Set to developer mode ", isOn:$isDeveloper)
+            Section(header: Text("APP").foregroundColor(.white.opacity(0.6)).padding(.vertical, 8)) {
+              FormEntry("Version: \(BundleVersion)")
+              FormEntry("Build: \(BundleBuild)")
+            }
           }
-          .padding()
-          Section(header: Text("App").foregroundColor(.white.opacity(0.6))) {
-            FormEntry("Version:  \(BundleVersion)")
-            FormEntry("Build:  \(BundleBuild)")
+          .frame(maxWidth: .infinity, alignment: .leading)
+
+          // Right column: Fabric
+          VStack(alignment: .leading, spacing: 12) {
+            Section(header: Text("FABRIC").foregroundColor(.white.opacity(0.6)).padding(.vertical, 8)) {
+              FormEntry("Network: \(network.capitalized)")
+              FormEntry("Fabric Node: \(node)")
+              FormEntry("Authority Service: \(asNode)")
+              FormEntry("Eth Service: \(ethNode)")
+              FormEntry("Session Expiration: \(tokenExpiresAt)")
+
+              CheckboxRow("Set to staging", isOn: $isStaging)
+              CheckboxRow("Use debug mode", isOn: $isDebugNode)
+            }
           }
-          .padding()
+          .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(width: 1200)
+        .padding(.horizontal, 50)
+        .padding(.top, 40)
 
         Button("Sign Out") {
           Task {
             await SignOutHandler.signOut()
           }
         }
+        .padding(.top, 40)
+        .padding(.bottom, 80)
       }
-      .padding([.leading, .trailing, .bottom], 80)
     }
     .onChange(of: isStaging) { _, val in
       if val {
