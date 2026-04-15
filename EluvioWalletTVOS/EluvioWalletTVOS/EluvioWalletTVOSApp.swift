@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2023-03-23.
 //
 
+import FirebaseCore
 import SDWebImage
 import SwiftUI
 
@@ -20,7 +21,21 @@ struct EluvioWalletTVOSApp: App {
   init() {
     print("App Init")
 
+    configureFirebase()
     initWebImageComponents()
+  }
+
+  private func configureFirebase() {
+    if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
+      FirebaseApp.configure()
+      return
+    }
+
+    // No real GoogleService-Info.plist bundled — leave Firebase un-configured
+    // and silence its logger so subsequent analytics calls don't spew
+    // "default app not configured" warnings on every event.
+    print("GoogleService-Info.plist not in bundle — Firebase disabled, logs suppressed")
+    FirebaseConfiguration.shared.setLoggerLevel(.error)
   }
 
   var body: some Scene {

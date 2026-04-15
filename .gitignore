@@ -90,3 +90,7 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+# Firebase — real config is secret. Fetch with `bin/fetch-secrets.sh`.
+# See README "Firebase configuration".
+GoogleService-Info.plist
