@@ -4,6 +4,15 @@ Eluvio Media Wallet on Apple TV.
 
 For a detailed walkthrough of customizing and running this app in single property mode, see [Customize.md](Customize.md).
 
+## Firebase configuration
+
+The build works fine without `GoogleService-Info.plist` — Firebase is just disabled at runtime.
+
+If you want Firebase enabled (Eluvio team only), fetch the plist file using:
+```bash
+bin/fetch-secrets.sh
+```
+
 ## Key Patterns
 
 - **Stores as single source of truth**: `PropertyStore`, `AccountStore`, etc. hold app state. Views read from stores rather than making API calls directly.
