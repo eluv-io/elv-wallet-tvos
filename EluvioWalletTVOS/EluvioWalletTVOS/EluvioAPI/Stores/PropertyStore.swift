@@ -33,28 +33,34 @@ class PropertyStore {
     sectionCache = [:]
   }
 
-  func fetchProperties(includePublic: Bool = true) async {
-    do {
-      let response: MediaPropertiesResponse = try await NetworkManager.shared
-        .request("mw/properties?include_public=\(includePublic)")
+  func fetchProperties(includePublic: Bool = true, retries: Int = 3) async {
+    for attempt in 1...retries {
+      do {
+        let response: MediaPropertiesResponse = try await NetworkManager.shared
+          .request("mw/properties?include_public=\(includePublic)")
 
-      let properties = response.contents
-      resolvePermissions(properties: properties)
+        let properties = response.contents
+        resolvePermissions(properties: properties)
 
-      if includePublic {
-        self.properties = properties
-        PersistentDataCache().cachePropertyViewModels(
-          properties,
-          network: NetworkStore.shared.selectedNetwork.rawValue,
-          environment: NetworkStore.shared.environment.rawValue
-        )
-      } else {
-        properties.forEach {
-          ownedProperties[$0.id] = $0
+        if includePublic {
+          self.properties = properties
+          PersistentDataCache().cachePropertyViewModels(
+            properties,
+            network: NetworkStore.shared.selectedNetwork.rawValue,
+            environment: NetworkStore.shared.environment.rawValue
+          )
+        } else {
+          properties.forEach {
+            ownedProperties[$0.id] = $0
+          }
+        }
+        return
+      } catch {
+        print("Error loading properties (attempt \(attempt)/\(retries)): \(error)")
+        if attempt < retries {
+          try? await Task.sleep(for: .seconds(2 * attempt))
         }
       }
-    } catch {
-      print("Error loading properties \(error)")
     }
   }
 

@@ -7,7 +7,15 @@ import UIKit
 class FabricConfigStore {
   static let shared = FabricConfigStore()
 
-  var config: FabricConfiguration
+  private static let configKey = "persisted_fabric_config"
+
+  var config: FabricConfiguration {
+    didSet {
+      guard let data = try? JSONEncoder().encode(config) else { return }
+      let network = NetworkStore.shared.selectedNetwork
+      UserDefaults.standard.set(data, forKey: "\(FabricConfigStore.configKey)_\(network.rawValue)")
+    }
+  }
   private var refreshTask: Task<Void, Never>?
 
   var apiBaseUrl: String {
@@ -32,7 +40,9 @@ class FabricConfigStore {
 
   private init() {
     let networkStore = NetworkStore.shared
-    config = defaultConfig(for: networkStore.selectedNetwork)
+    config =
+      FabricConfigStore.loadPersistedConfig(for: networkStore.selectedNetwork)
+      ?? defaultConfig(for: networkStore.selectedNetwork)
     startRefreshLoop(networkStore)
 
     NotificationCenter.default.addObserver(
@@ -80,6 +90,13 @@ class FabricConfigStore {
     default:
       print("Failed to fetch config")
     }
+  }
+
+  private static func loadPersistedConfig(for network: AppMode) -> FabricConfiguration? {
+    guard let data = UserDefaults.standard.data(forKey: "\(configKey)_\(network.rawValue)") else {
+      return nil
+    }
+    return try? JSONDecoder().decode(FabricConfiguration.self, from: data)
   }
 }
 
