@@ -14,6 +14,8 @@ struct EluvioWalletTVOSApp: App {
   @StateObject var eluvio = EluvioAPI.shared
   @StateObject var router: Router = Router.shared
 
+  @State private var bootstrapped = false
+
   #if DEBUG
     @State private var debugMenu = DebugMenuHandler()
   #endif
@@ -42,10 +44,18 @@ struct EluvioWalletTVOSApp: App {
     WindowGroup {
       ZStack {
         Color.black.edgesIgnoringSafeArea(.all)
-        ContentView()
-          .preferredColorScheme(.dark)
-          .environmentObject(eluvio)
-          .environmentObject(router)
+        if bootstrapped {
+          ContentView()
+            .preferredColorScheme(.dark)
+            .environmentObject(eluvio)
+            .environmentObject(router)
+        } else {
+          ProgressView()
+        }
+      }
+      .task {
+        await FabricConfigStore.shared.bootstrap()
+        bootstrapped = true
       }
       #if DEBUG
         .onKeyPress(phases: .down) { debugMenu.handle($0, router: router) }

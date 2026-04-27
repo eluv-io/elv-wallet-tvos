@@ -53,12 +53,6 @@ class EluvioAPI: ObservableObject {
     })
     .store(in: &cancellables)
 
-    // New stuff - no DI for now, just singletons
-    _ = NetworkStore.shared  // trigger init - this is needed for other Stores to work
-    _ = FabricConfigStore.shared
-    _ = AccountStore.shared
-    _ = PropertyStore.shared
-
     initMocks()
   }
 

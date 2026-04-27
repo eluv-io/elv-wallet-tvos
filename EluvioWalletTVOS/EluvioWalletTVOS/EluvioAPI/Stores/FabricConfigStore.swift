@@ -9,7 +9,7 @@ class FabricConfigStore {
 
   private static let configKey = "persisted_fabric_config"
 
-  var config: FabricConfiguration {
+  private(set) var config: FabricConfiguration! {
     didSet {
       guard let data = try? JSONEncoder().encode(config) else { return }
       let network = NetworkStore.shared.selectedNetwork
@@ -39,12 +39,24 @@ class FabricConfigStore {
   }
 
   private init() {
-    let networkStore = NetworkStore.shared
-    config =
-      FabricConfigStore.loadPersistedConfig(for: networkStore.selectedNetwork)
-      ?? defaultConfig(for: networkStore.selectedNetwork)
-    startRefreshLoop(networkStore)
+    config = FabricConfigStore.loadPersistedConfig(for: NetworkStore.shared.selectedNetwork)
+  }
 
+  /// Fetch config from server, then start the background refresh loop.
+  /// Call once at app startup before displaying any UI.
+  /// If the network fetch fails and we have no persisted config, falls back to a hardcoded config so the app can still function.
+  func bootstrap() async {
+    let networkStore = NetworkStore.shared
+    await refreshConfig(for: networkStore.selectedNetwork)
+    if config == nil {
+      print("Initial config fetch failed and no persisted config — using fallback config")
+      config = fallbackConfig(for: networkStore.selectedNetwork)
+    }
+    startRefreshLoop(networkStore)
+    registerLifecycleObservers(networkStore)
+  }
+
+  private func registerLifecycleObservers(_ networkStore: NetworkStore) {
     NotificationCenter.default.addObserver(
       forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main
     ) { [weak self] _ in
@@ -60,14 +72,14 @@ class FabricConfigStore {
   private func startRefreshLoop(_ networkStore: NetworkStore) {
     guard refreshTask == nil else { return }
     refreshTask = Task {
-      repeat {
+      while !Task.isCancelled {
         do {
-          await refreshConfig(for: networkStore.selectedNetwork)
           try await Task.sleep(for: .minutes(3))
+          await refreshConfig(for: networkStore.selectedNetwork)
         } catch {
           break
         }
-      } while !Task.isCancelled
+      }
     }
   }
 
@@ -100,8 +112,8 @@ class FabricConfigStore {
   }
 }
 
-// Create a default config so we never have to wait on it during startup - it should immediately be replaced by one fetched from server
-private func defaultConfig(for network: AppMode) -> FabricConfiguration {
+/// Hardcoded fallback used only if the initial network fetch fails (e.g. offline on first launch).
+private func fallbackConfig(for network: AppMode) -> FabricConfiguration {
   switch network {
   case .main:
     return FabricConfiguration(
