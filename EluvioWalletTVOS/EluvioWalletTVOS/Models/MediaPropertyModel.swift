@@ -187,7 +187,9 @@ final class MediaPropertySection: Identifiable, Hashable, Permissionable, Encoda
   var hero_items: JSON?
   var sections_resolved: [MediaPropertySection]?
   var resolvedPermissions: ResolvedPermission?
-  var permissionChildren: [any Permissionable] { content ?? [] }
+  var permissionChildren: [any Permissionable] {
+    (content ?? []) + (sections_resolved ?? [])
+  }
 
   var displayLimit: Int {
     display?.display_limit ?? 0

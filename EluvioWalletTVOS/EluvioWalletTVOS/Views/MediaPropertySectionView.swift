@@ -348,40 +348,40 @@ struct MediaPropertySectionBannerView: View {
           isFocusable: isFocusable,
           action: {
             debugPrint("Banner clicked item ", item)
+
+            let permission = section.resolvedPermissions
+            if permission?.disable == true { return }
+            let isUnauthorized = permission?.authorized == false
+              && permission?.behavior != .showIfUnauthorized
+
             if item.type == "page_link" {
-              Task {
-                do {
-                  debugPrint("Banner clicked page link ")
-                  let permission = section.resolvedPermissions!
-
-                  if let content = section.content {
-                    if let pageId = content[0].page_id {
-                      if !pageId.isEmpty {
-                        let url = try eluvio.fabric.createWalletPurchaseUrl(
-                          id: section.id, propertyId: property.id, pageId: pageId,
-                          permissionIds: permission.permissionItemIds)
-                        debugPrint("URL ", url)
-
-                        let backgroundImage = property.backgroundImage
-
-                        let params = HtmlParams(url: url, backgroundImage: backgroundImage)
-                        router.path.append(.html(params))
-                      }
-                    }
+              guard let pageId = item.page_id?.nilIfEmpty() else { return }
+              if isUnauthorized {
+                Task {
+                  do {
+                    let url = try eluvio.fabric.createWalletPurchaseUrl(
+                      id: section.id, propertyId: property.id, pageId: pageId,
+                      permissionIds: permission?.permissionItemIds ?? [])
+                    let params = HtmlParams(url: url, backgroundImage: property.backgroundImage)
+                    router.path.append(.html(params))
+                  } catch {
+                    print("could not fetch page url for banner ", error.localizedDescription)
                   }
-
-                } catch {
-                  print("could not fetch page url for banner ", error.localizedDescription)
                 }
+              } else {
+                let param = PropertyParam(propertyId: property.id, pageId: pageId)
+                router.path.append(.property(param))
               }
             } else if item.type == "external_link" {
-              Task {
-                debugPrint("Banner clicked external link")
-
-                if let url = item.url {
-                  let params = HtmlParams(url: url, backgroundImage: property.backgroundImage)
-                  router.path.append(.html(params))
-                }
+              if let url = item.url {
+                let params = HtmlParams(url: url, backgroundImage: property.backgroundImage)
+                router.path.append(.html(params))
+              }
+            } else if item.type == "subproperty_link" {
+              if let subId = item.subproperty_id?.nilIfEmpty() {
+                let param = PropertyParam(
+                  propertyId: subId, pageId: item.subproperty_page_id)
+                router.path.append(.property(param))
               }
             }
           })
@@ -555,13 +555,6 @@ struct MediaPropertySectionView: View {
     return section.display?.hide_on_tv == true
   }
 
-  var disable: Bool {
-    if let permission = permission {
-      return !permission.authorized && permission.disable
-    }
-    return false
-  }
-
   var forceAspectRatio: String {
     return section.display?.aspect_ratio ?? ""
   }
@@ -614,7 +607,7 @@ struct MediaPropertySectionView: View {
             .padding(.top, 40)
             .padding(.bottom, 10)
 
-            ForEach(subsections) { sub in
+            ForEach(subsections.filter { !$0.shouldHideInContainer }) { sub in
               MediaPropertyRegularSectionView(
                 property: property, pageId: pageId, section: sub, margin: margin,
                 useScale: useScale, lookForBackground: true)
@@ -650,7 +643,6 @@ struct MediaPropertySectionView: View {
       .frame(maxWidth: .infinity)
       .clipped()
     )
-    .disabled(disable)
     .focusSection()
   }
 }

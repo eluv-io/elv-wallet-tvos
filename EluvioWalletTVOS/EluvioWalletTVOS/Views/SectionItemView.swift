@@ -30,8 +30,13 @@ func handleSectionItemTap(
     router.path.append(.black)
 
     if let permission = viewItem.resolvedPermissions {
+      if permission.disable {
+        _ = router.path.popLast()
+        return
+      }
       let itemType = sectionItem?.type ?? rawMediaItem?.type
-      if !permission.authorized || itemType == "item_purchase" {
+      let isUnauthorized = !permission.authorized && permission.behavior != .showIfUnauthorized
+      if isUnauthorized || itemType == "item_purchase" {
         try handleUnauthorizedItem(
           router: router, eluvio: eluvio,
           property: property, pageId: pageId, sectionId: sectionId,
@@ -416,7 +421,10 @@ struct SectionItemView: View {
 
   var disable: Bool { viewItem.disabled }
 
-  var opacity: CGFloat { permission?.authorized == false ? 0.6 : 1.0 }
+  var opacity: CGFloat {
+    guard let permission, !permission.authorized else { return 1.0 }
+    return permission.behavior == .showIfUnauthorized ? 1.0 : 0.6
+  }
 
   var display: MediaDisplay {
     if let forceDisplay = forceDisplay {

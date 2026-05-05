@@ -172,6 +172,18 @@ extension MediaPropertySection {
       content?.allSatisfy { $0.resolvedPermissions?.hide == true } == true
     }
   }
+
+  var shouldHideInContainer: Bool {
+    if resolvedPermissions?.hide == true || display?.hide_on_tv == true {
+      return true
+    }
+    if type?.lowercased() == "hero" {
+      return false
+    }
+    let items = content ?? []
+    if items.isEmpty { return true }
+    return items.allSatisfy { $0.resolvedPermissions?.hide == true }
+  }
 }
 
 extension PropertyStore {
