@@ -18,7 +18,7 @@
 		FA2E89CB2F6E12D600EC2DAD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E89CA2F6E12D600EC2DAD /* FirebaseAnalytics */; };
 		FA2E89D22F6E18CF00EC2DAD /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E89D12F6E18CF00EC2DAD /* FirebaseCrashlytics */; };
 		FAEC00E0000000000000C003 /* EluvioCore in Frameworks */ = {isa = PBXBuildFile; productRef = FAEC00E0000000000000C002 /* EluvioCore */; };
-		FAEC00E0000000000001C001 /* EluvioCore in Frameworks */ = {isa = PBXBuildFile; productRef = FAEC00E0000000000001C00C /* EluvioCore */; };
+		FAEC00E0000000000001C001 /* EluvioCore in Frameworks */ = {isa = PBXBuildFile; productRef = FAEC00E0000000000000C002 /* EluvioCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -167,7 +167,7 @@
 			);
 			name = EluvioWalletMobile;
 			packageProductDependencies = (
-				FAEC00E0000000000001C00C /* EluvioCore */,
+				FAEC00E0000000000000C002 /* EluvioCore */,
 			);
 			productName = EluvioWalletMobile;
 			productReference = FAEC00E0000000000001C002 /* EluvioWalletMobile.app */;
@@ -819,10 +819,6 @@
 			productName = FirebaseCrashlytics;
 		};
 		FAEC00E0000000000000C002 /* EluvioCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = EluvioCore;
-		};
-		FAEC00E0000000000001C00C /* EluvioCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = EluvioCore;
 		};

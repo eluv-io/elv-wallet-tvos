@@ -97,7 +97,7 @@ public struct DeviceActivationFlow: Sendable {
   private func prefetchPropertyAndSections() async {
     // Fetch a fresh copy — now that we have an auth token, permissions may differ.
     await PropertyStore.shared.fetchProperty(id: property.id)
-    guard let property = PropertyStore.shared.getProperty(id: property.id) else { return }
+    guard let property = await PropertyStore.shared.getProperty(id: property.id) else { return }
     guard let page = try? await PropertyStore.shared.getFirstAuthorizedPage(property: property)
     else { return }
     await PropertyStore.shared.fetchSections(property: property, page: page)
