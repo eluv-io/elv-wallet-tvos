@@ -3,6 +3,7 @@ import SwiftUI
 
 struct DiscoverView: View {
   @State private var properties: [MediaProperty] = []
+  @State private var navigationPath = NavigationPath()
   @State private var signInProperty: MediaProperty?
 
   private let columns = [
@@ -11,12 +12,12 @@ struct DiscoverView: View {
   ]
 
   var body: some View {
-    NavigationStack {
+    NavigationStack(path: $navigationPath) {
       ScrollView {
         LazyVGrid(columns: columns, spacing: 12) {
           ForEach(properties) { property in
             Button {
-              signInProperty = property
+              tapped(property)
             } label: {
               PropertyTile(property: property)
             }
@@ -31,13 +32,29 @@ struct DiscoverView: View {
           ProgressView()
         }
       }
+      .navigationDestination(for: MediaProperty.self) { property in
+        PropertyView(property: property)
+      }
     }
     .task {
       await PropertyStore.shared.fetchProperties()
       properties = PropertyStore.shared.properties
     }
     .sheet(item: $signInProperty) { property in
-      MobileSignInView(property: property)
+      MobileSignInView(property: property) {
+        // Sheet finished. Push to property view.
+        signInProperty = nil
+        navigationPath.append(property)
+      }
+    }
+  }
+
+  private func tapped(_ property: MediaProperty) {
+    let alreadySignedIn = property.accountType == AccountStore.shared.account?.type
+    if alreadySignedIn {
+      navigationPath.append(property)
+    } else {
+      signInProperty = property
     }
   }
 }

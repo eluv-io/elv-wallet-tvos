@@ -6,6 +6,8 @@ import SwiftUI
 /// MobileSignInViewModel/SignInFragment pattern.
 struct MobileSignInView: View {
   let property: MediaProperty
+  /// Called when sign-in succeeds. The caller is responsible for navigation.
+  var onComplete: () -> Void
 
   @State private var activation: ActivationCode?
   @State private var pollTask: Task<Void, Never>?
@@ -41,7 +43,7 @@ struct MobileSignInView: View {
       pollTask = Task {
         do {
           try await flow.awaitCompletion(activation: act)
-          await MainActor.run { dismiss() }
+          await MainActor.run { onComplete() }
         } catch is CancellationError {
           // expected on sheet dismiss
         } catch {
