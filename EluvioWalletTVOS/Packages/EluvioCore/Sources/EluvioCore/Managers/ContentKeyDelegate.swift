@@ -156,6 +156,13 @@ public class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
     return pendingPersistableContentKeyIdentifiers.contains(identifier)
   }
 
+  // Offline content key persistence was never implemented. The iOS-only branch in
+  // handleStreamingContentKeyRequest checks this to decide whether to request a
+  // persistable key; returning false keeps the existing behavior (online-only).
+  public func persistableContentKeyExistsOnDisk(withContentKeyIdentifier _: String) -> Bool {
+    return false
+  }
+
   // MARK: AVContentKeySessionDelegate Methods
 
   /**
