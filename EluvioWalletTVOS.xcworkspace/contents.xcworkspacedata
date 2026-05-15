@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:EluvioWalletTVOS/Packages/EluvioCore">
+   </FileRef>
+   <FileRef
       location = "group:EluvioWalletTVOS/EluvioWalletTVOS.xcodeproj">
    </FileRef>
 </Workspace>
