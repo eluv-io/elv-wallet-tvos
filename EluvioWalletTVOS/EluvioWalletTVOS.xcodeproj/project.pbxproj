@@ -186,6 +186,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				FA7858F22F3BB13E00BBAC62 /* Configuration */,
 				FAEC00E0000000000001C004 /* EluvioWalletMobile */,
 			);
 			name = EluvioWalletMobile;
