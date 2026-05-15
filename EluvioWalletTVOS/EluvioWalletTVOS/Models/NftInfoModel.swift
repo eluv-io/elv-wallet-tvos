@@ -1,3 +1,5 @@
+import EluvioCore
+
 // Info about an NFT contract, not a specific NFT with a token ID
 struct ContractInfoModel: Codable {
   var contract: String

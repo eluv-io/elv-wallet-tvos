@@ -8,6 +8,7 @@
 import AVKit
 import AuthenticationServices
 import CoreImage.CIFilterBuiltins
+import EluvioCore
 import SwiftUI
 
 class Subscriber {

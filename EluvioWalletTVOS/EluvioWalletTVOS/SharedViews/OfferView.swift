@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import EluvioCore
 import SDWebImageSwiftUI
 import SwiftUI
 import SwiftyJSON

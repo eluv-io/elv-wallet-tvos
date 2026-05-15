@@ -1,6 +1,7 @@
+import CoreImage.CIFilterBuiltins
 import SwiftUI
 
-func GenerateQRCode(from string: String) -> UIImage {
+public func GenerateQRCode(from string: String) -> UIImage {
   let ciContext = CIContext()
 
   guard let data = string.data(using: .ascii, allowLossyConversion: false) else {

@@ -8,6 +8,7 @@
 import Alamofire
 import Base58Swift
 import CryptoKit
+import EluvioCore
 import Foundation
 import VarInt
 

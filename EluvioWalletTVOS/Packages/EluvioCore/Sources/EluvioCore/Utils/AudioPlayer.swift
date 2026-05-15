@@ -8,15 +8,15 @@
 import AVFoundation
 import Foundation
 
-class AudioPlayer {
-  static var isPlaying: Bool {
+public class AudioPlayer {
+  public static var isPlaying: Bool {
     return audioPlayer?.isPlaying ?? false
   }
 
-  static var audioPlayer: AVAudioPlayer?
-  static var timer: Timer?
+  public static var audioPlayer: AVAudioPlayer?
+  public static var timer: Timer?
 
-  static func play(
+  public static func play(
     url: URL, seekS: TimeInterval = 0.0,
     progressCallback: @escaping (TimeInterval, TimeInterval) -> Void
   ) {
@@ -48,13 +48,13 @@ class AudioPlayer {
     }
   }
 
-  static func pause() {
+  public static func pause() {
     audioPlayer?.pause()
     timer?.invalidate()
     timer = nil
   }
 
-  static func stop() {
+  public static func stop() {
     audioPlayer?.stop()
     timer?.invalidate()
     timer = nil

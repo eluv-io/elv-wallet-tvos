@@ -7,6 +7,7 @@
 
 import AVKit
 import Combine
+import EluvioCore
 import Foundation
 import MUXSDKStats
 import SwiftUI

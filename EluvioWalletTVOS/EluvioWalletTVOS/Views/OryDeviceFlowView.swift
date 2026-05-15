@@ -9,6 +9,7 @@ import Alamofire
 import AuthenticationServices
 import Combine
 import CoreImage.CIFilterBuiltins
+import EluvioCore
 import SwiftUI
 import SwiftyJSON
 

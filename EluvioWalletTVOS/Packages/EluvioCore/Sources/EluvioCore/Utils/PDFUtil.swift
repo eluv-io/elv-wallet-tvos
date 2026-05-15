@@ -1,6 +1,6 @@
 import UIKit
 
-func imageForPDF(
+public func imageForPDF(
   document: CGPDFDocument, pageNumber: Int, imageWidth: CGFloat = 0, imageHeight: CGFloat = 0
 ) -> UIImage? {
   guard let page = document.page(at: pageNumber) else { return nil }

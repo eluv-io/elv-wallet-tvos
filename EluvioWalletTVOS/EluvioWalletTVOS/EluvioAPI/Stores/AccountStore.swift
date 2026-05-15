@@ -1,3 +1,4 @@
+import EluvioCore
 import Foundation
 import Observation
 

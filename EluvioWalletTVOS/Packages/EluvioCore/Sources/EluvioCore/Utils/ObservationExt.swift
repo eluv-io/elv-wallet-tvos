@@ -13,7 +13,7 @@ public func withObservationTracking(execute: @Sendable @escaping () -> Void) {
   }
 }
 
-func waitForNonNil<T>(_ getValue: () -> T?) async -> T {
+public func waitForNonNil<T>(_ getValue: () -> T?) async -> T {
   while true {
     if let value = getValue() {
       return value

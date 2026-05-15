@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2023-04-14.
 //
 
+import EluvioCore
 import SwiftUI
 
 struct IconButtonStyle: ButtonStyle {

@@ -8,7 +8,7 @@ extension String: LocalizedError {
 
 extension String {
   /// Converts empty strings to nil. This makes chaining fallbacks more convenient.
-  func nilIfEmpty() -> String? {
+  public func nilIfEmpty() -> String? {
     if isEmpty {
       return nil
     }
@@ -17,24 +17,24 @@ extension String {
 }
 
 extension String {
-  enum ExtendedEncoding {
+  public enum ExtendedEncoding {
     case hexadecimal
   }
 
-  func ensuringSuffix(_ suffix: String) -> String {
+  public func ensuringSuffix(_ suffix: String) -> String {
     hasSuffix(suffix) ? self : self + suffix
   }
 
-  func trim() -> String {
+  public func trim() -> String {
     return trimmingCharacters(in: .whitespacesAndNewlines)
   }
 
-  func base64() -> String {
+  public func base64() -> String {
     let stringData = data(using: .utf8)!
     return stringData.base64EncodedString()
   }
 
-  func data(using _: ExtendedEncoding) -> Data? {
+  public func data(using _: ExtendedEncoding) -> Data? {
     let hexStr = dropFirst(hasPrefix("0x") ? 2 : 0)
 
     guard hexStr.count % 2 == 0 else { return nil }
@@ -64,11 +64,11 @@ extension String {
     }
   }
 
-  func capitalizingFirstLetter() -> String {
+  public func capitalizingFirstLetter() -> String {
     return prefix(1).capitalized + dropFirst()
   }
 
-  func html2Attributed(fontScale: Double = 2.5) -> AttributedString {
+  public func html2Attributed(fontScale: Double = 2.5) -> AttributedString {
     guard let data = data(using: String.Encoding.utf8) else {
       return ""
     }
