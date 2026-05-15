@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import EluvioCore
 import Foundation
 import SwiftUI
 import SwiftyJSON

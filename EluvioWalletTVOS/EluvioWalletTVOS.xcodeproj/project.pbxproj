@@ -17,6 +17,7 @@
 		FA2E85AC2F6E0FE400EC2DAD /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E85AB2F6E0FE400EC2DAD /* SDWebImage */; };
 		FA2E89CB2F6E12D600EC2DAD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E89CA2F6E12D600EC2DAD /* FirebaseAnalytics */; };
 		FA2E89D22F6E18CF00EC2DAD /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E89D12F6E18CF00EC2DAD /* FirebaseCrashlytics */; };
+		FAEC00E0000000000000C003 /* EluvioCore in Frameworks */ = {isa = PBXBuildFile; productRef = FAEC00E0000000000000C002 /* EluvioCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +66,7 @@
 				FA2E89D22F6E18CF00EC2DAD /* FirebaseCrashlytics in Frameworks */,
 				B0670F6729DC098400676872 /* SwiftyJSON in Frameworks */,
 				FA2E89CB2F6E12D600EC2DAD /* FirebaseAnalytics in Frameworks */,
+				FAEC00E0000000000000C003 /* EluvioCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -129,6 +131,7 @@
 				FA2E85AB2F6E0FE400EC2DAD /* SDWebImage */,
 				FA2E89CA2F6E12D600EC2DAD /* FirebaseAnalytics */,
 				FA2E89D12F6E18CF00EC2DAD /* FirebaseCrashlytics */,
+				FAEC00E0000000000000C002 /* EluvioCore */,
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
@@ -186,6 +189,7 @@
 			);
 			mainGroup = B0E60F6329CC23510079661E;
 			packageReferences = (
+				FAEC00E0000000000000C001 /* XCLocalSwiftPackageReference "Packages/EluvioCore" */,
 				B0E60F9329CD84420079661E /* XCRemoteSwiftPackageReference "Alamofire" */,
 				B0E60F9929CD84AF0079661E /* XCRemoteSwiftPackageReference "Base58Swift" */,
 				B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */,
@@ -540,6 +544,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		FAEC00E0000000000000C001 /* XCLocalSwiftPackageReference "Packages/EluvioCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/EluvioCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		B0670F5129D55FBE00676872 /* XCRemoteSwiftPackageReference "QGrid" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -665,6 +676,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = FA2E89C92F6E12D600EC2DAD /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCrashlytics;
+		};
+		FAEC00E0000000000000C002 /* EluvioCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EluvioCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

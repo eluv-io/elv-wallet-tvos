@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2024-06-10.
 //
 
+import EluvioCore
 import Foundation
 import SwiftyJSON
 
