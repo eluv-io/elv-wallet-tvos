@@ -5,6 +5,10 @@ import SwiftUI
 struct EluvioWalletMobileApp: App {
   @State private var bootstrapped = false
 
+  init() {
+    WebImageSetup.configure()
+  }
+
   var body: some Scene {
     WindowGroup {
       Group {

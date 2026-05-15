@@ -1,10 +1,9 @@
-import EluvioCore
 import SDWebImage
 import SDWebImageSwiftUI
 import SwiftUI
 
 /// Returns a `WebImage` with a request modifier that appends `height=` to the URL.
-func ScaledWebImage(url: String, height: CGFloat) -> WebImage {
+public func ScaledWebImage(url: String, height: CGFloat) -> WebImage {
   let pixelHeight = Int(height * UIScreen.main.scale)
   let modifier = SDWebImageDownloaderRequestModifier { request in
     guard let urlString = request.url?.absoluteString else { return request }
@@ -19,6 +18,6 @@ func ScaledWebImage(url: String, height: CGFloat) -> WebImage {
 }
 
 /// Convenience shorthand to scaled image to screen-height
-func ScaledWebImage(url: String, height: UIScreen) -> WebImage {
+public func ScaledWebImage(url: String, height: UIScreen) -> WebImage {
   ScaledWebImage(url: url, height: height.bounds.height)
 }
