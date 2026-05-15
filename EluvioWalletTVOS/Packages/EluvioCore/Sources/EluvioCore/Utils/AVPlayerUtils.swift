@@ -1,8 +1,8 @@
 import AVFoundation
 import SwiftyJSON
 
-extension AVPlayer {
-  func addProgressObserver(intervalSeconds: Double = 5, action: @escaping ((Double) -> Void)) -> Any
+public extension AVPlayer {
+  public func addProgressObserver(intervalSeconds: Double = 5, action: @escaping ((Double) -> Void)) -> Any
   {
     return addPeriodicTimeObserver(
       forInterval: CMTime(value: Int64(intervalSeconds * 1000), timescale: 1000), queue: .main,
@@ -19,7 +19,7 @@ extension AVPlayer {
 
   /// Recreates the current player item with a fresh token in the HTTP header,
   /// preserving playback position and metadata.
-  func refreshCurrentItemAuth() async {
+  public func refreshCurrentItemAuth() async {
     guard let currentItem = self.currentItem else { return }
     guard let asset = currentItem.asset as? AVURLAsset else { return }
 
@@ -42,7 +42,7 @@ extension AVPlayer {
   }
 }
 
-func MakePlayerItemFromVersionHash(
+public func MakePlayerItemFromVersionHash(
   fabric: Fabric,
   versionHash: String,
 ) async throws -> AVPlayerItem {
@@ -53,7 +53,7 @@ func MakePlayerItemFromVersionHash(
     fabric: fabric, optionsJson: options, versionHash: versionHash)
 }
 
-func MakePlayerItemFromLink(
+public func MakePlayerItemFromLink(
   fabric: Fabric,
   link: JSON?,
   params: [JSON]? = [],
@@ -70,7 +70,7 @@ func MakePlayerItemFromLink(
     offering: offering, title: title, description: description, imageThumb: imageThumb)
 }
 
-func MakePlayerItemFromOptionsJson(
+public func MakePlayerItemFromOptionsJson(
   fabric: Fabric,
   optionsJson: JSON,
   versionHash: String,
@@ -166,11 +166,23 @@ private func updateMetadata(
   }
 }
 
-func ResolveMediaPlayoutInfo(
+public struct PlayoutInfo: Hashable {
+  public var uri: String
+  public var drmType: String
+  public var licenseServer: String = ""
+
+  public init(uri: String, drmType: String, licenseServer: String = "") {
+    self.uri = uri
+    self.drmType = drmType
+    self.licenseServer = licenseServer
+  }
+}
+
+public func ResolveMediaPlayoutInfo(
   fabric: Fabric,
   optionsJson: JSON,
   offering: String = "default"
-) throws -> VideoParams.PlayoutInfo {
+) throws -> PlayoutInfo {
 
   guard
     let dict = optionsJson.get("hls-clear")
@@ -183,15 +195,15 @@ func ResolveMediaPlayoutInfo(
   let properties = dict["properties"]
   let drmType = properties["protocol"].stringValue + "-" + properties["drm"].stringValue
   let licenseServer = properties["license_servers"][0].stringValue
-  return VideoParams.PlayoutInfo(
+  return PlayoutInfo(
     uri: uri,
     drmType: drmType,
     licenseServer: licenseServer
   )
 }
 
-func MakePlayerItemFromPlayoutInfo(
-  playoutInfo: VideoParams.PlayoutInfo,
+public func MakePlayerItemFromPlayoutInfo(
+  playoutInfo: PlayoutInfo,
   fabricToken: String,
   title: String = "",
   description: String = "",
@@ -215,7 +227,7 @@ func MakePlayerItemFromPlayoutInfo(
   return playerItem
 }
 
-func MakePlayerItemFromMediaOptionsJson(
+public func MakePlayerItemFromMediaOptionsJson(
   fabric: Fabric,
   optionsJson: JSON,
   offering: String = "default",
@@ -230,7 +242,7 @@ func MakePlayerItemFromMediaOptionsJson(
     title: title, description: description, imageThumb: imageThumb)
 }
 
-func GetUriFromMediaOptionsJson(
+public func GetUriFromMediaOptionsJson(
   fabric: Fabric,
   optionsJson: JSON,
   offering: String = "default"
@@ -258,7 +270,7 @@ func GetUriFromMediaOptionsJson(
   return uri
 }
 
-func AuthenticatedURLAsset(url: URL, token: String) -> AVURLAsset {
+public func AuthenticatedURLAsset(url: URL, token: String) -> AVURLAsset {
   /// Adding the token as a query param will result in every URI in the response referencing the token, which bloats the size of the response.
   /// This can  be very significant for long running (6+ hours) VODS.
   /// Adding it as a header avoids all that bloat.
@@ -269,12 +281,12 @@ func AuthenticatedURLAsset(url: URL, token: String) -> AVURLAsset {
     ])
 }
 
-func AuthenticatedURLAsset(uri: String, token: String) -> AVURLAsset {
+public func AuthenticatedURLAsset(uri: String, token: String) -> AVURLAsset {
   let url = URL(string: "\(FabricConfigStore.shared.fabricBaseUrl)\(uri)")!
   return AuthenticatedURLAsset(url: url, token: token)
 }
 
-func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {
+public func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {
   let mdi = AVMutableMetadataItem()
   mdi.locale = NSLocale.current
   mdi.key = key as (NSCopying & NSObjectProtocol)
@@ -283,7 +295,7 @@ func AVMeta(_ data: String, key: AVMetadataKey) -> AVMutableMetadataItem {
   return mdi
 }
 
-func AVMetaArtwork(value: Any) -> AVMetadataItem {
+public func AVMetaArtwork(value: Any) -> AVMetadataItem {
   let item = AVMutableMetadataItem()
   item.identifier = AVMetadataIdentifier(
     rawValue: AVMetadataIdentifier.commonIdentifierArtwork.rawValue)
@@ -292,9 +304,9 @@ func AVMetaArtwork(value: Any) -> AVMetadataItem {
   return item.copy() as! AVMetadataItem
 }
 
-extension JSON {
+public extension JSON {
   /// Convenience to get a value only if it exists
-  func get(_ key: String) -> JSON? {
+  public func get(_ key: String) -> JSON? {
     let value = self[key]
     return value.exists() ? value : nil
   }

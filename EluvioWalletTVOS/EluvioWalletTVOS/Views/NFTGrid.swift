@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2021-09-27.
 //
 
+import EluvioCore
 import QGrid
 import SwiftUI
 

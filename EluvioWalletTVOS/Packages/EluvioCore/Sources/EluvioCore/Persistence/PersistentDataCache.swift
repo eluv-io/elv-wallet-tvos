@@ -12,12 +12,12 @@ import OSLog
 /// On init, all other files and folders inside `EluvioDataCache/` are deleted,
 /// so bumping `cacheVersion` automatically invalidates old data.
 @MainActor
-class PersistentDataCache: ObservableObject {
+public class PersistentDataCache: ObservableObject {
 
   private let logger = Logger(subsystem: "com.eluvio.wallet", category: "DataCache")
   private let cacheDirectory: URL
 
-  static let cacheVersion = 1
+  public static let cacheVersion = 1
 
   private enum CacheKey: String, CaseIterable {
     case propertyViewModelsCache = "property_viewmodels_cache"
@@ -45,7 +45,7 @@ class PersistentDataCache: ObservableObject {
     }
   }
 
-  init() {
+  public init() {
     let documentsPath = FileManager.default.urls(
       for: .cachesDirectory,
       in: .userDomainMask
@@ -145,7 +145,7 @@ class PersistentDataCache: ObservableObject {
 
   // MARK: - Property ViewModels Cache
 
-  func cachePropertyViewModels(
+  public func cachePropertyViewModels(
     _ propertyViewModels: [MediaProperty],
     network: String,
     environment: String,
@@ -157,7 +157,7 @@ class PersistentDataCache: ObservableObject {
     logger.info("Cached \(propertyViewModels.count) PropertyViewModels with resolved URLs")
   }
 
-  func loadCachedPropertyViewModels(
+  public func loadCachedPropertyViewModels(
     network: String,
     environment: String,
   ) -> [MediaProperty]? {
@@ -174,7 +174,7 @@ class PersistentDataCache: ObservableObject {
 
   // MARK: - Cache Management
 
-  func clearCache(network: String? = nil) {
+  public func clearCache(network: String? = nil) {
     do {
       let contents = try FileManager.default.contentsOfDirectory(
         at: cacheDirectory,
@@ -193,7 +193,7 @@ class PersistentDataCache: ObservableObject {
     }
   }
 
-  func getCacheSize() -> Int64 {
+  public func getCacheSize() -> Int64 {
     var size: Int64 = 0
     do {
       let contents = try FileManager.default.contentsOfDirectory(

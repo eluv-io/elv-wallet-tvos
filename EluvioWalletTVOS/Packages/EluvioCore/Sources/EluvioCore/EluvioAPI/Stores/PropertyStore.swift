@@ -2,15 +2,15 @@ import Observation
 
 @MainActor
 @Observable
-class PropertyStore {
-  static let shared = PropertyStore()
+public class PropertyStore {
+  public static let shared = PropertyStore()
 
   // Cache of "discoverable" Properties - those returned in the normal /properties call
-  private(set) var properties: [MediaProperty] = []
+  public private(set) var properties: [MediaProperty] = []
 
   // Properties that were fetched by the client, but not necessarily in the Discover page.
   // User either owns an NFT related to the Property, or fetched it manually somehow (deeplink, subproperties)
-  private(set) var ownedProperties: [String: MediaProperty] = [:]
+  public private(set) var ownedProperties: [String: MediaProperty] = [:]
 
   // Page cache keyed by "propertyId:pageId"
   private var pageCache: [String: MediaPropertyPage] = [:]
@@ -26,14 +26,14 @@ class PropertyStore {
       ) ?? []
   }
 
-  func clear() {
+  public func clear() {
     properties = []
     ownedProperties = [:]
     pageCache = [:]
     sectionCache = [:]
   }
 
-  func fetchProperties(includePublic: Bool = true, retries: Int = 3) async {
+  public func fetchProperties(includePublic: Bool = true, retries: Int = 3) async {
     for attempt in 1...retries {
       do {
         let response: MediaPropertiesResponse = try await NetworkManager.shared
@@ -70,7 +70,7 @@ class PropertyStore {
     }
   }
 
-  func fetchProperty(id: String) async {
+  public func fetchProperty(id: String) async {
     do {
       let property: MediaProperty = try await NetworkManager.shared.request("mw/properties/\(id)")
       debugPrint("Fetched single property: \(id)")
@@ -87,7 +87,7 @@ class PropertyStore {
     }
   }
 
-  func getProperty(id: String) -> MediaProperty? {
+  public func getProperty(id: String) -> MediaProperty? {
     // Given the amount of Properties we are dealing with (sub 100), iterating like this should be
     // pretty fast and we don't need to bother with a hashmap for quick lookups by id
     return properties.first { $0.id == id } ?? ownedProperties[id]
@@ -110,7 +110,7 @@ class PropertyStore {
   }
 
   /// Fetches a page by ID, resolves its permissions, caches it, and returns it.
-  func fetchPage(
+  public func fetchPage(
     property: MediaProperty,
     pageId: String
   ) async throws -> MediaPropertyPage {
@@ -130,7 +130,7 @@ class PropertyStore {
 
   /// Fetches all sections into cache with permissions already resolved.
   /// Unauthorized sections with "hide" permission behavior, or sections with only hidden items - will be dropped and not cached.
-  func fetchSections(property: MediaProperty, page: MediaPropertyPage) async {
+  public func fetchSections(property: MediaProperty, page: MediaPropertyPage) async {
     do {
       let response: MediaPropertySectionsResponse = try await NetworkManager.shared.request(
         "mw/properties/\(property.id)/sections?resolve_subsections=true",
@@ -154,13 +154,13 @@ class PropertyStore {
   }
 
   /// Returns cached sections for the given page (permissions already resolved).
-  func sections(for page: MediaPropertyPage) -> [MediaPropertySection] {
+  public func sections(for page: MediaPropertyPage) -> [MediaPropertySection] {
     return page.sectionIds.compactMap { sectionCache[$0] }
   }
 
 }
 
-extension MediaPropertySection {
+public extension MediaPropertySection {
   fileprivate var shouldHide: Bool {
     if resolvedPermissions?.hide == true || display?.hide_on_tv == true {
       true
@@ -173,7 +173,7 @@ extension MediaPropertySection {
     }
   }
 
-  var shouldHideInContainer: Bool {
+  public var shouldHideInContainer: Bool {
     if resolvedPermissions?.hide == true || display?.hide_on_tv == true {
       return true
     }
@@ -186,10 +186,10 @@ extension MediaPropertySection {
   }
 }
 
-extension PropertyStore {
+public extension PropertyStore {
   /// Finds the first page we are authorized to view, following redirects as needed.
   /// Throws `PageRedirectError` for purchase gates or circular redirects.
-  func getFirstAuthorizedPage(
+  public func getFirstAuthorizedPage(
     property: MediaProperty,
     pageId: String? = nil
   ) async throws -> MediaPropertyPage {

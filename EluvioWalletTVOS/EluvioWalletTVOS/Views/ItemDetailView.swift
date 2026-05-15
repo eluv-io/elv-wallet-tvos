@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2024-08-15.
 //
 
+import EluvioCore
 import SwiftUI
 
 struct ItemDetailView: View {

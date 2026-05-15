@@ -6,7 +6,7 @@ extension String: LocalizedError {
   }
 }
 
-extension String {
+public extension String {
   /// Converts empty strings to nil. This makes chaining fallbacks more convenient.
   public func nilIfEmpty() -> String? {
     if isEmpty {
@@ -16,7 +16,7 @@ extension String {
   }
 }
 
-extension String {
+public extension String {
   public enum ExtendedEncoding {
     case hexadecimal
   }

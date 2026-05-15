@@ -5,71 +5,70 @@
 //  Created by Wayne Tran on 2024-06-10.
 //
 
-import EluvioCore
 import Foundation
 import SwiftyJSON
 
-struct PagedContent<T: Codable>: Codable {
-  var contents: [T] = []
-  var paging: ResponsePaging = .init()
+public struct PagedContent<T: Codable>: Codable {
+  public var contents: [T] = []
+  public var paging: ResponsePaging = .init()
 }
 
-struct ResponsePaging: Codable {
-  var start: Int = 0
-  var limit: Int = 0
-  var total: Int = 0
+public struct ResponsePaging: Codable {
+  public var start: Int = 0
+  public var limit: Int = 0
+  public var total: Int = 0
 }
 
-typealias MediaPropertiesResponse = PagedContent<MediaProperty>
-typealias MediaPropertySectionsResponse = PagedContent<MediaPropertySection>
-typealias MediaPropertyItemsResponse = PagedContent<MediaPropertySectionMediaItem>
+public typealias MediaPropertiesResponse = PagedContent<MediaProperty>
+public typealias MediaPropertySectionsResponse = PagedContent<MediaPropertySection>
+public typealias MediaPropertyItemsResponse = PagedContent<MediaPropertySectionMediaItem>
 
-class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
-  var associated_marketplaces: [AssociatedMarketplaces]?
-  var tv_header_logo: ImageLink?
-  var header_logo: ImageLink?
-  var id: String = ""
-  var image: ImageLink?
-  var image_tv: ImageLink?
-  var start_screen_logo: ImageLink?
-  var start_screen_background: ImageLink?
-  var login: LoginInfo?
-  var name: String?
-  var title: String?
-  var page_title: String?
-  var parent_id: String?
-  var main_page: MediaPropertyPage?
-  var media_catalogs: [String]?
-  var permission_auth_state: PermissionStateMap?
-  var permission_sets: [String]?
-  var permissions: PermissionsDto?
+public class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
+  public var associated_marketplaces: [AssociatedMarketplaces]?
+  public var tv_header_logo: ImageLink?
+  public var header_logo: ImageLink?
+  public var id: String = ""
+  public var image: ImageLink?
+  public var image_tv: ImageLink?
+  public var start_screen_logo: ImageLink?
+  public var start_screen_background: ImageLink?
+  public var login: LoginInfo?
+  public var name: String?
+  public var title: String?
+  public var page_title: String?
+  public var parent_id: String?
+  public var main_page: MediaPropertyPage?
+  public var media_catalogs: [String]?
+  public var permission_auth_state: PermissionStateMap?
+  public var permission_sets: [String]?
+  public var permissions: PermissionsDto?
   // Set on the client
-  var resolvedPermissions: ResolvedPermission?
-  var resolvedPropertyPermissions: ResolvedPermission?
-  var resolvedSearchPermissions: ResolvedPermission?
-  var permissionChildren: [any Permissionable] { [main_page].filterNotNil() }
-  var require_login: Bool?
-  var slug: String?
-  var sections: [String: MediaPropertySection]?
-  var purchase_settings: PurchaseSettings?
-  var subproperties: [String]?
-  var tenant: TenantDto?
-  var property_selection: [PropertySelection]?
-  var show_property_selection: Bool?
-  var domain: JSON?
+  public var resolvedPermissions: ResolvedPermission?
+  public var resolvedPropertyPermissions: ResolvedPermission?
+  public var resolvedSearchPermissions: ResolvedPermission?
+  public var permissionChildren: [any Permissionable] { [main_page].filterNotNil() }
+  public var require_login: Bool?
+  public var slug: String?
+  public var sections: [String: MediaPropertySection]?
+  public var purchase_settings: PurchaseSettings?
+  public var subproperties: [String]?
+  public var tenant: TenantDto?
+  public var property_selection: [PropertySelection]?
+  public var show_property_selection: Bool?
+  public var domain: JSON?
 
-  static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
+  public static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
     return lhs.id == rhs.id
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }
 
 /// Convenience methods
-extension MediaProperty {
-  var displayName: String {
+public extension MediaProperty {
+  public var displayName: String {
     if let title = title, title != "" {
       return title
     } else {
@@ -77,15 +76,15 @@ extension MediaProperty {
     }
   }
 
-  var startScreenImage: String { start_screen_logo?.url ?? "" }
+  public var startScreenImage: String { start_screen_logo?.url ?? "" }
 
-  var startScreenBackground: String { start_screen_background?.url ?? "" }
+  public var startScreenBackground: String { start_screen_background?.url ?? "" }
 
-  var backgroundImage: String { image_tv?.url ?? "" }
+  public var backgroundImage: String { image_tv?.url ?? "" }
 
-  var purchaseImage: String { purchase_settings?.background_tv?.url ?? backgroundImage }
+  public var purchaseImage: String { purchase_settings?.background_tv?.url ?? backgroundImage }
 
-  var accountType: AccountType {
+  public var accountType: AccountType {
     if login?.settings?.use_auth0 == true,
       let domain = login?.settings?.auth0_domain?.nilIfEmpty()
     {
@@ -96,18 +95,18 @@ extension MediaProperty {
   }
 }
 
-struct PurchaseSettings: Codable {
-  var background_tv: ImageLink?
+public struct PurchaseSettings: Codable {
+  public var background_tv: ImageLink?
 }
 
-struct PropertySelection: Codable {
-  var property_id: String
-  var title: String?
-  var icon: ImageLink?
-  var tile: ImageLink?
+public struct PropertySelection: Codable {
+  public var property_id: String
+  public var title: String?
+  public var icon: ImageLink?
+  public var tile: ImageLink?
 }
 
-enum PermissionBehavior: String, Codable, Hashable {
+public enum PermissionBehavior: String, Codable, Hashable {
   case hide = "hide"
   case disable = "disable"
   case showPurchase = "show_purchase"
@@ -116,252 +115,252 @@ enum PermissionBehavior: String, Codable, Hashable {
   // Server didn't return a response we recognized (usually "")
   case undefined
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let value = try decoder.singleValueContainer().decode(String.self)
     self = PermissionBehavior(rawValue: value) ?? .undefined
   }
 }
-struct PermissionsDto: Codable, Hashable {
+public struct PermissionsDto: Codable, Hashable {
   // Permission items required to access this object.
-  var permission_item_ids: [String]?
+  public var permission_item_ids: [String]?
 
   // Content permissions, trickles down to children.
-  var behavior: PermissionBehavior?
-  var alternate_page_id: String?
-  var secondary_market_purchase_option: String?
+  public var behavior: PermissionBehavior?
+  public var alternate_page_id: String?
+  public var secondary_market_purchase_option: String?
 
   // Only applies to Pages
-  var page_permissions: [String]?
-  var page_permissions_behavior: PermissionBehavior?
-  var page_permissions_alternate_page_id: String?
-  var page_permissions_secondary_market_purchase_option: String?
+  public var page_permissions: [String]?
+  public var page_permissions_behavior: PermissionBehavior?
+  public var page_permissions_alternate_page_id: String?
+  public var page_permissions_secondary_market_purchase_option: String?
 
   // Only applies to Properties
-  var property_permissions: [String]?
-  var property_permissions_behavior: PermissionBehavior?
-  var property_permissions_alternate_page_id: String?
-  var property_permissions_secondary_market_purchase_option: String?
+  public var property_permissions: [String]?
+  public var property_permissions_behavior: PermissionBehavior?
+  public var property_permissions_alternate_page_id: String?
+  public var property_permissions_secondary_market_purchase_option: String?
 
   // Search results permission behavior
-  var search_permissions_behavior: PermissionBehavior?
-  var search_permissions_alternate_page_id: String?
-  var search_permissions_secondary_market_purchase_option: String?
+  public var search_permissions_behavior: PermissionBehavior?
+  public var search_permissions_alternate_page_id: String?
+  public var search_permissions_secondary_market_purchase_option: String?
 }
 
-struct AssociatedMarketplaces: Codable {
-  var marketplace_id: String
-  var marketplace_slug: String
-  var tenant_slug: String
+public struct AssociatedMarketplaces: Codable {
+  public var marketplace_id: String
+  public var marketplace_slug: String
+  public var tenant_slug: String
 }
 
-final class MediaPropertyPage: Permissionable, Encodable, Equatable {
-  static func == (lhs: MediaPropertyPage, rhs: MediaPropertyPage) -> Bool {
+public final class MediaPropertyPage: Permissionable, Encodable, Equatable {
+  public static func == (lhs: MediaPropertyPage, rhs: MediaPropertyPage) -> Bool {
     lhs.id == rhs.id
   }
 
-  var id: String = "main"
-  var layout: JSON?
-  var permissions: PermissionsDto?
-  var resolvedPermissions: ResolvedPermission?
-  var resolvedPagePermissions: ResolvedPermission?
+  public var id: String = "main"
+  public var layout: JSON?
+  public var permissions: PermissionsDto?
+  public var resolvedPermissions: ResolvedPermission?
+  public var resolvedPagePermissions: ResolvedPermission?
   // Sections aren't directly connected to the object, so stop propagation here.
-  var permissionChildren: [any Permissionable] { [] }
-  var label: String?
-  var slug: String?
-  var sections: [String]?
+  public var permissionChildren: [any Permissionable] { [] }
+  public var label: String?
+  public var slug: String?
+  public var sections: [String]?
 
   /// Section IDs from layout — this is where the server stores the page's section references.
-  var sectionIds: [String] {
+  public var sectionIds: [String] {
     layout?["sections"].arrayValue.compactMap { $0.string } ?? []
   }
 }
 
-final class MediaPropertySection: Identifiable, Hashable, Permissionable, Encodable {
-  var id: String = UUID().uuidString
-  var content: [MediaPropertySectionItem]? = []
-  var description: String?
-  var authorized: Bool?
-  var display: DisplaySettings?
-  var label: String?
-  var permissions: PermissionsDto?
-  var type: String?
-  var hero_items: JSON?
-  var sections_resolved: [MediaPropertySection]?
-  var resolvedPermissions: ResolvedPermission?
-  var permissionChildren: [any Permissionable] {
+public final class MediaPropertySection: Identifiable, Hashable, Permissionable, Encodable {
+  public var id: String = UUID().uuidString
+  public var content: [MediaPropertySectionItem]? = []
+  public var description: String?
+  public var authorized: Bool?
+  public var display: DisplaySettings?
+  public var label: String?
+  public var permissions: PermissionsDto?
+  public var type: String?
+  public var hero_items: JSON?
+  public var sections_resolved: [MediaPropertySection]?
+  public var resolvedPermissions: ResolvedPermission?
+  public var permissionChildren: [any Permissionable] {
     (content ?? []) + (sections_resolved ?? [])
   }
 
-  var displayLimit: Int {
+  public var displayLimit: Int {
     display?.display_limit ?? 0
   }
 
-  var displayTitle: String {
+  public var displayTitle: String {
     display?.title ?? ""
   }
 
-  var displaySubtitle: String {
+  public var displaySubtitle: String {
     display?.subtitle ?? ""
   }
 
-  var displayJustification: String {
+  public var displayJustification: String {
     display?.justification ?? ""
   }
 
-  var showViewAll: Bool {
+  public var showViewAll: Bool {
     let content = content ?? []
     return content.count > 5 || (content.count > displayLimit && displayLimit > 0)
   }
 
-  static func == (lhs: MediaPropertySection, rhs: MediaPropertySection) -> Bool {
+  public static func == (lhs: MediaPropertySection, rhs: MediaPropertySection) -> Bool {
     return lhs.id == rhs.id
       && lhs.displayTitle == rhs.displayTitle
       && lhs.displaySubtitle == rhs.displaySubtitle
       && lhs.content?.count == rhs.content?.count
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(displayTitle)
   }
 }
 
-final class MediaPropertySectionItem: Identifiable, Hashable, Permissionable, Encodable {
-  var id: String? = UUID().uuidString
-  var banner_image: ImageLink?
-  var banner_image_mobile: ImageLink?
-  var media_id: String? = UUID().uuidString
-  var media_type: String?
-  var type: String?
-  var media: MediaPropertySectionMediaItem?
-  var description: String?
-  var disabled: Bool? = false
-  var display: DisplaySettings?
-  var label: String?
-  var expand: Bool?
-  var use_media_settings: Bool? = false
-  var subproperty_id: String?
-  var subproperty_page_id: String?
-  var permissions: PermissionsDto?
-  var page_id: String?
-  var url: String?
-  var resolvedPermissions: ResolvedPermission?
-  var permissionChildren: [any Permissionable] { [media].filterNotNil() }
+public final class MediaPropertySectionItem: Identifiable, Hashable, Permissionable, Encodable {
+  public var id: String? = UUID().uuidString
+  public var banner_image: ImageLink?
+  public var banner_image_mobile: ImageLink?
+  public var media_id: String? = UUID().uuidString
+  public var media_type: String?
+  public var type: String?
+  public var media: MediaPropertySectionMediaItem?
+  public var description: String?
+  public var disabled: Bool? = false
+  public var display: DisplaySettings?
+  public var label: String?
+  public var expand: Bool?
+  public var use_media_settings: Bool? = false
+  public var subproperty_id: String?
+  public var subproperty_page_id: String?
+  public var permissions: PermissionsDto?
+  public var page_id: String?
+  public var url: String?
+  public var resolvedPermissions: ResolvedPermission?
+  public var permissionChildren: [any Permissionable] { [media].filterNotNil() }
 
-  func getBannerUrl() -> String {
+  public func getBannerUrl() -> String {
     return banner_image?.url ?? ""
   }
 
-  static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
+  public static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
     return lhs.id == rhs.id
       && lhs.media?.title == rhs.media?.title
       && lhs.media?.live_video == rhs.media?.live_video
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(media?.title)
   }
 }
 
-var debugTimeStatus = false
-var debugStartDate = Date() + 4 * 60
-var debugStreamStartDate = Date() + 3 * 60
-var debugEndDate = Date() + 5 * 60
+public var debugTimeStatus = false
+public var debugStartDate = Date() + 4 * 60
+public var debugStreamStartDate = Date() + 3 * 60
+public var debugEndDate = Date() + 5 * 60
 
-struct IconItem: Codable {
-  var icon: ImageLink?
+public struct IconItem: Codable {
+  public var icon: ImageLink?
 }
 
-struct MediaItemAdditionView: Codable, Identifiable, Hashable {
-  var id: String? = UUID().uuidString
-  var image: ImageLink?
-  var image_tv: ImageLink?
-  var image_hash: String? = ""
-  var label: String? = ""
-  var media_link: JSON?
-  var media_link_info: JSON?
+public struct MediaItemAdditionView: Codable, Identifiable, Hashable {
+  public var id: String? = UUID().uuidString
+  public var image: ImageLink?
+  public var image_tv: ImageLink?
+  public var image_hash: String? = ""
+  public var label: String? = ""
+  public var media_link: JSON?
+  public var media_link_info: JSON?
 
-  var effectiveImage: ImageLink? {
+  public var effectiveImage: ImageLink? {
     image_tv ?? image
   }
 
-  static func == (lhs: MediaItemAdditionView, rhs: MediaItemAdditionView) -> Bool {
+  public static func == (lhs: MediaItemAdditionView, rhs: MediaItemAdditionView) -> Bool {
     return lhs.id == rhs.id
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }
 
-final class MediaPropertySectionMediaItem: Identifiable, Hashable, Permissionable, Encodable {
-  var id: String = UUID().uuidString
-  var additional_views: [MediaItemAdditionView]?
-  var additional_views_label: String? = ""
-  var catalog_title: String? = ""
-  var description: String? = ""
-  var description_rich_text: String? = ""
-  var controls: String? = ""
-  var viewed_settings: JSON?
-  var tags: [JSON]?
-  var end_time: String? = ""
-  var offerings: [String]? = []
-  var start_time: String? = ""
-  var stream_start_time: String? = ""
-  var label: String? = ""
-  var live_video: Bool? = false
-  var gallery: [GalleryItem]? = nil
-  var headers: [String]? = nil
-  var media: [String]? = nil
-  var media_lists: [String]?
-  var media_catalog_id: String? = ""
-  var media_file: ImageLink?
-  var media_link: JSON?
-  var media_type: String? = ""
-  var poster_image: ImageLink?
-  var thumbnail_image_square: ImageLink?
-  var thumbnail_image_portrait: ImageLink?
-  var thumbnail_image_landscape: ImageLink?
-  var title: String? = ""
-  var subtitle: String? = ""
-  var type: String? = ""
-  var icons: [IconItem]? = nil
-  var `public`: Bool? = nil
+public final class MediaPropertySectionMediaItem: Identifiable, Hashable, Permissionable, Encodable {
+  public var id: String = UUID().uuidString
+  public var additional_views: [MediaItemAdditionView]?
+  public var additional_views_label: String? = ""
+  public var catalog_title: String? = ""
+  public var description: String? = ""
+  public var description_rich_text: String? = ""
+  public var controls: String? = ""
+  public var viewed_settings: JSON?
+  public var tags: [JSON]?
+  public var end_time: String? = ""
+  public var offerings: [String]? = []
+  public var start_time: String? = ""
+  public var stream_start_time: String? = ""
+  public var label: String? = ""
+  public var live_video: Bool? = false
+  public var gallery: [GalleryItem]? = nil
+  public var headers: [String]? = nil
+  public var media: [String]? = nil
+  public var media_lists: [String]?
+  public var media_catalog_id: String? = ""
+  public var media_file: ImageLink?
+  public var media_link: JSON?
+  public var media_type: String? = ""
+  public var poster_image: ImageLink?
+  public var thumbnail_image_square: ImageLink?
+  public var thumbnail_image_portrait: ImageLink?
+  public var thumbnail_image_landscape: ImageLink?
+  public var title: String? = ""
+  public var subtitle: String? = ""
+  public var type: String? = ""
+  public var icons: [IconItem]? = nil
+  public var `public`: Bool? = nil
   // Normalized at decode time from the server's [{permission_item_id: "..."}] format
-  var permissions: PermissionsDto?
+  public var permissions: PermissionsDto?
   // Original server JSON for permissions, used by legacy Fabric.swift code
-  var legacy_permissions: JSON?
-  var resolvedPermissions: ResolvedPermission?
-  var permissionChildren: [any Permissionable] { [] }
+  public var legacy_permissions: JSON?
+  public var resolvedPermissions: ResolvedPermission?
+  public var permissionChildren: [any Permissionable] { [] }
 }
 
-struct TenantDto: Codable {
-  var tenant_id: String
-  var tenant_iten: String?
+public struct TenantDto: Codable {
+  public var tenant_id: String
+  public var tenant_iten: String?
 }
 
-struct LoginInfo: Codable {
-  var settings: LoginSettings?
-  var styling: LoginStyling?
+public struct LoginInfo: Codable {
+  public var settings: LoginSettings?
+  public var styling: LoginStyling?
 }
 
-struct LoginSettings: Codable {
-  var use_auth0: Bool?
-  var disable_login: Bool?
-  var auth0_domain: String?
+public struct LoginSettings: Codable {
+  public var use_auth0: Bool?
+  public var disable_login: Bool?
+  public var auth0_domain: String?
 
   // Deprecated. This field should no longer be considered
-  var provider: String?
+  public var provider: String?
 
   // Deprecated
-  var auth0_native_client_id: String?
+  public var auth0_native_client_id: String?
 }
 
-struct LoginStyling: Codable {
-  var background_image_tv: ImageLink?
-  var background_image_desktop: ImageLink?
+public struct LoginStyling: Codable {
+  public var background_image_tv: ImageLink?
+  public var background_image_desktop: ImageLink?
 
-  var logo_tv: ImageLink?
-  var logo: ImageLink?
+  public var logo_tv: ImageLink?
+  public var logo: ImageLink?
 }

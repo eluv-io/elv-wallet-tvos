@@ -8,23 +8,23 @@
 import Foundation
 import SwiftyJSON
 
-struct MintRequestModel: Codable {
-  var op: String? = ""
-  var entitlement: EntitlementModel?
-  var signature: String
+public struct MintRequestModel: Codable {
+  public var op: String? = ""
+  public var entitlement: EntitlementModel?
+  public var signature: String
 }
 
-struct EntitlementModel: Codable {
-  var tenant_id: String? = ""
-  var marketplace_id: String? = ""
-  var sku: String? = ""
-  var items: [EntitlementItem]? = []
-  var user: String? = ""
-  var amount: Int? = 1
-  var purchase_id: String
+public struct EntitlementModel: Codable {
+  public var tenant_id: String? = ""
+  public var marketplace_id: String? = ""
+  public var sku: String? = ""
+  public var items: [EntitlementItem]? = []
+  public var user: String? = ""
+  public var amount: Int? = 1
+  public var purchase_id: String
 }
 
-struct EntitlementItem: Codable {
-  var sku: String
-  var amount: Int
+public struct EntitlementItem: Codable {
+  public var sku: String
+  public var amount: Int
 }

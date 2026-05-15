@@ -7,19 +7,19 @@
 
 import Foundation
 
-var DEMO_LOCATIONS: [String]? = ["los angeles", "phoenix", "washington dc"]
+public var DEMO_LOCATIONS: [String]? = ["los angeles", "phoenix", "washington dc"]
 
-struct ProfileData: Codable, Equatable {
+public struct ProfileData: Codable, Equatable {
   // DEMO:
-  var locations: [String]? = DEMO_LOCATIONS
-  var preferredLocation: String? = "los angeles"
+  public var locations: [String]? = DEMO_LOCATIONS
+  public var preferredLocation: String? = "los angeles"
 }
 
-class Profile: ObservableObject {
+public class Profile: ObservableObject {
   @Published
-  var profileData = ProfileData()
+  public var profileData = ProfileData()
 
-  func setPreferredLocation(location: String) async throws {
+  public func setPreferredLocation(location: String) async throws {
     profileData.preferredLocation = location
     if var locations = profileData.locations {
       if !locations.contains(location) {
@@ -35,7 +35,7 @@ class Profile: ObservableObject {
     try await save()
   }
 
-  func save() async throws {
+  public func save() async throws {
     let jsonData = try JSONEncoder().encode(profileData)
     let jsonString = String(data: jsonData, encoding: .utf8)!
 
@@ -44,7 +44,7 @@ class Profile: ObservableObject {
     UserDefaults.standard.set(jsonString, forKey: "profile_settings")
   }
 
-  func refresh() async throws {
+  public func refresh() async throws {
     if let settings = UserDefaults.standard.string(forKey: "profile_settings")?.data(using: .utf8) {
       do {
         let data = try JSONDecoder().decode(ProfileData.self, from: settings)

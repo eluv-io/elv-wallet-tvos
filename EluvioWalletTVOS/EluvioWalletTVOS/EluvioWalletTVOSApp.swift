@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2023-03-23.
 //
 
+import EluvioCore
 import FirebaseCore
 import SDWebImage
 import SwiftUI
@@ -25,6 +26,7 @@ struct EluvioWalletTVOSApp: App {
 
     configureFirebase()
     initWebImageComponents()
+    SignOutHandler.resetNavigation = { Router.shared.reset() }
   }
 
   private func configureFirebase() {

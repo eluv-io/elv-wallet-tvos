@@ -10,40 +10,56 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-struct RedeemStatus {
-  var isRedeemed = false
-  var isActive = true
-  var transactionHash = ""
-  var redeemer = ""
-  var fulfillment: JSON?
+public struct RedeemStatus {
+  public var isRedeemed = false
+  public var isActive = true
+  public var transactionHash = ""
+  public var redeemer = ""
+  public var fulfillment: JSON?
+
+  public init(
+    isRedeemed: Bool = false,
+    isActive: Bool = true,
+    transactionHash: String = "",
+    redeemer: String = "",
+    fulfillment: JSON? = nil
+  ) {
+    self.isRedeemed = isRedeemed
+    self.isActive = isActive
+    self.transactionHash = transactionHash
+    self.redeemer = redeemer
+    self.fulfillment = fulfillment
+  }
 }
 
-struct RedeemVisibility: Codable {
-  var hide_if_expired: Bool = false
-  var hide: Bool = false
-  var featured: Bool = true
-  var hide_if_unreleased: Bool = false
+public struct RedeemVisibility: Codable {
+  public var hide_if_expired: Bool = false
+  public var hide: Bool = false
+  public var featured: Bool = true
+  public var hide_if_unreleased: Bool = false
+
+  public init() {}
 }
 
-class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
-  var id: String? = UUID().uuidString
-  var offerId: String = ""
-  var expiresAt: String = ""
-  var name: String = ""
-  var description: String = ""
-  var animationLink: JSON?
-  var redeemAnimationLink: JSON?
-  var availableAt: String = ""
+public class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
+  public var id: String? = UUID().uuidString
+  public var offerId: String = ""
+  public var expiresAt: String = ""
+  public var name: String = ""
+  public var description: String = ""
+  public var animationLink: JSON?
+  public var redeemAnimationLink: JSON?
+  public var availableAt: String = ""
   @Published
-  var status = RedeemStatus()
-  var imageUrl: String = ""
-  var posterUrl: String = ""
-  var tags: [TagMeta] = []
-  var nft = NFTModel()
-  var isClaimed: Bool = false
-  var visibility: RedeemVisibility
+  public var status = RedeemStatus()
+  public var imageUrl: String = ""
+  public var posterUrl: String = ""
+  public var tags: [TagMeta] = []
+  public var nft = NFTModel()
+  public var isClaimed: Bool = false
+  public var visibility: RedeemVisibility
 
-  init(
+  public init(
     id: String? = UUID().uuidString,
     offerId: String = "",
     expiresAt: String = "",
@@ -77,7 +93,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     self.nft = nft
   }
 
-  var availableAtFormatted: String {
+  public var availableAtFormatted: String {
     let dateFormatter = ISO8601DateFormatter()
     guard let date = dateFormatter.date(from: availableAt) else { return "" }
     let formatter = DateFormatter()
@@ -85,7 +101,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return formatter.string(from: date)
   }
 
-  var expiresAtFormatted: String {
+  public var expiresAtFormatted: String {
     let dateFormatter = ISO8601DateFormatter()
     guard let date = dateFormatter.date(from: expiresAt) else { return "" }
     let formatter = DateFormatter()
@@ -93,13 +109,13 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return formatter.string(from: date)
   }
 
-  var isExpired: Bool {
+  public var isExpired: Bool {
     let dateFormatter = ISO8601DateFormatter()
     guard let date = dateFormatter.date(from: expiresAt) else { return false }
     return date < Date()
   }
 
-  var isFuture: Bool {
+  public var isFuture: Bool {
     let dateFormatter = ISO8601DateFormatter()
     guard let date = dateFormatter.date(from: availableAt) else { return false }
 
@@ -107,7 +123,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return date > Date()
   }
 
-  var isActionable: Bool {
+  public var isActionable: Bool {
     if !status.isActive {
       return false
     }
@@ -127,12 +143,12 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return true
   }
 
-  func shouldDisplay(currentUserAddress _: String) -> Bool {
+  public func shouldDisplay(currentUserAddress _: String) -> Bool {
     return status.isActive && !visibility.hide && !(visibility.hide_if_expired && isExpired)
       && !(visibility.hide_if_unreleased && isFuture)
   }
 
-  func displayLabel(currentUserAddress: String) -> String {
+  public func displayLabel(currentUserAddress: String) -> String {
     if status.isRedeemed && !isRedeemer(address: currentUserAddress) {
       return "CLAIMED REWARD"
     }
@@ -144,11 +160,11 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return "REWARD"
   }
 
-  func isRedeemer(address: String) -> Bool {
+  public func isRedeemer(address: String) -> Bool {
     return !status.isRedeemed || address.lowercased() == status.redeemer.lowercased()
   }
 
-  var location: String {
+  public var location: String {
     for tag in tags {
       if tag.key == "location" {
         return tag.value
@@ -157,7 +173,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return ""
   }
 
-  var contentTag: String {
+  public var contentTag: String {
     for tag in tags {
       if tag.key == "content" {
         return tag.value
@@ -166,7 +182,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return ""
   }
 
-  func getTag(key: String) -> String {
+  public func getTag(key: String) -> String {
     for tag in tags {
       if tag.key == key {
         return tag.value
@@ -175,7 +191,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return ""
   }
 
-  func checkOfferStatus(fabric: Fabric) async throws -> RedeemStatus {
+  public func checkOfferStatus(fabric: Fabric) async throws -> RedeemStatus {
     let result = try await fabric.isOfferActive(offerId: offerId, nft: nft)
     let isOfferActive = result?.active == true
     let isRedeemed = result?.offerRedeemed == true
@@ -183,7 +199,7 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
     return RedeemStatus(isRedeemed: isRedeemed, isActive: isOfferActive)
   }
 
-  static func create(fabric: Fabric, redeemable: Redeemable, nft: NFTModel, address: String)
+  public static func create(fabric: Fabric, redeemable: Redeemable, nft: NFTModel, address: String)
     async throws -> RedeemableViewModel
   {
     let animationLink = redeemable.animation?["sources"]["default"]
@@ -240,37 +256,37 @@ class RedeemableViewModel: Identifiable, Equatable, ObservableObject {
   }
 
   // TODO: Find a good id for this
-  static func == (lhs: RedeemableViewModel, rhs: RedeemableViewModel) -> Bool {
+  public static func == (lhs: RedeemableViewModel, rhs: RedeemableViewModel) -> Bool {
     return lhs.id == rhs.id
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }
 
-struct Redeemable: FeatureProtocol {
-  var id: String? {
+public struct Redeemable: FeatureProtocol {
+  public var id: String? {
     if let offerid = offer_id {
       return (name ?? UUID().uuidString) + " - " + offerid
     }
     return UUID().uuidString
   }
 
-  var expires_at: String?
-  var name: String?
-  var description: String?
-  var sources: JSON?
-  var animation: JSON?
-  var redeem_animation: JSON?
-  var available_at: String?
-  var offer_id: String?
-  var image: ImageLink?
-  var poster_image: ImageLink?
-  var visibility: RedeemVisibility?
-  var tags: [TagMeta]? = []
+  public var expires_at: String?
+  public var name: String?
+  public var description: String?
+  public var sources: JSON?
+  public var animation: JSON?
+  public var redeem_animation: JSON?
+  public var available_at: String?
+  public var offer_id: String?
+  public var image: ImageLink?
+  public var poster_image: ImageLink?
+  public var visibility: RedeemVisibility?
+  public var tags: [TagMeta]? = []
 
-  var location: String {
+  public var location: String {
     for tag in tags ?? [] {
       if tag.key == "location" {
         return tag.value
@@ -279,7 +295,7 @@ struct Redeemable: FeatureProtocol {
     return ""
   }
 
-  var contentTag: String {
+  public var contentTag: String {
     for tag in tags ?? [] {
       if tag.key == "content" {
         return tag.value
@@ -288,7 +304,7 @@ struct Redeemable: FeatureProtocol {
     return ""
   }
 
-  func getTag(key: String) -> String {
+  public func getTag(key: String) -> String {
     if let tags = tags {
       for tag in tags {
         if tag.key == key {
@@ -301,36 +317,36 @@ struct Redeemable: FeatureProtocol {
   }
 }
 
-struct NFTModel: FeatureProtocol, Equatable, Hashable {
-  var id: String? = UUID().uuidString
-  var block: Int?
-  var created: Int?
-  var cap: Int?
-  var contract_name: String?
-  var contract_addr: String?
-  var hold: Int?
-  var ordinal: Int?
-  var token_id: Int?
-  var token_id_str: String?
-  var token_owner: String?
-  var token_uri: String?
-  var meta: NFTMetaResponse = .init()
-  var nft_template: JSON?
+public struct NFTModel: FeatureProtocol, Equatable, Hashable {
+  public var id: String? = UUID().uuidString
+  public var block: Int?
+  public var created: Int?
+  public var cap: Int?
+  public var contract_name: String?
+  public var contract_addr: String?
+  public var hold: Int?
+  public var ordinal: Int?
+  public var token_id: Int?
+  public var token_id_str: String?
+  public var token_owner: String?
+  public var token_uri: String?
+  public var meta: NFTMetaResponse = .init()
+  public var nft_template: JSON?
 
   // TODO: Move to a ViewModel
-  var meta_full: JSON?
-  var has_playable_feature: Bool?
-  var has_album: Bool? = false
-  var additional_media_sections: AdditionalMediaModel?
-  var property: PropertyModel?
-  var project: ProjectModel?
-  var background_image_tv: String? = ""  // XXX: Demo only
-  var background_image: String? = ""  // XXX: Demo only
-  var title_image: String? = ""  // XXX: Demo only
-  var redeemable_offers: [Redeemable]?
-  var mediaCache: [String: MediaItem]? = [:]
+  public var meta_full: JSON?
+  public var has_playable_feature: Bool?
+  public var has_album: Bool? = false
+  public var additional_media_sections: AdditionalMediaModel?
+  public var property: PropertyModel?
+  public var project: ProjectModel?
+  public var background_image_tv: String? = ""  // XXX: Demo only
+  public var background_image: String? = ""  // XXX: Demo only
+  public var title_image: String? = ""  // XXX: Demo only
+  public var redeemable_offers: [Redeemable]?
+  public var mediaCache: [String: MediaItem]? = [:]
 
-  var getFirstFeature: MediaItem? {
+  public var getFirstFeature: MediaItem? {
     if let sections = additional_media_sections {
       if !sections.featured_media.isEmpty {
         return sections.featured_media[0]
@@ -339,7 +355,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     return nil
   }
 
-  var isPack: Bool {
+  public var isPack: Bool {
     // debugPrint("NFTModel isPack ", meta)
     guard let isOpenable = meta_full?["pack_options"]["is_openable"].boolValue else {
       debugPrint("could not get packOptions")
@@ -351,7 +367,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
   }
 
   // XXX: Demo only, the layout tag is burried inside the first featured media
-  var isMovieLayout: Bool {
+  public var isMovieLayout: Bool {
     if let media = getFirstFeature {
       return media.getTag(key: "layout").lowercased() == "movie"
     }
@@ -359,7 +375,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     return false
   }
 
-  func getTag(key: String) -> String {
+  public func getTag(key: String) -> String {
     if let tags = meta.tags {
       for tag in tags {
         if tag.key == key {
@@ -371,7 +387,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     return ""
   }
 
-  var isSeries: Bool {
+  public var isSeries: Bool {
     return false
     /*
      if let attributes = meta_full?["attributes"].array {
@@ -387,7 +403,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
       */
   }
 
-  var has_tile: Bool {
+  public var has_tile: Bool {
     guard let image = title_image else {
       return false
     }
@@ -395,7 +411,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     return !image.isEmpty
   }
 
-  var has_multiple_media: Bool {
+  public var has_multiple_media: Bool {
     guard let mediaSections = additional_media_sections else {
       return false
     }
@@ -409,7 +425,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
   }
 
   /// returns the media item identified by id, or the first video feature if it's empty
-  func getMediaItem(id: String) -> MediaItem? {
+  public func getMediaItem(id: String) -> MediaItem? {
     if id == "" {
       guard let mediaSections = additional_media_sections else {
         return nil
@@ -429,7 +445,7 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
     return mediaCache?[id]
   }
 
-  init() {
+  public init() {
     block = 0
     created = 0
     cap = 0
@@ -448,11 +464,11 @@ struct NFTModel: FeatureProtocol, Equatable, Hashable {
   }
 
   // TODO: Find a good id for this
-  static func == (lhs: NFTModel, rhs: NFTModel) -> Bool {
+  public static func == (lhs: NFTModel, rhs: NFTModel) -> Bool {
     return lhs.contract_addr == rhs.contract_addr
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(contract_addr)
   }
 }

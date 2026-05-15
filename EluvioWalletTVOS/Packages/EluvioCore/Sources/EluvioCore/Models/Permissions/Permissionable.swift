@@ -1,4 +1,4 @@
-protocol Permissionable: AnyObject {
+public protocol Permissionable: AnyObject {
   // Set by server. Doesn't tell the full story until resolved.
   var permissions: PermissionsDto? { get }
   // Set on the client after resolution.

@@ -8,19 +8,35 @@
 import Foundation
 import SwiftyJSON
 
-enum FilterStyle: Codable {
+public enum FilterStyle: Codable {
   case text, image
 }
 
-struct PrimaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
-  var id: String = ""
-  var imageUrl: String = ""
-  var secondaryFilters: [SecondaryFilterViewModel] = []
-  var attribute: String = ""
-  var secondaryAttribute: String = ""
-  var secondaryFilterStyle: FilterStyle = .text
+public struct PrimaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
+  public var id: String = ""
+  public var imageUrl: String = ""
+  public var secondaryFilters: [SecondaryFilterViewModel] = []
+  public var attribute: String = ""
+  public var secondaryAttribute: String = ""
+  public var secondaryFilterStyle: FilterStyle = .text
 
-  static func GetFilterStyle(style: String) -> FilterStyle {
+  public init(
+    id: String = "",
+    imageUrl: String = "",
+    secondaryFilters: [SecondaryFilterViewModel] = [],
+    attribute: String = "",
+    secondaryAttribute: String = "",
+    secondaryFilterStyle: FilterStyle = .text
+  ) {
+    self.id = id
+    self.imageUrl = imageUrl
+    self.secondaryFilters = secondaryFilters
+    self.attribute = attribute
+    self.secondaryAttribute = secondaryAttribute
+    self.secondaryFilterStyle = secondaryFilterStyle
+  }
+
+  public static func GetFilterStyle(style: String) -> FilterStyle {
     if style == "image" {
       return .image
     }
@@ -28,7 +44,7 @@ struct PrimaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
     return .text
   }
 
-  var title: String {
+  public var title: String {
     if id.isEmpty {
       return "All"
     }
@@ -36,20 +52,25 @@ struct PrimaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
     return id
   }
 
-  static func == (lhs: PrimaryFilterViewModel, rhs: PrimaryFilterViewModel) -> Bool {
+  public static func == (lhs: PrimaryFilterViewModel, rhs: PrimaryFilterViewModel) -> Bool {
     return lhs.id == rhs.id
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }
 
-struct SecondaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
-  var id: String = ""
-  var imageUrl: String = ""
+public struct SecondaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
+  public var id: String = ""
+  public var imageUrl: String = ""
 
-  var title: String {
+  public init(id: String = "", imageUrl: String = "") {
+    self.id = id
+    self.imageUrl = imageUrl
+  }
+
+  public var title: String {
     if id.isEmpty {
       return "All"
     }
@@ -57,11 +78,11 @@ struct SecondaryFilterViewModel: Identifiable, Codable, Equatable, Hashable {
     return id
   }
 
-  static func == (lhs: SecondaryFilterViewModel, rhs: SecondaryFilterViewModel) -> Bool {
+  public static func == (lhs: SecondaryFilterViewModel, rhs: SecondaryFilterViewModel) -> Bool {
     return lhs.id == rhs.id
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }

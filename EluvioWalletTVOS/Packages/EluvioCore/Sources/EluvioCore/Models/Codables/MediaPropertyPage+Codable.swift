@@ -2,11 +2,11 @@ import Foundation
 import SwiftyJSON
 
 extension MediaPropertyPage: Decodable {
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case id, label, layout, permissions, slug, sections, resolvedPermissions, resolvedPagePermissions
   }
 
-  convenience init(from decoder: Decoder) throws {
+  public convenience init(from decoder: Decoder) throws {
     self.init()
     let container = try decoder.container(keyedBy: CodingKeys.self)
     id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
@@ -18,7 +18,7 @@ extension MediaPropertyPage: Decodable {
     resolvedPagePermissions = try container.decodeIfPresent(ResolvedPermission.self, forKey: .resolvedPagePermissions)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(id, forKey: .id)
     try container.encodeIfPresent(label, forKey: .label)

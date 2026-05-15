@@ -9,9 +9,9 @@
 import Foundation
 import SwiftyJSON
 
-class MockFabric: Fabric {
+public class MockFabric: Fabric {
 
-  override func getProperty(
+  public override func getProperty(
     property: String,
     newFetch: Bool = false
   ) async throws -> MediaProperty? {
@@ -19,7 +19,7 @@ class MockFabric: Fabric {
     return MockData.property(id: property)
   }
 
-  override func getUrlFromLink(
+  public override func getUrlFromLink(
     link: JSON?,
     baseUrl: String? = nil,
     params: [JSON]? = [],
@@ -35,7 +35,7 @@ class MockFabric: Fabric {
     return "https://placehold.co/400x600/\(color)/ffffff.png?text=\(encodedText)"
   }
 
-  override func getMediaItem(mediaId: String) -> MediaPropertySectionMediaItem? {
+  public override func getMediaItem(mediaId: String) -> MediaPropertySectionMediaItem? {
     debugPrint("MockFabric: returning mock media item for \(mediaId)")
     // Return a basic mock media item
     var item = MediaPropertySectionMediaItem()

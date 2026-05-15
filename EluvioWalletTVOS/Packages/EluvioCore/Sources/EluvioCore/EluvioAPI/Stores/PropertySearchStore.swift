@@ -1,9 +1,9 @@
-class PropertySearchStore {
-  static let shared = PropertySearchStore()
+public class PropertySearchStore {
+  public static let shared = PropertySearchStore()
 
   private init() {}
 
-  func search(property: MediaProperty, searchRequest: SearchRequest) async throws
+  public func search(property: MediaProperty, searchRequest: SearchRequest) async throws
     -> [MediaPropertySection]
   {
     do {
@@ -22,46 +22,56 @@ class PropertySearchStore {
     }
   }
 
-  func getFilters(propertyId: String) async throws -> GetFiltersResponse {
+  public func getFilters(propertyId: String) async throws -> GetFiltersResponse {
     let response: GetFiltersResponse = try await NetworkManager.shared.request(
       "mw/properties/\(propertyId)/filters")
     return response
   }
 }
 
-struct SearchRequest: Codable {
-  var search_term: String? = nil
-  var tags: [String]? = nil
-  var attributes: [String: [String]]? = nil
+public struct SearchRequest: Codable {
+  public var search_term: String? = nil
+  public var tags: [String]? = nil
+  public var attributes: [String: [String]]? = nil
+
+  public init(
+    search_term: String? = nil,
+    tags: [String]? = nil,
+    attributes: [String: [String]]? = nil
+  ) {
+    self.search_term = search_term
+    self.tags = tags
+    self.attributes = attributes
+  }
 }
 
-struct GetFiltersResponse: Codable {
+public struct GetFiltersResponse: Codable {
   // Property top-level tags and attributes.
-  let tags: [String]?
-  let attributes: [String: SearchFilterAttribute]?
+  public let tags: [String]?
+  public let attributes: [String: SearchFilterAttribute]?
 
-  let primary_filter: String?
-  let secondary_filter: String?
-  var filter_options: [PrimaryFilterOptions]?
+  public let primary_filter: String?
+  public let secondary_filter: String?
+  public var filter_options: [PrimaryFilterOptions]?
 }
 
-struct SearchFilterAttribute: Codable {
-  let id: String
-  let title: String?
-  let tags: [String]?
+public struct SearchFilterAttribute: Codable {
+  public let id: String
+  public let title: String?
+  public let tags: [String]?
 }
 
-struct PrimaryFilterOptions: Codable {
-  let primary_filter_value: String
-  let primary_filter_image: ImageLink?
+public struct PrimaryFilterOptions: Codable {
+  public let primary_filter_value: String
+  public let primary_filter_image: ImageLink?
 
-  let secondary_filter_attribute: String?
-  let secondary_filter_options: [SecondaryFilterOptions]?
+  public let secondary_filter_attribute: String?
+  public let secondary_filter_options: [SecondaryFilterOptions]?
 
-  let secondary_filter_style: String?
+  public let secondary_filter_style: String?
 }
 
-struct SecondaryFilterOptions: Codable {
-  let secondary_filter_image_tv: ImageLink?
-  let secondary_filter_value: String
+public struct SecondaryFilterOptions: Codable {
+  public let secondary_filter_image_tv: ImageLink?
+  public let secondary_filter_value: String
 }

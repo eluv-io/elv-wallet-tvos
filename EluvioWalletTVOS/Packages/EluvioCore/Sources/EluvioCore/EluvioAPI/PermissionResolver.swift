@@ -1,9 +1,9 @@
 import Foundation
 
 /// Recursively resolves permissions and updates entities with resolved permissions.
-enum PermissionResolver {
+public enum PermissionResolver {
 
-  static func resolvePermissions(
+  public static func resolvePermissions(
     _ permissionable: any Permissionable,
     parentPermissions: ResolvedPermission? = nil,
     permissionStates: PermissionStateMap
@@ -23,7 +23,7 @@ enum PermissionResolver {
     }
   }
 
-  static func resolvePermissions(
+  public static func resolvePermissions(
     _ permissionables: [any Permissionable],
     parentPermissions: ResolvedPermission? = nil,
     permissionStates: PermissionStateMap
@@ -165,8 +165,8 @@ enum PermissionResolver {
 
 // MARK: - PermissionsDto helpers
 
-extension PermissionsDto {
-  func toResolvedPermission(permissionStates: PermissionStateMap) -> ResolvedPermission {
+public extension PermissionsDto {
+  public func toResolvedPermission(permissionStates: PermissionStateMap) -> ResolvedPermission {
     ResolvedPermission(
       authorized: calcAuthorized(permissionStates: permissionStates),
       behavior: behavior ?? .hide,
@@ -176,7 +176,7 @@ extension PermissionsDto {
     )
   }
 
-  func calcAuthorized(permissionStates: PermissionStateMap) -> Bool {
+  public func calcAuthorized(permissionStates: PermissionStateMap) -> Bool {
     let ids = permission_item_ids ?? []
     return ids.isEmpty || ids.contains { permissionStates[$0]?.authorized == true }
   }

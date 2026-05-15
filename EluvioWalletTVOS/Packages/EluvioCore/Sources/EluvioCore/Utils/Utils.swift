@@ -8,29 +8,28 @@
 import Alamofire
 import Base58Swift
 import CryptoKit
-import EluvioCore
 import Foundation
 import VarInt
 
-let BundleVersion: String =
+public let BundleVersion: String =
   Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-let BundleBuild: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
+public let BundleBuild: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
 
-extension UnsignedInteger where Self: CVarArg {
-  var hexa: String {
+public extension UnsignedInteger where Self: CVarArg {
+  public var hexa: String {
     .init(format: "%ll*0x", bitWidth / 4, self)
   }
 }
 
-extension SHA256Digest {
-  var hexa: String {
+public extension SHA256Digest {
+  public var hexa: String {
     map(\.hexa).joined()
   }
 }
 
-extension URL {
+public extension URL {
   /// Returns a new URL with the given query parameter replaced (or added).
-  func replacingQueryParam(_ name: String, _ value: String) -> URL? {
+  public func replacingQueryParam(_ name: String, _ value: String) -> URL? {
     guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
       return nil
     }
@@ -54,7 +53,7 @@ extension URL {
     }
   }
 
-  func replaceFabricUrlPlaceholder() -> URL? {
+  public func replaceFabricUrlPlaceholder() -> URL? {
     guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false),
       components.url?.absoluteString.contains(ImageLink.fabricUrlPlaceholder) == true
     else { return self }
@@ -66,7 +65,7 @@ extension URL {
   }
 }
 
-func FormatAddress(address: String) -> String {
+public func FormatAddress(address: String) -> String {
   if address.isEmpty {
     return address
   }
@@ -79,7 +78,7 @@ func FormatAddress(address: String) -> String {
   return formatted.lowercased()
 }
 
-func loadJsonFile<T: Decodable>(_ filename: String) throws -> T {
+public func loadJsonFile<T: Decodable>(_ filename: String) throws -> T {
   let data: Data
 
   guard let file = Bundle.main.url(forResource: filename, withExtension: nil)
@@ -101,7 +100,7 @@ func loadJsonFile<T: Decodable>(_ filename: String) throws -> T {
   }
 }
 
-func loadJsonFileFatal<T: Decodable>(_ filename: String) -> T {
+public func loadJsonFileFatal<T: Decodable>(_ filename: String) -> T {
   do {
     return try loadJsonFile(filename)
   } catch {
@@ -109,7 +108,7 @@ func loadJsonFileFatal<T: Decodable>(_ filename: String) -> T {
   }
 }
 
-func HexToBytes(_ string: String) -> [UInt8]? {
+public func HexToBytes(_ string: String) -> [UInt8]? {
   var str = string
 
   if string.hasPrefix("0x") {
@@ -124,12 +123,12 @@ func HexToBytes(_ string: String) -> [UInt8]? {
   return str.hexaBytes
 }
 
-func Hash(_ string: String) -> String {
+public func Hash(_ string: String) -> String {
   SHA256.hash(data: string.data(using: .utf8)!).hexa
 }
 
-extension StringProtocol {
-  var hexaBytes: [UInt8] {
+public extension StringProtocol {
+  public var hexaBytes: [UInt8] {
     .init(hexa)
   }
 
@@ -143,7 +142,7 @@ extension StringProtocol {
   }
 }
 
-func addressToId(prefix: String, address: String) throws -> String {
+public func addressToId(prefix: String, address: String) throws -> String {
   guard let bytes = HexToBytes(address) else {
     throw FabricError.badInput("addressToId: could not get bytes from address \(address)")
   }
@@ -153,18 +152,21 @@ func addressToId(prefix: String, address: String) throws -> String {
   return "\(prefix)\(encoded)"
 }
 
-extension Data {
-  struct HexEncodingOptions: OptionSet {
-    let rawValue: Int
-    static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
+public extension Data {
+  public struct HexEncodingOptions: OptionSet {
+    public let rawValue: Int
+    public init(rawValue: Int) {
+      self.rawValue = rawValue
+    }
+    public static let upperCase = HexEncodingOptions(rawValue: 1 << 0)
   }
 
-  func hexEncodedString(options: HexEncodingOptions = []) -> String {
+  public func hexEncodedString(options: HexEncodingOptions = []) -> String {
     let format = options.contains(.upperCase) ? "%02hhX" : "%02hhx"
     return "0x\(map { String(format: format, $0) }.joined())"
   }
 
-  var prettyPrintedJSONString: NSString? {  // NSString gives us a nice sanitized debugDescription
+  public var prettyPrintedJSONString: NSString? {  // NSString gives us a nice sanitized debugDescription
     guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
       let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
       let prettyPrintedString = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
@@ -174,13 +176,13 @@ extension Data {
   }
 }
 
-extension Date {
-  var now: Int64 {
+public extension Date {
+  public var now: Int64 {
     Int64((timeIntervalSince1970 * 1000.0).rounded())
   }
 }
 
-func FindContentHash(uri: String) -> String? {
+public func FindContentHash(uri: String) -> String? {
   guard let url = URL(string: uri) else {
     return nil
   }
@@ -206,8 +208,8 @@ func FindContentHash(uri: String) -> String? {
   return nil
 }
 
-extension NSNotification {
-  static let LoggedOut = Notification.Name("LoggedOut")
+public extension NSNotification {
+  public static let LoggedOut = Notification.Name("LoggedOut")
 }
 
 extension String: ParameterEncoding {
@@ -219,7 +221,7 @@ extension String: ParameterEncoding {
   }
 }
 
-extension Request {
+public extension Request {
   public func debugLog() -> Self {
     #if DEBUG
       cURLDescription(calling: { curl in
@@ -239,8 +241,8 @@ extension Request {
   }
 }
 
-extension RangeReplaceableCollection where Element: Equatable {
-  func unique() -> [Element] where Element: Equatable {
+public extension RangeReplaceableCollection where Element: Equatable {
+  public func unique() -> [Element] where Element: Equatable {
     var newArray: [Element] = []
     for i in self {
       if !newArray.contains(i) {
@@ -251,15 +253,15 @@ extension RangeReplaceableCollection where Element: Equatable {
   }
 }
 
-extension URL {
-  func valueOf(_ queryParameterName: String) -> String? {
+public extension URL {
+  public func valueOf(_ queryParameterName: String) -> String? {
     guard let url = URLComponents(string: absoluteString) else { return nil }
     return url.queryItems?.first(where: { $0.name == queryParameterName })?.value
   }
 }
 
-extension Double {
-  func asTimeString(style: DateComponentsFormatter.UnitsStyle) -> String {
+public extension Double {
+  public func asTimeString(style: DateComponentsFormatter.UnitsStyle) -> String {
     let formatter = DateComponentsFormatter()
     formatter.allowedUnits = [.hour, .minute, .second, .nanosecond]
     formatter.unitsStyle = style
@@ -267,32 +269,32 @@ extension Double {
   }
 }
 
-extension Int64 {
-  var msToSeconds: Double {
+public extension Int64 {
+  public var msToSeconds: Double {
     Double(self) / 1000
   }
 }
 
-extension TimeInterval {
-  var hourMinuteSecond: String {
+public extension TimeInterval {
+  public var hourMinuteSecond: String {
     String(format: "%d:%02d:%02d", hour, minute, second)
   }
 
-  var hour: Int {
+  public var hour: Int {
     Int((self / 3600).truncatingRemainder(dividingBy: 3600))
   }
 
-  var minute: Int {
+  public var minute: Int {
     Int((self / 60).truncatingRemainder(dividingBy: 60))
   }
 
-  var second: Int {
+  public var second: Int {
     Int(truncatingRemainder(dividingBy: 60))
   }
 }
 
 /// Logic copied from elv-client-js
-func DecodeVersionHash(versionHash: String) -> (
+public func DecodeVersionHash(versionHash: String) -> (
   digest: String, size: UInt64, objectId: String, partHash: String
 ) {
   var digest = ""
@@ -351,8 +353,8 @@ func DecodeVersionHash(versionHash: String) -> (
   return (digest, size, objectId, partHash)
 }
 
-extension Array {
-  func dividedIntoGroups(of i: Int = 3) -> [[Element]] {
+public extension Array {
+  public func dividedIntoGroups(of i: Int = 3) -> [[Element]] {
     var copy = self
     var res = [[Element]]()
     while copy.count > i {
@@ -363,7 +365,7 @@ extension Array {
   }
 }
 
-func parseDateString(_ dateString: String) -> Date? {
+public func parseDateString(_ dateString: String) -> Date? {
   let dateFormatter = ISO8601DateFormatter()
   dateFormatter.formatOptions = [
     .withFractionalSeconds,

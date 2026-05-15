@@ -7,13 +7,13 @@
 
 import Foundation
 
-struct SignInResponse: Codable {
-  var accessToken: String
-  var tokenType: String
-  var idToken: String
-  var refreshToken: String
+public struct SignInResponse: Codable {
+  public var accessToken: String
+  public var tokenType: String
+  public var idToken: String
+  public var refreshToken: String
 
-  init() {
+  public init() {
     accessToken = ""
     tokenType = ""
     idToken = ""

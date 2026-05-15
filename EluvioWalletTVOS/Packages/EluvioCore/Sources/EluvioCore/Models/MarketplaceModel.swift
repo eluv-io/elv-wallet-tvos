@@ -9,17 +9,17 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-struct MarketplaceViewModel: Identifiable, Codable {
-  var id = ""
-  var title: String = ""
-  var tenantId = ""
-  var image = ""
-  var logo = ""
-  var header = ""
-  var items: [JSON] = []
+public struct MarketplaceViewModel: Identifiable, Codable {
+  public var id = ""
+  public var title: String = ""
+  public var tenantId = ""
+  public var image = ""
+  public var logo = ""
+  public var header = ""
+  public var items: [JSON] = []
 }
 
-func CreateMarketplaceViewModel(meta: AssetMetadataModel, id: String? = "", fabric: Fabric) throws
+public func CreateMarketplaceViewModel(meta: AssetMetadataModel, id: String? = "", fabric: Fabric) throws
   -> MarketplaceViewModel
 {
   let startTime = DispatchTime.now()
@@ -41,27 +41,27 @@ func CreateMarketplaceViewModel(meta: AssetMetadataModel, id: String? = "", fabr
   )
 }
 
-struct AssetMetadataModel: Codable {
-  var display_title: String? = ""
-  var asset_type: String? = ""
-  var title: String? = ""
-  var slug: String? = ""
-  var title_type: String? = ""
-  var info: AMInfoModel?
+public struct AssetMetadataModel: Codable {
+  public var display_title: String? = ""
+  public var asset_type: String? = ""
+  public var title: String? = ""
+  public var slug: String? = ""
+  public var title_type: String? = ""
+  public var info: AMInfoModel?
 }
 
-struct AMInfoModel: Codable {
-  var tenant_id: String? = ""
-  var branding: AMInfoBrandingModel?
-  var items: [JSON]? = []
+public struct AMInfoModel: Codable {
+  public var tenant_id: String? = ""
+  public var branding: AMInfoBrandingModel?
+  public var items: [JSON]? = []
 }
 
-struct AMInfoBrandingModel: Codable {
-  var tv: AMInfoBrandingTVModel?
+public struct AMInfoBrandingModel: Codable {
+  public var tv: AMInfoBrandingTVModel?
 }
 
-struct AMInfoBrandingTVModel: Codable {
-  var header_image: ImageLink?
-  var image: ImageLink?
-  var logo: ImageLink?
+public struct AMInfoBrandingTVModel: Codable {
+  public var header_image: ImageLink?
+  public var image: ImageLink?
+  public var logo: ImageLink?
 }

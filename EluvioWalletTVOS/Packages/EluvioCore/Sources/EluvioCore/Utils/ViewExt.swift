@@ -1,15 +1,15 @@
 import SwiftUI
 
-extension View {
+public extension View {
   /// Same as calling .onChange(of: value, initial: true, action).
   /// Just a convenience to remember calling initial: true
-  func onAnyChange<V: Equatable>(of value: V, _ action: @escaping (V, V) -> Void) -> some View {
+  public func onAnyChange<V: Equatable>(of value: V, _ action: @escaping (V, V) -> Void) -> some View {
     return onChange(of: value, initial: true, action)
   }
 
   /// Starts a task when view appears and repeats it until repeatAction throws.
   /// The caller is responsible for calling Task.sleep
-  func repeatTask(_ repeatAction: @escaping () async throws -> Void) -> some View {
+  public func repeatTask(_ repeatAction: @escaping () async throws -> Void) -> some View {
     task {
       repeat {
         do {
@@ -24,7 +24,7 @@ extension View {
   /// We use this modifier for video players that interact with the Fabric, but don't automatically handle token expiration.
   ///
   /// API / image fetching should already handle token refreshing.
-  func proactiveTokenRefresh() -> some View {
+  public func proactiveTokenRefresh() -> some View {
     modifier(ProactiveTokenRefreshModifier())
   }
 }
@@ -38,7 +38,7 @@ private struct ProactiveTokenRefreshModifier: ViewModifier {
   /// Tracks the account identity so the task restarts on login/logout
   private var accountId: String? { AccountStore.shared.account?.id }
 
-  func body(content: Content) -> some View {
+  public func body(content: Content) -> some View {
     content
       .task(id: accountId) {
         guard AccountStore.shared.account != nil else {

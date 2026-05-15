@@ -1,3 +1,4 @@
+import EluvioCore
 import Foundation
 
 enum NavDestination: Hashable {

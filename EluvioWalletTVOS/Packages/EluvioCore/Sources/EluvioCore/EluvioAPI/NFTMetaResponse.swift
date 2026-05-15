@@ -13,23 +13,23 @@
 import Foundation
 import SwiftyJSON
 
-struct MetaTag: Codable {
-  var key: String
-  var value: String
+public struct MetaTag: Codable {
+  public var key: String
+  public var value: String
 }
 
-struct NFTTrait: Codable {
-  var trait_type: String?
-  var value: String?
-  var rarity: String?
+public struct NFTTrait: Codable {
+  public var trait_type: String?
+  public var value: String?
+  public var rarity: String?
 }
 
 // MARK: - NFTMetaResponse
 
-struct NFTMetaResponse: Codable {
-  var address: String? = ""
-  var attributes: [NFTTrait]? = []
-  var attributesDict: [String: NFTTrait] {
+public struct NFTMetaResponse: Codable {
+  public var address: String? = ""
+  public var attributes: [NFTTrait]? = []
+  public var attributesDict: [String: NFTTrait] {
     if let attributes = attributes {
       var dict: [String: NFTTrait] = [:]
       for attribute in attributes {
@@ -43,29 +43,29 @@ struct NFTMetaResponse: Codable {
     return [:]
   }
 
-  var tags: [MetaTag]? = []
+  public var tags: [MetaTag]? = []
 
   // var backgroundColor: BackgroundColor = BackgroundColor()
-  var copyright: String? = ""
-  var createdAt: String? = ""
-  var creator: String? = ""
-  var description: String? = ""
-  var short_description: String? = ""
-  var displayName: String? = ""
-  var editionName: String? = ""
-  var embedURL: String? = ""
-  var enableWatermark: Bool? = false
-  var externalURL: String? = ""
-  var image: String? = ""
+  public var copyright: String? = ""
+  public var createdAt: String? = ""
+  public var creator: String? = ""
+  public var description: String? = ""
+  public var short_description: String? = ""
+  public var displayName: String? = ""
+  public var editionName: String? = ""
+  public var embedURL: String? = ""
+  public var enableWatermark: Bool? = false
+  public var externalURL: String? = ""
+  public var image: String? = ""
   // var marketplaceAttributes: MarketplaceAttributes = MarketplaceAttributes()
-  var name: String? = ""
-  var packOptions: PackOptions?
-  var additional_media_sections: AdditionalMediaModel? = nil
-  var playable: Bool? = false
-  var templateID: String? = ""
-  var totalSupply: Int? = 0
+  public var name: String? = ""
+  public var packOptions: PackOptions?
+  public var additional_media_sections: AdditionalMediaModel? = nil
+  public var playable: Bool? = false
+  public var templateID: String? = ""
+  public var totalSupply: Int? = 0
 
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case address, attributes, tags
     // case backgroundColor = "background_color"
     case copyright
@@ -90,15 +90,15 @@ struct NFTMetaResponse: Codable {
 
 // MARK: - PackOptions
 
-struct PackOptions: Codable {
-  var isOpenable: Bool?
-  var itemSlots: [JSONAny]? = []
-  var openAnimation: JSON? = ""
-  var revealAnimation: JSON? = ""
-  var openButtonText: String? = ""
-  var packGenerator: String? = ""
+public struct PackOptions: Codable {
+  public var isOpenable: Bool?
+  public var itemSlots: [JSONAny]? = []
+  public var openAnimation: JSON? = ""
+  public var revealAnimation: JSON? = ""
+  public var openButtonText: String? = ""
+  public var packGenerator: String? = ""
 
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case isOpenable = "is_openable"
     case itemSlots = "item_slots"
     case openAnimation = "open_animation"
@@ -110,18 +110,18 @@ struct PackOptions: Codable {
 
 // MARK: - Encode/decode helpers
 
-class JSONNull: Codable, Hashable {
-  static func == (_: JSONNull, _: JSONNull) -> Bool {
+public class JSONNull: Codable, Hashable {
+  public static func == (_: JSONNull, _: JSONNull) -> Bool {
     return true
   }
 
-  var hashValue: Int {
+  public var hashValue: Int {
     return 0
   }
 
-  init() {}
+  public init() {}
 
-  required init(from decoder: Decoder) throws {
+  public required init(from decoder: Decoder) throws {
     let container = try decoder.singleValueContainer()
     if !container.decodeNil() {
       throw DecodingError.typeMismatch(
@@ -131,48 +131,48 @@ class JSONNull: Codable, Hashable {
     }
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.singleValueContainer()
     try container.encodeNil()
   }
 }
 
-class JSONCodingKey: CodingKey {
-  let key: String
+public class JSONCodingKey: CodingKey {
+  public let key: String
 
-  required init?(intValue _: Int) {
+  public required init?(intValue _: Int) {
     return nil
   }
 
-  required init?(stringValue: String) {
+  public required init?(stringValue: String) {
     key = stringValue
   }
 
-  var intValue: Int? {
+  public var intValue: Int? {
     return nil
   }
 
-  var stringValue: String {
+  public var stringValue: String {
     return key
   }
 }
 
-class JSONAny: Codable {
-  let value: Any
+public class JSONAny: Codable {
+  public let value: Any
 
-  static func decodingError(forCodingPath codingPath: [CodingKey]) -> DecodingError {
+  public static func decodingError(forCodingPath codingPath: [CodingKey]) -> DecodingError {
     let context = DecodingError.Context(
       codingPath: codingPath, debugDescription: "Cannot decode JSONAny")
     return DecodingError.typeMismatch(JSONAny.self, context)
   }
 
-  static func encodingError(forValue value: Any, codingPath: [CodingKey]) -> EncodingError {
+  public static func encodingError(forValue value: Any, codingPath: [CodingKey]) -> EncodingError {
     let context = EncodingError.Context(
       codingPath: codingPath, debugDescription: "Cannot encode JSONAny")
     return EncodingError.invalidValue(value, context)
   }
 
-  static func decode(from container: SingleValueDecodingContainer) throws -> Any {
+  public static func decode(from container: SingleValueDecodingContainer) throws -> Any {
     if let value = try? container.decode(Bool.self) {
       return value
     }
@@ -191,7 +191,7 @@ class JSONAny: Codable {
     throw decodingError(forCodingPath: container.codingPath)
   }
 
-  static func decode(from container: inout UnkeyedDecodingContainer) throws -> Any {
+  public static func decode(from container: inout UnkeyedDecodingContainer) throws -> Any {
     if let value = try? container.decode(Bool.self) {
       return value
     }
@@ -218,7 +218,7 @@ class JSONAny: Codable {
     throw decodingError(forCodingPath: container.codingPath)
   }
 
-  static func decode(
+  public static func decode(
     from container: inout KeyedDecodingContainer<JSONCodingKey>, forKey key: JSONCodingKey
   ) throws -> Any {
     if let value = try? container.decode(Bool.self, forKey: key) {
@@ -247,7 +247,7 @@ class JSONAny: Codable {
     throw decodingError(forCodingPath: container.codingPath)
   }
 
-  static func decodeArray(from container: inout UnkeyedDecodingContainer) throws -> [Any] {
+  public static func decodeArray(from container: inout UnkeyedDecodingContainer) throws -> [Any] {
     var arr: [Any] = []
     while !container.isAtEnd {
       let value = try decode(from: &container)
@@ -256,7 +256,7 @@ class JSONAny: Codable {
     return arr
   }
 
-  static func decodeDictionary(from container: inout KeyedDecodingContainer<JSONCodingKey>) throws
+  public static func decodeDictionary(from container: inout KeyedDecodingContainer<JSONCodingKey>) throws
     -> [String: Any]
   {
     var dict = [String: Any]()
@@ -267,7 +267,7 @@ class JSONAny: Codable {
     return dict
   }
 
-  static func encode(to container: inout UnkeyedEncodingContainer, array: [Any]) throws {
+  public static func encode(to container: inout UnkeyedEncodingContainer, array: [Any]) throws {
     for value in array {
       if let value = value as? Bool {
         try container.encode(value)
@@ -291,7 +291,7 @@ class JSONAny: Codable {
     }
   }
 
-  static func encode(
+  public static func encode(
     to container: inout KeyedEncodingContainer<JSONCodingKey>, dictionary: [String: Any]
   ) throws {
     for (key, value) in dictionary {
@@ -318,7 +318,7 @@ class JSONAny: Codable {
     }
   }
 
-  static func encode(to container: inout SingleValueEncodingContainer, value: Any) throws {
+  public static func encode(to container: inout SingleValueEncodingContainer, value: Any) throws {
     if let value = value as? Bool {
       try container.encode(value)
     } else if let value = value as? Int64 {
@@ -334,7 +334,7 @@ class JSONAny: Codable {
     }
   }
 
-  required init(from decoder: Decoder) throws {
+  public required init(from decoder: Decoder) throws {
     if var arrayContainer = try? decoder.unkeyedContainer() {
       value = try JSONAny.decodeArray(from: &arrayContainer)
     } else if var container = try? decoder.container(keyedBy: JSONCodingKey.self) {
@@ -345,7 +345,7 @@ class JSONAny: Codable {
     }
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     if let arr = value as? [Any] {
       var container = encoder.unkeyedContainer()
       try JSONAny.encode(to: &container, array: arr)

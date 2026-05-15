@@ -1,16 +1,15 @@
 import Alamofire
-import EluvioCore
 import Foundation
 import Observation
 import UIKit
 
 @Observable
-class FabricConfigStore {
-  static let shared = FabricConfigStore()
+public class FabricConfigStore {
+  public static let shared = FabricConfigStore()
 
   private static let configKey = "persisted_fabric_config"
 
-  private(set) var config: FabricConfiguration! {
+  public private(set) var config: FabricConfiguration! {
     didSet {
       guard let data = try? JSONEncoder().encode(config) else { return }
       let network = NetworkStore.shared.selectedNetwork
@@ -19,11 +18,11 @@ class FabricConfigStore {
   }
   private var refreshTask: Task<Void, Never>?
 
-  var apiBaseUrl: String {
+  public var apiBaseUrl: String {
     config.getAuthServices().first?.ensuringSuffix("/") ?? ""
   }
 
-  var fabricBaseUrl: String {
+  public var fabricBaseUrl: String {
     guard let base = config.getFabricAPI().first?.ensuringSuffix("/") else {
       debugPrint("WARNING: Failed to get fabric base URL from Config")
       return ""
@@ -35,7 +34,7 @@ class FabricConfigStore {
     return base + "s/" + qspace + "/"
   }
 
-  var walletUrl: String {
+  public var walletUrl: String {
     APP_CONFIG.network[NetworkStore.shared.selectedNetwork.rawValue]!.wallet_url
   }
 
@@ -46,7 +45,7 @@ class FabricConfigStore {
   /// Fetch config from server, then start the background refresh loop.
   /// Call once at app startup before displaying any UI.
   /// If the network fetch fails and we have no persisted config, falls back to a hardcoded config so the app can still function.
-  func bootstrap() async {
+  public func bootstrap() async {
     let networkStore = NetworkStore.shared
     await refreshConfig(for: networkStore.selectedNetwork)
     if config == nil {
@@ -89,7 +88,7 @@ class FabricConfigStore {
     refreshTask = nil
   }
 
-  func refreshConfig(for network: AppMode) async {
+  public func refreshConfig(for network: AppMode) async {
     guard let url = APP_CONFIG.network[network.rawValue]?.config_url else { return }
     let result = await AF.request(url)
       .serializingDecodable(FabricConfiguration.self)

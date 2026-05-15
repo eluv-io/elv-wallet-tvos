@@ -11,18 +11,18 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-class EluvioAPI: ObservableObject {
-  @MainActor static let shared = EluvioAPI()
+public class EluvioAPI: ObservableObject {
+  @MainActor public static let shared = EluvioAPI()
 
-  @Published var fabric: Fabric = .init()
-  @Published var viewState: ViewState
-  @Published var refreshId = UUID().uuidString
-  @Published var devMode: Bool = false
-  static var NONCE: String {
+  @Published public var fabric: Fabric = .init()
+  @Published public var viewState: ViewState
+  @Published public var refreshId = UUID().uuidString
+  @Published public var devMode: Bool = false
+  public static var NONCE: String {
     UIDevice.current.identifierForVendor!.uuidString
   }
 
-  static var NONCE_HASHED: String {
+  public static var NONCE_HASHED: String {
     let hashedData = SHA512.hash(data: NONCE.data(using: .utf8)!)
     return hashedData.compactMap { String(format: "%02x", $0) }.joined()
   }
@@ -30,7 +30,7 @@ class EluvioAPI: ObservableObject {
   private var cancellables: Set<AnyCancellable> = []
 
   @MainActor
-  init() {
+  public init() {
     debugPrint("Initiating Eluvio APIs on ", UIDevice.current.localizedModel)
 
     debugPrint("NONCE: ", EluvioAPI.NONCE)
@@ -76,7 +76,7 @@ class EluvioAPI: ObservableObject {
     }
   }
 
-  func isCustomApp() -> Bool {
+  public func isCustomApp() -> Bool {
     if let props = APP_CONFIG.allowed_properties {
       if !props.isEmpty {
         return true
@@ -87,39 +87,39 @@ class EluvioAPI: ObservableObject {
   }
 
   @MainActor
-  func needsRefresh() {
+  public func needsRefresh() {
     debugPrint("EluvioAPI needs refresh")
     refreshId = UUID().uuidString
   }
 
   @MainActor
-  func setEnvironment(env: APIEnvironment) {
+  public func setEnvironment(env: APIEnvironment) {
     UserDefaults.standard.set(env.rawValue, forKey: "api_environment")
     NetworkStore.shared.environment = env
     needsRefresh()
   }
 
   @MainActor
-  func setDevMode(devMode: Bool) {
+  public func setDevMode(devMode: Bool) {
     UserDefaults.standard.set(devMode, forKey: "api_devmode")
     self.devMode = devMode
     needsRefresh()
   }
 
-  func getDevMode() -> Bool {
+  public func getDevMode() -> Bool {
     return devMode
   }
 
-  func isDebugNode() -> Bool {
+  public func isDebugNode() -> Bool {
     return fabric.isDebugNode
   }
 
-  func setIsDebugNode(debugNode: Bool) {
+  public func setIsDebugNode(debugNode: Bool) {
     fabric.isDebugNode = debugNode
   }
 
   /// TODO:
-  func handleApiError(code: Int, response: JSON, error: Error) {
+  public func handleApiError(code: Int, response: JSON, error: Error) {
     print("handleApiError ", error)
     print("response ", response)
     print("code \(code)")
@@ -148,7 +148,7 @@ class EluvioAPI: ObservableObject {
     }
   }
 
-  func createWalletAuthorization() -> String {
+  public func createWalletAuthorization() -> String {
     do {
       if let account = AccountStore.shared.account {
         return try createWalletAuthorizationFromAccount(account: account)
@@ -160,7 +160,7 @@ class EluvioAPI: ObservableObject {
     return ""
   }
 
-  func createWalletAuthorizationFromAccount(account: Account) throws -> String {
+  public func createWalletAuthorizationFromAccount(account: Account) throws -> String {
     let address = account.getAccountAddress()
     let provider =
       switch account.type {
@@ -180,7 +180,7 @@ class EluvioAPI: ObservableObject {
     )
   }
 
-  func refreshFabricToken() async {
+  public func refreshFabricToken() async {
     await NetworkManager.shared.refreshToken()
   }
 }

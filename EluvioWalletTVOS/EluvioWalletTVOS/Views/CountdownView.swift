@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2024-08-20.
 //
 
+import EluvioCore
 import SwiftUI
 
 struct PlayerErrorView: View {

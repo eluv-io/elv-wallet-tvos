@@ -9,27 +9,27 @@ import AVKit
 import Foundation
 import SwiftyJSON
 
-protocol FeatureProtocol: Identifiable, Codable {
+public protocol FeatureProtocol: Identifiable, Codable {
   var id: String? { get }
 }
 
-struct Features: Codable {
-  var items: [NFTModel] = []
-  var collections: [MediaCollection] = []
-  var media: [MediaItem] = []
-  var count: Int {
+public struct Features: Codable {
+  public var items: [NFTModel] = []
+  public var collections: [MediaCollection] = []
+  public var media: [MediaItem] = []
+  public var count: Int {
     return items.count + collections.count + media.count
   }
 
-  var isEmpty: Bool {
+  public var isEmpty: Bool {
     return count == 0
   }
 
-  func unique() -> Features {
+  public func unique() -> Features {
     return Features(items: items.unique(), collections: collections.unique(), media: media.unique())
   }
 
-  mutating func append(_ obj: any FeatureProtocol) {
+  public mutating func append(_ obj: any FeatureProtocol) {
     if let me = obj as? MediaItem {
       media.append(me)
     } else if let nft = obj as? NFTModel {
@@ -39,54 +39,54 @@ struct Features: Codable {
     }
   }
 
-  mutating func append(contentsOf other: Features) {
+  public mutating func append(contentsOf other: Features) {
     items.append(contentsOf: other.items)
     collections.append(contentsOf: other.collections)
     media.append(contentsOf: other.media)
   }
 }
 
-struct AdditionalMediaModel: Identifiable, Codable {
-  var id: String? = UUID().uuidString
-  var featured_media: [MediaItem] = []
-  var sections: [MediaSection] = []
+public struct AdditionalMediaModel: Identifiable, Codable {
+  public var id: String? = UUID().uuidString
+  public var featured_media: [MediaItem] = []
+  public var sections: [MediaSection] = []
 }
 
-struct MediaSection: Identifiable, Codable {
-  var id: String? = UUID().uuidString
-  var name: String = ""
-  var collections: [MediaCollection] = []
+public struct MediaSection: Identifiable, Codable {
+  public var id: String? = UUID().uuidString
+  public var name: String = ""
+  public var collections: [MediaCollection] = []
 }
 
-struct TagMeta: Codable {
-  var key: String
-  var value: String
+public struct TagMeta: Codable {
+  public var key: String
+  public var value: String
 }
 
-struct MediaItem: FeatureProtocol, Equatable, Hashable {
-  var id: String? = UUID().uuidString
+public struct MediaItem: FeatureProtocol, Equatable, Hashable {
+  public var id: String? = UUID().uuidString
   /// There could be duplicates, bug in datamodel from fabric copy
-  var mediaId: String? = UUID().uuidString
+  public var mediaId: String? = UUID().uuidString
 
-  var image: String? = ""
-  var poster_image: ImageLink?
-  var animation: JSON?
+  public var image: String? = ""
+  public var poster_image: ImageLink?
+  public var animation: JSON?
 
-  var name: String = ""
-  var description: String? = ""
-  var media_type: String? = ""
-  var media_link: JSON?
-  var media_file: JSON?
-  var gallery: [GalleryItem]? = []
-  var tags: [TagMeta]?
+  public var name: String = ""
+  public var description: String? = ""
+  public var media_type: String? = ""
+  public var media_link: JSON?
+  public var media_file: JSON?
+  public var gallery: [GalleryItem]? = []
+  public var tags: [TagMeta]?
 
   // For Demo
-  var nft: NFTModel?
-  var isLive: Bool {
+  public var nft: NFTModel?
+  public var isLive: Bool {
     return media_type == "Live Video"
   }
 
-  var location: String {
+  public var location: String {
     for tag in tags ?? [] {
       if tag.key == "location" {
         return tag.value
@@ -95,7 +95,7 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     return ""
   }
 
-  func getTag(key: String) -> String {
+  public func getTag(key: String) -> String {
     if let _tags = tags {
       for tag in _tags {
         if tag.key == key {
@@ -106,9 +106,9 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
     return ""
   }
 
-  init() {}
+  public init() {}
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     image = try container.decodeIfPresent(String.self, forKey: .image) ?? ""
     poster_image = try container.decodeIfPresent(ImageLink.self, forKey: .poster_image)
@@ -126,40 +126,40 @@ struct MediaItem: FeatureProtocol, Equatable, Hashable {
   }
 
   // TODO: Find a good id for this (using name because we have some media items with the same id due to an error in template copying)
-  static func == (lhs: MediaItem, rhs: MediaItem) -> Bool {
+  public static func == (lhs: MediaItem, rhs: MediaItem) -> Bool {
     return lhs.id == rhs.id
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
   }
 }
 
-struct MediaCollection: FeatureProtocol, Equatable, Hashable {
-  var id: String? = UUID().uuidString
-  var display: String?
-  var name: String = ""
-  var media: [MediaItem] = []
-  var collections: [MediaCollection]? = []
+public struct MediaCollection: FeatureProtocol, Equatable, Hashable {
+  public var id: String? = UUID().uuidString
+  public var display: String?
+  public var name: String = ""
+  public var media: [MediaItem] = []
+  public var collections: [MediaCollection]? = []
 
   // TODO: Find a good id for this
-  static func == (lhs: MediaCollection, rhs: MediaCollection) -> Bool {
+  public static func == (lhs: MediaCollection, rhs: MediaCollection) -> Bool {
     return lhs.name == rhs.name
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(name)
   }
 }
 
-struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
-  var id: String? = UUID().uuidString
-  var thumbnail: ImageLink?
-  var video: JSON?
-  var name: String = ""
-  var description: String?
+public struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
+  public var id: String? = UUID().uuidString
+  public var thumbnail: ImageLink?
+  public var video: JSON?
+  public var name: String = ""
+  public var description: String?
 
-  init() {
+  public init() {
     id = UUID().uuidString
     thumbnail = nil
     video = nil
@@ -167,7 +167,7 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     description = ""
   }
 
-  init(from decoder: Decoder) throws {
+  public init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
     video = try container.decodeIfPresent(JSON.self, forKey: .video) ?? nil
@@ -176,15 +176,15 @@ struct GalleryItem: Identifiable, Codable, Equatable, Hashable {
     description = try container.decodeIfPresent(String.self, forKey: .description) ?? ""
   }
 
-  static func == (lhs: GalleryItem, rhs: GalleryItem) -> Bool {
+  public static func == (lhs: GalleryItem, rhs: GalleryItem) -> Bool {
     return lhs.name == rhs.name && lhs.description == rhs.description
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(name + (description ?? ""))
   }
 
-  static func create(propertyMedia: MediaPropertySectionMediaItem) -> GalleryItem {
+  public static func create(propertyMedia: MediaPropertySectionMediaItem) -> GalleryItem {
     let thumbLink: ImageLink? =
       propertyMedia.thumbnail_image_square
       ?? propertyMedia.thumbnail_image_portrait

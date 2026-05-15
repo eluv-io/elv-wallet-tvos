@@ -4,6 +4,7 @@
 //
 //  Created by Wayne Tran on 2021-08-11.
 
+import EluvioCore
 import SwiftUI
 
 struct NFTView: View {

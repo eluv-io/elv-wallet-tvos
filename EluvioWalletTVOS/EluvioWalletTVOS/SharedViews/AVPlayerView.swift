@@ -6,6 +6,7 @@
 //
 
 import AVKit
+import EluvioCore
 import MUXSDKStats
 import SwiftUI
 import UIKit

@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2024-06-13.
 
 import Combine
+import EluvioCore
 import SwiftUI
 import SwiftyJSON
 

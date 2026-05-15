@@ -1,35 +1,34 @@
-import EluvioCore
 import Foundation
 
-struct ImageLink: Codable {
-  var dot: LinkContainer
-  var slash: String
+public struct ImageLink: Codable {
+  public var dot: LinkContainer
+  public var slash: String
 
   // Only used in legacy NFTs
-  var sources: Sources?
+  public var sources: Sources?
 
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case dot = "."
     case slash = "/"
     case sources
   }
 
-  struct LinkContainer: Codable {
+  public struct LinkContainer: Codable {
     var container: String
     var source: String?
   }
 
-  class Sources: Codable {
+  public class Sources: Codable {
     var `default`: ImageLink?
   }
 }
 
-extension ImageLink {
+public extension ImageLink {
   /// To prevent SwiftUI from re-rendering every time a fabric config refresh occurs -
   ///  we use a dummy base url that will be swapped out by the global SDWebImageDownloader.shared.requestModifier
-  static let fabricUrlPlaceholder = "https://fabric-baseurl-placeholder.io/"
+  public static let fabricUrlPlaceholder = "https://fabric-baseurl-placeholder.io/"
 
-  var url: String? {
+  public var url: String? {
     var path = self.slash
 
     if path.isEmpty {

@@ -8,21 +8,21 @@
 import Foundation
 import SwiftyJSON
 
-enum MockData {
-  static var testShortTokens = false
+public enum MockData {
+  public static var testShortTokens = false
 
   /// Check if app is running with mock data enabled
-  static var isEnabled: Bool {
+  public static var isEnabled: Bool {
     ProcessInfo.processInfo.arguments.contains("MOCK_DATA")
   }
 
   /// Check if login should be disabled for mock properties
-  static var disableLogin: Bool {
+  public static var disableLogin: Bool {
     ProcessInfo.processInfo.arguments.contains("MOCK_DISABLE_LOGIN")
   }
 
   /// Load mock properties from JSON file
-  static var properties: [MediaProperty] {
+  public static var properties: [MediaProperty] {
     let response: MediaPropertiesResponse = loadJsonFileFatal("MockProperties.json")
 
     // Apply disable_login setting if needed
@@ -36,13 +36,13 @@ enum MockData {
   }
 
   /// Load mock sections from JSON file
-  static var sections: [MediaPropertySection] {
+  public static var sections: [MediaPropertySection] {
     let response: MediaPropertySectionsResponse = loadJsonFileFatal("MockSections.json")
     return response.contents
   }
 
   /// Get a specific mock property by ID
-  static func property(id: String) -> MediaProperty? {
+  public static func property(id: String) -> MediaProperty? {
     return properties.first { $0.id == id } ?? properties.first
   }
 }

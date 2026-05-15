@@ -1,14 +1,13 @@
-import EluvioCore
 import Foundation
 import Observation
 
 @Observable
-class AccountStore {
-  static var shared = AccountStore()
+public class AccountStore {
+  public static var shared = AccountStore()
 
-  var staticToken: String
+  public var staticToken: String
 
-  var account: Account? {
+  public var account: Account? {
     didSet {
       debugPrint(
         "Account updated: addr=\(account?.id ?? "<nil>") token=\(account?.fabricToken.prefix(30).appending("...") ?? "<nil>")"
@@ -18,7 +17,7 @@ class AccountStore {
   }
 
   // Either a fabric token is the user is logged in, or a static token for the current network
-  var bestToken: String {
+  public var bestToken: String {
     account?.fabricToken ?? staticToken
   }
 
@@ -37,11 +36,11 @@ class AccountStore {
     }
   }
 
-  var isLoggedOut: Bool {
+  public var isLoggedOut: Bool {
     return account == nil
   }
 
-  func signOut() {
+  public func signOut() {
     account = nil
   }
 

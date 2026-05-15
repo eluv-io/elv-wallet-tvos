@@ -1,3 +1,4 @@
+import EluvioCore
 import SDWebImage
 import SDWebImageSwiftUI
 import SwiftUI

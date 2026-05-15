@@ -1,3 +1,4 @@
+import EluvioCore
 import Foundation
 
 final class Router: ObservableObject {

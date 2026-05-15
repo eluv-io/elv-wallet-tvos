@@ -2,7 +2,7 @@ import Foundation
 import SwiftyJSON
 
 extension MediaPropertySectionMediaItem: Decodable {
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case id, catalog_title, description, description_rich_text, controls
     case viewed_settings, tags, end_time, offerings, start_time, stream_start_time
     case label, live_video, gallery, headers, media, media_lists, media_catalog_id
@@ -13,7 +13,7 @@ extension MediaPropertySectionMediaItem: Decodable {
     case additional_views, additional_views_label, resolvedPermissions
   }
 
-  convenience init(from decoder: Decoder) throws {
+  public convenience init(from decoder: Decoder) throws {
     self.init()
     let container = try decoder.container(keyedBy: CodingKeys.self)
     id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
@@ -65,7 +65,7 @@ extension MediaPropertySectionMediaItem: Decodable {
     }
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(id, forKey: .id)
     try container.encodeIfPresent(additional_views, forKey: .additional_views)
@@ -107,5 +107,5 @@ extension MediaPropertySectionMediaItem: Decodable {
 
 /// Raw server format for media item permissions.
 private struct RawMediaPermission: Codable {
-  var permission_item_id: String?
+  public var permission_item_id: String?
 }

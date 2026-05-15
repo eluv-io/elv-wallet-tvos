@@ -1,3 +1,4 @@
+import EluvioCore
 import Foundation
 
 struct ImageParams: Hashable {
@@ -31,12 +32,6 @@ struct SearchParams: Hashable {
 }
 
 struct VideoParams: Hashable {
-  struct PlayoutInfo: Hashable {
-    var uri: String
-    var drmType: String
-    var licenseServer: String = ""
-  }
-
   var viewItem: MediaPropertySectionMediaItemViewModel
   var playout: PlayoutInfo
   var property: MediaProperty?

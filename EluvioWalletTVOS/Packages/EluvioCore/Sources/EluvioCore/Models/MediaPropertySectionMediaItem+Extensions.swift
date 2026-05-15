@@ -1,8 +1,8 @@
 import AVKit
 import Foundation
 
-extension MediaPropertySectionMediaItem {
-  func additionalViews() -> [MediaPropertySectionMediaItem] {
+public extension MediaPropertySectionMediaItem {
+  public func additionalViews() -> [MediaPropertySectionMediaItem] {
     return additional_views?.map { view in
       let item = MediaPropertySectionMediaItem()
       item.label = view.label
@@ -13,7 +13,7 @@ extension MediaPropertySectionMediaItem {
     } ?? []
   }
 
-  func playerItem(eluvio: EluvioAPI, propertyId: String) async throws -> AVPlayerItem {
+  public func playerItem(eluvio: EluvioAPI, propertyId: String) async throws -> AVPlayerItem {
     if id.hasPrefix("mvid") {
       let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(
         propertyId: propertyId, mediaId: id)
@@ -38,20 +38,20 @@ extension MediaPropertySectionMediaItem {
       "Media item \(id ?? "") does not have a valid link: \(String(describing: media_link))")
   }
 
-  func url(eluvio: EluvioAPI, propertyId: String) async throws -> String {
+  public func url(eluvio: EluvioAPI, propertyId: String) async throws -> String {
     let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(
       propertyId: propertyId, mediaId: id)
     return try await GetUriFromMediaOptionsJson(fabric: eluvio.fabric, optionsJson: optionsJson)
   }
 
-  func thumbnail() -> String {
+  public func thumbnail() -> String {
     thumbnail_image_square?.url
       ?? thumbnail_image_portrait?.url
       ?? thumbnail_image_landscape?.url
       ?? ""
   }
 
-  var startDate: Date? {
+  public var startDate: Date? {
     if debugTimeStatus {
       return debugStartDate
     }
@@ -67,7 +67,7 @@ extension MediaPropertySectionMediaItem {
     return nil
   }
 
-  var streamStartDate: Date? {
+  public var streamStartDate: Date? {
     if debugTimeStatus {
       return debugStreamStartDate
     }
@@ -78,7 +78,7 @@ extension MediaPropertySectionMediaItem {
     return startDate
   }
 
-  var endDate: Date? {
+  public var endDate: Date? {
     if debugTimeStatus {
       return debugEndDate
     }
@@ -86,7 +86,7 @@ extension MediaPropertySectionMediaItem {
     return parseDateString(end_time ?? "")
   }
 
-  var startDateTimeString: String {
+  public var startDateTimeString: String {
     let df = DateFormatter()
     df.dateFormat = "MM.d 'at' hh:mm a"
     df.amSymbol = "AM"
@@ -95,7 +95,7 @@ extension MediaPropertySectionMediaItem {
     return df.string(from: startDate ?? Date())
   }
 
-  var streamStartDateTimeString: String {
+  public var streamStartDateTimeString: String {
     let df = DateFormatter()
     df.dateFormat = "MMM d 'at' hh:mm a"
     df.amSymbol = "AM"
@@ -104,7 +104,7 @@ extension MediaPropertySectionMediaItem {
     return df.string(from: streamStartDate ?? Date())
   }
 
-  var timeUntilStart: String {
+  public var timeUntilStart: String {
     if isUpcoming {
       let formatter = DateComponentsFormatter()
       formatter.unitsStyle = .positional
@@ -120,7 +120,7 @@ extension MediaPropertySectionMediaItem {
     return ""
   }
 
-  var timeUntilStartLong: String {
+  public var timeUntilStartLong: String {
     if isUpcoming {
       if let date = startDate {
         let remainingTime: TimeInterval = date.timeIntervalSince(Date())
@@ -147,18 +147,18 @@ extension MediaPropertySectionMediaItem {
     return ""
   }
 
-  var hasStarted: Bool {
+  public var hasStarted: Bool {
     return !isUpcoming
   }
 
-  var hasEnded: Bool {
+  public var hasEnded: Bool {
     if let endDate = endDate {
       return endDate < Date()
     }
     return false
   }
 
-  var isUpcoming: Bool {
+  public var isUpcoming: Bool {
     if hasEnded {
       return false
     }
@@ -174,18 +174,18 @@ extension MediaPropertySectionMediaItem {
     return false
   }
 
-  var currentlyLive: Bool {
+  public var currentlyLive: Bool {
     live_video == true && !isUpcoming && hasStarted && !hasEnded
   }
 
   /// Media Lists will have a list of media items under `media`, while Media Collections
   /// will have a list of media lists under `mediaLists`. It is assumed that there will
   /// only be one or the other, so we're just trying both with no real priority.
-  var mediaItemIds: [String]? {
+  public var mediaItemIds: [String]? {
     media ?? media_lists
   }
 
-  static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {
+  public static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {
     return lhs.id == rhs.id
       && lhs.title == rhs.title
       && lhs.live_video == rhs.live_video
@@ -193,7 +193,7 @@ extension MediaPropertySectionMediaItem {
       && lhs.end_time == rhs.end_time
   }
 
-  func hash(into hasher: inout Hasher) {
+  public func hash(into hasher: inout Hasher) {
     hasher.combine(id)
     hasher.combine(title)
     hasher.combine(live_video)

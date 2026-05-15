@@ -7,34 +7,34 @@
 
 import Foundation
 
-struct AppConfiguration: Codable {
-  var app: AppConfig
-  var network: [String: NetworkConfig]
-  var allowed_properties: [String]?
+public struct AppConfiguration: Codable {
+  public var app: AppConfig
+  public var network: [String: NetworkConfig]
+  public var allowed_properties: [String]?
 }
 
-enum AppMode: String, Codable, CaseIterable {
+public enum AppMode: String, Codable, CaseIterable {
   case demo, main
 }
 
-struct AppConfig: Codable {
-  var name: String
+public struct AppConfig: Codable {
+  public var name: String
 }
 
-struct NetworkConfig: Codable {
-  var config_url: String
-  var state_store_urls: [String]
-  var wallet_url: String
-  var badger_address: String
-  var mux: MuxConfig
+public struct NetworkConfig: Codable {
+  public var config_url: String
+  public var state_store_urls: [String]
+  public var wallet_url: String
+  public var badger_address: String
+  public var mux: MuxConfig
 }
 
-struct Auth0Config: Codable {
-  var domain: String
-  var client_id: String
-  var grant_type: String
+public struct Auth0Config: Codable {
+  public var domain: String
+  public var client_id: String
+  public var grant_type: String
 }
 
-struct MuxConfig: Codable {
-  var env_key: String
+public struct MuxConfig: Codable {
+  public var env_key: String
 }

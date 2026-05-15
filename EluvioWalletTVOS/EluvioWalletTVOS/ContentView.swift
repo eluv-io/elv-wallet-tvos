@@ -7,6 +7,7 @@
 
 import AVKit
 import Combine
+import EluvioCore
 import SwiftUI
 import SwiftyJSON
 

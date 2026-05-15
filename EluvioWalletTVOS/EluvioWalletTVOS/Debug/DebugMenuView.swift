@@ -1,3 +1,5 @@
+import EluvioCore
+
 #if DEBUG
   import SwiftUI
 

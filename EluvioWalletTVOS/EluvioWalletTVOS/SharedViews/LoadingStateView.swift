@@ -5,6 +5,7 @@
 //  A reusable loading state view with smooth transitions
 //
 
+import EluvioCore
 import SwiftUI
 
 struct LoadingStateView: View {

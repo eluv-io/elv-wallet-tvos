@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2024-11-19.
 //
 
+import EluvioCore
 import SwiftUI
 
 /// This is a simple view without a QR Code to purchase since it's against Apple's policy's

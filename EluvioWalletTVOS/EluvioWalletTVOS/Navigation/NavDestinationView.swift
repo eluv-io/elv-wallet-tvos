@@ -1,3 +1,4 @@
+import EluvioCore
 import FirebaseAnalytics
 import SwiftUI
 

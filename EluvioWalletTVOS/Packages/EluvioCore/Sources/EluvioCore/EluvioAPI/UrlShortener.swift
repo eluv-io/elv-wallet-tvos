@@ -9,10 +9,10 @@ import Alamofire
 import Foundation
 import SwiftyJSON
 
-enum UrlShortener {
+public enum UrlShortener {
   // Tries to shorten the URL.
   // Fails silently and returns original url if not sucessful
-  static func shortenUrl(_ longUrl: String) async -> String {
+  public static func shortenUrl(_ longUrl: String) async -> String {
     print("****** shortenUrl ******")
     var endpoint = "https://elv.lv/tiny/create"
 

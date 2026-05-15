@@ -1,13 +1,13 @@
 import Foundation
 
 extension MediaPropertySectionItem: Decodable {
-  enum CodingKeys: String, CodingKey {
+  public enum CodingKeys: String, CodingKey {
     case id, banner_image, banner_image_mobile, media_id, media_type, type, media
     case description, disabled, display, label, expand, use_media_settings
     case subproperty_id, subproperty_page_id, permissions, page_id, url, resolvedPermissions
   }
 
-  convenience init(from decoder: Decoder) throws {
+  public convenience init(from decoder: Decoder) throws {
     self.init()
     let container = try decoder.container(keyedBy: CodingKeys.self)
     id = try container.decodeIfPresent(String.self, forKey: .id) ?? UUID().uuidString
@@ -31,7 +31,7 @@ extension MediaPropertySectionItem: Decodable {
     resolvedPermissions = try container.decodeIfPresent(ResolvedPermission.self, forKey: .resolvedPermissions)
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encodeIfPresent(id, forKey: .id)
     try container.encodeIfPresent(banner_image, forKey: .banner_image)

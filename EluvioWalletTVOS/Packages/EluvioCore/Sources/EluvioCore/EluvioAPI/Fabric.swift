@@ -8,25 +8,36 @@
 import Alamofire
 import Base58Swift
 import CryptoKit
-import EluvioCore
 import Foundation
 import SwiftyJSON
 
-var APP_CONFIG: AppConfiguration = loadJsonFileFatal("configuration.json")
-let POLLSECONDS = 300
+public var APP_CONFIG: AppConfiguration = loadJsonFileFatal("configuration.json")
+public let POLLSECONDS = 300
 
-func IsDemoMode() -> Bool {
+public func IsDemoMode() -> Bool {
   return NetworkStore.shared.selectedNetwork == .demo
 }
 
-struct MintInfo {
-  var tenantId: String = ""
-  var marketplaceId: String = ""
-  var sku: String = ""
-  var entitlement: String = ""
+public struct MintInfo {
+  public var tenantId: String = ""
+  public var marketplaceId: String = ""
+  public var sku: String = ""
+  public var entitlement: String = ""
+
+  public init(
+    tenantId: String = "",
+    marketplaceId: String = "",
+    sku: String = "",
+    entitlement: String = ""
+  ) {
+    self.tenantId = tenantId
+    self.marketplaceId = marketplaceId
+    self.sku = sku
+    self.entitlement = entitlement
+  }
 }
 
-enum FabricError: Error {
+public enum FabricError: Error {
   case invalidURL(String)
   case configError(String)
   case unexpectedResponse(String)
@@ -35,23 +46,23 @@ enum FabricError: Error {
   case apiError(code: Int, response: JSON, error: Error)
 }
 
-struct RuntimeError: LocalizedError {
-  let description: String
+public struct RuntimeError: LocalizedError {
+  public let description: String
 
-  init(_ description: String) {
+  public init(_ description: String) {
     self.description = description
   }
 
-  var errorDescription: String? {
+  public var errorDescription: String? {
     description
   }
 }
 
-class Fabric: ObservableObject {
-  static var CommonFabricParams =
+public class Fabric: ObservableObject {
+  public static var CommonFabricParams =
     "link_depth=10&resolve=true&resolve_include_source=true&resolve_ignore_errors=true"
 
-  var network: String {
+  public var network: String {
     NetworkStore.shared.selectedNetwork.rawValue
   }
 
@@ -59,16 +70,18 @@ class Fabric: ObservableObject {
     FabricConfigStore.shared.config
   }
 
-  var fabricToken: String {
+  public var fabricToken: String {
     AccountStore.shared.bestToken
   }
 
-  var profile = Profile()
+  public var profile = Profile()
 
-  var debugNode = "https://host-76-74-91-2.contentfabric.io/"
-  var isDebugNode = false
+  public var debugNode = "https://host-76-74-91-2.contentfabric.io/"
+  public var isDebugNode = false
 
-  func getFabricEndpoint() -> String {
+  public init() {}
+
+  public func getFabricEndpoint() -> String {
     if isDebugNode {
       return debugNode
     }
@@ -76,7 +89,7 @@ class Fabric: ObservableObject {
     return FabricConfigStore.shared.fabricBaseUrl
   }
 
-  func parseNfts(_ nfts: [JSON], propertyId: String) async throws -> [NFTModel] {
+  public func parseNfts(_ nfts: [JSON], propertyId: String) async throws -> [NFTModel] {
     var items: [NFTModel] = []
     for nft in nfts {
       do {
@@ -114,7 +127,7 @@ class Fabric: ObservableObject {
     return items
   }
 
-  func isOfferActive(offerId: String, nft: NFTModel) async throws -> NftRedeemableOffer? {
+  public func isOfferActive(offerId: String, nft: NFTModel) async throws -> NftRedeemableOffer? {
     guard let address = nft.contract_addr?.nilIfEmpty(),
       let tokenId = nft.token_id_str?.nilIfEmpty()
     else {
@@ -137,7 +150,7 @@ class Fabric: ObservableObject {
     return
   }
 
-  func redeemComplete(confirmationId: String, tenantId: String, pollSeconds: Int = POLLSECONDS)
+  public func redeemComplete(confirmationId: String, tenantId: String, pollSeconds: Int = POLLSECONDS)
     async throws -> (isRedeemed: Bool, transactionHash: String)
   {
     print("Redeem Complete check")
@@ -172,7 +185,7 @@ class Fabric: ObservableObject {
   }
 
   /// Waits for transaction for pollSeconds
-  func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = POLLSECONDS) async throws -> (
+  public func redeemOffer(offerId: String, nft: NFTModel, pollSeconds: Int = POLLSECONDS) async throws -> (
     isRedeemed: Bool, transactionHash: String
   ) {
     guard let tokenId = nft.token_id_str else {
@@ -206,7 +219,7 @@ class Fabric: ObservableObject {
       confirmationId: confirmationId, tenantId: tenantId, pollSeconds: pollSeconds)
   }
 
-  func findItem(marketplaceId: String, sku: String) async throws -> (item: JSON?, tenantId: String)
+  public func findItem(marketplaceId: String, sku: String) async throws -> (item: JSON?, tenantId: String)
   {
     let marketMeta = try await contentObjectMetadata(
       id: marketplaceId, metadataSubtree: "/public/asset_metadata")
@@ -229,7 +242,7 @@ class Fabric: ObservableObject {
     return (foundItem, tenantId)
   }
 
-  func findItemAddress(marketplaceId: String, sku: String) async throws -> String {
+  public func findItemAddress(marketplaceId: String, sku: String) async throws -> String {
     let (itemJSON, _) = try await findItem(marketplaceId: marketplaceId, sku: sku)
 
     if let item = itemJSON {
@@ -241,7 +254,7 @@ class Fabric: ObservableObject {
 
   // XXX: superslow
   // Gets the marketplace data from the fabric
-  func getMarketplace(marketplaceId: String) async throws -> MarketplaceViewModel {
+  public func getMarketplace(marketplaceId: String) async throws -> MarketplaceViewModel {
     debugPrint("getMarketplace marketplace id ", marketplaceId)
     if marketplaceId == "" {
       throw FabricError.badInput("Could not query marketplace. ID is empty.")
@@ -275,11 +288,11 @@ class Fabric: ObservableObject {
     )
   }
 
-  func getStateStoreUrl() -> String? {
+  public func getStateStoreUrl() -> String? {
     APP_CONFIG.network[network]?.state_store_urls.first
   }
 
-  func redeemFulfillment(transactionHash: String) async throws -> JSON {
+  public func redeemFulfillment(transactionHash: String) async throws -> JSON {
     if transactionHash.isEmpty {
       throw FabricError.configError("Redeem Fulfillment called without transaction ID")
     }
@@ -294,11 +307,11 @@ class Fabric: ObservableObject {
     return JSON()
   }
 
-  func getEnvironment() -> APIEnvironment {
+  public func getEnvironment() -> APIEnvironment {
     return NetworkStore.shared.environment
   }
 
-  func getWalletBaseUrl() -> String {
+  public func getWalletBaseUrl() -> String {
     let env = getEnvironment()
 
     if network == "demo" {
@@ -310,7 +323,7 @@ class Fabric: ObservableObject {
     }
   }
 
-  func createWalletAuthorization(
+  public func createWalletAuthorization(
     address: String? = "",
     email: String? = "",
     expiresAt: Int64? = nil,
@@ -338,7 +351,7 @@ class Fabric: ObservableObject {
     return Base58.base58Encode(array)
   }
 
-  func createWalletPurchaseUrl(
+  public func createWalletPurchaseUrl(
     id: String,
     propertyId: String,
     pageId: String,
@@ -381,7 +394,7 @@ class Fabric: ObservableObject {
     return url + "&authorization=\(authorization)"
   }
 
-  func createWalletPageLink(propertyId: String, pageId: String, authorization: String = "")
+  public func createWalletPageLink(propertyId: String, pageId: String, authorization: String = "")
     -> String
   {
     let url = getWalletBaseUrl() + "/" + propertyId + "/" + pageId
@@ -391,7 +404,7 @@ class Fabric: ObservableObject {
     return url + "?authorization=\(authorization)"
   }
 
-  func getNFTs(
+  public func getNFTs(
     address: String, propertyId: String = "", description: String = "", name: String = ""
   ) async throws -> [NFTModel] {
     var path = "apigw/nfts?limit=100"
@@ -412,7 +425,7 @@ class Fabric: ObservableObject {
     return try await parseNfts(profileData["contents"].arrayValue, propertyId: propertyId)
   }
 
-  func getProperty(property: String, newFetch: Bool = false) async throws
+  public func getProperty(property: String, newFetch: Bool = false) async throws
     -> MediaProperty?
   {
     var result = await PropertyStore.shared.getProperty(id: property)
@@ -423,7 +436,7 @@ class Fabric: ObservableObject {
     return result
   }
 
-  func getMediaItem(mediaId: String) -> MediaPropertySectionMediaItem? {
+  public func getMediaItem(mediaId: String) -> MediaPropertySectionMediaItem? {
     // This only serves deeplinking.
     // After the big refactor we left this non-functional until we need it again.
     return nil
@@ -433,7 +446,7 @@ class Fabric: ObservableObject {
     return "\(address) - media_progress"
   }
 
-  func getUserViewedProgressContainer(address: String) throws -> MediaProgressContainer {
+  public func getUserViewedProgressContainer(address: String) throws -> MediaProgressContainer {
     // TODO: Store these constants for user defaults somewhere
     guard
       let data = try UserDefaults.standard.object(
@@ -453,7 +466,7 @@ class Fabric: ObservableObject {
   }
 
   // TODO: Retrieve from app services profile
-  func getUserViewedProgress(address: String, mediaId: String) throws -> MediaProgress {
+  public func getUserViewedProgress(address: String, mediaId: String) throws -> MediaProgress {
     if let container = try? getUserViewedProgressContainer(address: address) {
       // TODO: create a key maker function
       return container.media["media-viewed-\(mediaId)-progress"] ?? MediaProgress()
@@ -464,7 +477,7 @@ class Fabric: ObservableObject {
   }
 
   // TODO: Set into the app services profile
-  func setUserViewedProgress(address: String, mediaId: String, progress: MediaProgress) throws {
+  public func setUserViewedProgress(address: String, mediaId: String, progress: MediaProgress) throws {
     // debugPrint("setUserViewedProgress mediaId \(mediaId) progress \(progress)")
     var container = MediaProgressContainer()
     do {
@@ -485,19 +498,19 @@ class Fabric: ObservableObject {
     }
   }
 
-  func getOptionsFromHash(versionHash: String) async throws -> JSON {
+  public func getOptionsFromHash(versionHash: String) async throws -> JSON {
     let path = "mw/playout_options/" + versionHash
     return try await NetworkManager.shared.request(path)
   }
 
   /// New API for media item playout
-  func getMediaPlayoutOptions(propertyId: String, mediaId: String) async throws -> JSON {
+  public func getMediaPlayoutOptions(propertyId: String, mediaId: String) async throws -> JSON {
     return try await NetworkManager.shared.request(
       "mw/properties/\(propertyId)/media_items/\(mediaId)/offerings/any/playout_options")
   }
 
   // Deprectated: Doesn't work with Live
-  func getOptionsFromLink(
+  public func getOptionsFromLink(
     link: JSON?, params: [JSON]? = [], offering: String = "default", hash: String = ""
   ) async throws -> (optionsJson: JSON, versionHash: String) {
     var optionsUrl = try getUrlFromLink(link: link, params: params, hash: hash)
@@ -525,7 +538,7 @@ class Fabric: ObservableObject {
     return (optionsJson, versionsHash)
   }
 
-  func getUrlFromLink(
+  public func getUrlFromLink(
     link: JSON?, baseUrl: String? = nil, params: [JSON]? = [], includeAuth: Bool? = true,
     resolveHeaders: Bool? = false, staticUrl: Bool = false, hash: String = ""
   ) throws -> String {
@@ -628,7 +641,7 @@ class Fabric: ObservableObject {
     return try await NetworkManager.shared.requestUrl(url: url)
   }
 
-  func getHlsPlaylistFromOptions(
+  public func getHlsPlaylistFromOptions(
     uri: String, hash: String, offering: String = "default"
   ) throws -> String {
     let url = getFabricEndpoint()
@@ -651,7 +664,7 @@ class Fabric: ObservableObject {
   // ELV-CLIENT API
 
   /// id is objectId or versionHash
-  func contentObjectMetadata(id: String, metadataSubtree: String? = "") async throws -> JSON {
+  public func contentObjectMetadata(id: String, metadataSubtree: String? = "") async throws -> JSON {
     let url = "\(getFabricEndpoint())q/\(id)/meta/\(metadataSubtree!)?\(Fabric.CommonFabricParams)"
     return try await httpJsonRequest(url: url)
   }

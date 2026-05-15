@@ -2,25 +2,25 @@ import Observation
 
 @MainActor
 @Observable
-class MediaItemStore {
-  static let shared = MediaItemStore()
+public class MediaItemStore {
+  public static let shared = MediaItemStore()
 
   private var cache: [String: MediaPropertySectionMediaItem] = [:]
 
   private init() {}
 
-  func observeMediaItems(ids: [String]) -> [MediaPropertySectionMediaItem] {
+  public func observeMediaItems(ids: [String]) -> [MediaPropertySectionMediaItem] {
     ids.compactMap { cache[$0] }
   }
 
-  func cache(items: [MediaPropertySectionMediaItem]) {
+  public func cache(items: [MediaPropertySectionMediaItem]) {
     for item in items {
       cache[item.id] = item
     }
   }
 
   /// Fetches media items. Unauthorized items with "hide" permission behavior will be discarded and not cached.
-  func fetchMediaItems(
+  public func fetchMediaItems(
     propertyId: String,
     ids: [String],
     parentPermissions: ResolvedPermission?,

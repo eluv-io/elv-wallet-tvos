@@ -2,11 +2,11 @@ import Alamofire
 import Foundation
 import SwiftyJSON
 
-class NetworkManager {
-  static let shared = NetworkManager()
+public class NetworkManager {
+  public static let shared = NetworkManager()
 
-  let configStore: FabricConfigStore
-  let accountStore: AccountStore
+  public let configStore: FabricConfigStore
+  public let accountStore: AccountStore
 
   private var session: Session
 
@@ -17,7 +17,7 @@ class NetworkManager {
     self.session = Session(interceptor: interceptor)
   }
 
-  func request<T: Decodable>(
+  public func request<T: Decodable>(
     _ path: String,
     method: HTTPMethod = .get,
     parameters: Parameters = [:],
@@ -27,7 +27,7 @@ class NetworkManager {
     return try await requestUrl(url: url, method: method, parameters: parameters, body: body)
   }
 
-  func requestUrl<T: Decodable>(
+  public func requestUrl<T: Decodable>(
     url: String,
     method: HTTPMethod = .get,
     parameters: Parameters = [:],
@@ -70,28 +70,28 @@ class NetworkManager {
     return value
   }
 
-  func refreshToken() async {
+  public func refreshToken() async {
     guard let account = accountStore.account, let refreshToken = account.refreshToken else {
       // Not logged in, or not refresh token available
       return
     }
-    try? await EluvioWalletTVOS.refreshToken(
+    try? await EluvioCore.refreshToken(
       refreshToken: refreshToken,
       fabricToken: account.fabricToken)
   }
 }
 
-class AuthInterceptor: RequestInterceptor {
+public class AuthInterceptor: RequestInterceptor {
   private var accountStore: AccountStore
   private var isRefreshing = false
   private let lock = NSLock()
 
-  init(accountStore: AccountStore) {
+  public init(accountStore: AccountStore) {
     self.accountStore = accountStore
   }
 
   // Add auth header to requests
-  func adapt(
+  public func adapt(
     _ urlRequest: URLRequest, for session: Session,
     completion: @escaping (Result<URLRequest, Error>) -> Void
   ) {
@@ -113,7 +113,7 @@ class AuthInterceptor: RequestInterceptor {
   }
 
   // Retry on 401 after refreshing token
-  func retry(
+  public func retry(
     _ request: Request, for session: Session, dueTo error: Error,
     completion: @escaping (RetryResult) -> Void
   ) {

@@ -49,7 +49,7 @@ struct PlayerView: View {
   var viewItem: MediaPropertySectionMediaItemViewModel?
   var playerItem: AVPlayerItem?
   var property: MediaProperty?
-  var playout: VideoParams.PlayoutInfo?
+  var playout: PlayoutInfo?
 
   var mediaId: String { viewItem?.media_id ?? "" }
   var title: String { viewItem?.title ?? "" }

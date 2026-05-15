@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2023-03-31.
 //
 
+import EluvioCore
 import SwiftUI
 
 struct CheckboxRow: View {

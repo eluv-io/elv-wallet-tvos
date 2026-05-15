@@ -8,26 +8,26 @@
 import Base58Swift
 import Foundation
 
-enum AccountType: Codable, Equatable {
+public enum AccountType: Codable, Equatable {
   case Ory
   case Auth0(domain: String)
 }
 
-class Account: Identifiable, Codable {
-  var id: String {
+public class Account: Identifiable, Codable {
+  public var id: String {
     getAccountId() ?? UUID().uuidString
   }
 
-  var type: AccountType = .Ory
-  var clusterToken: String? = nil
-  var fabricToken: String = ""
-  var refreshToken: String? = nil
-  var addr: String? = nil
-  var expiresAt: Int64 = 0
-  var email: String? = nil
-  var profile: ProfileData = .init()
+  public var type: AccountType = .Ory
+  public var clusterToken: String? = nil
+  public var fabricToken: String = ""
+  public var refreshToken: String? = nil
+  public var addr: String? = nil
+  public var expiresAt: Int64 = 0
+  public var email: String? = nil
+  public var profile: ProfileData = .init()
 
-  init() {}
+  public init() {}
 
   // Backwards compatibility: old accounts stored address inside a "login" object
   private enum CodingKeys: String, CodingKey {
@@ -36,7 +36,7 @@ class Account: Identifiable, Codable {
 
   // The custom encode / decode is only required for backward compat.
   // We'll be able to remove this in the future when we're confident no existing clients use the old 'login' field.
-  required init(from decoder: Decoder) throws {
+  public required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
     type = try container.decodeIfPresent(AccountType.self, forKey: .type) ?? .Ory
     clusterToken = try container.decodeIfPresent(String.self, forKey: .clusterToken)
@@ -54,7 +54,7 @@ class Account: Identifiable, Codable {
     }
   }
 
-  func encode(to encoder: Encoder) throws {
+  public func encode(to encoder: Encoder) throws {
     var container = encoder.container(keyedBy: CodingKeys.self)
     try container.encode(type, forKey: .type)
     try container.encodeIfPresent(clusterToken, forKey: .clusterToken)
@@ -66,14 +66,14 @@ class Account: Identifiable, Codable {
     try container.encode(profile, forKey: .profile)
   }
 
-  func getAccountId() -> String? {
+  public func getAccountId() -> String? {
     guard let address = addr else { return nil }
     guard let bytes = HexToBytes(address) else { return nil }
     let encoded = Base58.base58Encode(bytes)
     return "iusr\(encoded)"
   }
 
-  func getAccountAddress() -> String {
+  public func getAccountAddress() -> String {
     guard let address = addr else {
       return ""
     }
@@ -81,7 +81,7 @@ class Account: Identifiable, Codable {
     return FormatAddress(address: address)
   }
 
-  func isTokenExpiredIn(seconds: Int) -> Bool {
+  public func isTokenExpiredIn(seconds: Int) -> Bool {
     if expiresAt == 0 {
       return false
     }
@@ -99,7 +99,7 @@ class Account: Identifiable, Codable {
     return Date(timeIntervalSince1970: Double(expiresAt) / 1000)
   }
 
-  var expiresAtDateString: String {
+  public var expiresAtDateString: String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateStyle = .short
     dateFormatter.timeStyle = .short
@@ -110,7 +110,7 @@ class Account: Identifiable, Codable {
 }
 
 extension Account: Equatable {
-  static func == (lhs: Account, rhs: Account) -> Bool {
+  public static func == (lhs: Account, rhs: Account) -> Bool {
     lhs.addr == rhs.addr
       && lhs.type == rhs.type
       && lhs.fabricToken == rhs.fabricToken

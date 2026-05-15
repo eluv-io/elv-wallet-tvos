@@ -1,27 +1,29 @@
-struct DisplaySettings: Codable {
-  var title_icon: ImageLink?
-  var title: String?
-  var subtitle: String?
-  var description: String?
+public struct DisplaySettings: Codable {
+  public var title_icon: ImageLink?
+  public var title: String?
+  public var subtitle: String?
+  public var description: String?
 
-  var display_limit: Int?
-  var display_format: String?  // can be an enum "carousel", "grid", "hero", "banner"
-  var justification: String?  // can be an enum "left", "right", "center"
+  public var display_limit: Int?
+  public var display_format: String?  // can be an enum "carousel", "grid", "hero", "banner"
+  public var justification: String?  // can be an enum "left", "right", "center"
 
-  var logo: ImageLink?
-  var logo_text: String?
+  public var logo: ImageLink?
+  public var logo_text: String?
 
-  var aspect_ratio: String?  // Can probably use ImageAspectRatio
+  public var aspect_ratio: String?  // Can probably use ImageAspectRatio
 
-  var inline_background_image: ImageLink?
+  public var inline_background_image: ImageLink?
 
-  var full_bleed: Bool?
+  public var full_bleed: Bool?
 
-  var hide_on_tv: Bool?
+  public var hide_on_tv: Bool?
 
-  var thumbnail_image_landscape: ImageLink?
-  var thumbnail_image_portrait: ImageLink?
-  var thumbnail_image_square: ImageLink?
+  public var thumbnail_image_landscape: ImageLink?
+  public var thumbnail_image_portrait: ImageLink?
+  public var thumbnail_image_square: ImageLink?
 
-  var headers: [String]?
+  public var headers: [String]?
+
+  public init() {}
 }

@@ -5,6 +5,7 @@
 //  Created by Wayne Tran on 2023-04-11.
 //
 
+import EluvioCore
 import Foundation
 import SwiftUI
 

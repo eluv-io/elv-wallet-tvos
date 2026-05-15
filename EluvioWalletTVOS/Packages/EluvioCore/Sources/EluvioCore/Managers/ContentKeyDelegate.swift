@@ -9,26 +9,26 @@
 
 import AVFoundation
 
-class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
+public class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
   // MARK: Types
 
-  enum ProgramError: Error {
+  public enum ProgramError: Error {
     case missingApplicationCertificate
     case noCKCReturnedByKSM
   }
 
   // MARK: Properties
 
-  var drmUrl: String = ""
-  var authToken: String = ""
+  public var drmUrl: String = ""
+  public var authToken: String = ""
 
-  func setDRM(licenseServer: String, authToken: String) {
+  public func setDRM(licenseServer: String, authToken: String) {
     drmUrl = licenseServer
     self.authToken = authToken
   }
 
   /// The directory that is used to save persistable content keys.
-  lazy var contentKeyDirectory: URL = {
+  public lazy var contentKeyDirectory: URL = {
     guard
       let documentPath =
         NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first
@@ -56,12 +56,12 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
   }()
 
   /// A set containing the currently pending content key identifiers associated with persistable content key requests that have not been completed.
-  var pendingPersistableContentKeyIdentifiers = Set<String>()
+  public var pendingPersistableContentKeyIdentifiers = Set<String>()
 
   /// A dictionary mapping content key identifiers to their associated stream name.
-  var contentKeyToStreamNameMap = [String: String]()
+  public var contentKeyToStreamNameMap = [String: String]()
 
-  func requestApplicationCertificate() throws -> Data {
+  public func requestApplicationCertificate() throws -> Data {
     print("ContentKeyDelegate.requestApplicationCertificate")
     let cert64 =
       "MIIExzCCA6+gAwIBAgIIHyfkXhxLHC4wDQYJKoZIhvcNAQEFBQAwfzELMAkGA1UEBhMCVVMxEzARBgNVBAoMCkFwcGxlIEluYy4xJjAkBgNVBAsMHUFwcGxlIENlcnRpZmljYXRpb24gQXV0aG9yaXR5MTMwMQYDVQQDDCpBcHBsZSBLZXkgU2VydmljZXMgQ2VydGlmaWNhdGlvbiBBdXRob3JpdHkwHhcNMjAwOTEyMDMzMjI0WhcNMjIwOTEzMDMzMjI0WjBgMQswCQYDVQQGEwJVUzETMBEGA1UECgwKRWx1dmlvIEluYzETMBEGA1UECwwKMktIOEtDM01NWDEnMCUGA1UEAwweRmFpclBsYXkgU3RyZWFtaW5nOiBFbHV2aW8gSW5jMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDslbBURB6gj07g7VrS7Ojixe7FNZOupomcZt+mtMvyavjg7X7/T4RccmKUQxOoMLKCJcQ6WrdHhIpN8+bciq7lr0mNzaN467zREiUNYOpkVPi13sJLieY2m2MEPOQTbIl52Cu1YyH+4/g1dKPmeguSnzZRo36jsCGHlJBjHq0jkQIDAQABo4IB6DCCAeQwDAYDVR0TAQH/BAIwADAfBgNVHSMEGDAWgBRj5EdUy4VxWUYsg6zMRDFkZwMsvjCB4gYDVR0gBIHaMIHXMIHUBgkqhkiG92NkBQEwgcYwgcMGCCsGAQUFBwICMIG2DIGzUmVsaWFuY2Ugb24gdGhpcyBjZXJ0aWZpY2F0ZSBieSBhbnkgcGFydHkgYXNzdW1lcyBhY2NlcHRhbmNlIG9mIHRoZSB0aGVuIGFwcGxpY2FibGUgc3RhbmRhcmQgdGVybXMgYW5kIGNvbmRpdGlvbnMgb2YgdXNlLCBjZXJ0aWZpY2F0ZSBwb2xpY3kgYW5kIGNlcnRpZmljYXRpb24gcHJhY3RpY2Ugc3RhdGVtZW50cy4wNQYDVR0fBC4wLDAqoCigJoYkaHR0cDovL2NybC5hcHBsZS5jb20va2V5c2VydmljZXMuY3JsMB0GA1UdDgQWBBR4jerseBHEUDC7mU+NQuIzZqHRFDAOBgNVHQ8BAf8EBAMCBSAwOAYLKoZIhvdjZAYNAQMBAf8EJgFuNnNkbHQ2OXFuc3l6eXp5bWFzdmdudGthbWd2bGE1Y212YzdpMC4GCyqGSIb3Y2QGDQEEAQH/BBwBd252bHhlbGV1Y3Vpb2JyZW4yeHZlZmV6N2Y5MA0GCSqGSIb3DQEBBQUAA4IBAQBM17YYquw0soDPAadr1aIM6iC6BQ/kOGYu3y/6AlrwYgAQNFy8DjsQUoqlQWFuA0sigp57bTUymkXEBf9yhUmXXiPafGjbxzsPF5SPFLIciolWbxRCB153L1a/Vh2wg3rhf4IvAZuJpnml6SSg5SjD19bN+gD7zrtp3yWKBKuarLSjDvVIB1SoxEToBs3glAEqoBiA2eZjikBA0aBlbvjUF2gqOmZjZJ7dmG1Tos2Zd4SdGL6ltSpKUeSGSxyv41aqF83vNpymNJmey2t2kPPtC7mt0LM32Ift3AkAl8Za9JbV/pOnc95oAfPhVTOGOI+u2BuB2qaKWjqHwkfqCz4A"
@@ -72,7 +72,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
     return applicationCertificate!
   }
 
-  func requestContentKeyFromKeySecurityModule(spcData: Data, assetID: String) throws -> Data {
+  public func requestContentKeyFromKeySecurityModule(spcData: Data, assetID: String) throws -> Data {
     print("ContentKeyDelegate.requestContentKeyFromKeySecurityModule assetID " + assetID)
 
     var ckcData: Data? = nil
@@ -151,7 +151,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
   ///
   /// - Parameter identifier: The asset ID associated with the content key request.
   /// - Returns: `true` if the content key request should be persistable, `false` otherwise.
-  func shouldRequestPersistableContentKey(withIdentifier identifier: String) -> Bool {
+  public func shouldRequestPersistableContentKey(withIdentifier identifier: String) -> Bool {
     print("ContentKeyDelegate.shouldRequestPersistableContentKey withIdentifier " + identifier)
     return pendingPersistableContentKeyIdentifiers.contains(identifier)
   }
@@ -162,7 +162,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
    The following delegate callback gets called when the client initiates a key request or AVFoundation
    determines that the content is encrypted based on the playlist the client provided when it requests playback.
    */
-  func contentKeySession(_: AVContentKeySession, didProvide keyRequest: AVContentKeyRequest) {
+  public func contentKeySession(_: AVContentKeySession, didProvide keyRequest: AVContentKeyRequest) {
     print("ContentKeyDelegate.contentKeySession didProvide keyRequest")
     handleStreamingContentKeyRequest(keyRequest: keyRequest)
   }
@@ -171,7 +171,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
    Provides the receiver with a new content key request representing a renewal of an existing content key.
    Will be invoked by an AVContentKeySession as the result of a call to -renewExpiringResponseDataForContentKeyRequest:.
    */
-  func contentKeySession(
+  public func contentKeySession(
     _: AVContentKeySession, didProvideRenewingContentKeyRequest keyRequest: AVContentKeyRequest
   ) {
     print("ContentKeyDelegate.contentKeySession didProvideRenewingContentKeyRequest")
@@ -187,7 +187,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
    request would fail and AVContentKeySession would let the receiver know through
    -contentKeySession:contentKeyRequest:didFailWithError:.
    */
-  func contentKeySession(
+  public func contentKeySession(
     _: AVContentKeySession, shouldRetry _: AVContentKeyRequest,
     reason retryReason: AVContentKeyRequest.RetryReason
   ) -> Bool {
@@ -224,7 +224,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
   }
 
   /// Informs the receiver a content key request has failed.
-  func contentKeySession(
+  public func contentKeySession(
     _: AVContentKeySession, contentKeyRequest _: AVContentKeyRequest, didFailWithError err: Error
   ) {
     print("ContentKeyDelegate.contentKeySession didFailWithError " + err.localizedDescription)
@@ -232,7 +232,7 @@ class ContentKeyDelegate: NSObject, AVContentKeySessionDelegate {
 
   // MARK: API
 
-  func handleStreamingContentKeyRequest(keyRequest: AVContentKeyRequest) {
+  public func handleStreamingContentKeyRequest(keyRequest: AVContentKeyRequest) {
     guard let contentKeyIdentifierString = keyRequest.identifier as? String,
       let contentKeyIdentifierURL = URL(string: contentKeyIdentifierString),
       let assetIDString = contentKeyIdentifierURL.host,

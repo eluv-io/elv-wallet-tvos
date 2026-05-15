@@ -8,21 +8,21 @@
 import Foundation
 import SwiftyJSON
 
-struct PropertyModel: Identifiable, Codable {
-  var id: String? = UUID().uuidString
-  var title: String? = ""
-  var logo: String? = ""
-  var image: String? = ""
-  var heroImage: String? = ""
-  var parent_id: String? = ""
-  var featured: Features = .init()
-  var media: [MediaCollection] = []
-  var albums: [NFTModel] = []  // Temporary until we have proper albums
-  var live_streams: [MediaItem]  // Temp. Need to do a new LiveMediaItem model?
-  var sections: [MediaSection] = []
-  var contents: [ProjectModel] = []
+public struct PropertyModel: Identifiable, Codable {
+  public var id: String? = UUID().uuidString
+  public var title: String? = ""
+  public var logo: String? = ""
+  public var image: String? = ""
+  public var heroImage: String? = ""
+  public var parent_id: String? = ""
+  public var featured: Features = .init()
+  public var media: [MediaCollection] = []
+  public var albums: [NFTModel] = []  // Temporary until we have proper albums
+  public var live_streams: [MediaItem]  // Temp. Need to do a new LiveMediaItem model?
+  public var sections: [MediaSection] = []
+  public var contents: [ProjectModel] = []
 
-  var isEmpty: Bool {
+  public var isEmpty: Bool {
     if let first = contents.first {
       return first.contents.isEmpty
     } else {
@@ -31,14 +31,14 @@ struct PropertyModel: Identifiable, Codable {
   }
 }
 
-struct ProjectModel: Identifiable, Codable {
-  var id: String? = UUID().uuidString
-  var title: String? = ""
-  var description: String? = ""
-  var image: String? = ""
-  var image_wide: String? = ""
-  var background_image_tv: String? = ""
-  var parent_id: String? = ""
-  var property: PropertyModel? = nil
-  var contents: [NFTModel] = []
+public struct ProjectModel: Identifiable, Codable {
+  public var id: String? = UUID().uuidString
+  public var title: String? = ""
+  public var description: String? = ""
+  public var image: String? = ""
+  public var image_wide: String? = ""
+  public var background_image_tv: String? = ""
+  public var parent_id: String? = ""
+  public var property: PropertyModel? = nil
+  public var contents: [NFTModel] = []
 }

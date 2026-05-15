@@ -9,25 +9,25 @@
 
 import AVFoundation
 
-class ContentKeyManager {
+public class ContentKeyManager {
   // MARK: Types.
 
   /// The singleton for `ContentKeyManager`.
-  static let shared: ContentKeyManager = .init()
+  public static let shared: ContentKeyManager = .init()
 
   // MARK: Properties.
 
   /// The instance of `AVContentKeySession` that is used for managing and preloading content keys.
-  let contentKeySession: AVContentKeySession
+  public let contentKeySession: AVContentKeySession
 
   /**
    The instance of `ContentKeyDelegate` which conforms to `AVContentKeySessionDelegate` and is used to respond to content key requests from
    the `AVContentKeySession`
    */
-  let contentKeyDelegate: ContentKeyDelegate
+  public let contentKeyDelegate: ContentKeyDelegate
 
   /// The DispatchQueue to use for delegate callbacks.
-  let contentKeyDelegateQueue = DispatchQueue(
+  public let contentKeyDelegateQueue = DispatchQueue(
     label: "io.eluv.EluvioWalletTVOS.ContentKeyDelegateQueue")
 
   // MARK: Initialization.

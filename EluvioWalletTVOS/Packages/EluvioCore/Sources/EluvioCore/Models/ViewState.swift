@@ -7,32 +7,40 @@
 
 import SwiftUI
 
-enum LinkOp {
+public enum LinkOp {
   case item, play, mint, property, gallery, none
 }
 
-class ViewState: ObservableObject {
-  @Published var op: LinkOp = .none
-  var itemContract = ""
-  var itemTokenStr = ""
-  var marketplaceId = ""
-  var itemSKU = ""
-  var mediaId = ""
-  var backLink = ""
-  var authToken = ""
-  var address = ""
-  var entitlement = ""
+public class ViewState: ObservableObject {
+  @Published public var op: LinkOp = .none
+  public var itemContract = ""
+  public var itemTokenStr = ""
+  public var marketplaceId = ""
+  public var itemSKU = ""
+  public var mediaId = ""
+  public var backLink = ""
+  public var authToken = ""
+  public var address = ""
+  public var entitlement = ""
 
   // App states
-  var isBranded = false
-  var signInBackground: RadialGradient
+  public var isBranded = false
+  public var signInBackground: RadialGradient
 
-  init(isBranded: Bool = false, signInBackground: RadialGradient = Color.mainBackground) {
+  public init(
+    isBranded: Bool = false,
+    signInBackground: RadialGradient = RadialGradient(
+      gradient: Gradient(colors: [
+        Color(red: 0.1, green: 0.1, blue: 0.1),
+        Color(red: 0.0, green: 0.00, blue: 0.0),
+      ]),
+      center: .top, startRadius: 0, endRadius: 1600)
+  ) {
     self.isBranded = isBranded
     self.signInBackground = signInBackground
   }
 
-  func reset() {
+  public func reset() {
     itemContract = ""
     itemTokenStr = ""
     marketplaceId = ""
@@ -45,7 +53,7 @@ class ViewState: ObservableObject {
     op = .none
   }
 
-  func handleLink(url: URL, fabric: Fabric) async {
+  public func handleLink(url: URL, fabric: Fabric) async {
     if let host = url.host()?.lowercased() {
       debugPrint("handleLink ", host)
       reset()
@@ -76,7 +84,7 @@ class ViewState: ObservableObject {
   }
 
   /// @MainActor
-  func setViewState(host: String, url: URL) {
+  public func setViewState(host: String, url: URL) {
     switch host {
     case "items":
       debugPrint("viewStateProperty items")
@@ -109,7 +117,7 @@ class ViewState: ObservableObject {
     }
   }
 
-  func setViewState(state: ViewState) {
+  public func setViewState(state: ViewState) {
     itemContract = state.itemContract
     itemTokenStr = state.itemTokenStr
     marketplaceId = state.marketplaceId
@@ -118,15 +126,4 @@ class ViewState: ObservableObject {
     op = state.op
   }
 
-  /// Returns true if we can load the page
-  func login(_ property: MediaProperty, eluvio: EluvioAPI, router: Router) {
-    if property.accountType == AccountStore.shared.account?.type {
-      debugPrint("Logged in with correct account type - navigating to Property.")
-      let param = PropertyParam(propertyId: property.id)
-      router.push(to: .property(param))
-    } else {
-      debugPrint("Not logged in with same account type as Property - navigating to Login.")
-      router.push(to: .login(LoginParam(property: property)))
-    }
-  }
 }

@@ -6,6 +6,7 @@
 //
 
 import AVKit
+import EluvioCore
 import SwiftUI
 import SwiftyJSON
 

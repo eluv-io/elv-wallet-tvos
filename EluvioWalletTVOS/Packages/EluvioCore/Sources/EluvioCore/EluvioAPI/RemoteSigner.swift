@@ -1,20 +1,20 @@
 import SwiftyJSON
 
-enum APIEnvironment: String {
+public enum APIEnvironment: String {
   case prod = ""
   case staging
 }
 
-enum RemoteSigner {
-  static func getContractInfo(contractAddress: String) async throws -> ContractInfoModel {
+public enum RemoteSigner {
+  public static func getContractInfo(contractAddress: String) async throws -> ContractInfoModel {
     return try await NetworkManager.shared.request("nft/info/\(contractAddress)")
   }
 
-  static func getNftInfo(nftAddress: String, tokenId: String) async throws -> NftInfoModel {
+  public static func getNftInfo(nftAddress: String, tokenId: String) async throws -> NftInfoModel {
     return try await NetworkManager.shared.request("nft/info/\(nftAddress)/\(tokenId)")
   }
 
-  static func createEntitlement(
+  public static func createEntitlement(
     tenantId: String, marketplace: String, sku: String, purchaseId: String, authToken: String
   ) async throws -> String {
     return try await NetworkManager.shared.requestUrl(

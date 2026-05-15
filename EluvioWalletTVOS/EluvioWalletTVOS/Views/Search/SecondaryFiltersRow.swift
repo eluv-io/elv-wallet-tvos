@@ -1,3 +1,4 @@
+import EluvioCore
 import SwiftUI
 
 struct SecondaryFiltersRow: View {

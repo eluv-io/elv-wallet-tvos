@@ -1,14 +1,14 @@
-struct ResolvedPermission: Codable, Hashable {
-  var authorized: Bool = true
-  var behavior: PermissionBehavior = .hide
-  var secondaryPurchaseOption: String = ""
-  var alternatePageId: String = ""
-  var permissionItemIds: [String] = []
-  var cause: String = ""
+public struct ResolvedPermission: Codable, Hashable {
+  public var authorized: Bool = true
+  public var behavior: PermissionBehavior = .hide
+  public var secondaryPurchaseOption: String = ""
+  public var alternatePageId: String = ""
+  public var permissionItemIds: [String] = []
+  public var cause: String = ""
 }
 
-extension ResolvedPermission {
-  var hide: Bool {
+public extension ResolvedPermission {
+  public var hide: Bool {
     if authorized {
       behavior == .showIfUnauthorized
     } else {
@@ -16,15 +16,15 @@ extension ResolvedPermission {
     }
   }
 
-  var disable: Bool {
+  public var disable: Bool {
     return !authorized && behavior == .disable
   }
 
-  var purchaseGate: Bool {
+  public var purchaseGate: Bool {
     return !authorized && behavior == .showPurchase
   }
 
-  var showAlternatePage: Bool {
+  public var showAlternatePage: Bool {
     return !authorized && behavior == .showAlternativePage
   }
 }

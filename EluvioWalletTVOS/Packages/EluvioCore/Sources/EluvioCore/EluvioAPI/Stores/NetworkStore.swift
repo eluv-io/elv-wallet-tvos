@@ -3,10 +3,10 @@ import Observation
 
 //XXX: in Android we call this EnvironmentStore, but here the name Environment is reseved for the distinction between prod/staging, and not main/demov3
 @Observable
-class NetworkStore {
-  static let shared = NetworkStore()
+public class NetworkStore {
+  public static let shared = NetworkStore()
 
-  var selectedNetwork: AppMode {
+  public var selectedNetwork: AppMode {
     didSet {
       debugPrint("Network changed: \(selectedNetwork)")
       UserDefaults.standard.set(selectedNetwork.rawValue, forKey: "fabric_network")
@@ -17,7 +17,7 @@ class NetworkStore {
     }
   }
 
-  var environment: APIEnvironment {
+  public var environment: APIEnvironment {
     didSet {
       debugPrint("Environemnt changed: \(environment)")
       UserDefaults.standard.set(environment.rawValue, forKey: "api_environment")

@@ -8,15 +8,15 @@
 import Foundation
 import SwiftUI
 
-struct ProfileModel: Identifiable, Codable {
-  var id = ""
-  var display_name = ""
-  var description = ""
-  var address = ""
-  var image = ""
-  var followers = ""
-  var following = ""
-  var num_sold = ""
-  var tokens = ""
-  var marketplaces: [MarketplaceViewModel]
+public struct ProfileModel: Identifiable, Codable {
+  public var id = ""
+  public var display_name = ""
+  public var description = ""
+  public var address = ""
+  public var image = ""
+  public var followers = ""
+  public var following = ""
+  public var num_sold = ""
+  public var tokens = ""
+  public var marketplaces: [MarketplaceViewModel]
 }

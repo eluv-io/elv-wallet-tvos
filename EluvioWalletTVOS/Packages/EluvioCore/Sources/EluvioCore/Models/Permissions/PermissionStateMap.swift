@@ -1,5 +1,5 @@
-typealias PermissionStateMap = [String: PermissionAuthState]
+public typealias PermissionStateMap = [String: PermissionAuthState]
 
-struct PermissionAuthState: Codable {
-  var authorized: Bool
+public struct PermissionAuthState: Codable {
+  public var authorized: Bool
 }
