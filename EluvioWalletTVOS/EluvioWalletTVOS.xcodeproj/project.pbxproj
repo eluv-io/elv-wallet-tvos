@@ -18,6 +18,7 @@
 		FA2E89CB2F6E12D600EC2DAD /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E89CA2F6E12D600EC2DAD /* FirebaseAnalytics */; };
 		FA2E89D22F6E18CF00EC2DAD /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = FA2E89D12F6E18CF00EC2DAD /* FirebaseCrashlytics */; };
 		FAEC00E0000000000000C003 /* EluvioCore in Frameworks */ = {isa = PBXBuildFile; productRef = FAEC00E0000000000000C002 /* EluvioCore */; };
+		FAEC00E0000000000001C001 /* EluvioCore in Frameworks */ = {isa = PBXBuildFile; productRef = FAEC00E0000000000001C00C /* EluvioCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,7 @@
 /* Begin PBXFileReference section */
 		B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletTVOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA27F9982F3BD6C900C219C6 /* EluvioWalletTVOSUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EluvioWalletTVOSUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAEC00E0000000000001C002 /* EluvioWalletMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EluvioWalletMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -49,6 +51,7 @@
 		FA27F9992F3BD6C900C219C6 /* EluvioWalletTVOSUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = EluvioWalletTVOSUITests; sourceTree = "<group>"; };
 		FA7858F22F3BB13E00BBAC62 /* Configuration */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Configuration; sourceTree = "<group>"; };
 		FAD079AB2F313D3E00EEAA9B /* EluvioWalletTVOS */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (FAD07A1C2F313D3E00EEAA9B /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = EluvioWalletTVOS; sourceTree = "<group>"; };
+		FAEC00E0000000000001C004 /* EluvioWalletMobile */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = EluvioWalletMobile; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +80,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FAEC00E0000000000001C005 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAEC00E0000000000001C001 /* EluvioCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -84,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				FA7858F22F3BB13E00BBAC62 /* Configuration */,
+				FAEC00E0000000000001C004 /* EluvioWalletMobile */,
 				FAD079AB2F313D3E00EEAA9B /* EluvioWalletTVOS */,
 				FA27F9992F3BD6C900C219C6 /* EluvioWalletTVOSUITests */,
 				B0E60F6D29CC23510079661E /* Products */,
@@ -95,6 +107,7 @@
 			children = (
 				B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */,
 				FA27F9982F3BD6C900C219C6 /* EluvioWalletTVOSUITests.xctest */,
+				FAEC00E0000000000001C002 /* EluvioWalletMobile.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -135,6 +148,29 @@
 			);
 			productName = EluvioWalletTVOS;
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FAEC00E0000000000001C006 /* EluvioWalletMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FAEC00E0000000000001C00B /* Build configuration list for PBXNativeTarget "EluvioWalletMobile" */;
+			buildPhases = (
+				FAEC00E0000000000001C008 /* Sources */,
+				FAEC00E0000000000001C005 /* Frameworks */,
+				FAEC00E0000000000001C007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FAEC00E0000000000001C004 /* EluvioWalletMobile */,
+			);
+			name = EluvioWalletMobile;
+			packageProductDependencies = (
+				FAEC00E0000000000001C00C /* EluvioCore */,
+			);
+			productName = EluvioWalletMobile;
+			productReference = FAEC00E0000000000001C002 /* EluvioWalletMobile.app */;
 			productType = "com.apple.product-type.application";
 		};
 		FA27F9972F3BD6C900C219C6 /* EluvioWalletTVOSUITests */ = {
@@ -205,6 +241,7 @@
 			projectRoot = "";
 			targets = (
 				B0E60F6B29CC23510079661E /* EluvioWalletTVOS */,
+				FAEC00E0000000000001C006 /* EluvioWalletMobile */,
 				FA27F9972F3BD6C900C219C6 /* EluvioWalletTVOSUITests */,
 			);
 		};
@@ -219,6 +256,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		FA27F9962F3BD6C900C219C6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAEC00E0000000000001C007 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -261,6 +305,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		FA27F9942F3BD6C900C219C6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FAEC00E0000000000001C008 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -467,6 +518,87 @@
 			};
 			name = Release;
 		};
+		FAEC00E0000000000001C009 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletMobile/Preview Content\"";
+				DEVELOPMENT_TEAM = 2KH8KC3MMX;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Eluvio Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet.mobile;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		FAEC00E0000000000001C00A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_ASSET_PATHS = "\"EluvioWalletMobile/Preview Content\"";
+				DEVELOPMENT_TEAM = 2KH8KC3MMX;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Eluvio Wallet";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet.mobile;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		FA27F9A02F3BD6C900C219C6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -529,6 +661,15 @@
 			buildConfigurations = (
 				B0E60F7B29CC23530079661E /* Debug */,
 				B0E60F7C29CC23530079661E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FAEC00E0000000000001C00B /* Build configuration list for PBXNativeTarget "EluvioWalletMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAEC00E0000000000001C009 /* Debug */,
+				FAEC00E0000000000001C00A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -678,6 +819,10 @@
 			productName = FirebaseCrashlytics;
 		};
 		FAEC00E0000000000000C002 /* EluvioCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = EluvioCore;
+		};
+		FAEC00E0000000000001C00C /* EluvioCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = EluvioCore;
 		};
