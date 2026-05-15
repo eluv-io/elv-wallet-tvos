@@ -18,6 +18,7 @@ struct EluvioWalletMobileApp: App {
           ProgressView()
         }
       }
+      .preferredColorScheme(.dark)
       .task {
         await FabricConfigStore.shared.bootstrap()
         bootstrapped = true
