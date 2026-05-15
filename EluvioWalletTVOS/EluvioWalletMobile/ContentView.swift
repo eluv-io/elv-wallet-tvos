@@ -2,16 +2,33 @@ import EluvioCore
 import SwiftUI
 
 struct ContentView: View {
+  @State private var properties: [MediaProperty] = []
+  @State private var signInProperty: MediaProperty?
+
   var body: some View {
-    VStack(spacing: 16) {
-      Text("Eluvio Wallet Mobile")
-        .font(.title)
-      Text("EluvioCore wired in — replace this view in Phase 6.")
-        .foregroundStyle(.secondary)
-        .multilineTextAlignment(.center)
-        .padding(.horizontal)
+    NavigationStack {
+      List(properties) { property in
+        Button {
+          signInProperty = property
+        } label: {
+          Text(property.displayName)
+            .font(.headline)
+        }
+      }
+      .navigationTitle("Properties")
+      .overlay {
+        if properties.isEmpty {
+          ProgressView()
+        }
+      }
     }
-    .padding()
+    .task {
+      await PropertyStore.shared.fetchProperties()
+      properties = PropertyStore.shared.properties
+    }
+    .sheet(item: $signInProperty) { property in
+      MobileSignInView(property: property)
+    }
   }
 }
 

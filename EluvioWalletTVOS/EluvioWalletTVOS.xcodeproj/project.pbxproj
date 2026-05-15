@@ -150,29 +150,6 @@
 			productReference = B0E60F6C29CC23510079661E /* EluvioWalletTVOS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		FAEC00E0000000000001C006 /* EluvioWalletMobile */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = FAEC00E0000000000001C00B /* Build configuration list for PBXNativeTarget "EluvioWalletMobile" */;
-			buildPhases = (
-				FAEC00E0000000000001C008 /* Sources */,
-				FAEC00E0000000000001C005 /* Frameworks */,
-				FAEC00E0000000000001C007 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				FAEC00E0000000000001C004 /* EluvioWalletMobile */,
-			);
-			name = EluvioWalletMobile;
-			packageProductDependencies = (
-				FAEC00E0000000000000C002 /* EluvioCore */,
-			);
-			productName = EluvioWalletMobile;
-			productReference = FAEC00E0000000000001C002 /* EluvioWalletMobile.app */;
-			productType = "com.apple.product-type.application";
-		};
 		FA27F9972F3BD6C900C219C6 /* EluvioWalletTVOSUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FA27F9A22F3BD6C900C219C6 /* Build configuration list for PBXNativeTarget "EluvioWalletTVOSUITests" */;
@@ -195,6 +172,29 @@
 			productName = EluvioWalletTVOSUITests;
 			productReference = FA27F9982F3BD6C900C219C6 /* EluvioWalletTVOSUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		FAEC00E0000000000001C006 /* EluvioWalletMobile */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FAEC00E0000000000001C00B /* Build configuration list for PBXNativeTarget "EluvioWalletMobile" */;
+			buildPhases = (
+				FAEC00E0000000000001C008 /* Sources */,
+				FAEC00E0000000000001C005 /* Frameworks */,
+				FAEC00E0000000000001C007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				FAEC00E0000000000001C004 /* EluvioWalletMobile */,
+			);
+			name = EluvioWalletMobile;
+			packageProductDependencies = (
+				FAEC00E0000000000000C002 /* EluvioCore */,
+			);
+			productName = EluvioWalletMobile;
+			productReference = FAEC00E0000000000001C002 /* EluvioWalletMobile.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -518,6 +518,51 @@
 			};
 			name = Release;
 		};
+		FA27F9A02F3BD6C900C219C6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet.test.EluvioWalletTVOSUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_TARGET_NAME = EluvioWalletTVOS;
+				TVOS_DEPLOYMENT_TARGET = 18.0;
+			};
+			name = Debug;
+		};
+		FA27F9A12F3BD6C900C219C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet.test.EluvioWalletTVOSUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 3;
+				TEST_TARGET_NAME = EluvioWalletTVOS;
+				TVOS_DEPLOYMENT_TARGET = 18.0;
+			};
+			name = Release;
+		};
 		FAEC00E0000000000001C009 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -599,51 +644,6 @@
 			};
 			name = Release;
 		};
-		FA27F9A02F3BD6C900C219C6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet.test.EluvioWalletTVOSUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
-				TEST_TARGET_NAME = EluvioWalletTVOS;
-				TVOS_DEPLOYMENT_TARGET = 18.0;
-			};
-			name = Debug;
-		};
-		FA27F9A12F3BD6C900C219C6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.eluvio.wallet.test.EluvioWalletTVOSUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 3;
-				TEST_TARGET_NAME = EluvioWalletTVOS;
-				TVOS_DEPLOYMENT_TARGET = 18.0;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -665,20 +665,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		FAEC00E0000000000001C00B /* Build configuration list for PBXNativeTarget "EluvioWalletMobile" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FAEC00E0000000000001C009 /* Debug */,
-				FAEC00E0000000000001C00A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		FA27F9A22F3BD6C900C219C6 /* Build configuration list for PBXNativeTarget "EluvioWalletTVOSUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FA27F9A02F3BD6C900C219C6 /* Debug */,
 				FA27F9A12F3BD6C900C219C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FAEC00E0000000000001C00B /* Build configuration list for PBXNativeTarget "EluvioWalletMobile" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAEC00E0000000000001C009 /* Debug */,
+				FAEC00E0000000000001C00A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
