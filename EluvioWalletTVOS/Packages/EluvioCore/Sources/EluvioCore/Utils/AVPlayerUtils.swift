@@ -212,9 +212,17 @@ public func MakePlayerItemFromPlayoutInfo(
   let urlAsset = AuthenticatedURLAsset(uri: playoutInfo.uri, token: fabricToken)
 
   if playoutInfo.drmType == "hls-fairplay" {
-    ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
-    ContentKeyManager.shared.contentKeyDelegate.setDRM(
-      licenseServer: playoutInfo.licenseServer, authToken: fabricToken)
+    #if targetEnvironment(simulator)
+      // FairPlay isn't available on the iOS Simulator — touching
+      // AVContentKeySession(keySystem: .fairPlayStreaming) crashes with an
+      // NSInternalInconsistencyException. Skip DRM setup; protected streams
+      // will fail to decode cleanly instead of taking down the app.
+      print("FairPlay is unsupported on simulator — skipping DRM setup")
+    #else
+      ContentKeyManager.shared.contentKeySession.addContentKeyRecipient(urlAsset)
+      ContentKeyManager.shared.contentKeyDelegate.setDRM(
+        licenseServer: playoutInfo.licenseServer, authToken: fabricToken)
+    #endif
   }
 
   let playerItem = AVPlayerItem(asset: urlAsset)
