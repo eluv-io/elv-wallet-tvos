@@ -10,6 +10,7 @@ struct PropertyView: View {
   @State private var page: MediaPropertyPage?
   @State private var sections: [MediaPropertySection] = []
   @State private var loading = true
+  @State private var playingItem: MediaPropertySectionMediaItem?
 
   var body: some View {
     Group {
@@ -26,7 +27,7 @@ struct PropertyView: View {
         ScrollView {
           LazyVStack(alignment: .leading, spacing: 24) {
             ForEach(sections) { section in
-              SectionRow(section: section)
+              SectionRow(section: section, onTap: handleTap)
             }
           }
           .padding(.vertical, 16)
@@ -36,6 +37,17 @@ struct PropertyView: View {
     .navigationTitle(property.displayName)
     .navigationBarTitleDisplayMode(.inline)
     .task { await load() }
+    .navigationDestination(item: $playingItem) { mediaItem in
+      MobileVideoPlayerView(property: property, mediaItem: mediaItem)
+    }
+  }
+
+  private func handleTap(_ item: MediaPropertySectionItem) {
+    guard let media = item.media else { return }
+    if media.media_type?.lowercased() == "video" {
+      playingItem = media
+    }
+    // Non-video media types (gallery, html, image) aren't wired up yet.
   }
 
   private func load() async {
@@ -54,6 +66,7 @@ struct PropertyView: View {
 
 private struct SectionRow: View {
   let section: MediaPropertySection
+  let onTap: (MediaPropertySectionItem) -> Void
 
   var items: [MediaPropertySectionItem] {
     (section.content ?? [])
@@ -78,7 +91,7 @@ private struct SectionRow: View {
         HStack(alignment: .top, spacing: 12) {
           ForEach(items) { item in
             Button {
-              print("Tapped item:", item.id ?? "?", "media:", item.media?.title ?? "—")
+              onTap(item)
             } label: {
               SectionItemCard(item: item)
             }
