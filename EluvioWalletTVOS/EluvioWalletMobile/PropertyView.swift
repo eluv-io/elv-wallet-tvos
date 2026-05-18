@@ -140,6 +140,11 @@ private struct SectionItemCard: View {
         }
       }
       .frame(width: width, height: height)
+      .overlay {
+        if item.isInaccessible {
+          Color.black.opacity(0.6)
+        }
+      }
       .clipShape(RoundedRectangle(cornerRadius: 8))
 
       if !title.isEmpty {

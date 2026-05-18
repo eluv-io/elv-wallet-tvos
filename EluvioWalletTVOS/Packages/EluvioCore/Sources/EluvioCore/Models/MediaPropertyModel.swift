@@ -263,6 +263,24 @@ public final class MediaPropertySectionItem: Identifiable, Hashable, Permissiona
   }
 }
 
+public extension MediaPropertySectionItem {
+  /// True when the user can't play/open this item. Section items wrap a media
+  /// object, and the actual gating lives on the media's permissions — the
+  /// section item's own permissions describe whether to show the *card*, not
+  /// whether the content behind it is playable.
+  ///
+  /// Mirrors the tvOS dimming rule (SectionMediaItemView.opacity): permission
+  /// exists, user is not authorized, and behavior isn't `showIfUnauthorized`
+  /// (that one means "render normally so the user can tap into a purchase
+  /// prompt").
+  var isInaccessible: Bool {
+    if disabled == true { return true }
+    guard let perm = media?.resolvedPermissions else { return false }
+    if perm.authorized { return false }
+    return perm.behavior != .showIfUnauthorized
+  }
+}
+
 public var debugTimeStatus = false
 public var debugStartDate = Date() + 4 * 60
 public var debugStreamStartDate = Date() + 3 * 60
