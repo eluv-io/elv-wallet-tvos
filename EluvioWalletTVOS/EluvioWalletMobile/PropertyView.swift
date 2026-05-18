@@ -94,15 +94,11 @@ private struct SectionRow: View {
 private struct SectionItemCard: View {
   let item: MediaPropertySectionItem
 
-  private let width: CGFloat = 140
-  private let height: CGFloat = 210
+  private let width: CGFloat = 160
+  private let height: CGFloat = 160
 
   var imageUrl: String? {
-    item.display?.thumbnail_image_portrait?.url?.nilIfEmpty()
-      ?? item.media?.thumbnail_image_portrait?.url?.nilIfEmpty()
-      ?? item.display?.thumbnail_image_square?.url?.nilIfEmpty()
-      ?? item.media?.thumbnail_image_square?.url?.nilIfEmpty()
-      ?? item.media?.poster_image?.url?.nilIfEmpty()
+    item.media?.thumbnail().nilIfEmpty()
       ?? item.banner_image_mobile?.url?.nilIfEmpty()
       ?? item.banner_image?.url?.nilIfEmpty()
   }
