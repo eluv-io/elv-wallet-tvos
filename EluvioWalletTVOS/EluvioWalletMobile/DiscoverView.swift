@@ -2,8 +2,9 @@ import EluvioCore
 import SwiftUI
 
 struct DiscoverView: View {
+  /// Owned by ContentView so deep links can reset it without going through us.
+  @Binding var path: NavigationPath
   @State private var properties: [MediaProperty] = []
-  @State private var navigationPath = NavigationPath()
   @State private var signInProperty: MediaProperty?
 
   private let columns = [
@@ -12,7 +13,7 @@ struct DiscoverView: View {
   ]
 
   var body: some View {
-    NavigationStack(path: $navigationPath) {
+    NavigationStack(path: $path) {
       ScrollView {
         LazyVGrid(columns: columns, spacing: 12) {
           ForEach(properties) { property in
@@ -39,20 +40,35 @@ struct DiscoverView: View {
     .task {
       await PropertyStore.shared.fetchProperties()
       properties = PropertyStore.shared.properties
+      consumePendingDeepLink()
+    }
+    .onChange(of: DeepLinkRouter.shared.pendingPropertyId) { _, _ in
+      consumePendingDeepLink()
     }
     .sheet(item: $signInProperty) { property in
       MobileSignInView(property: property) {
         // Sheet finished. Push to property view.
         signInProperty = nil
-        navigationPath.append(property)
+        path.append(property)
       }
     }
+  }
+
+  /// If a deep link is queued and the matching property is loaded, jump there.
+  /// Called both after the property list loads and whenever the queued ID changes.
+  private func consumePendingDeepLink() {
+    guard let id = DeepLinkRouter.shared.pendingPropertyId,
+      let property = properties.first(where: { $0.id == id })
+    else { return }
+    DeepLinkRouter.shared.pendingPropertyId = nil
+    signInProperty = nil  // dismiss any open sign-in sheet
+    tapped(property)
   }
 
   private func tapped(_ property: MediaProperty) {
     let alreadySignedIn = property.accountType == AccountStore.shared.account?.type
     if alreadySignedIn {
-      navigationPath.append(property)
+      path.append(property)
     } else {
       signInProperty = property
     }
@@ -112,5 +128,5 @@ private struct PropertyTile: View {
 }
 
 #Preview {
-  DiscoverView()
+  DiscoverView(path: .constant(NavigationPath()))
 }
