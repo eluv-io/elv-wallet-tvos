@@ -43,6 +43,12 @@ struct PropertyView: View {
   }
 
   private func handleTap(_ item: MediaPropertySectionItem) {
+    // Gated items shouldn't navigate — they need a purchase/alt-page flow
+    // that we haven't wired up yet. Surface the gate state until then.
+    if item.isInaccessible {
+      print("Tap ignored — item is inaccessible: id=\(item.id ?? "?") perm=\(String(describing: item.resolvedPermissions))")
+      return
+    }
     guard let media = item.media else { return }
     if media.media_type?.lowercased() == "video" {
       playingItem = media
@@ -96,6 +102,7 @@ private struct SectionRow: View {
               SectionItemCard(item: item)
             }
             .buttonStyle(.plain)
+            .contentShape(.rect)
           }
         }
         .padding(.horizontal, 16)
