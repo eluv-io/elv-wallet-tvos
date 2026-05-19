@@ -5,6 +5,7 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:wallet.contentfabric.io</string>
+		<string>applinks:wallet.preview.contentfabric.io</string>
 	</array>
 </dict>
 </plist>
