@@ -5,7 +5,7 @@ struct DiscoverView: View {
   /// Owned by ContentView so deep links can reset it without going through us.
   @Binding var path: NavigationPath
   @State private var properties: [MediaProperty] = []
-  @State private var signInProperty: MediaProperty?
+  @State private var signIn = MobileSignIn()
 
   private let columns = [
     GridItem(.flexible(), spacing: 12),
@@ -45,13 +45,6 @@ struct DiscoverView: View {
     .onChange(of: DeepLinkRouter.shared.pendingPropertyId) { _, _ in
       consumePendingDeepLink()
     }
-    .sheet(item: $signInProperty) { property in
-      MobileSignInView(property: property) {
-        // Sheet finished. Push to property view.
-        signInProperty = nil
-        path.append(property)
-      }
-    }
   }
 
   /// If a deep link is queued and the matching property is loaded, jump there.
@@ -61,7 +54,7 @@ struct DiscoverView: View {
       let property = properties.first(where: { $0.id == id })
     else { return }
     DeepLinkRouter.shared.pendingPropertyId = nil
-    signInProperty = nil  // dismiss any open sign-in sheet
+    signIn.cancel()  // tear down any in-progress sign-in
     tapped(property)
   }
 
@@ -70,7 +63,9 @@ struct DiscoverView: View {
     if alreadySignedIn {
       path.append(property)
     } else {
-      signInProperty = property
+      signIn.start(property: property) {
+        path.append(property)
+      }
     }
   }
 }
