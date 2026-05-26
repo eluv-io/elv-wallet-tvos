@@ -15,20 +15,27 @@ import UIKit
 final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProviding {
   private var session: ASWebAuthenticationSession?
   private var pollTask: Task<Void, Never>?
+  /// Synchronously guards against re-entry — set on `start()` before the async
+  /// network hop, cleared by the session completion handler or by an error
+  /// path. Without this a double-tap kicks off two parallel auth sessions.
+  private var isInProgress = false
 
   /// Begin sign-in for `property`. Calls `onComplete` once the wallet service
-  /// accepts the activation (i.e. `AccountStore` has been populated and the
-  /// property's first page+sections have been prefetched).
+  /// accepts the activation. No-op if a sign-in is already in flight.
   func start(
     property: MediaProperty,
     onComplete: @MainActor @escaping () -> Void
   ) {
+    guard !isInProgress else { return }
+    isInProgress = true
+
     Task { [weak self] in
       let flow = DeviceActivationFlow(property: property, shortenUrl: false)
       do {
         let activation = try await flow.requestActivation()
         guard let url = URL(string: activation.url) else {
           print("MobileSignIn: invalid activation URL")
+          self?.isInProgress = false
           return
         }
         self?.present(
@@ -36,6 +43,7 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         )
       } catch {
         print("MobileSignIn: couldn't request activation:", error)
+        self?.isInProgress = false
       }
     }
   }
@@ -46,6 +54,7 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
     pollTask = nil
     session?.cancel()
     session = nil
+    isInProgress = false
   }
 
   private func present(
@@ -63,6 +72,7 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
       self?.pollTask?.cancel()
       self?.pollTask = nil
       self?.session = nil
+      self?.isInProgress = false
     }
     session.presentationContextProvider = self
     session.prefersEphemeralWebBrowserSession = true
