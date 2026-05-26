@@ -1,3 +1,4 @@
+import EluvioCore
 import SwiftUI
 
 enum AppTab: Hashable {
@@ -5,8 +6,8 @@ enum AppTab: Hashable {
 }
 
 struct ContentView: View {
-  // State is owned here so deep links can switch tabs and reset the Discover
-  // nav stack independent of which view is currently rendering.
+  // State is owned here so deep links and sign-out can switch tabs and
+  // reset the Discover nav stack independent of which view is rendering.
   @State private var selectedTab: AppTab = .home
   @State private var discoverPath = NavigationPath()
 
@@ -28,9 +29,19 @@ struct ContentView: View {
     // Discover stack before DiscoverView picks up the queued id and pushes.
     .onChange(of: DeepLinkRouter.shared.pendingPropertyId) { _, newValue in
       guard newValue != nil else { return }
-      selectedTab = .home
-      discoverPath = NavigationPath()
+      resetToDiscover()
     }
+    // On sign-out, reset the app to a fresh Discover state. SwiftUI's
+    // @Observable tracking on AccountStore.account drives this — when
+    // SignOutHandler.signOut() flips account to nil, we land here.
+    .onChange(of: AccountStore.shared.account?.id) { _, newId in
+      if newId == nil { resetToDiscover() }
+    }
+  }
+
+  private func resetToDiscover() {
+    selectedTab = .home
+    discoverPath = NavigationPath()
   }
 }
 
