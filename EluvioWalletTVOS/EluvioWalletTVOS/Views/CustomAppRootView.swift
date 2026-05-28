@@ -1,7 +1,13 @@
 import SwiftUI
 
 struct CustomAppRootView: View {
-  @State private var property: MediaProperty? = PropertyStore.shared.properties.first
+  @State private var property: MediaProperty?
+
+  init() {
+    let slug = APP_CONFIG.allowed_properties?.first
+    let initial = slug.flatMap { PropertyStore.shared.getProperty(id: $0) }
+    _property = State(initialValue: initial)
+  }
 
   var body: some View {
     Group {
@@ -14,10 +20,9 @@ struct CustomAppRootView: View {
       }
     }
     .task {
-      if property == nil {
-        await PropertyStore.shared.fetchProperties()
-        property = PropertyStore.shared.properties.first
-      }
+      guard property == nil, let slug = APP_CONFIG.allowed_properties?.first else { return }
+      await PropertyStore.shared.fetchProperty(id: slug)
+      property = PropertyStore.shared.getProperty(id: slug)
     }
   }
 }
