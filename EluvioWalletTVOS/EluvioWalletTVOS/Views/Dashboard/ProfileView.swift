@@ -57,6 +57,7 @@ struct FormEntry: View {
 struct ProfileView: View {
   @Environment(\.colorScheme) var colorScheme
   @EnvironmentObject var eluvio: EluvioAPI
+  @FocusState private var signOutFocused: Bool
   @State var address: String = ""
   @State var userId: String = ""
   @State var network: String = ""
@@ -86,11 +87,18 @@ struct ProfileView: View {
 
   var body: some View {
     VStack {
+      Text("Profile")
+        .font(.largeTitle)
+        .bold()
+        .foregroundColor(.white)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 50)
+        .padding(.top, 40)
       ScrollView {
         HStack(alignment: .top, spacing: 40) {
           // Left column: Profile + App
           VStack(alignment: .leading, spacing: 12) {
-            Section(header: Text("PROFILE").foregroundColor(.white.opacity(0.6)).padding(.vertical, 8)) {
+            Section(header: Text("ACCOUNT").foregroundColor(.white.opacity(0.6)).padding(.vertical, 8)) {
               FormEntry("Address: \(address)")
               FormEntry("User Id: \(userId)")
             }
@@ -148,8 +156,10 @@ struct ProfileView: View {
         }
         .padding(.top, 40)
         .padding(.bottom, 80)
+        .focused($signOutFocused)
       }
     }
+    .defaultFocus($signOutFocused, true)
     .onChange(of: isStaging) { _, val in
       if val {
         eluvio.setEnvironment(env: .staging)

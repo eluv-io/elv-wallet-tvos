@@ -87,6 +87,9 @@ extension NavDestination {
     case .black:
       Color.black
         .edgesIgnoringSafeArea(.all)
+    case .profile:
+      ProfileView()
+        .analyticsScreen(name: "ProfileView")
     #if DEBUG
       case .debugMenu:
         DebugMenuView()

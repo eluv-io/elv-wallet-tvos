@@ -16,6 +16,7 @@ enum NavDestination: Hashable {
   case progress, black
   case purchaseQRView(PurchaseParams)
   case imageView(ImageParams)
+  case profile
 
   #if DEBUG
     case debugMenu
