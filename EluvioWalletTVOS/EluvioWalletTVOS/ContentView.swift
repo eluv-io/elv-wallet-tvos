@@ -244,6 +244,11 @@ struct ContentView: View {
         if AccountStore.shared.isLoggedOut {
           DiscoverView()
             .preferredColorScheme(colorScheme)
+        } else if eluvio.isCustomApp() {
+          CustomAppRootView()
+            .edgesIgnoringSafeArea(.all)
+            .preferredColorScheme(colorScheme)
+            .navigationBarHidden(true)
         } else {
           //Don't use NavigationView, pops back to root on ObservableObject update
 

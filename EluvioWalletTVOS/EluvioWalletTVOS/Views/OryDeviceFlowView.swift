@@ -16,6 +16,7 @@ struct OryDeviceFlowView: View {
   @Environment(\.presentationMode) var presentationMode
   @Environment(\.colorScheme) var colorScheme
   @EnvironmentObject var router: Router
+  @EnvironmentObject var eluvio: EluvioAPI
   @State var url = ""
   @State var statusUrl: String = ""
   @State var timer = Timer.publish(every: 1, on: .main, in: .common)
@@ -194,8 +195,10 @@ struct OryDeviceFlowView: View {
 
       router.path.removeAll()
       debugPrint("Popped the path state.")
-      let params = PropertyParam(propertyId: property.id)
-      router.path.append(.property(params))
+      if !eluvio.isCustomApp() {
+        let params = PropertyParam(propertyId: property.id)
+        router.path.append(.property(params))
+      }
 
       self.isChecking = false
     }
