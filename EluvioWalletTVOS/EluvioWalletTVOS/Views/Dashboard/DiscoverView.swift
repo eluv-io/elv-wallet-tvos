@@ -19,16 +19,17 @@ struct DiscoverView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      if properties.isEmpty {
-        ProgressView()
-          .edgesIgnoringSafeArea(.all)
-          .accessibilityIdentifier("loading_indicator")
-      } else if eluvio.isCustomApp() {
+      if eluvio.isCustomApp() {
+        let slug = APP_CONFIG.allowed_properties?.first
         CustomAppDiscoverView(
-          property: properties.first,
+          property: slug.flatMap { PropertyStore.shared.getProperty(id: $0) },
           selected: $selected,
           namespace: DiscoverViewNamespace
         )
+      } else if properties.isEmpty {
+        ProgressView()
+          .edgesIgnoringSafeArea(.all)
+          .accessibilityIdentifier("loading_indicator")
       } else {
         ScrollView {
           VStack(alignment: .leading, spacing: 0) {
@@ -50,8 +51,13 @@ struct DiscoverView: View {
       }
     }
     .task {
-      debugPrint("Fetching all properties")
-      await PropertyStore.shared.fetchProperties()
+      if eluvio.isCustomApp(), let slug = APP_CONFIG.allowed_properties?.first {
+        debugPrint("Fetching single allowed property: \(slug)")
+        await PropertyStore.shared.fetchProperty(id: slug)
+      } else {
+        debugPrint("Fetching all properties")
+        await PropertyStore.shared.fetchProperties()
+      }
     }
     .accessibilityIdentifier("discover_view")
     .onAnyChange(of: properties) { _, properties in
@@ -102,24 +108,57 @@ private struct BackgroundImage: View {
 
 struct CustomAppDiscoverView: View {
   @EnvironmentObject private var eluvio: EluvioAPI
+  @EnvironmentObject private var router: Router
 
   var property: MediaProperty?
   @Binding var selected: MediaProperty?
   var namespace: Namespace.ID
 
+  @State private var pendingSignIn = false
+  @FocusState private var signInFocused: Bool
+
   var body: some View {
     VStack(alignment: .center, spacing: 40) {
       Spacer()
-      if let property = property {
-        ScaledWebImage(url: property.startScreenImage, height: 400)
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 900, height: 400, alignment: .leading)
+      Image("start-screen-logo")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 900, height: 400, alignment: .center)
 
-        MediaPropertyView(property: property, selected: $selected, isSimple: true)
-          .prefersDefaultFocus(in: namespace)
+      Button(action: signInTapped) {
+        if pendingSignIn {
+          ProgressView()
+        } else {
+          Text("Sign In")
+        }
       }
+      .focused($signInFocused)
+      .onAppear { signInFocused = true }
+      .prefersDefaultFocus(in: namespace)
+      .disabled(pendingSignIn)
+
       Spacer()
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(
+      Image("start-screen-background")
+        .resizable()
+        .aspectRatio(contentMode: .fill)
+        .edgesIgnoringSafeArea(.all)
+    )
+    .onChange(of: property) { _, newValue in
+      if pendingSignIn, let newProperty = newValue {
+        pendingSignIn = false
+        router.push(to: .login(LoginParam(property: newProperty)))
+      }
+    }
+  }
+
+  private func signInTapped() {
+    if let property = property {
+      router.push(to: .login(LoginParam(property: property)))
+    } else {
+      pendingSignIn = true
     }
   }
 }

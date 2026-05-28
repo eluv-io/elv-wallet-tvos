@@ -39,10 +39,17 @@ struct OryDeviceFlowView: View {
   var body: some View {
     ZStack {
       Color.mainBackground.edgesIgnoringSafeArea(.all)
-      ScaledWebImage(url: backgroundImage, height: UIScreen.main)
-        .resizable()
-        .scaledToFill()
-        .edgesIgnoringSafeArea(.all)
+      if backgroundImage.isEmpty {
+        Image("start-screen-background")
+          .resizable()
+          .aspectRatio(contentMode: .fill)
+          .edgesIgnoringSafeArea(.all)
+      } else {
+        ScaledWebImage(url: backgroundImage, height: UIScreen.main)
+          .resizable()
+          .scaledToFill()
+          .edgesIgnoringSafeArea(.all)
+      }
 
       VStack(alignment: .center, spacing: 30) {
         VStack(alignment: .center, spacing: 20) {
