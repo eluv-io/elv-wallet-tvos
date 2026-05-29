@@ -311,7 +311,7 @@ struct PropertyDetailForResolvedPage: View {
           isFirstSection: index == 0
         )
         .fixedSize(horizontal: false, vertical: true)
-        .padding(0)
+        .padding(.top, index == 0 && section.display?.display_format != "hero" ? 120 : 0)
       }
     }.repeatTask {
       // Refresh page and sections every minute
