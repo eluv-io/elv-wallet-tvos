@@ -218,7 +218,7 @@ struct MediaCard: View {
 
             if let perm = permission {
               if perm.showAlternatePage || perm.purchaseGate {
-                Text("VIEW PURCHASE OPTIONS")
+                Text("SUBSCRIBE TO WATCH")
                   .font(.system(size: display == MediaDisplay.square ? 20 : 26))
                   .foregroundColor(Color.white)
                   .lineLimit(display == MediaDisplay.square ? 2 : 1)

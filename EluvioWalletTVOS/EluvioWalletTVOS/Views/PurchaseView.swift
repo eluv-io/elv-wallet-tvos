@@ -7,12 +7,13 @@
 
 import SwiftUI
 
-/// This is a simple view without a QR Code to purchase since it's against Apple's policy's
 struct PurchaseView: View {
   @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
   @State var customDomain: String = "Eluvio Media Wallet"
+  @State var shortenedUrl: String = ""
 
+  var url: String = ""
   var backgroundImage: String = ""
   var propertyId: String = ""
 
@@ -23,19 +24,29 @@ struct PurchaseView: View {
           .resizable()
           .scaledToFill()
           .edgesIgnoringSafeArea(.all)
+          .overlay(Color.black.opacity(0.5))
       }
 
       VStack(alignment: .center, spacing: 20) {
-        Text("Sign In On Browser to Purchase").font(.title)
+        Text("Subscribe to Watch").font(.title)
           .padding()
           .padding(.bottom, 20)
 
         Text(
-          "To watch this content, visit the \(customDomain)\nwebsite on your mobile device or computer to\nadd the corresponding access pass."
+          "To watch this content, please visit the\nLA Kings All Access site by scanning the QR code below"
         ).font(.description)
           .multilineTextAlignment(.center)
           .padding()
           .padding(.bottom, 20)
+
+        if !shortenedUrl.isEmpty {
+          Image(uiImage: GenerateQRCode(from: shortenedUrl))
+            .interpolation(.none)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 400, height: 400)
+            .padding(.bottom, 20)
+        }
 
         Button(
           action: {
@@ -60,6 +71,11 @@ struct PurchaseView: View {
               self.customDomain = domain
             }
           }
+        }
+      }
+      if !url.isEmpty {
+        Task {
+          self.shortenedUrl = await UrlShortener.shortenUrl(url)
         }
       }
     }

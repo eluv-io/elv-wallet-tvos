@@ -18,8 +18,10 @@ extension NavDestination {
       )
       .analyticsScreen(name: "QRView")
     case .purchaseQRView(let params):
-      PurchaseView(backgroundImage: params.backgroundImage, propertyId: params.propertyId)
-        .analyticsScreen(name: "PurchaseView")
+      PurchaseView(
+        url: params.url, backgroundImage: params.backgroundImage, propertyId: params.propertyId
+      )
+      .analyticsScreen(name: "PurchaseView")
     case .video(let params):
       PlayerView(
         viewItem: params.viewItem,
