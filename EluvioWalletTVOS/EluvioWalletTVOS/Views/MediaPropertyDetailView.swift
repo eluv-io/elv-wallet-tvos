@@ -10,30 +10,6 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-extension UIImage {
-  /// - Description: returns tinted image
-  /// - Parameters:
-  ///   - qualityMultiplier: when treating SVG image we need to enlarge the image size in order to preserve quality. The smaller the original SVG is compared to desired UIImage frame, the bigger multiplier should be.
-  /// - Returns: Tinted image
-  func withTintColor(_ color: UIColor, qualityMultiplier: CGFloat = 15) -> UIImage? {
-    UIGraphicsBeginImageContextWithOptions(
-      CGSize(width: size.width * qualityMultiplier, height: size.height * qualityMultiplier), false,
-      scale)
-    // 1 We create a rectangle equal to the size of the image
-    let drawRect = CGRect(
-      x: 0, y: 0, width: size.width * qualityMultiplier, height: size.height * qualityMultiplier)
-    // 2 We set a color and fill the whole space with that color
-    color.setFill()
-    UIRectFill(drawRect)
-    // 3 We draw an image over the space with a blend mode of .destinationIn, which is a mode that treats the image as an image mask
-    draw(in: drawRect, blendMode: .destinationIn, alpha: 1)
-
-    let tintedImage = UIGraphicsGetImageFromCurrentImageContext()
-    UIGraphicsEndImageContext()
-    return tintedImage
-  }
-}
-
 struct IconButton: View {
   @FocusState var focused
   var action: () -> Void
@@ -43,9 +19,12 @@ struct IconButton: View {
     Button(action: action) {
       HStack {
         Group {
-          if let asset = UIImage(named: iconName) {
-            Image(uiImage: asset.withTintColor(focused ? .black : .gray))
+          if UIImage(named: iconName) != nil {
+            Image(iconName)
+              .renderingMode(.template)
               .resizable()
+              .scaledToFit()
+              .foregroundColor(focused ? .black : .gray)
           } else {
             Image(systemName: iconName)
               .resizable()
@@ -161,13 +140,13 @@ struct MediaPropertyDetailView: View {
                   }
                 } label: {
                   HStack {
-                    Image(
-                      uiImage: UIImage(named: "switcher")?.withTintColor(
-                        switcherFocused ? .black : .gray) ?? UIImage()
-                    )
-                    .resizable()
-                    .frame(width: 40, height: 40)
-                    .padding()
+                    Image("switcher")
+                      .renderingMode(.template)
+                      .resizable()
+                      .scaledToFit()
+                      .foregroundColor(switcherFocused ? .black : .gray)
+                      .frame(width: 40, height: 40)
+                      .padding()
                   }
                   .background(switcherFocused ? .white : Color.black.opacity(0.5))
                   .clipShape(Circle())
@@ -182,6 +161,12 @@ struct MediaPropertyDetailView: View {
                 action: {
                   router.path.append(.profile)
                 }, iconName: "person.crop.circle"
+              )
+
+              IconButton(
+                action: {
+                  router.path.append(.myItems)
+                }, iconName: "rectangle.stack"
               )
 
               IconButton(

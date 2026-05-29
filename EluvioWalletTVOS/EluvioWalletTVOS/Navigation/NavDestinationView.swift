@@ -90,6 +90,9 @@ extension NavDestination {
     case .profile:
       ProfileView()
         .analyticsScreen(name: "ProfileView")
+    case .myItems:
+      MyItemsView()
+        .analyticsScreen(name: "MyItemsView")
     #if DEBUG
       case .debugMenu:
         DebugMenuView()
