@@ -21,6 +21,7 @@ class PersistentDataCache: ObservableObject {
 
   private enum CacheKey: String, CaseIterable {
     case propertyViewModelsCache = "property_viewmodels_cache"
+    case sectionsCache = "sections_cache"
 
     func filename(network: String, environment: String) -> String {
       let envLabel = environment.isEmpty ? "prod" : environment
@@ -170,6 +171,34 @@ class PersistentDataCache: ObservableObject {
     }
 
     return viewModels
+  }
+
+  // MARK: - Sections Cache
+
+  func cacheSections(
+    _ sections: [String: MediaPropertySection],
+    network: String,
+    environment: String,
+  ) {
+    saveToCache(sections, key: .sectionsCache, network: network, environment: environment)
+    logger.info("Cached \(sections.count) sections")
+  }
+
+  func loadCachedSections(
+    network: String,
+    environment: String,
+  ) -> [String: MediaPropertySection]? {
+    let sections = loadFromCache(
+      [String: MediaPropertySection].self,
+      key: .sectionsCache,
+      network: network,
+      environment: environment)
+
+    if let sections = sections {
+      logger.info("Loaded \(sections.count) sections from cache")
+    }
+
+    return sections
   }
 
   // MARK: - Cache Management
