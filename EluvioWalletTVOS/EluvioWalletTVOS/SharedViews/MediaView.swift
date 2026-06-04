@@ -292,7 +292,7 @@ struct MediaCard: View {
           }
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
           .padding(20)
-          .scaleEffect(sizeFactor)
+          .scaleEffect(sizeFactor, anchor: .bottomTrailing)
         } else if isLive && display != .feature {
           VStack {
             Spacer()
@@ -310,7 +310,7 @@ struct MediaCard: View {
           }
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .padding(20)
-          .scaleEffect(sizeFactor)
+          .scaleEffect(sizeFactor, anchor: .bottomTrailing)
         }
       }
       if showBottomTitle {
