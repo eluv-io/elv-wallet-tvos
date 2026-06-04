@@ -35,6 +35,8 @@ struct OryDeviceFlowView: View {
       ScaledWebImage(url: backgroundImage, height: UIScreen.main)
         .resizable()
         .scaledToFill()
+        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+        .clipped()
         .edgesIgnoringSafeArea(.all)
 
       VStack(alignment: .center, spacing: 30) {
@@ -44,20 +46,15 @@ struct OryDeviceFlowView: View {
             .fontWeight(.semibold)
             .padding()
 
-          Text(activation?.code ?? "")
+          Text(activation?.code ?? " ")  // " " instead of "" to make sure height is still taken up even before code is loaded
             .font(.custom("Helvetica Neue", size: 50))
             .fontWeight(.semibold)
-          if let url = activation?.url {
-            Image(uiImage: GenerateQRCode(from: url))
-              .interpolation(.none)
-              .resizable()
-              .scaledToFit()
-              .frame(width: 400, height: 400)
-          } else {
-            Rectangle()
-              .fill(.clear)
-              .frame(width: 400, height: 450)
-          }
+          let uiImage = activation?.url.nilIfEmpty().map { GenerateQRCode(from: $0) } ?? UIImage()
+          Image(uiImage: uiImage)
+            .interpolation(.none)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 400, height: 400)
         }
         .frame(width: 700)
 
