@@ -67,7 +67,7 @@ struct SectionGridView: View {
     if !useScale {
       if aspectRatio == .square {
         return [
-          .init(.adaptive(minimum: 280, maximum: 300))
+          .init(.adaptive(minimum: 235, maximum: 245))
         ]
       } else if aspectRatio == .portrait {
         return [
