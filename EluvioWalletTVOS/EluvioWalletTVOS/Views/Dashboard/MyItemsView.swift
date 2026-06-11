@@ -75,11 +75,11 @@ struct MyItemsView: View {
           .scrollClipDisabled()
           .padding(.leading, 0)
         }
-
-        NFTGrid(nfts: nfts)
-          .focusSection()
-          .padding(.top, 40)
       }
+
+      NFTGrid(nfts: nfts)
+        .focusSection()
+        .padding(.top, 40)
     }
     .task {
       await PropertyStore.shared.fetchProperties(includePublic: false)
