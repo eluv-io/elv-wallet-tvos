@@ -19,11 +19,17 @@ public class PropertyStore {
   private var sectionCache: [String: MediaPropertySection] = [:]
 
   private init() {
+    let cache = PersistentDataCache()
     properties =
-      PersistentDataCache().loadCachedPropertyViewModels(
+      cache.loadCachedPropertyViewModels(
         network: NetworkStore.shared.selectedNetwork.rawValue,
         environment: NetworkStore.shared.environment.rawValue
       ) ?? []
+    sectionCache =
+      cache.loadCachedSections(
+        network: NetworkStore.shared.selectedNetwork.rawValue,
+        environment: NetworkStore.shared.environment.rawValue
+      ) ?? [:]
   }
 
   public func clear() {
@@ -148,6 +154,11 @@ public class PropertyStore {
           sectionCache[section.id] = section
         }
       }
+      PersistentDataCache().cacheSections(
+        sectionCache,
+        network: NetworkStore.shared.selectedNetwork.rawValue,
+        environment: NetworkStore.shared.environment.rawValue
+      )
     } catch {
       print("Error fetching sections: \(error)")
     }
