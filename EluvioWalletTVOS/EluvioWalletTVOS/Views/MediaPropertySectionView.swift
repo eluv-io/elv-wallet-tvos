@@ -708,7 +708,7 @@ struct MediaPropertyHeader: View {
         Text(description)
           .foregroundColor(Color.white)
           .font(.propertyDescription)
-          .frame(width: 1200, alignment: alignment)
+          .frame(width: 900, alignment: alignment)
           .frame(minHeight: 130)
           .lineLimit(4)
           .padding(.top, 30)
