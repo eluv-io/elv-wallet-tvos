@@ -138,6 +138,7 @@ struct MediaCard: View {
   var title: String = ""
   var subtitle: String = ""
   var timeString: String = ""
+  var titleAlignment: Alignment = .leading
   var isLive: Bool = false
   var centerFocusedText: Bool = false
   var showFocusedTitle = true
@@ -315,7 +316,10 @@ struct MediaCard: View {
         }
       }
       if showBottomTitle {
-        Text(title).font(.system(size: 22 * sizeFactor)).lineLimit(1).frame(alignment: .leading)
+        Text(title)
+          .font(.system(size: 22 * sizeFactor))
+          .lineLimit(1)
+          .frame(maxWidth: .infinity, alignment: titleAlignment)
       }
     }
     .frame(width: width, height: height)

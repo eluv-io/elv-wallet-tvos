@@ -8,6 +8,7 @@ public struct DisplaySettings: Codable {
   public var display_format: String?  // can be an enum "carousel", "grid", "hero", "banner"
   public var card_size: String?  // can be an enum "small", "medium", "large"
   public var justification: String?  // can be an enum "left", "right", "center"
+  public var text_justification: String?  // alignment of card titles: "left", "right", "center"
 
   public var logo: ImageLink?
   public var logo_text: String?

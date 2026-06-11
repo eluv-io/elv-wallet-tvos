@@ -409,6 +409,7 @@ struct SectionItemView: View {
   var forceAspectRatio: String = ""
   var forceDisplay: AspectRatio?
   var cardSize: CardSize = .medium
+  var titleAlignment: Alignment = .leading
   var viewItem: MediaPropertySectionMediaItemViewModel
 
   @FocusState var isFocused
@@ -518,6 +519,7 @@ struct SectionItemView: View {
               title: viewItem.title,
               subtitle: viewItem.subtitle,
               timeString: viewItem.headerString,
+              titleAlignment: titleAlignment,
               isLive: isLive,
               centerFocusedText: false,
               showFocusedTitle: viewItem.title.isEmpty ? false : true,

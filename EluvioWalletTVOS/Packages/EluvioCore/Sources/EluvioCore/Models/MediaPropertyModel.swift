@@ -207,6 +207,10 @@ public final class MediaPropertySection: Identifiable, Hashable, Permissionable,
     display?.justification ?? ""
   }
 
+  public var displayTextJustification: String {
+    display?.text_justification ?? ""
+  }
+
   public var showViewAll: Bool {
     let content = content ?? []
     return content.count > 5 || (content.count > displayLimit && displayLimit > 0)

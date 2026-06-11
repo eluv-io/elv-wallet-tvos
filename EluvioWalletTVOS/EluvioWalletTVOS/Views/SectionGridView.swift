@@ -41,6 +41,14 @@ struct SectionGridView: View {
     return section.displayTitle
   }
 
+  var titleAlignment: Alignment {
+    switch section.displayTextJustification.lowercased() {
+    case "right": .trailing
+    case "center": .center
+    default: .leading
+    }
+  }
+
   var scale: CGFloat {
     if !useScale {
       return 1.0
@@ -106,6 +114,7 @@ struct SectionGridView: View {
             pageId: pageId,
             property: property,
             forceDisplay: aspectRatio,
+            titleAlignment: titleAlignment,
             viewItem: item,
             scaleFactor: scale
           )

@@ -189,6 +189,7 @@ struct MediaPropertyRegularSectionView: View {
                     property: property,
                     forceAspectRatio: forceAspectRatio,
                     cardSize: cardSize,
+                    titleAlignment: titleAlignment,
                     viewItem: item
                   )
                   .focused($currentFocusItem, equals: item)
@@ -209,6 +210,7 @@ struct MediaPropertyRegularSectionView: View {
                       property: property,
                       forceAspectRatio: forceAspectRatio,
                       cardSize: cardSize,
+                      titleAlignment: titleAlignment,
                       viewItem: item
                     )
                     .padding(.top, 0)
@@ -328,6 +330,14 @@ struct MediaPropertyRegularSectionView: View {
 
   var cardSize: CardSize {
     CardSize(section.display?.card_size)
+  }
+
+  var titleAlignment: Alignment {
+    switch section.displayTextJustification.lowercased() {
+    case "right": .trailing
+    case "center": .center
+    default: .leading
+    }
   }
 }
 
