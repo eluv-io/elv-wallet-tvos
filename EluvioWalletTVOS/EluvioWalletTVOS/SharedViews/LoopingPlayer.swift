@@ -14,6 +14,7 @@ import SwiftUI
 
 struct LoopingVideoPlayer<VideoOverlay: View>: View {
   @StateObject private var viewModel: ViewModel
+  @Environment(\.scenePhase) private var scenePhase
   @ViewBuilder var videoOverlay: () -> VideoOverlay
 
   init(
@@ -29,6 +30,14 @@ struct LoopingVideoPlayer<VideoOverlay: View>: View {
   var body: some View {
     // VideoPlayer(player: viewModel.player, videoOverlay: videoOverlay)
     AVLoopingPlayerView(player: $viewModel.player)
+      .onAppear {
+        viewModel.player.play()
+      }
+      .onChange(of: scenePhase) { _, newPhase in
+        if newPhase == .active {
+          viewModel.player.play()
+        }
+      }
       .onDisappear {
         print("AVLoopingPlayerView disappeared!")
         // viewModel.player.pause()
