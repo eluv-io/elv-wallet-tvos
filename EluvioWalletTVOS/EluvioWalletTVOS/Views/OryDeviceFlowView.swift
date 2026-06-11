@@ -13,6 +13,7 @@ struct OryDeviceFlowView: View {
   @Environment(\.presentationMode) var presentationMode
   @Environment(\.colorScheme) var colorScheme
   @EnvironmentObject var router: Router
+  @EnvironmentObject var eluvio: EluvioAPI
 
   @State private var activation: ActivationCode? = nil
   @State private var pollTask: Task<Void, Never>? = nil
@@ -113,7 +114,11 @@ struct OryDeviceFlowView: View {
 
   private func didSignIn() {
     router.path.removeAll()
-    router.path.append(.property(PropertyParam(propertyId: property.id)))
+    if !eluvio.isCustomApp() {
+      // In custom-app mode the root view is already the PropertyDetail,
+      // so pushing it here would show it twice.
+      router.path.append(.property(PropertyParam(propertyId: property.id)))
+    }
   }
 }
 
