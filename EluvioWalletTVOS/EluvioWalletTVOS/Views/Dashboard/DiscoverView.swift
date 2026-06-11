@@ -37,7 +37,7 @@ struct DiscoverView: View {
               Image("start-screen-logo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 801, height: 240, alignment: .leading)
+                .frame(width: 800, alignment: .leading)
               Spacer()
             }
             .frame(maxWidth: .infinity)
@@ -112,10 +112,11 @@ struct CustomAppDiscoverView: View {
     VStack(alignment: .center, spacing: 40) {
       Spacer()
       if let property = property {
-        ScaledWebImage(url: property.startScreenImage, height: 400)
+        ScaledWebImage(url: property.startScreenImage, width: 900)
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(width: 900, height: 400, alignment: .leading)
+          .frame(width: 900, alignment: .leading)
+          .padding(.bottom, 30)
 
         MediaPropertyView(property: property, selected: $selected, isSimple: true)
           .prefersDefaultFocus(in: namespace)
