@@ -20,16 +20,25 @@ struct DiscoverView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 0) {
-      if properties.isEmpty {
+      if eluvio.isCustomApp() {
+        // fetchProperty(id:) caches into ownedProperties, not the discover list,
+        // so resolve by the configured slug instead of properties.first
+        let slug = APP_CONFIG.allowed_properties?.first
+        if let property = slug.flatMap({ PropertyStore.shared.getProperty(id: $0) }) {
+          CustomAppDiscoverView(
+            property: property,
+            selected: $selected,
+            namespace: DiscoverViewNamespace
+          )
+        } else {
+          ProgressView()
+            .edgesIgnoringSafeArea(.all)
+            .accessibilityIdentifier("loading_indicator")
+        }
+      } else if properties.isEmpty {
         ProgressView()
           .edgesIgnoringSafeArea(.all)
           .accessibilityIdentifier("loading_indicator")
-      } else if eluvio.isCustomApp() {
-        CustomAppDiscoverView(
-          property: properties.first,
-          selected: $selected,
-          namespace: DiscoverViewNamespace
-        )
       } else {
         ScrollView {
           VStack(alignment: .leading, spacing: 0) {
@@ -51,8 +60,13 @@ struct DiscoverView: View {
       }
     }
     .task {
-      debugPrint("Fetching all properties")
-      await PropertyStore.shared.fetchProperties()
+      if eluvio.isCustomApp(), let slug = APP_CONFIG.allowed_properties?.first {
+        debugPrint("Fetching single allowed property: \(slug)")
+        await PropertyStore.shared.fetchProperty(id: slug)
+      } else {
+        debugPrint("Fetching all properties")
+        await PropertyStore.shared.fetchProperties()
+      }
     }
     .accessibilityIdentifier("discover_view")
     .onAnyChange(of: properties) { _, properties in
