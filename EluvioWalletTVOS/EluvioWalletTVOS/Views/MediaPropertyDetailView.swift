@@ -43,10 +43,17 @@ struct IconButton: View {
   var body: some View {
     Button(action: action) {
       HStack {
-        Image(
-          uiImage: UIImage(named: iconName)?.withTintColor(focused ? .black : .gray) ?? UIImage()
-        )
-        .resizable()
+        Group {
+          if let asset = UIImage(named: iconName) {
+            Image(uiImage: asset.withTintColor(focused ? .black : .gray))
+              .resizable()
+          } else {
+            Image(systemName: iconName)
+              .resizable()
+              .scaledToFit()
+              .foregroundColor(focused ? .black : .gray)
+          }
+        }
         .frame(width: 40, height: 40)
         .padding()
       }
@@ -55,6 +62,7 @@ struct IconButton: View {
     }
     .buttonStyle(IconButtonStyle(focused: focused, initialOpacity: 0.7, scale: 1.2))
     .focused($focused)
+    .focusEffectDisabled()
   }
 }
 
@@ -62,6 +70,7 @@ struct MediaPropertyDetailView: View {
   @Namespace var NamespaceProperty
   @Environment(\.colorScheme) var colorScheme
   @EnvironmentObject var router: Router
+  @EnvironmentObject var eluvio: EluvioAPI
 
   private let propertyId: String
   private let pageId: String?
@@ -169,6 +178,14 @@ struct MediaPropertyDetailView: View {
                   IconButtonStyle(focused: switcherFocused, initialOpacity: 0.7, scale: 1.2)
                 )
                 .focused($switcherFocused)
+              }
+
+              if eluvio.isCustomApp() {
+                IconButton(
+                  action: {
+                    router.path.append(.profile)
+                  }, iconName: "person.crop.circle"
+                )
               }
 
               IconButton(
