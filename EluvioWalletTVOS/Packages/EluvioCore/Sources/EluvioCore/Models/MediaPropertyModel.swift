@@ -199,6 +199,10 @@ public final class MediaPropertySection: Identifiable, Hashable, Permissionable,
     display?.title ?? ""
   }
 
+  public var hideTitle: Bool {
+    display?.hide_title == true
+  }
+
   public var displaySubtitle: String {
     display?.subtitle ?? ""
   }

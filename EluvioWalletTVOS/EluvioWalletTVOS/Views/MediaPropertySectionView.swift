@@ -150,7 +150,7 @@ struct MediaPropertyRegularSectionView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 60, height: 60)
                 }
-                if !section.displayTitle.isEmpty {
+                if !section.hideTitle, !section.displayTitle.isEmpty {
                   Text(section.displayTitle).font(.rowTitle)
                     .frame(alignment: alignment)
                 }
@@ -600,7 +600,7 @@ struct MediaPropertySectionView: View {
         } else if isContainer {
           VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: hAlignment, spacing: 5) {
-              if !section.displayTitle.isEmpty {
+              if !section.hideTitle, !section.displayTitle.isEmpty {
                 HStack(alignment: .center, spacing: 20) {
                   if !titleIcon.isEmpty {
                     ScaledWebImage(url: titleIcon, height: 60)

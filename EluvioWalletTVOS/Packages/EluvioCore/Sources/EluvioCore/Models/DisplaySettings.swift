@@ -21,6 +21,8 @@ public struct DisplaySettings: Codable {
 
   public var hide_on_tv: Bool?
 
+  public var hide_title: Bool?
+
   public var thumbnail_image_landscape: ImageLink?
   public var thumbnail_image_portrait: ImageLink?
   public var thumbnail_image_square: ImageLink?
