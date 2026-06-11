@@ -13,7 +13,6 @@ struct NFTView: View {
   var isForsale = false
   @State private var buttonFocus: Bool = false
   @FocusState var isFocused
-  var display: MediaDisplay = .feature
   var shadowRadius: CGFloat {
     if isFocused {
       return 10

@@ -11,15 +11,15 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
-enum MediaDisplay {
-  case apps
-  case video
-  case feature
-  case books
-  case album
-  case property
-  case tile
-  case square
+/// Card size for a section row, set on `section.display.card_size` and applied
+/// to every card in that row. The actual dimensions are resolved by
+/// `MediaCard.sizes()` from this plus the card's aspect ratio. Defaults to `.medium`.
+enum CardSize: String {
+  case small, medium, large
+
+  init(_ raw: String?) {
+    self = raw.flatMap { CardSize(rawValue: $0.lowercased()) } ?? .medium
+  }
 }
 
 enum MediaFlagPosition {
@@ -87,7 +87,7 @@ struct RedeemableCardView: View {
   @EnvironmentObject var eluvio: EluvioAPI
   var redeemable: RedeemableViewModel
   @FocusState var isFocused
-  var display: MediaDisplay = .square
+  var aspectRatio: AspectRatio = .square
   @State var showOfferView: Bool = false
   @State var playerItem: AVPlayerItem?
   var body: some View {
@@ -97,8 +97,8 @@ struct RedeemableCardView: View {
       }) {
         ZStack {
           MediaCard(
-            display: display,
-            image: display == MediaDisplay.feature ? redeemable.posterUrl : redeemable.imageUrl,
+            aspectRatio: aspectRatio,
+            image: aspectRatio == .portrait ? redeemable.posterUrl : redeemable.imageUrl,
             playerItem: playerItem,
             isFocused: isFocused,
             title: redeemable.name,
@@ -113,7 +113,7 @@ struct RedeemableCardView: View {
       debugPrint("REDEEMABLE ONAPPEAR", redeemable.id)
       Task {
         do {
-          if display == MediaDisplay.square {
+          if aspectRatio == .square {
             playerItem = try await MakePlayerItemFromLink(
               fabric: eluvio.fabric, link: redeemable.animationLink)
           }
@@ -129,7 +129,7 @@ struct RedeemableCardView: View {
 }
 
 struct MediaCard: View {
-  var display: MediaDisplay = .square
+  var aspectRatio: AspectRatio = .square
   var image: String = ""
   var playerItem: AVPlayerItem? = nil
   var isFocused: Bool = false
@@ -145,6 +145,7 @@ struct MediaCard: View {
   var image_ratio: String? = nil  // Square, Wide, Tall or nil
   var progressValue: Double = 0.0
 
+  var cardSize: CardSize = .medium
   var sizeFactor: CGFloat = 1
   var width: CGFloat {
     sizes().width
@@ -220,9 +221,9 @@ struct MediaCard: View {
             if let perm = permission {
               if perm.showAlternatePage || perm.purchaseGate {
                 Text("VIEW PURCHASE OPTIONS")
-                  .font(.system(size: display == MediaDisplay.square ? 20 : 26))
+                  .font(.system(size: aspectRatio == .square ? 20 : 26))
                   .foregroundColor(Color.white)
-                  .lineLimit(display == MediaDisplay.square ? 2 : 1)
+                  .lineLimit(aspectRatio == .square ? 2 : 1)
                   .bold()
                   .frame(maxWidth: .infinity, alignment: .leading)
                 Spacer()
@@ -293,7 +294,7 @@ struct MediaCard: View {
           .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
           .padding(20)
           .scaleEffect(sizeFactor, anchor: .bottomTrailing)
-        } else if isLive && display != .feature {
+        } else if isLive && aspectRatio != .portrait {
           VStack {
             Spacer()
             HStack {
@@ -321,22 +322,23 @@ struct MediaCard: View {
   }
 
   private func sizes() -> (width: CGFloat, height: CGFloat, cornerRadius: CGFloat) {
-    let raw: (width: CGFloat, height: CGFloat, cornerRadius: CGFloat) =
-      switch display {
-      case .feature:
-        (248, 372, 3)
-      case .video:
-        (400, 225, 16)
-      case .books:
-        (235, 300, 16)
-      case .property:
-        (330, 470, 16)
-      case .tile:
-        (887, 551, 0)
-      default:
-        (235, 235, 16)
+    // Card height per size; portrait cards get a taller height. From this:
+    // square is height×height, landscape widens to 16:9, portrait narrows to 2:3.
+    let isPortrait = aspectRatio == .portrait
+    var height: CGFloat =
+      switch cardSize {
+      case .small: isPortrait ? 345 : 200
+      case .medium: isPortrait ? 396 : 235
+      case .large: isPortrait ? 480 : 280
       }
-    return (raw.width * sizeFactor, raw.height * sizeFactor, raw.cornerRadius * sizeFactor)
+    height *= sizeFactor
+
+    let cornerRadius: CGFloat = (isPortrait ? 3 : 16) * sizeFactor
+    return (
+      width: height * aspectRatio.value,
+      height: height,
+      cornerRadius: cornerRadius
+    )
   }
 }
 
@@ -344,7 +346,7 @@ struct MediaCard: View {
 
 #Preview("Video Card") {
   MediaCard(
-    display: .video,
+    aspectRatio: .landscape,
     image: "https://picsum.photos/400/225",
     isFocused: false,
     title: "Sample Video Title",
@@ -354,7 +356,7 @@ struct MediaCard: View {
 
 #Preview("Video Card Focused") {
   MediaCard(
-    display: .video,
+    aspectRatio: .landscape,
     image: "https://picsum.photos/400/225",
     isFocused: true,
     title: "Sample Video Title",
@@ -364,7 +366,7 @@ struct MediaCard: View {
 
 #Preview("Square Card") {
   MediaCard(
-    display: .square,
+    aspectRatio: .square,
     image: "https://picsum.photos/300/300",
     isFocused: false,
     title: "Square Content"
@@ -373,7 +375,7 @@ struct MediaCard: View {
 
 #Preview("Feature Card") {
   MediaCard(
-    display: .feature,
+    aspectRatio: .portrait,
     image: "https://picsum.photos/248/372",
     isFocused: false,
     title: "Feature Film",
@@ -381,18 +383,9 @@ struct MediaCard: View {
   )
 }
 
-#Preview("Property Card") {
-  MediaCard(
-    display: .property,
-    image: "https://picsum.photos/330/470",
-    isFocused: false,
-    title: "Property Name"
-  )
-}
-
 #Preview("Live Badge") {
   MediaCard(
-    display: .video,
+    aspectRatio: .landscape,
     image: "https://picsum.photos/400/225",
     isFocused: false,
     title: "Live Event",
@@ -402,7 +395,7 @@ struct MediaCard: View {
 
 #Preview("Upcoming Badge") {
   MediaCard(
-    display: .video,
+    aspectRatio: .landscape,
     image: "https://picsum.photos/400/225",
     isFocused: false,
     isUpcoming: true,
@@ -413,7 +406,7 @@ struct MediaCard: View {
 
 #Preview("With Progress") {
   MediaCard(
-    display: .video,
+    aspectRatio: .landscape,
     image: "https://picsum.photos/400/225",
     isFocused: true,
     title: "Sample Video",
@@ -425,20 +418,16 @@ struct MediaCard: View {
   ScrollView(.horizontal) {
     HStack(spacing: 20) {
       VStack {
-        MediaCard(display: .square, image: "https://picsum.photos/235/235", title: "Square")
+        MediaCard(aspectRatio: .square, image: "https://picsum.photos/235/235", title: "Square")
         Text("Square")
       }
       VStack {
-        MediaCard(display: .video, image: "https://picsum.photos/400/225", title: "Video")
+        MediaCard(aspectRatio: .landscape, image: "https://picsum.photos/400/225", title: "Video")
         Text("Video")
       }
       VStack {
-        MediaCard(display: .feature, image: "https://picsum.photos/248/372", title: "Feature")
+        MediaCard(aspectRatio: .portrait, image: "https://picsum.photos/248/372", title: "Feature")
         Text("Feature")
-      }
-      VStack {
-        MediaCard(display: .property, image: "https://picsum.photos/330/470", title: "Property")
-        Text("Property")
       }
     }
     .padding()

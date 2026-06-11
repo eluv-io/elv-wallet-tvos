@@ -16,7 +16,6 @@ struct OfferView: View {
   @StateObject var redeemable: RedeemableViewModel
   @State private var playerItem: AVPlayerItem? = nil
   @FocusState var isFocused
-  var display: MediaDisplay = .square
   @State var imageUrl: String = ""
   @State var showPlayer: Bool = false
   @State var showResult: Bool = false

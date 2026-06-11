@@ -18,7 +18,7 @@ struct SectionGridView: View {
 
   @State var items: [MediaPropertySectionMediaItemViewModel] = []
 
-  var forceDisplay: MediaDisplay? = nil
+  var forceDisplay: AspectRatio? = nil
   var showBackground = true
   var topPadding: CGFloat = 10
 
@@ -33,20 +33,8 @@ struct SectionGridView: View {
     return false
   }
 
-  var display: MediaDisplay {
-    if let force = forceDisplay {
-      return force
-    }
-    if let item = items.first {
-      if item.thumb_aspect_ratio == .portrait {
-        return .feature
-      } else if item.thumb_aspect_ratio == .landscape {
-        return .video
-      } else {
-        return .square
-      }
-    }
-    return .square
+  var aspectRatio: AspectRatio {
+    forceDisplay ?? items.first?.thumb_aspect_ratio ?? .square
   }
 
   var title: String {
@@ -58,7 +46,7 @@ struct SectionGridView: View {
       return 1.0
     }
 
-    if display == .square {
+    if aspectRatio == .square {
       return 0.8
     } else {
       return 0.7
@@ -69,11 +57,11 @@ struct SectionGridView: View {
 
   private var columns: [GridItem] {
     if !useScale {
-      if display == .square {
+      if aspectRatio == .square {
         return [
           .init(.adaptive(minimum: 280, maximum: 300))
         ]
-      } else if display == .feature {
+      } else if aspectRatio == .portrait {
         return [
           .init(.adaptive(minimum: 300, maximum: 320))
         ]
@@ -84,11 +72,11 @@ struct SectionGridView: View {
       }
     }
 
-    if display == .square {
+    if aspectRatio == .square {
       return [
         .init(.adaptive(minimum: 200, maximum: 240))
       ]
-    } else if display == .feature {
+    } else if aspectRatio == .portrait {
       return [
         .init(.adaptive(minimum: 240, maximum: 260))
       ]
@@ -117,7 +105,7 @@ struct SectionGridView: View {
             sectionId: section.id,
             pageId: pageId,
             property: property,
-            forceDisplay: display,
+            forceDisplay: aspectRatio,
             viewItem: item,
             scaleFactor: scale
           )

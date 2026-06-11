@@ -241,14 +241,14 @@ struct MediaItemGridView: View {
 
   @FocusState var isFocused
 
-  var display: MediaDisplay {
+  var aspectRatio: AspectRatio {
     if let item = items.first {
       if item.thumbnail_image_portrait != nil {
-        return .feature
+        return .portrait
       }
 
       if item.thumbnail_image_landscape != nil {
-        return .video
+        return .landscape
       }
     }
 
@@ -256,9 +256,9 @@ struct MediaItemGridView: View {
   }
 
   var numColumns: Int {
-    if display == .video {
+    if aspectRatio == .landscape {
       return 4
-    } else if display == .square {
+    } else if aspectRatio == .square {
       return 6
     } else {
       return 4
@@ -279,7 +279,7 @@ struct MediaItemGridView: View {
         HStack(spacing: 34) {
           ForEach(items, id: \.self) { item in
             SectionMediaItemView(
-              item: item, property: property, forceDisplay: display
+              item: item, property: property, forceDisplay: aspectRatio
             )
           }
           Spacer()
@@ -294,7 +294,7 @@ struct MediaItemGridView: View {
               ForEach(groups, id: \.self) { item in
                 SectionMediaItemView(
                   item: item, property: property,
-                  forceDisplay: display
+                  forceDisplay: aspectRatio
                 )
               }
               .gridColumnAlignment(.leading)
@@ -348,9 +348,9 @@ struct SectionMediaItemView: View {
   var item: MediaPropertySectionMediaItem
   var sectionItem: MediaPropertySectionItem?
   var property: MediaProperty
-  var forceDisplay: MediaDisplay? = nil
+  var forceDisplay: AspectRatio? = nil
 
-  var display: MediaDisplay {
+  var aspectRatio: AspectRatio {
     if let forceDisplay = forceDisplay {
       return forceDisplay
     }
@@ -360,11 +360,11 @@ struct SectionMediaItemView: View {
     }
 
     if item.thumbnail_image_portrait != nil {
-      return .feature
+      return .portrait
     }
 
     if item.thumbnail_image_landscape != nil {
-      return .video
+      return .landscape
     }
 
     return .square
@@ -384,7 +384,7 @@ struct SectionMediaItemView: View {
         }
       }) {
         MediaCard(
-          display: display,
+          aspectRatio: aspectRatio,
           image: item.thumbnail(),
           isFocused: isFocused,
           isUpcoming: item.isUpcoming,
@@ -407,7 +407,8 @@ struct SectionItemView: View {
   var pageId: String
   var property: MediaProperty
   var forceAspectRatio: String = ""
-  var forceDisplay: MediaDisplay?
+  var forceDisplay: AspectRatio?
+  var cardSize: CardSize = .medium
   var viewItem: MediaPropertySectionMediaItemViewModel
 
   @FocusState var isFocused
@@ -427,26 +428,10 @@ struct SectionItemView: View {
     return permission.behavior == .showIfUnauthorized ? 1.0 : 0.6
   }
 
-  var display: MediaDisplay {
-    if let forceDisplay = forceDisplay {
-      return forceDisplay
-    }
-
-    let aspectRatio = forceAspectRatio.lowercased()
-
-    if aspectRatio == "landscape" {
-      return .video
-    } else if aspectRatio == "portrait" {
-      return .feature
-    } else if aspectRatio == "square" {
-      return .square
-    }
-
-    switch viewItem.thumb_aspect_ratio {
-    case .portrait: return .feature
-    case .landscape: return .video
-    default: return .square
-    }
+  var aspectRatio: AspectRatio {
+    forceDisplay
+      ?? AspectRatio(rawValue: forceAspectRatio.lowercased())
+      ?? viewItem.thumb_aspect_ratio
   }
 
   var title: String {
@@ -525,7 +510,7 @@ struct SectionItemView: View {
             }
           }) {
             MediaCard(
-              display: display,
+              aspectRatio: aspectRatio,
               image: imageThumbnail,
               isFocused: isFocused,
               isUpcoming: isUpcoming,
@@ -538,6 +523,7 @@ struct SectionItemView: View {
               showFocusedTitle: viewItem.title.isEmpty ? false : true,
               showBottomTitle: true,
               progressValue: progressValue,
+              cardSize: cardSize,
               sizeFactor: scaleFactor,
               permission: permission
             )

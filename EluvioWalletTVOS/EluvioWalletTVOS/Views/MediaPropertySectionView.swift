@@ -188,6 +188,7 @@ struct MediaPropertyRegularSectionView: View {
                     pageId: pageId,
                     property: property,
                     forceAspectRatio: forceAspectRatio,
+                    cardSize: cardSize,
                     viewItem: item
                   )
                   .focused($currentFocusItem, equals: item)
@@ -207,6 +208,7 @@ struct MediaPropertyRegularSectionView: View {
                       pageId: pageId,
                       property: property,
                       forceAspectRatio: forceAspectRatio,
+                      cardSize: cardSize,
                       viewItem: item
                     )
                     .padding(.top, 0)
@@ -322,6 +324,10 @@ struct MediaPropertyRegularSectionView: View {
 
   var forceAspectRatio: String {
     section.display?.aspect_ratio ?? ""
+  }
+
+  var cardSize: CardSize {
+    CardSize(section.display?.card_size)
   }
 }
 

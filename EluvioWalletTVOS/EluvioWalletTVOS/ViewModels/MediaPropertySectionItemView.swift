@@ -9,7 +9,20 @@ import EluvioCore
 import Foundation
 import SwiftyJSON
 
-enum ImageAspectRatio: String, Codable { case square, portrait, landscape }
+/// The shape of a media card. Backed by the server's `aspect_ratio` strings
+/// ("square", "portrait", "landscape") and also drives card sizing in `MediaCard`.
+enum AspectRatio: String, Codable {
+  case square, portrait, landscape
+
+  /// Width-to-height ratio of the card.
+  var value: CGFloat {
+    switch self {
+    case .square: 1 / 1
+    case .portrait: 2 / 3
+    case .landscape: 16 / 9
+    }
+  }
+}
 
 struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable {
   var id: String
@@ -34,7 +47,7 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
   var thumbnail_image_portrait: String = ""
   var thumbnail_image_landscape: String = ""
   var thumbnail: String = ""
-  var thumb_aspect_ratio: ImageAspectRatio = .square
+  var thumb_aspect_ratio: AspectRatio = .square
   var headerString: String = ""
 
   var icons: [IconItem]? = nil
@@ -106,7 +119,7 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
     let thumbnailLand = media.thumbnail_image_landscape?.url ?? ""
 
     var thumbnail = ""
-    var thumb_aspect_ratio = ImageAspectRatio.square
+    var thumb_aspect_ratio = AspectRatio.square
     if !thumbnailSquare.isEmpty {
       thumbnail = thumbnailSquare
       thumb_aspect_ratio = .square
@@ -156,7 +169,7 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
     -> MediaPropertySectionMediaItemViewModel
   {
     // debugPrint("MediaPropertySectionMediaItemViewModel:create()", item.media?.title)
-    var thumb_aspect_ratio = ImageAspectRatio.square
+    var thumb_aspect_ratio = AspectRatio.square
     var title = ""
     var subtitle = ""
     var catalog_title = ""
