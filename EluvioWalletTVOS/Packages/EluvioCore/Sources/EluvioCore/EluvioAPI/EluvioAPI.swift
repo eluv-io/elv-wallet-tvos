@@ -77,13 +77,7 @@ public class EluvioAPI: ObservableObject {
   }
 
   public func isCustomApp() -> Bool {
-    if let props = APP_CONFIG.allowed_properties {
-      if !props.isEmpty {
-        return true
-      }
-    }
-
-    return false
+    return APP_CONFIG.allowed_properties?.isEmpty == false
   }
 
   @MainActor

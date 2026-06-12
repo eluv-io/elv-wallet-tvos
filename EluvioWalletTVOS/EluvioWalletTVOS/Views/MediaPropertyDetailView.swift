@@ -69,6 +69,10 @@ struct MediaPropertyDetailView: View {
   // When we have no cache, we'll very quickly detect it and flip to loading
   @State private var sectionsLoading = false
 
+  // Whether the user owns any items relevant to this app's allowed properties.
+  // Gates the "My Items" button so it's hidden when there's nothing to show.
+  @State private var ownsItems = false
+
   init(propertyId: String, pageId: String? = nil, propertyLinks: [PropertyLink] = []) {
     self.propertyId = propertyId
     self.pageId = pageId
@@ -130,56 +134,7 @@ struct MediaPropertyDetailView: View {
         HStack(alignment: .top) {
           Spacer()
           VStack {
-            HStack(spacing: 20) {
-              if propertyLinks.count >= 2 {
-                Menu {
-                  Picker(selection: $selectedLinkId, label: Text("")) {
-                    ForEach(propertyLinks, id: \.id) { link in
-                      Text(link.title)
-                        .padding(40)
-                        .tag(link.id)
-                    }
-                  }
-                } label: {
-                  HStack {
-                    Image("switcher")
-                      .renderingMode(.template)
-                      .resizable()
-                      .scaledToFit()
-                      .foregroundColor(switcherFocused ? .black : .gray)
-                      .frame(width: 40, height: 40)
-                      .padding()
-                  }
-                  .background(switcherFocused ? .white : Color.black.opacity(0.5))
-                  .clipShape(Circle())
-                }
-                .buttonStyle(
-                  IconButtonStyle(focused: switcherFocused, initialOpacity: 0.7, scale: 1.2)
-                )
-                .focused($switcherFocused)
-              }
-
-              if eluvio.isCustomApp() {
-                IconButton(
-                  action: {
-                    router.path.append(.profile)
-                  }, iconName: "person.crop.circle"
-                )
-
-                IconButton(
-                  action: {
-                    router.path.append(.myItems)
-                  }, iconName: "rectangle.stack"
-                )
-              }
-
-              IconButton(
-                action: {
-                  router.path.append(.search(SearchParams(propertyId: propertyId)))
-                }, iconName: "search"
-              )
-            }
-
+            toolbarButtons
             Spacer()
           }
         }
@@ -200,6 +155,9 @@ struct MediaPropertyDetailView: View {
       }
     }
     .animation(.easeInOut, value: sectionsLoading)
+    .task {
+      await checkOwnedItems()
+    }
     .onAnyChange(of: property) { oldValue, newValue in
       Task {
         await loadProperty()
@@ -221,6 +179,78 @@ struct MediaPropertyDetailView: View {
     .background(
       Color.black.edgesIgnoringSafeArea(.all)
     )
+  }
+
+  @ViewBuilder
+  private var toolbarButtons: some View {
+    HStack(spacing: 20) {
+      if propertyLinks.count >= 2 {
+        Menu {
+          Picker(selection: $selectedLinkId, label: Text("")) {
+            ForEach(propertyLinks, id: \.id) { link in
+              Text(link.title)
+                .padding(40)
+                .tag(link.id)
+            }
+          }
+        } label: {
+          HStack {
+            Image("switcher")
+              .renderingMode(.template)
+              .resizable()
+              .scaledToFit()
+              .foregroundColor(switcherFocused ? .black : .gray)
+              .frame(width: 40, height: 40)
+              .padding()
+          }
+          .background(switcherFocused ? .white : Color.black.opacity(0.5))
+          .clipShape(Circle())
+        }
+        .buttonStyle(
+          IconButtonStyle(focused: switcherFocused, initialOpacity: 0.7, scale: 1.2)
+        )
+        .focused($switcherFocused)
+      }
+
+      if eluvio.isCustomApp() {
+        IconButton(
+          action: {
+            router.path.append(.profile)
+          }, iconName: "person.crop.circle"
+        )
+
+        if ownsItems {
+          IconButton(
+            action: {
+              router.path.append(.myItems)
+            }, iconName: "rectangle.stack"
+          )
+        }
+      }
+
+      IconButton(
+        action: {
+          router.path.append(.search(SearchParams(propertyId: propertyId)))
+        }, iconName: "search"
+      )
+    }
+  }
+
+  // Mirrors the fetch MyItemsView performs: the "My Items" button should only
+  // appear when the user actually owns NFTs for one of the allowed properties.
+  private func checkOwnedItems() async {
+    guard eluvio.isCustomApp(), let allowedProperties = APP_CONFIG.allowed_properties else {
+      return
+    }
+    let address = AccountStore.shared.account?.getAccountAddress() ?? ""
+    for propertyId in allowedProperties {
+      if let nfts = try? await eluvio.fabric.getNFTs(address: address, propertyId: propertyId),
+        !nfts.isEmpty
+      {
+        ownsItems = true
+        return
+      }
+    }
   }
 
   private func loadProperty() async {
