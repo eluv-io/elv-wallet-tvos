@@ -63,40 +63,55 @@ struct SectionGridView: View {
 
   @State var width: CGFloat = 0
 
-  private var columns: [GridItem] {
+  private let gridSpacing: CGFloat = 20
+
+  private var itemMaxWidth: CGFloat {
     if !useScale {
-      if aspectRatio == .square {
-        return [
-          .init(.adaptive(minimum: 235, maximum: 245))
-        ]
-      } else if aspectRatio == .portrait {
-        return [
-          .init(.adaptive(minimum: 300, maximum: 320))
-        ]
-      } else {
-        return [
-          .init(.adaptive(minimum: 400, maximum: 420))
-        ]
+      switch aspectRatio {
+      case .square: return 245
+      case .portrait: return 320
+      default: return 420
       }
     }
-
-    if aspectRatio == .square {
-      return [
-        .init(.adaptive(minimum: 200, maximum: 240))
-      ]
-    } else if aspectRatio == .portrait {
-      return [
-        .init(.adaptive(minimum: 240, maximum: 260))
-      ]
-    } else {
-      return [
-        .init(.adaptive(minimum: 260, maximum: 280))
-      ]
+    switch aspectRatio {
+    case .square: return 240
+    case .portrait: return 260
+    default: return 280
     }
   }
 
+  private var gridAlignment: HorizontalAlignment {
+    switch section.displayJustification.lowercased() {
+    case "center": .center
+    case "right": .trailing
+    default: .leading
+    }
+  }
+
+  // Columns that fit the measured width, capped at the item count so the grid
+  // shrink-wraps its content. The parent VStack then aligns the block per
+  // gridAlignment (leading reproduces the original full-width layout).
+  private var columnCount: Int {
+    guard width > 0 else { return 1 }
+    let fit = max(1, Int((width + gridSpacing) / (itemMaxWidth + gridSpacing)))
+    return min(fit, max(1, items.count))
+  }
+
+  // Width of the column block; centering it in the parent splits the leftover
+  // space equally on leading and trailing.
+  private var contentWidth: CGFloat {
+    CGFloat(columnCount) * itemMaxWidth + CGFloat(columnCount - 1) * gridSpacing
+  }
+
+  // Fixed widths so the rendered layout matches contentWidth exactly
+  // (adaptive packs at the minimum and would disagree).
+  // Using .adaptive won't allow us to center/right align the grid content
+  private var columns: [GridItem] {
+    Array(repeating: GridItem(.fixed(itemMaxWidth), spacing: gridSpacing), count: columnCount)
+  }
+
   var body: some View {
-    VStack(alignment: .leading, spacing: 0) {
+    VStack(alignment: gridAlignment, spacing: 0) {
       HStack {
         if !title.isEmpty {
           Text(title)
@@ -107,7 +122,7 @@ struct SectionGridView: View {
       .padding(.top, topPadding)
       .padding(.bottom, 20)
 
-      LazyVGrid(columns: columns, alignment: .leading, spacing: 20) {
+      LazyVGrid(columns: columns, alignment: .center, spacing: gridSpacing) {
         ForEach(items, id: \.self) { item in
           SectionItemView(
             sectionId: section.id,
@@ -121,8 +136,21 @@ struct SectionGridView: View {
           .padding(.bottom, 40)
         }
       }
+      .frame(width: width > 0 ? contentWidth : nil)
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .frame(
+      maxWidth: .infinity,
+      maxHeight: .infinity,
+      alignment: Alignment(horizontal: gridAlignment, vertical: .center)
+    )
+    // Measures the available width so the grid can shrink to its content width
+    // and be centered by the parent VStack (see columnCount / contentWidth).
+    .background(
+      GeometryReader { proxy in
+        Color.clear
+          .onChange(of: proxy.size.width, initial: true) { _, newValue in width = newValue }
+      }
+    )
     .background(
       Group {
         if showBackground {
