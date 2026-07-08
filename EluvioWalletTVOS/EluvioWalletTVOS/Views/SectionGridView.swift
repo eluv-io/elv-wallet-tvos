@@ -167,7 +167,9 @@ struct SectionGridView: View {
       .frame(maxWidth: .infinity)
     )
     .padding([.leading], margin)
-    .task {
+    // Keyed on section so the grid reloads when the same view instance is
+    // handed a different section (e.g. SearchView's single-section layout).
+    .task(id: section) {
       guard let content = section.content else { return }
       items =
         content
