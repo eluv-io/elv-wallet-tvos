@@ -141,7 +141,7 @@ struct PlayerView: View {
             additionalMedias = rawMedia.additionalViews()
           }
 
-          if rawMedia.currentlyLive, let propId = property?.id {
+          if let propId = property?.id {
             additionalMedias += await MultiviewFetcher.shared.getPropertyMultiview(
               propertyId: propId)
           }
