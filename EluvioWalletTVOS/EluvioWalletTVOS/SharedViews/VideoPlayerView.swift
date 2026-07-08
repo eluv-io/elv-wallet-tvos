@@ -162,6 +162,11 @@ class VideoPlayerViewModel: ObservableObject {
 
   func selectVideo(_ video: MediaPropertySectionMediaItem) {
     self.player?.pause()
+    // Remove progress observer from the old player before it's replaced below
+    if let token = progressObserverToken, let oldPlayer = player {
+      oldPlayer.removeTimeObserver(token)
+      progressObserverToken = nil
+    }
     currentVideo = video
     Task {
       do {
@@ -249,10 +254,6 @@ class VideoPlayerViewModel: ObservableObject {
         return
       }
 
-      // Remove previous progress observer before adding a new one
-      if let token = progressObserverToken, let oldPlayer = player {
-        oldPlayer.removeTimeObserver(token)
-      }
       progressObserverToken = player?.addProgressObserver { [weak self] progress in
         guard let self = self else { return }
         self.currentTimeS = self.player?.currentItem?.currentTime().seconds ?? -1.0
