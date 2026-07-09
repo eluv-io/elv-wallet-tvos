@@ -7,6 +7,10 @@ struct PrimaryFiltersRow: View {
   @Binding var currentSecondaryFilter: SecondaryFilterViewModel?
   @Binding var secondaryFilters: [SecondaryFilterViewModel]
 
+  var hasImageFilters: Bool {
+    primaryFilters.contains { !$0.imageUrl.isEmpty }
+  }
+
   var body: some View {
     HStack(alignment: .center, spacing: 20) {
       Text("Filters")
@@ -36,7 +40,7 @@ struct PrimaryFiltersRow: View {
       }
     }
     .padding([.leading, .trailing])
-    .padding([.top], primaryFilters.count > 0 ? 20 : 0)
+    .padding([.top], primaryFilters.count > 0 && !hasImageFilters ? 20 : 0)
     .focusSection()
   }
 }
