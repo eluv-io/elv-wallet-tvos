@@ -115,6 +115,23 @@ struct TextButtonStyle: ButtonStyle {
   }
 }
 
+// Shared style for primary and secondary filter buttons that display an image.
+struct imageFilterButtonStyle: ButtonStyle {
+  let focused: Bool
+  let selected: Bool
+  var scale = 1.08
+  func makeBody(configuration: Self.Configuration) -> some View {
+    configuration.label
+      .foregroundColor(selected ? .black : .white)
+      .padding([.top, .bottom], 10)
+      .padding([.leading, .trailing], 1)
+      .opacity(configuration.isPressed || focused || selected ? 1 : 0.3)
+      .scaleEffect(focused ? scale : 1, anchor: .center)
+      .scaleEffect(configuration.isPressed ? 0.95 : 1)
+      .animation(.easeIn(duration: 0.2), value: focused)
+  }
+}
+
 struct secondaryFilterButtonStyle: ButtonStyle {
   let focused: Bool
   let selected: Bool
@@ -122,13 +139,8 @@ struct secondaryFilterButtonStyle: ButtonStyle {
   var isImage: Bool = true
   func makeBody(configuration: Self.Configuration) -> some View {
     if isImage {
-      configuration.label
-        .foregroundColor(selected ? .black : .white)
-        .padding(10)
-        .opacity(configuration.isPressed || focused || selected ? 1 : 0.3)
-        .scaleEffect(focused ? scale : 1, anchor: .center)
-        .scaleEffect(configuration.isPressed ? 0.95 : 1)
-        .animation(.easeIn(duration: 0.2), value: focused)
+      imageFilterButtonStyle(focused: focused, selected: selected, scale: scale)
+        .makeBody(configuration: configuration)
     } else {
       configuration.label
         .padding([.leading, .trailing], 20)
@@ -148,17 +160,23 @@ struct primaryFilterButtonStyle: ButtonStyle {
   let focused: Bool
   let selected: Bool
   var scale = 1.08
+  var isImage: Bool = false
   func makeBody(configuration: Self.Configuration) -> some View {
-    configuration.label
-      .padding([.leading, .trailing], 20)
-      .padding([.top, .bottom], 10)
-      .background(selected ? .white : focused ? Color(hex: 0x8B8B8B) : Color(hex: 0x3B3B3B))
-      .foregroundColor(selected ? .black : .white)
-      .cornerRadius(10)
-      .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
-      .scaleEffect(focused ? scale : 1, anchor: .center)
-      .scaleEffect(configuration.isPressed ? 0.95 : 1)
-      .animation(.easeIn(duration: 0.2), value: focused)
+    if isImage {
+      imageFilterButtonStyle(focused: focused, selected: selected, scale: scale)
+        .makeBody(configuration: configuration)
+    } else {
+      configuration.label
+        .padding([.leading, .trailing], 20)
+        .padding([.top, .bottom], 10)
+        .background(selected ? .white : focused ? Color(hex: 0x8B8B8B) : Color(hex: 0x3B3B3B))
+        .foregroundColor(selected ? .black : .white)
+        .cornerRadius(10)
+        .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
+        .scaleEffect(focused ? scale : 1, anchor: .center)
+        .scaleEffect(configuration.isPressed ? 0.95 : 1)
+        .animation(.easeIn(duration: 0.2), value: focused)
+    }
   }
 }
 

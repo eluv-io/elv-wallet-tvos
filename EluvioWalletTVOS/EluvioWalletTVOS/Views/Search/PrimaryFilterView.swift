@@ -15,10 +15,20 @@ struct PrimaryFilterView: View {
   var body: some View {
     // ZStack(alignment:.center){
     Button(action: action) {
-      Text(title)
-        .font(.rowTitle)
+      if !filter.imageUrl.isEmpty {
+        ScaledWebImage(url: filter.imageUrl, height: 80)
+          .resizable()
+          .scaledToFit()
+          .frame(height: 80)
+      } else {
+        Text(title)
+          .font(.rowTitle)
+      }
     }
-    .buttonStyle(primaryFilterButtonStyle(focused: isFocused, selected: selected))
+    .buttonStyle(
+      primaryFilterButtonStyle(
+        focused: isFocused, selected: selected, isImage: !filter.imageUrl.isEmpty)
+    )
     .focused($isFocused)
     // .padding()
     // }
