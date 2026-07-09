@@ -188,8 +188,10 @@ public extension MediaPropertySectionMediaItem {
   public static func == (lhs: MediaPropertySectionMediaItem, rhs: MediaPropertySectionMediaItem) -> Bool {
     return lhs.id == rhs.id
       && lhs.title == rhs.title
+      && lhs.subtitle == rhs.subtitle
       && lhs.live_video == rhs.live_video
       && lhs.start_time == rhs.start_time
+      && lhs.stream_start_time == rhs.stream_start_time
       && lhs.end_time == rhs.end_time
   }
 

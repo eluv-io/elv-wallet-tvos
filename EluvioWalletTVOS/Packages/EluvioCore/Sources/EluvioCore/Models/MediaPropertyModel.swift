@@ -224,7 +224,9 @@ public final class MediaPropertySection: Identifiable, Hashable, Permissionable,
     return lhs.id == rhs.id
       && lhs.displayTitle == rhs.displayTitle
       && lhs.displaySubtitle == rhs.displaySubtitle
-      && lhs.content?.count == rhs.content?.count
+      && lhs.content == rhs.content
+      && lhs.hero_items == rhs.hero_items
+      && lhs.sections_resolved == rhs.sections_resolved
   }
 
   public func hash(into hasher: inout Hasher) {
@@ -261,8 +263,9 @@ public final class MediaPropertySectionItem: Identifiable, Hashable, Permissiona
 
   public static func == (lhs: MediaPropertySectionItem, rhs: MediaPropertySectionItem) -> Bool {
     return lhs.id == rhs.id
-      && lhs.media?.title == rhs.media?.title
-      && lhs.media?.live_video == rhs.media?.live_video
+      && lhs.media == rhs.media
+      && lhs.display?.title == rhs.display?.title
+      && lhs.display?.subtitle == rhs.display?.subtitle
   }
 
   public func hash(into hasher: inout Hasher) {
