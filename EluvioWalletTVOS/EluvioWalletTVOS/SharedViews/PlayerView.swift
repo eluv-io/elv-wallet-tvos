@@ -199,13 +199,10 @@ struct PlayerView: View {
           debugPrint("Playout URL: ", urlAsset.url)
           videoHostname = urlAsset.url.host() ?? ""
 
-          let pathComponents = urlAsset.url.pathComponents
-          if pathComponents.count > 2 {
-            debugPrint("PATH: ", pathComponents[2])
-            if pathComponents[2].hasPrefix("hq_") {
-              versionHash = pathComponents[2]
-              debugPrint("HASH: ", versionHash)
-            }
+          // Position-independent: handles both /q/hq__... and /s/main/q/hq__... URL shapes
+          if let hash = urlAsset.url.pathComponents.first(where: { $0.hasPrefix("hq__") }) {
+            versionHash = hash
+            debugPrint("HASH: ", versionHash)
           }
 
           sessionId = urlAsset.url.queryParameters?["sid"] ?? ""

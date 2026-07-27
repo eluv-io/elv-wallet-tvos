@@ -197,11 +197,9 @@ class VideoPlayerViewModel: ObservableObject {
           let url = asset.url
           videoHostname = url.host() ?? ""
 
-          let pathComponents = url.pathComponents
-          if pathComponents.count > 2 {
-            if pathComponents[2].hasPrefix("hq_") {
-              versionHash = pathComponents[2]
-            }
+          // Position-independent: handles both /q/hq__... and /s/main/q/hq__... URL shapes
+          if let hash = url.pathComponents.first(where: { $0.hasPrefix("hq__") }) {
+            versionHash = hash
           }
 
           sessionId = url.queryParameters?["sid"] ?? ""
