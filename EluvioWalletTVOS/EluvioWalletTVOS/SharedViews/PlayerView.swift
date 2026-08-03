@@ -345,6 +345,8 @@ struct PlayerView: View {
         }
       } else {
         self.player.pause()
+        // Detach MUX so it releases the player VC and its observers
+        MUXSDKStats.destroyPlayer("mainPlayer")
         self.player.replaceCurrentItem(with: nil)
       }
       if backLink != "" {

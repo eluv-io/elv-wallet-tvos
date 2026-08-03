@@ -151,6 +151,13 @@ class VideoPlayerViewModel: ObservableObject {
       NotificationCenter.default.removeObserver(observer)
       errorLogObserver = nil
     }
+    // Detach MUX so it releases the player VC and its observers
+    MUXSDKStats.destroyPlayer("mainPlayer")
+    // Drop buffered media and the VC's player reference; MUX otherwise
+    // keeps the VC (and everything it retains) alive
+    player?.replaceCurrentItem(with: nil)
+    playerViewController?.player = nil
+    playerViewController = nil
     videos.removeAll()
     currentVideo = nil
     player = nil

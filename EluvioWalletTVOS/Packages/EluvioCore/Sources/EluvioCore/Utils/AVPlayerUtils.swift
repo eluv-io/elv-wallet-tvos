@@ -6,8 +6,8 @@ public extension AVPlayer {
   {
     return addPeriodicTimeObserver(
       forInterval: CMTime(value: Int64(intervalSeconds * 1000), timescale: 1000), queue: .main,
-      using: { time in
-        guard self.currentItem?.status == .readyToPlay else { return }
+      using: { [weak self] time in
+        guard let self, self.currentItem?.status == .readyToPlay else { return }
         if let duration = self.currentItem?.duration {
           let duration = CMTimeGetSeconds(duration)
           let time = CMTimeGetSeconds(time)
