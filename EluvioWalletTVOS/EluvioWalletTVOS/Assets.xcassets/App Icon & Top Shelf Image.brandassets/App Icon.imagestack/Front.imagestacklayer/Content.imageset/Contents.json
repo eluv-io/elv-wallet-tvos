@@ -1,12 +1,12 @@
 {
   "images" : [
     {
-      "filename" : "Eluvio Icon Aug 30 Text (400 x 240).png",
+      "filename" : "OneFC_App_Icon_Text_400x240.png",
       "idiom" : "tv",
       "scale" : "1x"
     },
     {
-      "filename" : "Eluvio Icon Aug 30 Text (800 x 480).png",
+      "filename" : "OneFC_App_Icon_Text_800x480.png",
       "idiom" : "tv",
       "scale" : "2x"
     },

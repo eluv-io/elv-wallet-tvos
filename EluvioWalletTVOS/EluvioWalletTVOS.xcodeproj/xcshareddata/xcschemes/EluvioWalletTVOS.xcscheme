@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B0E60F6B29CC23510079661E"
-               BuildableName = "EluvioWalletTVOS.app"
+               BuildableName = "OneFC.app"
                BlueprintName = "EluvioWalletTVOS"
                ReferencedContainer = "container:EluvioWalletTVOS.xcodeproj">
             </BuildableReference>
@@ -45,7 +45,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B0E60F6B29CC23510079661E"
-            BuildableName = "EluvioWalletTVOS.app"
+            BuildableName = "OneFC.app"
             BlueprintName = "EluvioWalletTVOS"
             ReferencedContainer = "container:EluvioWalletTVOS.xcodeproj">
          </BuildableReference>
@@ -68,7 +68,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B0E60F6B29CC23510079661E"
-            BuildableName = "EluvioWalletTVOS.app"
+            BuildableName = "OneFC.app"
             BlueprintName = "EluvioWalletTVOS"
             ReferencedContainer = "container:EluvioWalletTVOS.xcodeproj">
          </BuildableReference>
@@ -80,5 +80,23 @@
    <ArchiveAction
       buildConfiguration = "Release"
       revealArchiveInOrganizer = "YES">
+      <PreActions>
+         <ExecutionAction
+            ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
+            <ActionContent
+               title = "Bump OneFC build number"
+               scriptText = "&quot;${SRCROOT}/Scripts/bump_onefc_build.sh&quot;&#10;">
+               <EnvironmentBuildable>
+                  <BuildableReference
+                     BuildableIdentifier = "primary"
+                     BlueprintIdentifier = "B0E60F6B29CC23510079661E"
+                     BuildableName = "OneFC.app"
+                     BlueprintName = "EluvioWalletTVOS"
+                     ReferencedContainer = "container:EluvioWalletTVOS.xcodeproj">
+                  </BuildableReference>
+               </EnvironmentBuildable>
+            </ActionContent>
+         </ExecutionAction>
+      </PreActions>
    </ArchiveAction>
 </Scheme>
