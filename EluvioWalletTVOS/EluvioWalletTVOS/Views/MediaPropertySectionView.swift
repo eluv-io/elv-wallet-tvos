@@ -32,6 +32,71 @@ enum SectionPosition {
   case Left, Right, Center
 }
 
+/// A CTA button defined on a hero item.
+struct HeroAction: Identifiable {
+  /// The server also defines "sign_in", "show_purchase" and "video" behaviors,
+  /// which we don't support (and therefore don't parse) yet.
+  static let supportedBehaviors: Set<String> = ["media_link", "page_link", "link"]
+
+  var id: String
+  var behavior: String
+  /// Defined for "media_link" actions.
+  var mediaId: String?
+  /// Defined for "page_link" actions. Always a page within the current property.
+  var pageId: String?
+  /// Defined for "link" actions.
+  var url: String?
+
+  var text: String
+  var backgroundColor: Color
+  var textColor: Color
+  var borderColor: Color?
+  var cornerRadius: CGFloat
+
+  /// Returns nil for actions we can't render or act on (unsupported behavior,
+  /// no button text, or no link target) - those shouldn't show a button at all.
+  /// Text and styling come exclusively from the action's "button" object - the
+  /// top-level "text"/"label"/"colors"/"border_radius" fields are a legacy spec
+  /// the server still emits with stale defaults, and "button_style" is ignored
+  /// by agreement.
+  static func create(from json: JSON) -> HeroAction? {
+    let behavior = json["behavior"].stringValue
+    guard HeroAction.supportedBehaviors.contains(behavior) else { return nil }
+
+    let button = json["button"]
+    guard let text = button["text"].string?.nilIfEmpty() else { return nil }
+
+    // Like section items, the server doesn't clear the link fields that don't
+    // apply to the current behavior, so only read the one that does.
+    var mediaId: String? = nil
+    var pageId: String? = nil
+    var url: String? = nil
+    switch behavior {
+    case "media_link": mediaId = json["media_id"].string?.nilIfEmpty()
+    case "page_link": pageId = json["page_id"].string?.nilIfEmpty()
+    case "link": url = json["url"].string?.nilIfEmpty()
+    default: break
+    }
+    if mediaId == nil && pageId == nil && url == nil {
+      debugPrint("Ignoring hero action with no click target: ", json)
+      return nil
+    }
+
+    return HeroAction(
+      id: json["id"].stringValue,
+      behavior: behavior,
+      mediaId: mediaId,
+      pageId: pageId,
+      url: url,
+      text: text,
+      backgroundColor: Color(hexString: button["background_color"].string) ?? .white,
+      textColor: Color(hexString: button["text_color"].string) ?? .black,
+      borderColor: Color(hexString: button["border_color"].string),
+      cornerRadius: CGFloat(button["border_radius"].int ?? 5)
+    )
+  }
+}
+
 extension View {
   func getWidth(_ width: Binding<CGFloat>) -> some View {
     modifier(GetWidthModifier(width: width))
@@ -498,6 +563,10 @@ struct MediaPropertySectionView: View {
     heroItem?["display"]["description"].stringValue ?? ""
   }
 
+  var heroActions: [HeroAction] {
+    heroItem?["actions"].array?.compactMap { HeroAction.create(from: $0) } ?? []
+  }
+
   var hAlignment: HorizontalAlignment {
     if let justification = section.display?.justification {
       if justification.lowercased() == "left" {
@@ -580,12 +649,24 @@ struct MediaPropertySectionView: View {
     Group {
       if !hide {
         if isHero {
-          MediaPropertyHeader(
-            logo: heroLogoUrl, title: heroTitle,
-            description: heroDescription,
-            position: heroPosition,
-            margin: margin
-          )
+          VStack(alignment: .leading, spacing: 0) {
+            MediaPropertyHeader(
+              logo: heroLogoUrl, title: heroTitle,
+              description: heroDescription,
+              position: heroPosition,
+              margin: margin
+            )
+
+            if !heroActions.isEmpty {
+              MediaPropertyHeroActions(
+                property: property,
+                pageId: pageId,
+                section: section,
+                actions: heroActions,
+                margin: margin
+              )
+            }
+          }
           .edgesIgnoringSafeArea([.leading, .trailing])
         } else if isBanner {
           MediaPropertySectionBannerView(
@@ -731,7 +812,126 @@ struct MediaPropertyHeader: View {
   }
 }
 
+/// The row of CTA buttons defined by a hero item's actions.
+struct MediaPropertyHeroActions: View {
+  @EnvironmentObject var eluvio: EluvioAPI
+  @EnvironmentObject var router: Router
+  var property: MediaProperty
+  var pageId: String
+  var section: MediaPropertySection
+  var actions: [HeroAction]
+  var margin: CGFloat = 80
+
+  /// media_link actions only carry the id of their target, so the media items
+  /// they point to have to be fetched separately before we can figure out
+  /// where the button should navigate to.
+  private var heroActionMedia: [String: MediaPropertySectionMediaItem] {
+    let items = MediaItemStore.shared.observeMediaItems(ids: actions.compactMap(\.mediaId))
+    return Dictionary(items.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+  }
+
+  var body: some View {
+    HStack(alignment: .center, spacing: 24) {
+      ForEach(actions) { action in
+        // A media_link button whose media hasn't arrived yet isn't rendered,
+        // so it appears once fetched rather than misbehaving when clicked.
+        if action.behavior != "media_link" || heroActionMedia[action.mediaId ?? ""] != nil {
+          HeroActionButton(action: action, onClick: { handleClick(action) })
+        }
+      }
+    }
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .padding([.leading, .trailing], margin + 15)
+    .padding(.bottom, 40)
+    .focusSection()
+    .task {
+      await MediaItemStore.shared.fetchMediaItems(
+        propertyId: property.id,
+        ids: actions.compactMap(\.mediaId),
+        parentPermissions: section.resolvedPermissions,
+        permissionStates: property.permission_auth_state ?? [:])
+    }
+  }
+
+  private func handleClick(_ action: HeroAction) {
+    debugPrint("Hero action clicked ", action.id)
+    switch action.behavior {
+    case "media_link":
+      // Delegate to the media item, so live/upcoming/unauthorized media are
+      // handled the same way they are when clicked from a carousel.
+      guard let media = heroActionMedia[action.mediaId ?? ""] else { return }
+      Task {
+        await handleSectionItemTap(
+          router: router, eluvio: eluvio,
+          property: property, pageId: pageId, sectionId: section.id,
+          viewItem: MediaPropertySectionMediaItemViewModel.create(media: media))
+      }
+    case "page_link":
+      guard let pageId = action.pageId else { return }
+      let param = PropertyParam(propertyId: property.id, pageId: pageId)
+      router.path.append(.property(param))
+    case "link":
+      guard let url = action.url else { return }
+      let params = HtmlParams(url: url, backgroundImage: property.backgroundImage)
+      router.path.append(.html(params))
+    default:
+      break
+    }
+  }
+}
+
+struct HeroActionButton: View {
+  var action: HeroAction
+  var onClick: () -> Void
+  @FocusState var isFocused
+
+  var body: some View {
+    Button(
+      action: onClick,
+      label: {
+        Text(action.text).font(.system(size: 28)).bold()
+      }
+    )
+    .buttonStyle(
+      HeroActionButtonStyle(
+        focused: isFocused,
+        backgroundColor: action.backgroundColor,
+        textColor: action.textColor,
+        borderColor: action.borderColor,
+        cornerRadius: action.cornerRadius)
+    )
+    .focused($isFocused)
+  }
+}
+
 // MARK: - SwiftUI Previews
+
+#Preview("Hero Action Buttons") {
+  HStack(spacing: 24) {
+    HeroActionButton(
+      action: HeroAction(
+        id: "1",
+        behavior: "link",
+        text: "WATCH NOW",
+        backgroundColor: Color(hex: 0x75FF61),
+        textColor: Color(hex: 0x103234),
+        borderColor: nil,
+        cornerRadius: 5
+      ), onClick: {})
+    HeroActionButton(
+      action: HeroAction(
+        id: "2",
+        behavior: "link",
+        text: "MORE INFO",
+        backgroundColor: .white,
+        textColor: .black,
+        borderColor: .black,
+        cornerRadius: 20
+      ), onClick: {})
+  }
+  .padding()
+  .background(Color.black)
+}
 
 #Preview("View All Button") {
   ViewAllButton(action: {})

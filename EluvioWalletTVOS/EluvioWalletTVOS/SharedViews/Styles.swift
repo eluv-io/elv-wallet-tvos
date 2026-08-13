@@ -115,6 +115,34 @@ struct TextButtonStyle: ButtonStyle {
   }
 }
 
+/// Hero CTA buttons keep the brand colors the property owner picked even when
+/// focused, so focus is shown with scale + border instead of a color swap.
+struct HeroActionButtonStyle: ButtonStyle {
+  let focused: Bool
+  var backgroundColor: Color = .white
+  var textColor: Color = .black
+  var borderColor: Color? = nil
+  var cornerRadius: CGFloat = 5
+  var scale = 1.05
+  func makeBody(configuration: Self.Configuration) -> some View {
+    configuration.label
+      .padding([.leading, .trailing], 28)
+      .padding([.top, .bottom], 10)
+      .background(backgroundColor)
+      .foregroundColor(textColor)
+      .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+      .overlay(
+        RoundedRectangle(
+          cornerRadius: cornerRadius,
+          style: .continuous
+        )
+        .stroke(focused ? AnyShapeStyle(.tint) : AnyShapeStyle(borderColor ?? .clear), lineWidth: 2)
+      )
+      .scaleEffect(focused ? scale : 1, anchor: .center)
+      .animation(focused ? .easeIn(duration: 0.2) : .easeOut(duration: 0.2), value: focused)
+  }
+}
+
 // Shared style for primary and secondary filter buttons that display an image.
 struct imageFilterButtonStyle: ButtonStyle {
   let focused: Bool
