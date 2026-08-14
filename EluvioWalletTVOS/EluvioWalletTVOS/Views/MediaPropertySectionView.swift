@@ -785,6 +785,9 @@ struct MediaPropertyHeader: View {
       ScaledWebImage(url: logo, height: 180)
         .resizable()
         .scaledToFit()
+        // Cap the width so very wide logos scale down instead of running off
+        // the screen (matches Android).
+        .frame(maxWidth: UIScreen.main.bounds.width * 0.7)
         .frame(height: 180, alignment: alignment)
 
       if !title.isEmpty {
