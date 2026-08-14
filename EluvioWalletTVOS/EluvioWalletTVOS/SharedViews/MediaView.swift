@@ -15,7 +15,9 @@ import SwiftyJSON
 /// to every card in that row. The actual dimensions are resolved by
 /// `MediaCard.sizes()` from this plus the card's aspect ratio. Defaults to `.medium`.
 enum CardSize: String {
+  case extraSmall = "extra_small"
   case small, medium, large
+  case extraLarge = "extra_large"
 
   init(_ raw: String?) {
     self = raw.flatMap { CardSize(rawValue: $0.lowercased()) } ?? .medium
@@ -331,9 +333,11 @@ struct MediaCard: View {
     let isPortrait = aspectRatio == .portrait
     var height: CGFloat =
       switch cardSize {
+      case .extraSmall: isPortrait ? 296 : 170
       case .small: isPortrait ? 345 : 200
       case .medium: isPortrait ? 396 : 235
       case .large: isPortrait ? 480 : 280
+      case .extraLarge: isPortrait ? 578 : 334
       }
     height *= sizeFactor
 
