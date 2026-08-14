@@ -370,6 +370,18 @@ struct SectionMediaItemView: View {
     return .square
   }
 
+  // Prefer the image matching the (possibly forced) card ratio, falling back
+  // to the default pick.
+  var imageThumbnail: String {
+    let matching =
+      switch aspectRatio {
+      case .square: item.thumbnail_image_square?.url
+      case .portrait: item.thumbnail_image_portrait?.url
+      case .landscape: item.thumbnail_image_landscape?.url
+      }
+    return matching?.nilIfEmpty() ?? item.thumbnail()
+  }
+
   @FocusState var isFocused
 
   var body: some View {
@@ -385,7 +397,7 @@ struct SectionMediaItemView: View {
       }) {
         MediaCard(
           aspectRatio: aspectRatio,
-          image: item.thumbnail(),
+          image: imageThumbnail,
           isFocused: isFocused,
           isUpcoming: item.isUpcoming,
           startTimeString: item.startDateTimeString,
@@ -574,7 +586,17 @@ struct SectionItemView: View {
   private var media: MediaPropertySectionMediaItem? {
     viewItem.sectionItem?.media ?? viewItem.mediaItem
   }
-  var imageThumbnail: String { viewItem.thumbnail }
+  // Prefer the image matching the (possibly section-forced) card ratio,
+  // falling back to the view model's default pick.
+  var imageThumbnail: String {
+    let matching =
+      switch aspectRatio {
+      case .square: viewItem.thumbnail_image_square
+      case .portrait: viewItem.thumbnail_image_portrait
+      case .landscape: viewItem.thumbnail_image_landscape
+      }
+    return matching.isEmpty ? viewItem.thumbnail : matching
+  }
   var isUpcoming: Bool { media?.isUpcoming == true }
   var isLive: Bool { media?.currentlyLive == true }
   var startTimeString: String { media?.startDateTimeString ?? "" }

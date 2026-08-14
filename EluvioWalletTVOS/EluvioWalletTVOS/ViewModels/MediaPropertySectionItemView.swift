@@ -24,6 +24,40 @@ enum AspectRatio: String, Codable {
   }
 }
 
+/// Picks the best thumbnail and its aspect ratio, mirroring Android's
+/// `DisplaySettings.thumbnailUrlAndRatio`: with no forced ratio, the first
+/// available image wins (square, landscape, portrait). When a ratio is forced,
+/// the matching image is preferred, but the forced ratio is kept even if only
+/// a mismatched image exists.
+func resolveThumbnail(
+  square: String, portrait: String, landscape: String, forced: AspectRatio?
+) -> (thumbnail: String, ratio: AspectRatio) {
+  var thumbnail = ""
+  var ratio = AspectRatio.square
+  if !square.isEmpty {
+    thumbnail = square
+    ratio = .square
+  } else if !landscape.isEmpty {
+    thumbnail = landscape
+    ratio = .landscape
+  } else if !portrait.isEmpty {
+    thumbnail = portrait
+    ratio = .portrait
+  }
+
+  if let forced = forced {
+    let matching =
+      switch forced {
+      case .square: square
+      case .portrait: portrait
+      case .landscape: landscape
+      }
+    return (matching.isEmpty ? thumbnail : matching, forced)
+  }
+
+  return (thumbnail, ratio)
+}
+
 struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable {
   var id: String
   var media_id: String
@@ -118,18 +152,9 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
     let thumbnailPortrait = media.thumbnail_image_portrait?.url ?? ""
     let thumbnailLand = media.thumbnail_image_landscape?.url ?? ""
 
-    var thumbnail = ""
-    var thumb_aspect_ratio = AspectRatio.square
-    if !thumbnailSquare.isEmpty {
-      thumbnail = thumbnailSquare
-      thumb_aspect_ratio = .square
-    } else if !thumbnailLand.isEmpty {
-      thumbnail = thumbnailLand
-      thumb_aspect_ratio = .landscape
-    } else if !thumbnailPortrait.isEmpty {
-      thumbnail = thumbnailPortrait
-      thumb_aspect_ratio = .portrait
-    }
+    let (thumbnail, thumb_aspect_ratio) = resolveThumbnail(
+      square: thumbnailSquare, portrait: thumbnailPortrait, landscape: thumbnailLand,
+      forced: nil)
 
     let headerString = ""
 
@@ -169,7 +194,7 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
     -> MediaPropertySectionMediaItemViewModel
   {
     // debugPrint("MediaPropertySectionMediaItemViewModel:create()", item.media?.title)
-    var thumb_aspect_ratio = AspectRatio.square
+    var forcedAspectRatio: AspectRatio?
     var title = ""
     var subtitle = ""
     var catalog_title = ""
@@ -209,31 +234,17 @@ struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable
         subtitle = display.subtitle ?? ""
       }
 
-      let aspectRatio = display.aspect_ratio?.lowercased()
-      if aspectRatio == "landscape" {
-        thumb_aspect_ratio = .landscape
-      } else if aspectRatio == "portrait" {
-        thumb_aspect_ratio = .portrait
-      } else if aspectRatio == "square" {
-        thumb_aspect_ratio = .square
-      }
+      forcedAspectRatio = AspectRatio(rawValue: display.aspect_ratio?.lowercased() ?? "")
     }
 
     let fileUrl = item.media?.media_file?.url ?? ""
     let posterImage = item.media?.poster_image?.url ?? ""
 
-    var thumbnail = ""
-
-    if let link = thumbnailSquareLink {
-      thumbnail = link.url ?? ""
-      thumb_aspect_ratio = .square
-    } else if let link = thumbnailLandLink {
-      thumbnail = link.url ?? ""
-      thumb_aspect_ratio = .landscape
-    } else if let link = thumbnailPortraitLink {
-      thumbnail = link.url ?? ""
-      thumb_aspect_ratio = .portrait
-    }
+    let (thumbnail, thumb_aspect_ratio) = resolveThumbnail(
+      square: thumbnailSquareLink?.url ?? "",
+      portrait: thumbnailPortraitLink?.url ?? "",
+      landscape: thumbnailLandLink?.url ?? "",
+      forced: forcedAspectRatio)
 
     var headerString = ""
     if let headers = item.media?.headers {
