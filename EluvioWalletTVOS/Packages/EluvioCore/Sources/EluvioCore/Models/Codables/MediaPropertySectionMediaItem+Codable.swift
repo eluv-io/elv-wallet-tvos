@@ -8,6 +8,7 @@ extension MediaPropertySectionMediaItem: Decodable {
     case label, live_video, gallery, headers, media, media_lists, media_catalog_id
     case media_file, media_link, media_type, poster_image
     case thumbnail_image_square, thumbnail_image_portrait, thumbnail_image_landscape
+    case countdown_background_desktop
     case title, subtitle, type, icons
     case `public`, permissions
     case additional_views, additional_views_label, resolvedPermissions
@@ -43,6 +44,7 @@ extension MediaPropertySectionMediaItem: Decodable {
     thumbnail_image_square = try container.decodeIfPresent(ImageLink.self, forKey: .thumbnail_image_square)
     thumbnail_image_portrait = try container.decodeIfPresent(ImageLink.self, forKey: .thumbnail_image_portrait)
     thumbnail_image_landscape = try container.decodeIfPresent(ImageLink.self, forKey: .thumbnail_image_landscape)
+    countdown_background_desktop = try container.decodeIfPresent(ImageLink.self, forKey: .countdown_background_desktop)
     title = try container.decodeIfPresent(String.self, forKey: .title)
     subtitle = try container.decodeIfPresent(String.self, forKey: .subtitle)
     type = try container.decodeIfPresent(String.self, forKey: .type)
@@ -94,6 +96,7 @@ extension MediaPropertySectionMediaItem: Decodable {
     try container.encodeIfPresent(thumbnail_image_square, forKey: .thumbnail_image_square)
     try container.encodeIfPresent(thumbnail_image_portrait, forKey: .thumbnail_image_portrait)
     try container.encodeIfPresent(thumbnail_image_landscape, forKey: .thumbnail_image_landscape)
+    try container.encodeIfPresent(countdown_background_desktop, forKey: .countdown_background_desktop)
     try container.encodeIfPresent(title, forKey: .title)
     try container.encodeIfPresent(subtitle, forKey: .subtitle)
     try container.encodeIfPresent(type, forKey: .type)

@@ -52,7 +52,10 @@ struct CountDownView: View {
   var propertyId: String = ""
 
   var backgroundImageUrl: String {
-    PropertyStore.shared.getProperty(id: propertyId)?.backgroundImage ?? ""
+    mediaItem.countdown_background_desktop?.url
+      ?? PropertyStore.shared.getProperty(id: propertyId)?.countdown_background_desktop?.url
+      ?? mediaItem.thumbnail_image_landscape?.url
+      ?? ""
   }
   @State var timeRemaining: String = " "
 

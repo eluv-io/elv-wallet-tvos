@@ -30,6 +30,7 @@ public class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
   public var id: String = ""
   public var image: ImageLink?
   public var image_tv: ImageLink?
+  public var countdown_background_desktop: ImageLink?
   public var start_screen_logo: ImageLink?
   public var start_screen_background: ImageLink?
   public var login: LoginInfo?
@@ -351,6 +352,7 @@ public final class MediaPropertySectionMediaItem: Identifiable, Hashable, Permis
   public var thumbnail_image_square: ImageLink?
   public var thumbnail_image_portrait: ImageLink?
   public var thumbnail_image_landscape: ImageLink?
+  public var countdown_background_desktop: ImageLink?
   public var title: String? = ""
   public var subtitle: String? = ""
   public var type: String? = ""
