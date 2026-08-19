@@ -72,13 +72,6 @@ struct CountDownView: View {
     mediaItem.headers?.joined(separator: "   ") ?? ""
   }
 
-  var imageUrl: String {
-    mediaItem.thumbnail_image_square?.url
-      ?? mediaItem.thumbnail_image_landscape?.url
-      ?? mediaItem.thumbnail_image_portrait?.url
-      ?? ""
-  }
-
   var body: some View {
     ZStack(alignment: .center) {
       ScaledWebImage(url: backgroundImageUrl, height: UIScreen.main)
@@ -90,13 +83,7 @@ struct CountDownView: View {
 
       VStack(alignment: .center, spacing: 0) {
         Spacer()
-        if images.isEmpty {
-          ScaledWebImage(url: imageUrl, height: 300)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 600, height: 300)
-            .padding(.bottom, 52)
-        } else if !images.isEmpty {
+        if !images.isEmpty {
           HStack(spacing: 52) {
             ForEach(0..<images.count, id: \.self) { index in
               ScaledWebImage(url: images[index], height: 200)
