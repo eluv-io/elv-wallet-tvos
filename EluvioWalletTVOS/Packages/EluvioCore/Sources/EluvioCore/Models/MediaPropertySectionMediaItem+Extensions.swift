@@ -140,6 +140,13 @@ public extension MediaPropertySectionMediaItem {
 
         formatter.zeroFormattingBehavior = .pad
 
+        // Split the interval with a DST-free calendar: the formatter otherwise walks
+        // days forward from its default 2001-01-01 referenceDate in local time, which
+        // picks up a stray hour from 2001's DST transition for intervals >~90 days.
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        formatter.calendar = calendar
+
         return formatter.string(from: remainingTime) ?? " "
       }
     }
