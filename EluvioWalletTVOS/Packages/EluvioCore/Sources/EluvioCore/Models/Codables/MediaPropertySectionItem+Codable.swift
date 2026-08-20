@@ -28,7 +28,6 @@ extension MediaPropertySectionItem: Decodable {
     permissions = try container.decodeIfPresent(PermissionsDto.self, forKey: .permissions)
     page_id = try container.decodeIfPresent(String.self, forKey: .page_id)
     url = try container.decodeIfPresent(String.self, forKey: .url)
-    resolvedPermissions = try container.decodeIfPresent(ResolvedPermission.self, forKey: .resolvedPermissions)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -51,6 +50,5 @@ extension MediaPropertySectionItem: Decodable {
     try container.encodeIfPresent(permissions, forKey: .permissions)
     try container.encodeIfPresent(page_id, forKey: .page_id)
     try container.encodeIfPresent(url, forKey: .url)
-    try container.encodeIfPresent(resolvedPermissions, forKey: .resolvedPermissions)
   }
 }

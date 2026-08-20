@@ -14,8 +14,6 @@ extension MediaPropertyPage: Decodable {
     permissions = try container.decodeIfPresent(PermissionsDto.self, forKey: .permissions)
     label = try container.decodeIfPresent(String.self, forKey: .label)
     sections = try container.decodeIfPresent([String].self, forKey: .sections)
-    resolvedPermissions = try container.decodeIfPresent(ResolvedPermission.self, forKey: .resolvedPermissions)
-    resolvedPagePermissions = try container.decodeIfPresent(ResolvedPermission.self, forKey: .resolvedPagePermissions)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -26,7 +24,5 @@ extension MediaPropertyPage: Decodable {
     try container.encodeIfPresent(permissions, forKey: .permissions)
     try container.encodeIfPresent(slug, forKey: .slug)
     try container.encodeIfPresent(sections, forKey: .sections)
-    try container.encodeIfPresent(resolvedPermissions, forKey: .resolvedPermissions)
-    try container.encodeIfPresent(resolvedPagePermissions, forKey: .resolvedPagePermissions)
   }
 }

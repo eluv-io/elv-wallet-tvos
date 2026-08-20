@@ -51,7 +51,6 @@ extension MediaPropertySectionMediaItem: Decodable {
     icons = try container.decodeIfPresent([IconItem].self, forKey: .icons)
     self.public = try container.decodeIfPresent(Bool.self, forKey: .public)
 
-    resolvedPermissions = try container.decodeIfPresent(ResolvedPermission.self, forKey: .resolvedPermissions)
 
     // Keep the original JSON for legacy Fabric.swift code
     legacy_permissions = try container.decodeIfPresent(JSON.self, forKey: .permissions)
@@ -104,7 +103,6 @@ extension MediaPropertySectionMediaItem: Decodable {
     try container.encodeIfPresent(self.public, forKey: .public)
     // Encode permissions as the legacy JSON to preserve the original server format
     try container.encodeIfPresent(legacy_permissions, forKey: .permissions)
-    try container.encodeIfPresent(resolvedPermissions, forKey: .resolvedPermissions)
   }
 }
 

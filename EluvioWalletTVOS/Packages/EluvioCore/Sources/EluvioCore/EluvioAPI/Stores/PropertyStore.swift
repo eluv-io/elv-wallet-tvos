@@ -30,6 +30,14 @@ public class PropertyStore {
         network: NetworkStore.shared.selectedNetwork.rawValue,
         environment: NetworkStore.shared.environment.rawValue
       ) ?? [:]
+
+    // Cached properties come back with no resolved permissions, since those are derived
+    // and no longer persisted. Re-derive them now, from the `permission_auth_state` the
+    // property carries, before anything can read them: `resolveAuthorizedPage` treats a
+    // nil `resolvedPagePermissions` as "authorized, no redirect", and a nil page
+    // permission would make cached sections resolve as top-level — which is the one path
+    // that lets a raw `undefined` behavior survive into the resolved value.
+    resolvePermissions(properties: properties)
   }
 
   public func clear() {
@@ -169,6 +177,23 @@ public class PropertyStore {
     return page.sectionIds.compactMap { sectionCache[$0] }
   }
 
+  /// Resolves permissions for sections already sitting in the cache from a previous run.
+  ///
+  /// Resolved permissions are derived from the account's `permission_auth_state`, so they
+  /// are deliberately not persisted and a cached section loads without them. This has to
+  /// run before anything renders: a nil `resolvedPermissions` reads as "unrestricted" at
+  /// both `shouldHide` and `handleSectionItemTap`, so an unresolved section would fail
+  /// open rather than closed.
+  fileprivate func resolveCachedSections(property: MediaProperty, page: MediaPropertyPage) {
+    let cached = page.sectionIds.compactMap { sectionCache[$0] }
+    guard !cached.isEmpty else { return }
+    PermissionResolver.resolvePermissions(
+      cached,
+      parentPermissions: page.resolvedPermissions,
+      permissionStates: property.permission_auth_state ?? [:]
+    )
+  }
+
 }
 
 public extension MediaPropertySection {
@@ -211,8 +236,12 @@ public extension PropertyStore {
       startPage = property.main_page
     }
     var visitedPageIds: Set<String> = []
-    return try await resolveAuthorizedPage(
+    let page = try await resolveAuthorizedPage(
       property: property, currentPage: startPage, visitedPageIds: &visitedPageIds)
+    // Single funnel the UI goes through to get a page, so this is the last point before
+    // `sections(for:)` can be called on cached sections that carry no permissions yet.
+    resolveCachedSections(property: property, page: page)
+    return page
   }
 
   private func resolveAuthorizedPage(
