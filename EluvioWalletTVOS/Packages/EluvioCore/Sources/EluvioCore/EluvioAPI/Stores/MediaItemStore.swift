@@ -19,6 +19,10 @@ public class MediaItemStore {
     }
   }
 
+  public func clear() {
+    cache = [:]
+  }
+
   /// Fetches media items. Unauthorized items with "hide" permission behavior will be discarded and not cached.
   public func fetchMediaItems(
     propertyId: String,

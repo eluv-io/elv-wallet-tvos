@@ -34,15 +34,24 @@ public class CacheManager: ObservableObject {
     logger.info("Cache cleared successfully")
   }
 
-  public func clearCacheOnAuthChange(
-    previousAuthState: Bool?, currentAuthState: Bool, network: String
-  ) {
-    if let prevAuth = previousAuthState, prevAuth != currentAuthState {
-      Task {
-        await clearCache(network: network)
-        logger.info("Cache cleared due to auth state change")
-      }
-    }
+  /// Drops every cache holding account-specific data. Call on any sign-in or sign-out.
+  ///
+  /// Resolved permissions are baked into the persisted section cache, so carrying it
+  /// across accounts shows one account's entitlements to another. Clearing only the
+  /// disk cache is not enough: `PropertyStore` reads it into memory once at init, and
+  /// `MediaItemStore` holds resolved items too. `URLCache` also has to go — the
+  /// property response carries `permission_auth_state` and the server sends it with no
+  /// cache headers, so it would otherwise be replayed for the new account.
+  ///
+  /// Unconditional by design. This runs on genuine sign-in/sign-out only — never on a
+  /// token refresh — and a refetch always follows, so there is nothing to be gained by
+  /// trying to detect whether the identity "really" changed.
+  public func clearAccountScopedCaches() async {
+    await clearCache()
+    PropertyStore.shared.clear()
+    MediaItemStore.shared.clear()
+    URLCache.shared.removeAllCachedResponses()
+    logger.info("Account-scoped caches cleared")
   }
 
   public var formattedCacheSize: String {

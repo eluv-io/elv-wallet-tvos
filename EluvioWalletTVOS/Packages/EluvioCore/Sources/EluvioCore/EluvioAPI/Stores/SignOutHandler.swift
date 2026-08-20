@@ -5,8 +5,7 @@ public enum SignOutHandler {
 
   public static func signOut() async {
       AccountStore.shared.signOut()
-      await PropertyStore.shared.clear()
-      await PersistentDataCache().clearCache()
+      await CacheManager().clearAccountScopedCaches()
       resetNavigation?()
       // Re-fetch properties after reset
       await PropertyStore.shared.fetchProperties()

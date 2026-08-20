@@ -92,6 +92,10 @@ public struct DeviceActivationFlow: Sendable {
     account.clusterToken = payload.clusterToken
     account.refreshToken = payload.refreshToken
     AccountStore.shared.account = account
+
+    // Drop the previous account's cached permissions before prefetching, so the
+    // refetch below repopulates against the new token.
+    await CacheManager().clearAccountScopedCaches()
   }
 
   private func prefetchPropertyAndSections() async {
