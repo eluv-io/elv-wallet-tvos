@@ -1,4 +1,5 @@
 import AVKit
+import Combine
 import EluvioCore
 import MUXSDKStats
 import SwiftUI
@@ -113,6 +114,13 @@ struct VideoThumbnailCard: View {
 }
 
 // MARK: - View Model
+
+/// Owns playback: the player, the controller AVKit renders it in, and everything that has to be
+/// set up around a playing item — analytics, observers, resume position, progress reporting.
+///
+/// One item and several streams are the same thing here. Playback is either seeded with an item
+/// whose playout is already resolved, or with media items it resolves itself and can switch
+/// between; both end up in `attach`, so a stream swap and a fresh player run the same code.
 class VideoPlayerViewModel: ObservableObject {
   var eluvio: EluvioAPI?
   var property: MediaProperty?
@@ -122,20 +130,32 @@ class VideoPlayerViewModel: ObservableObject {
   @Published var player: AVPlayer?
   var playerViewController: AVPlayerViewController?
   var audioLoaded = false
-  var finishedObserver = PlayerFinishedObserver()
   var seekTimeS: Double = 0
   var currentTimeS: Double = -1
   private var errorLogObserver: NSObjectProtocol?
   private var progressObserverToken: Any?
   private var endBoundaryToken: Any?
+  private var finishedCancellable: AnyCancellable?
+
+  /// Set when playback was seeded with an already-resolved item rather than a media item
+  private var presetMediaId: String?
+  private var presetTitle: String?
+  /// What the running observers belong to, which during a stream switch is not yet the
+  /// selected item
+  private var playingMediaId: String = ""
 
   /// Called a breath before the current item plays out, with the player already paused.
   /// Letting an item finish makes AVKit reset its playhead to zero.
   var onNearingEnd: (() -> Void)?
   /// Called on each progress tick with the seconds left in the current item.
   var onRemainingTime: ((Double) -> Void)?
+  /// Called when the current item does play to its end.
+  var onFinished: (() -> Void)?
   /// How far before the end `onNearingEnd` fires
   private let nearingEndLeadS: Double = 0.5
+
+  /// The item playing, which for multiview is whichever stream is selected.
+  var currentMediaId: String { currentVideo?.id ?? presetMediaId ?? "" }
 
   var hasSeeked: Bool {
     return currentTimeS > seekTimeS
@@ -150,6 +170,88 @@ class VideoPlayerViewModel: ObservableObject {
     self.player?.play()
   }
 
+  // MARK: - Starting playback
+
+  /// Plays an item whose playout is already resolved: the video destination, and the players
+  /// presented directly with an AVPlayerItem.
+  func load(item: AVPlayerItem, mediaId: String, title: String) {
+    presetMediaId = mediaId
+    presetTitle = title
+    attach(playerItem: item)
+  }
+
+  /// Plays one of a set of media items, resolving playout as each is selected.
+  func load(videos: [MediaPropertySectionMediaItem], starting: MediaPropertySectionMediaItem) {
+    self.videos = videos
+    selectVideo(starting)
+  }
+
+  func selectVideo(_ video: MediaPropertySectionMediaItem) {
+    player?.pause()
+    // Stop reporting before the switch, not after the incoming stream resolves: a tick landing
+    // in between would file the outgoing item's position against the incoming one, which then
+    // resumes where the last stream left off.
+    removeObservers()
+    currentVideo = video
+    // Explicitly on main: the player, its controller and the analytics binding are all
+    // main-thread only, and this runs from a nonisolated method
+    Task { @MainActor in
+      guard let eluvio = eluvio else { return }
+      do {
+        let playerItem = try await video.playerItem(
+          eluvio: eluvio, propertyId: propertyId ?? "")
+        if Task.isCancelled { return }
+        attach(playerItem: playerItem)
+      } catch {
+        print("Error creating player", error)
+      }
+    }
+  }
+
+  /// Everything a newly playing item needs. One player is kept across items, so switching
+  /// streams replaces the item rather than the player AVKit is rendering.
+  private func attach(playerItem: AVPlayerItem) {
+    removeObservers()
+    if player == nil {
+      player = AVPlayer()
+    }
+    player?.replaceCurrentItem(with: playerItem)
+    audioLoaded = false
+    playingMediaId = currentMediaId
+
+    monitorWithMux(playerItem: playerItem)
+    observeProgress()
+    observeErrors()
+    observeFinish()
+    seekToStart()
+
+    player?.play()
+    if let error = player?.error {
+      print("*** PlayerView error:", error)
+    }
+  }
+
+  /// Resume where the viewer left off, unless a specific time was asked for.
+  private func seekToStart() {
+    if seekTimeS != 0 {
+      seekS(seekTimeS)
+      return
+    }
+    do {
+      guard let addr = AccountStore.shared.account?.getAccountAddress() else { return }
+      let progress = try eluvio?.fabric.getUserViewedProgress(
+        address: addr, mediaId: currentMediaId)
+      let savedTime = progress?.current_time_s ?? 0
+      if savedTime > 0 {
+        seekS(savedTime)
+      }
+    } catch {
+      debugPrint(error)
+    }
+  }
+
+  // MARK: - Releasing
+
   /// Releases the player but keeps the view controller, which may still be presenting
   /// something of its own.
   func releasePlayer() {
@@ -158,6 +260,22 @@ class VideoPlayerViewModel: ObservableObject {
     // Detach MUX so it releases the player VC and its observers
     MUXSDKStats.destroyPlayer("mainPlayer")
     player?.replaceCurrentItem(with: nil)
+  }
+
+  func clear() {
+    releasePlayer()
+    playerViewController?.player = nil
+    playerViewController = nil
+    videos.removeAll()
+    currentVideo = nil
+    presetMediaId = nil
+    presetTitle = nil
+    playingMediaId = ""
+    player = nil
+    audioLoaded = false
+    seekTimeS = 0
+    currentTimeS = -1
+    propertyId = nil
   }
 
   private func removeObservers() {
@@ -172,6 +290,70 @@ class VideoPlayerViewModel: ObservableObject {
     if let observer = errorLogObserver {
       NotificationCenter.default.removeObserver(observer)
       errorLogObserver = nil
+    }
+    finishedCancellable?.cancel()
+    finishedCancellable = nil
+  }
+
+  // MARK: - Observers
+
+  private func observeProgress() {
+    progressObserverToken = player?.addProgressObserver { [weak self] progress in
+      guard let self = self else { return }
+      self.currentTimeS = self.player?.currentItem?.currentTime().seconds ?? -1.0
+
+      if self.currentTimeS == -1.0 {
+        return
+      }
+
+      let durationS = self.player?.currentItem?.duration.seconds ?? 0
+      if durationS.isFinite, durationS > self.nearingEndLeadS {
+        if self.endBoundaryToken == nil {
+          self.installEndBoundary(durationS: durationS)
+        }
+        self.onRemainingTime?(durationS - self.currentTimeS)
+      }
+
+      if let progressCallback = self.progressCallback {
+        progressCallback(progress, self.currentTimeS, durationS)
+      } else {
+        self.onPlayerProgress(progress, self.currentTimeS, durationS)
+      }
+
+      if self.player?.status == .readyToPlay, !self.audioLoaded {
+        self.selectDefaultAudio()
+      }
+    }
+  }
+
+  private func selectDefaultAudio() {
+    let playerItem = player?.currentItem
+    if let group = playerItem?.asset.mediaSelectionGroup(forMediaCharacteristic: .audible) {
+      if let defaultOption = group.defaultOption {
+        playerItem?.select(defaultOption, in: group)
+      } else {
+        playerItem?.select(group.options.first, in: group)
+      }
+    }
+    audioLoaded = true
+  }
+
+  private func observeErrors() {
+    errorLogObserver = NotificationCenter.default.addObserver(
+      forName: .AVPlayerItemNewErrorLogEntry, object: player?.currentItem, queue: .main
+    ) { [weak self] _ in
+      if let comment = self?.player?.currentItem?.errorLog()?.events.last?.errorComment {
+        print("AVPlayer error:", comment)
+      }
+    }
+  }
+
+  private func observeFinish() {
+    finishedCancellable = NotificationCenter.default.publisher(
+      for: .AVPlayerItemDidPlayToEndTime, object: player?.currentItem
+    ).sink { [weak self] _ in
+      print("Finished!")
+      self?.onFinished?()
     }
   }
 
@@ -191,210 +373,81 @@ class VideoPlayerViewModel: ObservableObject {
     }
   }
 
-  func clear() {
-    // Remove progress observer before releasing player
-    removeObservers()
-    // Detach MUX so it releases the player VC and its observers
-    MUXSDKStats.destroyPlayer("mainPlayer")
-    // Drop buffered media and the VC's player reference; MUX otherwise
-    // keeps the VC (and everything it retains) alive
-    player?.replaceCurrentItem(with: nil)
-    playerViewController?.player = nil
-    playerViewController = nil
-    videos.removeAll()
-    currentVideo = nil
-    player = nil
-    audioLoaded = false
-    seekTimeS = 0
-    currentTimeS = -1
-    propertyId = nil
-  }
+  // MARK: - Analytics
 
-  func selectVideo(_ video: MediaPropertySectionMediaItem) {
-    self.player?.pause()
-    // Remove progress observer from the old player before it's replaced below
-    if let token = progressObserverToken, let oldPlayer = player {
-      oldPlayer.removeTimeObserver(token)
-      progressObserverToken = nil
+  private func monitorWithMux(playerItem: AVPlayerItem) {
+    guard let eluvio = eluvio, let playerViewController = playerViewController else {
+      debugPrint("MUX skipped, no player view controller yet")
+      return
     }
-    // The boundary belongs to the item being replaced
-    if let token = endBoundaryToken, let oldPlayer = player {
-      oldPlayer.removeTimeObserver(token)
-      endBoundaryToken = nil
+
+    let initTime = NSNumber(value: Date().timeIntervalSince1970 * 1000)
+    var objectId = ""
+    var versionHash = ""
+    var videoHostname = ""
+    var userId = ""
+    var tenantId = ""
+    var sessionId = ""
+    var offering = ""
+
+    if let address = AccountStore.shared.account?.getAccountAddress() {
+      userId = Hash(address)
     }
-    currentVideo = video
-    Task {
-      do {
-        guard let eluvio = eluvio else { return }
-        let playerItem = try await video.playerItem(
-          eluvio: eluvio, propertyId: propertyId ?? "")
 
-        await MainActor.run {
-          player = AVPlayer(playerItem: playerItem)
-        }
+    if let urlAsset = playerItem.asset as? AVURLAsset {
+      debugPrint("Playout URL: ", urlAsset.url)
+      videoHostname = urlAsset.url.host() ?? ""
 
-        guard let playerViewController = self.playerViewController else {
-          print("missing playerViewController")
-          return
-        }
-
-        let initTime = NSNumber(value: Date().timeIntervalSince1970 * 1000)
-
-        var objectId = ""
-        var versionHash = ""
-        var videoHostname = ""
-        var userId = AccountStore.shared.account?.getAccountAddress() ?? ""
-        var tenantId = ""
-        var sessionId = ""
-        var offering = ""
-
-        if let asset = playerItem.asset as? AVURLAsset {
-          let url = asset.url
-          videoHostname = url.host() ?? ""
-
-          // Position-independent: handles both /q/hq__... and /s/main/q/hq__... URL shapes
-          if let hash = url.pathComponents.first(where: { $0.hasPrefix("hq__") }) {
-            versionHash = hash
-          }
-
-          sessionId = url.queryParameters?["sid"] ?? ""
-
-          let reg = /\/rep\/(playout|channel)\/([^\/]+)/
-          if let match = url.absoluteString.firstMatch(of: reg) {
-            offering = String(match.2)
-          }
-
-          if !versionHash.isEmpty {
-            let dec = DecodeVersionHash(versionHash: versionHash)
-            if !dec.objectId.isEmpty {
-              objectId = dec.objectId
-              let tenant = property?.tenant
-              tenantId = tenant?.tenant_iten ?? tenant?.tenant_id ?? ""
-            }
-          }
-        }
-
-        let playerData = MUXSDKCustomerPlayerData(
-          environmentKey: APP_CONFIG.network[eluvio.fabric.network]?.mux.env_key ?? "")
-        playerData?.playerName = "AVPlayer"
-        playerData?.subPropertyId = tenantId
-        playerData?.viewerUserId = userId
-        playerData?.playerInitTime = initTime
-
-        let videoData = MUXSDKCustomerVideoData()
-        videoData.videoId = objectId
-        videoData.videoVariantId = versionHash
-        videoData.videoVariantName = offering
-        videoData.videoTitle = self.currentVideo?.title
-        videoData.videoCdn = videoHostname
-
-        let viewData = MUXSDKCustomerViewData()
-        viewData.viewSessionId = sessionId
-
-        // Ensure MUX SDK initialization happens on the main thread
-        await MainActor.run {
-          if let customerData = MUXSDKCustomerData(
-            customerPlayerData: playerData, videoData: videoData, viewData: viewData,
-            customData: nil, viewerData: nil)
-          {
-            let _ = MUXSDKStats.monitorAVPlayerViewController(
-              playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
-            debugPrint("MUX initialized on main thread.")
-          }
-        }
-      } catch {
-        print("Error creating player", error)
-        return
+      // Position-independent: handles both /q/hq__... and /s/main/q/hq__... URL shapes
+      if let hash = urlAsset.url.pathComponents.first(where: { $0.hasPrefix("hq__") }) {
+        versionHash = hash
       }
 
-      progressObserverToken = player?.addProgressObserver { [weak self] progress in
-        guard let self = self else { return }
-        self.currentTimeS = self.player?.currentItem?.currentTime().seconds ?? -1.0
+      sessionId = urlAsset.url.queryParameters?["sid"] ?? ""
 
-        if self.currentTimeS == -1.0 {
-          return
-        }
-
-        let durationS = self.player?.currentItem?.duration.seconds ?? 0
-        if durationS.isFinite, durationS > self.nearingEndLeadS {
-          if self.endBoundaryToken == nil {
-            self.installEndBoundary(durationS: durationS)
-          }
-          self.onRemainingTime?(durationS - self.currentTimeS)
-        }
-
-        if let progressCallback = self.progressCallback {
-          progressCallback(
-            progress,
-            self.player?.currentItem?.currentTime().seconds ?? 0.0,
-            self.player?.currentItem?.duration.seconds ?? 0.0)
-        } else {
-          self.onPlayerProgress(
-            progress,
-            self.player?.currentItem?.currentTime().seconds ?? 0.0,
-            self.player?.currentItem?.duration.seconds ?? 0.0)
-        }
-
-        if self.player?.status == .readyToPlay {
-          if !self.audioLoaded {
-            let playerItem = self.player?.currentItem
-            if let group = playerItem?.asset.mediaSelectionGroup(
-              forMediaCharacteristic: .audible)
-            {
-              if let defaultOption = group.defaultOption {
-                playerItem?.select(defaultOption, in: group)
-              } else {
-                playerItem?.select(group.options.first, in: group)
-              }
-            }
-            self.audioLoaded = true
-          }
-        }
+      let reg = /\/rep\/(playout|channel)\/([^\/]+)/
+      if let match = urlAsset.url.absoluteString.firstMatch(of: reg) {
+        offering = String(match.2)
       }
 
-      // Remove previous error observer before adding a new one
-      if let observer = errorLogObserver {
-        NotificationCenter.default.removeObserver(observer)
-      }
-      errorLogObserver = NotificationCenter.default.addObserver(
-        forName: .AVPlayerItemNewErrorLogEntry, object: player?.currentItem, queue: .main
-      ) { [weak self] _ in
-        if let comment = self?.player?.currentItem?.errorLog()?.events.last?.errorComment {
-          print("AVPlayer error:", comment)
+      if !versionHash.isEmpty {
+        let dec = DecodeVersionHash(versionHash: versionHash)
+        if !dec.objectId.isEmpty {
+          objectId = dec.objectId
+          let tenant = property?.tenant
+          tenantId = tenant?.tenant_iten ?? tenant?.tenant_id ?? ""
         }
       }
+    }
 
-      // Seek to saved progress or specified time before playing
-      if seekTimeS == 0 {
-        do {
-          if let addr = AccountStore.shared.account?.getAccountAddress() {
-            let progress = try eluvio?.fabric.getUserViewedProgress(
-              address: addr, mediaId: currentVideo?.id ?? "")
-            let savedTime = progress?.current_time_s ?? 0
-            if savedTime > 0 {
-              await MainActor.run {
-                self.seekS(savedTime)
-              }
-            }
-          }
-        } catch {
-          debugPrint(error)
-        }
-      } else {
-        await MainActor.run {
-          seekS(seekTimeS)
-        }
-      }
+    let playerData = MUXSDKCustomerPlayerData(
+      environmentKey: APP_CONFIG.network[eluvio.fabric.network]?.mux.env_key ?? "")
+    playerData?.playerName = "AVPlayer"
+    playerData?.subPropertyId = tenantId
+    playerData?.viewerUserId = userId
+    playerData?.playerInitTime = initTime
 
-      await MainActor.run {
-        player?.play()
-        if let error = player?.error {
-          print("*** PlayerView error:", error)
-        }
-        self.finishedObserver = PlayerFinishedObserver(player: player)
-      }
+    let videoData = MUXSDKCustomerVideoData()
+    videoData.videoId = objectId
+    videoData.videoVariantId = versionHash
+    videoData.videoVariantName = offering
+    videoData.videoTitle = currentVideo?.title ?? presetTitle
+    videoData.videoCdn = videoHostname
+
+    let viewData = MUXSDKCustomerViewData()
+    viewData.viewSessionId = sessionId
+
+    if let customerData = MUXSDKCustomerData(
+      customerPlayerData: playerData, videoData: videoData, viewData: viewData,
+      customData: nil, viewerData: nil)
+    {
+      let _ = MUXSDKStats.monitorAVPlayerViewController(
+        playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
+      debugPrint("MUX initialized.")
     }
   }
+
+  // MARK: - Playback controls
 
   func playFromBeginning() {
     guard let player = player else { return }
@@ -415,20 +468,22 @@ class VideoPlayerViewModel: ObservableObject {
   }
 
   func onPlayerProgress(_ progress: Double, _ currentTimeS: Double, _ durationS: Double) {
-    guard let currentVideo = currentVideo else { return }
+    let mediaId = playingMediaId
+    if mediaId.isEmpty {
+      return
+    }
 
     if durationS.isNaN || durationS.isInfinite {
       return
     }
 
     let mediaProgress = MediaProgress(
-      id: currentVideo.id ?? "", duration_s: durationS, current_time_s: currentTimeS)
+      id: mediaId, duration_s: durationS, current_time_s: currentTimeS)
 
     do {
       if let addr = AccountStore.shared.account?.getAccountAddress() {
         try eluvio?.fabric.setUserViewedProgress(
-          address: addr, mediaId: currentVideo.id ?? "",
-          progress: mediaProgress)
+          address: addr, mediaId: mediaId, progress: mediaProgress)
       }
     } catch {
       print(error)

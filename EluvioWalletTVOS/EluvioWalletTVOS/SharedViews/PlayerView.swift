@@ -41,12 +41,8 @@ struct PlayerView: View {
   @EnvironmentObject var viewState: ViewState
   @EnvironmentObject var router: Router
   @Environment(\.openURL) private var openURL
-  @Namespace var playerNamespace
-  @State var player = AVPlayer()
-  @State var playerViewController = AVPlayerViewController()
-  @StateObject private var multiviewModel = VideoPlayerViewModel()
-  @State private var useMultiview = false
-  @State var isPlaying: Bool = false
+  @StateObject private var model = VideoPlayerViewModel()
+  @StateObject private var upNext = UpNextCoordinator()
   var viewItem: MediaPropertySectionMediaItemViewModel?
   var playerItem: AVPlayerItem?
   var property: MediaProperty?
@@ -54,440 +50,159 @@ struct PlayerView: View {
   var context: PlaybackContext = .init()
 
   var mediaId: String { viewItem?.media_id ?? "" }
-  /// The item actually playing. Multiview can be showing any of its streams.
-  var activeMediaId: String {
-    useMultiview ? (multiviewModel.currentVideo?.id ?? mediaId) : mediaId
-  }
-  /// The controller on screen, which the card is presented over.
-  var activePlayerViewController: AVPlayerViewController {
-    let multiview = useMultiview ? multiviewModel.playerViewController : nil
-    return multiview ?? playerViewController
-  }
   var title: String { viewItem?.title ?? "" }
   var videoDescription: String { viewItem?.description ?? "" }
   var imageThumb: String { viewItem?.thumbnail ?? "" }
-  @State private var newItem: Bool = false
   @State var playerImageOverlayUrl = ""
   @State var playerTextOverlay = ""
-  @State var finishedObserver = PlayerFinishedObserver()
   var seekTimeS: Double = 0
-  @State var currentTimeS: Double = -1
   var finished: Binding<Bool> = .constant(false)
   var progressCallback: ((_ progress: Double, _ currentTimeS: Double, _ durationS: Double) -> Void)?
 
-  @FocusState private var focusedField: Field?
-
   var backLink: String = ""
   var backLinkIcon: String = ""
-  @State var audioLoaded = false
-  @State private var progressObserverToken: Any?
-  @State private var errorLogObserver: NSObjectProtocol?
-  @State private var endBoundaryToken: Any?
-  /// How far before the end playback stops to make the offer
-  private let upNextLeadS: Double = 0.5
   @State private var didSetup = false
   @State private var setupTask: Task<Void, Never>?
-  @StateObject private var upNext = UpNextCoordinator()
-
-  enum Field: Hashable {
-    case startFromBeginningField
-  }
-
-  var hasSeeked: Bool {
-    return currentTimeS > seekTimeS
-  }
-
-  func seekS(_ s: Double) {
-    debugPrint("PlayerView seeMS ", s)
-    player.pause()
-    player.seek(to: CMTime(seconds: s, preferredTimescale: 1))
-    player.play()
-  }
 
   var body: some View {
-    ZStack {
-      if useMultiview {
-        AVPlayerViewMulti(viewModel: multiviewModel)
-          .ignoresSafeArea()
-      } else {
-        AVPlayerView(player: $player, playerViewController: $playerViewController, seekS: seekS)
-          .ignoresSafeArea()
-      }
-    }
-    .proactiveTokenRefresh()
-    .onChange(of: AccountStore.shared.bestToken) { _, _ in
-      let activePlayer = useMultiview ? (multiviewModel.player ?? player) : player
-      Task {
-        await activePlayer.refreshCurrentItemAuth()
-      }
-    }
-    .onReceive(finishedObserver.publisher) {
-      print("Finished!")
-      self.finished.wrappedValue = true
-      upNext.offerNow()
-    }
-    .overlay {
-      VStack {
-        if !playerImageOverlayUrl.isEmpty {
-          ScaledWebImage(url: playerImageOverlayUrl, height: 600)
-            .resizable()
-            .indicator(.activity)  // Activity Indicator
-            .transition(.fade(duration: 0.5))
-            .aspectRatio(contentMode: .fill)
-            .frame(width: 600, height: 600)
-            .cornerRadius(15)
-        }
-
-        if !playerTextOverlay.isEmpty {
-          Text(playerTextOverlay)
-            .foregroundColor(Color.white)
-            .font(.title)
-            .lineLimit(3)
-            .frame(width: 1000, alignment: .center)
+    AVPlayerView(viewModel: model)
+      .ignoresSafeArea()
+      .proactiveTokenRefresh()
+      .onChange(of: AccountStore.shared.bestToken) { _, _ in
+        Task {
+          await model.player?.refreshCurrentItemAuth()
         }
       }
-    }
-    .onAppear {
-      // The up next cover covers this view completely, so tvOS runs onAppear again
-      // when it is dismissed. Setting up a second time would rebuild the player item
-      // and re-seek to saved progress, rewinding the video on its own.
-      if didSetup { return }
-      didSetup = true
-      // Configured before either path installs its hooks, and before the multiview branch
-      // below returns early
-      upNext.configure(
-        eluvio: eluvio,
-        router: router,
-        property: property,
-        context: context,
-        currentMediaId: { activeMediaId },
-        presenter: { activePlayerViewController },
-        releasePlayer: {
-          if useMultiview {
-            multiviewModel.releasePlayer()
-          } else {
-            teardownPlayer()
-          }
-        })
-
-      setupTask = Task {
-        debugPrint("*** PlayerView onAppear() ", self.property)
-
-        // Multiview detection — check for additional views before single-video setup
-        if let rawMedia = viewItem?.mediaItem ?? viewItem?.sectionItem?.media {
-          var additionalMedias: [MediaPropertySectionMediaItem] = []
-
-          if rawMedia.additional_views != nil {
-            additionalMedias = rawMedia.additionalViews()
+      .overlay {
+        VStack {
+          if !playerImageOverlayUrl.isEmpty {
+            ScaledWebImage(url: playerImageOverlayUrl, height: 600)
+              .resizable()
+              .indicator(.activity)  // Activity Indicator
+              .transition(.fade(duration: 0.5))
+              .aspectRatio(contentMode: .fill)
+              .frame(width: 600, height: 600)
+              .cornerRadius(15)
           }
 
-          if let propId = property?.id {
-            additionalMedias += await MultiviewFetcher.shared.getPropertyMultiview(
-              propertyId: propId)
-          }
-
-          // Remove duplicates with the primary media
-          additionalMedias = additionalMedias.filter { $0.id != rawMedia.id }
-
-          if !additionalMedias.isEmpty {
-            if Task.isCancelled { return }
-            // Insert primary at front
-            additionalMedias.insert(rawMedia, at: 0)
-            multiviewModel.eluvio = eluvio
-            multiviewModel.property = property
-            multiviewModel.propertyId = property?.id
-            multiviewModel.videos = additionalMedias
-            useMultiview = true
-            // Multiview runs its own player, so the up next trigger has to hang off that one.
-            // Live streams have no duration, so neither hook fires for them.
-            multiviewModel.onRemainingTime = { remainingS in
-              upNext.trackTimeRemaining(remainingS)
-            }
-            multiviewModel.onNearingEnd = { upNext.offerNow() }
-            multiviewModel.selectVideo(rawMedia)
-            return
+          if !playerTextOverlay.isEmpty {
+            Text(playerTextOverlay)
+              .foregroundColor(Color.white)
+              .font(.title)
+              .lineLimit(3)
+              .frame(width: 1000, alignment: .center)
           }
         }
-
-        // Single video path — existing code
-        let initTime = NSNumber(value: Date().timeIntervalSince1970 * 1000)
-
-        var resolvedPlayerItem = self.playerItem
-        if resolvedPlayerItem == nil, let playout {
-          resolvedPlayerItem = await MakePlayerItemFromPlayoutInfo(
-            playoutInfo: playout, fabricToken: eluvio.fabric.fabricToken,
-            title: title, description: videoDescription, imageThumb: imageThumb)
-        }
-
-        guard let resolvedPlayerItem else {
-          print("playerItem == nil")
+      }
+      .onAppear {
+        // The up next card is presented over this view, and tvOS can run onAppear again
+        // around a presentation. Setting up twice would rebuild the item and re-seek to
+        // saved progress, rewinding the video on its own.
+        if didSetup { return }
+        didSetup = true
+        configure()
+        setupTask = Task { await start() }
+      }
+      .onWillDisappear {
+        print("PlayerView onDisappear")
+        // The card is presented over the player, and presenting can fire this too; tearing
+        // the player down here would drop the video sitting behind the card.
+        if upNext.isOffering {
           return
         }
-
-        // Resolving the item above is slow enough that the view can be torn down while
-        // it runs. Handing the item to the player after that resurrects a player nothing
-        // owns any more, and it keeps playing with no way to stop it.
-        if Task.isCancelled { return }
-
-        if resolvedPlayerItem != self.player.currentItem {
-          self.player.replaceCurrentItem(with: resolvedPlayerItem)
-          print("player.replaceCurrentItem()")
-        }
-
-        var objectId = ""
-        var versionHash = ""
-        var videoHostname = ""
-        var userId = ""
-        var tenantId = ""
-        var sessionId = ""
-        var offering = ""
-
-        if let address = AccountStore.shared.account?.getAccountAddress() {
-          userId = Hash(address)
-          debugPrint("UserID: ", userId)
-        }
-
-        if let urlAsset = resolvedPlayerItem.asset as? AVURLAsset {
-          debugPrint("Playout URL: ", urlAsset.url)
-          videoHostname = urlAsset.url.host() ?? ""
-
-          // Position-independent: handles both /q/hq__... and /s/main/q/hq__... URL shapes
-          if let hash = urlAsset.url.pathComponents.first(where: { $0.hasPrefix("hq__") }) {
-            versionHash = hash
-            debugPrint("HASH: ", versionHash)
-          }
-
-          sessionId = urlAsset.url.queryParameters?["sid"] ?? ""
-          debugPrint("sessionId ", sessionId)
-
-          let reg = /\/rep\/(playout|channel)\/([^\/]+)/
-
-          if let match = urlAsset.url.absoluteString.firstMatch(of: reg) {
-            debugPrint("match 1", match.1)
-            debugPrint("match 2", match.2)
-            offering = String(match.2)
-            debugPrint("offering", offering)
-          }
-
-          if !versionHash.isEmpty {
-            let dec = DecodeVersionHash(versionHash: versionHash)
-            debugPrint("Decoded VersionHash ", dec)
-            if !dec.objectId.isEmpty {
-              objectId = dec.objectId
-              debugPrint("objectId ", objectId)
-
-              let tenant = property?.tenant
-              tenantId = tenant?.tenant_iten ?? tenant?.tenant_id ?? ""
-              debugPrint("tenantID: ", tenantId)
-            }
-          }
-        }
-
-        // debugPrint("AVPlayerView makeUIViewController()")
-        let playerData = MUXSDKCustomerPlayerData(
-          environmentKey: APP_CONFIG.network[eluvio.fabric.network]?.mux.env_key ?? "")
-        // insert player metadata
-        playerData?.playerName = "AVPlayer"
-        playerData?.subPropertyId = tenantId
-        playerData?.viewerUserId = userId
-        playerData?.playerInitTime = initTime
-
-        let videoData = MUXSDKCustomerVideoData()
-        // insert videoData metadata
-        videoData.videoId = objectId
-        videoData.videoVariantId = versionHash
-        videoData.videoVariantName = offering
-        videoData.videoTitle = self.title
-        videoData.videoCdn = videoHostname
-
-        let viewData = MUXSDKCustomerViewData()
-        viewData.viewSessionId = sessionId
-
-        if let customerData = MUXSDKCustomerData(
-          customerPlayerData: playerData, videoData: videoData, viewData: viewData, customData: nil,
-          viewerData: nil)
-        {
-          let playerBinding = MUXSDKStats.monitorAVPlayerViewController(
-            self.playerViewController, withPlayerName: "mainPlayer", customerData: customerData)
-          debugPrint("MUX initialized.")
-        }
-
-        progressObserverToken = player.addProgressObserver { progress in
-          currentTimeS = player.currentItem?.currentTime().seconds ?? -1.0
-
-          if currentTimeS == -1.0 {
-            return
-          }
-
-          let itemDurationS = player.currentItem?.duration.seconds ?? 0
-          if endBoundaryToken == nil, itemDurationS.isFinite, itemDurationS > upNextLeadS {
-            installUpNextBoundary(durationS: itemDurationS)
-          }
-
-          if itemDurationS.isFinite {
-            upNext.trackTimeRemaining(itemDurationS - currentTimeS)
-          }
-
-          if let progressCallback = self.progressCallback {
-            progressCallback(
-              progress,
-              player.currentItem?.currentTime().seconds ?? 0.0,
-              player.currentItem?.duration.seconds ?? 0.0)
-          } else {
-            self.onPlayerProgress(
-              progress,
-              player.currentItem?.currentTime().seconds ?? 0.0,
-              player.currentItem?.duration.seconds ?? 0.0)
-          }
-
-          if player.status == .readyToPlay {
-            if !audioLoaded {
-              if let group = player.currentItem?.asset.mediaSelectionGroup(
-                forMediaCharacteristic: .audible)
-              {
-                debugPrint("group options ", group.options)
-                debugPrint("group default option", group.defaultOption)
-                if let defaultOption = group.defaultOption {
-                  player.currentItem?.select(defaultOption, in: group)
-                } else {
-                  player.currentItem?.select(group.options.first, in: group)
-                }
-              }
-              audioLoaded = true
-            }
-          }
-        }
-
-        errorLogObserver = NotificationCenter.default.addObserver(
-          forName: .AVPlayerItemNewErrorLogEntry, object: player.currentItem, queue: .main
-        ) { _ in
-          print(player.currentItem?.errorLog()?.events.last?.errorComment)
-        }
-
-        if seekTimeS == 0 {
-          do {
-            if let addr = AccountStore.shared.account?.getAccountAddress() {
-              let progress = try eluvio.fabric.getUserViewedProgress(
-                address: addr, mediaId: mediaId)
-              debugPrint("Finsihed getting progress ", progress)
-              seekS(progress.current_time_s)
-            }
-          } catch {
-            debugPrint(error)
-          }
-        } else {
-          seekS(seekTimeS)
-        }
-
-        if Task.isCancelled { return }
-        player.play()
-        print("*** PlayerView errors: ", player.error)
-
-        newItem = true
-        self.finishedObserver = PlayerFinishedObserver(player: player)
-      }
-    }
-    .onWillDisappear {
-      print("PlayerView onDisappear")
-      // Presenting the up next cover fires viewWillDisappear too; tearing the player
-      // down there would drop the video sitting behind the card.
-      if upNext.isOffering {
-        return
-      }
-      // Stop the setup below from loading and playing an item into a player that is
-      // being torn down, and don't push the next item's player onto a screen the user
-      // has already left.
-      setupTask?.cancel()
-      upNext.stop()
-      if useMultiview {
-        multiviewModel.player?.pause()
+        // Stop the setup from loading and playing an item into a player that is being torn
+        // down, and don't push the next item's player onto a screen the viewer has left.
+        setupTask?.cancel()
+        upNext.stop()
+        model.releasePlayer()
         Task {
           try? await Task.sleep(for: .seconds(1.5))
-          multiviewModel.clear()
+          model.clear()
         }
-      } else {
-        teardownPlayer()
+        followBackLink()
       }
-      if backLink != "" {
-        if let url = URL(string: backLink) {
-          openURL(url) { accepted in
-            print(accepted ? "Success" : "Failure")
-            if !accepted {
-              print("Could not open URL ", backLink)
-            } else {
-              self.presentationMode.wrappedValue.dismiss()
-            }
-          }
-        }
-      }
-    }
   }
 
-  func playerDidFinishPlaying(note _: NSNotification) {
-    print("Video Finished")
-  }
-
-  /// Stops a breath before the end rather than letting the item finish. AVKit resets a
-  /// finished item's playhead to zero, which reads as the player rewinding itself, so the
-  /// offer is made while the item is merely paused near its end.
-  func installUpNextBoundary(durationS: Double) {
-    let stopAtS = durationS - upNextLeadS
-    endBoundaryToken = player.addBoundaryTimeObserver(
-      forTimes: [NSValue(time: CMTime(seconds: stopAtS, preferredTimescale: 600))],
-      queue: .main
-    ) {
-      guard upNext.wantsToOffer else { return }
-      player.pause()
+  private func configure() {
+    model.eluvio = eluvio
+    model.property = property
+    model.propertyId = property?.id
+    model.seekTimeS = seekTimeS
+    model.progressCallback = progressCallback
+    model.onRemainingTime = { remainingS in upNext.trackTimeRemaining(remainingS) }
+    model.onNearingEnd = { upNext.offerNow() }
+    model.onFinished = {
+      finished.wrappedValue = true
       upNext.offerNow()
     }
+
+    upNext.configure(
+      eluvio: eluvio,
+      router: router,
+      property: property,
+      context: context,
+      currentMediaId: { model.currentMediaId },
+      presenter: { model.playerViewController },
+      releasePlayer: { model.releasePlayer() })
   }
 
-  /// Releases the player: observers, the MUX binding that otherwise keeps the player
-  /// view controller alive, and the buffered media.
-  func teardownPlayer() {
-    if let token = progressObserverToken {
-      player.removeTimeObserver(token)
-      progressObserverToken = nil
-    }
-    if let token = endBoundaryToken {
-      player.removeTimeObserver(token)
-      endBoundaryToken = nil
-    }
-    if let observer = errorLogObserver {
-      NotificationCenter.default.removeObserver(observer)
-      errorLogObserver = nil
-    }
-    player.pause()
-    // Detach MUX so it releases the player VC and its observers
-    MUXSDKStats.destroyPlayer("mainPlayer")
-    player.replaceCurrentItem(with: nil)
-  }
+  /// Additional views and a property sidebar turn a single item into a set of streams. Either
+  /// way the model plays it the same; the difference is only how many there are to switch
+  /// between.
+  private func start() async {
+    debugPrint("*** PlayerView onAppear() ", self.property)
 
-  func onPlayerProgress(_ progress: Double, _ currentTimeS: Double, _ durationS: Double) {
-    debugPrint("progress observer mediaId ", mediaId)
-    debugPrint("onPlayerProgress progress: ", progress)
-    debugPrint("onPlayerProgress duration seconds: ", durationS)
-    debugPrint("onPlayerProgress currentTime seconds: ", currentTimeS)
+    if let rawMedia = viewItem?.mediaItem ?? viewItem?.sectionItem?.media {
+      var streams: [MediaPropertySectionMediaItem] = []
 
-    if mediaId.isEmpty {
-      return
-    }
-
-    if durationS.isNaN || durationS.isInfinite {
-      return
-    }
-
-    let mediaProgress = MediaProgress(
-      id: mediaId, duration_s: durationS, current_time_s: currentTimeS)
-
-    do {
-      if let addr = AccountStore.shared.account?.getAccountAddress() {
-        try eluvio.fabric.setUserViewedProgress(
-          address: addr, mediaId: mediaId, progress: mediaProgress)
-        debugPrint("Finsihed setting progress.")
+      if rawMedia.additional_views != nil {
+        streams = rawMedia.additionalViews()
       }
-    } catch {
-      print(error)
+
+      if let propId = property?.id {
+        streams += await MultiviewFetcher.shared.getPropertyMultiview(propertyId: propId)
+      }
+
+      // Remove duplicates with the primary media
+      streams = streams.filter { $0.id != rawMedia.id }
+
+      if !streams.isEmpty {
+        if Task.isCancelled { return }
+        // The item the viewer picked leads
+        streams.insert(rawMedia, at: 0)
+        model.load(videos: streams, starting: rawMedia)
+        return
+      }
+    }
+
+    var resolvedPlayerItem = self.playerItem
+    if resolvedPlayerItem == nil, let playout {
+      resolvedPlayerItem = await MakePlayerItemFromPlayoutInfo(
+        playoutInfo: playout, fabricToken: eluvio.fabric.fabricToken,
+        title: title, description: videoDescription, imageThumb: imageThumb)
+    }
+
+    guard let resolvedPlayerItem else {
+      print("playerItem == nil")
+      return
+    }
+
+    // Resolving the item above is slow enough that the view can be torn down while it runs.
+    // Handing the item to the player after that resurrects a player nothing owns any more,
+    // and it keeps playing with no way to stop it.
+    if Task.isCancelled { return }
+    model.load(item: resolvedPlayerItem, mediaId: mediaId, title: title)
+  }
+
+  private func followBackLink() {
+    guard backLink != "", let url = URL(string: backLink) else { return }
+    openURL(url) { accepted in
+      print(accepted ? "Success" : "Failure")
+      if !accepted {
+        print("Could not open URL ", backLink)
+      } else {
+        self.presentationMode.wrappedValue.dismiss()
+      }
     }
   }
 }
