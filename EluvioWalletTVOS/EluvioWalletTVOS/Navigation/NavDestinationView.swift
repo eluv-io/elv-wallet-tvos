@@ -25,8 +25,13 @@ extension NavDestination {
       PlayerView(
         viewItem: params.viewItem,
         property: params.property,
-        playout: params.playout
+        playout: params.playout,
+        context: params.context
       )
+      // Replacing one video with another (up next) keeps the same path index and
+      // case, so without this the stack reuses the finished player's state and
+      // never runs onAppear for the new item.
+      .id(params.viewItem.media_id)
       .analyticsScreen(name: "PlayerView")
     case .upcomingLiveEvent(let params):
       CountDownView(

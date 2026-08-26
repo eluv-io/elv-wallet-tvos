@@ -21,8 +21,11 @@ func handleSectionItemTap(
   property: MediaProperty,
   pageId: String = "",
   sectionId: String = "",
+  mediaListId: String = "",
   viewItem: MediaPropertySectionMediaItemViewModel
 ) async {
+  let context = PlaybackContext(
+    pageId: pageId, sectionId: sectionId, mediaListId: mediaListId)
   let sectionItem = viewItem.sectionItem
   let rawMediaItem = viewItem.mediaItem
   let itemId = sectionItem?.id ?? rawMediaItem?.id ?? viewItem.id
@@ -52,7 +55,8 @@ func handleSectionItemTap(
 
     if let mediaItem = viewItem.mediaItem {
       await handleMediaItemTap(
-        mediaItem, viewModel: viewItem, router: router, eluvio: eluvio, property: property)
+        mediaItem, viewModel: viewItem, router: router, eluvio: eluvio, property: property,
+        context: context)
     } else if viewItem.type == "subproperty_link" {
       _ = router.path.popLast()
       if let subPropertyId = sectionItem?.subproperty_id {
@@ -88,6 +92,7 @@ func handleMediaItemTap(
   router: Router,
   eluvio: EluvioAPI,
   property: MediaProperty,
+  context: PlaybackContext = .init(),
 ) async {
   // Upcoming check
   if mediaItem.isUpcoming {
@@ -104,7 +109,7 @@ func handleMediaItemTap(
   if mediaType == "video" {
     await handleVideoItem(
       router: router, eluvio: eluvio, property: property, viewItem: viewModel,
-      mediaItem: mediaItem)
+      mediaItem: mediaItem, context: context)
   } else if mediaType == "html" {
     if !viewModel.media_file_url.isEmpty {
       let params = HtmlParams(viewItem: viewModel)
@@ -198,7 +203,8 @@ func handleVideoItem(
   eluvio: EluvioAPI,
   property: MediaProperty,
   viewItem: MediaPropertySectionMediaItemViewModel,
-  mediaItem: MediaPropertySectionMediaItem?
+  mediaItem: MediaPropertySectionMediaItem?,
+  context: PlaybackContext = .init()
 ) async {
   if viewItem.media_link != nil {
     if viewItem.media_link?["."]["resolution_error"]["kind"].stringValue
@@ -215,14 +221,20 @@ func handleVideoItem(
         propertyId: property.id, mediaId: viewItem.media_id)
       let playout = try ResolveMediaPlayoutInfo(
         fabric: eluvio.fabric, optionsJson: optionsJson)
+      // The caller may have navigated away while playout resolved. Pushing a player
+      // then leaves one nothing can dismiss, still playing behind the screen the user
+      // went back to.
+      if Task.isCancelled { return }
       let params = VideoParams(
         viewItem: viewItem,
         playout: playout,
-        property: property)
+        property: property,
+        context: context)
       _ = router.path.popLast()
       router.path.append(.video(params))
     } catch {
       print("Error getting link url for playback ", error)
+      if Task.isCancelled { return }
       let videoErrorParams = VideoPermissionErrorParams(propertyId: property.id)
       _ = router.path.popLast()
       router.path.append(.videoPermissionError(videoErrorParams))
@@ -238,6 +250,8 @@ struct MediaItemGridView: View {
   var property: MediaProperty
   var items: [MediaPropertySectionMediaItem]
   var title: String = ""
+  /// Set when these items are the contents of a media list, which autoplay needs to know
+  var mediaListId: String = ""
 
   @FocusState var isFocused
 
@@ -279,7 +293,8 @@ struct MediaItemGridView: View {
         HStack(spacing: 34) {
           ForEach(items, id: \.self) { item in
             SectionMediaItemView(
-              item: item, property: property, forceDisplay: aspectRatio
+              item: item, property: property, mediaListId: mediaListId,
+              forceDisplay: aspectRatio
             )
           }
           Spacer()
@@ -328,7 +343,7 @@ struct SectionItemListView: View {
 
   var body: some View {
     MediaItemGridView(
-      property: property, items: items, title: title
+      property: property, items: items, title: title, mediaListId: parentMediaItem.id
     )
     .focusSection()
     .task {
@@ -348,6 +363,7 @@ struct SectionMediaItemView: View {
   var item: MediaPropertySectionMediaItem
   var sectionItem: MediaPropertySectionItem?
   var property: MediaProperty
+  var mediaListId: String = ""
   var forceDisplay: AspectRatio? = nil
 
   var aspectRatio: AspectRatio {
@@ -392,7 +408,7 @@ struct SectionMediaItemView: View {
           vm.sectionItem = sectionItem
           await handleSectionItemTap(
             router: router, eluvio: eluvio,
-            property: property, viewItem: vm)
+            property: property, mediaListId: mediaListId, viewItem: vm)
         }
       }) {
         MediaCard(

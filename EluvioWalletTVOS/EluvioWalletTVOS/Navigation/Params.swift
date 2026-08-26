@@ -31,10 +31,20 @@ struct SearchParams: Hashable {
   var propertyId: String = ""
 }
 
+/// Where the user was when they started playback. Autoplay needs these ids together to work
+/// out what comes next, and passing them one at a time through the tap chain drops them.
+/// Android carries a "permission context" for the same reason; tvOS had no equivalent.
+struct PlaybackContext: Hashable {
+  var pageId: String = ""
+  var sectionId: String = ""
+  var mediaListId: String = ""
+}
+
 struct VideoParams: Hashable {
   var viewItem: MediaPropertySectionMediaItemViewModel
   var playout: PlayoutInfo
   var property: MediaProperty?
+  var context: PlaybackContext = .init()
 }
 
 struct VideoPermissionErrorParams: Hashable {

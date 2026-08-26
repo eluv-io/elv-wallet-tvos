@@ -39,6 +39,7 @@ struct PlayerView: View {
   @Environment(\.colorScheme) var colorScheme
   @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var viewState: ViewState
+  @EnvironmentObject var router: Router
   @Environment(\.openURL) private var openURL
   @Namespace var playerNamespace
   @State var player = AVPlayer()
@@ -50,8 +51,18 @@ struct PlayerView: View {
   var playerItem: AVPlayerItem?
   var property: MediaProperty?
   var playout: PlayoutInfo?
+  var context: PlaybackContext = .init()
 
   var mediaId: String { viewItem?.media_id ?? "" }
+  /// The item actually playing. Multiview can be showing any of its streams.
+  var activeMediaId: String {
+    useMultiview ? (multiviewModel.currentVideo?.id ?? mediaId) : mediaId
+  }
+  /// The controller on screen, which the card is presented over.
+  var activePlayerViewController: AVPlayerViewController {
+    let multiview = useMultiview ? multiviewModel.playerViewController : nil
+    return multiview ?? playerViewController
+  }
   var title: String { viewItem?.title ?? "" }
   var videoDescription: String { viewItem?.description ?? "" }
   var imageThumb: String { viewItem?.thumbnail ?? "" }
@@ -71,6 +82,12 @@ struct PlayerView: View {
   @State var audioLoaded = false
   @State private var progressObserverToken: Any?
   @State private var errorLogObserver: NSObjectProtocol?
+  @State private var endBoundaryToken: Any?
+  /// How far before the end playback stops to make the offer
+  private let upNextLeadS: Double = 0.5
+  @State private var didSetup = false
+  @State private var setupTask: Task<Void, Never>?
+  @StateObject private var upNext = UpNextCoordinator()
 
   enum Field: Hashable {
     case startFromBeginningField
@@ -107,6 +124,7 @@ struct PlayerView: View {
     .onReceive(finishedObserver.publisher) {
       print("Finished!")
       self.finished.wrappedValue = true
+      upNext.offerNow()
     }
     .overlay {
       VStack {
@@ -130,7 +148,29 @@ struct PlayerView: View {
       }
     }
     .onAppear {
-      Task {
+      // The up next cover covers this view completely, so tvOS runs onAppear again
+      // when it is dismissed. Setting up a second time would rebuild the player item
+      // and re-seek to saved progress, rewinding the video on its own.
+      if didSetup { return }
+      didSetup = true
+      // Configured before either path installs its hooks, and before the multiview branch
+      // below returns early
+      upNext.configure(
+        eluvio: eluvio,
+        router: router,
+        property: property,
+        context: context,
+        currentMediaId: { activeMediaId },
+        presenter: { activePlayerViewController },
+        releasePlayer: {
+          if useMultiview {
+            multiviewModel.releasePlayer()
+          } else {
+            teardownPlayer()
+          }
+        })
+
+      setupTask = Task {
         debugPrint("*** PlayerView onAppear() ", self.property)
 
         // Multiview detection — check for additional views before single-video setup
@@ -150,6 +190,7 @@ struct PlayerView: View {
           additionalMedias = additionalMedias.filter { $0.id != rawMedia.id }
 
           if !additionalMedias.isEmpty {
+            if Task.isCancelled { return }
             // Insert primary at front
             additionalMedias.insert(rawMedia, at: 0)
             multiviewModel.eluvio = eluvio
@@ -157,6 +198,12 @@ struct PlayerView: View {
             multiviewModel.propertyId = property?.id
             multiviewModel.videos = additionalMedias
             useMultiview = true
+            // Multiview runs its own player, so the up next trigger has to hang off that one.
+            // Live streams have no duration, so neither hook fires for them.
+            multiviewModel.onRemainingTime = { remainingS in
+              upNext.trackTimeRemaining(remainingS)
+            }
+            multiviewModel.onNearingEnd = { upNext.offerNow() }
             multiviewModel.selectVideo(rawMedia)
             return
           }
@@ -176,6 +223,11 @@ struct PlayerView: View {
           print("playerItem == nil")
           return
         }
+
+        // Resolving the item above is slow enough that the view can be torn down while
+        // it runs. Handing the item to the player after that resurrects a player nothing
+        // owns any more, and it keeps playing with no way to stop it.
+        if Task.isCancelled { return }
 
         if resolvedPlayerItem != self.player.currentItem {
           self.player.replaceCurrentItem(with: resolvedPlayerItem)
@@ -267,6 +319,15 @@ struct PlayerView: View {
             return
           }
 
+          let itemDurationS = player.currentItem?.duration.seconds ?? 0
+          if endBoundaryToken == nil, itemDurationS.isFinite, itemDurationS > upNextLeadS {
+            installUpNextBoundary(durationS: itemDurationS)
+          }
+
+          if itemDurationS.isFinite {
+            upNext.trackTimeRemaining(itemDurationS - currentTimeS)
+          }
+
           if let progressCallback = self.progressCallback {
             progressCallback(
               progress,
@@ -318,6 +379,7 @@ struct PlayerView: View {
           seekS(seekTimeS)
         }
 
+        if Task.isCancelled { return }
         player.play()
         print("*** PlayerView errors: ", player.error)
 
@@ -327,16 +389,16 @@ struct PlayerView: View {
     }
     .onWillDisappear {
       print("PlayerView onDisappear")
-      // Clean up progress observer
-      if let token = progressObserverToken {
-        player.removeTimeObserver(token)
-        progressObserverToken = nil
+      // Presenting the up next cover fires viewWillDisappear too; tearing the player
+      // down there would drop the video sitting behind the card.
+      if upNext.isOffering {
+        return
       }
-      // Clean up error log observer
-      if let observer = errorLogObserver {
-        NotificationCenter.default.removeObserver(observer)
-        errorLogObserver = nil
-      }
+      // Stop the setup below from loading and playing an item into a player that is
+      // being torn down, and don't push the next item's player onto a screen the user
+      // has already left.
+      setupTask?.cancel()
+      upNext.stop()
       if useMultiview {
         multiviewModel.player?.pause()
         Task {
@@ -344,10 +406,7 @@ struct PlayerView: View {
           multiviewModel.clear()
         }
       } else {
-        self.player.pause()
-        // Detach MUX so it releases the player VC and its observers
-        MUXSDKStats.destroyPlayer("mainPlayer")
-        self.player.replaceCurrentItem(with: nil)
+        teardownPlayer()
       }
       if backLink != "" {
         if let url = URL(string: backLink) {
@@ -366,6 +425,42 @@ struct PlayerView: View {
 
   func playerDidFinishPlaying(note _: NSNotification) {
     print("Video Finished")
+  }
+
+  /// Stops a breath before the end rather than letting the item finish. AVKit resets a
+  /// finished item's playhead to zero, which reads as the player rewinding itself, so the
+  /// offer is made while the item is merely paused near its end.
+  func installUpNextBoundary(durationS: Double) {
+    let stopAtS = durationS - upNextLeadS
+    endBoundaryToken = player.addBoundaryTimeObserver(
+      forTimes: [NSValue(time: CMTime(seconds: stopAtS, preferredTimescale: 600))],
+      queue: .main
+    ) {
+      guard upNext.wantsToOffer else { return }
+      player.pause()
+      upNext.offerNow()
+    }
+  }
+
+  /// Releases the player: observers, the MUX binding that otherwise keeps the player
+  /// view controller alive, and the buffered media.
+  func teardownPlayer() {
+    if let token = progressObserverToken {
+      player.removeTimeObserver(token)
+      progressObserverToken = nil
+    }
+    if let token = endBoundaryToken {
+      player.removeTimeObserver(token)
+      endBoundaryToken = nil
+    }
+    if let observer = errorLogObserver {
+      NotificationCenter.default.removeObserver(observer)
+      errorLogObserver = nil
+    }
+    player.pause()
+    // Detach MUX so it releases the player VC and its observers
+    MUXSDKStats.destroyPlayer("mainPlayer")
+    player.replaceCurrentItem(with: nil)
   }
 
   func onPlayerProgress(_ progress: Double, _ currentTimeS: Double, _ durationS: Double) {

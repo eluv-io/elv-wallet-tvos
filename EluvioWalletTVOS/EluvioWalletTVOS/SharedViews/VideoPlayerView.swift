@@ -127,6 +127,15 @@ class VideoPlayerViewModel: ObservableObject {
   var currentTimeS: Double = -1
   private var errorLogObserver: NSObjectProtocol?
   private var progressObserverToken: Any?
+  private var endBoundaryToken: Any?
+
+  /// Called a breath before the current item plays out, with the player already paused.
+  /// Letting an item finish makes AVKit reset its playhead to zero.
+  var onNearingEnd: (() -> Void)?
+  /// Called on each progress tick with the seconds left in the current item.
+  var onRemainingTime: ((Double) -> Void)?
+  /// How far before the end `onNearingEnd` fires
+  private let nearingEndLeadS: Double = 0.5
 
   var hasSeeked: Bool {
     return currentTimeS > seekTimeS
@@ -141,16 +150,50 @@ class VideoPlayerViewModel: ObservableObject {
     self.player?.play()
   }
 
-  func clear() {
-    // Remove progress observer before releasing player
+  /// Releases the player but keeps the view controller, which may still be presenting
+  /// something of its own.
+  func releasePlayer() {
+    removeObservers()
+    player?.pause()
+    // Detach MUX so it releases the player VC and its observers
+    MUXSDKStats.destroyPlayer("mainPlayer")
+    player?.replaceCurrentItem(with: nil)
+  }
+
+  private func removeObservers() {
     if let token = progressObserverToken, let player = player {
       player.removeTimeObserver(token)
     }
     progressObserverToken = nil
+    if let token = endBoundaryToken, let player = player {
+      player.removeTimeObserver(token)
+    }
+    endBoundaryToken = nil
     if let observer = errorLogObserver {
       NotificationCenter.default.removeObserver(observer)
       errorLogObserver = nil
     }
+  }
+
+  /// Fires `onNearingEnd` just before the item plays out, so a card can be offered while the
+  /// item is merely paused near its end rather than finished.
+  private func installEndBoundary(durationS: Double) {
+    guard let player = player else { return }
+    endBoundaryToken = player.addBoundaryTimeObserver(
+      forTimes: [
+        NSValue(time: CMTime(seconds: durationS - nearingEndLeadS, preferredTimescale: 600))
+      ],
+      queue: .main
+    ) { [weak self] in
+      guard let self = self else { return }
+      self.player?.pause()
+      self.onNearingEnd?()
+    }
+  }
+
+  func clear() {
+    // Remove progress observer before releasing player
+    removeObservers()
     // Detach MUX so it releases the player VC and its observers
     MUXSDKStats.destroyPlayer("mainPlayer")
     // Drop buffered media and the VC's player reference; MUX otherwise
@@ -173,6 +216,11 @@ class VideoPlayerViewModel: ObservableObject {
     if let token = progressObserverToken, let oldPlayer = player {
       oldPlayer.removeTimeObserver(token)
       progressObserverToken = nil
+    }
+    // The boundary belongs to the item being replaced
+    if let token = endBoundaryToken, let oldPlayer = player {
+      oldPlayer.removeTimeObserver(token)
+      endBoundaryToken = nil
     }
     currentVideo = video
     Task {
@@ -265,6 +313,14 @@ class VideoPlayerViewModel: ObservableObject {
 
         if self.currentTimeS == -1.0 {
           return
+        }
+
+        let durationS = self.player?.currentItem?.duration.seconds ?? 0
+        if durationS.isFinite, durationS > self.nearingEndLeadS {
+          if self.endBoundaryToken == nil {
+            self.installEndBoundary(durationS: durationS)
+          }
+          self.onRemainingTime?(durationS - self.currentTimeS)
         }
 
         if let progressCallback = self.progressCallback {
