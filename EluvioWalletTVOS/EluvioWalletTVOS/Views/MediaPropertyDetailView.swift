@@ -11,6 +11,21 @@ import Foundation
 import SwiftUI
 import SwiftyJSON
 
+/// Shared look for the property page's toolbar buttons, matching Android's ActionButton.
+/// Unfocused they sit translucent over the page art — a white icon rather than a grey one,
+/// dimmed by the style's 0.7 opacity to Android's white-at-70%. Focus swaps to a solid white
+/// circle with a dark icon, scaled up and glowing.
+enum ToolbarIcon {
+  static let tint = Color.white
+  static let focusedTint = Color(hex: 0x2D2D2D)
+  static let background = Color.black.opacity(0.5)
+  static let focusedBackground = Color.white
+  static let glow = Color.white.opacity(0.4)
+
+  static func tint(focused: Bool) -> Color { focused ? focusedTint : tint }
+  static func background(focused: Bool) -> Color { focused ? focusedBackground : background }
+}
+
 struct IconButton: View {
   @FocusState var focused
   var action: () -> Void
@@ -25,19 +40,20 @@ struct IconButton: View {
               .renderingMode(.template)
               .resizable()
               .scaledToFit()
-              .foregroundColor(focused ? .black : .gray)
+              .foregroundColor(ToolbarIcon.tint(focused: focused))
           } else {
             Image(systemName: iconName)
               .resizable()
               .scaledToFit()
-              .foregroundColor(focused ? .black : .gray)
+              .foregroundColor(ToolbarIcon.tint(focused: focused))
           }
         }
         .frame(width: 40, height: 40)
         .padding()
       }
-      .background(focused ? .white : Color.black.opacity(0.5))
+      .background(ToolbarIcon.background(focused: focused))
       .clipShape(Circle())
+      .shadow(color: focused ? ToolbarIcon.glow : .clear, radius: 10)
     }
     .buttonStyle(IconButtonStyle(focused: focused, initialOpacity: 0.7, scale: 1.2))
     .focused($focused)
@@ -199,12 +215,13 @@ struct MediaPropertyDetailView: View {
               .renderingMode(.template)
               .resizable()
               .scaledToFit()
-              .foregroundColor(switcherFocused ? .black : .gray)
+              .foregroundColor(ToolbarIcon.tint(focused: switcherFocused))
               .frame(width: 40, height: 40)
               .padding()
           }
-          .background(switcherFocused ? .white : Color.black.opacity(0.5))
+          .background(ToolbarIcon.background(focused: switcherFocused))
           .clipShape(Circle())
+          .shadow(color: switcherFocused ? ToolbarIcon.glow : .clear, radius: 10)
         }
         .buttonStyle(
           IconButtonStyle(focused: switcherFocused, initialOpacity: 0.7, scale: 1.2)
@@ -342,6 +359,7 @@ struct PropertyDetailForResolvedPage: View {
       ForEach(Array(sections.enumerated()), id: \.element.id) { index, section in
         MediaPropertySectionView(
           property: property, pageId: page.id, section: section,
+          pageCardThemeId: page.card_theme_id,
           isFirstSection: index == 0
         )
         .fixedSize(horizontal: false, vertical: true)
