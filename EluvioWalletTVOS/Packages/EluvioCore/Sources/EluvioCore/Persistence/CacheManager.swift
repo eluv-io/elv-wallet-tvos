@@ -49,6 +49,7 @@ public class CacheManager: ObservableObject {
   public func clearAccountScopedCaches() async {
     await clearCache()
     PropertyStore.shared.clear()
+    DiscoverStore.shared.clear()
     MediaItemStore.shared.clear()
     URLCache.shared.removeAllCachedResponses()
     logger.info("Account-scoped caches cleared")

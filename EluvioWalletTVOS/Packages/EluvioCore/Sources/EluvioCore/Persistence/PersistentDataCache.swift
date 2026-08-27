@@ -22,6 +22,7 @@ public class PersistentDataCache: ObservableObject {
   private enum CacheKey: String, CaseIterable {
     case propertyViewModelsCache = "property_viewmodels_cache"
     case sectionsCache = "sections_cache"
+    case discoverRowsCache = "discover_rows_cache"
 
     func filename(network: String, environment: String) -> String {
       let envLabel = environment.isEmpty ? "prod" : environment
@@ -199,6 +200,34 @@ public class PersistentDataCache: ObservableObject {
     }
 
     return sections
+  }
+
+  // MARK: - Discover Rows Cache
+
+  public func cacheDiscoverRows(
+    _ rows: [DiscoverStore.Row],
+    network: String,
+    environment: String,
+  ) {
+    saveToCache(rows, key: .discoverRowsCache, network: network, environment: environment)
+    logger.info("Cached \(rows.count) discover rows")
+  }
+
+  public func loadCachedDiscoverRows(
+    network: String,
+    environment: String,
+  ) -> [DiscoverStore.Row]? {
+    let rows = loadFromCache(
+      [DiscoverStore.Row].self,
+      key: .discoverRowsCache,
+      network: network,
+      environment: environment)
+
+    if let rows = rows {
+      logger.info("Loaded \(rows.count) discover rows from cache")
+    }
+
+    return rows
   }
 
   // MARK: - Cache Management

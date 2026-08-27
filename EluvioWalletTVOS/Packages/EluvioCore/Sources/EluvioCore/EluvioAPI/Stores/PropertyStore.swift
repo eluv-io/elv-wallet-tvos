@@ -78,6 +78,28 @@ public class PropertyStore {
     }
   }
 
+  /// Merges Properties that arrived outside the `/properties` call into the discoverable list.
+  ///
+  /// Used by `DiscoverStore`, which gets its Properties inlined in the rows response. Those
+  /// are also fetched (and cached) by `fetchProperties`, so update the list in place rather
+  /// than replacing it.
+  public func merge(properties: [MediaProperty]) {
+    guard !properties.isEmpty else { return }
+    resolvePermissions(properties: properties)
+    for property in properties {
+      if let index = self.properties.firstIndex(where: { $0.id == property.id }) {
+        self.properties[index] = property
+      } else {
+        self.properties.append(property)
+      }
+    }
+    PersistentDataCache().cachePropertyViewModels(
+      self.properties,
+      network: NetworkStore.shared.selectedNetwork.rawValue,
+      environment: NetworkStore.shared.environment.rawValue
+    )
+  }
+
   private func resolvePermissions(properties: [MediaProperty]) {
     properties.forEach {
       PermissionResolver.resolvePermissions($0, permissionStates: $0.permission_auth_state ?? [:])
