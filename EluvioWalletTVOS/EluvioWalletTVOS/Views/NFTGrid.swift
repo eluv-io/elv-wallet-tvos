@@ -26,7 +26,9 @@ struct NFTGrid: View {
   @State var searchText = ""
   @State var gridOption = false
   var body: some View {
-    LazyVGrid(columns: columns, alignment: .center, spacing: 0) {
+    // Leading, not centre: adaptive columns otherwise centre the whole block, which leaves a
+    // gap on the left that doesn't line up with anything else on the screen.
+    LazyVGrid(columns: columns, alignment: .leading, spacing: 0) {
       ForEach(nfts) { nft in
         NFTView(
           nft: nft,

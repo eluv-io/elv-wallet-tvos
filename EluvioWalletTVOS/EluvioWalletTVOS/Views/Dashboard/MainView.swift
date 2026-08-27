@@ -54,6 +54,14 @@ struct MainView: View {
   /// The rail expands while it holds focus, and scrims the content underneath it.
   private var railExpanded: Bool { focusedTab != nil }
 
+  /// Drops rail focus - which also collapses it - and sends focus into the selected tab.
+  /// Deferred a tick, because a freshly selected tab is still disabled in this update pass and
+  /// would have no default for the focus reset to find.
+  private func handOffToContent() {
+    focusedTab = nil
+    Task { @MainActor in resetFocus(in: mainScope) }
+  }
+
   var body: some View {
     ZStack(alignment: .leading) {
       // Tabs stay mounted and are swapped by opacity, so each one's `.task` fires once rather
@@ -68,7 +76,8 @@ struct MainView: View {
         // explicitly or focus walks into invisible controls.
         .disabled(selection != .Discover)
 
-      MyItemsPlaceholder()
+      MyItemsView()
+        .environmentObject(self.eluvio)
         .modifier(TabSlot())
         .opacity(selection == .Items ? 1.0 : 0.0)
         .prefersDefaultFocus(selection == .Items, in: mainScope)
@@ -102,14 +111,9 @@ struct MainView: View {
         focusedTab: $focusedTab,
         onSelect: { tab in
           selection = tab
-          // Hand focus back to the tab content, the way Android's drawer does on selection.
-          // Dropping rail focus also collapses it, so the rail doesn't stay open over the new
-          // tab when that tab has nothing focusable to receive focus (an empty My Items).
-          focusedTab = nil
-          // Deferred a tick: the new tab is still disabled in this update pass, so resetting
-          // focus synchronously would look for a default in a tab that can't take it yet.
-          Task { @MainActor in resetFocus(in: mainScope) }
-        }
+          handOffToContent()
+        },
+        onExit: handOffToContent
       )
     }
     .focusScope(mainScope)
@@ -143,12 +147,9 @@ struct MainView: View {
 
 /// The box the Dashboard hands a tab, inset past the nav rail.
 ///
-/// The inset is a *safe area* inset rather than plain padding on purpose. Padding only offsets
-/// the view — system-presented chrome like `.searchable`'s field and on-screen keyboard is still
-/// sized against the window, so it overhangs the slot on one side or the other. Safe area insets
-/// are what that chrome actually lays itself out against.
-///
-/// The trailing clip is the guarantee: whatever a tab draws, it cannot reach across the rail.
+/// A real box rather than padding: padding leaves the view full width and merely offsets it, so
+/// anything sized against the window still overhangs. The clip is the guarantee — whatever a tab
+/// draws, it cannot reach across the rail.
 private struct TabSlot: ViewModifier {
   func body(content: Content) -> some View {
     HStack(spacing: 0) {
@@ -160,20 +161,5 @@ private struct TabSlot: ViewModifier {
         .padding(.top, 60)
         .clipped()
     }
-  }
-}
-
-/// Stands in for `MyItemsView` while the tab is parked.
-///
-/// The real screen uses `.searchable`, whose field and keyboard tvOS sizes against the window
-/// rather than the view — so it reaches straight across the nav rail and out of the slot the
-/// Dashboard puts it in, and no amount of framing, padding or safe-area inset reins it in.
-private struct MyItemsPlaceholder: View {
-  var body: some View {
-    Text("TODO: fix search bar before bringing back My Items")
-      .font(.system(size: 32))
-      .foregroundColor(.white.opacity(0.6))
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .accessibilityIdentifier("my_items_placeholder")
   }
 }

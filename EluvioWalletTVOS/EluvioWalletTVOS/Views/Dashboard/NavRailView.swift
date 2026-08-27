@@ -86,6 +86,8 @@ struct NavRailView: View {
   @Binding var selection: MainTab
   @FocusState.Binding var focusedTab: MainTab?
   var onSelect: (MainTab) -> Void
+  /// Fired when Right should hand focus back to the tab content.
+  var onExit: () -> Void
 
   var tabs: [MainTab] = [.Discover, .Items, .Profile]
 
@@ -141,6 +143,13 @@ struct NavRailView: View {
       focusedTab = selection
     }
     .focusSection()
+    // Android does not leave this to the focus engine either - its drawer intercepts
+    // DirectionRight and closes itself (Dashboard.kt). Relying on spatial focus fails on a
+    // screen whose only focusable element sits well above the rail items, which is exactly
+    // what My Items is.
+    .onMoveCommand { direction in
+      if direction == .right { onExit() }
+    }
     .accessibilityIdentifier("nav_rail")
   }
 }
