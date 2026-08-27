@@ -39,6 +39,15 @@ public class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
   public var page_title: String?
   public var parent_id: String?
   public var main_page: MediaPropertyPage?
+  // Title/description shown for this Property on the Discover page.
+  public var main_page_title: String?
+  public var main_page_description: String?
+  // Points to a theme in `styling.card_themes`.
+  public var card_theme_id: String?
+  // Defines the card themes this Property's pages and sections can reference.
+  public var styling: PropertyStyling?
+  // Fabric link to the promo video played behind the Discover page for this Property.
+  public var main_page_background_video_tv: JSON?
   public var media_catalogs: [String]?
   public var permission_auth_state: PermissionStateMap?
   public var permission_sets: [String]?
@@ -169,6 +178,8 @@ public final class MediaPropertyPage: Permissionable, Encodable, Equatable {
   public var label: String?
   public var slug: String?
   public var sections: [String]?
+  // Points to a theme in the Property's `styling.card_themes`.
+  public var card_theme_id: String?
 
   /// Section IDs from layout — this is where the server stores the page's section references.
   public var sectionIds: [String] {

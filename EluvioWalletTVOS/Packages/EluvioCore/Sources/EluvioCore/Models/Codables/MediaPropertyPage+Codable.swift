@@ -3,7 +3,8 @@ import SwiftyJSON
 
 extension MediaPropertyPage: Decodable {
   public enum CodingKeys: String, CodingKey {
-    case id, label, layout, permissions, slug, sections, resolvedPermissions, resolvedPagePermissions
+    case id, label, layout, permissions, slug, sections, card_theme_id, resolvedPermissions,
+      resolvedPagePermissions
   }
 
   public convenience init(from decoder: Decoder) throws {
@@ -14,6 +15,7 @@ extension MediaPropertyPage: Decodable {
     permissions = try container.decodeIfPresent(PermissionsDto.self, forKey: .permissions)
     label = try container.decodeIfPresent(String.self, forKey: .label)
     sections = try container.decodeIfPresent([String].self, forKey: .sections)
+    card_theme_id = try container.decodeIfPresent(String.self, forKey: .card_theme_id)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -24,5 +26,6 @@ extension MediaPropertyPage: Decodable {
     try container.encodeIfPresent(permissions, forKey: .permissions)
     try container.encodeIfPresent(slug, forKey: .slug)
     try container.encodeIfPresent(sections, forKey: .sections)
+    try container.encodeIfPresent(card_theme_id, forKey: .card_theme_id)
   }
 }

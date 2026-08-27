@@ -438,6 +438,10 @@ struct SectionItemView: View {
   var forceDisplay: AspectRatio?
   var cardSize: CardSize = .medium
   var titleAlignment: Alignment = .leading
+  /// Theme resolved for the enclosing section, if it has one.
+  var cardTheme: CardTheme? = nil
+  /// False when the section asked for cards without titles.
+  var showItemTitle: Bool = true
   var viewItem: MediaPropertySectionMediaItemViewModel
 
   @FocusState var isFocused
@@ -449,6 +453,11 @@ struct SectionItemView: View {
   var scaleFactor = 1.0
 
   var hide: Bool { permission?.hide == true }
+
+  /// Page links, property links, external links and item purchases are finished
+  /// artwork, and each already shows its title below the card - so focusing one
+  /// shouldn't darken the image just to hold a second copy of that title.
+  var isMediaItem: Bool { viewItem.mediaItem != nil }
 
   var disable: Bool { viewItem.disabled }
 
@@ -551,11 +560,13 @@ struct SectionItemView: View {
               isLive: isLive,
               centerFocusedText: false,
               showFocusedTitle: viewItem.title.isEmpty ? false : true,
-              showBottomTitle: true,
+              showBottomTitle: showItemTitle,
               progressValue: progressValue,
               cardSize: cardSize,
               sizeFactor: scaleFactor,
-              permission: permission
+              permission: permission,
+              cardTheme: cardTheme,
+              respondToFocus: isMediaItem
             )
             .opacity(opacity)
           }

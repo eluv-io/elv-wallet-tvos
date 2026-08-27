@@ -161,28 +161,100 @@ struct MediaCard: View {
   }
   @State private var newItem: Bool = true
   var permission: ResolvedPermission? = nil
+  /// Theme resolved for the section this card belongs to. Without one the card
+  /// renders exactly as it did before themes existed.
+  var cardTheme: CardTheme? = nil
+  /// False for finished artwork that already shows its title below the card -
+  /// focusing it lifts the dim, but draws nothing over the image.
+  var respondToFocus: Bool = true
+
+  /// The card's outline. A theme replaces the default rounded rectangle, and
+  /// turns square cards into circles when it asks for it.
+  private var cardShape: AnyShape {
+    if cardTheme?.isCircular(aspectRatio: aspectRatio) == true {
+      return AnyShape(Circle())
+    }
+    return AnyShape(RoundedRectangle(cornerRadius: cornerRadius))
+  }
+
+  /// A theme that draws its own border replaces the focus ring with it.
+  private var hasThemeBorder: Bool { cardTheme?.hasBorder == true }
+
+  private var imageSaturation: Double { cardTheme?.imageSaturation(focused: isFocused) ?? 1 }
+
+  private var hasImage: Bool { playerItem != nil || !image.isEmpty }
+
+  /// Focus lights the card up along its top edge, and darkens the bottom of it,
+  /// which is where the focused overlay puts its text. Both cross-fade with the
+  /// dim, and draw under the overlay so its text sits on top.
+  private var focusTreatment: some View {
+    ZStack {
+      LinearGradient(
+        stops: [
+          .init(color: .white.opacity(0.45), location: 0),
+          .init(color: .white.opacity(0.16), location: 0.16),
+          .init(color: .clear, location: 0.42),
+        ],
+        startPoint: .top, endPoint: .bottom)
+
+      VStack(spacing: 0) {
+        Spacer()
+        LinearGradient(
+          stops: [
+            .init(color: .clear, location: 0),
+            .init(color: .black.opacity(0.6), location: 0.62),
+            .init(color: .black.opacity(0.92), location: 1),
+          ],
+          startPoint: .top, endPoint: .bottom)
+          .frame(height: height * 0.64)
+      }
+    }
+    .frame(width: width, height: height)
+    .clipShape(cardShape)
+  }
+
+  /// The theme's background, cross-faded between its unfocused and focused
+  /// states so the two don't pop as focus moves along a row.
+  @ViewBuilder private var themeBackground: some View {
+    let size = CGSize(width: width, height: height)
+    ZStack {
+      cardTheme?.background(focused: false, size: size)
+      cardTheme?.background(focused: true, size: size)
+        .opacity(isFocused ? 1 : 0)
+    }
+    .frame(width: width, height: height)
+    .clipShape(cardShape)
+    .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
+  }
 
   var body: some View {
     VStack(alignment: .leading) {
       ZStack {
+        if cardTheme != nil {
+          themeBackground
+        }
         if playerItem != nil {
           LoopingVideoPlayer([playerItem!], endAction: .loop)
             .frame(width: width, height: height, alignment: .center)
-            .cornerRadius(cornerRadius)
+            .clipShape(cardShape)
         } else {
           if image.hasPrefix("http") {
             ScaledWebImage(url: image, height: height)
               .resizable()
               .aspectRatio(contentMode: .fill)
               .frame(width: width, height: height)
-              .cornerRadius(cornerRadius)
+              .clipShape(cardShape)
               .clipped()
+              .saturation(imageSaturation)
+              .animation(.easeInOut(duration: MediaCard.themeAnimation), value: imageSaturation)
           } else if image != "" {
             Image(image)
               .resizable()
               .aspectRatio(contentMode: .fill)
               .frame(width: width, height: height)
-              .cornerRadius(cornerRadius)
+              .clipShape(cardShape)
+              .saturation(imageSaturation)
+              .animation(.easeInOut(duration: MediaCard.themeAnimation), value: imageSaturation)
           } else {
             // No image, display like the focused state with a lighter background
             if !isFocused {
@@ -204,18 +276,32 @@ struct MediaCard: View {
               .frame(maxWidth: .infinity, maxHeight: .infinity)
               .padding(20)
               .padding(.bottom, 50)
-              .cornerRadius(cornerRadius)
+              .clipShape(cardShape)
               .background(Color.white.opacity(0.1))
               .scaleEffect(sizeFactor)
               .overlay(
-                RoundedRectangle(cornerRadius: cornerRadius)
+                cardShape
                   .stroke(Color.gray, lineWidth: 2)
               )
             }
           }
         }
 
-        if isFocused {
+        if hasImage {
+          // Cards sit slightly dimmed until focused, so focus reads as the card
+          // lighting up - matching the web's 85% inactive brightness.
+          Color.black
+            .opacity(isFocused ? 0 : 0.2)
+            .frame(width: width, height: height)
+            .clipShape(cardShape)
+            .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
+        }
+
+        focusTreatment
+          .opacity(isFocused && respondToFocus ? 1 : 0)
+          .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
+
+        if isFocused && respondToFocus {
           VStack(alignment: .leading, spacing: 7) {
             if !centerFocusedText {
               Spacer()
@@ -228,7 +314,7 @@ struct MediaCard: View {
                   .foregroundColor(Color.white)
                   .lineLimit(aspectRatio == .square ? 2 : 1)
                   .bold()
-                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .frame(maxWidth: .infinity, alignment: titleAlignment)
                 Spacer()
               }
             }
@@ -238,7 +324,7 @@ struct MediaCard: View {
                 Text(timeString)
                   .font(.system(size: 15))
                   .foregroundColor(Color.gray)
-                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .frame(maxWidth: .infinity, alignment: titleAlignment)
               }
 
               if !title.isEmpty {
@@ -247,7 +333,7 @@ struct MediaCard: View {
                   .foregroundColor(Color.white)
                   .lineLimit(1)
                   .bold()
-                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .frame(maxWidth: .infinity, alignment: titleAlignment)
               }
 
               if !subtitle.isEmpty {
@@ -255,14 +341,14 @@ struct MediaCard: View {
                   .font(.system(size: 19))
                   .foregroundColor(Color.gray)
                   .lineLimit(1)
-                  .frame(maxWidth: .infinity, alignment: .leading)
+                  .frame(maxWidth: .infinity, alignment: titleAlignment)
               }
             }
 
             if progressValue > 0.0 {
               ProgressView(value: progressValue)
                 .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: titleAlignment)
                 .frame(height: 4)
                 .padding(.top, 15)
             }
@@ -270,12 +356,6 @@ struct MediaCard: View {
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .padding(20)
           .scaleEffect(sizeFactor)
-          .cornerRadius(cornerRadius)
-          .background(Color.black.opacity(showFocusedTitle ? 0.8 : 0.1))
-          .overlay(
-            RoundedRectangle(cornerRadius: cornerRadius)
-              .stroke(Color.highlight, lineWidth: 4)
-          )
         }
 
         if isUpcoming && !isFocused {
@@ -316,6 +396,29 @@ struct MediaCard: View {
           .padding(20)
           .scaleEffect(sizeFactor, anchor: .bottomTrailing)
         }
+
+        if isFocused && !hasThemeBorder {
+          // Same geometry the ring had when it was an overlay on the focused
+          // texts, so it keeps sitting exactly where it always has.
+          Color.clear
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding(20)
+            .scaleEffect(sizeFactor)
+            .overlay(
+              cardShape
+                .stroke(Color.highlight, lineWidth: 4)
+            )
+        }
+
+        if let cardTheme, cardTheme.hasBorder {
+          cardShape
+            .stroke(
+              cardTheme.borderColor(focused: isFocused),
+              lineWidth: CGFloat(cardTheme.borderWidth) * sizeFactor
+            )
+            .frame(width: width, height: height)
+            .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
+        }
       }
       if showBottomTitle {
         Text(title)
@@ -341,13 +444,18 @@ struct MediaCard: View {
       }
     height *= sizeFactor
 
-    let cornerRadius: CGFloat = (isPortrait ? 3 : 16) * sizeFactor
+    let cornerRadius: CGFloat =
+      (cardTheme?.borderRadius.cornerRadius ?? (isPortrait ? 3 : 16)) * sizeFactor
     return (
       width: height * aspectRatio.value,
       height: height,
       cornerRadius: cornerRadius
     )
   }
+
+  /// The web cross-fades focus over 0.5s, which drags when moving focus quickly
+  /// along a row.
+  private static let themeAnimation: TimeInterval = 0.3
 }
 
 // MARK: - SwiftUI Previews

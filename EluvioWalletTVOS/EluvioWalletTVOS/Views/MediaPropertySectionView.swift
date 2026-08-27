@@ -126,6 +126,7 @@ struct MediaPropertySectionGridView: View {
   var property: MediaProperty
   var pageId: String
   var section: MediaPropertySection
+  var pageCardThemeId: String? = nil
   var margin: CGFloat = 80
   @State var logoUrl: String? = nil
   @State private var refreshId = ""
@@ -152,7 +153,8 @@ struct MediaPropertySectionGridView: View {
       }
 
       SectionGridView(
-        property: property, pageId: pageId, section: section, margin: margin,
+        property: property, pageId: pageId, section: section,
+        pageCardThemeId: pageCardThemeId, margin: margin,
         useScale: useScale, showBackground: false)
     }
     .clipped()
@@ -178,6 +180,7 @@ struct MediaPropertyRegularSectionView: View {
   var property: MediaProperty
   var pageId: String
   var section: MediaPropertySection
+  var pageCardThemeId: String? = nil
   var margin: CGFloat = 80
   @State private var refreshId = ""
   @State var items: [MediaPropertySectionMediaItemViewModel] = []
@@ -255,6 +258,8 @@ struct MediaPropertyRegularSectionView: View {
                     forceAspectRatio: forceAspectRatio,
                     cardSize: cardSize,
                     titleAlignment: titleAlignment,
+                    cardTheme: cardTheme,
+                    showItemTitle: showItemTitles,
                     viewItem: item
                   )
                   .focused($currentFocusItem, equals: item)
@@ -276,6 +281,8 @@ struct MediaPropertyRegularSectionView: View {
                       forceAspectRatio: forceAspectRatio,
                       cardSize: cardSize,
                       titleAlignment: titleAlignment,
+                      cardTheme: cardTheme,
+                      showItemTitle: showItemTitles,
                       viewItem: item
                     )
                     .padding(.top, 0)
@@ -404,6 +411,14 @@ struct MediaPropertyRegularSectionView: View {
     default: .leading
     }
   }
+
+  var cardTheme: CardTheme? {
+    property.resolveCardTheme(pageThemeId: pageCardThemeId, section: section)
+  }
+
+  var showItemTitles: Bool {
+    section.display?.showItemTitles != false
+  }
 }
 
 struct MediaPropertySectionBannerView: View {
@@ -478,6 +493,8 @@ struct MediaPropertySectionView: View {
   var property: MediaProperty
   var pageId: String
   var section: MediaPropertySection
+  /// The page's own `card_theme_id`, which sections can override.
+  var pageCardThemeId: String? = nil
   var margin: CGFloat = 80
   @State private var refreshId = ""
 
@@ -707,19 +724,22 @@ struct MediaPropertySectionView: View {
 
             ForEach(subsections.filter { !$0.shouldHideInContainer }) { sub in
               MediaPropertyRegularSectionView(
-                property: property, pageId: pageId, section: sub, margin: margin,
+                property: property, pageId: pageId, section: sub,
+                pageCardThemeId: pageCardThemeId, margin: margin,
                 useScale: useScale, lookForBackground: true)
             }
           }
         } else if isGrid {
           MediaPropertySectionGridView(
-            property: property, pageId: pageId, section: section, margin: margin,
+            property: property, pageId: pageId, section: section,
+            pageCardThemeId: pageCardThemeId, margin: margin,
             useScale: useScale)
         } else {
           MediaPropertyRegularSectionView(
             property: property,
             pageId: pageId,
             section: section,
+            pageCardThemeId: pageCardThemeId,
             margin: margin,
             useScale: useScale
           )

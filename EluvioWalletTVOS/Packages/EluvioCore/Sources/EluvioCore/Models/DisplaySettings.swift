@@ -29,5 +29,20 @@ public struct DisplaySettings: Codable {
 
   public var headers: [String]?
 
+  /// Points to a theme in the Property's `styling.card_themes`. Only Sections define this.
+  public var card_theme_id: String?
+
+  /// Which text fields to show under the section's item cards: "all"/"titles"/"title"/"none".
+  /// Only Sections define this.
+  public var content_display_text: String?
+
+  /// Whether the section's item cards show their title. The server also picks which other texts
+  /// to show, but cards only ever show a title, so it all collapses to this.
+  /// Nil when unset, which means "show".
+  public var showItemTitles: Bool? {
+    guard let value = content_display_text?.nilIfEmpty() else { return nil }
+    return value != "none"
+  }
+
   public init() {}
 }

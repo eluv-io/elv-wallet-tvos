@@ -13,6 +13,7 @@ struct SectionGridView: View {
   var property: MediaProperty
   var pageId: String
   var section: MediaPropertySection
+  var pageCardThemeId: String? = nil
   var margin: CGFloat = 80
   var useScale = false
 
@@ -47,6 +48,14 @@ struct SectionGridView: View {
     case "center": .center
     default: .leading
     }
+  }
+
+  var cardTheme: CardTheme? {
+    property.resolveCardTheme(pageThemeId: pageCardThemeId, section: section)
+  }
+
+  var showItemTitles: Bool {
+    section.display?.showItemTitles != false
   }
 
   var scale: CGFloat {
@@ -130,6 +139,8 @@ struct SectionGridView: View {
             property: property,
             forceDisplay: aspectRatio,
             titleAlignment: titleAlignment,
+            cardTheme: cardTheme,
+            showItemTitle: showItemTitles,
             viewItem: item,
             scaleFactor: scale
           )
