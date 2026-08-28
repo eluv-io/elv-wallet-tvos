@@ -20,14 +20,21 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
   /// path. Without this a double-tap kicks off two parallel auth sessions.
   private var isInProgress = false
 
+  /// Invoked whenever a sign-in stops being in flight — success, user cancel,
+  /// or error. Callers that show a spinner need this to unstick it.
+  private var onDismiss: (@MainActor () -> Void)?
+
   /// Begin sign-in for `property`. Calls `onComplete` once the wallet service
-  /// accepts the activation. No-op if a sign-in is already in flight.
+  /// accepts the activation, and `onDismiss` once the attempt ends for any
+  /// reason. No-op if a sign-in is already in flight.
   func start(
     property: MediaProperty,
-    onComplete: @MainActor @escaping () -> Void
+    onComplete: @MainActor @escaping () -> Void,
+    onDismiss: (@MainActor () -> Void)? = nil
   ) {
     guard !isInProgress else { return }
     isInProgress = true
+    self.onDismiss = onDismiss
 
     Task { [weak self] in
       let flow = DeviceActivationFlow(property: property, shortenUrl: false)
@@ -35,7 +42,7 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         let activation = try await flow.requestActivation()
         guard let url = URL(string: activation.url) else {
           print("MobileSignIn: invalid activation URL")
-          self?.isInProgress = false
+          self?.finish()
           return
         }
         self?.present(
@@ -43,7 +50,7 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         )
       } catch {
         print("MobileSignIn: couldn't request activation:", error)
-        self?.isInProgress = false
+        self?.finish()
       }
     }
   }
@@ -54,7 +61,15 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
     pollTask = nil
     session?.cancel()
     session = nil
+    finish()
+  }
+
+  /// Clear the in-flight guard and notify the caller exactly once.
+  private func finish() {
     isInProgress = false
+    let dismiss = onDismiss
+    onDismiss = nil
+    dismiss?()
   }
 
   private func present(
@@ -72,7 +87,7 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
       self?.pollTask?.cancel()
       self?.pollTask = nil
       self?.session = nil
-      self?.isInProgress = false
+      self?.finish()
     }
     session.presentationContextProvider = self
     session.prefersEphemeralWebBrowserSession = true
