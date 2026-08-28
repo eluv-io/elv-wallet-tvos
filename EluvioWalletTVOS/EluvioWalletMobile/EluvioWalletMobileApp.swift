@@ -12,10 +12,13 @@ struct EluvioWalletMobileApp: App {
   var body: some Scene {
     WindowGroup {
       Group {
-        if bootstrapped {
-          ContentView()
-        } else {
+        if !bootstrapped {
           ProgressView()
+        } else if SinglePropertyRootView.propertyId != nil {
+          // Whitelabel build — one property, sign-in gated, no Discover.
+          SinglePropertyRootView()
+        } else {
+          ContentView()
         }
       }
       .preferredColorScheme(.dark)
