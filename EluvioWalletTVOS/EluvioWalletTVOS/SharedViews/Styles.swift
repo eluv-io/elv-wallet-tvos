@@ -269,7 +269,7 @@ extension Font {
   }
 
   public static var propertyDescription: Font {
-    return Font.system(size: 26)
+    return Font.system(size: 26, weight: .semibold).leading(.loose)
   }
 
   public static var sectionContainerTitle: Font {
@@ -280,4 +280,3 @@ extension Font {
     return Font.system(size: 30)
   }
 }
-

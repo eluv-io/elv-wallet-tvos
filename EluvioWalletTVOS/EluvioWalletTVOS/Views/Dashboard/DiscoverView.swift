@@ -12,7 +12,12 @@ import SwiftyJSON
 
 /// Fixed box for the logo, so the text below it doesn't jump as focus moves between
 /// Properties with differently shaped logos.
-private let logoHeight: CGFloat = 160
+private let logoHeight: CGFloat = 180
+
+/// Widest a logo may render. Only bites on wide wordmarks - a normal-proportioned logo is
+/// bound by `logoHeight` first. Fixed rather than derived from the available width, so a
+/// logo renders at the same size signed in (behind the nav rail) as signed out.
+private let logoMaxWidth: CGFloat = 1000
 
 struct DiscoverView: View {
   @EnvironmentObject var eluvio: EluvioAPI
@@ -45,7 +50,7 @@ struct DiscoverView: View {
   }
 
   var body: some View {
-    ZStack(alignment: .bottomLeading) {
+    ZStack(alignment: .topLeading) {
       if eluvio.isCustomApp() {
         // fetchProperty(id:) caches into ownedProperties, not the discover list,
         // so resolve by the configured slug instead of properties.first
@@ -70,6 +75,7 @@ struct DiscoverView: View {
             PropertyText(property: displayedProperty)
           }
           .padding(.leading, leadingInset)
+          .padding(.top, 160)
           .padding(.bottom, 22)
           .animation(heroTextAnimation, value: displayedProperty)
           // The rows are inset by the card focus margin, so their titles still line up
@@ -77,7 +83,7 @@ struct DiscoverView: View {
           DiscoverRowsView(rows: rows, selected: $selected)
             .padding(.leading, leadingInset - 12)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
       }
     }
     // Keyed on refreshId so switching environment in Profile reloads the page. Tabs stay
@@ -249,42 +255,41 @@ private struct PropertyLogo: View {
   var property: MediaProperty?
 
   var body: some View {
-    ZStack(alignment: .bottomLeading) {
+    ZStack(alignment: .leading) {
       if let logo = (property?.tv_header_logo ?? property?.header_logo)?.url?.nilIfEmpty() {
         ScaledWebImage(url: logo, height: logoHeight)
           .resizable()
           .aspectRatio(contentMode: .fit)
-          .frame(maxWidth: 700, maxHeight: logoHeight, alignment: .bottomLeading)
       } else if let property {
         Text(property.displayName)
           .font(.system(size: 48, weight: .bold))
           .foregroundColor(Color(white: 0.96))
       }
     }
-    .frame(height: logoHeight, alignment: .bottomLeading)
+    .frame(maxWidth: logoMaxWidth, maxHeight: .infinity, alignment: .leading)
     .frame(maxWidth: .infinity, alignment: .leading)
+    .frame(height: logoHeight)
     .id(property?.id ?? "")
     .transition(.opacity)
   }
 }
 
-/// The focused Property's Discover-page description. Most Properties define none, in
-/// which case this takes up no space at all.
+/// The focused Property's Discover-page description. Always reserves its full height, whether
+/// or not the Property defines one, so the rows below never move as focus changes.
 private struct PropertyText: View {
   var property: MediaProperty?
 
   var body: some View {
-    let description = property?.main_page_description?.nilIfEmpty()
     VStack(alignment: .leading, spacing: 8) {
-      if let description {
-        Text(description)
-          .font(.system(size: 24))
-          .foregroundColor(Color(red: 0.71, green: 0.71, blue: 0.74))
-          .lineLimit(2)
-      }
+      // An empty string gets no line box, so `reservesSpace` would reserve nothing and the
+      // rows below would move. A space keeps the block the same height for every Property.
+      Text(property?.main_page_description?.nilIfEmpty() ?? " ")
+        .font(.propertyDescription)
+        .lineLimit(3, reservesSpace: true)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
-    .frame(maxWidth: 800, alignment: .leading)
-    .padding(.top, description == nil ? 0 : 12)
+    .frame(maxWidth: 800, alignment: .topLeading)
+    .padding(.top, 55)
     .id(property?.id ?? "")
     .transition(.opacity)
   }

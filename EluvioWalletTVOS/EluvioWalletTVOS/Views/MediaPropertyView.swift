@@ -18,7 +18,8 @@ private let cardSpacing: CGFloat = 20
 private let cardFocusedScale = 1.08
 /// Room for the focused card's scale to draw without being clipped by the row's bounds.
 private let cardFocusMargin: CGFloat = 12
-/// Leaves ~1.6 rows visible, so it always reads as a scrollable list.
+/// The rows take whatever height is left below the hero, so the list always ends at the
+/// bottom of the screen. This is only the scroll affordance below the last row now.
 private let rowsViewportHeight: CGFloat = 700
 
 /// The vertically scrolling list of Discover rows.
@@ -31,7 +32,10 @@ struct DiscoverRowsView: View {
   /// steals it. The same Property can sit in more than one row, hence the row-scoped key.
   @State private var lastClickedCard: String? = nil
   @FocusState private var focusedCard: String?
-  @State private var focusedRowIndex: Int? = nil
+  /// Starts at 0 rather than nil: the list opens with row 0 already at the top, so the first
+  /// focus landing there isn't a row change and mustn't scroll. A restored card in a lower row
+  /// still differs from 0, so that case scrolls as before.
+  @State private var focusedRowIndex: Int? = 0
   /// Guards the one-time focus grab below, so it can't yank focus off the rail later.
   @State private var claimedInitialFocus = false
 
@@ -45,7 +49,9 @@ struct DiscoverRowsView: View {
   var body: some View {
     ScrollViewReader { proxy in
       ScrollView(.vertical) {
-        LazyVStack(alignment: .leading, spacing: 0) {
+        // Same reasoning as the title gap: the cards sit `cardFocusMargin` inside their
+        // scroll view, so subtracting it leaves 50pt between one row's cards and the next row.
+        LazyVStack(alignment: .leading, spacing: 50 - cardFocusMargin) {
           ForEach(Array(rows.enumerated()), id: \.element.id) { rowIndex, row in
             DiscoverRowView(
               rowIndex: rowIndex,
@@ -63,7 +69,7 @@ struct DiscoverRowsView: View {
         // Lets the last row scroll up to the top of the viewport like every other row.
         .padding(.bottom, rowsViewportHeight / 2)
       }
-      .frame(height: rowsViewportHeight)
+      .frame(maxHeight: .infinity)
       .mask(verticalFadingEdges)
       .defaultFocus($focusedCard, initialCard, priority: .userInitiated)
       .onAppear {
@@ -118,7 +124,9 @@ private struct DiscoverRowView: View {
   @Binding var selected: MediaProperty?
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 6) {
+    // The cards sit `cardFocusMargin` inside their scroll view, so subtracting it here leaves
+    // 50pt of actual space between the title and the tops of the cards.
+    VStack(alignment: .leading, spacing: 50 - cardFocusMargin) {
       // Rows aren't required to have a title, and featured rows never have one.
       if !row.title.isEmpty {
         Text(row.title)
@@ -145,7 +153,6 @@ private struct DiscoverRowView: View {
       }
       .scrollClipDisabled()
     }
-    .padding(.bottom, 10)
   }
 }
 
