@@ -268,21 +268,14 @@ private struct PropertyLogo: View {
   }
 }
 
-/// The focused Property's Discover-page title and description. Most Properties define
-/// neither, in which case this takes up no space at all.
+/// The focused Property's Discover-page description. Most Properties define none, in
+/// which case this takes up no space at all.
 private struct PropertyText: View {
   var property: MediaProperty?
 
   var body: some View {
-    let title = property?.main_page_title?.nilIfEmpty()
     let description = property?.main_page_description?.nilIfEmpty()
     VStack(alignment: .leading, spacing: 8) {
-      if let title {
-        Text(title)
-          .font(.system(size: 32))
-          .foregroundColor(Color(white: 0.96))
-          .lineLimit(1)
-      }
       if let description {
         Text(description)
           .font(.system(size: 24))
@@ -291,7 +284,7 @@ private struct PropertyText: View {
       }
     }
     .frame(maxWidth: 800, alignment: .leading)
-    .padding(.top, title == nil && description == nil ? 0 : 12)
+    .padding(.top, description == nil ? 0 : 12)
     .id(property?.id ?? "")
     .transition(.opacity)
   }
