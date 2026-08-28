@@ -24,6 +24,26 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
   /// or error. Callers that show a spinner need this to unstick it.
   private var onDismiss: (@MainActor () -> Void)?
 
+  /// Activation request started by `prefetch(property:)` — in flight or already
+  /// settled. Consumed by the next `start(...)`.
+  private var prefetchTask: Task<ActivationCode, Error>?
+  /// Property `prefetchTask` was started for. A code only works for the property
+  /// it was minted against, so a mismatch means discard and re-request.
+  private var prefetchedFor: String?
+
+  /// Request an activation code ahead of the tap. Nothing about the request
+  /// depends on user input, so a screen that exists to offer sign-in can pay
+  /// for the round trip on appear and leave the tap with nothing to wait on.
+  /// tvOS does the equivalent in OryDeviceFlowView, which requests on appear
+  /// so it has a URL to render as a QR code.
+  func prefetch(property: MediaProperty) {
+    guard prefetchTask == nil, !isInProgress else { return }
+    prefetchedFor = property.id
+    prefetchTask = Task {
+      try await DeviceActivationFlow(property: property, shortenUrl: false).requestActivation()
+    }
+  }
+
   /// Begin sign-in for `property`. Calls `onComplete` once the wallet service
   /// accepts the activation, and `onDismiss` once the attempt ends for any
   /// reason. No-op if a sign-in is already in flight.
@@ -37,22 +57,44 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
     self.onDismiss = onDismiss
 
     Task { [weak self] in
+      guard let self else { return }
       let flow = DeviceActivationFlow(property: property, shortenUrl: false)
       do {
-        let activation = try await flow.requestActivation()
+        let activation = try await self.takeActivation(for: property, flow: flow)
         guard let url = URL(string: activation.url) else {
           print("MobileSignIn: invalid activation URL")
-          self?.finish()
+          self.finish()
           return
         }
-        self?.present(
+        self.present(
           url: url, flow: flow, activation: activation, onComplete: onComplete
         )
       } catch {
         print("MobileSignIn: couldn't request activation:", error)
-        self?.finish()
+        self.finish()
       }
     }
+  }
+
+  /// The activation to open, preferring a prefetched one. Codes are only good
+  /// for five minutes, so one that went stale while the user sat on the welcome
+  /// screen gets dropped rather than opening a dead login page. Either way the
+  /// prefetch is consumed — a code is single-use.
+  private func takeActivation(
+    for property: MediaProperty,
+    flow: DeviceActivationFlow
+  ) async throws -> ActivationCode {
+    let task = prefetchTask
+    let matchesProperty = prefetchedFor == property.id
+    prefetchTask = nil
+    prefetchedFor = nil
+
+    if let task, matchesProperty,
+      let activation = try? await task.value, !activation.hasExpired
+    {
+      return activation
+    }
+    return try await flow.requestActivation()
   }
 
   /// Tear down any in-progress session. Useful for view-disappear cleanup.
@@ -121,5 +163,14 @@ final class MobileSignIn: NSObject, ASWebAuthenticationPresentationContextProvid
         .flatMap(\.windows)
         .first(where: \.isKeyWindow) ?? ASPresentationAnchor()
     }
+  }
+}
+
+private extension ActivationCode {
+  /// `expiration` is a Unix timestamp in seconds; the service currently mints
+  /// codes with a five-minute TTL. The margin keeps us from handing the web
+  /// view a code that dies while the login page is still loading.
+  var hasExpired: Bool {
+    Date().timeIntervalSince1970 > Double(expiration) - 30
   }
 }
