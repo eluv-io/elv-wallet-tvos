@@ -63,6 +63,9 @@ struct WelcomeView: View {
       .frame(width: geo.size.width, height: geo.size.height)
     }
     .ignoresSafeArea()
+    // The activation code doesn't depend on anything the user does, so fetch it
+    // now — this screen exists to offer sign-in, so we know we'll need one.
+    .onAppear { signIn.prefetch(property: property) }
     .onDisappear { signIn.cancel() }
   }
 
