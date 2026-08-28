@@ -20,6 +20,13 @@ enum NavRail {
   /// Where the rail's outer edge — and its divider — sits.
   static let collapsedWidth: CGFloat = padding * 2 + collapsedItemWidth
 
+  /// The Eluvio mark above the items, centred across the collapsed rail so it shares an axis
+  /// with the item icons.
+  static let logoSize: CGFloat = collapsedWidth / 2
+  /// Clears the mark from the top of the rail by half its own height, so it sits as far from
+  /// the screen edge as it does from either side of the rail.
+  static let logoTopInset: CGFloat = logoSize / 2
+
   /// How far tab content is inset from the screen edge — the rail's outer edge plus a clear
   /// gap, so content doesn't crowd the divider.
   static let contentInset: CGFloat = collapsedWidth + 120
@@ -108,6 +115,22 @@ struct NavRailView: View {
     }
     .frame(maxHeight: .infinity)
     .padding(NavRail.padding)
+    // Overlaid rather than stacked above the items, so adding it leaves the item column
+    // centred where it already sits. Applied outside the rail's padding, so it centres across
+    // the whole collapsed rail rather than across the item column alone.
+    .overlay(alignment: .topLeading) {
+      Image("nav_rail_logo")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: NavRail.logoSize, height: NavRail.logoSize)
+        // The second frame resizes nothing: it's a full-rail-width box whose default centre
+        // alignment puts the mark on the rail's axis. Sizing the box rather than aligning the
+        // overlay `.top` is what keeps it there — the overlay's container is the item column,
+        // which widens as the rail expands and would carry a centred logo out with it.
+        .frame(width: NavRail.collapsedWidth)
+        .padding(.top, NavRail.logoTopInset)
+        .accessibilityHidden(true)
+    }
     // Scrims the tab content sliding under the rail. Only while collapsed — once the items
     // expand they carry their own highlights and the gradient would sit behind them.
     .background(alignment: .leading) {
