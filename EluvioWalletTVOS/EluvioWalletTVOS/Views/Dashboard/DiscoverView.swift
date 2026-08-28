@@ -75,7 +75,9 @@ struct DiscoverView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
       }
     }
-    .task {
+    // Keyed on refreshId so switching environment in Profile reloads the page. Tabs stay
+    // mounted, so a plain `.task` would only ever run once per launch.
+    .task(id: eluvio.refreshId) {
       if eluvio.isCustomApp(), let slug = APP_CONFIG.allowed_properties?.first {
         debugPrint("Fetching single allowed property: \(slug)")
         await PropertyStore.shared.fetchProperty(id: slug)

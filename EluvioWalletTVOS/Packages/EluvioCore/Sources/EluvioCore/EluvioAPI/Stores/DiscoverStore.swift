@@ -25,6 +25,11 @@ public class DiscoverStore {
 
   public private(set) var rows: [Row] = []
 
+  /// Which environment the rows in memory belong to. Switching environments has to drop them,
+  /// and the Properties they name: ids from one environment mean nothing in the other, and the
+  /// stores hydrate from disk once at launch so nothing else would clear them.
+  private var loadedEnvironment: String?
+
   private init() {
     rows =
       PersistentDataCache().loadCachedDiscoverRows(
@@ -58,6 +63,13 @@ public class DiscoverStore {
 
   /// Loads the Discover page, falling back to the flat `mw/properties` list.
   public func load() async {
+    let environment = NetworkStore.shared.environment.rawValue
+    if let loadedEnvironment, loadedEnvironment != environment {
+      rows = []
+      PropertyStore.shared.clear()
+    }
+    loadedEnvironment = environment
+
     let fetched = await fetchDiscoverRows()
     // Even when cached rows are still renderable, a failed fetch has to fall through: it's
     // the only call that would have refreshed the Properties those rows point at.
