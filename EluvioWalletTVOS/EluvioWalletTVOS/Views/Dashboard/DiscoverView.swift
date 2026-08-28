@@ -31,6 +31,11 @@ struct DiscoverView: View {
   /// while it's being fetched, and for the (currently: every) Property that has no video.
   @State private var heroVideo: AVPlayerItem? = nil
 
+  /// Whether a promo video is on screen over the background image. Set by `HeroVideo` when it
+  /// fades in, and cleared only once it has finished fading out, so it stays true across a
+  /// focus change that swaps the image underneath.
+  @State private var heroVideoVisible = false
+
   private var rows: [DiscoverStore.PropertyRow] { DiscoverStore.shared.propertyRows }
 
   /// Drives the hero and the logo/text: whatever card holds focus, or the first one before
@@ -112,14 +117,16 @@ struct DiscoverView: View {
         )
         .id(backgroundImageURL)
         if let heroVideo {
-          LoopingVideoPlayer([heroVideo], endAction: .loop)
-            .edgesIgnoringSafeArea(.all)
-            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+          HeroVideo(item: heroVideo, visible: $heroVideoVisible)
             .id("hero video \(heroVideo.hashValue)")
+            .transition(.opacity)
         }
       }
     )
-    .animation(bgImageAnimation, value: backgroundImageURL)
+    // With a video on top the image is fully covered, so swap it instantly: an animated
+    // swap would still be fading when the video dissolves away above it, and the video's
+    // fade would uncover the outgoing Property's image as a flash.
+    .animation(heroVideoVisible ? nil : bgImageAnimation, value: backgroundImageURL)
   }
 
   /// Resolves the focused Property's promo video to something playable.
@@ -128,9 +135,12 @@ struct DiscoverView: View {
   /// request per Property - `task(id:)` cancels this when focus moves on. Until it resolves
   /// (or if it fails) there is no video, and the background image stands on its own.
   private func loadHeroVideo() async {
-    // Drop the outgoing Property's video right away, rather than keeping it around until
-    // the new one is ready.
-    heroVideo = nil
+    // Fade the outgoing Property's video out right away, rather than keeping it around
+    // until the new one is ready. The background image is already behind it, so the fade
+    // lands on the image instead of on a gap.
+    withAnimation(heroVideoAnimation) {
+      heroVideo = nil
+    }
     guard !eluvio.isCustomApp(), let property = displayedProperty,
       let hash = heroVideoHash(property)
     else { return }
@@ -164,8 +174,46 @@ private func heroVideoHash(_ property: MediaProperty) -> String? {
 }
 
 private let bgImageAnimation = Animation.linear(duration: 0.5)
+private let heroVideoAnimation = Animation.easeInOut(duration: 0.8)
 private let heroTextAnimation = Animation.linear(duration: 0.3)
 private let heroBaseColor = Color(red: 0.031, green: 0.035, blue: 0.047)
+
+/// The focused Property's promo video, over the background image.
+///
+/// The player is only faded in once its item can actually play: an `AVPlayerViewController`
+/// renders black until it has frames, so fading it in from the moment it's mounted would
+/// cross the background image through black on its way to the video.
+private struct HeroVideo: View {
+  var item: AVPlayerItem
+  /// Raised as this fades in, and lowered by `onDisappear` - which lands after the removal
+  /// transition, so the flag outlives the fade out rather than dropping as it starts.
+  @Binding var visible: Bool
+  @State private var ready = false
+
+  var body: some View {
+    LoopingVideoPlayer([item], endAction: .loop)
+      .edgesIgnoringSafeArea(.all)
+      .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+      .opacity(ready ? 1 : 0)
+      .animation(heroVideoAnimation, value: ready)
+      .onDisappear { visible = false }
+      .task {
+        // Poll rather than observe: `status` is KVO-observable, but it changes exactly once
+        // here, and Combine's `publisher(for:).values` drops a change that lands while its
+        // async iterator has no outstanding demand - which held the player at opacity 0
+        // forever. Cancelled with the view when focus moves on.
+        while item.status == .unknown {
+          if Task.isCancelled { return }
+          try? await Task.sleep(for: .milliseconds(100))
+        }
+        // A failed item never gets frames, so leave it hidden and let the image stand.
+        if item.status == .readyToPlay {
+          ready = true
+          visible = true
+        }
+      }
+  }
+}
 
 /// Scrims over the hero background, so the logo, text and rows stay readable.
 private struct HeroScrims: View {
