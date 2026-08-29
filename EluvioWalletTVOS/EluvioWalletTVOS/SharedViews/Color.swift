@@ -47,21 +47,6 @@ extension Color {
     let b = Double(hex & 0xFF) / 255
     self.init(red: r, green: g, blue: b, opacity: alpha)
   }
-
-  /// Parses a "#RRGGBB" or "#RRGGBBAA" hex string, as sent by the server.
-  init?(hexString: String?) {
-    var hex = hexString?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-    if hex.hasPrefix("#") { hex.removeFirst() }
-    guard let value = UInt64(hex, radix: 16) else { return nil }
-    switch hex.count {
-    case 6:
-      self.init(hex: Int(value))
-    case 8:
-      self.init(hex: Int(value >> 8), alpha: Double(value & 0xFF) / 255)
-    default:
-      return nil
-    }
-  }
 }
 
 // MARK: - SwiftUI Previews

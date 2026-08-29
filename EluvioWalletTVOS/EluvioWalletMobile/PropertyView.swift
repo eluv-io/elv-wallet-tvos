@@ -2,8 +2,9 @@ import EluvioCore
 import SwiftUI
 
 /// Post-auth property landing — renders the property's first authorized page
-/// as a vertical scroll of horizontally-scrolling section rows. Section items
-/// don't yet navigate anywhere; tapping prints the item id for now.
+/// as a vertical scroll of hero banners and horizontally-scrolling section
+/// rows. Section items don't yet navigate anywhere; tapping prints the item id
+/// for now.
 struct PropertyView: View {
   let property: MediaProperty
 
@@ -27,10 +28,16 @@ struct PropertyView: View {
         ScrollView {
           LazyVStack(alignment: .leading, spacing: 24) {
             ForEach(sections) { section in
-              SectionRow(section: section, onTap: handleTap)
+              if section.display?.display_format == "hero" {
+                PropertyHeroView(
+                  property: property, section: section,
+                  onPlay: { playingItem = $0 })
+              } else {
+                SectionRow(section: section, onTap: handleTap)
+              }
             }
           }
-          .padding(.vertical, 16)
+          .padding(.bottom, 16)
         }
       }
     }
