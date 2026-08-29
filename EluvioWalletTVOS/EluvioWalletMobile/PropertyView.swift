@@ -156,6 +156,31 @@ private struct SectionItemCard: View {
       ?? ""
   }
 
+  /// Live and upcoming streams get a badge in the bottom corner of the card,
+  /// the way tvOS `MediaCard` draws them.
+  @ViewBuilder private var statusBadge: some View {
+    if let media = item.media {
+      if media.isUpcoming {
+        VStack(spacing: 1) {
+          Text("UPCOMING")
+          Text(media.startDateTimeString)
+        }
+        .font(.caption2)
+        .foregroundStyle(.white)
+        .padding(.vertical, 3)
+        .padding(.horizontal, 6)
+        .background(RoundedRectangle(cornerRadius: 4).fill(.black.opacity(0.6)))
+      } else if media.currentlyLive {
+        Text("LIVE")
+          .font(.caption2.bold())
+          .foregroundStyle(.white)
+          .padding(.vertical, 3)
+          .padding(.horizontal, 6)
+          .background(RoundedRectangle(cornerRadius: 4).fill(.red))
+      }
+    }
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 6) {
       Group {
@@ -177,6 +202,9 @@ private struct SectionItemCard: View {
         if item.isInaccessible {
           Color.black.opacity(0.6)
         }
+      }
+      .overlay(alignment: .bottomTrailing) {
+        statusBadge.padding(6)
       }
       .clipShape(RoundedRectangle(cornerRadius: 8))
 
