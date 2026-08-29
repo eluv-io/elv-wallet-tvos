@@ -9,55 +9,6 @@ import EluvioCore
 import Foundation
 import SwiftyJSON
 
-/// The shape of a media card. Backed by the server's `aspect_ratio` strings
-/// ("square", "portrait", "landscape") and also drives card sizing in `MediaCard`.
-enum AspectRatio: String, Codable {
-  case square, portrait, landscape
-
-  /// Width-to-height ratio of the card.
-  var value: CGFloat {
-    switch self {
-    case .square: 1 / 1
-    case .portrait: 2 / 3
-    case .landscape: 16 / 9
-    }
-  }
-}
-
-/// Picks the best thumbnail and its aspect ratio, mirroring Android's
-/// `DisplaySettings.thumbnailUrlAndRatio`: with no forced ratio, the first
-/// available image wins (square, landscape, portrait). When a ratio is forced,
-/// the matching image is preferred, but the forced ratio is kept even if only
-/// a mismatched image exists.
-func resolveThumbnail(
-  square: String, portrait: String, landscape: String, forced: AspectRatio?
-) -> (thumbnail: String, ratio: AspectRatio) {
-  var thumbnail = ""
-  var ratio = AspectRatio.square
-  if !square.isEmpty {
-    thumbnail = square
-    ratio = .square
-  } else if !landscape.isEmpty {
-    thumbnail = landscape
-    ratio = .landscape
-  } else if !portrait.isEmpty {
-    thumbnail = portrait
-    ratio = .portrait
-  }
-
-  if let forced = forced {
-    let matching =
-      switch forced {
-      case .square: square
-      case .portrait: portrait
-      case .landscape: landscape
-      }
-    return (matching.isEmpty ? thumbnail : matching, forced)
-  }
-
-  return (thumbnail, ratio)
-}
-
 struct MediaPropertySectionMediaItemViewModel: Decodable, Identifiable, Hashable {
   var id: String
   var media_id: String
