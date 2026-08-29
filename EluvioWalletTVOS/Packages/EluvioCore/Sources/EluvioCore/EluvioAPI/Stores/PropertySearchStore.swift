@@ -56,6 +56,73 @@ public class PropertySearchStore {
       "mw/properties/\(propertyId)/filters")
     return response
   }
+
+  /// Flattens the filters endpoint into the primary chips a search screen shows,
+  /// each carrying its own secondary chips.
+  public func getPrimaryFilters(propertyId: String) async throws -> [PrimaryFilterViewModel] {
+    let filterResult = try await getFilters(propertyId: propertyId)
+
+    let attributes = filterResult.attributes ?? [:]
+    let primaryFilterValue = filterResult.primary_filter ?? ""
+
+    guard let primaryAttribute = attributes[primaryFilterValue] else { return [] }
+    let options = filterResult.filter_options ?? []
+    var newPrimaryFilters: [PrimaryFilterViewModel] = []
+
+    let primaryTags = primaryAttribute.tags ?? []
+
+    if !options.isEmpty {
+      for option in options {
+        let optionPrimaryFilterValue = option.primary_filter_value
+        let image = option.primary_filter_image?.url ?? ""
+
+        // Find secondary filters
+        var secondary: [SecondaryFilterViewModel] = []
+        let secondaryFilterOptions = option.secondary_filter_options ?? []
+
+        for secondaryItem in secondaryFilterOptions {
+          let secondaryImage = secondaryItem.secondary_filter_image_tv?.url ?? ""
+
+          let secondaryValue = secondaryItem.secondary_filter_value
+
+          let secondaryFilter = SecondaryFilterViewModel(
+            id: secondaryValue,
+            imageUrl: secondaryImage)
+          secondary.append(secondaryFilter)
+        }
+
+        let secondaryAttribute = option.secondary_filter_attribute ?? ""
+        if secondary.isEmpty {
+          for secondaryTag in attributes[secondaryAttribute]?.tags ?? [] {
+            secondary.append(SecondaryFilterViewModel(id: secondaryTag))
+          }
+        }
+
+        let filterStyle = option.secondary_filter_style ?? ""
+        let filter = PrimaryFilterViewModel(
+          id: optionPrimaryFilterValue,
+          imageUrl: image,
+          secondaryFilters: secondary,
+          attribute: primaryFilterValue,
+          secondaryAttribute: secondaryAttribute,
+          secondaryFilterStyle: PrimaryFilterViewModel.GetFilterStyle(style: filterStyle))
+
+        newPrimaryFilters.append(filter)
+      }
+    } else if !primaryTags.isEmpty {
+      for tag in primaryTags {
+        let filter = PrimaryFilterViewModel(
+          id: tag,
+          imageUrl: "",
+          secondaryFilters: [],
+          attribute: primaryFilterValue,
+          secondaryAttribute: "")
+
+        newPrimaryFilters.append(filter)
+      }
+    }
+    return newPrimaryFilters
+  }
 }
 
 public struct SearchRequest: Codable {
