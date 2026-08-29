@@ -98,7 +98,8 @@ struct SearchView: View {
     do {
       debugPrint("Search refresh()")
 
-      self.primaryFilters = try await getPrimaryFilters(propertyId: propertyId)
+      self.primaryFilters = try await PropertySearchStore.shared.getPrimaryFilters(
+        propertyId: propertyId)
       debugPrint("Got PrimaryFilters: ", primaryFilters)
 
       if !primaryFilters.isEmpty {
@@ -151,80 +152,6 @@ struct SearchView: View {
       // TODO: Send to error screen
     }
   }
-}
-
-private func getPrimaryFilters(propertyId: String) async throws -> [PrimaryFilterViewModel] {
-  let filterResult = try await PropertySearchStore.shared.getFilters(propertyId: propertyId)
-  // debugPrint("Property Filter Response ",filterResult)
-
-  let attributes = filterResult.attributes ?? [:]
-  let primaryFilterValue = filterResult.primary_filter ?? ""
-  debugPrint("primaryFilterValue ", primaryFilterValue)
-
-  guard let primaryAttribute = attributes[primaryFilterValue] else { return [] }
-  let options = filterResult.filter_options ?? []
-  var newPrimaryFilters: [PrimaryFilterViewModel] = []
-
-  debugPrint("Found primary attribute ", primaryAttribute)
-  let primaryTags = primaryAttribute.tags ?? []
-
-  debugPrint("tags: ", primaryTags)
-  debugPrint("options: ", options)
-
-  if !options.isEmpty {
-    for option in options {
-      let optionPrimaryFilterValue = option.primary_filter_value
-      debugPrint("Secondary attribute ", option.secondary_filter_attribute ?? "nil")
-      let image = option.primary_filter_image?.url ?? ""
-      debugPrint("filter image: ", image)
-
-      // Find secondary filters
-      var secondary: [SecondaryFilterViewModel] = []
-      let secondaryFilterOptions = option.secondary_filter_options ?? []
-
-      for secondaryItem in secondaryFilterOptions {
-        let secondaryImage = secondaryItem.secondary_filter_image_tv?.url ?? ""
-
-        let secondaryValue = secondaryItem.secondary_filter_value
-
-        let secondaryFilter = SecondaryFilterViewModel(
-          id: secondaryValue,
-          imageUrl: secondaryImage)
-        secondary.append(secondaryFilter)
-      }
-
-      let secondaryAttribute = option.secondary_filter_attribute ?? ""
-      if secondary.isEmpty {
-        for secondaryTag in attributes[secondaryAttribute]?.tags ?? [] {
-          secondary.append(SecondaryFilterViewModel(id: secondaryTag))
-        }
-      }
-
-      let filterStyle = option.secondary_filter_style ?? ""
-      let filter = PrimaryFilterViewModel(
-        id: optionPrimaryFilterValue,
-        imageUrl: image,
-        secondaryFilters: secondary,
-        attribute: primaryFilterValue,
-        secondaryAttribute: secondaryAttribute,
-        secondaryFilterStyle: PrimaryFilterViewModel.GetFilterStyle(style: filterStyle))
-
-      newPrimaryFilters.append(filter)
-    }
-  } else if !primaryTags.isEmpty {
-    for tag in primaryTags {
-      debugPrint("searching tag ", tag)
-      let filter = PrimaryFilterViewModel(
-        id: tag,
-        imageUrl: "",
-        secondaryFilters: [],
-        attribute: primaryFilterValue,
-        secondaryAttribute: "")
-
-      newPrimaryFilters.append(filter)
-    }
-  }
-  return newPrimaryFilters
 }
 
 // MARK: - SwiftUI Previews

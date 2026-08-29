@@ -12,6 +12,7 @@ struct PropertyView: View {
   @State private var sections: [MediaPropertySection] = []
   @State private var loading = true
   @State private var playingItem: MediaPropertySectionMediaItem?
+  @State private var showSearch = false
 
   var body: some View {
     Group {
@@ -43,9 +44,21 @@ struct PropertyView: View {
     }
     .navigationTitle(property.displayName)
     .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .topBarTrailing) {
+        Button {
+          showSearch = true
+        } label: {
+          Image(systemName: "magnifyingglass")
+        }
+      }
+    }
     .task { await load() }
     .navigationDestination(item: $playingItem) { mediaItem in
       MobileVideoPlayerView(property: property, mediaItem: mediaItem)
+    }
+    .navigationDestination(isPresented: $showSearch) {
+      MobileSearchView(property: property)
     }
   }
 
@@ -77,7 +90,7 @@ struct PropertyView: View {
   }
 }
 
-private struct SectionRow: View {
+struct SectionRow: View {
   let section: MediaPropertySection
   let onTap: (MediaPropertySectionItem) -> Void
 
@@ -123,9 +136,11 @@ private struct SectionRow: View {
   }
 }
 
-private struct SectionItemCard: View {
+struct SectionItemCard: View {
   let item: MediaPropertySectionItem
   let sectionRatio: AspectRatio?
+  /// Set by grid layouts, which need every card to match the column width.
+  var cardWidth: CGFloat? = nil
 
   private var resolved: (thumbnail: String, ratio: AspectRatio) {
     item.thumbnailAndRatio(sectionRatio: sectionRatio)
@@ -134,14 +149,15 @@ private struct SectionItemCard: View {
   /// Portrait cards are taller and landscape ones shorter, so that a row of
   /// either still reads at roughly the same width. Mirrors tvOS `MediaCard`.
   private var height: CGFloat {
+    if let cardWidth { return cardWidth / resolved.ratio.value }
     switch resolved.ratio {
-    case .square: 160
-    case .portrait: 240
-    case .landscape: 135
+    case .square: return 160
+    case .portrait: return 240
+    case .landscape: return 135
     }
   }
 
-  private var width: CGFloat { height * resolved.ratio.value }
+  private var width: CGFloat { cardWidth ?? height * resolved.ratio.value }
 
   var imageUrl: String? {
     resolved.thumbnail.nilIfEmpty()
