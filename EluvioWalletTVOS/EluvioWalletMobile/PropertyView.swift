@@ -86,6 +86,11 @@ private struct SectionRow: View {
       .filter { $0.resolvedPermissions?.hide != true }
   }
 
+  /// A section can force the shape of every card in its row.
+  var sectionRatio: AspectRatio? {
+    AspectRatio(section.display?.aspect_ratio)
+  }
+
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       if !section.displayTitle.isEmpty {
@@ -106,7 +111,7 @@ private struct SectionRow: View {
             Button {
               onTap(item)
             } label: {
-              SectionItemCard(item: item)
+              SectionItemCard(item: item, sectionRatio: sectionRatio)
             }
             .buttonStyle(.plain)
             .contentShape(.rect)
@@ -120,12 +125,26 @@ private struct SectionRow: View {
 
 private struct SectionItemCard: View {
   let item: MediaPropertySectionItem
+  let sectionRatio: AspectRatio?
 
-  private let width: CGFloat = 160
-  private let height: CGFloat = 160
+  private var resolved: (thumbnail: String, ratio: AspectRatio) {
+    item.thumbnailAndRatio(sectionRatio: sectionRatio)
+  }
+
+  /// Portrait cards are taller and landscape ones shorter, so that a row of
+  /// either still reads at roughly the same width. Mirrors tvOS `MediaCard`.
+  private var height: CGFloat {
+    switch resolved.ratio {
+    case .square: 160
+    case .portrait: 240
+    case .landscape: 135
+    }
+  }
+
+  private var width: CGFloat { height * resolved.ratio.value }
 
   var imageUrl: String? {
-    item.media?.thumbnail().nilIfEmpty()
+    resolved.thumbnail.nilIfEmpty()
       ?? item.banner_image_mobile?.url?.nilIfEmpty()
       ?? item.banner_image?.url?.nilIfEmpty()
   }
