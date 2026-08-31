@@ -30,19 +30,17 @@ struct SinglePropertyRootView: View {
     Group {
       if let property {
         if isSignedIn {
-          // Same tab bar as the multi-property build. The property page is the
-          // Home tab's root rather than a pushed destination, so the bar stays
-          // up across the property detail and everything pushed from it.
+          // The property page is the Home tab's root rather than a pushed
+          // destination, so the bar stays up across the property detail and
+          // everything pushed from it. No My Items tab here: a whitelabel
+          // build has no wallet items to show, and the tab set is fixed for
+          // the life of the install rather than appearing mid-session.
           TabView(selection: $selectedTab) {
             NavigationStack {
               PropertyView(property: property)
             }
             .tabItem { Label("Home", systemImage: "house") }
             .tag(AppTab.home)
-
-            MyItemsView()
-              .tabItem { Label("My Items", systemImage: "rectangle.stack") }
-              .tag(AppTab.myItems)
 
             ProfileView()
               .tabItem { Label("Profile", systemImage: "person") }
