@@ -12,14 +12,16 @@ struct ContentView: View {
   @State private var discoverPath = NavigationPath()
 
   var body: some View {
+    // Home sits in the middle of the bar but is still what `selectedTab`
+    // starts on, so the app opens on Discover.
     TabView(selection: $selectedTab) {
-      DiscoverView(path: $discoverPath)
-        .tabItem { Label("Home", systemImage: "house") }
-        .tag(AppTab.home)
-
       MyItemsView()
         .tabItem { Label("My Items", systemImage: "rectangle.stack") }
         .tag(AppTab.myItems)
+
+      DiscoverView(path: $discoverPath)
+        .tabItem { Label("Home", systemImage: "house") }
+        .tag(AppTab.home)
 
       ProfileView()
         .tabItem { Label("Profile", systemImage: "person") }
