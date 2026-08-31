@@ -8,7 +8,7 @@ import SwiftUI
 struct SinglePropertyRootView: View {
   /// The property this build is pinned to. Nil until the first fetch lands.
   @State private var property: MediaProperty?
-  @State private var showProfile = false
+  @State private var selectedTab: AppTab = .home
 
   init() {
     let initial = Self.propertyId.flatMap { PropertyStore.shared.getProperty(id: $0) }
@@ -30,22 +30,23 @@ struct SinglePropertyRootView: View {
     Group {
       if let property {
         if isSignedIn {
-          NavigationStack {
-            PropertyView(property: property)
-              // There's no tab bar in this mode, so the only way to reach
-              // account details and sign out is from the property header.
-              .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                  Button {
-                    showProfile = true
-                  } label: {
-                    Image(systemName: "person.crop.circle")
-                  }
-                }
-              }
-              .sheet(isPresented: $showProfile) {
-                ProfileView()
-              }
+          // Same tab bar as the multi-property build. The property page is the
+          // Home tab's root rather than a pushed destination, so the bar stays
+          // up across the property detail and everything pushed from it.
+          TabView(selection: $selectedTab) {
+            NavigationStack {
+              PropertyView(property: property)
+            }
+            .tabItem { Label("Home", systemImage: "house") }
+            .tag(AppTab.home)
+
+            MyItemsView()
+              .tabItem { Label("My Items", systemImage: "rectangle.stack") }
+              .tag(AppTab.myItems)
+
+            ProfileView()
+              .tabItem { Label("Profile", systemImage: "person") }
+              .tag(AppTab.profile)
           }
         } else {
           WelcomeView(property: property) {
@@ -58,6 +59,11 @@ struct SinglePropertyRootView: View {
         ProgressView()
           .frame(maxWidth: .infinity, maxHeight: .infinity)
       }
+    }
+    // Sign-out drops back to the welcome gate; make sure the next sign-in
+    // starts on Home rather than wherever the user left off.
+    .onChange(of: AccountStore.shared.account?.id) { _, newId in
+      if newId == nil { selectedTab = .home }
     }
     .task {
       guard property == nil else { return }
