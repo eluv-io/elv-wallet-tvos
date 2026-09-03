@@ -180,6 +180,10 @@ struct MediaCard: View {
   /// A theme that draws its own border replaces the focus ring with it.
   private var hasThemeBorder: Bool { cardTheme?.hasBorder == true }
 
+  /// True while focus is drawing the title over the card, which makes the copy
+  /// underneath a duplicate.
+  private var drawsFocusedTitle: Bool { isFocused && respondToFocus && showFocusedTitle }
+
   private var imageSaturation: Double { cardTheme?.imageSaturation(focused: isFocused) ?? 1 }
 
   private var hasImage: Bool { playerItem != nil || !image.isEmpty }
@@ -425,6 +429,8 @@ struct MediaCard: View {
           .font(.system(size: 22 * sizeFactor))
           .lineLimit(1)
           .frame(maxWidth: .infinity, alignment: titleAlignment)
+          .opacity(drawsFocusedTitle ? 0 : 1)
+          .animation(.easeInOut(duration: MediaCard.themeAnimation), value: drawsFocusedTitle)
       }
     }
     .frame(width: width, height: height)

@@ -191,6 +191,9 @@ struct MediaPropertyRegularSectionView: View {
   var scaleFactor: CGFloat = 0.7
   var lookForBackground = false
 
+  /// How far the widest card grows past its own edge when focus scales it up.
+  private static let focusOverhang: CGFloat = 24
+
   var body: some View {
     ZStack(alignment: .leading) {
       HStack(alignment: .center) {
@@ -249,7 +252,7 @@ struct MediaPropertyRegularSectionView: View {
             .padding(.leading, 10)
 
             if alignment == .center && items.count < 5 {
-              HStack(alignment: .top, spacing: 20) {
+              HStack(alignment: .top, spacing: 30) {
                 ForEach(items) { item in
                   SectionItemView(
                     sectionId: section.id,
@@ -265,14 +268,14 @@ struct MediaPropertyRegularSectionView: View {
                   .focused($currentFocusItem, equals: item)
                 }
               }
-              .padding([.top, .bottom], 20)
+              .padding([.top, .bottom], 24)
               .padding(.leading, 10)
               .padding(.trailing, 0)
               .edgesIgnoringSafeArea([.leading, .trailing])
               .focusSection()
             } else {
               ScrollView(.horizontal) {
-                HStack(alignment: .center, spacing: 20) {
+                HStack(alignment: .center, spacing: 30) {
                   ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                     SectionItemView(
                       sectionId: section.id,
@@ -290,10 +293,15 @@ struct MediaPropertyRegularSectionView: View {
                   }
                 }
                 .frame(maxWidth: .infinity)
-                .padding([.top, .bottom], 20)
-                .padding(.leading, 10)
+                .padding([.top, .bottom], 24)
+                .padding(.leading, 10 + Self.focusOverhang)
                 .focusSection()
               }
+              // The scroll view clips, so a focused first card would lose the
+              // sliver it grows past its resting edge. Give the row that much
+              // extra room and pull the scroll view back by the same amount,
+              // which keeps the cards lined up with the section title.
+              .padding(.leading, -Self.focusOverhang)
               .defaultFocus(
                 $currentFocusItem, lastFocusItem ?? items.first, priority: .userInitiated
               )

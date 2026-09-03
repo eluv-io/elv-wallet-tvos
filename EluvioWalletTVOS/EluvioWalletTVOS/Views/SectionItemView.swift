@@ -570,7 +570,7 @@ struct SectionItemView: View {
             )
             .opacity(opacity)
           }
-          .buttonStyle(TitleButtonStyle(focused: isFocused, scale: 1.0))
+          .buttonStyle(TitleButtonStyle(focused: isFocused, scale: 1.08))
           .focused($isFocused)
         }
       }
