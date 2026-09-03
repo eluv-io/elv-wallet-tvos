@@ -130,6 +130,48 @@ struct RedeemableCardView: View {
   }
 }
 
+/// The focused-card ring from the CTV design: a thin white stroke whose bright
+/// segment sweeps around the card, one revolution per 3.6s. Ported from the
+/// Android wallet's AnimatedFocusRing.
+///
+/// The angle is read per frame from a TimelineView rather than animated with
+/// withAnimation, because a gradient's angle isn't one of the properties
+/// SwiftUI interpolates across a state change - it would snap round in a
+/// single frame instead of sweeping.
+struct AnimatedFocusRing: View {
+  var shape: AnyShape
+  var lineWidth: CGFloat = 2
+
+  /// One revolution, matching Android's tween.
+  private static let period: TimeInterval = 3.6
+
+  /// Bright segment peaks at 90 degrees and fades back out by 200.
+  private static let stops: [Gradient.Stop] = [
+    .init(color: .white.opacity(0.16), location: 0),
+    .init(color: .white, location: 90.0 / 360.0),
+    .init(color: .white.opacity(0.16), location: 200.0 / 360.0),
+    .init(color: .white.opacity(0.16), location: 1),
+  ]
+
+  var body: some View {
+    TimelineView(.animation) { context in
+      let elapsed = context.date.timeIntervalSinceReferenceDate
+        .truncatingRemainder(dividingBy: Self.period)
+      // The design's gradient starts at 12 o'clock, AngularGradient at 3, so
+      // the sweep is shifted back a quarter turn.
+      let angle = Angle.degrees(elapsed / Self.period * 360 - 90)
+      shape
+        .stroke(
+          AngularGradient(stops: Self.stops, center: .center, angle: angle),
+          lineWidth: lineWidth
+        )
+        // The stroke straddles the path, so run it half a stroke inside the
+        // card's outline - otherwise the outer half gets clipped away.
+        .padding(lineWidth / 2)
+    }
+  }
+}
+
 struct MediaCard: View {
   var aspectRatio: AspectRatio = .square
   var image: String = ""
@@ -402,16 +444,8 @@ struct MediaCard: View {
         }
 
         if isFocused && !hasThemeBorder {
-          // Same geometry the ring had when it was an overlay on the focused
-          // texts, so it keeps sitting exactly where it always has.
-          Color.clear
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(20)
-            .scaleEffect(sizeFactor)
-            .overlay(
-              cardShape
-                .stroke(Color.highlight, lineWidth: 4)
-            )
+          AnimatedFocusRing(shape: cardShape)
+            .frame(width: width, height: height)
         }
 
         if let cardTheme, cardTheme.hasBorder {
