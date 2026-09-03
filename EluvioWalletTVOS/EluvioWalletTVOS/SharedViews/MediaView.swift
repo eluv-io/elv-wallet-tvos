@@ -172,6 +172,35 @@ struct AnimatedFocusRing: View {
   }
 }
 
+/// Playback progress along the bottom edge of a card, drawn focused or not -
+/// it says something about the content, it isn't a focus affordance. Height
+/// and colors are the Android wallet's ProgressBar.
+///
+/// Sized by its caller to the whole card, so the bar can sit on the bottom
+/// edge and have its ends clipped to the card's corners.
+struct CardProgressBar: View {
+  /// 0...1.
+  var progress: Double
+  /// The card's outline, which the bar's ends follow.
+  var shape: AnyShape
+
+  private static let height: CGFloat = 6
+  private static let track = Color(hex: 0x5A5A5A)
+  private static let fill = Color(hex: 0xEBEBEB)
+
+  var body: some View {
+    VStack(spacing: 0) {
+      Spacer()
+      ZStack(alignment: .leading) {
+        Self.track
+        Self.fill.scaleEffect(x: progress, anchor: .leading)
+      }
+      .frame(height: Self.height)
+    }
+    .clipShape(shape)
+  }
+}
+
 struct MediaCard: View {
   var aspectRatio: AspectRatio = .square
   var image: String = ""
@@ -390,14 +419,6 @@ struct MediaCard: View {
                   .frame(maxWidth: .infinity, alignment: titleAlignment)
               }
             }
-
-            if progressValue > 0.0 {
-              ProgressView(value: progressValue)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity, alignment: titleAlignment)
-                .frame(height: 4)
-                .padding(.top, 15)
-            }
           }
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .padding(20)
@@ -441,6 +462,11 @@ struct MediaCard: View {
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .padding(20)
           .scaleEffect(sizeFactor, anchor: .bottomTrailing)
+        }
+
+        if progressValue > 0 {
+          CardProgressBar(progress: progressValue, shape: cardShape)
+            .frame(width: width, height: height)
         }
 
         if isFocused && !hasThemeBorder {
