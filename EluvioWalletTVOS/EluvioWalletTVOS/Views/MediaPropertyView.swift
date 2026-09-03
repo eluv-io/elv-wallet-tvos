@@ -14,6 +14,8 @@ import SwiftUI
 private let cardWidth: CGFloat = 240
 private let cardHeight: CGFloat = 360
 private let cardCornerRadius: CGFloat = 12
+private let cardShape = AnyShape(
+  RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
 private let cardSpacing: CGFloat = 20
 private let cardFocusedScale = 1.08
 /// Room for the focused card's scale to draw without being clipped by the row's bounds.
@@ -196,13 +198,14 @@ private struct DiscoverPropertyCard: View {
           }
         }
         .frame(width: cardWidth, height: cardHeight)
-        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: .continuous))
+        .clipShape(cardShape)
+        .overlay {
+          if focused {
+            AnimatedFocusRing(shape: cardShape)
+          }
+        }
       }
-      .buttonStyle(
-        TitleButtonStyle(
-          focused: focused, scale: cardFocusedScale, bordered: true,
-          borderRadius: cardCornerRadius)
-      )
+      .buttonStyle(TitleButtonStyle(focused: focused, scale: cardFocusedScale))
       .focused($focusedCard, equals: focusKey)
       .accessibilityIdentifier("property_\(property.id)")
     }
