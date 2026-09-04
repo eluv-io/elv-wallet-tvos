@@ -53,9 +53,11 @@ struct IconButton: View {
       }
       .background(ToolbarIcon.background(focused: focused))
       .clipShape(Circle())
-      .shadow(color: focused ? ToolbarIcon.glow : .clear, radius: 10)
     }
     .buttonStyle(IconButtonStyle(focused: focused, initialOpacity: 0.7, scale: 1.2))
+    // Outside the style: it clips the label to a rounded rect, which would cut the glow off
+    // square at the circle's bounds.
+    .shadow(color: focused ? ToolbarIcon.glow : .clear, radius: 10)
     .focused($focused)
     .focusEffectDisabled()
   }
@@ -221,11 +223,11 @@ struct MediaPropertyDetailView: View {
           }
           .background(ToolbarIcon.background(focused: switcherFocused))
           .clipShape(Circle())
-          .shadow(color: switcherFocused ? ToolbarIcon.glow : .clear, radius: 10)
         }
         .buttonStyle(
           IconButtonStyle(focused: switcherFocused, initialOpacity: 0.7, scale: 1.2)
         )
+        .shadow(color: switcherFocused ? ToolbarIcon.glow : .clear, radius: 10)
         .focused($switcherFocused)
       }
 
