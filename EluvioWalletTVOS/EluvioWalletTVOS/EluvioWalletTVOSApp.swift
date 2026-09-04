@@ -67,6 +67,8 @@ struct EluvioWalletTVOSApp: App {
   }
 
   private func initWebImageComponents() {
+    WebImageSetup.registerSVGCoder()
+
     // Normalize SDWebImage cache keys:
     // 1. Strip "authorization" so the same image hits cache regardless of token changes
     // 2. Normalize contentfabric.io hosts so different host-x-x-x-x nodes share cache entries

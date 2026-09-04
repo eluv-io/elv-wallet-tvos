@@ -1,6 +1,14 @@
 import SDWebImage
+import SDWebImageSVGCoder
 
 public enum WebImageSetup {
+  /// Teaches SDWebImage to decode SVG. It ships raster coders only, so without
+  /// this an `image/svg+xml` response decodes to nil and the image silently
+  /// never appears. Call once at app launch, before any image loads.
+  public static func registerSVGCoder() {
+    SDImageCodersManager.shared.addCoder(SDImageSVGCoder.shared)
+  }
+
   /// Configures `SDWebImage`'s shared manager + downloader with the cache-key
   /// and URL-rewrite rules every Eluvio app needs. Call once at app launch.
   ///
@@ -10,6 +18,8 @@ public enum WebImageSetup {
   ///   cache entries.
   /// - Replaces the fabric-url placeholder host with the real fabric base URL.
   public static func configure() {
+    registerSVGCoder()
+
     SDWebImageManager.shared.cacheKeyFilter = SDWebImageCacheKeyFilter { url in
       guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
         return url.absoluteString
