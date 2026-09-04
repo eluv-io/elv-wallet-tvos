@@ -11,6 +11,9 @@ import SwiftUI
 struct SearchView: View {
   @State var searchString: String = ""
   var propertyId: String
+  /// Filter values a "search_page_link" section item asked to open with.
+  var initialPrimaryFilter: String = ""
+  var initialSecondaryFilter: String = ""
   private var property: MediaProperty? {
     PropertyStore.shared.getProperty(id: propertyId)
   }
@@ -22,6 +25,17 @@ struct SearchView: View {
   @State var currentPrimaryFilter: PrimaryFilterViewModel? = nil
   @State var currentSecondaryFilter: SecondaryFilterViewModel? = nil
   @State var secondaryFilters: [SecondaryFilterViewModel] = []
+  /// Searching before the filters land would query the property unfiltered.
+  @State private var filtersLoaded = false
+
+  /// Every input a search depends on. Any change reruns the one search task,
+  /// cancelling the run in flight, so results can't arrive out of order.
+  private var searchKey: String {
+    [
+      filtersLoaded.description, searchString,
+      currentPrimaryFilter?.id ?? "", currentSecondaryFilter?.id ?? "",
+    ].joined(separator: "_")
+  }
 
   var body: some View {
     VStack {
@@ -71,16 +85,16 @@ struct SearchView: View {
     .autocorrectionDisabled(true)
     .edgesIgnoringSafeArea([.top])
     // .scrollTargetBehavior(.custom)
-    .task(id: searchString) {
+    .task(id: searchKey) {
+      // Nothing is searched until loadFilters() has picked the filters to
+      // search with - otherwise the first, unfiltered query races the filtered
+      // one and whichever lands last wins.
+      guard filtersLoaded else { return }
       if !searchString.isEmpty {
         // Debounce queries while typing to not spam the API for every character
         try? await Task.sleep(for: .milliseconds(300))
         guard !Task.isCancelled else { return }
       }
-      await search()
-    }
-    .task(id: "\(currentPrimaryFilter?.id ?? "")_\(currentSecondaryFilter?.id ?? "")") {
-      // Search immediately when any filter changes
       await search()
     }
     .task {
@@ -102,14 +116,22 @@ struct SearchView: View {
       debugPrint("Got PrimaryFilters: ", primaryFilters)
 
       if !primaryFilters.isEmpty {
-        currentPrimaryFilter = primaryFilters.first
+        currentPrimaryFilter =
+          primaryFilters.first { $0.id == initialPrimaryFilter } ?? primaryFilters.first
         secondaryFilters = currentPrimaryFilter?.secondaryFilters ?? []
+        if !initialSecondaryFilter.isEmpty {
+          currentSecondaryFilter = secondaryFilters.first { $0.id == initialSecondaryFilter }
+        }
         debugPrint("Secondary filters: ", secondaryFilters)
       }
     } catch {
       print("Could not do search ", error.localizedDescription)
       // TODO: Send to error screen
     }
+
+    // Releases the search task, whether or not the property has filters - a
+    // property without them still searches, just unfiltered.
+    filtersLoaded = true
   }
 
   private func search() async {
@@ -140,6 +162,9 @@ struct SearchView: View {
         property: property, searchRequest: request)
 
       debugPrint("Search sections found:", sections.count)
+
+      // A superseded run may still finish its request; its results are stale.
+      guard !Task.isCancelled else { return }
 
       await MainActor.run {
         self.sections = []

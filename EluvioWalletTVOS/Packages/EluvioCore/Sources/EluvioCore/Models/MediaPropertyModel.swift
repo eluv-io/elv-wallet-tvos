@@ -266,6 +266,10 @@ public final class MediaPropertySectionItem: Identifiable, Hashable, Permissiona
   public var permissions: PermissionsDto?
   public var page_id: String?
   public var url: String?
+  /// Defined for "search_page_link" items: the filter values the search page
+  /// should open with already selected.
+  public var primary_filter: String?
+  public var secondary_filter: String?
   public var resolvedPermissions: ResolvedPermission?
   public var permissionChildren: [any Permissionable] { [media].filterNotNil() }
 

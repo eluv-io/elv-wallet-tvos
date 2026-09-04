@@ -64,6 +64,13 @@ func handleSectionItemTap(
         let params = PropertyParam(propertyId: subPropertyId, pageId: subPageId)
         router.path.append(.property(params))
       }
+    } else if sectionItem?.type?.lowercased() == "search_page_link" {
+      _ = router.path.popLast()
+      let params = SearchParams(
+        propertyId: property.id,
+        primaryFilter: sectionItem?.primary_filter ?? "",
+        secondaryFilter: sectionItem?.secondary_filter ?? "")
+      router.path.append(.search(params))
     } else if sectionItem?.type?.lowercased() == "page_link" {
       _ = router.path.popLast()
       if let linkPageId = sectionItem?.page_id?.nilIfEmpty() {

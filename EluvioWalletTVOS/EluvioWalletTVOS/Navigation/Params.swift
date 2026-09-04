@@ -29,6 +29,10 @@ struct LoginParam: Hashable {
 
 struct SearchParams: Hashable {
   var propertyId: String = ""
+  /// Filters to preselect when the search page opens, set by "search_page_link"
+  /// section items. Empty means "no preselection" - the default filter applies.
+  var primaryFilter: String = ""
+  var secondaryFilter: String = ""
 }
 
 /// Where the user was when they started playback. Autoplay needs these ids together to work

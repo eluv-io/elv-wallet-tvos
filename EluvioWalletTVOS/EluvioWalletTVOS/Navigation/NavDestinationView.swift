@@ -59,7 +59,10 @@ extension NavDestination {
       GalleryView(gallery: items)
         .analyticsScreen(name: "GalleryView")
     case .search(let params):
-      SearchView(propertyId: params.propertyId)
+      SearchView(
+        propertyId: params.propertyId,
+        initialPrimaryFilter: params.primaryFilter,
+        initialSecondaryFilter: params.secondaryFilter)
         .analyticsScreen(name: "SearchView")
     case .sectionViewAll(let params):
       ScrollView {

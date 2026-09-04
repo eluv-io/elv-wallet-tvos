@@ -5,6 +5,7 @@ extension MediaPropertySectionItem: Decodable {
     case id, banner_image, banner_image_mobile, media_id, media_type, type, media
     case description, disabled, display, label, expand, use_media_settings
     case subproperty_id, subproperty_page_id, permissions, page_id, url, resolvedPermissions
+    case primary_filter, secondary_filter
   }
 
   public convenience init(from decoder: Decoder) throws {
@@ -28,6 +29,8 @@ extension MediaPropertySectionItem: Decodable {
     permissions = try container.decodeIfPresent(PermissionsDto.self, forKey: .permissions)
     page_id = try container.decodeIfPresent(String.self, forKey: .page_id)
     url = try container.decodeIfPresent(String.self, forKey: .url)
+    primary_filter = try container.decodeIfPresent(String.self, forKey: .primary_filter)
+    secondary_filter = try container.decodeIfPresent(String.self, forKey: .secondary_filter)
   }
 
   public func encode(to encoder: Encoder) throws {
@@ -50,5 +53,7 @@ extension MediaPropertySectionItem: Decodable {
     try container.encodeIfPresent(permissions, forKey: .permissions)
     try container.encodeIfPresent(page_id, forKey: .page_id)
     try container.encodeIfPresent(url, forKey: .url)
+    try container.encodeIfPresent(primary_filter, forKey: .primary_filter)
+    try container.encodeIfPresent(secondary_filter, forKey: .secondary_filter)
   }
 }
