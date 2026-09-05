@@ -1,5 +1,5 @@
 {
-  "originHash" : "f02d258dce2b30933dcc63da7c3a8ec121cbb5ff2d5fceace15f80fafcc8bc64",
+  "originHash" : "a6e22c4edfe5201126aff5eec2cf78d04aca754b0fdf896d7bbad6dd5d9a0a4c",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -170,6 +170,15 @@
       "state" : {
         "revision" : "e7d3256c497af9330a0df866ee38f544ddd87c49",
         "version" : "5.20.1"
+      }
+    },
+    {
+      "identity" : "sdwebimagesvgcoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageSVGCoder.git",
+      "state" : {
+        "revision" : "85b5d58ad02c207c496fa34426dc6560d6ae32f0",
+        "version" : "1.8.0"
       }
     },
     {
