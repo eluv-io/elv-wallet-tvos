@@ -9,7 +9,7 @@ import SwiftUI
 struct MobileSearchView: View {
   let property: MediaProperty
 
-  @State private var searchString = ""
+  @Binding var searchString: String
   @State private var sections: [MediaPropertySection] = []
   @State private var primaryFilters: [PrimaryFilterViewModel] = []
   @State private var secondaryFilters: [SecondaryFilterViewModel] = []
@@ -46,8 +46,6 @@ struct MobileSearchView: View {
     }
     .navigationTitle("Search")
     .navigationBarTitleDisplayMode(.inline)
-    .searchable(text: $searchString, prompt: "Search \(property.displayName)")
-    .autocorrectionDisabled()
     .navigationDestination(item: $playingItem) { mediaItem in
       MobileVideoPlayerView(property: property, mediaItem: mediaItem)
     }
@@ -138,6 +136,29 @@ struct MobileSearchView: View {
       print("MobileSearchView: search failed:", error.localizedDescription)
       sections = []
     }
+  }
+}
+
+/// Hosts the search screen in its own stack. The search term lives out here
+/// because iOS only anchors the field to the bottom bar when `searchable` is
+/// applied to the stack itself rather than to a view inside it.
+struct MobileSearchCover: View {
+  let property: MediaProperty
+
+  @Environment(\.dismiss) private var dismiss
+  @State private var searchString = ""
+
+  var body: some View {
+    NavigationStack {
+      MobileSearchView(property: property, searchString: $searchString)
+        .toolbar {
+          ToolbarItem(placement: .cancellationAction) {
+            Button("Done") { dismiss() }
+          }
+        }
+    }
+    .searchable(text: $searchString, prompt: "Search \(property.displayName)")
+    .autocorrectionDisabled()
   }
 }
 

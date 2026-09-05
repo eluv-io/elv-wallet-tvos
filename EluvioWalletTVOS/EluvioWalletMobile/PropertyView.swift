@@ -57,8 +57,8 @@ struct PropertyView: View {
     .navigationDestination(item: $playingItem) { mediaItem in
       MobileVideoPlayerView(property: property, mediaItem: mediaItem)
     }
-    .navigationDestination(isPresented: $showSearch) {
-      MobileSearchView(property: property)
+    .fullScreenCover(isPresented: $showSearch) {
+      MobileSearchCover(property: property)
     }
   }
 
