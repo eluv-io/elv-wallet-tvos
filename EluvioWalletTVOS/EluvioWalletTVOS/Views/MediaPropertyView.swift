@@ -23,8 +23,16 @@ private let cardFocusMargin: CGFloat = 12
 /// The rows take whatever height is left below the hero, so the list always ends at the
 /// bottom of the screen. This is only the scroll affordance below the last row now.
 private let rowsViewportHeight: CGFloat = 700
+/// Where the top fading edge reaches full opacity, as a fraction of the rows viewport.
+private let topFadeEnd: CGFloat = 0.03
 
 /// The vertically scrolling list of Discover rows.
+///
+/// tvOS scrolls the focused card to the vertical centre of the list on every focus change -
+/// including sideways moves within a row - and re-asserts that position, so a `scrollTo` to
+/// anywhere else is undone by the next press. The rows are laid out to make that centred
+/// position the one we want instead: every row reserves the same height above its cards, so
+/// centring the focused card leaves the row above just off the top edge.
 struct DiscoverRowsView: View {
   var rows: [DiscoverStore.PropertyRow]
   @Binding var selected: MediaProperty?
@@ -34,10 +42,6 @@ struct DiscoverRowsView: View {
   /// steals it. The same Property can sit in more than one row, hence the row-scoped key.
   @State private var lastClickedCard: String? = nil
   @FocusState private var focusedCard: String?
-  /// Starts at 0 rather than nil: the list opens with row 0 already at the top, so the first
-  /// focus landing there isn't a row change and mustn't scroll. A restored card in a lower row
-  /// still differs from 0, so that case scrolls as before.
-  @State private var focusedRowIndex: Int? = 0
   /// Guards the one-time focus grab below, so it can't yank focus off the rail later.
   @State private var claimedInitialFocus = false
 
@@ -49,7 +53,9 @@ struct DiscoverRowsView: View {
   }
 
   var body: some View {
-    ScrollViewReader { proxy in
+    // The top padding is a slice of the viewport, which is whatever the hero leaves behind,
+    // so it has to be measured rather than written down.
+    GeometryReader { geo in
       ScrollView(.vertical) {
         // Same reasoning as the title gap: the cards sit `cardFocusMargin` inside their
         // scroll view, so subtracting it leaves 50pt between one row's cards and the next row.
@@ -62,39 +68,32 @@ struct DiscoverRowsView: View {
               focusedCard: $focusedCard,
               selected: $selected
             )
-            .id(row.id)
           }
         }
-        // Keeps the first row's title clear of the top fading edge, and lines it up with
-        // where `scrollTo` pins every other row.
-        .padding(.top, 36)
-        // Lets the last row scroll up to the top of the viewport like every other row.
+        // Starts the first row where the top fade finishes, so its title is crisp at rest.
+        // Centring row 0 would put it a shade lower, so the list has nowhere above to go
+        // and stays pinned at offset 0 for as long as row 0 holds focus.
+        .padding(.top, geo.size.height * topFadeEnd)
+        // Lets the last row rise like every other row.
         .padding(.bottom, rowsViewportHeight / 2)
       }
-      .frame(maxHeight: .infinity)
-      .mask(verticalFadingEdges)
-      .defaultFocus($focusedCard, initialCard, priority: .userInitiated)
-      .onAppear {
-        // `defaultFocus` only applies to a view that has no focus yet, and by the time the
-        // rows arrive the nav rail has already claimed it - the page starts out empty while
-        // Discover loads. So claim focus outright the first time the rows render, which also
-        // covers restoring the card we left from.
-        guard !claimedInitialFocus else { return }
-        claimedInitialFocus = true
-        focusedCard = lastClickedCard ?? initialCard
-      }
-      .onChange(of: focusedCard) { _, key in
-        guard let key, let rowIndex = Int(key.prefix(while: { $0 != ":" })) else { return }
-        // Focus landed somewhere on this page: restoration is either done or moot.
+    }
+    .frame(maxHeight: .infinity)
+    .mask(verticalFadingEdges)
+    .defaultFocus($focusedCard, initialCard, priority: .userInitiated)
+    .onAppear {
+      // `defaultFocus` only applies to a view that has no focus yet, and by the time the
+      // rows arrive the nav rail has already claimed it - the page starts out empty while
+      // Discover loads. So claim focus outright the first time the rows render, which also
+      // covers restoring the card we left from.
+      guard !claimedInitialFocus else { return }
+      claimedInitialFocus = true
+      focusedCard = lastClickedCard ?? initialCard
+    }
+    .onChange(of: focusedCard) { _, key in
+      // Focus landed somewhere on this page: restoration is either done or moot.
+      if key != nil {
         lastClickedCard = nil
-        guard rowIndex != focusedRowIndex, rows.indices.contains(rowIndex) else { return }
-        focusedRowIndex = rowIndex
-        // Pin the focused row near the top of the viewport, so rows "rise" as focus moves
-        // down instead of the list scrolling to the bottom. The anchor sits below the top
-        // edge rather than on it, leaving room for the row title and the fading edge.
-        withAnimation(.easeOut(duration: 0.25)) {
-          proxy.scrollTo(rows[rowIndex].id, anchor: UnitPoint(x: 0, y: 0.13))
-        }
       }
     }
   }
@@ -104,7 +103,7 @@ struct DiscoverRowsView: View {
     LinearGradient(
       stops: [
         .init(color: .clear, location: 0),
-        .init(color: .black, location: 0.03),
+        .init(color: .black, location: topFadeEnd),
         .init(color: .black, location: 0.55),
         .init(color: .clear, location: 1),
       ],
@@ -117,7 +116,7 @@ struct DiscoverRowsView: View {
   }
 }
 
-/// An optionally titled row of Property cards.
+/// A row of Property cards, under a title line that's reserved whether or not it's filled.
 private struct DiscoverRowView: View {
   var rowIndex: Int
   var row: DiscoverStore.PropertyRow
@@ -129,13 +128,14 @@ private struct DiscoverRowView: View {
     // The cards sit `cardFocusMargin` inside their scroll view, so subtracting it here leaves
     // 50pt of actual space between the title and the tops of the cards.
     VStack(alignment: .leading, spacing: 50 - cardFocusMargin) {
-      // Rows aren't required to have a title, and featured rows never have one.
-      if !row.title.isEmpty {
-        Text(row.title)
-          .font(.system(size: 28, weight: .medium))
-          .foregroundColor(Color(white: 0.96))
-          .padding(.leading, cardFocusMargin)
-      }
+      // Rows aren't required to have a title, and featured rows never have one - but the
+      // line is reserved either way. The focus engine centres the focused card, so the room
+      // above a row's cards is the same however the row is built; a row that gave that room
+      // back would just have the tail of the row above sitting in it.
+      Text(row.title.nilIfEmpty() ?? " ")
+        .font(.system(size: 28, weight: .medium))
+        .foregroundColor(Color(white: 0.96))
+        .padding(.leading, cardFocusMargin)
       ScrollView(.horizontal) {
         HStack(spacing: cardSpacing) {
           ForEach(row.properties) { property in
