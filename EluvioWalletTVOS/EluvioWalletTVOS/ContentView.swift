@@ -244,6 +244,7 @@ struct ContentView: View {
       Group {
         if AccountStore.shared.isLoggedOut {
           DiscoverView()
+            .edgesIgnoringSafeArea(.all)
             .preferredColorScheme(colorScheme)
         } else if eluvio.isCustomApp() {
           CustomAppRootView()
