@@ -20,7 +20,5 @@ enum NavDestination: Hashable {
   case profile
   case myItems
 
-  #if DEBUG
-    case debugMenu
-  #endif
+  case debugMenu
 }

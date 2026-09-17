@@ -1,39 +1,56 @@
 import EluvioCore
+import SwiftUI
 
-#if DEBUG
-  import SwiftUI
+@Observable
+class DebugMenuHandler {
+  private let sequence: [MoveCommandDirection] = [
+    .up, .up, .down, .down,
+    .left, .right, .left, .right,
+  ]
+  private var index = 0
+  private var last: MoveCommandDirection?
+  private var lastTime: Date = .distantPast
 
-  @Observable
-  class DebugMenuHandler {
-    private let sequence: [KeyEquivalent] = [
-      .upArrow, .upArrow, .downArrow, .downArrow,
-      .leftArrow, .rightArrow, .leftArrow, .rightArrow,
-    ]
-    private var index = 0
-    private var lastKey: KeyEquivalent?
-    private var lastKeyTime: Date = .distantPast
+  /// The Siri Remote's directional input arrives as a move command, not a key press — only a
+  /// hardware keyboard produces the latter, which is why the sequence worked in the simulator
+  /// and nowhere else. Both paths feed the same state machine so either input can open the menu.
+  func handle(_ direction: MoveCommandDirection, router: Router) {
+    guard isDebugBuildOrTestFlight else { return }
 
-    func handle(_ press: KeyPress, router: Router) -> KeyPress.Result {
-      let now = Date()
-      // De-dupe events because SwiftUI can send us multiple events for the same hardware tap
-      if press.key == lastKey, now.timeIntervalSince(lastKeyTime) < 0.15 {
-        return .ignored
-      }
-      lastKey = press.key
-      lastKeyTime = now
+    let now = Date()
+    // De-dupe events because a single hardware tap can arrive twice — SwiftUI repeats key
+    // presses, and in the simulator an arrow key lands as both a key press and a move command.
+    if direction == last, now.timeIntervalSince(lastTime) < 0.15 {
+      return
+    }
+    last = direction
+    lastTime = now
 
-      if press.key == sequence[index] {
-        index += 1
-        if index == sequence.count {
-          index = 0
-          debugPrint("Debug menu activated!")
-          router.push(to: .debugMenu)
-          return .handled
-        }
-      } else {
+    if direction == sequence[index] {
+      index += 1
+      if index == sequence.count {
         index = 0
+        debugPrint("Debug menu activated!")
+        router.push(to: .debugMenu)
       }
-      return .ignored
+    } else {
+      index = 0
     }
   }
-#endif
+
+  func handle(_ press: KeyPress, router: Router) -> KeyPress.Result {
+    guard let direction = Self.direction(for: press.key) else { return .ignored }
+    handle(direction, router: router)
+    return .ignored
+  }
+
+  private static func direction(for key: KeyEquivalent) -> MoveCommandDirection? {
+    switch key {
+    case .upArrow: .up
+    case .downArrow: .down
+    case .leftArrow: .left
+    case .rightArrow: .right
+    default: nil
+    }
+  }
+}

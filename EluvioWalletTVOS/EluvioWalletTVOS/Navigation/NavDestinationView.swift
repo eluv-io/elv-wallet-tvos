@@ -102,10 +102,8 @@ extension NavDestination {
     case .myItems:
       MyItemsView()
         .analyticsScreen(name: "MyItemsView")
-    #if DEBUG
-      case .debugMenu:
-        DebugMenuView()
-    #endif
+    case .debugMenu:
+      DebugMenuView()
     }
   }
 }

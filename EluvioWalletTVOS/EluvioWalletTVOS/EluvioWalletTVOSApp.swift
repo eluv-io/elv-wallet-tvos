@@ -17,9 +17,7 @@ struct EluvioWalletTVOSApp: App {
 
   @State private var bootstrapped = false
 
-  #if DEBUG
-    @State private var debugMenu = DebugMenuHandler()
-  #endif
+  @State private var debugMenu = DebugMenuHandler()
 
   init() {
     print("App Init")
@@ -59,9 +57,8 @@ struct EluvioWalletTVOSApp: App {
         await FabricConfigStore.shared.bootstrap()
         bootstrapped = true
       }
-      #if DEBUG
-        .onKeyPress(phases: .down) { debugMenu.handle($0, router: router) }
-      #endif
+      .onKeyPress(phases: .down) { debugMenu.handle($0, router: router) }
+      .onMoveCommand { debugMenu.handle($0, router: router) }
       .edgesIgnoringSafeArea(.all)
     }
   }

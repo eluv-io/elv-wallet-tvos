@@ -15,6 +15,16 @@ public let BundleVersion: String =
   Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
 public let BundleBuild: String = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? ""
 
+/// Debug affordances are available in Debug builds and to TestFlight testers, but never in
+/// production: TestFlight installs carry a sandbox receipt, App Store installs a production one.
+public var isDebugBuildOrTestFlight: Bool {
+  #if DEBUG
+    return true
+  #else
+    return Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
+  #endif
+}
+
 public extension UnsignedInteger where Self: CVarArg {
   public var hexa: String {
     .init(format: "%ll*0x", bitWidth / 4, self)
