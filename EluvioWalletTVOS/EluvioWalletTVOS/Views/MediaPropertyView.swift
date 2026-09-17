@@ -184,6 +184,10 @@ private struct DiscoverPropertyCard: View {
               .multilineTextAlignment(.center)
               .padding(20)
           }
+          if property.main_page_inaccessible == true {
+            InaccessibleOverlay(
+              message: property.main_page_inaccessible_message?.nilIfEmpty() ?? "Coming Soon")
+          }
           if focused {
             // Top "sheen" highlight on the focused card.
             LinearGradient(
@@ -219,6 +223,11 @@ private struct DiscoverPropertyCard: View {
 
   private func buttonPressed() {
     debugPrint("propertyID clicked: ", property.id)
+    // The card stays focusable so the hero still follows it, but there's nothing to open.
+    if property.main_page_inaccessible == true {
+      debugPrint("Press ignored - main page is inaccessible: ", property.id)
+      return
+    }
     lastClickedCard = focusKey
 
     let loggedInWithSameProvider =
@@ -233,6 +242,24 @@ private struct DiscoverPropertyCard: View {
     } else {
       debugPrint("Not logged in with same account type as Property - navigating to Login.")
       router.push(to: .login(LoginParam(property: property)))
+    }
+  }
+}
+
+/// Covers the card of a Property whose main page can't be opened, with the Property's own
+/// copy ("Coming Soon" when it doesn't define any).
+private struct InaccessibleOverlay: View {
+  var message: String
+
+  var body: some View {
+    ZStack {
+      Color.black.opacity(0.6)
+      Text(message)
+        .font(.system(size: 30, weight: .bold))
+        .textCase(.uppercase)
+        .multilineTextAlignment(.center)
+        .foregroundColor(Color(white: 0.96))
+        .padding(.horizontal, 16)
     }
   }
 }

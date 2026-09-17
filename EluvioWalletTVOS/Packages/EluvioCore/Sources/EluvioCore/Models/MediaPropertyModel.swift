@@ -42,6 +42,10 @@ public class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
   // Title/description shown for this Property on the Discover page.
   public var main_page_title: String?
   public var main_page_description: String?
+  // Set when this Property's main page can't be opened from Discover. Its card is covered
+  // by `main_page_inaccessible_message` instead.
+  public var main_page_inaccessible: Bool?
+  public var main_page_inaccessible_message: String?
   // Points to a theme in `styling.card_themes`.
   public var card_theme_id: String?
   // Defines the card themes this Property's pages and sections can reference.
