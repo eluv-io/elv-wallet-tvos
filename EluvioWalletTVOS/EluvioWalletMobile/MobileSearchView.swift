@@ -15,6 +15,16 @@ struct MobileSearchView: View {
   @State private var secondaryFilters: [SecondaryFilterViewModel] = []
   @State private var currentPrimaryFilter: PrimaryFilterViewModel?
   @State private var currentSecondaryFilter: SecondaryFilterViewModel?
+  /// The theme the Property names for its primary filters.
+  private var filterCardTheme: CardTheme? { property.primaryFilterCardTheme }
+  /// The theme the selected primary filter names for its secondary row. Only
+  /// an image row carries one - text chips keep the app's own styling.
+  private var secondaryFilterCardTheme: CardTheme? {
+    guard let primary = currentPrimaryFilter, primary.secondaryFilterStyle == .image else {
+      return nil
+    }
+    return property.secondaryFilterCardTheme(primaryFilterValue: primary.id)
+  }
   @State private var searching = false
   @State private var playingItem: MediaPropertySectionMediaItem?
 
@@ -27,7 +37,8 @@ struct MobileSearchView: View {
               filters: primaryFilters,
               current: $currentPrimaryFilter,
               currentSecondary: $currentSecondaryFilter,
-              secondaryFilters: $secondaryFilters
+              secondaryFilters: $secondaryFilters,
+              cardTheme: filterCardTheme
             )
           }
 
@@ -35,7 +46,8 @@ struct MobileSearchView: View {
             SecondaryFilterChips(
               filters: secondaryFilters,
               style: currentPrimaryFilter?.secondaryFilterStyle,
-              current: $currentSecondaryFilter
+              current: $currentSecondaryFilter,
+              cardTheme: secondaryFilterCardTheme
             )
           }
 
@@ -223,6 +235,7 @@ private struct PrimaryFilterChips: View {
   @Binding var current: PrimaryFilterViewModel?
   @Binding var currentSecondary: SecondaryFilterViewModel?
   @Binding var secondaryFilters: [SecondaryFilterViewModel]
+  let cardTheme: CardTheme?
 
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
@@ -231,7 +244,8 @@ private struct PrimaryFilterChips: View {
           FilterChip(
             title: filter.title,
             imageUrl: filter.imageUrl,
-            selected: current?.id == filter.id
+            selected: current?.id == filter.id,
+            cardTheme: cardTheme
           ) {
             if current?.id == filter.id {
               current = nil
@@ -253,6 +267,7 @@ private struct SecondaryFilterChips: View {
   let filters: [SecondaryFilterViewModel]
   let style: FilterStyle?
   @Binding var current: SecondaryFilterViewModel?
+  let cardTheme: CardTheme?
 
   var body: some View {
     ScrollView(.horizontal, showsIndicators: false) {
@@ -261,7 +276,8 @@ private struct SecondaryFilterChips: View {
           FilterChip(
             title: filter.title,
             imageUrl: style == .image ? filter.imageUrl : "",
-            selected: current == filter || (current == nil && filter.id.isEmpty)
+            selected: current == filter || (current == nil && filter.id.isEmpty),
+            cardTheme: cardTheme
           ) {
             current = current == filter ? nil : filter
           }
@@ -276,7 +292,13 @@ private struct FilterChip: View {
   let title: String
   let imageUrl: String
   let selected: Bool
+  /// Set for primary filters when the Property themes them. Text filters keep
+  /// the capsule either way - only images carry a theme.
+  var cardTheme: CardTheme? = nil
   let action: () -> Void
+
+  /// A themed image brings its own background, so it replaces the capsule.
+  private var isThemedImage: Bool { cardTheme != nil && !imageUrl.isEmpty }
 
   var body: some View {
     Button(action: action) {
@@ -286,17 +308,22 @@ private struct FilterChip: View {
             .resizable()
             .scaledToFit()
             .frame(height: 44)
+            .cardThemedFilter(cardTheme, active: selected)
         } else {
           Text(title)
             .font(.subheadline)
         }
       }
       .padding(.vertical, 8)
-      .padding(.horizontal, 14)
+      .padding(.horizontal, isThemedImage ? 0 : 14)
       .foregroundStyle(selected ? Color.black : Color.primary)
-      .background(
-        Capsule().fill(selected ? Color.primary : Color.gray.opacity(0.2))
-      )
+      .background {
+        if !isThemedImage {
+          Capsule().fill(selected ? Color.primary : Color.gray.opacity(0.2))
+        }
+      }
+      // Without the capsule to mark it, a themed image dims until it's picked.
+      .opacity(isThemedImage && !selected ? 0.3 : 1)
     }
     .buttonStyle(.plain)
   }

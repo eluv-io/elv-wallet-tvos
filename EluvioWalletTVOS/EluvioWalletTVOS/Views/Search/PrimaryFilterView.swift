@@ -9,6 +9,10 @@ struct PrimaryFilterView: View {
 
   var action: () -> Void
 
+  /// The theme the Property names for its filters, applied to image filters
+  /// only. Text filters keep the app's own chip styling, like the web's do.
+  var cardTheme: CardTheme? = nil
+
   @FocusState var isFocused
   var selected = false
 
@@ -20,6 +24,7 @@ struct PrimaryFilterView: View {
           .resizable()
           .scaledToFit()
           .frame(height: 80)
+          .cardThemedFilter(cardTheme, active: isFocused)
       } else {
         Text(title)
           .font(.rowTitle)

@@ -5,6 +5,7 @@ struct SecondaryFiltersRow: View {
   var secondaryFilters: [SecondaryFilterViewModel]
   var secondaryFilterStyle: FilterStyle?
   @Binding var currentSecondaryFilter: SecondaryFilterViewModel?
+  var cardTheme: CardTheme? = nil
 
   var body: some View {
     ScrollView(.horizontal) {
@@ -20,6 +21,7 @@ struct SecondaryFiltersRow: View {
                 currentSecondaryFilter = nil
               }
             },
+            cardTheme: cardTheme,
             selected: currentSecondaryFilter == filter
               || currentSecondaryFilter == nil && filter.id.isEmpty
           )

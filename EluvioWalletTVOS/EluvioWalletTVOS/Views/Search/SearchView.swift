@@ -25,6 +25,17 @@ struct SearchView: View {
   @State var currentPrimaryFilter: PrimaryFilterViewModel? = nil
   @State var currentSecondaryFilter: SecondaryFilterViewModel? = nil
   @State var secondaryFilters: [SecondaryFilterViewModel] = []
+  /// The theme the Property names for its primary filters. Resolved on demand,
+  /// so it picks the theme up whenever the Property lands.
+  private var filterCardTheme: CardTheme? { property?.primaryFilterCardTheme }
+  /// The theme the selected primary filter names for its secondary row. Only
+  /// an image row carries one - text chips keep the app's own styling.
+  private var secondaryFilterCardTheme: CardTheme? {
+    guard let primary = currentPrimaryFilter, primary.secondaryFilterStyle == .image else {
+      return nil
+    }
+    return property?.secondaryFilterCardTheme(primaryFilterValue: primary.id)
+  }
   /// Searching before the filters land would query the property unfiltered.
   @State private var filtersLoaded = false
 
@@ -47,6 +58,7 @@ struct SearchView: View {
               currentPrimaryFilter: $currentPrimaryFilter,
               currentSecondaryFilter: $currentSecondaryFilter,
               secondaryFilters: $secondaryFilters,
+              cardTheme: filterCardTheme,
             )
           }
 
@@ -55,6 +67,7 @@ struct SearchView: View {
               secondaryFilters: secondaryFilters,
               secondaryFilterStyle: currentPrimaryFilter?.secondaryFilterStyle,
               currentSecondaryFilter: $currentSecondaryFilter,
+              cardTheme: secondaryFilterCardTheme,
             )
           }
 

@@ -6,6 +6,7 @@ struct PrimaryFiltersRow: View {
   @Binding var currentPrimaryFilter: PrimaryFilterViewModel?
   @Binding var currentSecondaryFilter: SecondaryFilterViewModel?
   @Binding var secondaryFilters: [SecondaryFilterViewModel]
+  var cardTheme: CardTheme? = nil
 
   var hasImageFilters: Bool {
     primaryFilters.contains { !$0.imageUrl.isEmpty }
@@ -30,11 +31,15 @@ struct PrimaryFiltersRow: View {
                   }
                   currentSecondaryFilter = nil
                 },
+                cardTheme: cardTheme,
                 selected: currentPrimaryFilter?.id == filter.id
               )
             }
           }
           .frame(maxHeight: .infinity, alignment: .center)
+          // Focusing a filter scales it up past the scroll view's edge, where
+          // it gets clipped. This leaves the end cards room to grow into.
+          .padding(.horizontal, 10)
         }
         .frame(alignment: .center)
       }

@@ -50,6 +50,8 @@ public class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
   public var card_theme_id: String?
   // Defines the card themes this Property's pages and sections can reference.
   public var styling: PropertyStyling?
+  // How this Property's search page filters, including the theme its filters draw with.
+  public var search: PropertySearchSettings?
   // Fabric link to the promo video played behind the Discover page for this Property.
   public var main_page_background_video_tv: JSON?
   public var media_catalogs: [String]?

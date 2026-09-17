@@ -86,3 +86,20 @@ public struct SecondaryFilterViewModel: Identifiable, Codable, Equatable, Hashab
     hasher.combine(id)
   }
 }
+
+/// The Property's own search configuration. The `/filters` endpoint serves a
+/// projection of this that leaves the card theme out, so the themes are read
+/// from the Property itself.
+public struct PropertySearchSettings: Codable {
+  /// Points to a theme in the Property's `styling.card_themes`, like a Section's does.
+  public var primary_filter_card_theme_id: String?
+  public var filter_options: [PropertySearchFilterOption]?
+}
+
+/// One primary filter's entry in the Property's search config. A primary filter
+/// configures the secondary row shown beneath it, its theme included, so the
+/// secondary theme is named per option rather than once for the Property.
+public struct PropertySearchFilterOption: Codable {
+  public var primary_filter_value: String?
+  public var secondary_filter_card_theme_id: String?
+}

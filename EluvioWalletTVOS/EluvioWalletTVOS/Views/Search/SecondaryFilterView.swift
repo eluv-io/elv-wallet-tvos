@@ -6,6 +6,10 @@ struct SecondaryFilterView: View {
   var imageUrl = ""
   var action: () -> Void
 
+  /// The theme the primary filter names for its secondary row, applied to
+  /// image filters only.
+  var cardTheme: CardTheme? = nil
+
   @FocusState var isFocused
   var selected = false
 
@@ -17,6 +21,7 @@ struct SecondaryFilterView: View {
             .resizable()
             .scaledToFit()
             .frame(width: 80, height: 80)
+            .cardThemedFilter(cardTheme, active: isFocused)
         } else {
           Text(title)
             .font(.rowTitle)

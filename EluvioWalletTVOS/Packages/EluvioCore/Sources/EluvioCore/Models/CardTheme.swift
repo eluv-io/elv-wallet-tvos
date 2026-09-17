@@ -100,11 +100,28 @@ public extension MediaProperty {
   /// The Property defines a default theme, which a Page can override, which a
   /// Section can override. Empty ids count as unset.
   func resolveCardTheme(pageThemeId: String?, section: MediaPropertySection?) -> CardTheme? {
-    let themeId =
-      section?.display?.card_theme_id?.nilIfEmpty()
-      ?? pageThemeId?.nilIfEmpty()
-      ?? card_theme_id?.nilIfEmpty()
-    guard let themeId else { return nil }
-    return styling?.card_themes?[themeId]
+    cardTheme(
+      id: section?.display?.card_theme_id?.nilIfEmpty()
+        ?? pageThemeId?.nilIfEmpty()
+        ?? card_theme_id?.nilIfEmpty())
+  }
+
+  /// Looks up one of the Property's themes by id. Empty ids count as unset.
+  /// Search filters name a theme directly rather than inheriting one.
+  func cardTheme(id: String?) -> CardTheme? {
+    guard let id = id?.nilIfEmpty() else { return nil }
+    return styling?.card_themes?[id]
+  }
+
+  /// The theme this Property's primary search filters draw with.
+  var primaryFilterCardTheme: CardTheme? {
+    cardTheme(id: search?.primary_filter_card_theme_id)
+  }
+
+  /// The theme for the secondary filters shown under `primaryFilterValue`.
+  /// Each primary filter themes its own secondary row.
+  func secondaryFilterCardTheme(primaryFilterValue: String) -> CardTheme? {
+    let option = search?.filter_options?.first { $0.primary_filter_value == primaryFilterValue }
+    return cardTheme(id: option?.secondary_filter_card_theme_id)
   }
 }
