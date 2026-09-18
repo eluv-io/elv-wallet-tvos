@@ -11,6 +11,7 @@ import Foundation
 public enum AccountType: Codable, Equatable {
   case Ory
   case Auth0(domain: String)
+  case OpenId(endpoint: String)
 }
 
 public class Account: Identifiable, Codable {

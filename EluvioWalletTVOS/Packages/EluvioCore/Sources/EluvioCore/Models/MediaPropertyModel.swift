@@ -105,6 +105,10 @@ public extension MediaProperty {
       let domain = login?.settings?.auth0_domain?.nilIfEmpty()
     {
       return AccountType.Auth0(domain: domain)
+    } else if login?.settings?.use_openid == true,
+      let endpoint = login?.settings?.openid_endpoint?.nilIfEmpty()
+    {
+      return AccountType.OpenId(endpoint: endpoint)
     } else {
       return .Ory
     }
@@ -401,12 +405,8 @@ public struct LoginSettings: Codable {
   public var use_auth0: Bool?
   public var disable_login: Bool?
   public var auth0_domain: String?
-
-  // Deprecated. This field should no longer be considered
-  public var provider: String?
-
-  // Deprecated
-  public var auth0_native_client_id: String?
+  public var use_openid: Bool?
+  public var openid_endpoint: String?
 }
 
 public struct LoginStyling: Codable {

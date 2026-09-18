@@ -160,6 +160,8 @@ public class EluvioAPI: ObservableObject {
       switch account.type {
       case .Auth0(let domain):
         "auth0"
+      case .OpenId:
+        "openid"
       case .Ory:
         "ory"
       }
