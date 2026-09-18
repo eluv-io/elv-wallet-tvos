@@ -101,16 +101,18 @@ public extension MediaProperty {
   public var purchaseImage: String { purchase_settings?.background_tv?.url ?? backgroundImage }
 
   public var accountType: AccountType {
-    if login?.settings?.use_auth0 == true,
+    if let providerId = login?.settings?.provider_id?.nilIfEmpty() {
+      return providerId
+    } else if login?.settings?.use_auth0 == true,
       let domain = login?.settings?.auth0_domain?.nilIfEmpty()
     {
-      return AccountType.Auth0(domain: domain)
+      return "auth0_\(domain)"
     } else if login?.settings?.use_openid == true,
       let endpoint = login?.settings?.openid_endpoint?.nilIfEmpty()
     {
-      return AccountType.OpenId(endpoint: endpoint)
+      return "openid_\(endpoint)"
     } else {
-      return .Ory
+      return "ory"
     }
   }
 }
@@ -402,6 +404,11 @@ public struct LoginInfo: Codable {
 }
 
 public struct LoginSettings: Codable {
+  // Bakes in the provider and any qualifier, so it is compared without being
+  // parsed. Still rolling out: absent means unknown, not ory, so the fields
+  // below remain the fallback until every Property serves it.
+  public var provider_id: String?
+
   public var use_auth0: Bool?
   public var disable_login: Bool?
   public var auth0_domain: String?

@@ -8,10 +8,31 @@
 import Base58Swift
 import Foundation
 
-public enum AccountType: Codable, Equatable {
+/// Opaque identity of the login provider a session belongs to: "ory",
+/// "auth0_{domain}", "openid_{endpoint}", or — once a Property serves
+/// login.settings.provider_id — whatever that field holds, verbatim. Two
+/// Properties share a session only when these match exactly. Nothing parses the
+/// value apart from the wallet authorization, which takes the part before the
+/// first underscore.
+public typealias AccountType = String
+
+/// The identity used to be an enum, which Swift encoded as a single-key object.
+/// Accounts saved by those builds are still on disk, so that shape is decoded
+/// too and folded onto the string the derivation produces today. The values line
+/// up exactly, so an existing session keeps matching its Property instead of
+/// being bounced through sign-in.
+private enum LegacyAccountType: Decodable {
   case Ory
   case Auth0(domain: String)
   case OpenId(endpoint: String)
+
+  var asAccountType: AccountType {
+    switch self {
+    case .Ory: "ory"
+    case .Auth0(let domain): "auth0_\(domain)"
+    case .OpenId(let endpoint): "openid_\(endpoint)"
+    }
+  }
 }
 
 public class Account: Identifiable, Codable {
@@ -19,7 +40,7 @@ public class Account: Identifiable, Codable {
     getAccountId() ?? UUID().uuidString
   }
 
-  public var type: AccountType = .Ory
+  public var type: AccountType = "ory"
   public var clusterToken: String? = nil
   public var fabricToken: String = ""
   public var refreshToken: String? = nil
@@ -39,7 +60,13 @@ public class Account: Identifiable, Codable {
   // We'll be able to remove this in the future when we're confident no existing clients use the old 'login' field.
   public required init(from decoder: Decoder) throws {
     let container = try decoder.container(keyedBy: CodingKeys.self)
-    type = try container.decodeIfPresent(AccountType.self, forKey: .type) ?? .Ory
+    if let provider = try? container.decode(AccountType.self, forKey: .type) {
+      type = provider
+    } else if let legacy = try? container.decode(LegacyAccountType.self, forKey: .type) {
+      type = legacy.asAccountType
+    } else {
+      type = "ory"
+    }
     clusterToken = try container.decodeIfPresent(String.self, forKey: .clusterToken)
     fabricToken = try container.decodeIfPresent(String.self, forKey: .fabricToken) ?? ""
     refreshToken = try container.decodeIfPresent(String.self, forKey: .refreshToken)

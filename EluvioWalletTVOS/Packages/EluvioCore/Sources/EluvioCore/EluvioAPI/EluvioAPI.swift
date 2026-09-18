@@ -70,7 +70,7 @@ public class EluvioAPI: ObservableObject {
     else if isUITesting && isMockLoggedIn {
       print("UI Testing with mock login enabled")
       let mockAccount = Account()
-      mockAccount.type = .Ory
+      mockAccount.type = "ory"
       mockAccount.addr = "0x0000000000000000000000000000000000000000"
       AccountStore.shared.account = mockAccount
     }
@@ -156,15 +156,8 @@ public class EluvioAPI: ObservableObject {
 
   public func createWalletAuthorizationFromAccount(account: Account) throws -> String {
     let address = account.getAccountAddress()
-    let provider =
-      switch account.type {
-      case .Auth0(let domain):
-        "auth0"
-      case .OpenId:
-        "openid"
-      case .Ory:
-        "ory"
-      }
+    // The provider alone, which is the identity before its qualifier.
+    let provider = String(account.type.prefix { $0 != "_" })
 
     return try fabric.createWalletAuthorization(
       address: address,
