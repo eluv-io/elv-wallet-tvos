@@ -121,7 +121,11 @@ public class PropertySearchStore {
         newPrimaryFilters.append(filter)
       }
     }
-    return newPrimaryFilters
+
+    // A Property can list the same filter value twice. A chip is identified by
+    // its value, so the repeat collapses into the first chip and leaves an
+    // empty slot in the row - keep the first of each value only.
+    return newPrimaryFilters.unique()
   }
 }
 
