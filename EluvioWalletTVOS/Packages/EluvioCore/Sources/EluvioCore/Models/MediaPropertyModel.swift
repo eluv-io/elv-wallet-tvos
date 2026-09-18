@@ -115,6 +115,17 @@ public extension MediaProperty {
       return "ory"
     }
   }
+
+  /// Base URL the device-activation login page is served from. A Property that
+  /// carries a `tv_login_custom_domain` signs in on its own domain; the rest
+  /// fall back to the network-wide wallet URL.
+  public var tvLoginBaseUrl: String? {
+    guard let domain = domain?["tv_login_custom_domain"].string?.trim().nilIfEmpty() else {
+      return nil
+    }
+    let url = domain.hasPrefix("http") ? domain : "https://" + domain
+    return url.hasSuffix("/") ? String(url.dropLast()) : url
+  }
 }
 
 public struct PurchaseSettings: Codable {

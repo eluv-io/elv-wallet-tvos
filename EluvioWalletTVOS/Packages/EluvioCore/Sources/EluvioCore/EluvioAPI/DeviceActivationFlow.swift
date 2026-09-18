@@ -29,7 +29,7 @@ public struct DeviceActivationFlow: Sendable {
   public func requestActivation() async throws -> ActivationCode {
     let nonce = EluvioAPI.NONCE_HASHED
 
-    var dest = FabricConfigStore.shared.walletUrl
+    var dest = property.tvLoginBaseUrl ?? FabricConfigStore.shared.walletUrl
     dest += "/login?pid=\(property.id)"
     dest += "&action=login&mode=login&response=code&source=code"
     dest += "&installId=\(nonce)&origin=\(UIDevice.current.name)"
