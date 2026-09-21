@@ -20,6 +20,10 @@ private let cardSpacing: CGFloat = 20
 private let cardFocusedScale = 1.08
 /// Room for the focused card's scale to draw without being clipped by the row's bounds.
 private let cardFocusMargin: CGFloat = 12
+/// Where a row's cards stop once it's scrolled to its end - the plain screen margin, so the
+/// last card doesn't sit against the right edge. The leading side gets its inset from the
+/// host instead, which has the nav rail to clear.
+private let rowTrailingInset: CGFloat = 80
 /// The rows take whatever height is left below the hero, so the list always ends at the
 /// bottom of the screen. This is only the scroll affordance below the last row now.
 private let rowsViewportHeight: CGFloat = 700
@@ -149,6 +153,7 @@ private struct DiscoverRowView: View {
           }
         }
         .padding(cardFocusMargin)
+        .padding(.trailing, rowTrailingInset - cardFocusMargin)
         // Keeps vertical moves landing on the row's last-focused card, rather than
         // whichever card happens to sit under the previous row's focus position.
         .focusSection()
