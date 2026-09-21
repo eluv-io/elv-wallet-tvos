@@ -493,7 +493,11 @@ struct MediaCard: View {
           .animation(.easeInOut(duration: MediaCard.themeAnimation), value: drawsFocusedTitle)
       }
     }
-    .frame(width: width, height: height)
+    // Height comes from the content, so a card that shows a title below it
+    // measures as tall as the art plus that title. Pinning the height to the
+    // art alone left the title outside the card's bounds, where focus scaling
+    // pushed it past the row's padding and clipped it.
+    .frame(width: width)
   }
 
   private func sizes() -> (width: CGFloat, height: CGFloat, cornerRadius: CGFloat) {
