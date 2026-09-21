@@ -20,6 +20,8 @@ public struct HeroAction: Identifiable {
   public var pageId: String?
   /// Defined for "link" actions.
   public var url: String?
+  /// Set by the property owner to keep this button off the TV apps.
+  public var hideOnTv: Bool
 
   public var text: String
   public var backgroundColor: Color
@@ -33,6 +35,7 @@ public struct HeroAction: Identifiable {
     mediaId: String? = nil,
     pageId: String? = nil,
     url: String? = nil,
+    hideOnTv: Bool = false,
     text: String,
     backgroundColor: Color,
     textColor: Color,
@@ -44,6 +47,7 @@ public struct HeroAction: Identifiable {
     self.mediaId = mediaId
     self.pageId = pageId
     self.url = url
+    self.hideOnTv = hideOnTv
     self.text = text
     self.backgroundColor = backgroundColor
     self.textColor = textColor
@@ -86,6 +90,7 @@ public struct HeroAction: Identifiable {
       mediaId: mediaId,
       pageId: pageId,
       url: url,
+      hideOnTv: json["hide_on_tv"].boolValue,
       text: text,
       backgroundColor: Color(hexString: button["background_color"].string) ?? .white,
       textColor: Color(hexString: button["text_color"].string) ?? .black,

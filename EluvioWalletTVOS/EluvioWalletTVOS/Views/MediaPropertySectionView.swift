@@ -520,7 +520,9 @@ struct MediaPropertySectionView: View {
   }
 
   var heroActions: [HeroAction] {
-    heroItem?["actions"].array?.compactMap { HeroAction.create(from: $0) } ?? []
+    heroItem?["actions"].array?
+      .compactMap { HeroAction.create(from: $0) }
+      .filter { !$0.hideOnTv } ?? []
   }
 
   var hAlignment: HorizontalAlignment {
