@@ -86,6 +86,9 @@ struct MyItemsView: View {
                 .focused($focusedFilter, equals: property.id)
               }
             }
+            // The row is otherwise flush with the slot's edges, so the first chip's focus
+            // highlight is cut off. Line it up with the search field instead.
+            .padding(.horizontal, MyItems.fieldLeading)
           }
           .scrollClipDisabled()
           // Declares where focus enters the row, rather than correcting it afterwards: the
