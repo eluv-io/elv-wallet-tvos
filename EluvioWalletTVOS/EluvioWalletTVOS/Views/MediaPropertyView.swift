@@ -163,10 +163,6 @@ private struct DiscoverRowView: View {
   }
 }
 
-/// Flip on for local dev only, to open an inaccessible Property's card anyway so its pages
-/// can be worked on. The focused card's overlay still draws, only the press goes through.
-private let bypassInaccessibleFlag = false
-
 /// A portrait Property card on the Discover page.
 private struct DiscoverPropertyCard: View {
   @EnvironmentObject var router: Router
@@ -233,7 +229,7 @@ private struct DiscoverPropertyCard: View {
   private func buttonPressed() {
     debugPrint("propertyID clicked: ", property.id)
     // The card stays focusable so the hero still follows it, but there's nothing to open.
-    if property.main_page_inaccessible == true && !bypassInaccessibleFlag {
+    if property.main_page_inaccessible == true && !DebugSettings.shared.bypassInaccessible {
       debugPrint("Press ignored - main page is inaccessible: ", property.id)
       return
     }

@@ -1,6 +1,9 @@
 import EluvioCore
 import SwiftUI
 
+/// Wide enough that a row's label and its checkmark sit on one line.
+private let rowWidth: CGFloat = 480
+
 struct DebugMenuView: View {
   @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
@@ -8,6 +11,7 @@ struct DebugMenuView: View {
   /// Mirrored rather than read straight off the store, which isn't observable — without a
   /// copy of its own the row's checkmark wouldn't redraw when it's toggled.
   @State private var isStaging = NetworkStore.shared.environment == .staging
+  @State private var bypassInaccessible = DebugSettings.shared.bypassInaccessible
 
   var body: some View {
     VStack(spacing: 40) {
@@ -44,7 +48,7 @@ struct DebugMenuView: View {
                     Image(systemName: "checkmark")
                   }
                 }
-                .frame(width: 300)
+                .frame(width: rowWidth)
               }
             }
           }
@@ -68,7 +72,25 @@ struct DebugMenuView: View {
                 Image(systemName: "checkmark")
               }
             }
-            .frame(width: 300)
+            .frame(width: rowWidth)
+          }
+        }
+
+        VStack(spacing: 12) {
+          sectionHeader("Properties")
+
+          Button {
+            bypassInaccessible.toggle()
+            DebugSettings.shared.bypassInaccessible = bypassInaccessible
+          } label: {
+            HStack {
+              Text("Bypass \"Coming Soon\"")
+              Spacer()
+              if bypassInaccessible {
+                Image(systemName: "checkmark")
+              }
+            }
+            .frame(width: rowWidth)
           }
         }
       }
@@ -80,6 +102,6 @@ struct DebugMenuView: View {
     Text(title)
       .font(.caption)
       .foregroundStyle(.secondary)
-      .frame(width: 300, alignment: .leading)
+      .frame(width: rowWidth, alignment: .leading)
   }
 }
