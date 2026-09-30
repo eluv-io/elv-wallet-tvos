@@ -96,7 +96,8 @@ struct MainView: View {
       LinearGradient(
         stops: [
           .init(color: .black.opacity(0.85), location: 0),
-          .init(color: .clear, location: 0.55),
+          .init(color: .black.opacity(0.6), location: 0.4),
+          .init(color: .clear, location: 0.85),
         ],
         startPoint: .leading,
         endPoint: .trailing

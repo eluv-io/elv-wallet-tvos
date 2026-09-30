@@ -136,8 +136,8 @@ struct NavRailView: View {
     .background(alignment: .leading) {
       LinearGradient(
         stops: [
-          .init(color: .black.opacity(0.8), location: 0),
-          .init(color: .black.opacity(0.3), location: 0.8),
+          .init(color: .black.opacity(0.9), location: 0),
+          .init(color: .black.opacity(0.45), location: 0.8),
           .init(color: .clear, location: 1),
         ],
         startPoint: .leading,
