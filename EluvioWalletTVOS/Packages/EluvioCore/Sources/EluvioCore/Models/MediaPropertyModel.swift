@@ -331,11 +331,6 @@ public extension MediaPropertySectionItem {
   }
 }
 
-public var debugTimeStatus = false
-public var debugStartDate = Date() + 4 * 60
-public var debugStreamStartDate = Date() + 3 * 60
-public var debugEndDate = Date() + 5 * 60
-
 public struct IconItem: Codable {
   public var icon: ImageLink?
 }

@@ -51,38 +51,18 @@ public extension MediaPropertySectionMediaItem {
       ?? ""
   }
 
+  // Fall back whenever a time doesn't parse, not just when it's missing - a time that's
+  // present but empty would otherwise leave the item with no start date, and its card would
+  // never queue the refresh that flips it to Live.
   public var startDate: Date? {
-    if debugTimeStatus {
-      return debugStartDate
-    }
-
-    if let startTime = start_time {
-      return parseDateString(startTime)
-    }
-
-    if let startTime = stream_start_time {
-      return parseDateString(startTime)
-    }
-
-    return nil
+    start_time.flatMap(parseDateString) ?? stream_start_time.flatMap(parseDateString)
   }
 
   public var streamStartDate: Date? {
-    if debugTimeStatus {
-      return debugStreamStartDate
-    }
-
-    if let startTime = stream_start_time {
-      return parseDateString(startTime)
-    }
-    return startDate
+    stream_start_time.flatMap(parseDateString) ?? startDate
   }
 
   public var endDate: Date? {
-    if debugTimeStatus {
-      return debugEndDate
-    }
-
     return parseDateString(end_time ?? "")
   }
 
