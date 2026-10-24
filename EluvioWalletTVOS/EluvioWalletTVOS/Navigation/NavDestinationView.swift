@@ -45,15 +45,15 @@ extension NavDestination {
     case .mediaGrid(let params):
       ScrollView {
         if !params.mediaItemIds.isEmpty {
-          SectionItemListView(
+          MediaListGridView(
             property: params.property, mediaItemIds: params.mediaItemIds,
             title: params.title, parentMediaItem: params.parentMediaItem
           )
-          .edgesIgnoringSafeArea(([.leading, .trailing]))
         }
       }
+      // Same page chrome as .sectionViewAll - both show a MediaGridView
       .scrollClipDisabled()
-      .edgesIgnoringSafeArea([.leading, .trailing])
+      .edgesIgnoringSafeArea(.all)
       .analyticsScreen(name: "SectionItemListView")
     case .gallery(let items):
       GalleryView(gallery: items)

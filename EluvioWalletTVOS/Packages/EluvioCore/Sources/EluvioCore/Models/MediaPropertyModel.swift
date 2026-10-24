@@ -319,7 +319,7 @@ public extension MediaPropertySectionItem {
   /// section item's own permissions describe whether to show the *card*, not
   /// whether the content behind it is playable.
   ///
-  /// Mirrors the tvOS dimming rule (SectionMediaItemView.opacity): permission
+  /// Mirrors the tvOS dimming rule (SectionItemView.opacity): permission
   /// exists, user is not authorized, and behavior isn't `showIfUnauthorized`
   /// (that one means "render normally so the user can tap into a purchase
   /// prompt").

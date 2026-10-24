@@ -253,187 +253,6 @@ func handleVideoItem(
 
 // MARK: - Views
 
-struct MediaItemGridView: View {
-  var property: MediaProperty
-  var items: [MediaPropertySectionMediaItem]
-  var title: String = ""
-  /// Set when these items are the contents of a media list, which autoplay needs to know
-  var mediaListId: String = ""
-
-  @FocusState var isFocused
-
-  var aspectRatio: AspectRatio {
-    if let item = items.first {
-      if item.thumbnail_image_portrait != nil {
-        return .portrait
-      }
-
-      if item.thumbnail_image_landscape != nil {
-        return .landscape
-      }
-    }
-
-    return .square
-  }
-
-  var numColumns: Int {
-    if aspectRatio == .landscape {
-      return 4
-    } else if aspectRatio == .square {
-      return 6
-    } else {
-      return 4
-    }
-  }
-
-  var body: some View {
-    VStack {
-      HStack {
-        Text(title)
-          .font(.rowTitle)
-        Spacer()
-      }
-      .frame(maxWidth: .infinity)
-      .padding(.bottom, 30)
-
-      if items.dividedIntoGroups(of: numColumns).count <= 1 {
-        HStack(spacing: 34) {
-          ForEach(items, id: \.self) { item in
-            SectionMediaItemView(
-              item: item, property: property, mediaListId: mediaListId,
-              forceDisplay: aspectRatio
-            )
-          }
-          Spacer()
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .edgesIgnoringSafeArea([.leading, .trailing])
-        .focusSection()
-      } else {
-        Grid(alignment: .leading, horizontalSpacing: 20, verticalSpacing: 80) {
-          ForEach(items.dividedIntoGroups(of: numColumns), id: \.self) { groups in
-            GridRow(alignment: .top) {
-              ForEach(groups, id: \.self) { item in
-                SectionMediaItemView(
-                  item: item, property: property,
-                  forceDisplay: aspectRatio
-                )
-              }
-              .gridColumnAlignment(.leading)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .gridColumnAlignment(.leading)
-          }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .focusSection()
-      }
-    }
-    .edgesIgnoringSafeArea([.leading, .trailing])
-    .padding([.top, .bottom], 40)
-    .padding([.leading], 80)
-    .focusSection()
-  }
-}
-
-struct SectionItemListView: View {
-  var property: MediaProperty
-  var mediaItemIds: [String]
-  var title: String = ""
-  var parentMediaItem: MediaPropertySectionMediaItem
-  var isSearch: Bool = false
-
-  private var items: [MediaPropertySectionMediaItem] {
-    MediaItemStore.shared.observeMediaItems(ids: mediaItemIds)
-  }
-  @FocusState var isFocused
-
-  var body: some View {
-    MediaItemGridView(
-      property: property, items: items, title: title, mediaListId: parentMediaItem.id
-    )
-    .focusSection()
-    .task {
-      await MediaItemStore.shared.fetchMediaItems(
-        propertyId: property.id,
-        ids: mediaItemIds,
-        parentPermissions: parentMediaItem.resolvedPermissions,
-        permissionStates: property.permission_auth_state ?? [:])
-    }
-  }
-}
-
-struct SectionMediaItemView: View {
-  @EnvironmentObject var eluvio: EluvioAPI
-  @EnvironmentObject var router: Router
-
-  var item: MediaPropertySectionMediaItem
-  var sectionItem: MediaPropertySectionItem?
-  var property: MediaProperty
-  var mediaListId: String = ""
-  var forceDisplay: AspectRatio? = nil
-
-  var aspectRatio: AspectRatio {
-    if let forceDisplay = forceDisplay {
-      return forceDisplay
-    }
-
-    if item.thumbnail_image_square != nil {
-      return .square
-    }
-
-    if item.thumbnail_image_portrait != nil {
-      return .portrait
-    }
-
-    if item.thumbnail_image_landscape != nil {
-      return .landscape
-    }
-
-    return .square
-  }
-
-  // Prefer the image matching the (possibly forced) card ratio, falling back
-  // to the default pick.
-  var imageThumbnail: String {
-    let matching =
-      switch aspectRatio {
-      case .square: item.thumbnail_image_square?.url
-      case .portrait: item.thumbnail_image_portrait?.url
-      case .landscape: item.thumbnail_image_landscape?.url
-      }
-    return matching?.nilIfEmpty() ?? item.thumbnail()
-  }
-
-  @FocusState var isFocused
-
-  var body: some View {
-    VStack(alignment: .leading, spacing: 10) {
-      Button(action: {
-        Task {
-          var vm = MediaPropertySectionMediaItemViewModel.create(media: item)
-          vm.sectionItem = sectionItem
-          await handleSectionItemTap(
-            router: router, eluvio: eluvio,
-            property: property, mediaListId: mediaListId, viewItem: vm)
-        }
-      }) {
-        MediaCard(
-          aspectRatio: aspectRatio,
-          image: imageThumbnail,
-          isFocused: isFocused,
-          isUpcoming: item.isUpcoming,
-          startTimeString: item.startDateTimeString,
-          title: item.title ?? "",
-          isLive: item.currentlyLive,
-          showFocusedTitle: item.title ?? "" == "" ? false : true)
-      }
-      .buttonStyle(TitleButtonStyle(focused: isFocused, scale: 1.0))
-      .focused($isFocused)
-    }
-  }
-}
-
 struct SectionItemView: View {
   @EnvironmentObject var eluvio: EluvioAPI
   @EnvironmentObject var router: Router
@@ -450,11 +269,14 @@ struct SectionItemView: View {
   /// False when the section asked for cards without titles.
   var showItemTitle: Bool = true
   var viewItem: MediaPropertySectionMediaItemViewModel
+  /// Set when this card is in a media list, which autoplay needs to know
+  var mediaListId: String = ""
 
   @FocusState var isFocused
 
   var permission: ResolvedPermission? {
-    return viewItem.sectionItem?.media?.resolvedPermissions
+    // Media list items have no section item wrapping them
+    viewItem.sectionItem?.media?.resolvedPermissions ?? viewItem.mediaItem?.resolvedPermissions
   }
 
   var scaleFactor = 1.0
@@ -551,7 +373,7 @@ struct SectionItemView: View {
               await handleSectionItemTap(
                 router: router, eluvio: eluvio,
                 property: property, pageId: pageId, sectionId: sectionId,
-                viewItem: viewItem)
+                mediaListId: mediaListId, viewItem: viewItem)
             }
           }) {
             MediaCard(

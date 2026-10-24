@@ -34,10 +34,6 @@ struct SectionGridView: View {
     return false
   }
 
-  var aspectRatio: AspectRatio {
-    forceDisplay ?? items.first?.thumb_aspect_ratio ?? .square
-  }
-
   var title: String {
     return section.displayTitle
   }
@@ -58,6 +54,94 @@ struct SectionGridView: View {
     section.display?.showItemTitles != false
   }
 
+  private var gridAlignment: HorizontalAlignment {
+    switch section.displayJustification.lowercased() {
+    case "center": .center
+    case "right": .trailing
+    default: .leading
+    }
+  }
+
+  var body: some View {
+    MediaGridView(
+      property: property, pageId: pageId, sectionId: section.id,
+      title: title, items: items,
+      titleAlignment: titleAlignment, gridAlignment: gridAlignment,
+      cardTheme: cardTheme, showItemTitles: showItemTitles,
+      forceDisplay: forceDisplay, useScale: useScale,
+      margin: margin, topPadding: topPadding,
+      backgroundUrl: showBackground ? inlineBackgroundUrl : nil
+    )
+    // Keyed on section so the grid reloads when the same view instance is
+    // handed a different section (e.g. SearchView's single-section layout).
+    .task(id: section) {
+      guard let content = section.content else { return }
+      items =
+        content
+        .prefix(100)
+        .filter { $0.resolvedPermissions?.hide != true }
+        .map { MediaPropertySectionMediaItemViewModel.create(item: $0) }
+      if showBackground {
+        inlineBackgroundUrl = section.display?.inline_background_image?.url
+      }
+    }
+  }
+}
+
+/// A media list's contents as a MediaGridView - the media list counterpart of SectionGridView.
+struct MediaListGridView: View {
+  var property: MediaProperty
+  var mediaItemIds: [String]
+  var title: String = ""
+  var parentMediaItem: MediaPropertySectionMediaItem
+
+  private var items: [MediaPropertySectionMediaItem] {
+    MediaItemStore.shared.observeMediaItems(ids: mediaItemIds)
+  }
+
+  var body: some View {
+    MediaGridView(
+      property: property, mediaListId: parentMediaItem.id, title: title,
+      items: items
+        .filter { $0.resolvedPermissions?.hide != true }
+        .map { MediaPropertySectionMediaItemViewModel.create(media: $0) },
+      topPadding: 40
+    )
+    .focusSection()
+    .task {
+      await MediaItemStore.shared.fetchMediaItems(
+        propertyId: property.id,
+        ids: mediaItemIds,
+        parentPermissions: parentMediaItem.resolvedPermissions,
+        permissionStates: property.permission_auth_state ?? [:])
+    }
+  }
+}
+
+/// A titled grid of media cards - the page behind both a section's View All and a media
+/// list. Callers turn their own content into view items; this only lays them out.
+struct MediaGridView: View {
+  var property: MediaProperty
+  var pageId: String = ""
+  var sectionId: String = ""
+  /// Set when these items are the contents of a media list, which autoplay needs to know
+  var mediaListId: String = ""
+  var title: String
+  var items: [MediaPropertySectionMediaItemViewModel]
+  var titleAlignment: Alignment = .leading
+  var gridAlignment: HorizontalAlignment = .leading
+  var cardTheme: CardTheme? = nil
+  var showItemTitles = true
+  var forceDisplay: AspectRatio? = nil
+  var useScale = false
+  var margin: CGFloat = 80
+  var topPadding: CGFloat = 10
+  var backgroundUrl: String? = nil
+
+  var aspectRatio: AspectRatio {
+    forceDisplay ?? items.first?.thumb_aspect_ratio ?? .square
+  }
+
   var scale: CGFloat {
     if !useScale {
       return 1.0
@@ -72,7 +156,7 @@ struct SectionGridView: View {
 
   @State var width: CGFloat = 0
 
-  private let gridSpacing: CGFloat = 20
+  private let gridSpacing: CGFloat = 34
 
   private var itemMaxWidth: CGFloat {
     if !useScale {
@@ -86,14 +170,6 @@ struct SectionGridView: View {
     case .square: return 240
     case .portrait: return 260
     default: return 280
-    }
-  }
-
-  private var gridAlignment: HorizontalAlignment {
-    switch section.displayJustification.lowercased() {
-    case "center": .center
-    case "right": .trailing
-    default: .leading
     }
   }
 
@@ -134,7 +210,7 @@ struct SectionGridView: View {
       LazyVGrid(columns: columns, alignment: .center, spacing: gridSpacing) {
         ForEach(items, id: \.self) { item in
           SectionItemView(
-            sectionId: section.id,
+            sectionId: sectionId,
             pageId: pageId,
             property: property,
             forceDisplay: aspectRatio,
@@ -142,6 +218,7 @@ struct SectionGridView: View {
             cardTheme: cardTheme,
             showItemTitle: showItemTitles,
             viewItem: item,
+            mediaListId: mediaListId,
             scaleFactor: scale
           )
           .padding(.bottom, 40)
@@ -164,32 +241,17 @@ struct SectionGridView: View {
     )
     .background(
       Group {
-        if showBackground {
-          if let url = inlineBackgroundUrl {
-            ScaledWebImage(url: url, height: UIScreen.main)
-              .resizable()
-              .aspectRatio(contentMode: .fill)
-              .frame(maxWidth: .infinity)
-              .clipped()
-              .zIndex(-10)
-          }
+        if let url = backgroundUrl {
+          ScaledWebImage(url: url, height: UIScreen.main)
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(maxWidth: .infinity)
+            .clipped()
+            .zIndex(-10)
         }
       }
       .frame(maxWidth: .infinity)
     )
     .padding([.leading], margin)
-    // Keyed on section so the grid reloads when the same view instance is
-    // handed a different section (e.g. SearchView's single-section layout).
-    .task(id: section) {
-      guard let content = section.content else { return }
-      items =
-        content
-        .prefix(100)
-        .filter { $0.resolvedPermissions?.hide != true }
-        .map { MediaPropertySectionMediaItemViewModel.create(item: $0) }
-      if showBackground {
-        inlineBackgroundUrl = section.display?.inline_background_image?.url
-      }
-    }
   }
 }
