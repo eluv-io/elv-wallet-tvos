@@ -180,6 +180,8 @@ public class PropertyStore {
       for section in response.contents {
         if section.shouldHide {
           debugPrint("Dropping hidden section \(section.id)")
+          // A copy cached before it became hidden would otherwise keep rendering.
+          sectionCache[section.id] = nil
         } else {
           sectionCache[section.id] = section
         }
@@ -219,8 +221,18 @@ public class PropertyStore {
 }
 
 public extension MediaPropertySection {
+  /// Sign-in state never changes under a cached section: signing in or out clears the
+  /// section cache and refetches.
+  fileprivate var hiddenBySignInState: Bool {
+    switch visibility {
+    case "authenticated": AccountStore.shared.isLoggedOut
+    case "unauthenticated": !AccountStore.shared.isLoggedOut
+    default: false
+    }
+  }
+
   fileprivate var shouldHide: Bool {
-    if resolvedPermissions?.hide == true || display?.hide_on_tv == true {
+    if resolvedPermissions?.hide == true || display?.hide_on_tv == true || hiddenBySignInState {
       true
     } else if type?.lowercased() == "hero" {
       false
@@ -232,7 +244,7 @@ public extension MediaPropertySection {
   }
 
   public var shouldHideInContainer: Bool {
-    if resolvedPermissions?.hide == true || display?.hide_on_tv == true {
+    if resolvedPermissions?.hide == true || display?.hide_on_tv == true || hiddenBySignInState {
       return true
     }
     if type?.lowercased() == "hero" {

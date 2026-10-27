@@ -221,6 +221,8 @@ public final class MediaPropertySection: Identifiable, Hashable, Permissionable,
   public var type: String?
   public var hero_items: JSON?
   public var sections_resolved: [MediaPropertySection]?
+  /// "authenticated" (signed-in only), "unauthenticated" (signed-out only), or empty for always.
+  public var visibility: String?
   public var resolvedPermissions: ResolvedPermission?
   public var permissionChildren: [any Permissionable] {
     (content ?? []) + (sections_resolved ?? [])
