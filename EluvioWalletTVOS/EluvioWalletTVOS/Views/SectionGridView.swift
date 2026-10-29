@@ -22,6 +22,8 @@ struct SectionGridView: View {
   var forceDisplay: AspectRatio? = nil
   var showBackground = true
   var topPadding: CGFloat = 10
+  var gridSpacing: CGFloat = 34
+  var fixedColumnCount: Int? = nil
 
   @State var inlineBackgroundUrl: String? = nil
   var hasBackground: Bool {
@@ -70,7 +72,8 @@ struct SectionGridView: View {
       cardTheme: cardTheme, showItemTitles: showItemTitles,
       forceDisplay: forceDisplay, useScale: useScale,
       margin: margin, topPadding: topPadding,
-      backgroundUrl: showBackground ? inlineBackgroundUrl : nil
+      backgroundUrl: showBackground ? inlineBackgroundUrl : nil,
+      gridSpacing: gridSpacing, fixedColumnCount: fixedColumnCount
     )
     // Keyed on section so the grid reloads when the same view instance is
     // handed a different section (e.g. SearchView's single-section layout).
@@ -137,12 +140,23 @@ struct MediaGridView: View {
   var margin: CGFloat = 80
   var topPadding: CGFloat = 10
   var backgroundUrl: String? = nil
+  var gridSpacing: CGFloat = 34
+  /// Overrides the width-based column count and sizes the cards to fill the width;
+  /// still capped at the item count
+  var fixedColumnCount: Int? = nil
 
   var aspectRatio: AspectRatio {
     forceDisplay ?? items.first?.thumb_aspect_ratio ?? .square
   }
 
   var scale: CGFloat {
+    // A fixed column count grows the cards to fill their columns
+    if fixedColumnCount != nil, width > 0 {
+      let naturalWidth =
+        MediaCard.baseHeight(cardSize: .medium, aspectRatio: aspectRatio) * aspectRatio.value
+      return itemMaxWidth / naturalWidth
+    }
+
     if !useScale {
       return 1.0
     }
@@ -156,9 +170,11 @@ struct MediaGridView: View {
 
   @State var width: CGFloat = 0
 
-  private let gridSpacing: CGFloat = 34
-
   private var itemMaxWidth: CGFloat {
+    if let fixedColumnCount, width > 0 {
+      let gaps = CGFloat(fixedColumnCount - 1) * gridSpacing
+      return ((width - gaps) / CGFloat(fixedColumnCount)).rounded(.down)
+    }
     if !useScale {
       switch aspectRatio {
       case .square: return 245
@@ -178,7 +194,8 @@ struct MediaGridView: View {
   // gridAlignment (leading reproduces the original full-width layout).
   private var columnCount: Int {
     guard width > 0 else { return 1 }
-    let fit = max(1, Int((width + gridSpacing) / (itemMaxWidth + gridSpacing)))
+    let fit =
+      fixedColumnCount ?? max(1, Int((width + gridSpacing) / (itemMaxWidth + gridSpacing)))
     return min(fit, max(1, items.count))
   }
 

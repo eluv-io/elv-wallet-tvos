@@ -17,11 +17,15 @@ struct SecondaryFilterView: View {
     ZStack(alignment: .center) {
       Button(action: action) {
         if !imageUrl.isEmpty {
-          ScaledWebImage(url: imageUrl, height: 80)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 80, height: 80)
-            .cardThemedFilter(cardTheme, active: isFocused)
+          VStack(spacing: 10) {
+            ScaledWebImage(url: imageUrl, height: 96)
+              .resizable()
+              .scaledToFit()
+              .frame(width: 96, height: 96)
+              // A selected filter looks the same as a focused one
+              .cardThemedFilter(cardTheme, active: isFocused || selected)
+            FilterImageTitle(title: title, visible: isFocused || selected)
+          }
         } else {
           Text(title)
             .font(.rowTitle)
@@ -33,6 +37,23 @@ struct SecondaryFilterView: View {
       )
       .focused($isFocused)
     }
+  }
+}
+
+/// The filter's name under its image, shown only while the filter is focused or selected
+struct FilterImageTitle: View {
+  var title: String
+  var visible: Bool
+
+  var body: some View {
+    Text(title)
+      .font(.system(size: 24, weight: .semibold))
+      // The image button style turns a selected filter's label black, which
+      // would vanish against the dark background
+      .foregroundStyle(.white)
+      .lineLimit(1)
+      // Hidden rather than removed, so the row's height doesn't jump with focus
+      .opacity(visible ? 1 : 0)
   }
 }
 

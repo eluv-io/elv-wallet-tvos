@@ -75,8 +75,11 @@ struct SearchView: View {
             if sections.count == 1 {
               SectionGridView(
                 property: propertyVM, pageId: "main", section: sections.first!,
-                useScale: true, showBackground: false
+                margin: 0, useScale: true, showBackground: false, gridSpacing: 46,
+                fixedColumnCount: 4
               )
+              // Same inset as the filter rows, so the grid lines up under "Filters"
+              .padding(.leading)
               .focusSection()
             } else {
               ForEach(sections, id: \.self) { section in
@@ -94,6 +97,14 @@ struct SearchView: View {
         }
       }
     }
+    // Same as Android's search screen: a top-leading to bottom-trailing gradient
+    .background(
+      LinearGradient(
+        colors: [Color(hex: 0x16151F), Color(hex: 0x0C0C10)],
+        startPoint: .topLeading, endPoint: .bottomTrailing
+      )
+      .ignoresSafeArea()
+    )
     .searchable(text: $searchString, prompt: "Search \(name)", suggestions: {})
     .autocorrectionDisabled(true)
     .edgesIgnoringSafeArea([.top])

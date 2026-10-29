@@ -148,12 +148,12 @@ struct imageFilterButtonStyle: ButtonStyle {
   let focused: Bool
   let selected: Bool
   var scale = 1.08
+  static let verticalPadding: CGFloat = 10
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
       .foregroundColor(selected ? .black : .white)
-      .padding([.top, .bottom], 10)
+      .padding([.top, .bottom], Self.verticalPadding)
       .padding([.leading, .trailing], 1)
-      .opacity(configuration.isPressed || focused || selected ? 1 : 0.3)
       .scaleEffect(focused ? scale : 1, anchor: .center)
       .scaleEffect(configuration.isPressed ? 0.95 : 1)
       .animation(.easeIn(duration: 0.2), value: focused)
@@ -176,7 +176,6 @@ struct secondaryFilterButtonStyle: ButtonStyle {
         .background(selected ? .white : focused ? Color(hex: 0x8B8B8B) : .clear)
         .foregroundColor(selected ? .black : .white)
         .cornerRadius(10)
-        .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
         .scaleEffect(focused ? scale : 1, anchor: .center)
         .scaleEffect(configuration.isPressed ? 0.95 : 1)
         .animation(.easeIn(duration: 0.2), value: focused)
@@ -200,7 +199,6 @@ struct primaryFilterButtonStyle: ButtonStyle {
         .background(selected ? .white : focused ? Color(hex: 0x8B8B8B) : Color(hex: 0x3B3B3B))
         .foregroundColor(selected ? .black : .white)
         .cornerRadius(10)
-        .opacity(configuration.isPressed || focused || selected ? 1 : 0.6)
         .scaleEffect(focused ? scale : 1, anchor: .center)
         .scaleEffect(configuration.isPressed ? 0.95 : 1)
         .animation(.easeIn(duration: 0.2), value: focused)

@@ -13,8 +13,12 @@ struct PrimaryFiltersRow: View {
   }
 
   var body: some View {
-    HStack(alignment: .center, spacing: 20) {
+    // Image filters carry their name below the image, so centering on the whole
+    // button would sit "Filters" low - center it on the image instead.
+    HStack(alignment: hasImageFilters ? .top : .center, spacing: 20) {
       Text("Filters")
+        .frame(height: hasImageFilters ? PrimaryFilterView.imageHeight : nil)
+        .padding(.top, hasImageFilters ? imageFilterButtonStyle.verticalPadding : 0)
       VStack {
         ScrollView(.horizontal) {
           LazyHStack(alignment: .center, spacing: 20) {

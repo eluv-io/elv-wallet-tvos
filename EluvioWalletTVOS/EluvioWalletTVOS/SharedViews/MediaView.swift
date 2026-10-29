@@ -500,19 +500,22 @@ struct MediaCard: View {
     .frame(width: width)
   }
 
-  private func sizes() -> (width: CGFloat, height: CGFloat, cornerRadius: CGFloat) {
-    // Card height per size; portrait cards get a taller height. From this:
-    // square is height×height, landscape widens to 16:9, portrait narrows to 2:3.
+  /// Card height per size, before sizeFactor; portrait cards get a taller height. From this:
+  /// square is height×height, landscape widens to 16:9, portrait narrows to 2:3.
+  static func baseHeight(cardSize: CardSize, aspectRatio: AspectRatio) -> CGFloat {
     let isPortrait = aspectRatio == .portrait
-    var height: CGFloat =
-      switch cardSize {
-      case .extraSmall: isPortrait ? 296 : 170
-      case .small: isPortrait ? 345 : 200
-      case .medium: isPortrait ? 396 : 235
-      case .large: isPortrait ? 480 : 280
-      case .extraLarge: isPortrait ? 578 : 334
-      }
-    height *= sizeFactor
+    return switch cardSize {
+    case .extraSmall: isPortrait ? 296 : 170
+    case .small: isPortrait ? 345 : 200
+    case .medium: isPortrait ? 396 : 235
+    case .large: isPortrait ? 480 : 280
+    case .extraLarge: isPortrait ? 578 : 334
+    }
+  }
+
+  private func sizes() -> (width: CGFloat, height: CGFloat, cornerRadius: CGFloat) {
+    let isPortrait = aspectRatio == .portrait
+    let height = Self.baseHeight(cardSize: cardSize, aspectRatio: aspectRatio) * sizeFactor
 
     let cornerRadius: CGFloat =
       (cardTheme?.borderRadius.cornerRadius ?? (isPortrait ? 3 : 16)) * sizeFactor

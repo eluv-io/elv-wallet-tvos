@@ -16,15 +16,21 @@ struct PrimaryFilterView: View {
   @FocusState var isFocused
   var selected = false
 
+  static let imageHeight: CGFloat = 96
+
   var body: some View {
     // ZStack(alignment:.center){
     Button(action: action) {
       if !filter.imageUrl.isEmpty {
-        ScaledWebImage(url: filter.imageUrl, height: 80)
-          .resizable()
-          .scaledToFit()
-          .frame(height: 80)
-          .cardThemedFilter(cardTheme, active: isFocused)
+        VStack(spacing: 10) {
+          ScaledWebImage(url: filter.imageUrl, height: Self.imageHeight)
+            .resizable()
+            .scaledToFit()
+            .frame(height: Self.imageHeight)
+            // A selected filter looks the same as a focused one
+            .cardThemedFilter(cardTheme, active: isFocused || selected)
+          FilterImageTitle(title: title, visible: isFocused || selected)
+        }
       } else {
         Text(title)
           .font(.rowTitle)
