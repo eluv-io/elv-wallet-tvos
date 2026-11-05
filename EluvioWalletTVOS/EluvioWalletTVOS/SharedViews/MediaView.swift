@@ -391,7 +391,9 @@ struct MediaCard: View {
                   .lineLimit(aspectRatio == .square ? 2 : 1)
                   .bold()
                   .frame(maxWidth: .infinity, alignment: titleAlignment)
-                Spacer()
+                  // Sits just above the metadata rather than centered in the
+                  // card: 22pt to the first line, the stack's 7pt spacing included.
+                  .padding(.bottom, 22 - 7)
               }
             }
 
