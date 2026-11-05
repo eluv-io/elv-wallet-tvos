@@ -422,7 +422,7 @@ struct MediaCard: View {
             }
           }
           .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .padding(20)
+          .padding(aspectRatio == .landscape ? 19 : 12)
           .scaleEffect(sizeFactor)
         }
 
@@ -446,7 +446,7 @@ struct MediaCard: View {
                 .shadow(color: .white.opacity(0.18), radius: 7)
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-          .padding(20)
+          .padding(12)
           .scaleEffect(sizeFactor, anchor: .topTrailing)
         } else if isLive && aspectRatio != .portrait {
           Text("LIVE")
@@ -457,7 +457,7 @@ struct MediaCard: View {
             .frame(height: 19)
             .background(RoundedRectangle(cornerRadius: 6).fill(Color(hex: 0xE11D2A)))
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-          .padding(20)
+          .padding(12)
           .scaleEffect(sizeFactor, anchor: .topTrailing)
         }
 
