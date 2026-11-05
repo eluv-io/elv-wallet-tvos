@@ -399,7 +399,7 @@ struct MediaCard: View {
               if !timeString.isEmpty {
                 Text(timeString)
                   .font(.system(size: 15))
-                  .foregroundColor(Color.gray)
+                  .foregroundColor(Color(hex: 0xB3B3B3))
                   .frame(maxWidth: .infinity, alignment: titleAlignment)
               }
 
