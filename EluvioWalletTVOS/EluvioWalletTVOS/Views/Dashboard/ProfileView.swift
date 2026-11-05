@@ -59,6 +59,7 @@ struct ProfileView: View {
   @Environment(\.colorScheme) var colorScheme
   @EnvironmentObject var eluvio: EluvioAPI
   @FocusState private var signOutFocused: Bool
+  @State var userName: String = ""
   @State var address: String = ""
   @State var userId: String = ""
   @State var network: String = ""
@@ -102,6 +103,9 @@ struct ProfileView: View {
           // Left column: Profile + App
           VStack(alignment: .leading, spacing: 12) {
             Section(header: Text("ACCOUNT").foregroundColor(.white.opacity(0.6)).padding(.vertical, 8)) {
+              if !userName.isEmpty {
+                FormEntry("Email: \(userName)")
+              }
               FormEntry("Address: \(address)")
               FormEntry("User Id: \(userId)")
             }
@@ -179,6 +183,7 @@ struct ProfileView: View {
     }
     .onAppear {
       let account = AccountStore.shared.account
+      self.userName = account?.email ?? ""
       self.address = account?.getAccountAddress() ?? ""
       self.userId = account?.getAccountId() ?? ""
 
