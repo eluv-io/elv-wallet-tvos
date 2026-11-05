@@ -277,8 +277,9 @@ struct MediaCard: View {
         LinearGradient(
           stops: [
             .init(color: .clear, location: 0),
-            .init(color: .black.opacity(0.6), location: 0.62),
-            .init(color: .black.opacity(0.92), location: 1),
+            .init(color: .black.opacity(0.4), location: 0.3),
+            .init(color: .black.opacity(0.82), location: 0.62),
+            .init(color: .black.opacity(0.95), location: 1),
           ],
           startPoint: .top, endPoint: .bottom)
           .frame(height: height * 0.64)
