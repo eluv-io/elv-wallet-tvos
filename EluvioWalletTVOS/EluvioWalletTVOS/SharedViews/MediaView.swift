@@ -426,43 +426,39 @@ struct MediaCard: View {
           .scaleEffect(sizeFactor)
         }
 
-        if isUpcoming && !isFocused {
-          VStack(alignment: .trailing, spacing: 7) {
-            Spacer()
-            VStack {
-              Text("UPCOMING")
-                .font(.custom("Helvetica Neue", size: 21))
-                .foregroundColor(Color.white)
-              Text(startTimeString)
-                .font(.custom("Helvetica Neue", size: 21))
-                .foregroundColor(Color.white)
-            }
-            .padding(3)
-            .padding(.leading, 7)
-            .padding(.trailing, 7)
-            .background(RoundedRectangle(cornerRadius: 5).fill(Color.black.opacity(0.6)))
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .trailing)
+        // Both tags pin to the top-trailing corner, clear of the metadata and
+        // progress bar along the bottom. Heights are fixed rather than coming
+        // from vertical padding, matching the Android wallet's pills.
+        if isUpcoming {
+          Text(startTimeString.isEmpty ? "UPCOMING" : startTimeString)
+            .font(.system(size: 14, weight: .medium))
+            .foregroundColor(.white)
+            .lineLimit(1)
+            .padding(.horizontal, 7)
+            .frame(height: 23)
+            .background(
+              RoundedRectangle(cornerRadius: 5.5)
+                .fill(Color.black.opacity(0.7))
+                .overlay(
+                  RoundedRectangle(cornerRadius: 5.5)
+                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                )
+                .shadow(color: .white.opacity(0.18), radius: 7)
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
           .padding(20)
-          .scaleEffect(sizeFactor, anchor: .bottomTrailing)
+          .scaleEffect(sizeFactor, anchor: .topTrailing)
         } else if isLive && aspectRatio != .portrait {
-          VStack {
-            Spacer()
-            HStack {
-              Spacer()
-              Text("LIVE")
-                .font(.custom("Helvetica Neue", size: 21))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white)
-                .padding(3)
-                .padding(.leading, 7)
-                .padding(.trailing, 7)
-                .background(RoundedRectangle(cornerRadius: 5).fill(.red))
-            }
-          }
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
+          Text("LIVE")
+            .font(.system(size: 14, weight: .bold))
+            .foregroundColor(.white)
+            .lineLimit(1)
+            .padding(.horizontal, 8)
+            .frame(height: 19)
+            .background(RoundedRectangle(cornerRadius: 6).fill(Color(hex: 0xE11D2A)))
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
           .padding(20)
-          .scaleEffect(sizeFactor, anchor: .bottomTrailing)
+          .scaleEffect(sizeFactor, anchor: .topTrailing)
         }
 
         if progressValue > 0 {
