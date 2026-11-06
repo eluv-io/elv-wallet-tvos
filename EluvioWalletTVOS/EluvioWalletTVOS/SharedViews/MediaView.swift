@@ -231,6 +231,8 @@ struct MediaCard: View {
     sizes().cornerRadius
   }
   @State private var newItem: Bool = true
+  /// Top of the focused overlay's text, in the card's coordinates.
+  @State private var textTop: CGFloat?
   var permission: ResolvedPermission? = nil
   /// Theme resolved for the section this card belongs to. Without one the card
   /// renders exactly as it did before themes existed.
@@ -238,6 +240,10 @@ struct MediaCard: View {
   /// False for finished artwork that already shows its title below the card -
   /// focusing it lifts the dim, but draws nothing over the image.
   var respondToFocus: Bool = true
+  /// Content the user isn't authorized for: a flat dim (and a stroke) so the
+  /// "view purchase options" CTA reads over any image, instead of the regular
+  /// focus treatment. Focus adds a bottom gradient for the CTA and metadata.
+  var unauthorized: Bool = false
 
   /// The card's outline. A theme replaces the default rounded rectangle, and
   /// turns square cards into circles when it asks for it.
@@ -284,6 +290,20 @@ struct MediaCard: View {
           startPoint: .top, endPoint: .bottom)
           .frame(height: height * 0.64)
       }
+    }
+    .frame(width: width, height: height)
+    .clipShape(cardShape)
+  }
+
+  /// Darkens a focused unauthorized card from the first line of its text down
+  /// to the bottom edge, on top of its flat dim, so the CTA and metadata read.
+  private var unauthorizedFocusTreatment: some View {
+    VStack(spacing: 0) {
+      Spacer()
+      LinearGradient(
+        colors: [.clear, .black.opacity(0.8)],
+        startPoint: .top, endPoint: .bottom)
+        .frame(height: max(0, height - (textTop ?? height)))
     }
     .frame(width: width, height: height)
     .clipShape(cardShape)
@@ -363,18 +383,22 @@ struct MediaCard: View {
           }
         }
 
-        if hasImage {
+        if hasImage || unauthorized {
           // Cards sit slightly dimmed until focused, so focus reads as the card
           // lighting up - matching the web's 85% inactive brightness.
           Color.black
-            .opacity(isFocused ? 0 : 0.2)
+            .opacity(unauthorized ? 0.7 : isFocused ? 0 : 0.2)
             .frame(width: width, height: height)
             .clipShape(cardShape)
             .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
         }
 
         focusTreatment
-          .opacity(isFocused && respondToFocus ? 1 : 0)
+          .opacity(isFocused && respondToFocus && !unauthorized ? 1 : 0)
+          .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
+
+        unauthorizedFocusTreatment
+          .opacity(isFocused && respondToFocus && unauthorized ? 1 : 0)
           .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
 
         if isFocused && respondToFocus {
@@ -383,45 +407,51 @@ struct MediaCard: View {
               Spacer()
             }
 
-            if let perm = permission {
-              if perm.showAlternatePage || perm.purchaseGate {
-                Text("VIEW PURCHASE OPTIONS")
-                  .font(.system(size: aspectRatio == .square ? 20 : 26))
-                  .foregroundColor(Color.white)
-                  .lineLimit(aspectRatio == .square ? 2 : 1)
-                  .bold()
-                  .frame(maxWidth: .infinity, alignment: titleAlignment)
-                  // Sits just above the metadata rather than centered in the
-                  // card: 22pt to the first line, the stack's 7pt spacing included.
-                  .padding(.bottom, 22 - 7)
+            // Measured so the unauthorized gradient can start at its first line.
+            VStack(alignment: .leading, spacing: 7) {
+              if let perm = permission {
+                if perm.showAlternatePage || perm.purchaseGate {
+                  Text("VIEW PURCHASE OPTIONS")
+                    .font(.system(size: aspectRatio == .square ? 20 : 26))
+                    .foregroundColor(Color.white)
+                    .lineLimit(aspectRatio == .square ? 2 : 1)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: titleAlignment)
+                    // Sits just above the metadata rather than centered in the
+                    // card: 22pt to the first line, the stack's 7pt spacing included.
+                    .padding(.bottom, 22 - 7)
+                }
+              }
+
+              if showFocusedTitle {
+                if !timeString.isEmpty {
+                  Text(timeString)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color(hex: 0xB3B3B3))
+                    .frame(maxWidth: .infinity, alignment: titleAlignment)
+                }
+
+                if !title.isEmpty {
+                  Text(title)
+                    .font(.system(size: 22))
+                    .foregroundColor(Color.white)
+                    .lineLimit(1)
+                    .bold()
+                    .frame(maxWidth: .infinity, alignment: titleAlignment)
+                }
+
+                if !subtitle.isEmpty {
+                  Text(subtitle)
+                    .font(.system(size: 19))
+                    .foregroundColor(Color.gray)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: titleAlignment)
+                }
               }
             }
-
-            if showFocusedTitle {
-              if !timeString.isEmpty {
-                Text(timeString)
-                  .font(.system(size: 15))
-                  .foregroundColor(Color(hex: 0xB3B3B3))
-                  .frame(maxWidth: .infinity, alignment: titleAlignment)
-              }
-
-              if !title.isEmpty {
-                Text(title)
-                  .font(.system(size: 22))
-                  .foregroundColor(Color.white)
-                  .lineLimit(1)
-                  .bold()
-                  .frame(maxWidth: .infinity, alignment: titleAlignment)
-              }
-
-              if !subtitle.isEmpty {
-                Text(subtitle)
-                  .font(.system(size: 19))
-                  .foregroundColor(Color.gray)
-                  .lineLimit(1)
-                  .frame(maxWidth: .infinity, alignment: titleAlignment)
-              }
-            }
+            .onGeometryChange(for: CGFloat.self) { proxy in
+              proxy.frame(in: .named(MediaCard.cardSpace)).minY
+            } action: { textTop = $0 }
           }
           .frame(maxWidth: .infinity, maxHeight: .infinity)
           .padding(aspectRatio == .landscape ? 19 : 12)
@@ -468,6 +498,14 @@ struct MediaCard: View {
             .frame(width: width, height: height)
         }
 
+        if unauthorized {
+          // Inset by half the stroke so none of it is clipped off the card.
+          cardShape
+            .stroke(Color(hex: 0x777777), lineWidth: 3.5 * sizeFactor)
+            .padding(1.75 * sizeFactor)
+            .frame(width: width, height: height)
+        }
+
         if isFocused && !hasThemeBorder {
           AnimatedFocusRing(shape: cardShape)
             .frame(width: width, height: height)
@@ -483,6 +521,7 @@ struct MediaCard: View {
             .animation(.easeInOut(duration: MediaCard.themeAnimation), value: isFocused)
         }
       }
+      .coordinateSpace(.named(MediaCard.cardSpace))
       if showBottomTitle {
         Text(title)
           .font(.system(size: 22 * sizeFactor))
@@ -528,6 +567,8 @@ struct MediaCard: View {
   /// The web cross-fades focus over 0.5s, which drags when moving focus quickly
   /// along a row.
   private static let themeAnimation: TimeInterval = 0.3
+
+  private static let cardSpace = "mediaCard"
 }
 
 // MARK: - SwiftUI Previews

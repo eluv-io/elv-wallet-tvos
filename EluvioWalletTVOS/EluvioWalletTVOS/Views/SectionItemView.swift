@@ -290,9 +290,9 @@ struct SectionItemView: View {
 
   var disable: Bool { viewItem.disabled }
 
-  var opacity: CGFloat {
-    guard let permission, !permission.authorized else { return 1.0 }
-    return permission.behavior == .showIfUnauthorized ? 1.0 : 0.6
+  var isUnauthorized: Bool {
+    guard let permission, !permission.authorized else { return false }
+    return permission.behavior != .showIfUnauthorized
   }
 
   var aspectRatio: AspectRatio {
@@ -395,9 +395,9 @@ struct SectionItemView: View {
               sizeFactor: scaleFactor,
               permission: permission,
               cardTheme: cardTheme,
-              respondToFocus: isMediaItem
+              respondToFocus: isMediaItem,
+              unauthorized: isUnauthorized
             )
-            .opacity(opacity)
           }
           .buttonStyle(TitleButtonStyle(focused: isFocused, scale: 1.08))
           .focused($isFocused)
