@@ -187,39 +187,10 @@ final class UpNextCoordinator: ObservableObject {
   private func play(_ item: MediaPropertySectionMediaItem) {
     guard let property, let router, let eluvio else { return }
     debugPrint("Up next playing ", item.id, item.title)
+    if routeUnplayable(item) { return }
     let viewItem = MediaPropertySectionMediaItemViewModel.create(media: item)
     // The finished video goes now either way, rather than sitting on its last frame
     releasePlayer()
-
-    // A live event that has not started yet gets the countdown screen, which is what tapping
-    // it anywhere else in the app does. Autoplay returns these deliberately.
-    if item.isUpcoming {
-      debugPrint("Up next item has not started, showing the countdown ", item.id)
-      leaveCard()
-      router.replace(
-        with: .upcomingLiveEvent(
-          UpcomingVideoParams(mediaItem: item, propertyId: property.id)))
-      return
-    }
-
-    // Autoplay hands back items the viewer is not entitled to — it deliberately does not
-    // filter on permissions — so the gate takes the player's place, the same one tapping a
-    // locked card would reach, rather than playback failing on a link it cannot resolve.
-    if let permission = item.resolvedPermissions, !permission.authorized {
-      debugPrint("Up next item is not authorized, showing the gate ", item.id)
-      leaveCard()
-      do {
-        try handleUnauthorizedItem(
-          router: router, eluvio: eluvio, property: property,
-          pageId: context.pageId, sectionId: context.sectionId,
-          viewItem: viewItem, itemId: item.id, itemType: item.type,
-          mediaItem: item, permission: permission)
-      } catch {
-        print("Could not build the purchase gate for the next item ", error)
-        router.replace(with: .errorView("Could not access media."))
-      }
-      return
-    }
 
     // Prefetched during the countdown: nothing to wait for
     if let prefetched = prefetchedPlayout, prefetched.id == item.id {
@@ -240,6 +211,54 @@ final class UpNextCoordinator: ObservableObject {
         router: router, eluvio: eluvio, property: property,
         viewItem: viewItem, mediaItem: item, context: context)
     }
+  }
+
+  /// Sends the viewer wherever tapping `item` anywhere else in the app would, in the player's
+  /// place, when it is something the player cannot play itself. Autoplay and the stream selector
+  /// both hand these back deliberately. Returns false, having done nothing, for a playable item.
+  func routeUnplayable(_ item: MediaPropertySectionMediaItem) -> Bool {
+    guard let property, let router, let eluvio else { return false }
+
+    // A live event that has not started yet gets the countdown screen
+    if item.isUpcoming {
+      debugPrint("Item has not started, showing the countdown ", item.id)
+      leavePlayer()
+      router.replace(
+        with: .upcomingLiveEvent(
+          UpcomingVideoParams(mediaItem: item, propertyId: property.id)))
+      return true
+    }
+
+    // Neither autoplay nor the sidebar filters on permissions, so the gate takes the player's
+    // place, the same one tapping a locked card would reach, rather than playback failing on a
+    // link it cannot resolve.
+    if let permission = item.resolvedPermissions, !permission.authorized {
+      debugPrint("Item is not authorized, showing the gate ", item.id)
+      leavePlayer()
+      do {
+        try handleUnauthorizedItem(
+          router: router, eluvio: eluvio, property: property,
+          pageId: context.pageId, sectionId: context.sectionId,
+          viewItem: MediaPropertySectionMediaItemViewModel.create(media: item),
+          itemId: item.id, itemType: item.type,
+          mediaItem: item, permission: permission)
+      } catch {
+        print("Could not build the purchase gate ", error)
+        router.replace(with: .errorView("Could not access media."))
+      }
+      return true
+    }
+
+    return false
+  }
+
+  /// Lets go of the player, and everything presented over it, before another screen takes its
+  /// place. The player's own panels (the stream selector, subtitles) are presented off its
+  /// controller, so they'd otherwise stay up over the new screen and swallow the first Back.
+  private func leavePlayer() {
+    releasePlayer()
+    presenter()?.presentedViewController?.dismiss(animated: false)
+    leaveCard()
   }
 
   private func leaveCard() {

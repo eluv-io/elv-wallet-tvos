@@ -135,6 +135,7 @@ struct PlayerView: View {
       finished.wrappedValue = true
       upNext.offerNow()
     }
+    model.routeSelection = { item in upNext.routeUnplayable(item) }
 
     upNext.configure(
       eluvio: eluvio,

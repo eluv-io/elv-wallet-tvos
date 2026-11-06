@@ -29,7 +29,9 @@ struct StreamSelectorView: View {
         HStack(spacing: 20) {
           ForEach(viewModel.videos) { video in
             Button(action: {
-              viewModel.selectVideo(video)
+              if viewModel.routeSelection?(video) != true {
+                viewModel.selectVideo(video)
+              }
             }) {
               VideoThumbnailCard(
                 video: video,
@@ -151,6 +153,10 @@ class VideoPlayerViewModel: ObservableObject {
   var onRemainingTime: ((Double) -> Void)?
   /// Called when the current item does play to its end.
   var onFinished: (() -> Void)?
+  /// Offered a stream the viewer picked before it plays, to take over one the player can't
+  /// play itself (an event that hasn't started, or one they aren't entitled to). Returns true
+  /// when it has.
+  var routeSelection: ((MediaPropertySectionMediaItem) -> Bool)?
   /// How far before the end `onNearingEnd` fires
   private let nearingEndLeadS: Double = 0.5
 
