@@ -118,6 +118,7 @@ struct MediaPropertyRegularSectionView: View {
   // private let refreshTimer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
   @FocusState private var currentFocusItem: MediaPropertySectionMediaItemViewModel?
   @State private var lastFocusItem: MediaPropertySectionMediaItemViewModel?
+  @State private var cardRowHeight: CGFloat = 0
   var useScale = false
   var scaleFactor: CGFloat = 0.7
   var lookForBackground = false
@@ -206,7 +207,10 @@ struct MediaPropertyRegularSectionView: View {
               .focusSection()
             } else {
               ScrollView(.horizontal) {
-                HStack(alignment: .center, spacing: 30) {
+                // Lazy, so only the cards near the screen get built. Some pages can have
+                // hundreds of cards across their rows, and building them all up front held the
+                // main thread for seconds when the page opened.
+                LazyHStack(alignment: .center, spacing: 30) {
                   ForEach(Array(items.enumerated()), id: \.offset) { _, item in
                     SectionItemView(
                       sectionId: section.id,
@@ -221,9 +225,14 @@ struct MediaPropertyRegularSectionView: View {
                     )
                     .padding(.top, 0)
                     .focused($currentFocusItem, equals: item)
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: {
+                      cardRowHeight = max(cardRowHeight, $0)
+                    }
                   }
                 }
-                .frame(maxWidth: .infinity)
+                // A lazy stack only sizes itself by the cards it has built so far, which left
+                // the row shorter than its cards. Hold it at the tallest card seen.
+                .frame(minHeight: cardRowHeight)
                 .padding([.top, .bottom], 24)
                 .padding(.leading, 10 + Self.focusOverhang)
                 // Room past the last card, so scrolling to it leaves a page margin on its right,
@@ -281,8 +290,9 @@ struct MediaPropertyRegularSectionView: View {
   func refresh() async {
     debugPrint("MediaPropertyRegularSectionView refresh() ", section.displayTitle)
 
-    let max = 25
-    var count = 0
+    // Same as Android: the first display_limit shown items, or all of them when it's 0 (no
+    // limit). Hidden items don't count toward it.
+    let max = section.displayLimit > 0 ? section.displayLimit : Int.max
     var sectionItems: [MediaPropertySectionMediaItemViewModel] = []
     if let content = section.content {
       for item in content {
@@ -296,8 +306,7 @@ struct MediaPropertyRegularSectionView: View {
           self.items = sectionItems
         }
 
-        count += 1
-        if count == max {
+        if sectionItems.count == max {
           break
         }
       }
