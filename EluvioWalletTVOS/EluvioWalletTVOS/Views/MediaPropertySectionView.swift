@@ -226,6 +226,9 @@ struct MediaPropertyRegularSectionView: View {
                 .frame(maxWidth: .infinity)
                 .padding([.top, .bottom], 24)
                 .padding(.leading, 10 + Self.focusOverhang)
+                // Room past the last card, so scrolling to it leaves a page margin on its right,
+                // like the first card has on its left - and its focus scale isn't clipped.
+                .padding(.trailing, margin)
                 .focusSection()
               }
               // The scroll view clips, so a focused first card would lose the
