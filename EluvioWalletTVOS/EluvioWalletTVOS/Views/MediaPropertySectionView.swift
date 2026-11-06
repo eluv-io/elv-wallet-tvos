@@ -13,6 +13,8 @@ import SwiftyJSON
 
 struct ViewAllButton: View {
   @FocusState var isFocused
+  /// Whether focus can move onto the button. It stays focusable while it has focus.
+  var canFocus = true
   var action: () -> Void
 
   var body: some View {
@@ -24,6 +26,7 @@ struct ViewAllButton: View {
     )
     .buttonStyle(TextButtonStyle(focused: isFocused, bordered: true))
     .focused($isFocused)
+    .disabled(!canFocus && !isFocused)
     .opacity(isFocused ? 1.0 : 0.6)
   }
 }
@@ -159,7 +162,10 @@ struct MediaPropertyRegularSectionView: View {
                 }
 
                 if section.showViewAll {
-                  ViewAllButton(action: {
+                  // Like Android: only reachable with Up from this row's own cards. Down from
+                  // the row above goes straight to the cards, rather than to whichever of View
+                  // All and the cards happens to be closer to the previously focused card.
+                  ViewAllButton(canFocus: currentFocusItem != nil, action: {
                     debugPrint("View All pressed")
                     let params = SectionViewAllParams(
                       property: property,
