@@ -77,6 +77,7 @@ struct MediaPropertyDetailView: View {
   }
   @State private var activePage: MediaPropertyPage?
   @FocusState private var switcherFocused
+  @FocusState private var searchFocused: Bool
   @State private var playerItem: AVPlayerItem? = nil
   @State private var backgroundImage: String = ""
   @State private var propertyLinks: [PropertyLink]
@@ -164,6 +165,10 @@ struct MediaPropertyDetailView: View {
       }
       .frame(maxWidth: .infinity, alignment: .topLeading)
     }
+    // Land on Search. Otherwise what's focused depends on whether the sections were loaded
+    // before the page appeared: only Search is there if they weren't, the first card if they
+    // were (on a revisit).
+    .defaultFocus($searchFocused, true)
     .overlay {
       if sectionsLoading {
         Color.mainBackground
@@ -252,6 +257,7 @@ struct MediaPropertyDetailView: View {
           router.path.append(.search(SearchParams(propertyId: propertyId)))
         }, iconName: "search"
       )
+      .focused($searchFocused)
     }
   }
 
