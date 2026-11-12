@@ -213,41 +213,28 @@ func handleVideoItem(
   mediaItem: MediaPropertySectionMediaItem?,
   context: PlaybackContext = .init()
 ) async {
-  if viewItem.media_link != nil {
-    if viewItem.media_link?["."]["resolution_error"]["kind"].stringValue
-      == "permission denied"
-    {
-      let videoErrorParams = VideoPermissionErrorParams(propertyId: property.id)
-      _ = router.path.popLast()
-      router.path.append(.videoPermissionError(videoErrorParams))
-      return
-    }
-
-    do {
-      let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(
-        propertyId: property.id, mediaId: viewItem.media_id)
-      let playout = try ResolveMediaPlayoutInfo(
-        fabric: eluvio.fabric, optionsJson: optionsJson)
-      // The caller may have navigated away while playout resolved. Pushing a player
-      // then leaves one nothing can dismiss, still playing behind the screen the user
-      // went back to.
-      if Task.isCancelled { return }
-      let params = VideoParams(
-        viewItem: viewItem,
-        playout: playout,
-        property: property,
-        context: context)
-      _ = router.path.popLast()
-      router.path.append(.video(params))
-    } catch {
-      print("Error getting link url for playback ", error)
-      if Task.isCancelled { return }
-      let videoErrorParams = VideoPermissionErrorParams(propertyId: property.id)
-      _ = router.path.popLast()
-      router.path.append(.videoPermissionError(videoErrorParams))
-    }
-  } else {
+  do {
+    let optionsJson = try await eluvio.fabric.getMediaPlayoutOptions(
+      propertyId: property.id, mediaId: viewItem.media_id)
+    let playout = try ResolveMediaPlayoutInfo(
+      fabric: eluvio.fabric, optionsJson: optionsJson)
+    // The caller may have navigated away while playout resolved. Pushing a player
+    // then leaves one nothing can dismiss, still playing behind the screen the user
+    // went back to.
+    if Task.isCancelled { return }
+    let params = VideoParams(
+      viewItem: viewItem,
+      playout: playout,
+      property: property,
+      context: context)
     _ = router.path.popLast()
+    router.path.append(.video(params))
+  } catch {
+    print("Error getting link url for playback ", error)
+    if Task.isCancelled { return }
+    let videoErrorParams = VideoPermissionErrorParams(propertyId: property.id)
+    _ = router.path.popLast()
+    router.path.append(.videoPermissionError(videoErrorParams))
   }
 }
 
