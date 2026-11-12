@@ -279,6 +279,22 @@ struct MediaPropertyDetailView: View {
   }
 
   private func loadProperty() async {
+    // Some links (e.g. "property_link" hero actions) give us a slug instead of an
+    // id. Everything here assumes an id, so reopen this screen with the id the slug
+    // resolves to.
+    if !propertyId.hasPrefix("iq__") {
+      do {
+        let id = try await PropertyStore.shared.resolvePropertyId(slug: propertyId)
+        router.replace(
+          with: .property(
+            PropertyParam(propertyId: id, pageId: pageId, propertyLinks: propertyLinks)))
+      } catch {
+        print("Error resolving property slug \(propertyId): \(error)")
+        _ = router.path.popLast()
+      }
+      return
+    }
+
     async let fetchProperty: () = PropertyStore.shared.fetchProperty(id: propertyId)
     async let loadPropertyLinks: () = loadPropertyLinks()
     async let loadPage: () = loadPage()

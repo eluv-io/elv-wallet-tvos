@@ -852,6 +852,10 @@ struct MediaPropertyHeroActions: View {
       guard let pageId = action.pageId else { return }
       let param = PropertyParam(propertyId: property.id, pageId: pageId)
       router.path.append(.property(param))
+    case "property_link", "subproperty_link":
+      guard let propertyId = action.propertyId else { return }
+      let param = PropertyParam(propertyId: propertyId, pageId: action.pageId)
+      router.path.append(.property(param))
     case "link":
       guard let url = action.url else { return }
       let params = HtmlParams(url: url, backgroundImage: property.backgroundImage)

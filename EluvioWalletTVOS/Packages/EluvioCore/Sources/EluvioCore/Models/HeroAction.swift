@@ -10,14 +10,21 @@ public enum SectionPosition {
 public struct HeroAction: Identifiable {
   /// The server also defines "sign_in", "show_purchase" and "video" behaviors,
   /// which we don't support (and therefore don't parse) yet.
-  public static let supportedBehaviors: Set<String> = ["media_link", "page_link", "link"]
+  public static let supportedBehaviors: Set<String> = [
+    "media_link", "page_link", "link", "property_link", "subproperty_link",
+  ]
 
   public var id: String
   public var behavior: String
   /// Defined for "media_link" actions.
   public var mediaId: String?
-  /// Defined for "page_link" actions. Always a page within the current property.
+  /// Defined for "page_link" actions, where it's a page within the current
+  /// property, and optionally for "property_link"/"subproperty_link" actions,
+  /// where it's a page within the linked property.
   public var pageId: String?
+  /// Defined for "property_link" actions (where the server sends a slug, which
+  /// the property endpoint accepts in place of an id) and "subproperty_link" actions.
+  public var propertyId: String?
   /// Defined for "link" actions.
   public var url: String?
   /// Set by the property owner to keep this button off the TV apps.
@@ -34,6 +41,7 @@ public struct HeroAction: Identifiable {
     behavior: String,
     mediaId: String? = nil,
     pageId: String? = nil,
+    propertyId: String? = nil,
     url: String? = nil,
     hideOnTv: Bool = false,
     text: String,
@@ -46,6 +54,7 @@ public struct HeroAction: Identifiable {
     self.behavior = behavior
     self.mediaId = mediaId
     self.pageId = pageId
+    self.propertyId = propertyId
     self.url = url
     self.hideOnTv = hideOnTv
     self.text = text
@@ -72,14 +81,22 @@ public struct HeroAction: Identifiable {
     // apply to the current behavior, so only read the one that does.
     var mediaId: String? = nil
     var pageId: String? = nil
+    var propertyId: String? = nil
     var url: String? = nil
     switch behavior {
     case "media_link": mediaId = json["media_id"].string?.nilIfEmpty()
     case "page_link": pageId = json["page_id"].string?.nilIfEmpty()
     case "link": url = json["url"].string?.nilIfEmpty()
+    case "property_link":
+      propertyId = json["property"].string?.nilIfEmpty()
+      // A page alone has nothing to navigate to.
+      if propertyId != nil { pageId = json["property_page"].string?.nilIfEmpty() }
+    case "subproperty_link":
+      propertyId = json["subproperty"].string?.nilIfEmpty()
+      if propertyId != nil { pageId = json["subproperty_page"].string?.nilIfEmpty() }
     default: break
     }
-    if mediaId == nil && pageId == nil && url == nil {
+    if mediaId == nil && pageId == nil && propertyId == nil && url == nil {
       debugPrint("Ignoring hero action with no click target: ", json)
       return nil
     }
@@ -89,6 +106,7 @@ public struct HeroAction: Identifiable {
       behavior: behavior,
       mediaId: mediaId,
       pageId: pageId,
+      propertyId: propertyId,
       url: url,
       hideOnTv: json["hide_on_tv"].boolValue,
       text: text,

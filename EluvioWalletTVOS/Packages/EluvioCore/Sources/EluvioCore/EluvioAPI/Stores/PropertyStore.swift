@@ -123,6 +123,13 @@ public class PropertyStore {
     }
   }
 
+  /// The property endpoint accepts a slug in place of an id, but everything we
+  /// cache is keyed by id, so slugs have to be resolved before they're used anywhere else.
+  public func resolvePropertyId(slug: String) async throws -> String {
+    let property: MediaProperty = try await NetworkManager.shared.request("mw/properties/\(slug)")
+    return property.id
+  }
+
   public func getProperty(id: String) -> MediaProperty? {
     // Given the amount of Properties we are dealing with (sub 100), iterating like this should be
     // pretty fast and we don't need to bother with a hashmap for quick lookups by id
