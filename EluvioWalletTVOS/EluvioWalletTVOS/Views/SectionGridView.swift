@@ -293,6 +293,6 @@ struct MediaGridView: View {
       }
       .frame(maxWidth: .infinity)
     )
-    .padding([.leading], margin)
+    .padding(gridAlignment == .center ? .horizontal : .leading, margin)
   }
 }
