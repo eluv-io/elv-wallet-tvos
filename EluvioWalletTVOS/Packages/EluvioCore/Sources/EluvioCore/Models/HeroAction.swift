@@ -8,12 +8,6 @@ public enum SectionPosition {
 
 /// A CTA button defined on a hero item.
 public struct HeroAction: Identifiable {
-  /// The server also defines "sign_in", "show_purchase" and "video" behaviors,
-  /// which we don't support (and therefore don't parse) yet.
-  public static let supportedBehaviors: Set<String> = [
-    "media_link", "page_link", "link", "property_link", "subproperty_link",
-  ]
-
   public var id: String
   public var behavior: String
   /// Defined for "media_link" actions.
@@ -64,6 +58,11 @@ public struct HeroAction: Identifiable {
     self.cornerRadius = cornerRadius
   }
 
+  public var target: LinkTarget {
+    LinkTarget(
+      behavior: behavior, mediaId: mediaId, pageId: pageId, propertyId: propertyId, url: url)
+  }
+
   /// Returns nil for actions we can't render or act on (unsupported behavior,
   /// no button text, or no link target) - those shouldn't show a button at all.
   /// Text and styling come exclusively from the action's "button" object - the
@@ -71,43 +70,23 @@ public struct HeroAction: Identifiable {
   /// the server still emits with stale defaults, and "button_style" is ignored
   /// by agreement.
   public static func create(from json: JSON) -> HeroAction? {
-    let behavior = json["behavior"].stringValue
-    guard HeroAction.supportedBehaviors.contains(behavior) else { return nil }
+    guard LinkTarget.supportedBehaviors.contains(json["behavior"].stringValue) else { return nil }
 
     let button = json["button"]
     guard let text = button["text"].string?.nilIfEmpty() else { return nil }
 
-    // Like section items, the server doesn't clear the link fields that don't
-    // apply to the current behavior, so only read the one that does.
-    var mediaId: String? = nil
-    var pageId: String? = nil
-    var propertyId: String? = nil
-    var url: String? = nil
-    switch behavior {
-    case "media_link": mediaId = json["media_id"].string?.nilIfEmpty()
-    case "page_link": pageId = json["page_id"].string?.nilIfEmpty()
-    case "link": url = json["url"].string?.nilIfEmpty()
-    case "property_link":
-      propertyId = json["property"].string?.nilIfEmpty()
-      // A page alone has nothing to navigate to.
-      if propertyId != nil { pageId = json["property_page"].string?.nilIfEmpty() }
-    case "subproperty_link":
-      propertyId = json["subproperty"].string?.nilIfEmpty()
-      if propertyId != nil { pageId = json["subproperty_page"].string?.nilIfEmpty() }
-    default: break
-    }
-    if mediaId == nil && pageId == nil && propertyId == nil && url == nil {
+    guard let target = LinkTarget.parse(json) else {
       debugPrint("Ignoring hero action with no click target: ", json)
       return nil
     }
 
     return HeroAction(
       id: json["id"].stringValue,
-      behavior: behavior,
-      mediaId: mediaId,
-      pageId: pageId,
-      propertyId: propertyId,
-      url: url,
+      behavior: target.behavior,
+      mediaId: target.mediaId,
+      pageId: target.pageId,
+      propertyId: target.propertyId,
+      url: target.url,
       hideOnTv: json["hide_on_tv"].boolValue,
       text: text,
       backgroundColor: Color(hexString: button["background_color"].string) ?? .white,

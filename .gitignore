@@ -49,6 +49,8 @@ playground.xcworkspace
 # .swiftpm
 
 .build/
+# Written when EluvioCore is resolved standalone; the app pins versions in the xcodeproj.
+EluvioWalletTVOS/Packages/EluvioCore/Package.resolved
 
 # CocoaPods
 #

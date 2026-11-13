@@ -848,21 +848,34 @@ struct MediaPropertyHeroActions: View {
           property: property, pageId: pageId, sectionId: section.id,
           viewItem: MediaPropertySectionMediaItemViewModel.create(media: media))
       }
-    case "page_link":
-      guard let pageId = action.pageId else { return }
-      let param = PropertyParam(propertyId: property.id, pageId: pageId)
-      router.path.append(.property(param))
-    case "property_link", "subproperty_link":
-      guard let propertyId = action.propertyId else { return }
-      let param = PropertyParam(propertyId: propertyId, pageId: action.pageId)
-      router.path.append(.property(param))
-    case "link":
-      guard let url = action.url else { return }
-      let params = HtmlParams(url: url, backgroundImage: property.backgroundImage)
-      router.path.append(.html(params))
     default:
-      break
+      openLinkTarget(action.target, property: property, router: router)
     }
+  }
+}
+
+/// Navigates to a hero action's or header link's target. "media_link" targets need their
+/// media item fetched first, so callers handle those themselves.
+func openLinkTarget(_ target: LinkTarget, property: MediaProperty, router: Router) {
+  if let destination = linkDestination(target, property: property) {
+    router.path.append(destination)
+  }
+}
+
+/// The screen a link opens, or nil if it can't be opened from here.
+func linkDestination(_ target: LinkTarget, property: MediaProperty) -> NavDestination? {
+  switch target.behavior {
+  case "page_link":
+    guard let pageId = target.pageId else { return nil }
+    return .property(PropertyParam(propertyId: property.id, pageId: pageId))
+  case "property_link", "subproperty_link":
+    guard let propertyId = target.propertyId else { return nil }
+    return .property(PropertyParam(propertyId: propertyId, pageId: target.pageId))
+  case "link":
+    guard let url = target.url else { return nil }
+    return .html(HtmlParams(url: url, backgroundImage: property.backgroundImage))
+  default:
+    return nil
   }
 }
 

@@ -71,6 +71,9 @@ public class MediaProperty: Codable, Identifiable, Hashable, Permissionable {
   public var tenant: TenantDto?
   public var property_selection: [PropertySelection]?
   public var show_property_selection: Bool?
+  // Links shown in the property page's header. When defined, they replace the subproperty
+  // switcher.
+  public var header_links: JSON?
   public var domain: JSON?
 
   public static func == (lhs: MediaProperty, rhs: MediaProperty) -> Bool {
@@ -99,6 +102,14 @@ public extension MediaProperty {
   public var backgroundImage: String { image_tv?.url ?? "" }
 
   public var purchaseImage: String { purchase_settings?.background_tv?.url ?? backgroundImage }
+
+  /// Whether the server defined any header links, even ones the TV won't show.
+  public var hasHeaderLinks: Bool { header_links?.array?.isEmpty == false }
+
+  /// The header links this TV app can show to the current user.
+  public var headerLinks: [HeaderLink] {
+    header_links?.array?.compactMap { HeaderLink.create(from: $0) } ?? []
+  }
 
   public var accountType: AccountType {
     if let providerId = login?.settings?.provider_id?.nilIfEmpty() {

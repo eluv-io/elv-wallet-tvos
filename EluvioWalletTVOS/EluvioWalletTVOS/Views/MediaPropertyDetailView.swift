@@ -18,7 +18,7 @@ import SwiftyJSON
 enum ToolbarIcon {
   static let tint = Color.white
   static let focusedTint = Color(hex: 0x2D2D2D)
-  static let background = Color.black.opacity(0.5)
+  static let background = Color(hex: 0x2D2D2D)
   static let focusedBackground = Color.white
   static let glow = Color.white.opacity(0.4)
 
@@ -54,7 +54,7 @@ struct IconButton: View {
       .background(ToolbarIcon.background(focused: focused))
       .clipShape(Circle())
     }
-    .buttonStyle(IconButtonStyle(focused: focused, initialOpacity: 0.7, scale: 1.2))
+    .buttonStyle(IconButtonStyle(focused: focused, scale: 1.2))
     // Outside the style: it clips the label to a rounded rect, which would cut the glow off
     // square at the circle's bounds.
     .shadow(color: focused ? ToolbarIcon.glow : .clear, radius: 10)
@@ -150,18 +150,17 @@ struct MediaPropertyDetailView: View {
         }
         .prefersDefaultFocus(in: NamespaceProperty)
 
+        // Sized to its content, which grows while the header links menu is open: focus can't
+        // reach anything outside these bounds.
         HStack(alignment: .top) {
           Spacer()
-          VStack {
-            toolbarButtons
-            Spacer()
-          }
+          toolbarButtons
         }
         .zIndex(20)
         .focusSection()
         .padding(.trailing, 80)
         .padding(.top, 80)
-        .frame(maxWidth: .infinity, maxHeight: 120)
+        .frame(maxWidth: .infinity)
       }
       .frame(maxWidth: .infinity, alignment: .topLeading)
     }
@@ -206,8 +205,12 @@ struct MediaPropertyDetailView: View {
 
   @ViewBuilder
   private var toolbarButtons: some View {
-    HStack(spacing: 20) {
-      if propertyLinks.count >= 2 {
+    // Top-aligned so the header links menu opening doesn't move the other buttons.
+    HStack(alignment: .top, spacing: 20) {
+      if let property, property.hasHeaderLinks {
+        // Header links replace the subproperty switcher.
+        PropertyHeaderLinksMenu(property: property, pageId: pageId)
+      } else if propertyLinks.count >= 2 {
         Menu {
           Picker(selection: $selectedLinkId, label: Text("")) {
             ForEach(propertyLinks, id: \.id) { link in
@@ -322,6 +325,8 @@ struct MediaPropertyDetailView: View {
       return
     }
     guard let mediaProperty = property else { return }
+    // Header links replace the switcher, so don't bother fetching subproperties for it.
+    guard !mediaProperty.hasHeaderLinks else { return }
     guard mediaProperty.show_property_selection == true else { return }
     guard let subproperties = mediaProperty.property_selection, !subproperties.isEmpty else {
       return
