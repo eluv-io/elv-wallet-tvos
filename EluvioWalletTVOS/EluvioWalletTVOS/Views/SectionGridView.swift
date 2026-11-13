@@ -24,6 +24,8 @@ struct SectionGridView: View {
   var topPadding: CGFloat = 10
   var gridSpacing: CGFloat = 34
   var fixedColumnCount: Int? = nil
+  /// See MediaGridView.lazy
+  var lazy = true
 
   @State var inlineBackgroundUrl: String? = nil
   var hasBackground: Bool {
@@ -73,7 +75,7 @@ struct SectionGridView: View {
       forceDisplay: forceDisplay, useScale: useScale,
       margin: margin, topPadding: topPadding,
       backgroundUrl: showBackground ? inlineBackgroundUrl : nil,
-      gridSpacing: gridSpacing, fixedColumnCount: fixedColumnCount
+      gridSpacing: gridSpacing, fixedColumnCount: fixedColumnCount, lazy: lazy
     )
     // Keyed on section so the grid reloads when the same view instance is
     // handed a different section (e.g. SearchView's single-section layout).
@@ -144,6 +146,10 @@ struct MediaGridView: View {
   /// Overrides the width-based column count and sizes the cards to fill the width;
   /// still capped at the item count
   var fixedColumnCount: Int? = nil
+  /// Build cards only as they near the screen. Turn off for a grid that sits on a scrolling
+  /// page below other rows: the focus engine can only move to cards that exist, so if the
+  /// grid's first row is just off screen, Down from the row above has nowhere to go.
+  var lazy = true
 
   var aspectRatio: AspectRatio {
     forceDisplay ?? items.first?.thumb_aspect_ratio ?? .square
@@ -212,6 +218,22 @@ struct MediaGridView: View {
     Array(repeating: GridItem(.fixed(itemMaxWidth), spacing: gridSpacing), count: columnCount)
   }
 
+  private func card(_ item: MediaPropertySectionMediaItemViewModel) -> some View {
+    SectionItemView(
+      sectionId: sectionId,
+      pageId: pageId,
+      property: property,
+      forceDisplay: aspectRatio,
+      titleAlignment: titleAlignment,
+      cardTheme: cardTheme,
+      showItemTitle: showItemTitles,
+      viewItem: item,
+      mediaListId: mediaListId,
+      scaleFactor: scale
+    )
+    .padding(.bottom, 40)
+  }
+
   var body: some View {
     VStack(alignment: gridAlignment, spacing: 0) {
       HStack {
@@ -224,21 +246,23 @@ struct MediaGridView: View {
       .padding(.top, topPadding)
       .padding(.bottom, 20)
 
-      LazyVGrid(columns: columns, alignment: .center, spacing: gridSpacing) {
-        ForEach(items, id: \.self) { item in
-          SectionItemView(
-            sectionId: sectionId,
-            pageId: pageId,
-            property: property,
-            forceDisplay: aspectRatio,
-            titleAlignment: titleAlignment,
-            cardTheme: cardTheme,
-            showItemTitle: showItemTitles,
-            viewItem: item,
-            mediaListId: mediaListId,
-            scaleFactor: scale
-          )
-          .padding(.bottom, 40)
+      Group {
+        if lazy {
+          LazyVGrid(columns: columns, alignment: .center, spacing: gridSpacing) {
+            ForEach(items, id: \.self) { card($0) }
+          }
+        } else {
+          // Same layout as the LazyVGrid: fixed-width columns, cards centered in them,
+          // a short last row starting at the left.
+          VStack(alignment: .leading, spacing: gridSpacing) {
+            ForEach(Array(stride(from: 0, to: items.count, by: columnCount)), id: \.self) { start in
+              HStack(spacing: gridSpacing) {
+                ForEach(items[start..<min(start + columnCount, items.count)], id: \.self) {
+                  card($0).frame(width: itemMaxWidth)
+                }
+              }
+            }
+          }
         }
       }
       .frame(width: width > 0 ? contentWidth : nil)

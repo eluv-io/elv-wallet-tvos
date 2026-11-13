@@ -89,7 +89,7 @@ struct MediaPropertySectionGridView: View {
       SectionGridView(
         property: property, pageId: pageId, section: section,
         pageCardThemeId: pageCardThemeId, margin: margin,
-        useScale: useScale, showBackground: false)
+        useScale: useScale, showBackground: false, lazy: false)
     }
     .clipped()
     .frame(maxWidth: .infinity, maxHeight: .infinity)
